@@ -489,6 +489,15 @@ add_para(
     "was approximately 0 years (median 0 years), suggesting near-contemporaneous facility "
     "effects."
 )
+add_para(
+    "Notably, several specialty-definition combinations yielded negative lag values, indicating "
+    "that workforce changes preceded changes in incident reporting. Anaesthesiology showed a "
+    "lag of \u22124 years against the composite incident definition (r = \u22120.959), and "
+    "otolaryngology trainees showed a lag of \u22123 years against JMSR reports (r = \u22120.941). "
+    "These negative lags raise the possibility of reverse causality: rather than safety "
+    "incidents driving workforce decline, workforce shortages in these specialties may have "
+    "preceded and contributed to increased incident reporting (see Discussion)."
+)
 
 # --- Figure 2: ITS physicians (Definition 1: JMSR) ---
 add_figure(
@@ -704,6 +713,45 @@ add_para(
     "limitation."
 )
 
+add_heading_bmj("Directionality of causation: interpreting negative lag values", level=2)
+add_para(
+    "The cross-correlation analysis revealed that several specialty-definition combinations "
+    "yielded negative lag values (table 1). A negative lag indicates that the workforce "
+    "outcome variable changed before the incident variable\u2014that is, physician or trainee "
+    "numbers declined before incident reports increased. This finding is important because "
+    "it is consistent with a reverse causal pathway: workforce depletion may itself be a "
+    "driver of safety incidents, rather than (or in addition to) incidents driving workforce "
+    "decline."
+)
+add_para(
+    "Anaesthesiology is a notable example. The \u22124 year lag against the composite incident "
+    "definition (r = \u22120.959) suggests that reductions in the anaesthesiology workforce may "
+    "have preceded the subsequent increase in reported incidents. This is mechanistically "
+    "plausible: understaffed departments face higher per-physician caseloads, fatigue, and "
+    "reduced supervision of trainees, all of which are established risk factors for adverse "
+    "events.\u00b2\u2070\u2077 Similarly, the \u22123 year lag for otolaryngology trainees implies that "
+    "declining trainee enrolment preceded rather than followed incident reports."
+)
+add_para(
+    "These findings suggest a potentially bidirectional relationship between safety incidents "
+    "and workforce dynamics. For specialties with positive lags (e.g. obstetrics and "
+    "gynaecology, +3 years), the temporal sequence is consistent with the hypothesised "
+    "\u2018incident \u2192 avoidance\u2019 pathway: high-profile incidents deter entry and accelerate "
+    "exit, leading to workforce contraction after a delay. For specialties with negative "
+    "lags, the reverse pathway\u2014\u2018workforce shortage \u2192 overwork \u2192 increased incidents\u2019\u2014"
+    "may be operative. A vicious cycle in which both pathways reinforce each other is also "
+    "plausible: workforce shortages lead to more incidents, which further deter recruitment, "
+    "leading to further shortages."
+)
+add_para(
+    "Distinguishing these pathways has direct policy implications. If the dominant direction "
+    "is incident \u2192 avoidance, interventions should focus on improving public perception and "
+    "professional support after incidents. If the dominant direction is shortage \u2192 incidents, "
+    "workforce augmentation and workload reduction become the priority. The coexistence of "
+    "both positive and negative lags across specialties in our data suggests that both "
+    "mechanisms may be active, and that the relative importance may vary by specialty context."
+)
+
 add_heading_bmj("Strengths and limitations", level=2)
 add_para(
     "Strengths: This study uses population-level data from mandatory national registries, "
@@ -722,14 +770,16 @@ add_para(
     "ITS segmented regression approach assumes that the intervention (peak incident year) "
     "is exogenous and discrete, whereas in reality, incident reporting is continuous and "
     "endogenous to system-level changes (such as the establishment of the JMSR itself). "
-    "Fourth, we cannot establish causality. Unmeasured confounders\u2014including demographic "
-    "shifts, changes in medical school capacity, remuneration differentials, lifestyle "
-    "preferences, and policy interventions such as the 2004 introduction of the new "
-    "postgraduate clinical training system\u2014may explain some or all of the observed "
-    "associations. Fifth, the positive direction of the contemporaneous regression "
-    "coefficients highlights the difficulty of separating the incident signal from secular "
-    "trends in a relatively short time series. Sixth, the specialist trainee data cover "
-    "only 2018\u20132025 (8 years), severely limiting statistical power for this outcome."
+    "Fourth, we cannot establish causality. The observation of both positive and negative "
+    "lag values across specialties indicates that the causal direction may not be uniform, "
+    "and unmeasured confounders\u2014including demographic shifts, changes in medical school "
+    "capacity, remuneration differentials, lifestyle preferences, and policy interventions "
+    "such as the 2004 introduction of the new postgraduate clinical training system\u2014may "
+    "explain some or all of the observed associations. Fifth, the positive direction of the "
+    "contemporaneous regression coefficients highlights the difficulty of separating the "
+    "incident signal from secular trends in a relatively short time series. Sixth, the "
+    "specialist trainee data cover only 2018\u20132025 (8 years), severely limiting statistical "
+    "power for this outcome."
 )
 
 add_heading_bmj("Policy implications", level=2)
