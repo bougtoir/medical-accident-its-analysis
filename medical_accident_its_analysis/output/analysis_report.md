@@ -167,3 +167,178 @@
 - `output/forecast_physicians.png` — 医師数予測（6科）
 - `output/forecast_facilities.png` — 施設数予測（6科）
 - `output/forecast_trainees.png` — 専攻医数予測（9科）
+
+---
+
+# English Translation
+
+---
+
+# Time-series analysis report of medical accidents and number of doctors and facilities by department
+
+## Overview
+
+We used Interrupted Time Series (ITS) analysis to examine how the occurrence of medical accidents affects the number of doctors and medical facilities in each department. We used three types of accident definitions and analyzed 12 major medical departments.
+
+## Data source
+
+| Data | Source | Period |
+|--------|------|------|
+| Number of medical accidents (definition 1) | Japan Medical Safety Research Organization (JMSR) | 2015-2025 |
+| Number of medical-related lawsuits (definition 2) | Supreme Court | 2004-2023 |
+| Mixed index (definition 3) | Definitions 1 and 2 are normalized to [0,1] and averaged | 2015-2023 |
+| Number of doctors by department | Statistics of physicians, dentists, and pharmacists | 1994-2022 (biennial) |
+| Number of facilities by clinical department | Medical facility dynamics survey | 2002-2023 |
+| Number of new specialty physician registrations | Japan Medical Specialist Organization | 2018-2025 |
+
+## Analysis method
+
+1. **ITS segment regression**: Y_t = β0 + β1·time + β2·intervention + β3·time_after + β4·accident_rate + ε_t
+2. **Cross correlation analysis**: Lead time estimation by cross correlation after trend removal
+3. **AIC model selection**: Window period estimation
+4. **Linear trend extrapolation**: Future prediction based on trends over the last 10 years
+
+## Key results
+
+### 1. Lead time estimation (accident occurrence → impact delay on number of doctors and facilities)
+
+| Metric | Average Lead Time | Median | Weighted Average |
+|------|-----------------|---------|---------|
+| Number of doctors | 1.3 years | 2.5 years | 1.6 years |
+| Number of facilities | -0.1 year | 0.0 year | — |
+
+**Interpretation**: The impact on the number of doctors tends to appear with a delay of about 1 to 3 years after the accident. The effect on the number of facilities appears around the same time (lag ≒ 0).
+
+### 2. Window duration estimation (duration of impact)
+
+| Indicator | Average window period | Median |
+|------|-----|---------|
+| Number of doctors | 4.1 years | 4.0 years |
+| Number of facilities | 4.2 years | 5.0 years |
+
+**Interpretation**: The effects of the accident last for approximately 4-5 years.
+
+### 3. ITS analysis results (statistically significant results p<0.05)
+
+#### Definition 1 (JMSR: Medical Accident Investigation System)
+
+| Department | Dependent variable | R² | Accident effect coefficient | p-value | Interpretation |
+|---------|---------|------|-------------|------|------|
+| Obstetrics and Gynecology | Number of doctors | 0.995 | +17.7 | 0.021 | 17.7 doctors increased by 1 accident (*) |
+| Obstetrics and Gynecology | Number of facilities | 0.999 | +4.3 | 0.042 | 4.3 facilities increased by 1 accident (*) |
+| Ophthalmology | Number of facilities | 1.000 | +4.1 | 0.039 | 4.1 facilities increased by 1 accident (*) |
+
+*A positive coefficient is counterintuitive, but because the number of accidents is also increasing within the overall increasing trend, there may be an apparent positive correlation.
+
+#### Definition 2 (Litigation Statistics)
+
+| Department | Dependent variable | R² | Accident effect coefficient | p-value | Interpretation |
+|---------|---------|------|-------------|------|------|
+| Surgery | Number of doctors | 0.994 | +19.3 | <0.001 | 19.3 doctors increased due to one more lawsuit (*) |
+| Obstetrics and Gynecology | Number of doctors | 0.977 | +11.6 | <0.001 | 11.6 doctors increased by 1 lawsuit (*) |
+| Obstetrics and Gynecology | Number of facilities | 0.990 | +5.5 | <0.001 | 5.5 facilities increased by 1 lawsuit (*) |
+| Plastic Surgery | Number of Facilities | 0.999 | +4.1 | 0.005 | 4.1 Facilities Increased by 1 Lawsuit (*) |
+
+#### Combinations for which strong negative correlation was detected in cross-correlation (|r| > 0.9)
+
+| Department | Definition | Dependent variable | Lag (years) | Correlation coefficient |
+|---------|------|---------|------------|------------|
+| Obstetrics and Gynecology | JMSR | Number of doctors | +3 years | -0.946 |
+| Urology | JMSR | Number of doctors | +6 years | -0.945 |
+| Obstetrics and Gynecology | Mixed | Number of doctors | +3 years | -0.947 |
+| Anesthesiology | Mixed | Number of doctors | -4 years | -0.959 |
+| Otorhinolaryngology | Litigation | Number of doctors | +6 years | -0.973 |
+| Dermatology | Litigation | Number of doctors | +7 years | -0.988 |
+| Psychiatry | Litigation | Number of facilities | +8 years | -0.981 |
+| Dermatology | Litigation | Number of facilities | +8 years | -0.969 |
+**Notable findings**: Obstetrics and gynecology showed a strong negative correlation (r < -0.9) with the number of physicians for all three accident definitions, with a lead time of approximately 3 years. This suggests that if the number of accident reports increases in the field of obstetrics and gynecology, the decline in the number of doctors will increase after about three years.
+
+### 4. Impact on specialized physicians (correlation with JMSR accident)
+
+| Department | Lag (years) | Correlation coefficient |
+|---------|------------|---------|
+| Orthopedics | +4 years | -0.909 |
+| Otorhinolaryngology | -3 years | -0.941 |
+| Urology | -4 years | -0.902 |
+| Radiology | -1 year | -0.867 |
+| Internal medicine | -1 year | -0.806 |
+| Anesthesiology | -3 years | -0.805 |
+| Dermatology | +3 years | -0.796 |
+| Psychiatry | 0 years | -0.770 |
+
+### 5. Future prediction (2025-2034)
+
+#### Prediction of number of doctors (major departments)
+
+| Clinical Department | Annual Change | 2025 Estimate | 2030 Estimate | 2034 Estimate | Trend |
+|---------|---------|---------|------------|------------|------|
+| Internal medicine | +378 people/year | 65,541 | 67,430 | 68,940 | Increase |
+| Surgery | -260 people/year | 14,391 | 13,093 | 12,054 | Decrease |
+| Orthopedics | +190 people/year | 22,777 | 23,728 | 24,488 | Increase |
+| Obstetrics and Gynecology | +111 people/year | 12,406 | 12,958 | 13,400 | Slight increase |
+| Pediatrics | +206 people/year | 18,923 | 19,954 | 20,778 | Increase |
+| Psychiatry | +276 people/year | 18,906 | 20,285 | 21,388 | Increase |
+| Anesthesiology | +186 people/year | 11,034 | 11,965 | 12,710 | Increase |
+| Otorhinolaryngology | -16 patients/year | 8,668 | 8,588 | 8,524 | Flat to slight decrease |
+
+#### Forecast of number of facilities (main clinical departments)
+
+| Clinical Department | Annual Change | 2025 Estimate | 2030 Estimate | 2034 Estimate | Trend |
+|---------|---------|---------|------------|------------|------|
+| Internal medicine | -256 facilities/year | 66,144 | 64,862 | 63,836 | Decrease |
+| Surgery | -350 facilities/year | 13,468 | 11,718 | 10,318 | Significant decrease |
+| Pediatrics | -188 facilities/year | 19,530 | 18,589 | 17,836 | Decrease |
+| Obstetrics and Gynecology | -65 facilities/year | 5,299 | 4,974 | 4,714 | Decrease |
+| Plastic Surgery | +90 facilities/year | 3,442 | 3,892 | 4,252 | Increase |
+| Anesthesiology | +72 facilities/year | 3,358 | 3,717 | 4,005 | Increase |
+
+#### Forecast of number of specialized doctors (major medical departments)
+
+| Clinical Department | Annual Change | 2025 Estimate | 2030 Estimate | Trend |
+|---------|---------|---------|------------|------|
+| Emergency Department | +33 people/year | 476 | 643 | Significant increase |
+| Internal medicine | +30 people/year | 2,981 | 3,131 | Increase |
+| Orthopedics | +30 people/year | 748 | 897 | Increase |
+| General medical care | +20 people/year | 311 | 410 | Increase |
+| Radiology | +17 people/year | 352 | 437 | Increase |
+| Psychiatry | +16 people/year | 584 | 666 | Increase |
+| Pediatrics | -5 people/year | 529 | 502 | Slight decrease |
+| Otorhinolaryngology | -5 patients/year | 228 | 201 | Decrease |
+| Neurosurgery | -4 people/year | 221 | 203 | Slight decrease |
+
+## Limitations and precautions
+
+1. **Short time series**: JMSR accident data started in 2015 (11 years), which is lower than the minimum score required for ITS analysis (recommended 15 years or more)
+2. **Interpolation of biennial data**: Physician statistics are surveyed every two years, and linear interpolation to annual data is performed.
+3. **Limitations of Causality**: Correlation analysis does not prove causation. Possible confounding factors that affect both accidents and number of doctors
+4. **ITS error in litigation data**: In definition 2 (litigation statistics), the ITS model does not fit in multiple clinical departments (missing parameter error)
+5. **Interpretation of positive coefficients**: The reason why there are many positive accident effect coefficients in the ITS regression is that both the number of accidents and the number of doctors are on an increasing trend, and cross-correlation analysis after trend removal provides a more appropriate interpretation.
+6. **Specialist data**: Limited statistical power for only 8 years from 2018. Data for the two-story part (subspecialty) is not included.
+7. **Forecast uncertainty**: Forecasts based on linear extrapolation do not take into account structural changes (policy changes, etc.)
+
+## Conclusion
+
+- **Obstetrics and Gynecology** showed the most significant relationship between accident reports and a decrease in the number of doctors (lead time approximately 3 years, r=-0.95)
+- In **Surgery**, there was a significant relationship between the number of lawsuits and the long-term trend of decreasing number of doctors.
+- Overall **window period was estimated to be approximately 4-5 years**
+- **Number of facilities** tends to be affected around the same time as the accident (lag ≒ 0)
+- The number of **surgery** doctors and facilities is expected to continue decreasing (-260 people, -350 facilities annually)
+- The number of doctors specializing in **emergency department, general medicine, radiology** is on the rise
+
+## List of generated files
+
+### CSV data
+- `data/its_results_summary.csv` — ITS regression results (53 models)
+- `data/lead_time_estimates.csv` — Lead time estimates
+- `data/window_period_estimates.csv` — Window period estimates
+- `data/forecast_summary.csv` — Future forecast (41 forecasts)
+
+### Visualization
+- `output/its_physicians_def1.png` — ITS: Number of doctors vs. JMSR accidents (12 departments)
+- `output/its_facilities_def1.png` — ITS: Number of facilities vs. JMSR accidents (12 departments)
+- `output/its_physicians_def2.png` — ITS: Number of doctors vs. lawsuits (12 departments)
+- `output/lead_time_heatmap.png` — Lead time heatmap
+- `output/accident_trends.png` — Accident trend comparison
+- `output/forecast_physicians.png` — Forecasting the number of doctors (6 departments)
+- `output/forecast_facilities.png` — Forecasting the number of facilities (6 departments)
+- `output/forecast_trainees.png` — Prediction of number of major doctors (9 departments)
