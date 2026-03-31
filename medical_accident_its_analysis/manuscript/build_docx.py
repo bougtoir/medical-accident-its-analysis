@@ -134,8 +134,11 @@ run_t.font.name = 'Times New Roman'
 run_t.font.size = Pt(16)
 run_t.bold = True
 
-add_para("Authors: [Author names to be added]", alignment=WD_ALIGN_PARAGRAPH.CENTER)
-add_para("Correspondence to: [Corresponding author details to be added]", alignment=WD_ALIGN_PARAGRAPH.CENTER)
+add_para("Authors: Onishi Tatsuki", alignment=WD_ALIGN_PARAGRAPH.CENTER)
+add_para("Correspondence to: Onishi Tatsuki\n"
+         "Data Science AI Innovation Research Promotion Center, Shiga University\n"
+         "1-1-1, Bamba, Hikone, Shiga, 522-8522 Japan",
+         alignment=WD_ALIGN_PARAGRAPH.CENTER)
 add_para("Word count: approximately 3 800 (excluding abstract, references, tables, and figures)",
          alignment=WD_ALIGN_PARAGRAPH.CENTER, italic=True)
 add_para("Keywords: medical accidents, physician supply, interrupted time series, workforce planning, Japan, patient safety",
@@ -419,9 +422,13 @@ add_para(
 
 add_heading_bmj("Patient and public involvement", level=2)
 add_para(
-    "This study used routinely collected administrative data and involved no direct patient "
-    "contact. Patients and members of the public were not involved in the design, conduct, "
-    "or reporting of this research."
+    "No patients or members of the public were directly involved in the design, conduct, "
+    "or reporting of this research. This study used exclusively publicly available, "
+    "aggregated administrative data from national registries (physician workforce "
+    "statistics, healthcare facility surveys, medical safety incident reports, and "
+    "litigation statistics). No individual patient data were accessed. We plan to "
+    "disseminate the findings through open-access publication and policy-oriented "
+    "summaries to relevant professional organisations."
 )
 
 # ============================================================
@@ -890,9 +897,9 @@ add_para(
 add_heading_bmj("Data sharing", level=2)
 add_para(
     "The analysis code and aggregated datasets used in this study are available at "
-    "[repository URL]. The original data sources are publicly available from the Japan "
-    "Medical Safety Research Organisation, the Supreme Court of Japan, and the Ministry of "
-    "Health, Labour and Welfare."
+    "https://github.com/bougtoir/medical-accident-its-analysis. The original data sources "
+    "are publicly available from the Japan Medical Safety Research Organisation, the "
+    "Supreme Court of Japan, and the Ministry of Health, Labour and Welfare."
 )
 
 add_heading_bmj("Transparency declaration", level=2)
@@ -911,6 +918,251 @@ add_para(
 
 add_heading_bmj("Provenance and peer review", level=2)
 add_para("Not commissioned; externally peer reviewed.")
+
+# ============================================================
+# SUPPLEMENTARY MATERIALS
+# ============================================================
+doc.add_page_break()
+add_heading_bmj("Supplementary Materials", level=1)
+
+# ------ Table S1: RECORD Checklist ------
+add_heading_bmj("Supplementary Table S1. Completed RECORD Checklist", level=2)
+add_para(
+    "The RECORD statement extends the STROBE checklist for observational studies "
+    "conducted using routinely collected health data. Items are numbered per the "
+    "RECORD guideline (Benchimol et al., PLoS Med 2015;12:e1001885).",
+    italic=True, space_after=Pt(12)
+)
+
+record_headers = ["Item No.", "RECORD / STROBE Item", "Reported on page / section"]
+record_rows = [
+    ["Title and abstract", "", ""],
+    ["1", "Indicate the study design with a commonly used term in the title or abstract; "
+          "provide an informative and balanced summary of what was done and what was found.", "Title; Abstract"],
+    ["Introduction", "", ""],
+    ["2", "Explain the scientific background and rationale for the investigation being reported.", "Introduction \u00b61\u20134"],
+    ["3", "State specific objectives, including any prespecified hypotheses.", "Introduction \u00b64"],
+    ["Methods", "", ""],
+    ["4", "Present key elements of study design early in the paper.", "Methods: Study design"],
+    ["5", "Describe the setting, locations, and relevant dates, including periods of "
+          "recruitment, exposure, follow-up, and data collection.", "Methods: Data sources"],
+    ["6a", "Give the eligibility criteria, and the sources and methods of selection of participants. "
+           "Describe methods of follow-up.", "Methods: Specialties analysed"],
+    ["6b", "For matched studies, give matching criteria and number of exposed and unexposed.", "N/A"],
+    ["7", "Clearly define all outcomes, exposures, predictors, potential confounders, and effect "
+          "modifiers. Give diagnostic criteria, if applicable.", "Methods: Data sources (Definitions 1\u20133); Statistical analysis"],
+    ["8", "For each variable of interest, give sources of data and details of methods of "
+          "assessment (measurement). Describe comparability of assessment methods if there "
+          "is more than one group.", "Methods: Data sources"],
+    ["9", "Describe any efforts to address potential sources of bias.", "Methods: Lead time estimation (detrending); Discussion: Limitations"],
+    ["10", "Explain how the study size was arrived at.", "Methods: Data sources (national population-level registries; all available years used)"],
+    ["11", "Explain how quantitative variables were handled in the analyses.", "Methods: Statistical analysis"],
+    ["12", "Describe all statistical methods, including those used to control for confounding.", "Methods: Statistical analysis"],
+    ["13", "Report numbers of individuals at each stage of study.", "Results: Descriptive overview"],
+    ["14", "Give characteristics of study participants and information on exposures and "
+           "potential confounders.", "Results: Descriptive overview; Table 1"],
+    ["15", "Report numbers of outcome events or summary measures.", "Results; Tables 1\u20134"],
+    ["16", "Give unadjusted estimates and, if applicable, confounder-adjusted estimates.", "Results: Tables 1\u20134; Figures 2\u20138"],
+    ["17", "Report other analyses done\u2014e.g. analyses of subgroups and interactions.", "Results: Trainee analysis; Window period estimates"],
+    ["Discussion", "", ""],
+    ["18", "Summarise key results with reference to study objectives.", "Discussion: Principal findings"],
+    ["19", "Discuss limitations of the study, taking into account sources of potential bias "
+           "or imprecision.", "Discussion: Strengths and limitations"],
+    ["20", "Give a cautious overall interpretation of results considering objectives, "
+           "limitations, multiplicity of analyses, results from similar studies, and other "
+           "relevant evidence.", "Discussion: Comparison with existing literature; Policy implications"],
+    ["21", "Discuss the generalisability (external validity) of the study results.", "Discussion: Policy implications"],
+    ["Other information", "", ""],
+    ["22", "Give the source of funding and the role of the funders.", "Declarations: Funding"],
+    ["RECORD items", "", ""],
+    ["RECORD 1.1", "The type of data used should be specified in the title or abstract. "
+                   "When possible, the name of the databases used should be included.", "Title (interrupted time series); Abstract (JMSR, Supreme Court, MHLW surveys)"],
+    ["RECORD 1.2", "If applicable, the geographic region and time frame within which the "
+                   "study took place should be reported in the title or abstract.", "Title (Japan); Abstract (1994\u20132025)"],
+    ["RECORD 1.3", "If linkage between databases was conducted for the study, this should "
+                   "be clearly stated in the title or abstract.", "N/A (no record linkage)"],
+    ["RECORD 6.1", "The methods of study population selection (e.g. codes or algorithms used "
+                   "to identify subjects) should be listed in detail.", "Methods: Data sources; Specialties analysed"],
+    ["RECORD 6.2", "Any validation studies of the codes or algorithms used to select the "
+                   "population should be referenced.", "N/A (complete national registries used)"],
+    ["RECORD 6.3", "If the study involved linkage of databases, consider use of a flow diagram "
+                   "or other graphical display to demonstrate the data linkage process.", "N/A"],
+    ["RECORD 7.1", "A complete list of codes and algorithms used to classify exposures, "
+                   "outcomes, confounders, and effect modifiers should be provided.", "Methods: Data sources (Definitions 1\u20133)"],
+    ["RECORD 12.1", "Authors should describe the extent to which the investigators had access "
+                    "to the database population used to create the study population.", "All data sources are publicly available national aggregate statistics"],
+    ["RECORD 12.2", "Authors should provide information on the data cleaning methods used.", "Methods: Biennial data interpolated; min\u2013max normalisation for composite"],
+    ["RECORD 13.1", "Describe in detail the selection of the persons included in the study.", "Methods: Specialties analysed (12 core specialties)"],
+    ["RECORD 22.1", "Authors should provide information on how to access any supplemental "
+                    "information such as the study protocol, raw data, or programming code.", "Declarations: Data sharing; GitHub repository"],
+]
+
+# Use smaller font for the large checklist table
+table_s1 = doc.add_table(rows=1 + len(record_rows), cols=3)
+table_s1.style = 'Table Grid'
+table_s1.alignment = WD_TABLE_ALIGNMENT.CENTER
+
+for i, h in enumerate(record_headers):
+    cell = table_s1.rows[0].cells[i]
+    cell.text = ''
+    p = cell.paragraphs[0]
+    run = p.add_run(h)
+    run.bold = True
+    run.font.name = 'Times New Roman'
+    run.font.size = Pt(8)
+    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+for r_idx, row_data in enumerate(record_rows):
+    for c_idx, val in enumerate(row_data):
+        cell = table_s1.rows[r_idx + 1].cells[c_idx]
+        cell.text = ''
+        p = cell.paragraphs[0]
+        run = p.add_run(str(val))
+        run.font.name = 'Times New Roman'
+        run.font.size = Pt(8)
+        # Bold section headers (rows where col 0 is a section name, not a number)
+        if c_idx == 0 and val and not val[0].isdigit() and val != "RECORD items":
+            run.bold = True
+        elif c_idx == 0 and val == "RECORD items":
+            run.bold = True
+
+doc.add_paragraph()  # spacer
+
+# ------ Table S2: Full ITS regression results ------
+doc.add_page_break()
+add_heading_bmj("Supplementary Table S2. Full ITS Segmented Regression Results (All 53 Models)", level=2)
+add_para(
+    "Coefficients from segmented regression models: Y\u209c = \u03b2\u2080 + \u03b2\u2081\u00b7time + "
+    "\u03b2\u2082\u00b7intervention + \u03b2\u2083\u00b7time_after + \u03b2\u2084\u00b7accident_rate + \u03b5\u209c. "
+    "P values < 0.05 shown in bold in the source data.",
+    italic=True, space_after=Pt(12)
+)
+
+import pandas as pd
+DATA_DIR = "/home/ubuntu/medical_analysis/data"
+
+SPEC_EN = {
+    '\u5185\u79d1': 'Internal medicine', '\u5916\u79d1': 'General surgery',
+    '\u6574\u5f62\u5916\u79d1': 'Orthopaedic surgery', '\u5f62\u6210\u5916\u79d1': 'Plastic surgery',
+    '\u7523\u5a66\u4eba\u79d1': 'Obstetrics & gynaecology', '\u5c0f\u5150\u79d1': 'Paediatrics',
+    '\u7cbe\u795e\u79d1': 'Psychiatry', '\u773c\u79d1': 'Ophthalmology',
+    '\u8033\u9f3b\u54bd\u5589\u79d1': 'Otolaryngology', '\u6ccc\u5c3f\u5668\u79d1': 'Urology',
+    '\u76ae\u819a\u79d1': 'Dermatology', '\u9ebb\u9154\u79d1': 'Anaesthesiology',
+}
+
+df_its = pd.read_csv(os.path.join(DATA_DIR, "its_results_summary.csv"))
+
+its_headers = ["Specialty", "Definition", "Outcome", "R\u00b2", "Intervention yr",
+               "Trend coef (P)", "Level change (P)", "Slope change (P)", "Accident effect (P)"]
+
+its_rows = []
+for _, r in df_its.iterrows():
+    spec_en = SPEC_EN.get(r['specialty'], r['specialty'])
+    def_label = r['definition'] if r['definition'] != 'Mixed' else 'Composite'
+    r2 = f"{r['R_squared']:.3f}"
+    iv = str(int(r['intervention_year']))
+    trend = f"{r['trend_coef']:.1f} ({r['trend_pval']:.3f})"
+    level = f"{r['level_change_coef']:.1f} ({r['level_change_pval']:.3f})"
+    slope_val = r.get('slope_change_coef', None)
+    slope_p = r.get('slope_change_pval', None)
+    if pd.notna(slope_val) and pd.notna(slope_p):
+        slope = f"{slope_val:.1f} ({slope_p:.3f})"
+    else:
+        slope = "\u2014"
+    acc = f"{r['accident_effect_coef']:.1f} ({r['accident_effect_pval']:.3f})"
+    its_rows.append([spec_en, def_label, r['outcome'], r2, iv, trend, level, slope, acc])
+
+table_s2 = doc.add_table(rows=1 + len(its_rows), cols=len(its_headers))
+table_s2.style = 'Table Grid'
+table_s2.alignment = WD_TABLE_ALIGNMENT.CENTER
+for i, h in enumerate(its_headers):
+    cell = table_s2.rows[0].cells[i]
+    cell.text = ''
+    p = cell.paragraphs[0]
+    run = p.add_run(h)
+    run.bold = True
+    run.font.name = 'Times New Roman'
+    run.font.size = Pt(7)
+    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+for r_idx, row_data in enumerate(its_rows):
+    for c_idx, val in enumerate(row_data):
+        cell = table_s2.rows[r_idx + 1].cells[c_idx]
+        cell.text = ''
+        p = cell.paragraphs[0]
+        run = p.add_run(str(val))
+        run.font.name = 'Times New Roman'
+        run.font.size = Pt(7)
+        if c_idx > 0:
+            p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+doc.add_paragraph()
+
+# ------ Table S3: Cross-correlation coefficients ------
+doc.add_page_break()
+add_heading_bmj(
+    "Supplementary Table S3. Cross-Correlation Coefficients at Optimal Lag "
+    "for All Specialty-Definition-Outcome Combinations", level=2
+)
+add_para(
+    "Pearson correlation coefficients computed after linear detrending of both series. "
+    "Lag = years by which the incident series is shifted relative to the outcome series; "
+    "positive lag means incidents precede outcome changes.",
+    italic=True, space_after=Pt(12)
+)
+
+df_lt = pd.read_csv(os.path.join(DATA_DIR, "lead_time_estimates.csv"))
+
+lt_headers = ["Specialty", "Definition", "Outcome", "Lag (years)", "Correlation (r)"]
+lt_rows = []
+for _, r in df_lt.iterrows():
+    spec_en = SPEC_EN.get(r['specialty'], r['specialty'])
+    def_label = r['definition'] if r['definition'] != 'Mixed' else 'Composite'
+    lag = str(int(r['lead_time_years'])) if pd.notna(r['lead_time_years']) else "\u2014"
+    corr = f"{r['correlation']:.3f}" if pd.notna(r['correlation']) else "\u2014"
+    lt_rows.append([spec_en, def_label, r['outcome'], lag, corr])
+
+add_table_from_data(lt_headers, lt_rows,
+    caption="Supplementary Table S3. Cross-correlation coefficients at optimal lag")
+
+# ------ Table S4: Window period estimates ------
+doc.add_page_break()
+add_heading_bmj(
+    "Supplementary Table S4. AIC-Based Window Period Estimates "
+    "for All Specialty-Definition-Outcome Combinations", level=2
+)
+add_para(
+    "Window period = duration (years) of the binary intervention indicator yielding "
+    "the lowest AIC in the segmented regression model.",
+    italic=True, space_after=Pt(12)
+)
+
+df_wp = pd.read_csv(os.path.join(DATA_DIR, "window_period_estimates.csv"))
+
+wp_headers = ["Specialty", "Definition", "Outcome", "Window period (years)"]
+wp_rows = []
+for _, r in df_wp.iterrows():
+    spec_en = SPEC_EN.get(r['specialty'], r['specialty'])
+    def_label = r['definition'] if r['definition'] != 'Mixed' else 'Composite'
+    wp_val = str(int(r['window_years'])) if pd.notna(r['window_years']) else "\u2014"
+    wp_rows.append([spec_en, def_label, r['outcome'], wp_val])
+
+add_table_from_data(wp_headers, wp_rows,
+    caption="Supplementary Table S4. AIC-based window period estimates")
+
+# ------ Figure S1: Cross-correlation function plots ------
+doc.add_page_break()
+add_heading_bmj(
+    "Supplementary Figure S1. Cross-Correlation Function Plots", level=2
+)
+add_figure(
+    os.path.join(OUTPUT_DIR, "ccf_plots.png"),
+    "Supplementary Figure S1. Cross-correlation functions between incident counts "
+    "(JMSR, litigation, and composite) and physician numbers (detrended) at lags "
+    "\u22128 to +8 years for the 12 core specialties. Squares indicate the lag with the "
+    "most negative correlation for each definition. Positive lags indicate that changes "
+    "in incident counts precede changes in physician numbers.",
+    width=Inches(6.5)
+)
 
 # ============================================================
 # SAVE
