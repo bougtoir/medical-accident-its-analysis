@@ -487,7 +487,7 @@ add_para(
     "Table 1 presents the cross-correlation results for the specialty-definition-outcome "
     "combinations with the strongest inverse associations (|r| > 0.9). The complete set of "
     "cross-correlation coefficients at optimal lag for all combinations is provided in "
-    "supplementary table S3. Supplementary figure S1 shows the full cross-correlation "
+    "supplementary table S3. Figure 2 shows the full cross-correlation "
     "function plots at lags \u22128 to +8 years for all 12 specialties."
 )
 
@@ -528,26 +528,41 @@ add_para(
     "preceded and contributed to increased incident reporting (see Discussion)."
 )
 
-# --- Figure 2: ITS physicians (Definition 1: JMSR) ---
+# --- Figure 2: Cross-correlation function plots (promoted from Figure S1) ---
+add_figure(
+    os.path.join(OUTPUT_DIR, "ccf_plots.png"),
+    "Figure 2. Cross-correlation functions between incident counts "
+    "(JMSR, litigation, and composite) and physician numbers (detrended) at lags "
+    "\u22128 to +8 years for the 12 core specialties. Squares indicate the lag with the "
+    "most negative correlation for each definition. Positive lags indicate that changes "
+    "in incident counts precede changes in physician numbers.",
+    width=Inches(6.5)
+)
+
+# --- Figure 3: ITS physicians (Definition 1: JMSR) ---
 add_figure(
     os.path.join(OUTPUT_DIR, "its_physicians_def1.png"),
-    "Figure 2. Interrupted time series plots for physician counts against JMSR incident "
+    "Figure 3. Interrupted time series plots for physician counts against JMSR incident "
     "reports (Definition 1) for the 12 core specialties. Fitted segmented regression lines "
     "are shown with the vertical dashed line indicating the intervention year (year of peak "
     "incident reporting)."
 )
 
-# --- Figure 3: ITS physicians (Definition 2: Litigation) ---
+# --- Figure 4: ITS physicians (Definition 2: Litigation) ---
 add_figure(
     os.path.join(OUTPUT_DIR, "its_physicians_def2.png"),
-    "Figure 3. Interrupted time series plots for physician counts against medical malpractice "
-    "litigation statistics (Definition 2) for the 12 core specialties. Fitted segmented "
-    "regression lines are shown with the vertical dashed line indicating the intervention year."
+    "Figure 4. Interrupted time series plots for physician counts against medical malpractice "
+    "litigation statistics (Definition 2) for the 12 core specialties. Panels marked [R] "
+    "denote specialties where litigation peaked in the first available year (2004), "
+    "necessitating a reduced model (trend + accident effect only, without intervention "
+    "level change or slope change terms) owing to insufficient pre-intervention data. "
+    "Fitted regression lines are shown with the vertical dashed line indicating the "
+    "intervention year."
 )
 
 add_heading_bmj("Segmented regression results", level=2)
 add_para(
-    "A total of 53 ITS segmented regression models were fitted across the three definitions. "
+    "A total of 72 ITS segmented regression models were fitted across the three definitions. "
     "The median model R\u00b2 was 0.997, reflecting the strong secular trends in both incident "
     "and outcome data. Full results for all 53 models are provided in supplementary table S2."
 )
@@ -581,10 +596,10 @@ add_para(
     "detrended cross-correlation is negative."
 )
 
-# --- Figure 4: Lead time heatmap ---
+# --- Figure 5: Lead time heatmap ---
 add_figure(
     os.path.join(OUTPUT_DIR, "lead_time_heatmap.png"),
-    "Figure 4. Heatmap of estimated lead times (years) from cross-correlation analysis. "
+    "Figure 5. Heatmap of estimated lead times (years) from cross-correlation analysis. "
     "Rows represent specialties; columns represent incident definition-outcome combinations. "
     "Darker colours indicate stronger inverse correlations. Positive lag values indicate that "
     "incident changes precede outcome changes."
@@ -612,10 +627,10 @@ add_table_from_data(
     caption="Table 3. Summary of lead time and window period estimates by outcome"
 )
 
-# --- Figure 5: ITS facilities ---
+# --- Figure 6: ITS facilities ---
 add_figure(
     os.path.join(OUTPUT_DIR, "its_facilities_def1.png"),
-    "Figure 5. Interrupted time series plots for facility counts against JMSR incident "
+    "Figure 6. Interrupted time series plots for facility counts against JMSR incident "
     "reports for the 12 core specialties. Fitted segmented regression lines are shown."
 )
 
@@ -660,24 +675,24 @@ add_para(
     "followed by internal medicine and orthopaedic surgery (+30 each)."
 )
 
-# --- Figure 6: Forecast physicians ---
+# --- Figure 7: Forecast physicians ---
 add_figure(
     os.path.join(OUTPUT_DIR, "forecast_physicians.png"),
-    "Figure 6. Projected physician counts for selected specialties, 2025\u20132034, based on "
+    "Figure 7. Projected physician counts for selected specialties, 2025\u20132034, based on "
     "linear trend extrapolation with 95% prediction intervals."
 )
 
-# --- Figure 7: Forecast facilities ---
+# --- Figure 8: Forecast facilities ---
 add_figure(
     os.path.join(OUTPUT_DIR, "forecast_facilities.png"),
-    "Figure 7. Projected facility counts for selected specialties, 2025\u20132034, based on "
+    "Figure 8. Projected facility counts for selected specialties, 2025\u20132034, based on "
     "linear trend extrapolation with 95% prediction intervals."
 )
 
-# --- Figure 8: Forecast trainees ---
+# --- Figure 9: Forecast trainees ---
 add_figure(
     os.path.join(OUTPUT_DIR, "forecast_trainees.png"),
-    "Figure 8. Projected specialist trainee enrolment for selected specialties, 2025\u20132034, "
+    "Figure 9. Projected specialist trainee enrolment for selected specialties, 2025\u20132034, "
     "based on linear trend extrapolation with 95% prediction intervals."
 )
 
@@ -986,7 +1001,7 @@ record_rows = [
     ["14", "Give characteristics of study participants and information on exposures and "
            "potential confounders.", "Results: Descriptive overview; Table 1"],
     ["15", "Report numbers of outcome events or summary measures.", "Results; Tables 1\u20134"],
-    ["16", "Give unadjusted estimates and, if applicable, confounder-adjusted estimates.", "Results: Tables 1\u20134; Figures 2\u20138"],
+    ["16", "Give unadjusted estimates and, if applicable, confounder-adjusted estimates.", "Results: Tables 1\u20134; Figures 2\u20139"],
     ["17", "Report other analyses done\u2014e.g. analyses of subgroups and interactions.", "Results: Trainee analysis; Window period estimates"],
     ["Discussion", "", ""],
     ["18", "Summarise key results with reference to study objectives.", "Discussion: Principal findings"],
@@ -1054,7 +1069,7 @@ doc.add_paragraph()  # spacer
 
 # ------ Table S2: Full ITS regression results ------
 doc.add_page_break()
-add_heading_bmj("Supplementary Table S2. Full ITS Segmented Regression Results (All 53 Models)", level=2)
+add_heading_bmj("Supplementary Table S2. Full ITS Segmented Regression Results (All 72 Models)", level=2)
 add_para(
     "Coefficients from segmented regression models: Y\u209c = \u03b2\u2080 + \u03b2\u2081\u00b7time + "
     "\u03b2\u2082\u00b7intervention + \u03b2\u2083\u00b7time_after + \u03b2\u2084\u00b7accident_rate + \u03b5\u209c. "
@@ -1086,7 +1101,12 @@ for _, r in df_its.iterrows():
     r2 = f"{r['R_squared']:.3f}"
     iv = str(int(r['intervention_year']))
     trend = f"{r['trend_coef']:.1f} ({r['trend_pval']:.3f})"
-    level = f"{r['level_change_coef']:.1f} ({r['level_change_pval']:.3f})"
+    level_val = r.get('level_change_coef', None)
+    level_p = r.get('level_change_pval', None)
+    if pd.notna(level_val) and pd.notna(level_p):
+        level = f"{level_val:.1f} ({level_p:.3f})"
+    else:
+        level = "\u2014"
     slope_val = r.get('slope_change_coef', None)
     slope_p = r.get('slope_change_pval', None)
     if pd.notna(slope_val) and pd.notna(slope_p):
@@ -1173,20 +1193,7 @@ for _, r in df_wp.iterrows():
 add_table_from_data(wp_headers, wp_rows,
     caption="Supplementary Table S4. AIC-based window period estimates")
 
-# ------ Figure S1: Cross-correlation function plots ------
-doc.add_page_break()
-add_heading_bmj(
-    "Supplementary Figure S1. Cross-Correlation Function Plots", level=2
-)
-add_figure(
-    os.path.join(OUTPUT_DIR, "ccf_plots.png"),
-    "Supplementary Figure S1. Cross-correlation functions between incident counts "
-    "(JMSR, litigation, and composite) and physician numbers (detrended) at lags "
-    "\u22128 to +8 years for the 12 core specialties. Squares indicate the lag with the "
-    "most negative correlation for each definition. Positive lags indicate that changes "
-    "in incident counts precede changes in physician numbers.",
-    width=Inches(6.5)
-)
+# (Figure S1 promoted to main Figure 2; supplementary figure section removed)
 
 # ============================================================
 # SAVE

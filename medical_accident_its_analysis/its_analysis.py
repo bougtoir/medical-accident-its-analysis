@@ -194,37 +194,75 @@ def its_segmented_regression(accident_series, outcome_series, intervention_year=
     outcome = outcome_series.loc[common_idx].values.astype(float)
     if intervention_year is None:
         intervention_year = common_idx[np.argmax(accidents)]
+    # Determine model type based on pre-intervention data availability.
+    pre_count = sum(1 for y in common_idx if y < intervention_year)
     time = np.arange(len(common_idx))
-    intervention = np.array([1 if y >= intervention_year else 0 for y in common_idx])
-    time_after = np.array([y - intervention_year if y >= intervention_year else 0 for y in common_idx])
-    X = np.column_stack([time, intervention, time_after, accidents])
-    X = sm.add_constant(X)
+    if pre_count >= 2:
+        # Full model: constant + time + intervention + time_after + accidents
+        intervention = np.array([1 if y >= intervention_year else 0 for y in common_idx])
+        time_after = np.array([y - intervention_year if y >= intervention_year else 0 for y in common_idx])
+        X = sm.add_constant(np.column_stack([time, intervention, time_after, accidents]))
+        model_type = 'full'
+    else:
+        # Reduced model: peak at first year means all data is post-intervention.
+        # Drop intervention/time_after (collinear with constant) and fit
+        # a simpler trend + accident_effect model.
+        X = sm.add_constant(np.column_stack([time, accidents]))
+        model_type = 'reduced'
     try:
         model = sm.OLS(outcome, X).fit()
-        return {
-            'model': model,
-            'intervention_year': intervention_year,
-            'years': common_idx,
-            'outcome': outcome,
-            'accidents': accidents,
-            'params': {
-                'intercept': model.params[0],
-                'trend': model.params[1],
-                'level_change': model.params[2],
-                'slope_change': model.params[3],
-                'accident_effect': model.params[4],
-            },
-            'pvalues': {
-                'intercept': model.pvalues[0],
-                'trend': model.pvalues[1],
-                'level_change': model.pvalues[2],
-                'slope_change': model.pvalues[3],
-                'accident_effect': model.pvalues[4],
-            },
-            'r_squared': model.rsquared,
-            'fitted': model.fittedvalues,
-            'conf_int': model.conf_int(),
-        }
+        if model_type == 'reduced':
+            return {
+                'model': model,
+                'intervention_year': intervention_year,
+                'years': common_idx,
+                'outcome': outcome,
+                'accidents': accidents,
+                'params': {
+                    'intercept': model.params[0],
+                    'trend': model.params[1],
+                    'level_change': None,
+                    'slope_change': None,
+                    'accident_effect': model.params[2],
+                },
+                'pvalues': {
+                    'intercept': model.pvalues[0],
+                    'trend': model.pvalues[1],
+                    'level_change': None,
+                    'slope_change': None,
+                    'accident_effect': model.pvalues[2],
+                },
+                'r_squared': model.rsquared,
+                'fitted': model.fittedvalues,
+                'conf_int': model.conf_int(),
+                'reduced_model': True,
+            }
+        else:
+            return {
+                'model': model,
+                'intervention_year': intervention_year,
+                'years': common_idx,
+                'outcome': outcome,
+                'accidents': accidents,
+                'params': {
+                    'intercept': model.params[0],
+                    'trend': model.params[1],
+                    'level_change': model.params[2],
+                    'slope_change': model.params[3],
+                    'accident_effect': model.params[4],
+                },
+                'pvalues': {
+                    'intercept': model.pvalues[0],
+                    'trend': model.pvalues[1],
+                    'level_change': model.pvalues[2],
+                    'slope_change': model.pvalues[3],
+                    'accident_effect': model.pvalues[4],
+                },
+                'r_squared': model.rsquared,
+                'fitted': model.fittedvalues,
+                'conf_int': model.conf_int(),
+                'reduced_model': False,
+            }
     except Exception as e:
         print(f"  ITS regression error: {e}")
         return None
@@ -666,7 +704,8 @@ for i, spec in enumerate(core_specialties):
         ax.plot(its['years'], its['outcome'], 'bo-', label='Observed', markersize=4)
         ax.plot(its['years'], its['fitted'], 'r-', label='ITS Fitted', linewidth=2)
         ax.axvline(x=its['intervention_year'], color='gray', linestyle='--', alpha=0.7)
-        ax.set_title(f"{en(spec)}\nR2={its['r_squared']:.3f}, acc_eff={its['params']['accident_effect']:.1f}")
+        reduced_tag = ' [R]' if its.get('reduced_model') else ''
+        ax.set_title(f"{en(spec)}{reduced_tag}\nR2={its['r_squared']:.3f}, acc_eff={its['params']['accident_effect']:.1f}")
     else:
         ax.set_title(f'{en(spec)}\n(No result)')
     ax.set_xlabel('Year')
