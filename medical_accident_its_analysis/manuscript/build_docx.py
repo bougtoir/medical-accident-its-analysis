@@ -288,7 +288,7 @@ intro_paras = [
     "Chosa Kiko) was established in 2015 under a revision to the Medical Care Act, creating "
     "a mandatory reporting system for unexpected deaths potentially related to medical "
     "care.{11} Second, the Supreme Court of Japan publishes annual statistics on medical "
-    "malpractice litigation by specialty.{12,24} Additionally, Japan conducts biennial national "
+    "malpractice litigation by specialty.{12,13} Additionally, Japan conducts biennial national "
     "surveys of all practising physicians and maintains annual records of healthcare facility "
     "registrations by specialty\u2014providing unusually detailed, population-level workforce data.",
 
@@ -310,9 +310,9 @@ add_para(
     "We conducted an interrupted time series (ITS) analysis using routinely collected "
     "national administrative data from Japan. This study is reported in accordance with "
     "the RECORD (REporting of studies Conducted using Observational Routinely-collected "
-    "health Data) statement,{13,25} which extends the STROBE guidelines, and the Cochrane "
+    "health Data) statement,{14,15} which extends the Strengthening the Reporting of Observational Studies in Epidemiology (STROBE) guidelines, and the Cochrane "
     "Effective Practice and Organisation of Care (EPOC) criteria for interrupted time "
-    "series studies.{14} A completed RECORD checklist is provided in supplementary table S1."
+    "series studies.{16} A completed RECORD checklist is provided in supplementary table S1."
 )
 
 add_heading_bmj("Data sources", level=2)
@@ -341,7 +341,7 @@ add_para(
     "Specialty-specific physician counts were obtained from the National Survey of "
     "Physicians, Dentists, and Pharmacists (Ishi Shika Ishi Yakuzaishi Chosa), conducted "
     "biennially by the Ministry of Health, Labour and Welfare, covering 1994\u20132022 (with "
-    "2024 provisional estimates).{15} Each physician is counted once under their self-reported "
+    "2024 provisional estimates).{17} Each physician is counted once under their self-reported "
     "primary specialty. As the survey is biennial, annual values were obtained by linear "
     "interpolation between survey years."
 )
@@ -349,7 +349,7 @@ add_para(
 add_heading_bmj("Healthcare facility data", level=3)
 add_para(
     "Specialty-specific facility counts were obtained from the Survey of Medical "
-    "Institutions (Iryo Shisetsu Dotai Chosa), covering 2002\u20132024.{16} A facility was "
+    "Institutions (Iryo Shisetsu Dotai Chosa), covering 2002\u20132024.{18} A facility was "
     "counted as providing a given specialty if it was listed among the facility\u2019s "
     "registered clinical departments (hyoboka)."
 )
@@ -358,7 +358,7 @@ add_heading_bmj("Specialist trainee data", level=3)
 add_para(
     "New specialist trainee (senkoi) enrolment counts by basic specialty domain were "
     "obtained from the Japan Board of Medical Specialties (Nihon Senmon-i Kiko) for "
-    "2018\u20132025.{17} These data cover the 19 basic specialty domains of the two-tier board "
+    "2018\u20132025.{19} These data cover the 19 basic specialty domains of the two-tier board "
     "certification system introduced in 2018; sub-specialty (second-tier) data were not "
     "available."
 )
@@ -379,7 +379,7 @@ add_heading_bmj("Statistical analysis", level=2)
 add_heading_bmj("Interrupted time series segmented regression", level=3)
 add_para(
         "For each specialty-outcome-definition combination, we fitted the following segmented "
-        "regression model, following established ITS methodology:{21-23}"
+        "regression model, following established ITS methodology:{20-22}"
 )
 eq = doc.add_paragraph()
 eq.alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -436,7 +436,7 @@ add_heading_bmj("Software", level=3)
 add_para(
     "All analyses were performed in Python 3.11 using NumPy 1.24, SciPy 1.11 (for "
     "cross-correlation and interpolation), statsmodels 0.14 (for OLS regression), and "
-    "pandas 2.0.{18-20} Analysis code and data are available at [repository URL]."
+    "pandas 2.0.{23-25} Analysis code and data are available at [repository URL]."
 )
 
 add_heading_bmj("Patient and public involvement", level=2)
@@ -760,7 +760,7 @@ add_para(
     "have preceded the subsequent increase in reported incidents. This is mechanistically "
     "plausible: understaffed departments face higher per-physician caseloads, fatigue, and "
     "reduced supervision of trainees, all of which are established risk factors for adverse "
-    "events.{20,27} Similarly, the \u22123 year lag for otolaryngology trainees implies that "
+    "events.{25,27} Similarly, the \u22123 year lag for otolaryngology trainees implies that "
     "declining trainee enrolment preceded rather than followed incident reports."
 )
 add_para(
@@ -795,7 +795,7 @@ add_para(
     "Limitations: Several important limitations should be acknowledged. First, the JMSR data "
     "series begins in 2015, providing only 11 annual data points\u2014below the recommended "
     "minimum of approximately 12 pre-intervention and 12 post-intervention time points for "
-    "ITS analysis.{14} The litigation series, while longer (2004\u20132023), has its own "
+    "ITS analysis.{16} The litigation series, while longer (2004\u20132023), has its own "
     "limitations in coverage. Second, the biennial physician survey data required linear "
     "interpolation to annual values, which may smooth short-term fluctuations. Third, the "
     "ITS segmented regression approach assumes that the intervention (peak incident year) "
@@ -866,19 +866,19 @@ references = [
     "10. Morita H. Criminal prosecution and physician supply. Int Rev Law Econ 2018;55:1-11.",
     "11. Japan Medical Safety Research Organisation. Annual report on medical accident investigation. Tokyo: JMSR; 2025. Available from: https://www.medsafe.or.jp/",
     "12. Supreme Court of Japan. Annual report of judicial statistics: medical malpractice litigation. Tokyo: Supreme Court; 2024. [in Japanese]",
-    "13. Benchimol EI, Smeeth L, Guttmann A, et al. The REporting of studies Conducted using Observational Routinely-collected health Data (RECORD) statement. PLoS Med 2015;12:e1001885.",
-    "14. Cochrane Effective Practice and Organisation of Care (EPOC). Interrupted time series (ITS) analyses. EPOC resources for review authors. 2017.",
-    "15. Ministry of Health, Labour and Welfare. Survey of physicians, dentists, and pharmacists. Tokyo: MHLW; 2023. [in Japanese]",
-    "16. Ministry of Health, Labour and Welfare. Survey of medical institutions (dynamic survey). Tokyo: MHLW; 2024. [in Japanese]",
-    "17. Japan Board of Medical Specialties. Specialist trainee registration statistics. Tokyo: JBMS; 2025. [in Japanese]",
-    "18. Harris CR, Millman KJ, van der Walt SJ, et al. Array programming with NumPy. Nature 2020;585:357-62.",
-    "19. Virtanen P, Gommers R, Oliphant TE, et al. SciPy 1.0: fundamental algorithms for scientific computing in Python. Nat Methods 2020;17:261-72.",
-    "20. Seabold S, Perktold J. Statsmodels: econometric and statistical modeling with Python. Proceedings of the 9th Python in Science Conference. 2010:92-6.",
-    "21. Penfold RB, Zhang F. Use of interrupted time series analysis in evaluating health care quality improvements. Acad Pediatr 2013;13:S38-44.",
-    "22. Hategeka C, Ruton H, Karamouzian M, et al. Use of interrupted time series methods in the evaluation of health system quality improvement interventions: a methodological systematic review. BMJ Glob Health 2020;5:e003567.",
-    "23. Turner SL, Karahalios A, Forbes AB, et al. Comparison of six statistical methods for interrupted time series studies: empirical evaluation of 190 published series. BMC Med Res Methodol 2021;21:134.",
-    "24. Taniguchi K, Watari T, Nagoshi K. Characteristics and trends of medical malpractice claims in Japan between 2006 and 2021. PLoS One 2024;19:e0296155.",
-    "25. Langan SM, Schmidt SAJ, Wing K, et al. The reporting of studies conducted using observational routinely collected health data statement for pharmacoepidemiology (RECORD-PE). BMJ 2018;363:k3532.",
+    "13. Taniguchi K, Watari T, Nagoshi K. Characteristics and trends of medical malpractice claims in Japan between 2006 and 2021. PLoS One 2024;19:e0296155.",
+    "14. Benchimol EI, Smeeth L, Guttmann A, et al. The REporting of studies Conducted using Observational Routinely-collected health Data (RECORD) statement. PLoS Med 2015;12:e1001885.",
+    "15. Langan SM, Schmidt SAJ, Wing K, et al. The reporting of studies conducted using observational routinely collected health data statement for pharmacoepidemiology (RECORD-PE). BMJ 2018;363:k3532.",
+    "16. Cochrane Effective Practice and Organisation of Care (EPOC). Interrupted time series (ITS) analyses. EPOC resources for review authors. 2017.",
+    "17. Ministry of Health, Labour and Welfare. Survey of physicians, dentists, and pharmacists. Tokyo: MHLW; 2023. [in Japanese]",
+    "18. Ministry of Health, Labour and Welfare. Survey of medical institutions (dynamic survey). Tokyo: MHLW; 2024. [in Japanese]",
+    "19. Japan Board of Medical Specialties. Specialist trainee registration statistics. Tokyo: JBMS; 2025. [in Japanese]",
+    "20. Penfold RB, Zhang F. Use of interrupted time series analysis in evaluating health care quality improvements. Acad Pediatr 2013;13:S38-44.",
+    "21. Hategeka C, Ruton H, Karamouzian M, et al. Use of interrupted time series methods in the evaluation of health system quality improvement interventions: a methodological systematic review. BMJ Glob Health 2020;5:e003567.",
+    "22. Turner SL, Karahalios A, Forbes AB, et al. Comparison of six statistical methods for interrupted time series studies: empirical evaluation of 190 published series. BMC Med Res Methodol 2021;21:134.",
+    "23. Harris CR, Millman KJ, van der Walt SJ, et al. Array programming with NumPy. Nature 2020;585:357-62.",
+    "24. Virtanen P, Gommers R, Oliphant TE, et al. SciPy 1.0: fundamental algorithms for scientific computing in Python. Nat Methods 2020;17:261-72.",
+    "25. Seabold S, Perktold J. Statsmodels: econometric and statistical modeling with Python. Proceedings of the 9th Python in Science Conference. 2010:92-6.",
     "26. Higuchi A, Takita M, Tanimoto T, et al. Long-term impact of Japan\u2019s nuclear plant accident on deployment of physicians in Fukushima. Preprint. SSRN. 2020. doi:10.2139/ssrn.3710618.",
     "27. Currie J, MacLeod WB. First do no harm? Tort reform and birth outcomes. Q J Econ 2008;123:795-830.",
     "28. Iizuka T. Does higher malpractice pressure deter medical errors? J Law Econ 2013;56:161-88.",
@@ -904,7 +904,7 @@ add_para("[To be completed by authors]")
 
 add_heading_bmj("Competing interests", level=2)
 add_para(
-    "All authors have completed the ICMJE uniform disclosure form at "
+    "All authors have completed the International Committee of Medical Journal Editors (ICMJE) uniform disclosure form at "
     "www.icmje.org/disclosure-of-interest/ and declare: no support from any organisation "
     "for the submitted work; no financial relationships with any organisations that might "
     "have an interest in the submitted work in the previous three years; no other "
