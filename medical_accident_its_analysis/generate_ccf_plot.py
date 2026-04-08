@@ -75,8 +75,8 @@ for i, spec in enumerate(core_specialties):
         ax.legend(fontsize=8, loc='upper right')
 
 plt.suptitle(
-    'Figure S3. Cross-correlation functions between incident counts and physician numbers\n'
-    '(detrended) at lags −8 to +8 years. Squares indicate the lag with the most negative correlation.',
+    'Figure S1. Cross-correlation functions between incident counts and physician numbers\n'
+    '(detrended) at lags \u22128 to +8 years. Squares indicate the lag with the most negative correlation.',
     fontsize=12, y=0.99
 )
 plt.tight_layout(rect=[0, 0, 1, 0.96])

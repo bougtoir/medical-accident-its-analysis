@@ -69,6 +69,21 @@ trainee_specialties = [
     '\u7dcf\u5408\u8a3a\u7642'
 ]
 
+SPEC_EN = {
+    '内科': 'Internal medicine', '外科': 'General surgery',
+    '整形外科': 'Orthopaedic surgery', '形成外科': 'Plastic surgery',
+    '産婦人科': 'Obstetrics & gynaecology', '小児科': 'Paediatrics',
+    '精神科': 'Psychiatry', '眼科': 'Ophthalmology',
+    '耳鼻咽喉科': 'Otolaryngology', '泌尿器科': 'Urology',
+    '皮膚科': 'Dermatology', '麻酔科': 'Anaesthesiology',
+    '脳神経外科': 'Neurosurgery', '放射線科': 'Radiology',
+    '救急科': 'Emergency medicine', 'リハビリテーション科': 'Rehabilitation',
+    '総合診療': 'General practice',
+}
+
+def en(spec):
+    return SPEC_EN.get(spec, spec)
+
 print(f"Core specialties: {len(core_specialties)}")
 
 # ============================================================
@@ -474,12 +489,12 @@ for i, spec in enumerate(core_specialties):
         ax.plot(its['years'], its['fitted'], 'r-', label='ITS Fitted', linewidth=2)
         ax.axvline(x=its['intervention_year'], color='gray', linestyle='--', alpha=0.7,
                    label=f"Peak ({its['intervention_year']})")
-        ax.set_title(f"{spec}\nR2={its['r_squared']:.3f}")
+        ax.set_title(f"{en(spec)}\nR2={its['r_squared']:.3f}")
     else:
         phys = get_physician_series(spec)
         if not phys.empty:
             ax.plot(phys.index, phys.values, 'bo-', markersize=4)
-        ax.set_title(f'{spec}\n(Insufficient overlap)')
+        ax.set_title(f'{en(spec)}\n(Insufficient overlap)')
     ax.set_xlabel('Year')
     ax.set_ylabel('Physician Count')
     if i == 0:
@@ -500,12 +515,12 @@ for i, spec in enumerate(core_specialties):
         ax.plot(its['years'], its['outcome'], 'go-', label='Observed', markersize=4)
         ax.plot(its['years'], its['fitted'], 'r-', label='ITS Fitted', linewidth=2)
         ax.axvline(x=its['intervention_year'], color='gray', linestyle='--', alpha=0.7)
-        ax.set_title(f"{spec}\nR2={its['r_squared']:.3f}")
+        ax.set_title(f"{en(spec)}\nR2={its['r_squared']:.3f}")
     else:
         fac = get_facility_series(spec)
         if not fac.empty:
             ax.plot(fac.index, fac.values, 'go-', markersize=4)
-        ax.set_title(f'{spec}\n(Insufficient overlap)')
+        ax.set_title(f'{en(spec)}\n(Insufficient overlap)')
     ax.set_xlabel('Year')
     ax.set_ylabel('Facility Count')
 plt.tight_layout()
@@ -529,7 +544,7 @@ for ax_idx, outcome_name in enumerate(['physicians', 'facilities']):
     ax.set_xticks(range(3))
     ax.set_xticklabels(def_labels)
     ax.set_yticks(range(len(core_specialties)))
-    ax.set_yticklabels(core_specialties)
+    ax.set_yticklabels([en(s) for s in core_specialties])
     ax.set_title(f'Lead Time (years)\n{outcome_name}')
     for i in range(len(core_specialties)):
         for j in range(3):
@@ -556,7 +571,7 @@ for i, spec in enumerate(key_specs):
         ax.fill_between(fr['forecast_years'], fr['forecast_lower'], fr['forecast_upper'],
                         alpha=0.2, color='red', label='95% CI')
         ax.axvline(x=2024, color='gray', linestyle=':', alpha=0.5)
-    ax.set_title(spec)
+    ax.set_title(en(spec))
     ax.set_xlabel('Year')
     ax.set_ylabel('Physician Count')
     ax.legend(fontsize=8)
@@ -579,7 +594,7 @@ for i, spec in enumerate(key_specs):
         ax.fill_between(fr['forecast_years'], fr['forecast_lower'], fr['forecast_upper'],
                         alpha=0.2, color='red', label='95% CI')
         ax.axvline(x=2024, color='gray', linestyle=':', alpha=0.5)
-    ax.set_title(spec)
+    ax.set_title(en(spec))
     ax.set_xlabel('Year')
     ax.set_ylabel('Facility Count')
     ax.legend(fontsize=8)
@@ -605,7 +620,7 @@ for i, spec in enumerate(train_specs):
         ax.fill_between(fr['forecast_years'], fr['forecast_lower'], fr['forecast_upper'],
                         alpha=0.2, color='red', label='95% CI')
         ax.axvline(x=2024, color='gray', linestyle=':', alpha=0.5)
-    ax.set_title(spec)
+    ax.set_title(en(spec))
     ax.set_xlabel('Year')
     ax.set_ylabel('Trainee Count')
     ax.legend(fontsize=8)
@@ -627,7 +642,7 @@ for i, spec in enumerate(core_specialties):
         ax.plot(jmsr.index, jmsr.values, 'b.-', label='JMSR', markersize=4)
     if not lit.empty:
         ax2.plot(lit.index, lit.values, 'r.-', label='Litigation', markersize=4)
-    ax.set_title(spec)
+    ax.set_title(en(spec))
     ax.set_xlabel('Year')
     ax.set_ylabel('JMSR Cases', color='blue')
     ax2.set_ylabel('Litigation Cases', color='red')
@@ -651,9 +666,9 @@ for i, spec in enumerate(core_specialties):
         ax.plot(its['years'], its['outcome'], 'bo-', label='Observed', markersize=4)
         ax.plot(its['years'], its['fitted'], 'r-', label='ITS Fitted', linewidth=2)
         ax.axvline(x=its['intervention_year'], color='gray', linestyle='--', alpha=0.7)
-        ax.set_title(f"{spec}\nR2={its['r_squared']:.3f}, acc_eff={its['params']['accident_effect']:.1f}")
+        ax.set_title(f"{en(spec)}\nR2={its['r_squared']:.3f}, acc_eff={its['params']['accident_effect']:.1f}")
     else:
-        ax.set_title(f'{spec}\n(No result)')
+        ax.set_title(f'{en(spec)}\n(No result)')
     ax.set_xlabel('Year')
     ax.set_ylabel('Physician Count')
 plt.tight_layout()
