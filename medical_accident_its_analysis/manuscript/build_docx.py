@@ -7,6 +7,7 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.enum.table import WD_TABLE_ALIGNMENT
 from docx.enum.section import WD_ORIENT
 import os
+import re
 
 OUTPUT_DIR = "/home/ubuntu/medical_analysis/output"
 MANUSCRIPT_DIR = "/home/ubuntu/medical_analysis/manuscript"
@@ -35,13 +36,31 @@ def add_heading_bmj(text, level=1):
         run.font.name = 'Times New Roman'
     return h
 
+def _add_runs_with_citations(p, text, font_size=Pt(12), bold=False, italic=False):
+    """Split *text* on {ref} markers and add runs with Word-native superscript for citations."""
+    parts = re.split(r'(\{[^}]+\})', text)
+    for part in parts:
+        if part.startswith('{') and part.endswith('}'):
+            # Citation marker – render as superscript
+            citation_text = part[1:-1]  # e.g. "1-3" or "8,9" or "10,26"
+            run = p.add_run(citation_text)
+            run.font.name = 'Times New Roman'
+            run.font.size = Pt(10)
+            run.font.superscript = True
+            run.bold = False
+            run.italic = False
+        else:
+            if not part:
+                continue
+            run = p.add_run(part)
+            run.font.name = 'Times New Roman'
+            run.font.size = font_size
+            run.bold = bold
+            run.italic = italic
+
 def add_para(text, bold=False, italic=False, alignment=None, space_after=Pt(6)):
     p = doc.add_paragraph()
-    run = p.add_run(text)
-    run.font.name = 'Times New Roman'
-    run.font.size = Pt(12)
-    run.bold = bold
-    run.italic = italic
+    _add_runs_with_citations(p, text, bold=bold, italic=italic)
     if alignment:
         p.alignment = alignment
     p.paragraph_format.space_after = space_after
@@ -249,18 +268,18 @@ add_heading_bmj("Introduction", level=1)
 intro_paras = [
     "The relationship between medical safety incidents and physician workforce dynamics "
     "is of growing importance to health systems worldwide. Concerns that malpractice risk "
-    "drives physicians away from high-risk specialties have been raised for decades,\u00b9\u207b\u00b3 "
+    "drives physicians away from high-risk specialties have been raised for decades,{1-3} "
     "yet quantitative evidence remains limited, geographically concentrated in the United "
-    "States, and largely focused on tort reform rather than incident occurrence itself.\u2074\u207b\u2076",
+    "States, and largely focused on tort reform rather than incident occurrence itself.{4-6}",
 
     "Japan provides a particularly informative setting for studying this phenomenon. In "
     "2004, an obstetrician at Fukushima Prefectural Ohno Hospital was arrested following "
     "a maternal death during caesarean section, and subsequently prosecuted in 2006 for "
-    "professional negligence causing death.\u2077 Although the physician was acquitted in 2008, "
+    "professional negligence causing death.{7} Although the physician was acquitted in 2008, "
     "the case precipitated widespread concern among physicians and is widely regarded as a "
     "catalyst for the subsequent decline in obstetricians willing to provide delivery "
-    "services.\u2078\u02d9\u2079 Morita estimated a 13% decrease in obstetricians in the affected "
-    "prefecture using difference-in-differences and synthetic control methods.\u00b9\u2070 However, "
+    "services.{8,9} Morita estimated a 13% decrease in obstetricians in the affected "
+    "prefecture using difference-in-differences and synthetic control methods.{10} However, "
     "this analysis was limited to a single event, a single specialty, and a single "
     "geographic area.",
 
@@ -268,8 +287,8 @@ intro_paras = [
     "incidents. First, the Japan Medical Safety Research Organisation (JMSR; Iryo Anzen "
     "Chosa Kiko) was established in 2015 under a revision to the Medical Care Act, creating "
     "a mandatory reporting system for unexpected deaths potentially related to medical "
-    "care.\u00b9\u00b9 Second, the Supreme Court of Japan publishes annual statistics on medical "
-    "malpractice litigation by specialty.\u00b9\u00b2 \u00b2\u2074 Additionally, Japan conducts biennial national "
+    "care.{11} Second, the Supreme Court of Japan publishes annual statistics on medical "
+    "malpractice litigation by specialty.{12,24} Additionally, Japan conducts biennial national "
     "surveys of all practising physicians and maintains annual records of healthcare facility "
     "registrations by specialty\u2014providing unusually detailed, population-level workforce data.",
 
@@ -291,9 +310,9 @@ add_para(
     "We conducted an interrupted time series (ITS) analysis using routinely collected "
     "national administrative data from Japan. This study is reported in accordance with "
     "the RECORD (REporting of studies Conducted using Observational Routinely-collected "
-    "health Data) statement,\u00b9\u00b3 \u00b2\u2075 which extends the STROBE guidelines, and the Cochrane "
+    "health Data) statement,{13,25} which extends the STROBE guidelines, and the Cochrane "
     "Effective Practice and Organisation of Care (EPOC) criteria for interrupted time "
-    "series studies.\u00b9\u2074 A completed RECORD checklist is provided in supplementary table S1."
+    "series studies.{14} A completed RECORD checklist is provided in supplementary table S1."
 )
 
 add_heading_bmj("Data sources", level=2)
@@ -301,14 +320,14 @@ add_heading_bmj("Data sources", level=2)
 add_heading_bmj("Medical safety incident data", level=3)
 add_para(
     "Definition 1 (JMSR): Annual specialty-specific incident reports to the Japan Medical "
-    "Safety Research Organisation for fiscal years 2015\u20132025.\u00b9\u00b9 Reporting is mandatory for "
+    "Safety Research Organisation for fiscal years 2015\u20132025.{11} Reporting is mandatory for "
     "all medical institutions when a death occurs that may have been caused by medical care. "
     "Data are publicly available and categorised by the specialty department where the "
     "incident occurred."
 )
 add_para(
     "Definition 2 (Litigation): Annual specialty-specific medical malpractice closed-claim "
-    "counts from the Supreme Court of Japan for 2004\u20132023.\u00b9\u00b2 These data capture resolved "
+    "counts from the Supreme Court of Japan for 2004\u20132023.{12} These data capture resolved "
     "civil litigation cases and are stratified by the defendant physician\u2019s specialty."
 )
 add_para(
@@ -322,7 +341,7 @@ add_para(
     "Specialty-specific physician counts were obtained from the National Survey of "
     "Physicians, Dentists, and Pharmacists (Ishi Shika Ishi Yakuzaishi Chosa), conducted "
     "biennially by the Ministry of Health, Labour and Welfare, covering 1994\u20132022 (with "
-    "2024 provisional estimates).\u00b9\u2075 Each physician is counted once under their self-reported "
+    "2024 provisional estimates).{15} Each physician is counted once under their self-reported "
     "primary specialty. As the survey is biennial, annual values were obtained by linear "
     "interpolation between survey years."
 )
@@ -330,7 +349,7 @@ add_para(
 add_heading_bmj("Healthcare facility data", level=3)
 add_para(
     "Specialty-specific facility counts were obtained from the Survey of Medical "
-    "Institutions (Iryo Shisetsu Dotai Chosa), covering 2002\u20132024.\u00b9\u2076 A facility was "
+    "Institutions (Iryo Shisetsu Dotai Chosa), covering 2002\u20132024.{16} A facility was "
     "counted as providing a given specialty if it was listed among the facility\u2019s "
     "registered clinical departments (hyoboka)."
 )
@@ -339,7 +358,7 @@ add_heading_bmj("Specialist trainee data", level=3)
 add_para(
     "New specialist trainee (senkoi) enrolment counts by basic specialty domain were "
     "obtained from the Japan Board of Medical Specialties (Nihon Senmon-i Kiko) for "
-    "2018\u20132025.\u00b9\u2077 These data cover the 19 basic specialty domains of the two-tier board "
+    "2018\u20132025.{17} These data cover the 19 basic specialty domains of the two-tier board "
     "certification system introduced in 2018; sub-specialty (second-tier) data were not "
     "available."
 )
@@ -360,7 +379,7 @@ add_heading_bmj("Statistical analysis", level=2)
 add_heading_bmj("Interrupted time series segmented regression", level=3)
 add_para(
         "For each specialty-outcome-definition combination, we fitted the following segmented "
-        "regression model, following established ITS methodology:²¹⁻²³"
+        "regression model, following established ITS methodology:{21-23}"
 )
 eq = doc.add_paragraph()
 eq.alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -417,7 +436,7 @@ add_heading_bmj("Software", level=3)
 add_para(
     "All analyses were performed in Python 3.11 using NumPy 1.24, SciPy 1.11 (for "
     "cross-correlation and interpolation), statsmodels 0.14 (for OLS regression), and "
-    "pandas 2.0.\u00b9\u2078\u207b\u00b2\u2070 Analysis code and data are available at [repository URL]."
+    "pandas 2.0.{18-20} Analysis code and data are available at [repository URL]."
 )
 
 add_heading_bmj("Patient and public involvement", level=2)
@@ -677,18 +696,18 @@ add_para(
     "physician supply, with an estimated lead time of 1\u20133 years and an effect duration "
     "(window period) of 4\u20135 years. Obstetrics and gynaecology showed the most consistent "
     "and strongest associations, corroborating previous findings from the Fukushima "
-    "prosecution case,\u00b9\u2070 \u00b2\u2076 but extending these to a national, multi-definition framework."
+    "prosecution case,{10,26} but extending these to a national, multi-definition framework."
 )
 
 add_heading_bmj("Comparison with existing literature", level=2)
 add_para(
     "The magnitude and direction of the association we observed for obstetrics and "
     "gynaecology is consistent with Morita\u2019s finding of a 13% decrease in obstetricians "
-    "following the 2006 prosecution,\u00b9\u2070 and with the broader literature on "
-    "malpractice-driven specialty avoidance.\u00b9\u207b\u00b3 Studdert and colleagues reported that "
+    "following the 2006 prosecution,{10} and with the broader literature on "
+    "malpractice-driven specialty avoidance.{1-3} Studdert and colleagues reported that "
     "42% of physicians in high-risk specialties had restricted their practice in response "
-    "to malpractice concerns,\u00b9 and Klick and Stratmann found that tort reforms increased "
-    "the supply of physicians in high-risk specialties.\u2074 \u00b2\u2077 \u00b2\u2078"
+    "to malpractice concerns,{1} and Klick and Stratmann found that tort reforms increased "
+    "the supply of physicians in high-risk specialties.{4,27,28}"
 )
 add_para(
     "However, the present study extends this literature in several important ways. First, "
@@ -741,7 +760,7 @@ add_para(
     "have preceded the subsequent increase in reported incidents. This is mechanistically "
     "plausible: understaffed departments face higher per-physician caseloads, fatigue, and "
     "reduced supervision of trainees, all of which are established risk factors for adverse "
-    "events.\u00b2\u2070 \u00b2\u2077 Similarly, the \u22123 year lag for otolaryngology trainees implies that "
+    "events.{20,27} Similarly, the \u22123 year lag for otolaryngology trainees implies that "
     "declining trainee enrolment preceded rather than followed incident reports."
 )
 add_para(
@@ -776,7 +795,7 @@ add_para(
     "Limitations: Several important limitations should be acknowledged. First, the JMSR data "
     "series begins in 2015, providing only 11 annual data points\u2014below the recommended "
     "minimum of approximately 12 pre-intervention and 12 post-intervention time points for "
-    "ITS analysis.\u00b9\u2074 The litigation series, while longer (2004\u20132023), has its own "
+    "ITS analysis.{14} The litigation series, while longer (2004\u20132023), has its own "
     "limitations in coverage. Second, the biennial physician survey data required linear "
     "interpolation to annual values, which may smooth short-term fluctuations. Third, the "
     "ITS segmented regression approach assumes that the intervention (peak incident year) "
