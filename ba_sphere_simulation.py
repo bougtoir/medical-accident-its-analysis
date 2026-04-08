@@ -13,12 +13,10 @@ BAプロットの幾何学的拡張: 3D球面回転体による測定一致度�
 """
 
 import numpy as np
-from scipy import stats
 from scipy.interpolate import CubicSpline
 from scipy.special import legendre
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-import json
 
 
 # =============================================================================
@@ -205,7 +203,6 @@ def build_sphere_body(
     # 球面度
     # 表面積の近似計算
     dphi = phi_fine[1] - phi_fine[0]
-    dtheta = theta[1] - theta[0]
     surface_area = 0.0
     for i in range(len(phi_fine) - 1):
         r_avg = (r_fine[i] + r_fine[i + 1]) / 2
