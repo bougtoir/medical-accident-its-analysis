@@ -516,8 +516,8 @@ for spec in trainee_specialties:
 print(f"\n{'='*60}\nCreating Visualizations\n{'='*60}")
 
 # Plot 1: ITS Physicians - Def1 JMSR
-fig, axes = plt.subplots(4, 3, figsize=(20, 24))
-fig.suptitle('ITS Analysis: Physician Count vs Medical Accidents\n(Definition 1: JMSR)', fontsize=16)
+fig, axes = plt.subplots(4, 3, figsize=(20, 26))
+fig.suptitle('ITS Analysis: Physician Count vs Medical Accidents\n(Definition 1: JMSR)', fontsize=16, y=0.995)
 for i, spec in enumerate(core_specialties):
     ax = axes[i // 3, i % 3]
     key = f"{spec}_def1_jmsr_physicians"
@@ -537,14 +537,14 @@ for i, spec in enumerate(core_specialties):
     ax.set_ylabel('Physician Count')
     if i == 0:
         ax.legend(fontsize=8)
-plt.tight_layout()
+plt.tight_layout(rect=[0, 0, 1, 0.97])
 plt.savefig(f'{OUTPUT_DIR}/its_physicians_def1.png', dpi=150, bbox_inches='tight')
 plt.close()
 print("  Saved: its_physicians_def1.png")
 
 # Plot 2: ITS Facilities - Def1 JMSR
-fig, axes = plt.subplots(4, 3, figsize=(20, 24))
-fig.suptitle('ITS Analysis: Facility Count vs Medical Accidents\n(Definition 1: JMSR)', fontsize=16)
+fig, axes = plt.subplots(4, 3, figsize=(20, 26))
+fig.suptitle('ITS Analysis: Facility Count vs Medical Accidents\n(Definition 1: JMSR)', fontsize=16, y=0.995)
 for i, spec in enumerate(core_specialties):
     ax = axes[i // 3, i % 3]
     key = f"{spec}_def1_jmsr_facilities"
@@ -561,7 +561,7 @@ for i, spec in enumerate(core_specialties):
         ax.set_title(f'{en(spec)}\n(Insufficient overlap)')
     ax.set_xlabel('Year')
     ax.set_ylabel('Facility Count')
-plt.tight_layout()
+plt.tight_layout(rect=[0, 0, 1, 0.97])
 plt.savefig(f'{OUTPUT_DIR}/its_facilities_def1.png', dpi=150, bbox_inches='tight')
 plt.close()
 print("  Saved: its_facilities_def1.png")
@@ -669,8 +669,8 @@ plt.close()
 print("  Saved: forecast_trainees.png")
 
 # Plot 7: Accident Trends Comparison
-fig, axes = plt.subplots(4, 3, figsize=(20, 20))
-fig.suptitle('Medical Accident Trends by Specialty\n(JMSR vs Litigation)', fontsize=16)
+fig, axes = plt.subplots(4, 3, figsize=(20, 22))
+fig.suptitle('Medical Accident Trends by Specialty\n(JMSR vs Litigation)', fontsize=16, y=0.995)
 for i, spec in enumerate(core_specialties):
     ax = axes[i // 3, i % 3]
     jmsr = get_jmsr_series(spec)
@@ -688,14 +688,14 @@ for i, spec in enumerate(core_specialties):
         lines1, labels1 = ax.get_legend_handles_labels()
         lines2, labels2 = ax2.get_legend_handles_labels()
         ax.legend(lines1 + lines2, labels1 + labels2, fontsize=7)
-plt.tight_layout()
+plt.tight_layout(rect=[0, 0, 1, 0.97])
 plt.savefig(f'{OUTPUT_DIR}/accident_trends.png', dpi=150, bbox_inches='tight')
 plt.close()
 print("  Saved: accident_trends.png")
 
 # Plot 8: ITS Physicians - Def2 Litigation
-fig, axes = plt.subplots(4, 3, figsize=(20, 24))
-fig.suptitle('ITS Analysis: Physician Count vs Litigation\n(Definition 2)', fontsize=16)
+fig, axes = plt.subplots(4, 3, figsize=(20, 26))
+fig.suptitle('ITS Analysis: Physician Count vs Litigation\n(Definition 2)', fontsize=16, y=0.995)
 for i, spec in enumerate(core_specialties):
     ax = axes[i // 3, i % 3]
     key = f"{spec}_def2_litigation_physicians"
@@ -710,7 +710,7 @@ for i, spec in enumerate(core_specialties):
         ax.set_title(f'{en(spec)}\n(No result)')
     ax.set_xlabel('Year')
     ax.set_ylabel('Physician Count')
-plt.tight_layout()
+plt.tight_layout(rect=[0, 0, 1, 0.97])
 plt.savefig(f'{OUTPUT_DIR}/its_physicians_def2.png', dpi=150, bbox_inches='tight')
 plt.close()
 print("  Saved: its_physicians_def2.png")

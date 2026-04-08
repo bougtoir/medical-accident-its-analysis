@@ -75,10 +75,10 @@ for i, spec in enumerate(core_specialties):
         ax.legend(fontsize=8, loc='upper right')
 
 plt.suptitle(
-    'Figure S1. Cross-correlation functions between incident counts and physician numbers\n'
+    'Cross-correlation functions between incident counts and physician numbers\n'
     '(detrended) at lags \u22128 to +8 years. Squares indicate the lag with the most negative correlation.',
-    fontsize=12, y=0.99
+    fontsize=12, y=1.02
 )
-plt.tight_layout(rect=[0, 0, 1, 0.96])
+plt.tight_layout(rect=[0, 0, 1, 0.97])
 plt.savefig('/home/ubuntu/medical_analysis/output/ccf_plots.png', dpi=200, bbox_inches='tight')
 print("Saved ccf_plots.png")

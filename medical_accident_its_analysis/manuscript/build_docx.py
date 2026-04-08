@@ -510,6 +510,17 @@ add_table_from_data(
             "cross-correlations (|r| > 0.9) after linear detrending"
 )
 
+# --- Figure 2: Cross-correlation function plots (right after Table 1 / first mention) ---
+add_figure(
+    os.path.join(OUTPUT_DIR, "ccf_plots.png"),
+    "Figure 2. Cross-correlation functions between incident counts "
+    "(JMSR, litigation, and composite) and physician numbers (detrended) at lags "
+    "\u22128 to +8 years for the 12 core specialties. Squares indicate the lag with the "
+    "most negative correlation for each definition. Positive lags indicate that changes "
+    "in incident counts precede changes in physician numbers.",
+    width=Inches(6.5)
+)
+
 add_para(
     "Obstetrics and gynaecology consistently demonstrated the strongest inverse association "
     "with physician counts across all three incident definitions (r = \u22120.946 to \u22120.947), "
@@ -528,15 +539,13 @@ add_para(
     "preceded and contributed to increased incident reporting (see Discussion)."
 )
 
-# --- Figure 2: Cross-correlation function plots (promoted from Figure S1) ---
-add_figure(
-    os.path.join(OUTPUT_DIR, "ccf_plots.png"),
-    "Figure 2. Cross-correlation functions between incident counts "
-    "(JMSR, litigation, and composite) and physician numbers (detrended) at lags "
-    "\u22128 to +8 years for the 12 core specialties. Squares indicate the lag with the "
-    "most negative correlation for each definition. Positive lags indicate that changes "
-    "in incident counts precede changes in physician numbers.",
-    width=Inches(6.5)
+add_heading_bmj("Segmented regression results", level=2)
+add_para(
+    "A total of 72 ITS segmented regression models were fitted across the three definitions. "
+    "The median model R\u00b2 was 0.997, reflecting the strong secular trends in both incident "
+    "and outcome data. Full results for all 72 models are provided in supplementary table S2. "
+    "The ITS plots for physician counts under Definition 1 (JMSR) and Definition 2 (litigation) "
+    "are shown in figures 3 and 4, respectively."
 )
 
 # --- Figure 3: ITS physicians (Definition 1: JMSR) ---
@@ -560,12 +569,6 @@ add_figure(
     "intervention year."
 )
 
-add_heading_bmj("Segmented regression results", level=2)
-add_para(
-    "A total of 72 ITS segmented regression models were fitted across the three definitions. "
-    "The median model R\u00b2 was 0.997, reflecting the strong secular trends in both incident "
-    "and outcome data. Full results for all 53 models are provided in supplementary table S2."
-)
 add_para(
     "Table 2 presents the statistically significant (P<0.05) incident effect coefficients "
     "from the segmented regression models."
@@ -593,7 +596,8 @@ add_para(
     "interpretation (see Discussion). In the segmented regression framework, both incident "
     "counts and physician/facility counts share strong secular trends, which can produce "
     "paradoxically positive associations in the contemporaneous model even when the "
-    "detrended cross-correlation is negative."
+    "detrended cross-correlation is negative. "
+    "The estimated lead times across all combinations are summarised in figure 5."
 )
 
 # --- Figure 5: Lead time heatmap ---
@@ -625,6 +629,11 @@ add_table_from_data(
         ["Facility counts", "\u22120.1", "0.0", "4.2", "5.0"],
     ],
     caption="Table 3. Summary of lead time and window period estimates by outcome"
+)
+
+add_para(
+    "Corresponding ITS plots for facility counts under Definition 1 (JMSR) are shown in "
+    "figure 6."
 )
 
 # --- Figure 6: ITS facilities ---
@@ -672,7 +681,9 @@ add_para(
     "General surgery is projected to decline to approximately 12 054 physicians and 10 318 "
     "facilities by 2034, representing a 40% facility reduction from 2010 levels. Conversely, "
     "emergency medicine trainee numbers are increasing at the fastest rate (+33 per year), "
-    "followed by internal medicine and orthopaedic surgery (+30 each)."
+    "followed by internal medicine and orthopaedic surgery (+30 each). "
+    "Projected trends for physician counts, facility counts, and trainee enrolments are "
+    "shown in figures 7, 8, and 9, respectively."
 )
 
 # --- Figure 7: Forecast physicians ---
