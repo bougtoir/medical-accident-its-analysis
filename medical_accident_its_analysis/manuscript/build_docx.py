@@ -269,7 +269,7 @@ intro_paras = [
     "Chosa Kiko) was established in 2015 under a revision to the Medical Care Act, creating "
     "a mandatory reporting system for unexpected deaths potentially related to medical "
     "care.\u00b9\u00b9 Second, the Supreme Court of Japan publishes annual statistics on medical "
-    "malpractice litigation by specialty.\u00b9\u00b2 Additionally, Japan conducts biennial national "
+    "malpractice litigation by specialty.\u00b9\u00b2 \u00b2\u2074 Additionally, Japan conducts biennial national "
     "surveys of all practising physicians and maintains annual records of healthcare facility "
     "registrations by specialty\u2014providing unusually detailed, population-level workforce data.",
 
@@ -291,7 +291,7 @@ add_para(
     "We conducted an interrupted time series (ITS) analysis using routinely collected "
     "national administrative data from Japan. This study is reported in accordance with "
     "the RECORD (REporting of studies Conducted using Observational Routinely-collected "
-    "health Data) statement,\u00b9\u00b3 which extends the STROBE guidelines, and the Cochrane "
+    "health Data) statement,\u00b9\u00b3 \u00b2\u2075 which extends the STROBE guidelines, and the Cochrane "
     "Effective Practice and Organisation of Care (EPOC) criteria for interrupted time "
     "series studies.\u00b9\u2074 A completed RECORD checklist is provided in supplementary table S1."
 )
@@ -359,8 +359,8 @@ add_heading_bmj("Statistical analysis", level=2)
 
 add_heading_bmj("Interrupted time series segmented regression", level=3)
 add_para(
-    "For each specialty-outcome-definition combination, we fitted the following segmented "
-    "regression model:"
+        "For each specialty-outcome-definition combination, we fitted the following segmented "
+        "regression model, following established ITS methodology:²¹⁻²³"
 )
 eq = doc.add_paragraph()
 eq.alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -677,7 +677,7 @@ add_para(
     "physician supply, with an estimated lead time of 1\u20133 years and an effect duration "
     "(window period) of 4\u20135 years. Obstetrics and gynaecology showed the most consistent "
     "and strongest associations, corroborating previous findings from the Fukushima "
-    "prosecution case,\u00b9\u2070 but extending these to a national, multi-definition framework."
+    "prosecution case,\u00b9\u2070 \u00b2\u2076 but extending these to a national, multi-definition framework."
 )
 
 add_heading_bmj("Comparison with existing literature", level=2)
@@ -688,7 +688,7 @@ add_para(
     "malpractice-driven specialty avoidance.\u00b9\u207b\u00b3 Studdert and colleagues reported that "
     "42% of physicians in high-risk specialties had restricted their practice in response "
     "to malpractice concerns,\u00b9 and Klick and Stratmann found that tort reforms increased "
-    "the supply of physicians in high-risk specialties.\u2074"
+    "the supply of physicians in high-risk specialties.\u2074 \u00b2\u2077 \u00b2\u2078"
 )
 add_para(
     "However, the present study extends this literature in several important ways. First, "
@@ -741,7 +741,7 @@ add_para(
     "have preceded the subsequent increase in reported incidents. This is mechanistically "
     "plausible: understaffed departments face higher per-physician caseloads, fatigue, and "
     "reduced supervision of trainees, all of which are established risk factors for adverse "
-    "events.\u00b2\u2070\u2077 Similarly, the \u22123 year lag for otolaryngology trainees implies that "
+    "events.\u00b2\u2070 \u00b2\u2077 Similarly, the \u22123 year lag for otolaryngology trainees implies that "
     "declining trainee enrolment preceded rather than followed incident reports."
 )
 add_para(
