@@ -192,8 +192,8 @@ add_para(
     'gain error exists (bias: \u22120.1 vs 1.1 mmHg for gain-free vs gain-error scenarios). '
     'In contrast, CCC decomposition clearly distinguishes these cases: C\u2082 = 1.000 (no gain error) '
     'versus C\u2082 = 0.870 (10% gain error, v = 1.11). We show that pulse pressure accuracy serves '
-    'as an implicit gain validator, since pulse pressure is independent of DC offset but '
-    'proportional to sensor gain.'
+    'as an implicit gain validator,     since pulse pressure is independent of direct-current (DC) offset but '
+        'proportional to sensor gain.'
 )
 
 add_para('Significance', bold=True, space_after=Pt(2))
@@ -228,7 +228,7 @@ add_para_with_refs(
     'The persistence of this requirement is not a fundamental physical necessity but a consequence of '
     'how conventional monitoring systems are designed. In a standard fluid-filled arterial line, the '
     'pressure transducer is located externally, connected to the intravascular catheter tip by a column '
-    'of saline. This architecture introduces three systematic sources of DC offset: (1) the hydrostatic '
+    'of saline. This architecture introduces three systematic sources of direct-current (DC) offset: (1) the hydrostatic '
     'pressure difference between the transducer and the measurement site (\u0394P = \u03C1gh, approximately '
     '0.74 mmHg per centimetre of height difference); (2) the need to measure gauge pressure relative '
     'to atmospheric pressure (~760 mmHg); and (3) transducer drift over time due to mechanical creep '
@@ -270,12 +270,12 @@ add_para_with_refs(
 # ══════════════════════════════════════════════════════════════════
 add_heading_styled('2. Theory and methods', level=1)
 
-add_heading_styled('2.1. Arterial pressure as the sum of AC and DC components', level=2)
+add_heading_styled('2.1. Arterial pressure as the sum of alternating-current and direct-current components', level=2)
 
 add_para_with_refs(
-    'An arterial pressure waveform P(t) can be decomposed into a slowly varying component (the direct-current (DC) '
-    'level, determined by mean arterial pressure and any external offsets) and a pulsatile component '
-    '(the alternating-current (AC) signal, driven by cardiac ejection). Pulse pressure (PP = systolic blood pressure [SBP] \u2013 diastolic blood pressure [DBP]) is a pure AC '
+        'An arterial pressure waveform P(t) can be decomposed into a slowly varying component (the DC '
+        'level, determined by mean arterial pressure and any external offsets) and a pulsatile component '
+        '(the alternating-current [AC] signal, driven by cardiac ejection). Pulse pressure (PP = systolic blood pressure [SBP] \u2013 diastolic blood pressure [DBP]) is a pure AC '
     'quantity: it represents the difference between the maximum and minimum of the pulsatile '
     'excursion and is, by definition, independent of any additive DC offset (figure 1, panels A and B).'
 )
@@ -298,7 +298,7 @@ add_para_with_refs(
 )
 
 add_para_with_refs(
-    '(1) Hydrostatic column offset: Catheter-tip MEMS pressure sensors (e.g., Millar Mikro-Cath) '
+    '(1) Hydrostatic column offset: Catheter-tip micro-electro-mechanical systems (MEMS) pressure sensors (e.g., Millar Mikro-Cath) '
     'place the sensing element directly at the catheter tip, eliminating the fluid column entirely '
     '(Hasenkamp et al 2012, Song et al 2020). The sensor measures pressure at the point of interest, '
     'making the measurement independent of the transducer-to-patient height relationship (Millar 2026).'
@@ -382,7 +382,7 @@ add_para_with_refs(
     'Scenario B: after zeroing (offset removed, no gain error). '
     'Scenario C: gain error only (v = 1.11, i.e. 11% overestimation of pressure changes). '
     'Scenario D: combined gain error plus offset. '
-    'Gaussian noise (SD = 3.5 mmHg) was added to all scenarios to simulate physiological and '
+    'Gaussian noise (standard deviation [SD] = 3.5 mmHg) was added to all scenarios to simulate physiological and '
     'measurement variability. Each scenario was analysed using both Bland\u2013Altman statistics '
     '(bias, limits of agreement, percentage error) and full CCC decomposition (\u03C1c, r, C\u2082, u, v).'
 )
@@ -513,7 +513,7 @@ add_para_with_refs(
     'extends naturally to non-invasive cardiac output (CO) monitors, where the pulmonary artery '
     'catheter remains the clinical reference standard (Chatterjee 2009). ClearSight\u2019s Physiocal '
     'algorithm periodically re-optimises the volume clamp setpoint\u2014essentially an offset '
-    'correction (Ameloot et al 2015). NICOM/Starling\u2019s bioreactance phase reference provides a '
+    'correction (Ameloot et al 2015). Noninvasive cardiac output monitoring (NICOM)/Starling\u2019s bioreactance phase reference provides a '
     'baseline offset for the phase-to-stroke-volume conversion (Squara et al 2007). FloTrac\u2019s '
     'arterial waveform calibration adjusts the mean pressure offset (Manecke 2005, Romagnoli et al 2013). In every case, '
     'the auto-calibration routine addresses u (location shift) but does not correct v (scale '
