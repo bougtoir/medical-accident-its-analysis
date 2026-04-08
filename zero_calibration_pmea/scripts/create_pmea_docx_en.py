@@ -2,9 +2,8 @@
 """
 Create Physiological Measurement Research Paper .docx — English version
 
-"Concordance Correlation Coefficient Decomposition Reveals That Zero Calibration
- Corrects Offset but Not Gain: A Simulation-Based Framework for Arterial Pressure
- Monitor Validation"
+"What Zeroing Cannot Fix: Concordance Analysis Unmasks Gain Errors
+ Invisible to Bland-Altman"
 
 PMEA requirements:
   - Structured abstract: Objective / Approach / Main results / Significance (<=250 words)
@@ -118,9 +117,8 @@ doc.add_paragraph()
 title = doc.add_paragraph()
 title.alignment = WD_ALIGN_PARAGRAPH.CENTER
 run = title.add_run(
-    'Concordance Correlation Coefficient Decomposition Reveals That '
-    'Zero Calibration Corrects Offset but Not Gain: '
-    'A Simulation-Based Framework for Arterial Pressure Monitor Validation'
+    'What Zeroing Cannot Fix: Concordance Analysis Unmasks '
+    'Gain Errors Invisible to Bland\u2013Altman'
 )
 run.font.name = 'Times New Roman'
 run.font.size = Pt(16)
@@ -128,7 +126,7 @@ run.bold = True
 title.paragraph_format.space_after = Pt(18)
 
 # Running title
-add_para('Running title: CCC decomposition for arterial pressure validation', italic=True,
+add_para('Running title: What zeroing cannot fix', italic=True,
          alignment=WD_ALIGN_PARAGRAPH.CENTER)
 doc.add_paragraph()
 
@@ -184,7 +182,7 @@ add_para(
     'measurement (n = 150 paired measurements each): offset only, offset corrected by zeroing, '
     'gain error, and combined gain plus offset error. Each scenario is analysed using both '
     'Bland\u2013Altman statistics and CCC decomposition. We also identify three engineering solutions '
-    '\u2014catheter-tip MEMS sensors, barometric compensation, and self-calibrating MEMS\u2014that '
+    '\u2014catheter-tip micro-electro-mechanical systems (MEMS) sensors, barometric compensation, and self-calibrating MEMS\u2014that '
     'eliminate the need for manual zero calibration.'
 )
 
@@ -251,7 +249,8 @@ add_para_with_refs(
 add_para_with_refs(
     'The standard validation framework for haemodynamic monitors centres on Bland\u2013Altman analysis '
     '(Bland and Altman 1986, 1999), the Critchley\u2013Critchley percentage error criterion (Critchley '
-    'and Critchley 1999), and polar plot assessment for trending ability (Critchley et al 2010, 2011). '
+    'and Critchley 1999), and polar plot assessment for trending ability (Critchley et al 2010, 2011), '
+    'with particular attention to the precision of the reference technique (Cecconi et al 2009). '
     'While these tools effectively evaluate bias, limits of agreement, and directional concordance, '
     'none provides an integrated single-value metric that simultaneously captures both accuracy and '
     'precision of absolute measurements against the line of perfect agreement.'
@@ -274,9 +273,9 @@ add_heading_styled('2. Theory and methods', level=1)
 add_heading_styled('2.1. Arterial pressure as the sum of AC and DC components', level=2)
 
 add_para_with_refs(
-    'An arterial pressure waveform P(t) can be decomposed into a slowly varying component (the DC '
+    'An arterial pressure waveform P(t) can be decomposed into a slowly varying component (the direct-current (DC) '
     'level, determined by mean arterial pressure and any external offsets) and a pulsatile component '
-    '(the AC signal, driven by cardiac ejection). Pulse pressure (PP = SBP \u2013 DBP) is a pure AC '
+    '(the alternating-current (AC) signal, driven by cardiac ejection). Pulse pressure (PP = systolic blood pressure [SBP] \u2013 diastolic blood pressure [DBP]) is a pure AC '
     'quantity: it represents the difference between the maximum and minimum of the pulsatile '
     'excursion and is, by definition, independent of any additive DC offset (figure 1, panels A and B).'
 )
@@ -323,7 +322,7 @@ add_para_with_refs(
 add_para_with_refs(
     'When all three solutions are implemented simultaneously\u2014tip sensor, absolute pressure with '
     'barometric compensation, and self-calibrating reference\u2014every source of DC offset is eliminated '
-    'by design. Manual zero calibration becomes redundant (figure 3).'
+    'by design. Manual zero calibration becomes redundant (figure 2).'
 )
 
 # ══════════════════════════════════════════════════════════════════
@@ -371,7 +370,7 @@ add_para_with_refs(
     'between the device reading and the true pressure. In CCC terms, successful zeroing achieves '
     'u \u2248 0, which maximises C\u2082 with respect to the location component. However, zeroing has no '
     'effect on v: if the sensor gain is incorrect (v \u2260 1), C\u2082 remains below 1.0 even after '
-    'perfect zeroing (figures 2 and 4).'
+    'perfect zeroing (figures 3 and 4).'
 )
 
 add_heading_styled('2.5. Simulation design', level=2)
@@ -414,7 +413,7 @@ add_heading_styled('3. Results', level=1)
 add_heading_styled('3.1. Simulation outcomes', level=2)
 
 add_para_with_refs(
-    'Figure 2 shows concordance plots for the four simulated scenarios. '
+    'Figure 3 shows concordance plots for the four simulated scenarios. '
     'Scenario A (offset only, before zeroing) shows reduced CCC (0.855) due '
     'to location shift (u = \u20130.55). Scenario B (after zeroing) shows near-perfect agreement '
     '(CCC = 0.986, C\u2082 = 1.000) because the offset has been removed and no gain error exists. '
@@ -426,7 +425,7 @@ add_para_with_refs(
 add_heading_styled('3.2. Bland\u2013Altman comparison', level=2)
 
 add_para_with_refs(
-    'The critical comparison is between Scenarios B and C: Bland\u2013Altman analysis (figures 5 and 8) '
+    'The critical comparison is between Scenarios B and C: Bland\u2013Altman analysis (figures 5 and 6) '
     'shows near-zero bias in both cases, yet CCC decomposition reveals fundamentally different '
     'error structures (table 2). Scenario B has C\u2082 = 1.000 (no systematic error), whereas '
     'Scenario C has C\u2082 = 0.870 (hidden gain error, v = 1.11). This demonstrates that '
@@ -437,7 +436,7 @@ add_para_with_refs(
 add_heading_styled('3.3. Sensitivity analysis', level=2)
 
 add_para_with_refs(
-    'Figure 6 quantifies these relationships. Panel A shows C\u2082 as a function of gain error and '
+    'Figure 7 quantifies these relationships. Panel A shows C\u2082 as a function of gain error and '
     'DC offset, confirming that zero calibration (movement to zero offset) improves C\u2082 only when '
     'gain is correct. Panel B shows CCC degradation with gain error at different sensor precision '
     'levels (r), demonstrating that even high-precision sensors (r = 0.99) suffer substantial CCC '
@@ -448,7 +447,7 @@ add_para_with_refs(
 add_heading_styled('3.4. Pulse pressure as gain validator', level=2)
 
 add_para_with_refs(
-    'Figure 7 provides quantitative demonstration of the PP\u2013gain relationship. Simulated arterial '
+    'Figure 8 provides quantitative demonstration of the PP\u2013gain relationship. Simulated arterial '
     'pressure waveforms with correct gain (panel A), gain error (panel B), and DC offset only '
     '(panel C) show that PP is distorted by gain error but unaffected by DC offset. Panels D and E '
     'confirm that the slope of the PP regression line against the reference directly estimates '
@@ -470,14 +469,17 @@ add_para_with_refs(
     'device manufacturers should pursue designs that eliminate the need for calibration entirely. '
     'The component technologies\u2014catheter-tip MEMS, absolute pressure sensing, barometric '
     'compensation, and self-calibrating references\u2014already exist individually in commercial '
-    'or near-commercial products (Hasenkamp et al 2012, Song et al 2020, Millar 2026, 2026b, '
-    'Kang et al 2022). Their integration into a single clinical arterial pressure '
-    'monitoring system is an engineering challenge, not a scientific one.'
+        'or near-commercial products (Hasenkamp et al 2012, Song et al 2020, Millar 2026, 2026b, '
+        'Kang et al 2022), and high-fidelity pressure wires have already demonstrated the feasibility '
+        'of accurate catheter-based pressure measurement (Scalia et al 2023). Their integration into '
+        'a single clinical arterial pressure monitoring system is an engineering challenge, not a '
+        'scientific one.'
 )
 
 add_para_with_refs(
     'The CCC decomposition provides a quantitative design target: device developers should aim for '
-    'C\u2082 \u2265 0.99 without any calibration step, verifiable by comparing the uncalibrated device '
+    'C\u2082 \u2265 0.99 without any calibration step\u2014corresponding to \u201cexcellent\u201d agreement under '
+    'proposed strength-of-agreement criteria (McBride 2005)\u2014verifiable by comparing the uncalibrated device '
     'output against a reference standard. If C\u2082 < 0.99 prior to calibration, the device has a '
     'residual systematic error that calibration can only partially mask. The decomposition into '
     'u and v further identifies whether the residual error is an offset (addressable by zeroing) '
@@ -487,9 +489,9 @@ add_para_with_refs(
 add_heading_styled('4.2. Implications for validation methodology', level=2)
 
 add_para_with_refs(
-    'Current regulatory pathways (e.g., FDA 510(k)) do not prescribe specific statistical methods '
+    'Current regulatory pathways (e.g., U.S. Food and Drug Administration [FDA] 510(k)) do not prescribe specific statistical methods '
     'for validating arterial pressure monitors (FDA 2026). Published validation studies overwhelmingly '
-    'rely on Bland\u2013Altman analysis and percentage error (Joosten et al 2017, Bland and Altman 1986). '
+    'rely on Bland\u2013Altman analysis and percentage error (Kim et al 2014, Joosten et al 2017, Bland and Altman 1986). '
     'However, the Bland\u2013Altman plot of a zeroed device will show bias \u2248 0, potentially masking '
     'proportional bias (gain error) within the limits of agreement. CCC reporting, particularly the '
     'C\u2082 component, would provide an additional layer of scrutiny that distinguishes offset '
@@ -508,13 +510,14 @@ add_heading_styled('4.3. Extension to non-invasive cardiac output monitors', lev
 
 add_para_with_refs(
     'The principle that calibration corrects only offset (u) while leaving gain error (v) untouched '
-    'extends naturally to non-invasive cardiac output (CO) monitors. ClearSight\u2019s Physiocal '
+    'extends naturally to non-invasive cardiac output (CO) monitors, where the pulmonary artery '
+    'catheter remains the clinical reference standard (Chatterjee 2009). ClearSight\u2019s Physiocal '
     'algorithm periodically re-optimises the volume clamp setpoint\u2014essentially an offset '
     'correction (Ameloot et al 2015). NICOM/Starling\u2019s bioreactance phase reference provides a '
     'baseline offset for the phase-to-stroke-volume conversion (Squara et al 2007). FloTrac\u2019s '
-    'arterial waveform calibration adjusts the mean pressure offset (Manecke 2005). In every case, '
+    'arterial waveform calibration adjusts the mean pressure offset (Manecke 2005, Romagnoli et al 2013). In every case, '
     'the auto-calibration routine addresses u (location shift) but does not correct v (scale '
-    'shift)\u2014that is, the gain of the pressure-to-CO or impedance-to-SV conversion.'
+    'shift)\u2014that is, the gain of the pressure-to-CO or impedance-to-stroke volume (SV) conversion.'
 )
 
 add_para_with_refs(
@@ -782,20 +785,8 @@ add_figure(
 doc.add_page_break()
 
 add_figure(
-    'figure2_ccc_zeroing_scenarios.png',
-    'Figure 2. Concordance plots for four simulated scenarios (n = 150 paired measurements). '
-    '(A) Before zeroing: offset of 12 mmHg produces location shift u = \u20130.55, reducing C\u2082 to 0.867. '
-    '(B) After zeroing: offset removed, CCC = 0.986 with C\u2082 = 1.000. '
-    '(C) Gain error (v = 1.11): zeroing cannot improve C\u2082 (0.870) because the scale shift persists. '
-    '(D) Gain + offset: CCC = 0.976; zeroing would move the device from D to C but not to B. '
-    'Dashed line = identity (y = x); solid line = best fit.'
-)
-
-doc.add_page_break()
-
-add_figure(
     'figure3_system_comparison.png',
-    'Figure 3. Comparison of conventional and proposed zero-calibration-free arterial pressure monitoring systems. '
+    'Figure 2. Comparison of conventional and proposed zero-calibration-free arterial pressure monitoring systems. '
     '(A) Conventional fluid-filled system: three sources of DC offset (hydrostatic column, atmospheric '
     'pressure reference, transducer drift) necessitate manual zero calibration, which corrects offset (u) '
     'only. (B) Proposed zero-free system: catheter-tip MEMS sensor eliminates hydrostatic column; '
@@ -806,10 +797,22 @@ add_figure(
 doc.add_page_break()
 
 add_figure(
+    'figure2_ccc_zeroing_scenarios.png',
+    'Figure 3. Concordance plots for four simulated scenarios (n = 150 paired measurements). '
+    '(A) Before zeroing: offset of 12 mmHg produces location shift u = \u20130.55, reducing C\u2082 to 0.867. '
+    '(B) After zeroing: offset removed, CCC = 0.986 with C\u2082 = 1.000. '
+    '(C) Gain error (v = 1.11): zeroing cannot improve C\u2082 (0.870) because the scale shift persists. '
+    '(D) Gain + offset: CCC = 0.976; zeroing would move the device from D to C but not to B. '
+    'Dashed line = identity (y = x); solid line = best fit.'
+)
+
+doc.add_page_break()
+
+add_figure(
     'figure4_cb_diagnostic_space.png',
     'Figure 4. Bias correction factor (C\u2082) as a function of location shift (u) and scale shift (v). '
     'Contour lines show iso-C\u2082 values. Zero calibration moves a device horizontally (u \u2192 0, green '
-    'arrows) but does not change v. Points A\u2013D correspond to the scenarios in figure 2. The gold '
+    'arrows) but does not change v. Points A\u2013D correspond to the scenarios in figure 3. The gold '
     'star marks the ideal (u = 0, v = 1, C\u2082 = 1.0). A device with correct gain (v = 1, validated by '
     'PP accuracy) and offset-free design (u = 0) achieves C\u2082 = 1.0 without calibration.'
 )
@@ -827,8 +830,19 @@ add_figure(
 doc.add_page_break()
 
 add_figure(
+    'figure8_ba_vs_concordance.png',
+    'Figure 6. Side-by-side comparison of Bland\u2013Altman and concordance analysis for all four '
+    'scenarios. Upper row: concordance plots (identity line = dashed); lower row: Bland\u2013Altman '
+    'plots. Bland\u2013Altman analysis cannot distinguish Scenario B (true agreement) from Scenario D '
+    '(gain error masked by offset), whereas the concordance plot and CCC decomposition clearly '
+    'separate them.'
+)
+
+doc.add_page_break()
+
+add_figure(
     'figure6_sensitivity_analysis.png',
-    'Figure 6. Sensitivity analysis. (A) C\u2082 as a function of gain error and DC offset: '
+    'Figure 7. Sensitivity analysis. (A) C\u2082 as a function of gain error and DC offset: '
     'zero calibration (movement to zero offset, vertical arrows) improves C\u2082 only when gain '
     'is correct (v = 1). (B) CCC degradation with increasing gain error at different precision '
     'levels (r = 0.95, 0.97, 0.99): even high-precision sensors suffer substantial CCC loss '
@@ -839,21 +853,10 @@ doc.add_page_break()
 
 add_figure(
     'figure7_pp_validation.png',
-    'Figure 7. Pulse pressure as an implicit gain validator. (A) Correct gain: PP is preserved. '
+    'Figure 8. Pulse pressure as an implicit gain validator. (A) Correct gain: PP is preserved. '
     '(B) Gain error (v = 1.15): PP is proportionally distorted. (C) DC offset only: PP is unchanged. '
     '(D\u2013E) Regression of measured PP against reference PP: slope estimates sensor gain directly. '
     '(F) Logical chain from PP accuracy to zero-calibration-free monitoring.'
-)
-
-doc.add_page_break()
-
-add_figure(
-    'figure8_ba_vs_concordance.png',
-    'Figure 8. Side-by-side comparison of Bland\u2013Altman and concordance analysis for all four '
-    'scenarios. Upper row: concordance plots (identity line = dashed); lower row: Bland\u2013Altman '
-    'plots. Bland\u2013Altman analysis cannot distinguish Scenario B (true agreement) from Scenario D '
-    '(gain error masked by offset), whereas the concordance plot and CCC decomposition clearly '
-    'separate them.'
 )
 
 # ══════════════════════════════════════════════════════════════════

@@ -60,9 +60,8 @@ run = p.add_run('We are pleased to submit our manuscript entitled ')
 run.font.name = 'Times New Roman'
 run.font.size = Pt(11)
 run = p.add_run(
-    '"Concordance Correlation Coefficient Decomposition Reveals That Zero Calibration '
-    'Corrects Offset but Not Gain: A Simulation-Based Framework for Arterial Pressure '
-    'Monitor Validation"'
+    '"What Zeroing Cannot Fix: Concordance Analysis Unmasks Gain Errors '
+    'Invisible to Bland\u2013Altman"'
 )
 run.font.name = 'Times New Roman'
 run.font.size = Pt(11)
