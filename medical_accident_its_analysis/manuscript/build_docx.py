@@ -466,7 +466,10 @@ add_figure(
 add_heading_bmj("Cross-correlation analysis: lead time estimates", level=2)
 add_para(
     "Table 1 presents the cross-correlation results for the specialty-definition-outcome "
-    "combinations with the strongest inverse associations (|r| > 0.9)."
+    "combinations with the strongest inverse associations (|r| > 0.9). The complete set of "
+    "cross-correlation coefficients at optimal lag for all combinations is provided in "
+    "supplementary table S3. Supplementary figure S1 shows the full cross-correlation "
+    "function plots at lags \u22128 to +8 years for all 12 specialties."
 )
 
 # Table 1
@@ -527,7 +530,7 @@ add_heading_bmj("Segmented regression results", level=2)
 add_para(
     "A total of 53 ITS segmented regression models were fitted across the three definitions. "
     "The median model R\u00b2 was 0.997, reflecting the strong secular trends in both incident "
-    "and outcome data."
+    "and outcome data. Full results for all 53 models are provided in supplementary table S2."
 )
 add_para(
     "Table 2 presents the statistically significant (P<0.05) incident effect coefficients "
@@ -571,10 +574,12 @@ add_figure(
 add_heading_bmj("Window period estimates", level=2)
 add_para(
     "The mean estimated window period was 4.1 years for physician counts (median 4.0) and "
-    "4.2 years for facility counts (median 5.0). Among individual specialties, obstetrics "
+    "4.2 years for facility counts (median 5.0) (table 3). Among individual specialties, obstetrics "
     "and gynaecology showed the longest estimated window period for physician effects "
     "(7\u20139 years depending on incident definition), while general surgery showed 7\u201310 years. "
-    "Orthopaedic surgery and plastic surgery had shorter estimated windows (1\u20132 years)."
+    "Orthopaedic surgery and plastic surgery had shorter estimated windows (1\u20132 years). "
+    "Full window period estimates for all specialty-definition-outcome combinations are "
+    "provided in supplementary table S4."
 )
 
 # Table 3
