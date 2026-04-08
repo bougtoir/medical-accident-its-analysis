@@ -16,7 +16,6 @@ import numpy as np
 from scipy.interpolate import CubicSpline
 from scipy.special import legendre
 import plotly.graph_objects as go
-from plotly.subplots import make_subplots
 
 
 # =============================================================================
@@ -302,13 +301,11 @@ def compute_error_compass(ba: dict) -> dict:
 
 
 # =============================================================================
-# 6. ダッシュボード生成
+# 6. ダッシュボード生成 (個別チャート — モバイル対応)
 # =============================================================================
 
-def create_dashboard(scenarios: list[dict]) -> go.Figure:
-    """全シナリオを含むインタラクティブダッシュボードを生成する。"""
-
-    # 各シナリオのデータを事前計算
+def _precompute_all(scenarios: list[dict]) -> list[dict]:
+    """全シナリオのデータを事前計算する。"""
     all_data = []
     for sc in scenarios:
         ba = compute_ba_stats(sc["a"], sc["b"])
@@ -322,233 +319,72 @@ def create_dashboard(scenarios: list[dict]) -> go.Figure:
             "circ": circ,
             "compass": compass,
         })
+    return all_data
 
-    # 初期表示シナリオ
+
+def create_sphere_chart(all_data: list[dict]) -> go.Figure:
+    """3D球面回転体チャートを生成する（ドロップダウン付き）。"""
+    fig = go.Figure()
     init_idx = 0
+    traces_per = 4  # 参照球, 回転体, 軸, データ点
 
-    fig = make_subplots(
-        rows=2,
-        cols=3,
-        specs=[
-            [
-                {"type": "surface", "colspan": 2, "rowspan": 2},
-                None,
-                {"type": "xy"},
-            ],
-            [
-                None,
-                None,
-                {"type": "polar"},
-            ],
-        ],
-        subplot_titles=[
-            "3D 球面回転体 (くるくる回してください)",
-            "Bland-Altman プロット",
-            "円周密度 (偏差角分布)",
-        ],
-        horizontal_spacing=0.08,
-        vertical_spacing=0.12,
-        column_widths=[0.4, 0.2, 0.4],
-        row_heights=[0.55, 0.45],
-    )
-
-    # 全シナリオのトレースを追加（非表示で）
-    traces_per_scenario = 7  # 各シナリオのトレース数
     for sc_idx, data in enumerate(all_data):
         visible = sc_idx == init_idx
         sp = data["sphere"]
-        ba = data["ba"]
-        circ = data["circ"]
-        sc = data["scenario"]
 
-        # --- トレース 1: 参照球 (半透明) ---
-        fig.add_trace(
-            go.Surface(
-                x=sp["X_sphere"],
-                y=sp["Y_sphere"],
-                z=sp["Z_sphere"],
-                opacity=0.08,
-                colorscale=[[0, "rgb(200,200,200)"], [1, "rgb(200,200,200)"]],
-                showscale=False,
-                name="参照球",
-                visible=visible,
-                hoverinfo="skip",
-            ),
-            row=1,
-            col=1,
-        )
+        # 参照球
+        fig.add_trace(go.Surface(
+            x=sp["X_sphere"], y=sp["Y_sphere"], z=sp["Z_sphere"],
+            opacity=0.08,
+            colorscale=[[0, "rgb(200,200,200)"], [1, "rgb(200,200,200)"]],
+            showscale=False, name="参照球", visible=visible, hoverinfo="skip",
+        ))
 
-        # --- トレース 2: 回転体 (色付き) ---
+        # 回転体
         r_mesh = np.sqrt(sp["X"] ** 2 + sp["Y"] ** 2 + sp["Z"] ** 2)
-        fig.add_trace(
-            go.Surface(
-                x=sp["X"],
-                y=sp["Y"],
-                z=sp["Z"],
-                surfacecolor=r_mesh,
-                colorscale="RdYlGn",
-                cmin=0.3,
-                cmax=1.0,
-                opacity=0.85,
-                showscale=True,
-                colorbar=dict(
-                    title=dict(text="一致度 r", font=dict(size=11)),
-                    len=0.4,
-                    x=0.42,
-                    y=0.5,
-                    tickfont=dict(size=10),
-                ),
-                name="回転体",
-                visible=visible,
-                hovertemplate=(
-                    "x: %{x:.2f}<br>y: %{y:.2f}<br>z: %{z:.2f}"
-                    "<br>一致度: %{surfacecolor:.3f}<extra></extra>"
-                ),
+        fig.add_trace(go.Surface(
+            x=sp["X"], y=sp["Y"], z=sp["Z"],
+            surfacecolor=r_mesh, colorscale="RdYlGn", cmin=0.3, cmax=1.0,
+            opacity=0.85, showscale=True,
+            colorbar=dict(
+                title=dict(text="一致度 r", font=dict(size=11)),
+                len=0.5, x=1.0, y=0.5, tickfont=dict(size=10),
             ),
-            row=1,
-            col=1,
-        )
-
-        # --- トレース 3: 軸 (南北極線) ---
-        fig.add_trace(
-            go.Scatter3d(
-                x=[0, 0],
-                y=[0, 0],
-                z=[-1.1, 1.1],
-                mode="lines+text",
-                line=dict(color="gray", width=3, dash="dash"),
-                text=["南極 (小スケール)", "北極 (大スケール)"],
-                textposition=["bottom center", "top center"],
-                textfont=dict(size=9),
-                showlegend=False,
-                visible=visible,
-                hoverinfo="skip",
+            name="回転体", visible=visible,
+            hovertemplate=(
+                "x: %{x:.2f}<br>y: %{y:.2f}<br>z: %{z:.2f}"
+                "<br>一致度: %{surfacecolor:.3f}<extra></extra>"
             ),
-            row=1,
-            col=1,
-        )
+        ))
 
-        # --- トレース 4: データ点を球面上に表示 ---
+        # 軸
+        fig.add_trace(go.Scatter3d(
+            x=[0, 0], y=[0, 0], z=[-1.1, 1.1],
+            mode="lines+text",
+            line=dict(color="gray", width=3, dash="dash"),
+            text=["南極 (小)", "北極 (大)"],
+            textposition=["bottom center", "top center"],
+            textfont=dict(size=9),
+            showlegend=False, visible=visible, hoverinfo="skip",
+        ))
+
+        # データ点
         phi_d = sp["phi_data"]
         r_d = sp["r_data"]
-        xd = r_d * np.sin(phi_d)
-        yd = np.zeros_like(r_d)
-        zd = r_d * np.cos(phi_d)
-        fig.add_trace(
-            go.Scatter3d(
-                x=xd,
-                y=yd,
-                z=zd,
-                mode="markers",
-                marker=dict(
-                    size=4,
-                    color=r_d,
-                    colorscale="RdYlGn",
-                    cmin=0.3,
-                    cmax=1.0,
-                    showscale=False,
-                ),
-                name="データ点",
-                visible=visible,
-                hovertemplate="r=%{marker.color:.3f}<extra></extra>",
+        fig.add_trace(go.Scatter3d(
+            x=r_d * np.sin(phi_d),
+            y=np.zeros_like(r_d),
+            z=r_d * np.cos(phi_d),
+            mode="markers",
+            marker=dict(
+                size=4, color=r_d, colorscale="RdYlGn",
+                cmin=0.3, cmax=1.0, showscale=False,
             ),
-            row=1,
-            col=1,
-        )
+            name="データ点", visible=visible,
+            hovertemplate="r=%{marker.color:.3f}<extra></extra>",
+        ))
 
-        # --- トレース 5: BA プロット ---
-        fig.add_trace(
-            go.Scatter(
-                x=ba["s"],
-                y=ba["d"],
-                mode="markers",
-                marker=dict(
-                    size=7,
-                    color=np.abs(ba["d"]),
-                    colorscale="Reds",
-                    opacity=0.7,
-                    showscale=False,
-                ),
-                name="データ",
-                visible=visible,
-                hovertemplate=(
-                    "平均: %{x:.1f}<br>差: %{y:.2f}<extra></extra>"
-                ),
-            ),
-            row=1,
-            col=3,
-        )
-
-        # --- トレース 6: BA プロット LoA ライン ---
-        s_range = [float(np.min(ba["s"])) - 2, float(np.max(ba["s"])) + 2]
-        fig.add_trace(
-            go.Scatter(
-                x=s_range * 3,
-                y=(
-                    [ba["bias"], ba["bias"]]
-                    + [ba["loa_upper"], ba["loa_upper"]]
-                    + [ba["loa_lower"], ba["loa_lower"]]
-                ),
-                mode="lines",
-                line=dict(color="rgba(0,0,0,0)"),
-                showlegend=False,
-                visible=visible,
-                hoverinfo="skip",
-            ),
-            row=1,
-            col=3,
-        )
-
-        # --- トレース 7: 円周密度プロット ---
-        theta_deg = np.degrees(circ["theta"])
-        hist_vals, bin_edges = np.histogram(theta_deg, bins=36, range=(-45, 45))
-        bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
-        fig.add_trace(
-            go.Barpolar(
-                r=hist_vals,
-                theta=bin_centers,
-                width=2.5,
-                marker=dict(
-                    color=hist_vals,
-                    colorscale="Viridis",
-                    showscale=False,
-                ),
-                name="偏差角分布",
-                visible=visible,
-                hovertemplate="角度: %{theta:.1f}°<br>頻度: %{r}<extra></extra>",
-            ),
-            row=2,
-            col=3,
-        )
-
-    # BA プロットにバイアスと LoA の shape を追加（初期シナリオのみ、updateで切替）
-    init_ba = all_data[init_idx]["ba"]
-    s_min = float(np.min(init_ba["s"])) - 2
-    s_max = float(np.max(init_ba["s"])) + 2
-
-    fig.add_shape(
-        type="line",
-        x0=s_min, x1=s_max,
-        y0=init_ba["bias"], y1=init_ba["bias"],
-        line=dict(color="blue", width=2),
-        row=1, col=3,
-    )
-    fig.add_shape(
-        type="line",
-        x0=s_min, x1=s_max,
-        y0=init_ba["loa_upper"], y1=init_ba["loa_upper"],
-        line=dict(color="red", width=1.5, dash="dash"),
-        row=1, col=3,
-    )
-    fig.add_shape(
-        type="line",
-        x0=s_min, x1=s_max,
-        y0=init_ba["loa_lower"], y1=init_ba["loa_lower"],
-        line=dict(color="red", width=1.5, dash="dash"),
-        row=1, col=3,
-    )
-
-    # ドロップダウンメニュー
+    # ドロップダウン
     buttons = []
     for sc_idx, data in enumerate(all_data):
         sp = data["sphere"]
@@ -557,147 +393,196 @@ def create_dashboard(scenarios: list[dict]) -> go.Figure:
         circ = data["circ"]
         sc = data["scenario"]
 
-        visibility = [False] * (len(scenarios) * traces_per_scenario)
-        for t in range(traces_per_scenario):
-            visibility[sc_idx * traces_per_scenario + t] = True
-
-        s_min_sc = float(np.min(ba["s"])) - 2
-        s_max_sc = float(np.max(ba["s"])) + 2
+        vis = [False] * (len(all_data) * traces_per)
+        for t in range(traces_per):
+            vis[sc_idx * traces_per + t] = True
 
         legendre_str = "  ".join(
             [f"a{i}={c:.3f}" for i, c in enumerate(sp["legendre_coeffs"][:4])]
         )
-
         label = (
             f'{sc["name"]}<br>'
-            f'  VOR={sp["vor"]:.3f}  '
-            f'球面度={sp["sphericity"]:.3f}  '
-            f'Bias={ba["bias"]:.2f}  '
-            f'SD={ba["sd"]:.2f}<br>'
-            f'  誤差角φ={compass["phi_deg"]:.1f}°  '
+            f'VOR={sp["vor"]:.3f}  球面度={sp["sphericity"]:.3f}  '
+            f'Bias={ba["bias"]:.2f}  SD={ba["sd"]:.2f}<br>'
+            f'誤差角φ={compass["phi_deg"]:.1f}°  '
             f'(系統{compass["systematic_ratio"]:.0%} / '
             f'ランダム{compass["random_ratio"]:.0%})  '
             f'R̄={circ["R_bar"]:.3f}<br>'
-            f'  Legendre: {legendre_str}'
+            f'Legendre: {legendre_str}'
         )
+        buttons.append(dict(
+            label=sc["name"], method="update",
+            args=[{"visible": vis}, {"title.text": label}],
+        ))
 
-        buttons.append(
-            dict(
-                label=sc["name"],
-                method="update",
-                args=[
-                    {"visible": visibility},
-                    {
-                        "title.text": label,
-                        "shapes": [
-                            dict(
-                                type="line",
-                                xref="x2", yref="y2",
-                                x0=s_min_sc, x1=s_max_sc,
-                                y0=ba["bias"], y1=ba["bias"],
-                                line=dict(color="blue", width=2),
-                            ),
-                            dict(
-                                type="line",
-                                xref="x2", yref="y2",
-                                x0=s_min_sc, x1=s_max_sc,
-                                y0=ba["loa_upper"], y1=ba["loa_upper"],
-                                line=dict(color="red", width=1.5, dash="dash"),
-                            ),
-                            dict(
-                                type="line",
-                                xref="x2", yref="y2",
-                                x0=s_min_sc, x1=s_max_sc,
-                                y0=ba["loa_lower"], y1=ba["loa_lower"],
-                                line=dict(color="red", width=1.5, dash="dash"),
-                            ),
-                        ],
-                    },
-                ],
-            )
-        )
-
-    # 初期タイトル
-    init_sp = all_data[init_idx]["sphere"]
-    init_compass = all_data[init_idx]["compass"]
-    init_circ = all_data[init_idx]["circ"]
-    init_sc = scenarios[init_idx]
-    init_legendre = "  ".join(
+    init = all_data[init_idx]
+    init_sp = init["sphere"]
+    init_ba = init["ba"]
+    init_compass = init["compass"]
+    init_circ = init["circ"]
+    init_sc = init["scenario"]
+    init_leg = "  ".join(
         [f"a{i}={c:.3f}" for i, c in enumerate(init_sp["legendre_coeffs"][:4])]
     )
     init_title = (
         f'{init_sc["name"]}<br>'
-        f'  VOR={init_sp["vor"]:.3f}  '
-        f'球面度={init_sp["sphericity"]:.3f}  '
-        f'Bias={init_ba["bias"]:.2f}  '
-        f'SD={init_ba["sd"]:.2f}<br>'
-        f'  誤差角φ={init_compass["phi_deg"]:.1f}°  '
+        f'VOR={init_sp["vor"]:.3f}  球面度={init_sp["sphericity"]:.3f}  '
+        f'Bias={init_ba["bias"]:.2f}  SD={init_ba["sd"]:.2f}<br>'
+        f'誤差角φ={init_compass["phi_deg"]:.1f}°  '
         f'(系統{init_compass["systematic_ratio"]:.0%} / '
         f'ランダム{init_compass["random_ratio"]:.0%})  '
         f'R̄={init_circ["R_bar"]:.3f}<br>'
-        f'  Legendre: {init_legendre}'
+        f'Legendre: {init_leg}'
     )
 
     fig.update_layout(
-        title=dict(
-            text=init_title,
-            font=dict(size=13),
-            x=0.01,
-            xanchor="left",
-        ),
-        updatemenus=[
-            dict(
-                type="dropdown",
-                direction="down",
-                x=0.0,
-                xanchor="left",
-                y=1.18,
-                yanchor="top",
-                buttons=buttons,
-                font=dict(size=12),
-                bgcolor="white",
-                bordercolor="#888",
-            ),
-        ],
-        height=820,
-        width=1400,
-        template="plotly_white",
-        margin=dict(l=30, r=30, t=160, b=30),
-    )
-
-    # 3D シーンの設定
-    fig.update_scenes(
-        dict(
+        title=dict(text=init_title, font=dict(size=12), x=0.01, xanchor="left"),
+        updatemenus=[dict(
+            type="dropdown", direction="down",
+            x=0.0, xanchor="left", y=1.22, yanchor="top",
+            buttons=buttons, font=dict(size=12),
+            bgcolor="white", bordercolor="#888",
+        )],
+        height=520, autosize=True, template="plotly_white",
+        margin=dict(l=10, r=10, t=150, b=10),
+        scene=dict(
             xaxis=dict(range=[-1.2, 1.2], title="", showticklabels=False),
             yaxis=dict(range=[-1.2, 1.2], title="", showticklabels=False),
             zaxis=dict(range=[-1.2, 1.2], title="", showticklabels=False),
             aspectmode="cube",
-            camera=dict(
-                eye=dict(x=1.5, y=1.5, z=0.8),
-                up=dict(x=0, y=0, z=1),
+            camera=dict(eye=dict(x=1.5, y=1.5, z=0.8), up=dict(x=0, y=0, z=1)),
+        ),
+    )
+    return fig
+
+
+def create_ba_chart(all_data: list[dict]) -> go.Figure:
+    """BA プロットチャートを生成する（ドロップダウン付き）。"""
+    fig = go.Figure()
+    init_idx = 0
+    traces_per = 1  # データ点のみ (LoA は shapes)
+
+    for sc_idx, data in enumerate(all_data):
+        visible = sc_idx == init_idx
+        ba = data["ba"]
+
+        fig.add_trace(go.Scatter(
+            x=ba["s"], y=ba["d"], mode="markers",
+            marker=dict(
+                size=8, color=np.abs(ba["d"]),
+                colorscale="Reds", opacity=0.7, showscale=False,
+            ),
+            name="データ", visible=visible,
+            hovertemplate="平均: %{x:.1f}<br>差: %{y:.2f}<extra></extra>",
+        ))
+
+    # shapes for init
+    init_ba = all_data[init_idx]["ba"]
+    s_min = float(np.min(init_ba["s"])) - 2
+    s_max = float(np.max(init_ba["s"])) + 2
+
+    for y_val, color, dash, width in [
+        (init_ba["bias"], "blue", "solid", 2),
+        (init_ba["loa_upper"], "red", "dash", 1.5),
+        (init_ba["loa_lower"], "red", "dash", 1.5),
+    ]:
+        fig.add_shape(
+            type="line", x0=s_min, x1=s_max, y0=y_val, y1=y_val,
+            line=dict(color=color, width=width, dash=dash),
+        )
+
+    # ドロップダウン
+    buttons = []
+    for sc_idx, data in enumerate(all_data):
+        ba = data["ba"]
+        sc = data["scenario"]
+        vis = [False] * len(all_data)
+        vis[sc_idx] = True
+        s_min_sc = float(np.min(ba["s"])) - 2
+        s_max_sc = float(np.max(ba["s"])) + 2
+        buttons.append(dict(
+            label=sc["name"], method="update",
+            args=[
+                {"visible": vis},
+                {"shapes": [
+                    dict(type="line", x0=s_min_sc, x1=s_max_sc,
+                         y0=ba["bias"], y1=ba["bias"],
+                         line=dict(color="blue", width=2)),
+                    dict(type="line", x0=s_min_sc, x1=s_max_sc,
+                         y0=ba["loa_upper"], y1=ba["loa_upper"],
+                         line=dict(color="red", width=1.5, dash="dash")),
+                    dict(type="line", x0=s_min_sc, x1=s_max_sc,
+                         y0=ba["loa_lower"], y1=ba["loa_lower"],
+                         line=dict(color="red", width=1.5, dash="dash")),
+                ]},
+            ],
+        ))
+
+    fig.update_layout(
+        title=dict(text="Bland-Altman プロット", font=dict(size=14)),
+        updatemenus=[dict(
+            type="dropdown", direction="down",
+            x=0.0, xanchor="left", y=1.20, yanchor="top",
+            buttons=buttons, font=dict(size=11),
+            bgcolor="white", bordercolor="#888",
+        )],
+        xaxis=dict(title="平均 (a+b)/2"),
+        yaxis=dict(title="差 a−b"),
+        height=380, autosize=True, template="plotly_white",
+        margin=dict(l=50, r=20, t=80, b=50),
+    )
+    return fig
+
+
+def create_circular_chart(all_data: list[dict]) -> go.Figure:
+    """円周密度プロットを生成する（ドロップダウン付き）。"""
+    fig = go.Figure()
+    init_idx = 0
+
+    for sc_idx, data in enumerate(all_data):
+        visible = sc_idx == init_idx
+        circ = data["circ"]
+        theta_deg = np.degrees(circ["theta"])
+        hist_vals, bin_edges = np.histogram(theta_deg, bins=36, range=(-45, 45))
+        bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
+        fig.add_trace(go.Barpolar(
+            r=hist_vals, theta=bin_centers, width=2.5,
+            marker=dict(color=hist_vals, colorscale="Viridis", showscale=False),
+            name="偏差角分布", visible=visible,
+            hovertemplate="角度: %{theta:.1f}°<br>頻度: %{r}<extra></extra>",
+        ))
+
+    buttons = []
+    for sc_idx, data in enumerate(all_data):
+        sc = data["scenario"]
+        vis = [False] * len(all_data)
+        vis[sc_idx] = True
+        buttons.append(dict(
+            label=sc["name"], method="update",
+            args=[{"visible": vis}],
+        ))
+
+    fig.update_layout(
+        title=dict(text="円周密度 (偏差角分布)", font=dict(size=14)),
+        updatemenus=[dict(
+            type="dropdown", direction="down",
+            x=0.0, xanchor="left", y=1.15, yanchor="top",
+            buttons=buttons, font=dict(size=11),
+            bgcolor="white", bordercolor="#888",
+        )],
+        polar=dict(
+            radialaxis=dict(showticklabels=True, tickfont=dict(size=9)),
+            angularaxis=dict(
+                tickmode="array",
+                tickvals=[-45, -30, -15, 0, 15, 30, 45],
+                ticktext=["-45°", "-30°", "-15°", "0°(一致)", "15°", "30°", "45°"],
+                tickfont=dict(size=9),
+                direction="clockwise", rotation=90,
             ),
         ),
-        row=1,
-        col=1,
+        height=380, autosize=True, template="plotly_white",
+        margin=dict(l=30, r=30, t=80, b=30),
     )
-
-    # BA プロット軸
-    fig.update_xaxes(title_text="平均 (a+b)/2", row=1, col=3)
-    fig.update_yaxes(title_text="差 a−b", row=1, col=3)
-
-    # 極座標軸
-    fig.update_polars(
-        radialaxis=dict(showticklabels=True, tickfont=dict(size=9)),
-        angularaxis=dict(
-            tickmode="array",
-            tickvals=[-45, -30, -15, 0, 15, 30, 45],
-            ticktext=["-45°", "-30°", "-15°", "0°(一致)", "15°", "30°", "45°"],
-            tickfont=dict(size=9),
-            direction="clockwise",
-            rotation=90,
-        ),
-    )
-
     return fig
 
 
@@ -765,7 +650,7 @@ def create_comparison_table(scenarios: list[dict]) -> go.Figure:
             font=dict(size=16),
         ),
         height=280,
-        width=1400,
+        autosize=True,
         margin=dict(l=10, r=10, t=50, b=10),
     )
     return fig
@@ -820,7 +705,7 @@ def create_profile_comparison(scenarios: list[dict]) -> go.Figure:
         ),
         yaxis=dict(title="半径 r (一致度)", range=[0, 1.1]),
         height=380,
-        width=1400,
+        autosize=True,
         template="plotly_white",
         margin=dict(l=60, r=30, t=60, b=60),
         legend=dict(x=0.01, y=0.01, bgcolor="rgba(255,255,255,0.8)"),
@@ -902,7 +787,7 @@ def create_error_compass(scenarios: list[dict]) -> go.Figure:
         xaxis=dict(title="|系統誤差| (Bias の絶対値)", rangemode="tozero"),
         yaxis=dict(title="ランダム誤差 (SD)", rangemode="tozero"),
         height=450,
-        width=700,
+        autosize=True,
         template="plotly_white",
         margin=dict(l=60, r=30, t=60, b=60),
     )
@@ -915,38 +800,78 @@ def create_error_compass(scenarios: list[dict]) -> go.Figure:
 
 def export_dashboard(output_path: str = "ba_sphere_dashboard.html") -> None:
     """全図をまとめた HTML ダッシュボードを出力する。"""
-    dashboard = create_dashboard(SCENARIOS)
+    all_data = _precompute_all(SCENARIOS)
+    sphere_fig = create_sphere_chart(all_data)
+    ba_fig = create_ba_chart(all_data)
+    circ_fig = create_circular_chart(all_data)
     table = create_comparison_table(SCENARIOS)
     profile = create_profile_comparison(SCENARIOS)
     compass = create_error_compass(SCENARIOS)
+
+    plotly_config = {"responsive": True, "scrollZoom": True}
 
     html_parts = [
         "<!DOCTYPE html>",
         '<html lang="ja">',
         "<head>",
         '<meta charset="UTF-8">',
-        '<meta name="viewport" content="width=device-width, initial-scale=1.0">',
+        '<meta name="viewport" content="width=device-width, initial-scale=1.0,'
+        ' maximum-scale=5.0, user-scalable=yes">',
         "<title>BA Sphere Simulation — 球面回転体による測定一致度の可視化</title>",
         "<style>",
-        "  body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px;"
-        " background: #f8f9fa; }",
-        "  h1 { color: #2c3e50; margin-bottom: 5px; }",
-        "  .subtitle { color: #7f8c8d; margin-bottom: 20px; font-size: 14px; }",
+        "  *, *::before, *::after { box-sizing: border-box; }",
+        "  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI',"
+        " Roboto, 'Helvetica Neue', sans-serif;"
+        " margin: 0; padding: 16px; background: #f8f9fa;"
+        " -webkit-text-size-adjust: 100%; }",
+        "  h1 { color: #2c3e50; margin-bottom: 5px;"
+        " font-size: clamp(20px, 5vw, 28px); }",
+        "  .subtitle { color: #7f8c8d; margin-bottom: 16px;"
+        " font-size: clamp(12px, 3vw, 14px); }",
         "  .section { background: white; border-radius: 8px;"
-        " box-shadow: 0 2px 4px rgba(0,0,0,0.1); padding: 15px;"
-        " margin-bottom: 20px; }",
-        "  .section h2 { color: #34495e; font-size: 16px;"
+        " box-shadow: 0 2px 4px rgba(0,0,0,0.1); padding: 12px;"
+        " margin-bottom: 16px; overflow-x: auto;"
+        " -webkit-overflow-scrolling: touch; }",
+        "  .section h2 { color: #34495e;"
+        " font-size: clamp(14px, 3.5vw, 16px);"
         " margin-top: 0; border-bottom: 2px solid #3498db;"
         " padding-bottom: 5px; }",
         "  .grid-2 { display: grid;"
-        " grid-template-columns: 1fr 1fr; gap: 20px; }",
+        " grid-template-columns: 1fr 1fr; gap: 16px; }",
+        "  .grid-3 { display: grid;"
+        " grid-template-columns: 1fr; gap: 16px; }",
         "  .legend-box { background: #ecf0f1; border-radius: 6px;"
-        " padding: 12px; margin-top: 10px; font-size: 13px; }",
-        "  .legend-box h3 { margin: 0 0 8px; font-size: 14px; color: #2c3e50; }",
+        " padding: 12px; margin-top: 10px;"
+        " font-size: clamp(12px, 3vw, 13px); }",
+        "  .legend-box h3 { margin: 0 0 8px;"
+        " font-size: clamp(13px, 3.5vw, 14px); color: #2c3e50; }",
         "  .legend-box ul { margin: 0; padding-left: 18px; }",
-        "  .legend-box li { margin-bottom: 4px; }",
-        "  @media (max-width: 900px) {"
-        " .grid-2 { grid-template-columns: 1fr; } }",
+        "  .legend-box li { margin-bottom: 6px; line-height: 1.5; }",
+        "  .plotly-graph-div { width: 100% !important; }",
+        "  .touch-hint { display: none; background: #3498db; color: white;"
+        " border-radius: 6px; padding: 10px 14px; margin-bottom: 12px;"
+        " font-size: 14px; text-align: center; }",
+        # Desktop: 3D large left, BA + circular stacked right
+        "  @media (min-width: 901px) {",
+        "    .grid-3 { grid-template-columns: 3fr 2fr;"
+        " grid-template-rows: auto auto; }",
+        "    .grid-3 > :first-child { grid-row: 1 / 3; }",
+        "  }",
+        "  @media (max-width: 900px) {",
+        "    .grid-2 { grid-template-columns: 1fr; }",
+        "  }",
+        "  @media (max-width: 768px) {",
+        "    body { padding: 8px; }",
+        "    .section { padding: 10px; border-radius: 6px; }",
+        "    .touch-hint { display: block; }",
+        "    .js-plotly-plot .plotly .modebar { display: none !important; }",
+        "  }",
+        "  @media (max-width: 480px) {",
+        "    body { padding: 6px; }",
+        "    .section { padding: 8px; margin-bottom: 12px; }",
+        "    .legend-box { padding: 8px; }",
+        "    .legend-box ul { padding-left: 14px; }",
+        "  }",
         "</style>",
         "</head>",
         "<body>",
@@ -957,17 +882,41 @@ def export_dashboard(output_path: str = "ba_sphere_dashboard.html") -> None:
         "</p>",
         "",
         '<div class="section">',
-        "<h2>1. メインダッシュボード — ドロップダウンでシナリオを切り替え</h2>",
-        dashboard.to_html(full_html=False, include_plotlyjs="cdn"),
+        "<h2>1. メインダッシュボード — 各チャートのドロップダウンでシナリオ切替</h2>",
+        '<div class="touch-hint">'
+        "指でドラッグして3D回転 / ピンチでズーム / "
+        "ドロップダウンでシナリオ切替</div>",
+        '<div class="grid-3">',
+        # 3D Sphere chart
+        "<div>",
+        sphere_fig.to_html(
+            full_html=False, include_plotlyjs="cdn", config=plotly_config
+        ),
+        "</div>",
+        # BA plot
+        "<div>",
+        ba_fig.to_html(
+            full_html=False, include_plotlyjs=False, config=plotly_config
+        ),
+        "</div>",
+        # Circular density
+        "<div>",
+        circ_fig.to_html(
+            full_html=False, include_plotlyjs=False, config=plotly_config
+        ),
+        "</div>",
+        "</div>",  # end grid-3
         '<div class="legend-box">',
         "<h3>読み方ガイド</h3>",
         "<ul>",
-        "<li><b>3D球面回転体 (左)</b>: "
-        "緑=一致良好、赤=不一致。マウスドラッグで回転、ホイールでズーム。"
+        "<li><b>3D球面回転体</b>: "
+        "緑=一致良好、赤=不一致。"
+        "PC: マウスドラッグで回転、ホイールでズーム。"
+        "スマホ: 指でドラッグ回転、ピンチでズーム。"
         "球が潰れるほど品質にムラがある</li>",
-        "<li><b>BAプロット (右上)</b>: "
+        "<li><b>BAプロット</b>: "
         "青線=バイアス、赤破線=一致限界 (±1.96SD)</li>",
-        "<li><b>円周密度 (右下)</b>: "
+        "<li><b>円周密度</b>: "
         "0°が完全一致方向。分布が0°に集中するほど一致度が高い</li>",
         "<li><b>VOR</b>: 体積占有率 (0〜1)。"
         "1に近いほど全体的な一致度が高い</li>",
@@ -981,17 +930,23 @@ def export_dashboard(output_path: str = "ba_sphere_dashboard.html") -> None:
         "",
         '<div class="section">',
         "<h2>2. シナリオ比較</h2>",
-        table.to_html(full_html=False, include_plotlyjs=False),
+        table.to_html(
+            full_html=False, include_plotlyjs=False, config=plotly_config
+        ),
         "</div>",
         "",
         '<div class="grid-2">',
         '<div class="section">',
         "<h2>3. 半径プロファイル比較</h2>",
-        profile.to_html(full_html=False, include_plotlyjs=False),
+        profile.to_html(
+            full_html=False, include_plotlyjs=False, config=plotly_config
+        ),
         "</div>",
         '<div class="section">',
         "<h2>4. 誤差コンパス</h2>",
-        compass.to_html(full_html=False, include_plotlyjs=False),
+        compass.to_html(
+            full_html=False, include_plotlyjs=False, config=plotly_config
+        ),
         "</div>",
         "</div>",
         "",
@@ -1009,6 +964,27 @@ def export_dashboard(output_path: str = "ba_sphere_dashboard.html") -> None:
         "</ul>",
         "</div>",
         "</div>",
+        "",
+        "<script>",
+        "// Sync all chart dropdowns: when one changes, update all others",
+        "(function() {",
+        "  var plots = [];",
+        "  document.querySelectorAll('.js-plotly-plot').forEach(function(gd) {",
+        "    if (gd.data && gd.layout && gd.layout.updatemenus"
+        " && gd.layout.updatemenus.length) plots.push(gd);",
+        "  });",
+        "  // Resize on orientation change",
+        "  function resizeAll() {",
+        "    document.querySelectorAll('.js-plotly-plot').forEach(function(gd) {",
+        "      if (gd.data) Plotly.Plots.resize(gd);",
+        "    });",
+        "  }",
+        "  window.addEventListener('resize', resizeAll);",
+        "  window.addEventListener('orientationchange', function() {",
+        "    setTimeout(resizeAll, 300);",
+        "  });",
+        "})();",
+        "</script>",
         "",
         "</body>",
         "</html>",
