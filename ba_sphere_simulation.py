@@ -2,12 +2,12 @@
 Bland-Altman Sphere Simulation — Meridian Version
 ==================================================
 
-BAプロットの幾何学的拡張: 経線配置型3D表面による測定一致度の可視化
+BAプロットの幾何学的拡張: 経度分散配置型3D表面による測定一致度の可視化
 
-各データペア (a, b) を球の経線（θ=0）に沿って配置し、
-一致度に応じた半径の凹凸を経線近傍にガウシアンカーネルで局在化。
+各データペア (a, b) を球の経度方向に均等分散配置し（n個なら360°/n間隔）、
+一致度に応じた半径の凹凸をガウシアンカーネルで局在化。
 回転体（軸対称）版と異なり、回転時に個々のデータ点の品質ムラが
-凹凸として直感的に把握できる。上下からの視点で全体像を確認可能。
+凹凸として直感的に把握できる。上下からの視点で全体パターンを確認可能。
 物理デバイスでの常時回転表示を想定した設計。
 
 生成物:
@@ -88,25 +88,27 @@ def compute_ba_stats(a: np.ndarray, b: np.ndarray) -> dict:
 
 
 # =============================================================================
-# 3. 経線配置型3D表面の構築
+# 3. 経度分散配置型3D表面の構築
 # =============================================================================
 
 def build_meridian_body(
     a: np.ndarray,
     b: np.ndarray,
-    n_azimuth: int = 120,
+    n_azimuth: int = 360,
     n_interp: int = 200,
-    spread_sigma: float = np.pi / 4,
+    spread_sigma: float = np.pi / 8,
 ) -> dict:
-    """データペアから経線配置型の3D表面を構築する。
+    """データペアから経度分散配置型の3D表面を構築する。
 
-    データを1本の経線（θ=0）上に配置し、各データ点の一致度に
-    応じた半径の凹凸を経線近傍にガウシアンカーネルで局在化。
+    各データ点を経度方向に均等分散配置し（n個なら360°/n間隔）、
+    各データ点の一致度に応じた半径の凹凸をガウシアンカーネルで局在化。
+    回転すれば個々のデータ品質が凹凸として見え、
+    極地から見れば全体データのパターンが一目で把握できる。
 
     Parameters
     ----------
     a, b : 測定値ペア
-    n_azimuth : 方位角の分割数
+    n_azimuth : 方位角の分割数（メッシュ解像度）
     n_interp : 極角の補間点数
     spread_sigma : ガウシアンカーネルの幅（ラジアン）
     """
@@ -115,10 +117,15 @@ def build_meridian_body(
     a_sorted = a[sort_idx]
     b_sorted = b[sort_idx]
 
+    # 極角: 平均値順に南極→北極
     phi_data = np.linspace(0.01, np.pi - 0.01, n)
+    # 経度: 均等分散配置 (360°/n 間隔)
+    theta_data = np.linspace(0, 2 * np.pi, n, endpoint=False)
+    # 一致度
     r_data = np.minimum(a_sorted, b_sorted) / np.maximum(a_sorted, b_sorted)
     r_data = np.clip(r_data, 0.01, 1.0)
 
+    # 極角方向の補間プロファイル（ルジャンドル展開等に使用）
     phi_ext = np.concatenate([[0.0], phi_data, [np.pi]])
     r_ext = np.concatenate([[r_data[0]], r_data, [r_data[-1]]])
     cs = CubicSpline(phi_ext, r_ext, bc_type="clamped")
@@ -127,13 +134,23 @@ def build_meridian_body(
 
     theta = np.linspace(0, 2 * np.pi, n_azimuth)
 
-    # 経線配置メッシュ
+    # メッシュ構築: 各データ点のカーネルを重畳
     PHI, THETA = np.meshgrid(phi_fine, theta, indexing="ij")
-    d_theta = np.minimum(THETA, 2 * np.pi - THETA)
-    w = np.exp(-d_theta**2 / (2 * spread_sigma**2))
+    R_mesh = np.ones_like(PHI)  # 基準球 r=1
 
-    r_profile_2d = np.outer(r_fine, np.ones(n_azimuth))
-    R_mesh = 1.0 + (r_profile_2d - 1.0) * w
+    for i in range(n):
+        # 極角方向のカーネル
+        d_phi = PHI - phi_data[i]
+        w_phi = np.exp(-d_phi**2 / (2 * spread_sigma**2))
+        # 経度方向のカーネル
+        d_theta = np.abs(THETA - theta_data[i])
+        d_theta = np.minimum(d_theta, 2 * np.pi - d_theta)
+        w_theta = np.exp(-d_theta**2 / (2 * spread_sigma**2))
+        # 2Dガウシアンカーネル
+        w = w_phi * w_theta
+        R_mesh = R_mesh + (r_data[i] - 1.0) * w
+
+    R_mesh = np.clip(R_mesh, 0.01, 2.0)
 
     X = R_mesh * np.sin(PHI) * np.cos(THETA)
     Y = R_mesh * np.sin(PHI) * np.sin(THETA)
@@ -161,7 +178,7 @@ def build_meridian_body(
         (np.pi ** (1 / 3) * (6 * volume_solid) ** (2 / 3)) / surface_area
     )
 
-    # ルジャンドル多項式展開 (経線プロファイル)
+    # ルジャンドル多項式展開 (極角方向プロファイル)
     max_l = 6
     legendre_coeffs = []
     for l_val in range(max_l + 1):
@@ -177,7 +194,7 @@ def build_meridian_body(
         "X": X, "Y": Y, "Z": Z,
         "X_sphere": X_sphere, "Y_sphere": Y_sphere, "Z_sphere": Z_sphere,
         "vor": vor, "r_profile": r_fine, "phi_profile": phi_fine,
-        "r_data": r_data, "phi_data": phi_data,
+        "r_data": r_data, "phi_data": phi_data, "theta_data": theta_data,
         "volume_solid": volume_solid, "volume_sphere": volume_sphere,
         "sphericity": sphericity, "legendre_coeffs": legendre_coeffs,
     }
@@ -291,19 +308,25 @@ def create_sphere_chart(all_data: list[dict]) -> go.Figure:
             textfont=dict(size=9), showlegend=False, visible=visible, hoverinfo="skip"))
 
         phi_d, r_d = sp["phi_data"], sp["r_data"]
+        theta_d = sp["theta_data"]
         fig.add_trace(go.Scatter3d(
-            x=r_d * np.sin(phi_d), y=np.zeros_like(r_d), z=r_d * np.cos(phi_d),
+            x=r_d * np.sin(phi_d) * np.cos(theta_d),
+            y=r_d * np.sin(phi_d) * np.sin(theta_d),
+            z=r_d * np.cos(phi_d),
             mode="markers",
-            marker=dict(size=4, color=r_d, colorscale="RdYlGn",
-                        cmin=0.3, cmax=1.0, showscale=False),
+            marker=dict(size=5, color=r_d, colorscale="RdYlGn",
+                        cmin=0.3, cmax=1.0, showscale=False,
+                        line=dict(width=1, color="black")),
             name="データ点", visible=visible,
             hovertemplate="r=%{marker.color:.3f}<extra></extra>"))
 
-        r_p, phi_p = sp["r_profile"], sp["phi_profile"]
+        # 赤道リング（経度方向のデータ配置を示すガイドライン）
+        guide_theta = np.linspace(0, 2 * np.pi, 100)
         fig.add_trace(go.Scatter3d(
-            x=r_p * np.sin(phi_p), y=np.zeros_like(r_p), z=r_p * np.cos(phi_p),
-            mode="lines", line=dict(color="#f1c40f", width=5),
-            name="経線プロファイル", visible=visible, hoverinfo="skip"))
+            x=np.cos(guide_theta), y=np.sin(guide_theta),
+            z=np.zeros(100),
+            mode="lines", line=dict(color="#f1c40f", width=3, dash="dot"),
+            name="赤道ガイド", visible=visible, hoverinfo="skip"))
 
     buttons = []
     for sc_idx, data in enumerate(all_data):
@@ -612,7 +635,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 </head>
 <body>
 <h1>BA Sphere \u2014 Meridian Version</h1>
-<p class="subtitle">Bland-Altman \u30d7\u30ed\u30c3\u30c8\u306e\u5e7e\u4f55\u5b66\u7684\u62e1\u5f35 \u2014 \u7d4c\u7dda\u914d\u7f6e\u578b3D\u8868\u9762 (Volume Occupancy Ratio) \u306b\u3088\u308b\u6e2c\u5b9a\u4e00\u81f4\u5ea6\u306e\u53ef\u8996\u5316</p>
+<p class="subtitle">Bland-Altman \u30d7\u30ed\u30c3\u30c8\u306e\u5e7e\u4f55\u5b66\u7684\u62e1\u5f35 \u2014 \u7d4c\u5ea6\u5206\u6563\u914d\u7f6e\u578b3D\u8868\u9762 (Volume Occupancy Ratio) \u306b\u3088\u308b\u6e2c\u5b9a\u4e00\u81f4\u5ea6\u306e\u53ef\u8996\u5316</p>
 
 <div class="section">
 <h2>1. \u30e1\u30a4\u30f3\u30c0\u30c3\u30b7\u30e5\u30dc\u30fc\u30c9 \u2014 \u81ea\u52d5\u56de\u8ee2\u30fb\u30d3\u30e5\u30fc\u5207\u66ff\u30fb\u30b7\u30ca\u30ea\u30aa\u5207\u66ff</h2>
@@ -638,7 +661,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 <div class="legend-box">
   <h3>\u8aad\u307f\u65b9\u30ac\u30a4\u30c9</h3>
   <ul>
-    <li><b>3D\u7d4c\u7dda\u914d\u7f6e\u4f53</b>: \u30c7\u30fc\u30bf\u30921\u672c\u306e\u7d4c\u7dda\uff08\u9ec4\u8272\u30e9\u30a4\u30f3\uff09\u306b\u6cbf\u3063\u3066\u914d\u7f6e\u3002\u7dd1=\u4e00\u81f4\u826f\u597d\u3001\u8d64=\u4e0d\u4e00\u81f4\u3002\u51f9\u51f8\u304c\u54c1\u8cea\u30e0\u30e9\u3092\u76f4\u611f\u7684\u306b\u8868\u73fe\u3002<b>\u81ea\u52d5\u56de\u8ee2</b>\u3067\u5404\u30c7\u30fc\u30bf\u70b9\u306e\u54c1\u8cea\u304c\u9806\u306b\u78ba\u8a8d\u3067\u304d\u308b\u3002<b>\u4e0a\u304b\u3089/\u4e0b\u304b\u3089</b>\u3067\u5168\u4f53\u50cf\u3092\u4e00\u76ee\u3067\u628a\u63e1\u3002</li>
+    <li><b>3D\u7d4c\u5ea6\u5206\u6563\u914d\u7f6e\u4f53</b>: \u5404\u30c7\u30fc\u30bf\u3092\u7d4c\u5ea6\u65b9\u5411\u306b\u5747\u7b49\u914d\u7f6e\uff0824\u30c7\u30fc\u30bf\u306a\u308915\u00b0\u9593\u9694\uff09\u3002\u7dd1=\u4e00\u81f4\u826f\u597d\u3001\u8d64=\u4e0d\u4e00\u81f4\u3002\u51f9\u51f8\u304c\u54c1\u8cea\u30e0\u30e9\u3092\u76f4\u611f\u7684\u306b\u8868\u73fe\u3002<b>\u81ea\u52d5\u56de\u8ee2</b>\u3067\u5404\u30c7\u30fc\u30bf\u70b9\u306e\u54c1\u8cea\u304c\u9806\u306b\u78ba\u8a8d\u3067\u304d\u308b\u3002<b>\u4e0a\u304b\u3089/\u4e0b\u304b\u3089</b>\u3067\u5168\u4f53\u30d1\u30bf\u30fc\u30f3\u3092\u4e00\u76ee\u3067\u628a\u63e1\u3002</li>
     <li><b>BA\u30d7\u30ed\u30c3\u30c8</b>: \u9752\u7dda=\u30d0\u30a4\u30a2\u30b9\u3001\u8d64\u7834\u7dda=\u4e00\u81f4\u9650\u754c (\u00b11.96SD)</li>
     <li><b>\u5186\u5468\u5bc6\u5ea6</b>: 0\u00b0\u304c\u5b8c\u5168\u4e00\u81f4\u65b9\u5411\u3002\u5206\u5e03\u304c0\u00b0\u306b\u96c6\u4e2d\u3059\u308b\u307b\u3069\u4e00\u81f4\u5ea6\u304c\u9ad8\u3044</li>
     <li><b>VOR</b>: \u4f53\u7a4d\u5360\u6709\u7387 (0\u301c1)\u30021\u306b\u8fd1\u3044\u307b\u3069\u5168\u4f53\u7684\u306a\u4e00\u81f4\u5ea6\u304c\u9ad8\u3044</li>
@@ -668,7 +691,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 <h2>5. \u54c1\u8cea\u7ba1\u7406\u3067\u306e\u6d3b\u7528\u4f8b \u2014 \u7d4c\u7dda\u914d\u7f6e\u7248\u306e\u5229\u70b9</h2>
 <div class="legend-box">
   <ul>
-    <li><b>\u7269\u7406\u30c7\u30d0\u30a4\u30b9\u8868\u793a</b>: \u5e38\u6642\u56de\u8ee2\u3059\u308b3D\u30c7\u30a3\u30b9\u30d7\u30ec\u30a4\u3067\u3001\u73fe\u5728\u306e\u54c1\u8cea\u72b6\u614b\u3092\u30ea\u30a2\u30eb\u30bf\u30a4\u30e0\u63d0\u793a\u3002\u7d4c\u7dda\u4e0a\u306e\u51f9\u51f8\u304c\u56de\u8ee2\u3057\u306a\u304c\u3089\u76ee\u306e\u524d\u3092\u901a\u904e\u3057\u3001\u54c1\u8cea\u30e0\u30e9\u304c\u76f4\u611f\u7684\u306b\u308f\u304b\u308b</li>
+    <li><b>\u7269\u7406\u30c7\u30d0\u30a4\u30b9\u8868\u793a</b>: \u5e38\u6642\u56de\u8ee2\u3059\u308b3D\u30c7\u30a3\u30b9\u30d7\u30ec\u30a4\u3067\u3001\u73fe\u5728\u306e\u54c1\u8cea\u72b6\u614b\u3092\u30ea\u30a2\u30eb\u30bf\u30a4\u30e0\u63d0\u793a\u3002\u5404\u30c7\u30fc\u30bf\u306e\u51f9\u51f8\u304c\u7d4c\u5ea6\u65b9\u5411\u306b\u5206\u6563\u3057\u3066\u304a\u308a\u3001\u56de\u8ee2\u3059\u308b\u3068\u500b\u3005\u306e\u54c1\u8cea\u304c\u9806\u756a\u306b\u898b\u3048\u308b</li>
     <li><b>\u4e0a\u304b\u3089/\u4e0b\u304b\u3089\u306e\u78ba\u8a8d</b>: \u56de\u8ee2\u4f53\u7248\u3067\u306f\u65ad\u9762\u69cb\u7bc9\u304c\u5fc5\u8981\u3060\u3063\u305f\u5168\u4f53\u50cf\u304c\u3001\u4e0a\u4e0b\u304b\u3089\u306e\u8996\u70b9\u3067\u4e00\u76ee\u3067\u628a\u63e1\u53ef\u80fd</li>
     <li><b>\u6e2c\u5b9a\u5668\u6821\u6b63</b>: VOR \u3092\u5b9a\u671f\u30e2\u30cb\u30bf\u30ea\u30f3\u30b0\u3057\u3001\u95be\u5024 (\u4f8b: VOR &lt; 0.95) \u3092\u4e0b\u56de\u3063\u305f\u3089\u518d\u6821\u6b63\u30c8\u30ea\u30ac\u30fc</li>
     <li><b>\u53d7\u5165\u691c\u67fb</b>: \u30ed\u30c3\u30c8\u5185\u30b5\u30f3\u30d7\u30eb\u306e VOR \u304c\u898f\u683c\u5024\u4ee5\u4e0a\u306a\u3089\u5408\u683c\u5224\u5b9a</li>
