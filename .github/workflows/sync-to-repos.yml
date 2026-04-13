@@ -50,6 +50,13 @@ jobs:
           BRANCH_MAP["devin/1773295400-border-check-arduboy"]="border-check-arduboy"
           BRANCH_MAP["devin/1773350746-starchart-constellation-fixes"]="starchart-arduboy"
           BRANCH_MAP["devin/1773634645-nuitka-build"]="nuitka-build-tools"
+          BRANCH_MAP["weibull-6domain-integrated"]="weibull-6domain-integrated"
+          BRANCH_MAP["weibull-hiv-art-dropout"]="weibull-hiv-art-dropout"
+          BRANCH_MAP["weibull-antipsychotic-dropout"]="weibull-antipsychotic-dropout"
+          BRANCH_MAP["weibull-substance-use-dropout"]="weibull-substance-use-dropout"
+          BRANCH_MAP["weibull-cardiac-rehab-dropout"]="weibull-cardiac-rehab-dropout"
+          BRANCH_MAP["weibull-clinical-trial-dropout"]="weibull-clinical-trial-dropout"
+          BRANCH_MAP["weibull-5domain-comparison"]="weibull-5domain-comparison"
 
           SYNCED=0
           SKIPPED=0
