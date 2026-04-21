@@ -84,18 +84,19 @@ def geom_weights(mu, M=40):
 
 
 def stock_constant_mu(E, mu, delta=DELTA_H):
-    """PIM with constant lag mean mu."""
-    T = len(E); w = geom_weights(mu, M=min(40, T))
-    # Effective flow entering stock at t: sum_s w_s E(t-s)
+    """PIM with constant lag mean mu. Weights are renormalized at each t so that
+    early-period effective flow is not biased low by lag-window truncation
+    (matches the renormalization convention used inside fit_mu_tempo)."""
+    T = len(E)
     E_eff = np.zeros(T)
     for t in range(T):
-        for s in range(min(len(w), t+1)):
-            E_eff[t] += w[s] * E[t-s]
-    # Steady-state init from E_eff[0] and growth 0.02
+        w = geom_weights(mu, M=min(40, t + 1))
+        for s in range(len(w)):
+            E_eff[t] += w[s] * E[t - s]
     H = np.zeros(T)
     H[0] = E_eff[0] / (delta + 0.02)
     for t in range(1, T):
-        H[t] = (1 - delta) * H[t-1] + E_eff[t-1]
+        H[t] = (1 - delta) * H[t - 1] + E_eff[t - 1]
     return H
 
 
