@@ -191,8 +191,11 @@ add_run_with_refs(
     "anaesthesia ratios in 47 of 47 prefectures. The three audit sensitivity "
     "analyses converged: the maximum audit-rate difference (0.21 percentage "
     "points) could shift ratios by less than 0.3% of the observed "
-    "interquartile range. Empirical Bayes shrinkage attenuated effect sizes "
-    "by only 8.6 to 9.1%.")
+    "interquartile range. Empirical Bayes shrinkage of the area-level ratios "
+    "toward their prefecture mean substantially attenuated effect sizes "
+    "(general anaesthesia by 66.5%, from Cohen's d = 1.88 to 0.63); the "
+    "university hospital effect on general anaesthesia remained moderate "
+    "and statistically significant even after this heavy shrinkage.")
 
 p = doc.add_paragraph()
 p.paragraph_format.space_after = Pt(6)
@@ -432,12 +435,26 @@ add_para(
 
 add_subheading("Robustness: empirical Bayes shrinkage and outliers")
 add_para(
-    "Empirical Bayes shrinkage toward prefecture means attenuated effect "
-    "sizes modestly but did not change any conclusion. The university "
-    "hospital effect on general anaesthesia decreased from Cohen's d = 1.89 "
-    "(raw) to 1.72 (shrunken), an attenuation of 9.0%; spinal anaesthesia "
-    "9.1% (d 0.40 to 0.36); epidural anaesthesia 8.6% (d 0.59 to 0.54). All "
-    "effect sizes remained large and statistically significant. Two areas "
+    "Empirical Bayes shrinkage toward prefecture means was implemented as "
+    "a stress test of the area-level ratios under the explicit sampling "
+    "model y_i ~ N(θ_i, σ²); θ_i ~ N(μ_pref, τ²_pref), with σ² taken as "
+    "the residual within-prefecture variance from a null random-intercept "
+    "mixed-effects model fitted separately for each code. This formulation "
+    "is conservative because no information is borrowed from the observed "
+    "prefecture-mean differences when shrinking individual areas. Under "
+    "this model, shrinkage substantially compressed the area-level ratios "
+    "toward their prefecture means. For general anaesthesia, Cohen's d for "
+    "the university-hospital effect fell from 1.88 (raw) to 0.63 "
+    "(shrunken), an attenuation of 66.5%; for epidural anaesthesia (L002) "
+    "from 0.59 to 0.23 (60.6%); and for spinal anaesthesia (L004) from "
+    "0.40 to 0.04 (89.9%). The general anaesthesia effect therefore "
+    "remained of moderate magnitude despite heavy shrinkage, whereas the "
+    "L002 and L004 effects were materially attenuated, indicating that "
+    "those smaller raw effects are more vulnerable to sampling instability. "
+    "These shrinkage estimates are complementary to, and consistent in "
+    "direction with, the mixed-effects model coefficients reported in "
+    "Table 3, which themselves incorporate prefecture-level shrinkage. Two "
+    "areas "
     "were identified as outliers (more than three standard deviations from "
     "the mean general anaesthesia ratio): Awa in Chiba (ratio 216.7) and "
     "central Tokyo (ratio 435.7, containing five university hospitals). "
