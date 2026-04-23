@@ -78,20 +78,44 @@ def make_map(column, title, boundaries, legend_label, filename):
     print(f"Saved: {filename}")
 
 
-# Generate L002 maps for EN and JP (if missing)
-boundaries_L002 = [0, 30, 50, 70, 90, 100, 110, 130, 160, 200, 600]
+# Single-panel maps. The generate_maps_*.py scripts historically wrote to
+# /home/ubuntu; here we canonicalise the outputs to output/maps_2d_{en,jp}/
+# and regenerate any missing single-panel PNG from the geopackage on the fly
+# so the script is self-contained and safe to run on a fresh clone.
+SCR_BOUNDS = {
+    'L008_scr': [0, 30, 50, 70, 90, 100, 110, 130, 160, 200, 500],
+    'L004_scr': [0, 30, 50, 70, 90, 100, 110, 130, 160, 200, 400],
+    'L002_scr': [0, 30, 50, 70, 90, 100, 110, 130, 160, 200, 600],
+    'L003_scr': [0, 30, 50, 70, 90, 100, 110, 130, 160, 200, 450],
+}
+EN_TITLES = {
+    'L008_scr': 'General Anaesthesia (L008) SCR by Secondary Medical Area',
+    'L004_scr': 'Spinal Anaesthesia (L004) SCR by Secondary Medical Area',
+    'L002_scr': 'Epidural Anaesthesia (L002) SCR by Secondary Medical Area',
+    'L003_scr': 'Continuous Epidural Infusion (L003) SCR by Secondary Medical Area',
+}
+JP_TITLES = {
+    'L008_scr': '全身麻酔 (L008) SCR 二次医療圏別',
+    'L004_scr': '脊椎麻酔 (L004) SCR 二次医療圏別',
+    'L002_scr': '硬膜外麻酔 (L002) SCR 二次医療圏別',
+    'L003_scr': '持続硬膜外注入 (L003) SCR 二次医療圏別',
+}
 
-en_L002 = os.path.join(OUT_EN, 'en_map_L002_scr.png')
-if not os.path.exists(en_L002):
-    make_map('L002_scr',
-             'Epidural Anaesthesia (L002) SCR by Secondary Medical Area',
-             boundaries_L002, 'SCR (100 = national average)', en_L002)
+en_paths = {}
+for col, bounds in SCR_BOUNDS.items():
+    fn = os.path.join(OUT_EN, f'en_map_{col}.png')
+    if not os.path.exists(fn):
+        make_map(col, EN_TITLES[col], bounds,
+                 'SCR (100 = national average)', fn)
+    en_paths[col] = fn
 
-jp_L002 = os.path.join(OUT_JP, 'map_L002_scr.png')
-if not os.path.exists(jp_L002):
-    make_map('L002_scr',
-             '硬膜外麻酔 (L002) SCR 二次医療圏別',
-             boundaries_L002, 'SCR (100=全国平均)', jp_L002)
+jp_paths = {}
+for col, bounds in SCR_BOUNDS.items():
+    fn = os.path.join(OUT_JP, f'map_{col}.png')
+    if not os.path.exists(fn):
+        make_map(col, JP_TITLES[col], bounds,
+                 'SCR (100=全国平均)', fn)
+    jp_paths[col] = fn
 
 
 def create_2x2(panel_paths, labels, output_path, figsize=(16, 18), dpi=250):
@@ -110,10 +134,8 @@ def create_2x2(panel_paths, labels, output_path, figsize=(16, 18), dpi=250):
 
 # EN 4-panel
 create_2x2(
-    [os.path.join(OUT_EN, 'en_map_L008_scr.png'),
-     os.path.join(OUT_EN, 'en_map_L004_scr.png'),
-     en_L002,
-     os.path.join(OUT_EN, 'en_map_L003_scr.png')],
+    [en_paths['L008_scr'], en_paths['L004_scr'],
+     en_paths['L002_scr'], en_paths['L003_scr']],
     ['A. General anaesthesia (L008) SCR',
      'B. Spinal anaesthesia (L004) SCR',
      'C. Epidural anaesthesia (L002) SCR',
@@ -123,10 +145,8 @@ create_2x2(
 
 # JP 4-panel
 create_2x2(
-    [os.path.join(OUT_JP, 'map_L008_scr.png'),
-     os.path.join(OUT_JP, 'map_L004_scr.png'),
-     jp_L002,
-     os.path.join(OUT_JP, 'map_L003_scr.png')],
+    [jp_paths['L008_scr'], jp_paths['L004_scr'],
+     jp_paths['L002_scr'], jp_paths['L003_scr']],
     ['A. 全身麻酔 (L008) SCR',
      'B. 脊椎麻酔 (L004) SCR',
      'C. 硬膜外麻酔 (L002) SCR',
