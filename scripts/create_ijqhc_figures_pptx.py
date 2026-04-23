@@ -84,14 +84,15 @@ figures_en = [
     ),
     (
         'rapm_fig2_en.png',
-        'Figure 2. University hospital presence and the standardised claim '
-        'ratio for general anaesthesia.',
+        'Figure 2. University hospital presence and the combined '
+        'general-anaesthesia plus continuous-epidural measure.',
         '(A) Distribution of secondary medical areas containing at least one '
-        'university hospital (n = 64 of 335). (B) Within-prefecture '
-        'comparison of mean general anaesthesia ratios between university '
-        'and non-university areas across all 47 prefectures. The university '
-        'effect is positive in all 47 of 47 prefectures (mean within-'
-        'prefecture difference +63.3 points, paired t = 13.28, P < 0.001).',
+        'university hospital (n = 64 of 335; red). (B) Choropleth map of the '
+        'combined general-anaesthesia plus continuous-epidural standardised '
+        'claim ratio (mean of L008 and L003 SCR; 331 areas with data for '
+        'both codes), shaded by quintile. Red circles mark secondary medical '
+        'areas containing at least one university hospital. Areas masked by '
+        'the data provider for either code are shown in grey.',
     ),
 ]
 build_deck(figures_en,

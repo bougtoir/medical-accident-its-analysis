@@ -409,9 +409,14 @@ add_para(
     "University hospital areas had higher general anaesthesia ratios than "
     "non-university areas in 47 of 47 prefectures, with a mean within-"
     "prefecture difference of +63.3 points (paired t = 13.28, P < 0.001) "
-    "(Figure 2). Cohen's d for the university hospital effect on general "
+    "(Figure 2A). Cohen's d for the university hospital effect on general "
     "anaesthesia was 1.88; on continuous epidural infusion 1.30; on epidural "
-    "anaesthesia 0.59; and on spinal anaesthesia 0.40.")
+    "anaesthesia 0.59; and on spinal anaesthesia 0.40. A combined measure "
+    "capturing the general-anaesthesia plus continuous-epidural workflow "
+    "(mean of L008 and L003 SCR; 331 areas with data for both codes) "
+    "showed a coefficient of variation of 55.5% and preserved a large "
+    "university hospital effect (Cohen's d 1.46; university mean 128.3 "
+    "versus non-university 70.7) (Figure 2B).")
 
 add_subheading("Sensitivity analyses against the audit hypothesis")
 add_para(
@@ -806,14 +811,16 @@ add_para("Figure 1. Geographic distribution of anaesthesia standardised claim "
          "least one university hospital. Areas masked by the data provider "
          "owing to low volume are shown in grey.", bold=False)
 add_blank()
-add_para("Figure 2. University hospital presence and the standardised claim "
-         "ratio for general anaesthesia. (A) Distribution of secondary "
-         "medical areas containing at least one university hospital "
-         "(n = 64 of 335). (B) Within-prefecture comparison of mean general "
-         "anaesthesia ratios between university and non-university areas "
-         "across all 47 prefectures. The university effect is positive in "
-         "all 47 of 47 prefectures (mean within-prefecture difference "
-         "+63.3 points, paired t = 13.28, P < 0.001).", bold=False)
+add_para("Figure 2. University hospital presence and the combined "
+         "general-anaesthesia plus continuous-epidural measure. "
+         "(A) Distribution of secondary medical areas containing at least "
+         "one university hospital (n = 64 of 335; red). (B) Choropleth map "
+         "of the combined general-anaesthesia plus continuous-epidural "
+         "standardised claim ratio (mean of L008 and L003 SCR; 331 areas "
+         "with data for both codes), shaded by quintile. Red circles mark "
+         "secondary medical areas containing at least one university "
+         "hospital. Areas masked by the data provider for either code "
+         "are shown in grey.", bold=False)
 
 # Embed figure images at end (after legends) for reviewer convenience
 for fig_path, caption in [
