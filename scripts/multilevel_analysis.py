@@ -46,11 +46,12 @@ with open('/home/ubuntu/anesthesiologist_by_sma.csv', 'rb') as f:
 text2 = raw2.decode('utf-8', errors='replace')
 reader2 = csv.DictReader(io.StringIO(text2))
 for row in reader2:
-    ac = row.get('area_code', '').strip()
+    # CSV columns are: code, name, total_physicians, anesthesiologist_count
+    ac = row.get('code', '').strip()
     if ac:
         anes_data[ac] = {
             'total_physicians': float(row.get('total_physicians', 0) or 0),
-            'anesthesiologists': float(row.get('anesthesiologists', 0) or 0),
+            'anesthesiologists': float(row.get('anesthesiologist_count', 0) or 0),
         }
 
 # Load physician table for population data if available
@@ -350,10 +351,10 @@ for code_label in ['L008_general_anesthesia', 'L004_spinal', 'L002_epidural']:
     
     if len(raw_univ) > 2 and len(raw_non) > 2:
         raw_d = (np.mean(raw_univ) - np.mean(raw_non)) / np.sqrt(
-            ((np.std(raw_univ)**2 * (len(raw_univ)-1) + np.std(raw_non)**2 * (len(raw_non)-1)) / 
+            ((np.std(raw_univ, ddof=1)**2 * (len(raw_univ)-1) + np.std(raw_non, ddof=1)**2 * (len(raw_non)-1)) /
              (len(raw_univ) + len(raw_non) - 2)))
         eb_d = (np.mean(eb_univ) - np.mean(eb_non)) / np.sqrt(
-            ((np.std(eb_univ)**2 * (len(eb_univ)-1) + np.std(eb_non)**2 * (len(eb_non)-1)) / 
+            ((np.std(eb_univ, ddof=1)**2 * (len(eb_univ)-1) + np.std(eb_non, ddof=1)**2 * (len(eb_non)-1)) / 
              (len(eb_univ) + len(eb_non) - 2)))
         print(f"  Raw: Univ mean={np.mean(raw_univ):.1f}, Non-univ mean={np.mean(raw_non):.1f}, Cohen's d={raw_d:.3f}")
         print(f"  EB:  Univ mean={np.mean(eb_univ):.1f}, Non-univ mean={np.mean(eb_non):.1f}, Cohen's d={eb_d:.3f}")
@@ -398,7 +399,7 @@ if 'L008_general_anesthesia' in anesthesia_data and 'L004_spinal' in anesthesia_
     c_non = [combined[ac] for ac in combined if ac not in univ_area_codes]
     if len(c_univ) > 2 and len(c_non) > 2:
         c_d = (np.mean(c_univ) - np.mean(c_non)) / np.sqrt(
-            ((np.std(c_univ)**2 * (len(c_univ)-1) + np.std(c_non)**2 * (len(c_non)-1)) / 
+            ((np.std(c_univ, ddof=1)**2 * (len(c_univ)-1) + np.std(c_non, ddof=1)**2 * (len(c_non)-1)) / 
              (len(c_univ) + len(c_non) - 2)))
         print(f"\n  University effect on combined L008+L004:")
         print(f"    Univ mean={np.mean(c_univ):.1f}, Non-univ mean={np.mean(c_non):.1f}")
@@ -459,7 +460,7 @@ for code_label in ['L008_general_anesthesia', 'L004_spinal', 'L002_epidural',
     non_v = [vals[ac] for ac in vals if ac not in univ_area_codes]
     
     if len(univ_v) > 2 and len(non_v) > 2:
-        pooled_sd = np.sqrt(((np.std(univ_v)**2*(len(univ_v)-1) + np.std(non_v)**2*(len(non_v)-1)) / 
+        pooled_sd = np.sqrt(((np.std(univ_v, ddof=1)**2*(len(univ_v)-1) + np.std(non_v, ddof=1)**2*(len(non_v)-1)) / 
                              (len(univ_v)+len(non_v)-2)))
         d = (np.mean(univ_v) - np.mean(non_v)) / pooled_sd if pooled_sd > 0 else 0
         t_stat, t_p = stats.ttest_ind(univ_v, non_v)
