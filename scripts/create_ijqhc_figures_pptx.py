@@ -75,9 +75,12 @@ figures_en = [
         'Figure 1. Geographic distribution of anaesthesia standardised claim '
         'ratios across 335 secondary medical areas of Japan, fiscal year 2022.',
         '(A) General anaesthesia (L008). (B) Spinal anaesthesia (L004). '
-        'Choropleth maps shaded by quintile of the standardised claim ratio '
-        '(national average = 100). Areas masked by the data provider owing to '
-        'low volume are shown in grey.',
+        '(C) Epidural anaesthesia as main anaesthetic (L002). '
+        '(D) Continuous epidural infusion (L003). Choropleth maps shaded '
+        'by quintile of the standardised claim ratio (national average = '
+        '100). Red circles mark secondary medical areas containing at '
+        'least one university hospital. Areas masked by the data provider '
+        'owing to low volume are shown in grey.',
     ),
     (
         'rapm_fig2_en.png',

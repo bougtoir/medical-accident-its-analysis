@@ -180,8 +180,8 @@ add_run_with_refs(
     p,
     "Substantial variation was observed across all anaesthesia codes. The "
     "coefficient of variation was 53.6% for general anaesthesia, 87.0% for "
-    "epidural anaesthesia, 64.9% for continuous epidural infusion (the direct "
-    "indicator of combined general-epidural technique) and 56.8% for spinal "
+    "epidural anaesthesia (L002), 64.9% for continuous epidural infusion "
+    "(L003) and 56.8% for spinal "
     "anaesthesia. Multilevel models showed that only 5.8% of general "
     "anaesthesia variance was attributable to the prefecture level (intraclass "
     "correlation coefficient 0.058); 94.2% occurred within prefectures, where "
@@ -202,8 +202,9 @@ add_run_with_refs(
     "Regional variation in anaesthesia practice across Japan is substantial "
     "and predominantly structural rather than an artefact of insurance "
     "auditing. University hospital proximity is the dominant determinant. The "
-    "marked variation in combined general-epidural anaesthesia, which has been "
-    "linked to oncological outcomes, indicates a modifiable inequity in "
+    "marked variation in epidural anaesthesia (L002) and continuous epidural "
+    "infusion (L003), the publicly reported proxies for regional anaesthesia "
+    "use, indicates a modifiable inequity in "
     "access to a potentially beneficial technique under a system designed for "
     "universal coverage.")
 
@@ -250,7 +251,7 @@ add_para(
 
 add_para(
     "Anaesthesia practice is well suited to this question. The choice between "
-    "general anaesthesia alone and combined general-regional techniques is "
+    "general anaesthesia alone and techniques that add regional anaesthesia is "
     "clinically consequential: a body of evidence suggests that regional "
     "anaesthesia, particularly epidural analgesia combined with general "
     "anaesthesia, may improve recurrence-free and overall survival in some "
@@ -324,8 +325,8 @@ add_subheading("Anaesthesia procedure codes and university hospital mapping")
 add_para(
     "Six procedure codes from the Japanese fee schedule were analysed "
     "(Table 1): L008 (closed-circuit general anaesthesia); L002 (epidural "
-    "anaesthesia); L003 (continuous epidural infusion, the direct indicator "
-    "of combined general-epidural technique); L004 (spinal anaesthesia); "
+    "anaesthesia as main technique); L003 (continuous epidural infusion, "
+    "largely billed as adjunct to general anaesthesia); L004 (spinal anaesthesia); "
     "L009 (anaesthesia management fee I, a proxy for specialist staffing); "
     "and L100 (inpatient nerve block). We mapped 81 university hospitals (44 "
     "national, 8 public and 29 private) to their respective secondary medical "
@@ -478,8 +479,17 @@ add_para(
     "rather than intended practice; the partial overlap between university "
     "hospital presence and urban concentration; the absence of code-specific "
     "audit-rate data; and the inability to quantify defensive undercoding "
-    "from claims alone. Multilevel models included only university "
-    "hospital presence as a structural fixed effect; future work should add "
+    "from claims alone. A specific constraint of the publicly available "
+    "dataset is that the combined anaesthesia add-on billed under L008 "
+    "(the explicit code for general-plus-epidural technique) is aggregated "
+    "with other anaesthesia add-ons in the regional variation data release "
+    "and cannot be extracted separately at the secondary-medical-area "
+    "level; patient-level National Database records would be required to "
+    "measure the true rate of combined general-epidural anaesthesia. We "
+    "therefore used L002 (epidural as main technique) and L003 (continuous "
+    "epidural infusion) as the publicly reported proxies for regional "
+    "technique use. Multilevel models included only university hospital "
+    "presence as a structural fixed effect; future work should add "
     "additional area-level covariates such as urbanisation, bed density and "
     "case-mix indicators.")
 
@@ -519,8 +529,9 @@ add_para(
     "OECD countries;{26} the consistency of the university effect across "
     "47 of 47 prefectures in our data suggests that it is a robust feature "
     "of high-income health systems rather than a Japanese idiosyncrasy. "
-    "Third, the variation we identify in combined general-epidural "
-    "anaesthesia speaks to an international equity agenda: where emerging "
+    "Third, the variation we identify in epidural anaesthesia (L002, "
+    "coefficient of variation 87.0%) and continuous epidural infusion "
+    "(L003, 64.9%) speaks to an international equity agenda: where emerging "
     "evidence links regional anaesthesia to oncological and functional "
     "outcomes,{7-9} monitoring the distribution of anaesthesia techniques "
     "could serve as a system-level quality indicator across any universal "
@@ -537,9 +548,10 @@ add_para(
 
 add_subheading("Implications for policy, practice and research")
 add_para(
-    "The marked variation in continuous epidural infusion (coefficient of "
-    "variation 64.9%) is clinically important because combined general-"
-    "regional anaesthesia has been linked, albeit inconsistently, with better "
+    "The marked variation in continuous epidural infusion (L003; coefficient "
+    "of variation 64.9%) and in epidural anaesthesia (L002; 87.0%) is "
+    "clinically important because general anaesthesia supplemented with "
+    "regional techniques has been linked, albeit inconsistently, with better "
     "oncological outcomes.{7-9} A 1.73-fold difference in continuous epidural "
     "infusion ratios between university and non-university areas implies that "
     "patients' access to a potentially beneficial technique depends "
@@ -563,8 +575,9 @@ add_para(
     "predominantly structural rather than an artefact of insurance auditing. "
     "University hospital presence is the dominant determinant, explaining "
     "more than one third of total variance in general anaesthesia. The "
-    "variation in combined general-epidural anaesthesia is of particular "
-    "concern given emerging evidence of oncological benefit. Quality "
+    "variation in epidural anaesthesia (L002) and continuous epidural "
+    "infusion (L003) is of particular concern given emerging evidence of "
+    "oncological benefit from regional techniques. Quality "
     "improvement and equity policy should address the supply and "
     "organisational determinants of anaesthesia practice rather than treat "
     "the variation as an unavoidable feature of claims processing.")
@@ -644,9 +657,10 @@ for cell in hdr:
 table1_rows = [
     ("L008", "Closed-circuit general anaesthesia",
      "Primary indicator of overall general anaesthesia volume"),
-    ("L002", "Epidural anaesthesia", "Marker of regional technique use"),
+    ("L002", "Epidural anaesthesia",
+     "Regional technique claimed as main anaesthetic"),
     ("L003", "Continuous epidural infusion",
-     "Direct indicator of combined general-epidural technique"),
+     "Regional technique largely billed as adjunct to general anaesthesia"),
     ("L004", "Spinal anaesthesia", "Alternative regional technique"),
     ("L009", "Anaesthesia management fee I",
      "Proxy for specialist anaesthesiologist staffing"),
@@ -768,9 +782,12 @@ add_heading("Figure legends", level=1, space_before=0)
 add_para("Figure 1. Geographic distribution of anaesthesia standardised claim "
          "ratios across 335 secondary medical areas of Japan, fiscal year "
          "2022. (A) General anaesthesia (L008). (B) Spinal anaesthesia "
-         "(L004). Choropleth maps shaded by quintile of the standardised "
-         "claim ratio (national average = 100). Areas masked by the data "
-         "provider owing to low volume are shown in grey.", bold=False)
+         "(L004). (C) Epidural anaesthesia as main anaesthetic (L002). "
+         "(D) Continuous epidural infusion (L003). Choropleth maps shaded "
+         "by quintile of the standardised claim ratio (national average = "
+         "100). Red circles mark secondary medical areas containing at "
+         "least one university hospital. Areas masked by the data provider "
+         "owing to low volume are shown in grey.", bold=False)
 add_blank()
 add_para("Figure 2. University hospital presence and the standardised claim "
          "ratio for general anaesthesia. (A) Distribution of secondary "
