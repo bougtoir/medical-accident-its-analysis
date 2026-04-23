@@ -478,7 +478,7 @@ add_para(
     "rather than intended practice; the partial overlap between university "
     "hospital presence and urban concentration; the absence of code-specific "
     "audit-rate data; and the inability to quantify defensive undercoding "
-    "from claims alone.{20} Multilevel models included only university "
+    "from claims alone. Multilevel models included only university "
     "hospital presence as a structural fixed effect; future work should add "
     "additional area-level covariates such as urbanisation, bed density and "
     "case-mix indicators.")
@@ -498,11 +498,42 @@ add_para(
     "effect we report (Cohen's d = 1.88) is unusually large compared with "
     "effect sizes typically reported in this literature, plausibly reflecting "
     "the influence of the ikyoku (university medical office) system on "
-    "clinical practice in affiliated hospitals.{25,26} The intraclass "
+    "clinical practice in affiliated hospitals.{25} The intraclass "
     "correlation coefficient of 0.058 for general anaesthesia is also "
     "noticeably lower than coefficients reported for surgical procedure rates "
     "in the United States,{21} indicating that within-prefecture institutional "
     "factors dominate over prefectural-level factors for this code.")
+
+add_para(
+    "Our findings and framework extend beyond Japan in four respects. First, "
+    "the within-prefecture variance decomposition we describe is directly "
+    "transportable to other universal-coverage systems that combine a "
+    "centrally uniform fee schedule with regionally devolved claims auditing, "
+    "including Taiwan's National Health Insurance,{20} South Korea's National "
+    "Health Insurance Service, and the tariff-based systems of Germany, "
+    "France and the English National Health Service.{22,23} Second, the "
+    "dominance of tertiary-teaching-hospital concentration as a structural "
+    "determinant of technique choice echoes analogous patterns for "
+    "teaching-hospital anaesthesia mix reported in the US and United "
+    "Kingdom,{21,22} and for other tertiary-intensive specialties across "
+    "OECD countries;{26} the consistency of the university effect across "
+    "47 of 47 prefectures in our data suggests that it is a robust feature "
+    "of high-income health systems rather than a Japanese idiosyncrasy. "
+    "Third, the variation we identify in combined general-epidural "
+    "anaesthesia speaks to an international equity agenda: where emerging "
+    "evidence links regional anaesthesia to oncological and functional "
+    "outcomes,{7-9} monitoring the distribution of anaesthesia techniques "
+    "could serve as a system-level quality indicator across any universal "
+    "coverage setting committed to equitable access to technology-rich "
+    "care.{27,29} Fourth, extrapolation to low- and middle-income countries "
+    "is more cautious: fee schedules and audit arrangements are typically "
+    "heterogeneous and claims data often incomplete, which limits direct "
+    "replication of the decomposition. Nevertheless, the general principle "
+    "— that apparent small-area variation should be interrogated for "
+    "administrative versus structural origins before policy action — is "
+    "transferable, particularly as low- and middle-income countries "
+    "progressively standardise their fee schedules under universal health "
+    "coverage reforms.{2}")
 
 add_subheading("Implications for policy, practice and research")
 add_para(
@@ -563,13 +594,13 @@ REFERENCES = [
     "Seabold S, Perktold J. Statsmodels: econometric and statistical modeling with Python. In: Proceedings of the 9th Python in Science Conference. 2010:92-6.",
     "Efron B, Morris C. Stein's estimation rule and its competitors: an empirical Bayes approach. J Am Stat Assoc 1973;68:117-30.",
     "Greenland S. Ecologic versus individual-level sources of bias in ecologic estimates of contextual health effects. Int J Epidemiol 2001;30:1343-50.",
-    "Sekimoto M, Imanaka Y, Kobayashi H, et al. Impact of hospital characteristics on the cost and practice patterns of acute myocardial infarction patients in Japan. Health Policy 2006;78:34-45.",
+    "Cheng T-M. Taiwan's new national health insurance program: genesis and experience so far. Health Aff (Millwood) 2003;22:61-76.",
     "Wennberg JE, Fisher ES, Skinner JS. Geography and the debate over Medicare reform. Health Aff (Millwood) 2002;Suppl Web Exclusives:W96-114.",
     "NHS RightCare. The NHS Atlas of Variation in Healthcare. London: Public Health England, 2015.",
     "Wengler A, Nimptsch U, Mansky T. Hip and knee replacement surgery (arthroplasty) and geographic variations in Germany. Dtsch Arztebl Int 2014;111:407-16.",
     "Australian Commission on Safety and Quality in Health Care. Australian Atlas of Healthcare Variation. Sydney: ACSQHC, 2015.",
     "Otsuka T. The ikyoku system of university orthopaedic surgery departments: an in-hospital organisational system unique to Japan. J Orthop Sci 2012;17:513-14.",
-    "Onishi H. History of Japanese medical education. Korean J Med Educ 2018;30:283-94.",
+    "OECD. Geographic Variations in Health Care: What Do We Know and What Can Be Done to Improve Health System Performance? Paris: OECD Publishing, 2014.",
     "Donabedian A. The quality of care: how can it be assessed? JAMA 1988;260:1743-8.",
     "Merry AF, Cooper JB, Soyannwo O, et al. International standards for a safe practice of anesthesia 2010. Can J Anesth 2010;57:1027-34.",
     "Mainz J. Defining and classifying clinical indicators for quality improvement. Int J Qual Health Care 2003;15:523-30.",

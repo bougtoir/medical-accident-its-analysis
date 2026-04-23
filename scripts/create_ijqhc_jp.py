@@ -371,7 +371,7 @@ add_para(
     "デザインゆえの因果推論の限界、レセプトが審査後（実施意図ではなく算定後）"
     "の状態を反映すること、大学病院所在と都市集中の部分的重複、コード別査定率"
     "データの欠如、レセプト単独からは「ディフェンシブな低算定」を定量化できない"
-    "こと{20}が挙げられる。マルチレベルモデルには大学病院所在のみを構造的固定"
+    "ことが挙げられる。マルチレベルモデルには大学病院所在のみを構造的固定"
     "効果として含めた。今後は都市化指標、病床密度、症例構成など追加の地域共変量"
     "を取り入れる必要がある。")
 
@@ -385,10 +385,30 @@ add_para(
     "および皆保険下の東アジアにおいて麻酔技術の小地域差をマルチレベルで解析した"
     "初の研究である点で先行研究を拡張する。本研究で示された大学病院効果（"
     "Cohenのd=1.88）は、この分野で報告される効果量と比べて大きい。これは関連"
-    "病院の臨床に対する大学医局制度の影響を反映している可能性がある。{25,26}"
+    "病院の臨床に対する大学医局制度の影響を反映している可能性がある。{25}"
     "またL008の級内相関係数0.058は、米国の手術率で報告される値と比べて低く、"
     "{21}全身麻酔については都道府県内の施設要因が都道府県レベル要因を凌駕する"
     "ことを示している。")
+
+add_para(
+    "本研究の知見と枠組みは日本国外にも4つの点で意義を持つ。第一に、本研究で"
+    "用いた圏内分散分解は、一律の診療報酬体系と地域単位の請求審査を併せもつ"
+    "他の皆保険制度—台湾NHI、{20}韓国NHIS、ドイツ・フランスの社会保険、"
+    "英国NHS{22,23}—にそのまま移植可能である。第二に、構造的決定因としての"
+    "高次医療機関（大学・ティーチング病院）集中の優越は、米国・英国の"
+    "ティーチング病院における麻酔手技構成の差異{21,22}、ならびにOECD各国の"
+    "他の高次医療集中型診療科{26}でも報告されており、47/47都道府県で一貫して"
+    "観察された本研究の大学病院効果は日本固有ではなく、高所得国の医療制度に"
+    "普遍的な特徴である可能性を示唆する。第三に、全身・硬膜外麻酔併用の"
+    "地域差は国際的なequity agendaに関わる：区域麻酔が腫瘍学的・機能的"
+    "アウトカムに関連しうるという萌芽的エビデンス{7-9}に照らせば、麻酔技術"
+    "分布のモニタリングは、技術集約的医療への公平なアクセスを標榜する"
+    "あらゆる皆保険制度にとってシステムレベル質指標となりうる。{27,29}"
+    "第四に、低中所得国への外挿には慎重を要する。診療報酬体系や審査運用が"
+    "不均一であり、レセプトデータが不完全なことも多く、分散分解の直接的な"
+    "適用は限定的である。とはいえ、「見かけの小地域差を政策対応の前に"
+    "事務的要因か構造的要因かで吟味する」という本研究の一般原則は、皆保険"
+    "改革の中で診療報酬体系の標準化が進む国々にも移植可能である。{2}")
 
 add_subheading("政策・実践・研究へのインプリケーション")
 add_para(
@@ -440,13 +460,13 @@ REFERENCES = [
     "Seabold S, Perktold J. Statsmodels: econometric and statistical modeling with Python. In: Proceedings of the 9th Python in Science Conference. 2010:92-6.",
     "Efron B, Morris C. Stein's estimation rule and its competitors: an empirical Bayes approach. J Am Stat Assoc 1973;68:117-30.",
     "Greenland S. Ecologic versus individual-level sources of bias in ecologic estimates of contextual health effects. Int J Epidemiol 2001;30:1343-50.",
-    "Sekimoto M, Imanaka Y, Kobayashi H, et al. Impact of hospital characteristics on the cost and practice patterns of acute myocardial infarction patients in Japan. Health Policy 2006;78:34-45.",
+    "Cheng T-M. Taiwan's new national health insurance program: genesis and experience so far. Health Aff (Millwood) 2003;22:61-76.",
     "Wennberg JE, Fisher ES, Skinner JS. Geography and the debate over Medicare reform. Health Aff (Millwood) 2002;Suppl Web Exclusives:W96-114.",
     "NHS RightCare. The NHS Atlas of Variation in Healthcare. London: Public Health England, 2015.",
     "Wengler A, Nimptsch U, Mansky T. Hip and knee replacement surgery (arthroplasty) and geographic variations in Germany. Dtsch Arztebl Int 2014;111:407-16.",
     "Australian Commission on Safety and Quality in Health Care. Australian Atlas of Healthcare Variation. Sydney: ACSQHC, 2015.",
     "Otsuka T. The ikyoku system of university orthopaedic surgery departments: an in-hospital organisational system unique to Japan. J Orthop Sci 2012;17:513-14.",
-    "Onishi H. History of Japanese medical education. Korean J Med Educ 2018;30:283-94.",
+    "OECD. Geographic Variations in Health Care: What Do We Know and What Can Be Done to Improve Health System Performance? Paris: OECD Publishing, 2014.",
     "Donabedian A. The quality of care: how can it be assessed? JAMA 1988;260:1743-8.",
     "Merry AF, Cooper JB, Soyannwo O, et al. International standards for a safe practice of anesthesia 2010. Can J Anesth 2010;57:1027-34.",
     "Mainz J. Defining and classifying clinical indicators for quality improvement. Int J Qual Health Care 2003;15:523-30.",

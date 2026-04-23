@@ -46,9 +46,13 @@ with open('/home/ubuntu/anesthesiologist_by_sma.csv', 'rb') as f:
 text2 = raw2.decode('utf-8', errors='replace')
 reader2 = csv.DictReader(io.StringIO(text2))
 for row in reader2:
-    # CSV columns are: code, name, total_physicians, anesthesiologist_count
-    ac = row.get('code', '').strip()
-    if ac:
+    # CSV columns are: code, name, total_physicians, anesthesiologist_count.
+    # The SCR CSV uses unpadded area codes (e.g. '101') while this CSV uses
+    # zero-padded 4-digit codes (e.g. '0101'); strip leading zeros so the
+    # lookup on area_codes (which are unpadded) succeeds for all 335 areas.
+    ac_raw = row.get('code', '').strip()
+    if ac_raw:
+        ac = ac_raw.lstrip('0') or '0'
         anes_data[ac] = {
             'total_physicians': float(row.get('total_physicians', 0) or 0),
             'anesthesiologists': float(row.get('anesthesiologist_count', 0) or 0),
@@ -463,7 +467,10 @@ for code_label in ['L008_general_anesthesia', 'L004_spinal', 'L002_epidural',
         pooled_sd = np.sqrt(((np.std(univ_v, ddof=1)**2*(len(univ_v)-1) + np.std(non_v, ddof=1)**2*(len(non_v)-1)) / 
                              (len(univ_v)+len(non_v)-2)))
         d = (np.mean(univ_v) - np.mean(non_v)) / pooled_sd if pooled_sd > 0 else 0
-        t_stat, t_p = stats.ttest_ind(univ_v, non_v)
+        # Welch's t-test (equal_var=False) matches the methodology described
+        # in the manuscripts; the variances are typically unequal between
+        # university and non-university areas.
+        t_stat, t_p = stats.ttest_ind(univ_v, non_v, equal_var=False)
         # Mann-Whitney U for non-parametric
         u_stat, u_p = stats.mannwhitneyu(univ_v, non_v, alternative='two-sided')
         
