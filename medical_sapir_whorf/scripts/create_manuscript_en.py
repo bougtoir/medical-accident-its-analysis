@@ -789,13 +789,14 @@ def build_manuscript(fig1_path, fig2_path):
 
     # ---- BACKGROUND ----
     add_heading(doc, '2. Background', level=1)
+    section_num = 1
     for sub_title, paras in BACKGROUND_PARAS.items():
-        add_heading(doc, f'2.x {sub_title}', level=2)
+        add_heading(doc, f'2.{section_num} {sub_title}', level=2)
+        section_num += 1
         for para_text in paras:
             add_body(doc, para_text)
 
-    # Fix sub-numbering
-    # (We'll just use 2.1, 2.2 manually)
+
 
     # ---- THE NOSOLOGICAL RELATIVITY FRAMEWORK ----
     add_heading(doc, '3. The Nosological Relativity Framework', level=1)
