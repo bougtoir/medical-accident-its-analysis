@@ -44,7 +44,7 @@ doc.add_paragraph()
 # Body
 doc.add_paragraph(
     'We respectfully submit the enclosed manuscript entitled '
-    '\u201c\u201cJapanese Patient\u201d? \u2014 A Patient. Regional Heterogeneity in Pain-Related '
+    '\u201c\u2018Japanese Patient\u2019? \u2014 A Patient. Regional Heterogeneity in Pain-Related '
     'Prescribing Across Japan\u2019s 47 Prefectures Challenges the Stereotype of a Stoic Monolith\u201d '
     'for consideration as an Original Article in the European Journal of Pain.'
 )

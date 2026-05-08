@@ -706,7 +706,7 @@ r4 = (
     f'Diabetes drug prescribing was the strongest (r = 0.87, P < 0.001), '
     f'followed by anxiolytics (r = 0.75), antidepressants (r = 0.46), '
     f'and herpes antivirals (r = 0.19). '
-    f'These collectively explained 80.4% of variance '
+    f'These collectively explained {reg["model2_adjusted"]["R2"]*100:.1f}% of variance '
     f'(R\u00b2 = {reg["model2_adjusted"]["R2"]:.3f} in Model 2; Fig. 2).'
 )
 doc.add_paragraph(r4)
@@ -821,6 +821,9 @@ add_figure('fig4_region_unadj_vs_adj_en.png',
            'adjustment. Error bars represent standard deviation.')
 
 add_heading_text('Phase 1\u2013Phase 2 integration', level=2)
+unadj_d = reg["model1_unadjusted"]["cohens_d"]
+adj_d = reg["adjusted_cpsp_test"]["cohens_d"]
+attenuation = (1 - adj_d / unadj_d) * 100
 r7 = (
     f'Acute perioperative prescribing correlated positively with unadjusted neuropathic pain prescribing '
     f'(r = 0.38, P = 0.008; Fig. 5a). After confounder adjustment, this was attenuated '
@@ -830,7 +833,7 @@ r7 = (
     f'while the Tohoku effect remained nonsignificant '
     f'(\u03b2 = {reg["model5_integrated"]["tohoku_coef"]:.1f}, P = {reg["model5_integrated"]["tohoku_p"]:.3f}). '
     f'A comprehensive Z-score heatmap confirmed the heterogeneous multi-variable pattern (Supplementary Fig. 1). '
-    f'After adjustment, the Tohoku effect was attenuated by 62% and became nonsignificant (Table 3).'
+    f'After adjustment, the Tohoku effect was attenuated by {attenuation:.0f}% and became nonsignificant (Table 3).'
 )
 doc.add_paragraph(r7)
 results_parts.append(r7)
@@ -845,10 +848,6 @@ add_figure('fig5_phase1_vs_phase2_en.png',
            'Tohoku prefectures (red borders) cluster in the upper-right quadrant.')
 
 # === TABLE 3 inline ===
-unadj_d = reg["model1_unadjusted"]["cohens_d"]
-adj_d = reg["adjusted_cpsp_test"]["cohens_d"]
-attenuation = (1 - adj_d / unadj_d) * 100
-
 doc.add_paragraph()
 cap_p = doc.add_paragraph()
 cap_r = cap_p.add_run('Table 3. ')
@@ -895,7 +894,7 @@ note_p.paragraph_format.space_before = Pt(4)
 note_r = note_p.add_run(
     'Confounders: oral hypoglycemic agents (diabetes proxy), herpes zoster antivirals, '
     'antidepressants (excluding duloxetine), and anxiolytics. '
-    'Adjustment reduced the Tohoku effect by 62% and rendered it nonsignificant.')
+    f'Adjustment reduced the Tohoku effect by {attenuation:.0f}% and rendered it nonsignificant.')
 note_r.font.size = Pt(8)
 note_r.font.italic = True
 doc.add_paragraph()
@@ -1018,7 +1017,7 @@ d5 = (
     f'by confounding disease proxies. '
     f'Diabetes drug prescribing alone correlated at r = 0.87 with neuropathic pain prescribing, '
     f'reflecting the known high prevalence of diabetic neuropathy requiring gabapentinoids. '
-    f'After adjustment, the Tohoku effect was attenuated by 62% and became nonsignificant (Table 3). '
+    f'After adjustment, the Tohoku effect was attenuated by {attenuation:.0f}% and became nonsignificant (Table 3). '
     f'This has important implications for ecological pain research: '
     f'studies using neuropathic pain drug prescribing as a population-level CPSP proxy must account for '
     f'confounding diseases. Without such adjustment, regional differences in diabetes prevalence '
