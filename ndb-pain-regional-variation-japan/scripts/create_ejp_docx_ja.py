@@ -3,7 +3,8 @@
 
 Same content as EN version but with Japanese text.
 EJP uses author-date references (Harvard style).
-Tables and figures are inline.
+Tables and figures uploaded as separate files (not embedded in main text).
+Figure/table legends appended at end of manuscript.
 Abstract includes Significance statement.
 """
 
@@ -171,25 +172,7 @@ def set_table_borders(table):
     tblPr.append(borders)
 
 
-def add_figure(fig_file, caption_label, caption_text, width_inches=5.5):
-    fig_path = os.path.join(OUTPUT_DIR, fig_file)
-    if os.path.exists(fig_path):
-        p = doc.add_paragraph()
-        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        run = p.add_run()
-        run.add_picture(fig_path, width=Inches(width_inches))
-        cap_p = doc.add_paragraph()
-        cap_p.paragraph_format.space_before = Pt(12)
-        r = cap_p.add_run(caption_label + ' ')
-        r.bold = True
-        r.font.size = Pt(10)
-        cap_r = cap_p.add_run(caption_text)
-        cap_r.font.size = Pt(10)
-        doc.add_paragraph()
-    else:
-        p = doc.add_paragraph()
-        r = p.add_run(f'[{caption_label} — ファイル未検出: {fig_file}]')
-        r.font.italic = True
+
 
 
 # ============================================================
@@ -198,9 +181,8 @@ def add_figure(fig_file, caption_label, caption_text, width_inches=5.5):
 title_ja = doc.add_paragraph()
 title_ja.alignment = WD_ALIGN_PARAGRAPH.CENTER
 run = title_ja.add_run(
-    '\u201c日本人患者\u201dか？\u2014\u2014ただの患者だ。\n'
     '47都道府県における疼痛関連処方の地域間異質性は\n'
-    '「我慢強い単一民族」というステレオタイプに疑義を呈する'
+    '「我慢強い一枚岩の患者像」に疑義を呈する：生態学的研究'
 )
 run.bold = True
 run.font.size = Pt(14)
@@ -210,9 +192,8 @@ doc.add_paragraph()
 title_en = doc.add_paragraph()
 title_en.alignment = WD_ALIGN_PARAGRAPH.CENTER
 run_en = title_en.add_run(
-    '\u201cJapanese Patient\u201d? \u2014 A Patient.\n'
-    'Regional Heterogeneity in Pain-Related Prescribing Across Japan\u2019s 47 Prefectures\n'
-    'Challenges the Stereotype of a Stoic Monolith'
+    'Regional Heterogeneity in Pain-Related Prescribing Across Japan\u2019s 47 Prefectures '
+    'Challenges a Stoic Monolithic Patient Stereotype: an ecological study'
 )
 run_en.font.size = Pt(12)
 run_en.italic = True
@@ -280,9 +261,12 @@ abstract_conclusions = (
     '文化的ステレオタイプに基づく仮定ではなく、個別化された疼痛評価が周術期ケアの標準であるべきである。'
 )
 abstract_significance = (
-    '本研究は、日本国内における疼痛関連処方に約2倍の地域差が存在することを集団レベルで初めて示した。'
-    '日本人患者を一枚岩の「我慢強い」集団とみなす広範な臨床的前提に直接的に疑義を呈するものであり、'
-    '日本人患者が治療される全ての臨床現場において、文化的ステレオタイプが疼痛治療の不足につながりうることを示唆する。'
+    '本研究は、全人口をカバーするレセプトデータを用いて47都道府県の疼痛関連処方の国内変動を'
+    '定量化した初の全国規模の研究である。'
+    '一様に忍耐強いとされてきた単一国家内に約2倍の変動を実証することで、'
+    '疼痛耐性に関する文化的一般化が集団レベルでは信頼できないことを示す経験的根拠を提供する。'
+    '本知見は、日本人および他の東アジア患者の疼痛評価・治療において、'
+    '民族的ステレオタイプを排すべきことを世界の臨床医に促すものである。'
 )
 
 p = doc.add_paragraph()
@@ -444,51 +428,7 @@ region_data = defaultdict(list)
 for r in rows:
     region_data[r['region']].append(r['acute_analgesic_per_surgery'])
 
-doc.add_paragraph()
-cap_p = doc.add_paragraph()
-cap_r = cap_p.add_run('表1. ')
-cap_r.bold = True
-cap_r.font.size = Pt(10)
-cap_p.add_run('Phase 1：9地域ブロック別の入院鎮痛薬/手術指標の概要。').font.size = Pt(10)
-
-table1 = doc.add_table(rows=1 + len(REGION_ORDER) + 1, cols=5)
-set_table_borders(table1)
-t1_headers = ['地域', '都道府県数', '平均', 'SD', '範囲']
-for i, h in enumerate(t1_headers):
-    cell = table1.rows[0].cells[i]
-    cell.text = h
-    for paragraph in cell.paragraphs:
-        for run in paragraph.runs:
-            run.bold = True
-            run.font.size = Pt(9)
-
-for idx, reg_name in enumerate(REGION_ORDER):
-    vals = region_data[reg_name]
-    row = table1.rows[idx + 1]
-    row.cells[0].text = REGION_JA[reg_name]
-    row.cells[1].text = str(len(vals))
-    row.cells[2].text = f'{np.mean(vals):.2f}'
-    row.cells[3].text = f'{np.std(vals):.2f}'
-    row.cells[4].text = f'{min(vals):.2f}\u2013{max(vals):.2f}'
-    for cell in row.cells:
-        for paragraph in cell.paragraphs:
-            for run in paragraph.runs:
-                run.font.size = Pt(9)
-
-all_vals = [r['acute_analgesic_per_surgery'] for r in rows]
-nat_row = table1.rows[len(REGION_ORDER) + 1]
-nat_row.cells[0].text = '全国'
-nat_row.cells[1].text = str(len(rows))
-nat_row.cells[2].text = f'{np.mean(all_vals):.2f}'
-nat_row.cells[3].text = f'{np.std(all_vals):.2f}'
-nat_row.cells[4].text = f'{min(all_vals):.2f}\u2013{max(all_vals):.2f}'
-for cell in nat_row.cells:
-    for paragraph in cell.paragraphs:
-        for run in paragraph.runs:
-            run.bold = True
-            run.font.size = Pt(9)
-
-doc.add_paragraph()
+# [表1は別ファイルとしてアップロード]
 
 doc.add_paragraph(
     '明確な地域クラスタリングが観察された。東海・近畿（西日本）が最低値、'
@@ -512,13 +452,7 @@ doc.add_paragraph(
     f'岩手（566.7）、青森（519.3）、秋田（461.1）が全国上位3位を占めた（図1）。'
 )
 
-# === FIGURE 1 inline ===
-add_figure('fig1_neuropathic_unadjusted.png',
-           '図1.',
-           '都道府県別の外来神経障害性疼痛薬処方/手術指標（未調整）。'
-           '棒グラフは総神経障害性疼痛薬処方量（プレガバリン＋ミロガバリン＋デュロキセチン＋'
-           'トラマドール＋ノイロトロピン）を入院手術件数で除した値。'
-           '東北県（赤棒・赤枠）が高値側に集中。破線＝全国平均。')
+# [図1は別ファイルとしてアップロード]
 
 add_heading_text('交絡因子分析', level=2)
 doc.add_paragraph(
@@ -529,10 +463,7 @@ doc.add_paragraph(
     f'（モデル2のR\u00b2 = {reg["model2_adjusted"]["R2"]:.3f}；図2）。'
 )
 
-add_figure('fig2_confounder_correlations.png',
-           '図2.',
-           '外来神経障害性疼痛薬処方と交絡疾患プロキシの相関。'
-           '各点は1都道府県を表す。東北県は赤枠で示す。糖尿病薬が最強の相関（r = 0.87）。')
+# [図2は別ファイルとしてアップロード]
 
 add_heading_text('交絡因子調整後の分析', level=2)
 doc.add_paragraph(
@@ -546,52 +477,7 @@ doc.add_paragraph(
     f'P = {reg["model5_integrated"]["tohoku_p"]:.3f}；表2）。'
 )
 
-# === TABLE 2 inline ===
-doc.add_paragraph()
-cap_p = doc.add_paragraph()
-cap_r = cap_p.add_run('表2. ')
-cap_r.bold = True
-cap_r.font.size = Pt(10)
-cap_p.add_run('Phase 2：東北指標・交絡因子調整を含む回帰モデル。').font.size = Pt(10)
-
-table2 = doc.add_table(rows=7, cols=5)
-set_table_borders(table2)
-t2_headers = ['モデル', '従属変数', '東北係数/効果量', 'P値', '有意性']
-for i, h in enumerate(t2_headers):
-    table2.rows[0].cells[i].text = h
-    for paragraph in table2.rows[0].cells[i].paragraphs:
-        for run in paragraph.runs:
-            run.bold = True
-            run.font.size = Pt(9)
-
-t2_data = [
-    ['モデル1', '未調整t検定',
-     f'd = {reg["model1_unadjusted"]["cohens_d"]:.3f}',
-     f'{reg["model1_unadjusted"]["p_value"]:.2e}', '***'],
-    ['モデル2', '神経障害性疼痛薬/手術（完全調整）',
-     f'\u03b2 = {reg["model2_adjusted"]["tohoku_coef"]:.1f}',
-     f'{reg["model2_adjusted"]["tohoku_p"]:.4f}', 'ns'],
-    ['モデル3', 'コア薬（PGB+MGB）（完全調整）',
-     f'\u03b2 = {reg["model3_core_neuropathic"]["tohoku_coef"]:.1f}',
-     f'{reg["model3_core_neuropathic"]["tohoku_p"]:.4f}', 'ns'],
-    ['モデル4', '神経ブロック/手術（完全調整）',
-     f'\u03b2 = {reg["model4_nerve_blocks"]["tohoku_coef"]:.2f}',
-     f'{reg["model4_nerve_blocks"]["tohoku_p"]:.4f}', 'ns'],
-    ['モデル5', '神経障害性疼痛薬（急性期+交絡調整）',
-     f'\u03b2 = {reg["model5_integrated"]["tohoku_coef"]:.1f}',
-     f'{reg["model5_integrated"]["tohoku_p"]:.4f}', 'ns'],
-    ['調整済CPSP', '交絡除去残差',
-     f'd = {reg["adjusted_cpsp_test"]["cohens_d"]:.3f}',
-     f'{reg["adjusted_cpsp_test"]["p_value"]:.4f}', 'ns'],
-]
-for r_idx, row_data in enumerate(t2_data):
-    for c, val in enumerate(row_data):
-        table2.rows[r_idx + 1].cells[c].text = val
-        for paragraph in table2.rows[r_idx + 1].cells[c].paragraphs:
-            for run in paragraph.runs:
-                run.font.size = Pt(9)
-
-doc.add_paragraph()
+# [表2は別ファイルとしてアップロード]
 
 unadj_d = reg["model1_unadjusted"]["cohens_d"]
 adj_d = reg["adjusted_cpsp_test"]["cohens_d"]
@@ -606,13 +492,8 @@ doc.add_paragraph(
     f'中国地方が最高の調整済み指標、東海が最低であった（図4）。'
 )
 
-add_figure('fig3_adjusted_cpsp_index.png', '図3.',
-           '交絡因子調整済みCPSP指標（都道府県別）。糖尿病薬・帯状疱疹抗ウイルス薬・'
-           '抗うつ薬・抗不安薬による回帰の残差。東北県（赤枠）は調整後に分布全体に分散。')
-
-add_figure('fig4_region_unadj_vs_adj.png', '図4.',
-           '神経障害性疼痛薬処方の地域比較：(a) 未調整、(b) 交絡因子調整後。'
-           '東北（赤枠）は調整後に最高位から中間に移動。誤差棒＝標準偏差。')
+# [図3は別ファイルとしてアップロード]
+# [図4は別ファイルとしてアップロード]
 
 add_heading_text('Phase 1\u2013Phase 2 統合', level=2)
 doc.add_paragraph(
@@ -627,53 +508,8 @@ doc.add_paragraph(
     f'調整後、東北効果は{attn:.0f}%減弱し有意でなくなった（表3）。'
 )
 
-add_figure('fig5_phase1_vs_phase2.png', '図5.',
-           'Phase 1（急性期鎮痛薬処方）とPhase 2（神経障害性疼痛薬処方＝CPSPプロキシ）の統合。'
-           '(a) 未調整：正の相関（r = 0.38, P = 0.008）。(b) 調整後：減弱した相関（r = 0.29, P = 0.052）。')
-
-# === TABLE 3 inline ===
-doc.add_paragraph()
-cap_p = doc.add_paragraph()
-cap_r = cap_p.add_run('表3. ')
-cap_r.bold = True
-cap_r.font.size = Pt(10)
-cap_p.add_run('交絡因子調整による東北地域指標の変化。').font.size = Pt(10)
-
-table3 = doc.add_table(rows=4, cols=5)
-set_table_borders(table3)
-t3_headers = ['指標', '未調整', '交絡因子調整後', '変化', '解釈']
-for i, h in enumerate(t3_headers):
-    table3.rows[0].cells[i].text = h
-    for paragraph in table3.rows[0].cells[i].paragraphs:
-        for run in paragraph.runs:
-            run.bold = True
-            run.font.size = Pt(9)
-
-t3_data = [
-    ["Cohen's d（東北 vs 非東北）",
-     f'{unadj_d:.3f} (P < 0.001)',
-     f'{adj_d:.3f} (P = {reg["adjusted_cpsp_test"]["p_value"]:.3f})',
-     f'{attn:.0f}%減弱',
-     '大 \u2192 小効果量'],
-    ['東北平均指標',
-     f'{reg["model1_unadjusted"]["tohoku_mean"]:.1f}',
-     f'{reg["adjusted_cpsp_test"]["tohoku_mean"]:+.1f}（残差）',
-     '\u2014',
-     '過剰の大部分は交絡で説明'],
-    ['非東北平均指標',
-     f'{reg["model1_unadjusted"]["non_tohoku_mean"]:.1f}',
-     f'{reg["adjusted_cpsp_test"]["non_tohoku_mean"]:+.1f}（残差）',
-     '\u2014',
-     '参照群'],
-]
-for r_idx, row_data in enumerate(t3_data):
-    for c, val in enumerate(row_data):
-        table3.rows[r_idx + 1].cells[c].text = val
-        for paragraph in table3.rows[r_idx + 1].cells[c].paragraphs:
-            for run in paragraph.runs:
-                run.font.size = Pt(9)
-
-doc.add_paragraph()
+# [図5は別ファイルとしてアップロード]
+# [表3は別ファイルとしてアップロード]
 
 # ============================================================
 # DISCUSSION
@@ -830,7 +666,75 @@ add_heading_text('文献', level=1)
 for bib in refs_bib:
     doc.add_paragraph(bib)
 
-# Supplementary legend
+# ============================================================
+# TABLE LEGENDS
+# ============================================================
+doc.add_page_break()
+add_heading_text('表の説明', level=1)
+
+p = doc.add_paragraph()
+r = p.add_run('表1. ')
+r.bold = True
+p.add_run('Phase 1：9地域ブロック別の入院鎮痛薬/手術指標の概要。'
+    '値は鎮痛薬/手術指標（各都道府県の入院鎮痛薬処方単位合計÷入院手術件数合計）を表す。'
+    '9地域間のKruskal\u2013Wallis検定：P < 0.001。')
+
+p = doc.add_paragraph()
+r = p.add_run('表2. ')
+r.bold = True
+p.add_run('Phase 2：東北指標・交絡因子調整を含む回帰モデル。'
+    '*** P < 0.001; ns = 有意でない。'
+    'モデル2〜5：東北指標（二値）と交絡疾患プロキシによる重回帰分析。'
+    '調整済CPSP：神経障害性疼痛薬処方を4交絡プロキシに回帰した残差。')
+
+p = doc.add_paragraph()
+r = p.add_run('表3. ')
+r.bold = True
+p.add_run('交絡因子調整による東北地域指標の変化。'
+    '交絡因子：経口血糖降下薬（糖尿病プロキシ）、帯状疱疹抗ウイルス薬、'
+    '抗うつ薬（デュロキセチン除く）、抗不安薬。')
+
+# ============================================================
+# FIGURE LEGENDS
+# ============================================================
+doc.add_page_break()
+add_heading_text('図の説明', level=1)
+
+p = doc.add_paragraph()
+r = p.add_run('図1. ')
+r.bold = True
+p.add_run('都道府県別の外来神経障害性疼痛薬処方/手術指標（未調整）。'
+    '棒グラフは総神経障害性疼痛薬処方量（プレガバリン＋ミロガバリン＋デュロキセチン＋'
+    'トラマドール＋ノイロトロピン）を入院手術件数で除した値。'
+    '東北県（赤棒・赤枠）が高値側に集中。破線＝全国平均。')
+
+p = doc.add_paragraph()
+r = p.add_run('図2. ')
+r.bold = True
+p.add_run('外来神経障害性疼痛薬処方と交絡疾患プロキシの相関。'
+    '各点は1都道府県を表す。東北県は赤枠で示す。糖尿病薬が最強の相関（r = 0.87）。')
+
+p = doc.add_paragraph()
+r = p.add_run('図3. ')
+r.bold = True
+p.add_run('交絡因子調整済みCPSP指標（都道府県別）。糖尿病薬・帯状疱疹抗ウイルス薬・'
+    '抗うつ薬・抗不安薬による回帰の残差。東北県（赤枠）は調整後に分布全体に分散。')
+
+p = doc.add_paragraph()
+r = p.add_run('図4. ')
+r.bold = True
+p.add_run('神経障害性疼痛薬処方の地域比較：(a) 未調整、(b) 交絡因子調整後。'
+    '東北（赤枠）は調整後に最高位から中間に移動。誤差棒＝標準偏差。')
+
+p = doc.add_paragraph()
+r = p.add_run('図5. ')
+r.bold = True
+p.add_run('Phase 1（急性期鎮痛薬処方）とPhase 2（神経障害性疼痛薬処方＝CPSPプロキシ）の統合。'
+    '(a) 未調整：正の相関（r = 0.38, P = 0.008）。(b) 調整後：減弱した相関（r = 0.29, P = 0.052）。')
+
+# ============================================================
+# SUPPLEMENTARY MATERIAL
+# ============================================================
 doc.add_page_break()
 add_heading_text('補足資料', level=1)
 p = doc.add_paragraph()

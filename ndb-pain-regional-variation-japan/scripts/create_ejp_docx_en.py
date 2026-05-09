@@ -5,8 +5,9 @@ Key EJP requirements:
 - Original Article: ~5,000 words body (excl. abstract/refs/legends)
 - Abstract: structured (Background, Methods, Results, Conclusions) + "Significance" statement
 - References: author-date (Harvard) style — (Author, Year) in text, alphabetical bibliography
-- Tables: inline in manuscript
-- Figures: inline in manuscript after first mention, also provided as separate high-res files
+- Tables: uploaded as separate files (not embedded in main text)
+- Figures: uploaded as separate files (not embedded in main text)
+- Figure/table legends appended at end of manuscript
 - STROBE checklist required for observational studies
 - Author contributions paragraph
 - Title page/checklist (separate file — use EJP template)
@@ -274,27 +275,7 @@ def set_table_borders(table):
     tblPr.append(borders)
 
 
-def add_figure(fig_file, caption_label, caption_text, width_inches=5.5):
-    """Insert a figure inline after the paragraph where it is first mentioned."""
-    fig_path = os.path.join(OUTPUT_DIR, fig_file)
-    if os.path.exists(fig_path):
-        p = doc.add_paragraph()
-        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        run = p.add_run()
-        run.add_picture(fig_path, width=Inches(width_inches))
-        # Caption
-        cap_p = doc.add_paragraph()
-        cap_p.paragraph_format.space_before = Pt(12)
-        r = cap_p.add_run(caption_label + ' ')
-        r.bold = True
-        r.font.size = Pt(10)
-        cap_r = cap_p.add_run(caption_text)
-        cap_r.font.size = Pt(10)
-        doc.add_paragraph()
-    else:
-        p = doc.add_paragraph()
-        r = p.add_run(f'[{caption_label} — file not found: {fig_file}]')
-        r.font.italic = True
+
 
 
 # Word-count helper
@@ -308,9 +289,8 @@ def wc(text):
 title_p = doc.add_paragraph()
 title_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
 run = title_p.add_run(
-    '\u201cJapanese Patient\u201d? \u2014 A Patient.\n'
-    'Regional Heterogeneity in Pain-Related Prescribing Across Japan\u2019s 47 Prefectures\n'
-    'Challenges the Stereotype of a Stoic Monolith'
+    'Regional Heterogeneity in Pain-Related Prescribing Across Japan\u2019s 47 Prefectures '
+    'Challenges a Stoic Monolithic Patient Stereotype: an ecological study'
 )
 run.bold = True
 run.font.size = Pt(14)
@@ -386,11 +366,13 @@ abstract_conclusions = (
     'in perioperative care.'
 )
 abstract_significance = (
-    'This study provides the first population-level evidence of nearly twofold regional variation '
-    'in pain-related prescribing within Japan, directly challenging the widespread clinical assumption '
-    'that Japanese patients constitute a monolithic "stoic" population. '
-    'This finding is clinically important for any setting where Japanese patients are treated, '
-    'as cultural stereotyping may lead to systematic under-treatment of pain.'
+    'This is the first nationwide study to quantify within-country variation in pain-related '
+    'prescribing across all 47 Japanese prefectures, using claims data covering the entire population. '
+    'By demonstrating nearly twofold variation within a single nation commonly characterized as '
+    'uniformly stoic, this work provides empirical evidence that cultural generalizations about '
+    'pain tolerance are unreliable at the population level. '
+    'These findings urge clinicians worldwide to abandon ethnic stereotyping '
+    'when assessing and treating pain in Japanese and other East Asian patients.'
 )
 
 p = doc.add_paragraph()
@@ -611,59 +593,7 @@ region_data = defaultdict(list)
 for r in rows:
     region_data[r['region']].append(r['acute_analgesic_per_surgery'])
 
-doc.add_paragraph()
-cap_p = doc.add_paragraph()
-cap_r = cap_p.add_run('Table 1. ')
-cap_r.bold = True
-cap_r.font.size = Pt(10)
-cap_p.add_run('Phase 1: Regional summary of inpatient analgesic prescribing per surgery across nine regional blocks.').font.size = Pt(10)
-
-table1 = doc.add_table(rows=1 + len(REGION_ORDER) + 1, cols=5)
-set_table_borders(table1)
-t1_headers = ['Region', 'N prefectures', 'Mean', 'SD', 'Range']
-for i, h in enumerate(t1_headers):
-    cell = table1.rows[0].cells[i]
-    cell.text = h
-    for paragraph in cell.paragraphs:
-        for run in paragraph.runs:
-            run.bold = True
-            run.font.size = Pt(9)
-
-for idx, reg_name in enumerate(REGION_ORDER):
-    vals = region_data[reg_name]
-    row = table1.rows[idx + 1]
-    row.cells[0].text = REGION_EN[reg_name]
-    row.cells[1].text = str(len(vals))
-    row.cells[2].text = f'{np.mean(vals):.2f}'
-    row.cells[3].text = f'{np.std(vals):.2f}'
-    row.cells[4].text = f'{min(vals):.2f}\u2013{max(vals):.2f}'
-    for cell in row.cells:
-        for paragraph in cell.paragraphs:
-            for run in paragraph.runs:
-                run.font.size = Pt(9)
-
-all_vals = [r['acute_analgesic_per_surgery'] for r in rows]
-nat_row = table1.rows[len(REGION_ORDER) + 1]
-nat_row.cells[0].text = 'National'
-nat_row.cells[1].text = str(len(rows))
-nat_row.cells[2].text = f'{np.mean(all_vals):.2f}'
-nat_row.cells[3].text = f'{np.std(all_vals):.2f}'
-nat_row.cells[4].text = f'{min(all_vals):.2f}\u2013{max(all_vals):.2f}'
-for cell in nat_row.cells:
-    for paragraph in cell.paragraphs:
-        for run in paragraph.runs:
-            run.bold = True
-            run.font.size = Pt(9)
-
-note_p = doc.add_paragraph()
-note_p.paragraph_format.space_before = Pt(4)
-note_r = note_p.add_run(
-    'Values represent the analgesic-per-surgery index: total inpatient analgesic prescription units '
-    'divided by total inpatient surgical procedure count for each prefecture. '
-    'Kruskal\u2013Wallis test across nine regions: P < 0.001.')
-note_r.font.size = Pt(8)
-note_r.font.italic = True
-doc.add_paragraph()
+# [Table 1 uploaded as separate file]
 
 r2 = (
     'Substantial regional clustering was observed. Tokai and Kinki (western Japan) had the lowest '
@@ -692,13 +622,7 @@ r3 = (
 doc.add_paragraph(r3)
 results_parts.append(r3)
 
-# === FIGURE 1 inline ===
-add_figure('fig1_neuropathic_unadjusted_en.png',
-           'Figure 1.',
-           'Outpatient neuropathic pain drug prescribing per surgery by prefecture (unadjusted). '
-           'Bars represent total neuropathic pain prescriptions (pregabalin + mirogabalin + duloxetine + '
-           'tramadol + neurotropin) divided by inpatient surgical procedure count. '
-           'Tohoku prefectures (red bars with red borders) cluster at the high end. Dashed line = national mean.')
+# [Figure 1 uploaded as separate file]
 
 add_heading_text('Confounder analysis', level=2)
 r4 = (
@@ -712,12 +636,7 @@ r4 = (
 doc.add_paragraph(r4)
 results_parts.append(r4)
 
-# === FIGURE 2 inline ===
-add_figure('fig2_confounder_correlations_en.png',
-           'Figure 2.',
-           'Correlation between outpatient neuropathic pain drug prescribing and confounder disease proxies. '
-           'Each dot represents one prefecture. Tohoku prefectures are marked with red borders. '
-           'Diabetes drugs show the strongest correlation (r = 0.87).')
+# [Figure 2 uploaded as separate file]
 
 add_heading_text('Confounder-adjusted analysis', level=2)
 r5 = (
@@ -734,64 +653,7 @@ r5 = (
 doc.add_paragraph(r5)
 results_parts.append(r5)
 
-# === TABLE 2 inline ===
-doc.add_paragraph()
-cap_p = doc.add_paragraph()
-cap_r = cap_p.add_run('Table 2. ')
-cap_r.bold = True
-cap_r.font.size = Pt(10)
-cap_p.add_run('Phase 2: Regression models for outpatient neuropathic pain prescribing with Tohoku indicator and confounder adjustment.').font.size = Pt(10)
-
-table2 = doc.add_table(rows=7, cols=5)
-set_table_borders(table2)
-t2_headers = ['Model', 'Dependent variable', 'Tohoku coefficient / effect size', 'P value', 'Significance']
-for i, h in enumerate(t2_headers):
-    table2.rows[0].cells[i].text = h
-    for paragraph in table2.rows[0].cells[i].paragraphs:
-        for run in paragraph.runs:
-            run.bold = True
-            run.font.size = Pt(9)
-
-t2_data = [
-    ['Model 1', 'Unadjusted t-test',
-     f'd = {reg["model1_unadjusted"]["cohens_d"]:.3f}',
-     f'{reg["model1_unadjusted"]["p_value"]:.2e}', '***'],
-    ['Model 2', 'Neuropathic pain drugs / surgery (fully adjusted)',
-     f'\u03b2 = {reg["model2_adjusted"]["tohoku_coef"]:.1f}',
-     f'{reg["model2_adjusted"]["tohoku_p"]:.4f}', 'ns'],
-    ['Model 3', 'Core neuropathic drugs (PGB+MGB) (fully adjusted)',
-     f'\u03b2 = {reg["model3_core_neuropathic"]["tohoku_coef"]:.1f}',
-     f'{reg["model3_core_neuropathic"]["tohoku_p"]:.4f}', 'ns'],
-    ['Model 4', 'Nerve blocks / surgery (fully adjusted)',
-     f'\u03b2 = {reg["model4_nerve_blocks"]["tohoku_coef"]:.2f}',
-     f'{reg["model4_nerve_blocks"]["tohoku_p"]:.4f}', 'ns'],
-    ['Model 5', 'Neuropathic pain drugs (acute + confounder adj.)',
-     f'\u03b2 = {reg["model5_integrated"]["tohoku_coef"]:.1f}',
-     f'{reg["model5_integrated"]["tohoku_p"]:.4f}', 'ns'],
-    ['Adj CPSP', 'Confounder-removed residual',
-     f'd = {reg["adjusted_cpsp_test"]["cohens_d"]:.3f}',
-     f'{reg["adjusted_cpsp_test"]["p_value"]:.4f}', 'ns'],
-]
-for r_idx, row_data in enumerate(t2_data):
-    for c, val in enumerate(row_data):
-        table2.rows[r_idx + 1].cells[c].text = val
-        for paragraph in table2.rows[r_idx + 1].cells[c].paragraphs:
-            for run in paragraph.runs:
-                run.font.size = Pt(9)
-
-for cell in table2.rows[1].cells:
-    for paragraph in cell.paragraphs:
-        for run in paragraph.runs:
-            run.bold = True
-
-note_p = doc.add_paragraph()
-note_p.paragraph_format.space_before = Pt(4)
-note_r = note_p.add_run('*** P < 0.001; ns = not significant. '
-    'Models 2\u20135: multiple linear regression with Tohoku indicator (binary) and confounder disease proxies. '
-    'Adj CPSP: adjusted CPSP index derived as residuals from regressing neuropathic pain prescribing on four confounder proxies.')
-note_r.font.size = Pt(8)
-note_r.font.italic = True
-doc.add_paragraph()
+# [Table 2 uploaded as separate file]
 
 r6 = (
     f'The adjusted CPSP index showed a dramatically different pattern from the unadjusted data (Fig. 3). '
@@ -805,20 +667,8 @@ doc.add_paragraph(r6)
 results_parts.append(r6)
 
 # === FIGURE 3 inline ===
-add_figure('fig3_adjusted_cpsp_index_en.png',
-           'Figure 3.',
-           'Confounder-adjusted CPSP index by prefecture. '
-           'Residuals from regressing neuropathic pain prescribing on diabetes drugs, herpes antivirals, '
-           'antidepressants, and anxiolytics. Positive values indicate higher neuropathic pain prescribing '
-           'than expected given confounding disease prevalence. Tohoku prefectures (red borders) are dispersed '
-           'across the distribution after adjustment.')
-
-# === FIGURE 4 inline ===
-add_figure('fig4_region_unadj_vs_adj_en.png',
-           'Figure 4.',
-           'Regional comparison of neuropathic pain prescribing: (a) unadjusted and (b) after '
-           'confounder adjustment. Tohoku (red border) shifts from the highest region to mid-range after '
-           'adjustment. Error bars represent standard deviation.')
+# [Figure 3 uploaded as separate file]
+# [Figure 4 uploaded as separate file]
 
 add_heading_text('Phase 1\u2013Phase 2 integration', level=2)
 unadj_d = reg["model1_unadjusted"]["cohens_d"]
@@ -838,66 +688,8 @@ r7 = (
 doc.add_paragraph(r7)
 results_parts.append(r7)
 
-# === FIGURE 5 inline ===
-add_figure('fig5_phase1_vs_phase2_en.png',
-           'Figure 5.',
-           'Integration of Phase 1 (acute perioperative analgesic prescribing) and Phase 2 '
-           '(outpatient neuropathic pain prescribing as CPSP proxy). '
-           '(a) Unadjusted: positive correlation (r = 0.38, P = 0.008). '
-           '(b) Confounder-adjusted: attenuated correlation (r = 0.29, P = 0.052). '
-           'Tohoku prefectures (red borders) cluster in the upper-right quadrant.')
-
-# === TABLE 3 inline ===
-doc.add_paragraph()
-cap_p = doc.add_paragraph()
-cap_r = cap_p.add_run('Table 3. ')
-cap_r.bold = True
-cap_r.font.size = Pt(10)
-cap_p.add_run('Effect of confounder adjustment on Tohoku regional indicators.').font.size = Pt(10)
-
-table3 = doc.add_table(rows=4, cols=5)
-set_table_borders(table3)
-t3_headers = ['Metric', 'Unadjusted', 'Confounder-adjusted', 'Change', 'Interpretation']
-for i, h in enumerate(t3_headers):
-    table3.rows[0].cells[i].text = h
-    for paragraph in table3.rows[0].cells[i].paragraphs:
-        for run in paragraph.runs:
-            run.bold = True
-            run.font.size = Pt(9)
-
-t3_data = [
-    ["Cohen's d (Tohoku vs rest)",
-     f'{unadj_d:.3f} (P < 0.001)',
-     f'{adj_d:.3f} (P = {reg["adjusted_cpsp_test"]["p_value"]:.3f})',
-     f'{attenuation:.0f}% attenuation',
-     'Large \u2192 Small effect'],
-    ['Tohoku mean index',
-     f'{reg["model1_unadjusted"]["tohoku_mean"]:.1f}',
-     f'{reg["adjusted_cpsp_test"]["tohoku_mean"]:+.1f} (residual)',
-     '\u2014',
-     'Excess largely explained by confounders'],
-    ['Non-Tohoku mean index',
-     f'{reg["model1_unadjusted"]["non_tohoku_mean"]:.1f}',
-     f'{reg["adjusted_cpsp_test"]["non_tohoku_mean"]:+.1f} (residual)',
-     '\u2014',
-     'Reference group'],
-]
-for r_idx, row_data in enumerate(t3_data):
-    for c, val in enumerate(row_data):
-        table3.rows[r_idx + 1].cells[c].text = val
-        for paragraph in table3.rows[r_idx + 1].cells[c].paragraphs:
-            for run in paragraph.runs:
-                run.font.size = Pt(9)
-
-note_p = doc.add_paragraph()
-note_p.paragraph_format.space_before = Pt(4)
-note_r = note_p.add_run(
-    'Confounders: oral hypoglycemic agents (diabetes proxy), herpes zoster antivirals, '
-    'antidepressants (excluding duloxetine), and anxiolytics. '
-    f'Adjustment reduced the Tohoku effect by {attenuation:.0f}% and rendered it nonsignificant.')
-note_r.font.size = Pt(8)
-note_r.font.italic = True
-doc.add_paragraph()
+# [Figure 5 uploaded as separate file]
+# [Table 3 uploaded as separate file]
 
 results_total = sum(wc(p) for p in results_parts)
 print(f'Results word count: {results_total}')
@@ -1146,7 +938,83 @@ for key in sorted_keys:
     doc.add_paragraph(refs[key]['bib'])
 
 # ============================================================
-# SUPPLEMENTARY FIGURE LEGEND
+# TABLE LEGENDS
+# ============================================================
+doc.add_page_break()
+add_heading_text('Table legends', level=1)
+
+p = doc.add_paragraph()
+r = p.add_run('Table 1. ')
+r.bold = True
+p.add_run('Phase 1: Regional summary of inpatient analgesic prescribing per surgery across nine '
+    'regional blocks. Values represent the analgesic-per-surgery index: total inpatient analgesic '
+    'prescription units divided by total inpatient surgical procedure count for each prefecture. '
+    'Kruskal\u2013Wallis test across nine regions: P < 0.001.')
+
+p = doc.add_paragraph()
+r = p.add_run('Table 2. ')
+r.bold = True
+p.add_run('Phase 2: Regression models for outpatient neuropathic pain prescribing with Tohoku '
+    'indicator and confounder adjustment. *** P < 0.001; ns = not significant. '
+    'Models 2\u20135: multiple linear regression with Tohoku indicator (binary) and confounder disease proxies. '
+    'Adj CPSP: adjusted CPSP index derived as residuals from regressing neuropathic pain prescribing '
+    'on four confounder proxies.')
+
+p = doc.add_paragraph()
+r = p.add_run('Table 3. ')
+r.bold = True
+p.add_run('Effect of confounder adjustment on Tohoku regional indicators. '
+    'Confounders: oral hypoglycemic agents (diabetes proxy), herpes zoster antivirals, '
+    'antidepressants (excluding duloxetine), and anxiolytics.')
+
+# ============================================================
+# FIGURE LEGENDS
+# ============================================================
+doc.add_page_break()
+add_heading_text('Figure legends', level=1)
+
+p = doc.add_paragraph()
+r = p.add_run('Figure 1. ')
+r.bold = True
+p.add_run('Outpatient neuropathic pain drug prescribing per surgery by prefecture (unadjusted). '
+    'Bars represent total neuropathic pain prescriptions (pregabalin + mirogabalin + duloxetine + '
+    'tramadol + neurotropin) divided by inpatient surgical procedure count. '
+    'Tohoku prefectures (red bars with red borders) cluster at the high end. Dashed line = national mean.')
+
+p = doc.add_paragraph()
+r = p.add_run('Figure 2. ')
+r.bold = True
+p.add_run('Correlation between outpatient neuropathic pain drug prescribing and confounder disease proxies. '
+    'Each dot represents one prefecture. Tohoku prefectures are marked with red borders. '
+    'Diabetes drugs show the strongest correlation (r = 0.87).')
+
+p = doc.add_paragraph()
+r = p.add_run('Figure 3. ')
+r.bold = True
+p.add_run('Confounder-adjusted CPSP index by prefecture. '
+    'Residuals from regressing neuropathic pain prescribing on diabetes drugs, herpes antivirals, '
+    'antidepressants, and anxiolytics. Positive values indicate higher neuropathic pain prescribing '
+    'than expected given confounding disease prevalence. Tohoku prefectures (red borders) are dispersed '
+    'across the distribution after adjustment.')
+
+p = doc.add_paragraph()
+r = p.add_run('Figure 4. ')
+r.bold = True
+p.add_run('Regional comparison of neuropathic pain prescribing: (a) unadjusted and (b) after '
+    'confounder adjustment. Tohoku (red border) shifts from the highest region to mid-range after '
+    'adjustment. Error bars represent standard deviation.')
+
+p = doc.add_paragraph()
+r = p.add_run('Figure 5. ')
+r.bold = True
+p.add_run('Integration of Phase 1 (acute perioperative analgesic prescribing) and Phase 2 '
+    '(outpatient neuropathic pain prescribing as CPSP proxy). '
+    '(a) Unadjusted: positive correlation (r = 0.38, P = 0.008). '
+    '(b) Confounder-adjusted: attenuated correlation (r = 0.29, P = 0.052). '
+    'Tohoku prefectures (red borders) cluster in the upper-right quadrant.')
+
+# ============================================================
+# SUPPLEMENTARY MATERIAL
 # ============================================================
 doc.add_page_break()
 add_heading_text('Supplementary material', level=1)
