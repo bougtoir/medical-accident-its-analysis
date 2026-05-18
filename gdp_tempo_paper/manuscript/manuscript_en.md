@@ -208,6 +208,34 @@ Inklaar's critique (§6.5) raises the possibility that if the true depreciation 
 
 Figure 7 shows the results. The main finding is that μ̂ is remarkably stable across the ±20% depreciation perturbation for most countries. The cross-country mean μ̂ moves from 1.61 years (δ × 0.80) to 1.52 years (δ × 1.20), a shift of only 0.09 years — less than 6% of the baseline estimate. The median μ̂ is virtually invariant at 0.26 years across all five scenarios. Countries with interior-solution μ̂ values (Luxembourg, Slovakia, United Kingdom, Sweden) show the expected negative relationship: higher depreciation slightly reduces the estimated lag, since faster depreciation absorbs some of the growth-rate variation that would otherwise be attributed to the gestation delay. However, the sensitivity is quantitatively small: a ±20% perturbation in δ moves μ̂ by at most 0.75 years even for the most sensitive country (Luxembourg: 3.75 → 3.00 years). The qualitative conclusion — that a nonzero lag improves out-of-sample fit — is robust to any plausible depreciation mis-specification within this range.
 
+### 5.7 Conditional out-of-sample evaluation
+
+**[Figure 8 here]**
+
+Table 1 reports that M4 (joint tempo + intangible) achieves an out-of-sample MAPE of 4.61 %, virtually identical to M0 (4.60 %). This apparent non-improvement deserves scrutiny. Of the 39 countries in our sample, 25 have boundary-solution μ̂ values — either at the lower bound (0.01, effectively zero lag, 18 countries) or at the upper bound (6.0, 7 countries). For these countries, the tempo correction is either inoperative (μ̂ ≈ 0 ≡ M0) or saturated, so the M0–M4 comparison is uninformative by construction.
+
+Figure 8 restricts the OOS evaluation to the 14 countries with interior-solution μ̂ (μ̂ ∈ (0.02, 5.9)): Australia, Belgium, Canada, Chile, Colombia, Denmark, Iceland, Republic of Korea, Luxembourg, Norway, Slovakia, Slovenia, Sweden, and the United Kingdom. For this subsample, M1 (constant lag) achieves a median MAPE of 4.23 %, an improvement over M0's 4.27 %. Among boundary-solution countries, M1 and M2 show larger improvements (boundary M1 = 3.98 %, boundary M2 = 3.83 % vs boundary M0 = 4.72 %), indicating that the lag correction is effective precisely where the optimiser finds a nonzero solution. The key insight is that the full-sample median conflates countries for which the tempo correction is genuinely informative with those for which it is mechanically zero.
+
+### 5.8 Extended out-of-sample metrics
+
+**[Table 4 here]**
+
+MAPE measures average percentage error in GDP levels but does not capture whether models track the *direction* of GDP growth or the *trajectory* of the wealth-side capital stock. Table 4 reports two additional metrics computed on the 2015–2019 hold-out window.
+
+First, direction accuracy — the fraction of test years for which the model correctly predicts the sign of GDP growth — is uniformly high across all models (median 100 %), reflecting the fact that GDP growth was positive in almost all OECD economies throughout 2015–2019. Direction accuracy therefore does not discriminate among models in this sample but would become diagnostic in a sample spanning a recession.
+
+Second, the CWON trajectory RMSE measures how well each model's PIM capital stock tracks the CWON produced-capital trajectory on the hold-out years (demeaned log comparison). Here M2 (tempo drift) achieves the lowest median RMSE (0.0072), compared with M0 (0.0085) — a 15 % improvement. M1 (constant lag) is intermediate (0.0077). M4 achieves 0.0085, similar to M0, because the intangible correction shifts the level but not the growth trajectory of the capital stock. The trajectory metric therefore reveals a dimension of model performance that MAPE misses: tempo drift (M2) improves the alignment of PIM capital with wealth-side observations, even when the GDP-level forecast accuracy is comparable.
+
+### 5.9 Asset-composition determinants of RPIM diagnostics
+
+**[Figure 9 here]**
+
+A natural question is whether the cross-country variation in ρ̂₂ reflects observable differences in asset composition. Countries with a higher share of intangible and R&D-intensive investment might be expected to show larger PIM–CWON divergences (lower ρ̂₂) if their PIM construction omits intangibles, or higher ρ̂₂ if the tempo and intangible corrections in M4 successfully account for the discrepancy.
+
+Figure 9 reports a cross-sectional OLS regression of ρ̂₂ on mean R&D expenditure as a share of GDP (World Bank WDI). Under M0, the slope is positive (0.054) but not significant at 5 % (t = 1.82, R² = 0.082, n = 39): higher R&D intensity is weakly associated with higher PIM–CWON consistency, possibly because R&D-intensive economies also tend to have better-maintained national accounts. Under M4, the slope increases to 0.068 and becomes significant (t = 2.34, R² = 0.129): after the tempo and intangible corrections, the association between R&D intensity and PIM–CWON consistency strengthens. This is consistent with the interpretation that M4's intangible correction (β) captures a component of the capital stock that is correlated with R&D intensity, thereby reducing the residual PIM–CWON gap for innovation-oriented economies.
+
+The cross-sectional R² remains modest (13 %), reflecting the many other sources of PIM–CWON divergence (land-price revaluations, natural-resource rents, differences in asset-life assumptions). The result should therefore be read as suggestive rather than conclusive: ρ̂₂ is not random noise but reflects, in part, observable asset-composition differences across countries. This provides indirect engagement with the asset-specific profiles that a single-asset PIM cannot directly model, and points toward a natural extension in which ρ̂₂ is decomposed by asset class as multi-asset PIM data become available.
+
 ## 6. Discussion
 
 We now step back from the technical results and consider what a time-varying μ(t) and a nonzero β mean for four active debates in economic measurement.
@@ -259,6 +287,10 @@ Three practical recommendations follow from the results. First, any revision of 
 **Table 3.** Relational PIM diagnostics: ρ̂₂ under M0, M1, M2, M4.
 
 **[Insert table 3 here]**
+
+**Table 4.** Extended out-of-sample metrics: direction accuracy and CWON trajectory RMSE.
+
+**[Insert table 4 here]**
 
 ---
 
