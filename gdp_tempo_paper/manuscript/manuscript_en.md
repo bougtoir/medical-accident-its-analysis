@@ -1,4 +1,4 @@
-# The Forgotten Tempo Effect in Capital Accounting: Investment-to-Output Time-to-Build, Intangible Capital, and the Reconciliation of Flow- and Stock-Based National Wealth Measures
+# Drifting Time-to-Build and the Forgotten Intangible Share: A Joint Identification of Flow and Stock National Accounts
 
 **Tatsuki Onishi**
 
@@ -8,27 +8,27 @@ Data Science AI Innovation Research Promotion Center, Shiga University
 
 Telephone: +81-749-27-1023. E-mail: bougtoir@gmail.com. ORCID: 0000-0001-7261-9062.
 
-**Running head**: Tempo Effect in Capital Accounting
+**Keywords**: time-to-build; intangible capital; perpetual inventory method; bootstrap inference; out-of-sample prediction; flow-stock consistency.
 
-**Keywords**: tempo effect; intangible capital; perpetual inventory method; time-to-build; flow-stock consistency; Beyond-GDP.
+**JEL codes**: E01; E22; O47; C13.
 
-**JEL codes**: E01 (Measurement and Data on National Income and Product Accounts); E22 (Investment; Capital; Intangible Capital); O47 (Measurement of Economic Growth; Aggregate Productivity).
+**Statements and Declarations**
 
-**CRediT contribution statement.** O.T.: Conceptualization, Methodology, Software, Formal analysis, Writing - original draft, Writing - review & editing.
+*Competing interests.* The author declares no competing interests.
 
-**Declaration of generative artificial intelligence (AI) in scientific writing.** The author used generative AI to help with formatting the text and choosing words that suited the tone, and to help writing codes.
+*Funding.* No external funding was received for this research.
 
-**Conflict of interest.** The author declares no conflict of interest.
+*Data and code availability.* Penn World Table 10.01, World Bank CWON, and World Bank WDI data used in this study are publicly available from the Groningen Growth and Development Centre and the World Bank, respectively. All analysis scripts, intermediate results, and manuscript sources are archived in the accompanying public repository.
 
-**Data and code availability.** Penn World Table 10.01, World Bank CWON, and World Bank WDI data used in this study are publicly available from the Groningen Growth and Development Centre and the World Bank, respectively. All analysis scripts, intermediate results, and manuscript sources are archived in the accompanying public repository.
+*Use of AI tools.* The author used generative AI to assist with formatting the text, choosing words that suited the tone, and writing analysis code. The author reviewed and edited the content as needed and takes full responsibility for the content of the published article.
 
 ---
 
-**Abstract** (146 words). Since Goldstein, Lutz, and Scherbov (2003) showed that a single "forgotten" parity-specific variance parameter σ resolved a large share of the low-fertility puzzle once tempo effects on the mean age at childbearing were acknowledged, the dual of quantum and tempo has become a standard lens in formal demography. National income and wealth accounting has no equivalent diagnostic. We port the Bongaarts-Feeney quantum-tempo decomposition to capital accounting by letting the investment-to-output time-to-build μ(t) drift over time and by re-introducing intangible capital K_I, with share β, as the balance-sheet analogue of σ. Across 39 OECD and middle-income economies (Penn World Table 10.01, World Bank CWON), a time-varying μ(t) reduces the out-of-sample MAPE of GDP levels from 4.60% to 3.99% while a joint production-cum-wealth identification produces internally consistent flow and stock accounts. A sister medical-spending paper is in preparation.
+**Abstract** (168 words). Goldstein, Lutz, and Scherbov (2003) showed that a single "forgotten" parity-specific variance parameter resolved a large share of the low-fertility puzzle once tempo effects on the mean age at childbearing were acknowledged. National income and wealth accounting has no equivalent diagnostic. We port the Bongaarts-Feeney quantum-tempo decomposition to capital accounting by letting the investment-to-output time-to-build μ(t) drift over time and by re-introducing intangible capital K_I, with share β, as the balance-sheet analogue of the forgotten variance. Using a grid-search joint identification and residual bootstrap across 39 OECD and middle-income economies (Penn World Table 10.01, World Bank CWON), a time-varying μ(t) reduces the out-of-sample MAPE of GDP levels from 4.60% to 3.99%, a 13% relative improvement. Joint production-cum-wealth identification produces internally consistent flow and stock accounts, with a novel Relational PIM diagnostic that quantifies the degree of consistency between the two accounts.
 
-**Keywords**: tempo effect; intangible capital; perpetual inventory method; wealth accounting; Beyond-GDP.
+**Keywords**: time-to-build; intangible capital; perpetual inventory method; bootstrap inference; out-of-sample prediction; flow-stock consistency.
 
-**JEL codes**: E01, E22, O47.
+**JEL codes**: E01, E22, O47, C13.
 
 ---
 
@@ -208,7 +208,7 @@ Figure 6(b) plots ρ̂₁ against ρ̂₂ under M4. Countries that are far from 
 
 Inklaar's critique (§6.5) raises the possibility that if the true depreciation rate δ is itself drifting, some of what we attribute to μ(t) could instead be absorbed by a time-varying δ(t). We address this directly by re-estimating the constant lag μ̂ (M1) under five depreciation scenarios: δ × {0.80, 0.90, 1.00, 1.10, 1.20}.
 
-Figure 7 shows the results. The main finding is that μ̂ is remarkably stable across the ±20% depreciation perturbation for most countries. The cross-country mean μ̂ moves from 1.61 years (δ × 0.80) to 1.52 years (δ × 1.20), a shift of only 0.09 years — less than 6% of the baseline estimate. The median μ̂ is virtually invariant at 0.26 years across all five scenarios. Countries with interior-solution μ̂ values (Luxembourg, Slovakia, United Kingdom, Sweden) show the expected negative relationship: higher depreciation slightly reduces the estimated lag, since faster depreciation absorbs some of the growth-rate variation that would otherwise be attributed to the gestation delay. However, the sensitivity is quantitatively small: a ±20% perturbation in δ moves μ̂ by at most 0.75 years even for the most sensitive country (Luxembourg: 3.75 → 3.00 years). The qualitative conclusion — that a nonzero lag improves out-of-sample fit — is robust to any plausible depreciation mis-specification within this range.
+Figure 7 shows the results. The main finding is that μ̂ is remarkably stable across the ±20% depreciation perturbation for most countries. The cross-country mean μ̂ moves from 1.61 years (δ × 0.80) to 1.52 years (δ × 1.20), a shift of only 0.09 years — less than 6% of the baseline estimate. The median μ̂ is virtually invariant at 0.26 years across all five scenarios. Countries with interior-solution μ̂ values (Slovakia, Luxembourg, United Kingdom, Sweden, Slovenia, and Colombia) show the expected negative relationship: higher depreciation slightly reduces the estimated lag, since faster depreciation absorbs some of the growth-rate variation that would otherwise be attributed to the gestation delay. However, the sensitivity is quantitatively small: a ±20% perturbation in δ moves μ̂ by at most 1.25 years even for the most sensitive country (Slovakia: 5.75 → 4.50 years; Luxembourg: 3.75 → 3.00 years). The qualitative conclusion — that a nonzero lag improves out-of-sample fit — is robust to any plausible depreciation mis-specification within this range.
 
 ### 5.7 Conditional out-of-sample evaluation
 

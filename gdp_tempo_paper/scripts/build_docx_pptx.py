@@ -1,11 +1,11 @@
 """Build final manuscript .docx (JA + EN) with inline figures/tables
 and a single editable .pptx (EN figures) for per-slide editing.
 
-Formatted for Macroeconomic Dynamics (Cambridge University Press):
+Formatted for Empirical Economics (Springer):
   - Double-spaced (2.0 line spacing)
-  - Running head on page 2
   - Times New Roman 12pt body text
-  - Author-date references
+  - Author-date references (alphabetical reference list)
+  - Figures supplied as separate files + inline in manuscript
 
 Usage:  python build_docx_pptx.py
 Outputs into ../manuscript/ :

@@ -155,7 +155,7 @@ def make_fig5(lang: str = "en"):
                 arrowprops=dict(arrowstyle="->", lw=1.5))
     ax.annotate("", xy=(7.1, 4.7), xytext=(5.9, 4.7),
                 arrowprops=dict(arrowstyle="->", lw=1.5))
-    ax.text(8, 4.1, labels["balance"], ha="center", fontsize=9,
+    ax.text(8, 3.85, labels["balance"], ha="center", fontsize=9,
             style="italic")
     ax.text(0.6, 4.7, labels["arrow_demog"], ha="center", va="center",
             fontsize=11, fontweight="bold")
@@ -168,7 +168,7 @@ def make_fig5(lang: str = "en"):
                 arrowprops=dict(arrowstyle="->", lw=1.5))
     ax.annotate("", xy=(7.1, 1.7), xytext=(5.9, 1.7),
                 arrowprops=dict(arrowstyle="->", lw=1.5))
-    ax.text(8, 1.1, labels["balance_c"], ha="center", fontsize=9,
+    ax.text(8, 0.85, labels["balance_c"], ha="center", fontsize=9,
             style="italic")
     ax.text(0.6, 1.7, labels["arrow_capital"], ha="center", va="center",
             fontsize=11, fontweight="bold")
@@ -448,27 +448,87 @@ def make_fig7_delta_sensitivity_bilingual(lang: str = "en"):
         },
     }[lang]
 
-    fig, ax = plt.subplots(figsize=(9, 6))
-    highlight_countries = list(labels["highlight"].keys())
-    highlight_colors = ["#c44e52", "#4c72b0", "#55a868", "#dd8452", "#8172b2"]
+    fig, ax = plt.subplots(figsize=(10, 6))
 
-    # Plot non-highlighted countries in grey
+    # Identify countries whose mu_hat varies with delta (range > 0.01)
+    varying = {}
     for _, row in dsens.iterrows():
-        if row["country"] in highlight_countries:
-            continue
         vals = [row[f"mu_d{df:.2f}"] for df in delta_factors]
         if max(vals) - min(vals) > 0.01:
-            ax.plot(delta_factors, vals, color="#cccccc", lw=0.5, alpha=0.5)
+            varying[row["country"]] = vals
 
-    # Plot highlighted countries
-    for country, color in zip(highlight_countries, highlight_colors):
+    # Countries to show: the 5 highlighted + any other varying countries
+    highlight_countries = list(labels["highlight"].keys())
+
+    # Colours and markers for highlighted countries
+    hl_colors = ["#c44e52", "#4c72b0", "#55a868", "#dd8452", "#8172b2"]
+    hl_markers = ["o", "s", "D", "^", "p"]
+
+    # Additional varying countries (not in highlight list)
+    extra_countries = [c for c in varying if c not in highlight_countries]
+    extra_colors = ["#e377c2", "#17becf", "#bcbd22", "#7f7f7f", "#9467bd",
+                    "#8c564b", "#d62728"]
+    extra_markers = ["v", "X", "P", "H", "*", "d", ">"]
+    extra_display = {
+        "en": {
+            "Colombia": "Colombia", "Luxembourg": "Luxembourg",
+            "Slovakia": "Slovakia", "Slovenia": "Slovenia",
+            "Sweden": "Sweden",
+        },
+        "ja": {
+            "Colombia": "コロンビア", "Luxembourg": "ルクセンブルク",
+            "Slovakia": "スロバキア", "Slovenia": "スロベニア",
+            "Sweden": "スウェーデン",
+        },
+    }[lang]
+
+    # Collect all plotted country values
+    all_vals = {}
+    for country in highlight_countries:
         row = dsens[dsens["country"] == country]
         if row.empty:
             continue
-        vals = [float(row[f"mu_d{df:.2f}"].iloc[0]) for df in delta_factors]
+        all_vals[country] = [
+            float(row[f"mu_d{df:.2f}"].iloc[0]) for df in delta_factors]
+    for country in extra_countries:
+        all_vals[country] = [float(v) for v in varying[country]]
+
+    # Apply small symmetric vertical jitter to separate overlapping lines
+    jitter_step = 0.005
+    baseline_groups: dict[float, list[str]] = {}
+    for country in list(highlight_countries) + extra_countries:
+        if country not in all_vals:
+            continue
+        baseline = round(all_vals[country][2], 4)
+        baseline_groups.setdefault(baseline, []).append(country)
+
+    jittered_vals = {}
+    for baseline, members in baseline_groups.items():
+        n = len(members)
+        for idx, country in enumerate(members):
+            offset = (idx - (n - 1) / 2) * jitter_step
+            jittered_vals[country] = [v + offset for v in all_vals[country]]
+
+    # Plot highlighted countries
+    for country, color, marker in zip(
+            highlight_countries, hl_colors, hl_markers):
+        if country not in jittered_vals:
+            continue
+        vals = jittered_vals[country]
         display_name = labels["highlight"][country]
-        ax.plot(delta_factors, vals, "o-", color=color, lw=2, ms=5,
-                label=display_name)
+        ax.plot(delta_factors, vals, marker=marker, linestyle="-",
+                color=color, lw=2, ms=7, label=display_name)
+
+    # Plot additional varying countries individually
+    for i, country in enumerate(extra_countries):
+        if country not in jittered_vals:
+            continue
+        vals = jittered_vals[country]
+        color = extra_colors[i % len(extra_colors)]
+        marker = extra_markers[i % len(extra_markers)]
+        display_name = extra_display.get(country, country)
+        ax.plot(delta_factors, vals, marker=marker, linestyle="--",
+                color=color, lw=1.5, ms=6, label=display_name)
 
     ax.set_xlabel(labels["xlab"])
     ax.set_ylabel(labels["ylab"])
