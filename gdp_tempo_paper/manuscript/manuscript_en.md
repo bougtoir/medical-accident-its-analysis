@@ -1,4 +1,4 @@
-# The Forgotten Tempo Effect in Capital Accounting: Investment-to-Output Time-to-Build, Intangible Capital, and the Reconciliation of Flow- and Stock-Based National Wealth Measures
+# Drifting Time-to-Build and the Forgotten Intangible Share: A Joint Identification of Flow and Stock National Accounts
 
 **Tatsuki Onishi**
 
@@ -8,7 +8,7 @@ Data Science AI Innovation Research Promotion Center, Shiga University
 
 Telephone: +81-749-27-1023. E-mail: bougtoir@gmail.com. ORCID: 0000-0001-7261-9062.
 
-**Running head**: Tempo Effect in Capital Accounting
+**Running head**: Drifting Time-to-Build and Intangible Share
 
 **Keywords**: tempo effect; intangible capital; perpetual inventory method; time-to-build; flow-stock consistency; Beyond-GDP.
 
@@ -16,7 +16,7 @@ Telephone: +81-749-27-1023. E-mail: bougtoir@gmail.com. ORCID: 0000-0001-7261-90
 
 **CRediT contribution statement.** O.T.: Conceptualization, Methodology, Software, Formal analysis, Writing - original draft, Writing - review & editing.
 
-**Declaration of generative artificial intelligence (AI) in scientific writing.** The author used generative AI to help with formatting the text and choosing words that suited the tone, and to help writing codes.
+**Declaration of generative AI and AI-assisted technologies in the manuscript preparation process.** During the preparation of this work the author used generative AI in order to assist with formatting the text, choosing words that suited the tone, and writing analysis code. After using this tool, the author reviewed and edited the content as needed and takes full responsibility for the content of the published article.
 
 **Conflict of interest.** The author declares no conflict of interest.
 

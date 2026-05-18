@@ -1,0 +1,7 @@
+Highlights
+
+- Time-varying time-to-build reduces GDP out-of-sample MAPE by 13% across 39 countries
+- Joint identification recovers intangible share and time-to-build simultaneously
+- Relational PIM diagnostic reconciles flow and stock national accounts
+- Demographic tempo analogy provides structural foundation for capital accounting
+- R&D intensity predicts the effectiveness of tempo and intangible corrections
