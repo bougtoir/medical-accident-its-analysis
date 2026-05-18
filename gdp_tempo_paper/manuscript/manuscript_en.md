@@ -8,27 +8,27 @@ Data Science AI Innovation Research Promotion Center, Shiga University
 
 Telephone: +81-749-27-1023. E-mail: bougtoir@gmail.com. ORCID: 0000-0001-7261-9062.
 
-**Running head**: Drifting Time-to-Build and Intangible Share
+**Keywords**: time-to-build; intangible capital; perpetual inventory method; bootstrap inference; out-of-sample prediction; flow-stock consistency.
 
-**Keywords**: tempo effect; intangible capital; perpetual inventory method; time-to-build; flow-stock consistency; Beyond-GDP.
+**JEL codes**: E01; E22; O47; C13.
 
-**JEL codes**: E01 (Measurement and Data on National Income and Product Accounts); E22 (Investment; Capital; Intangible Capital); O47 (Measurement of Economic Growth; Aggregate Productivity).
+**Statements and Declarations**
 
-**CRediT contribution statement.** O.T.: Conceptualization, Methodology, Software, Formal analysis, Writing - original draft, Writing - review & editing.
+*Competing interests.* The author declares no competing interests.
 
-**Declaration of generative AI and AI-assisted technologies in the manuscript preparation process.** During the preparation of this work the author used generative AI in order to assist with formatting the text, choosing words that suited the tone, and writing analysis code. After using this tool, the author reviewed and edited the content as needed and takes full responsibility for the content of the published article.
+*Funding.* No external funding was received for this research.
 
-**Conflict of interest.** The author declares no conflict of interest.
+*Data and code availability.* Penn World Table 10.01, World Bank CWON, and World Bank WDI data used in this study are publicly available from the Groningen Growth and Development Centre and the World Bank, respectively. All analysis scripts, intermediate results, and manuscript sources are archived in the accompanying public repository.
 
-**Data and code availability.** Penn World Table 10.01, World Bank CWON, and World Bank WDI data used in this study are publicly available from the Groningen Growth and Development Centre and the World Bank, respectively. All analysis scripts, intermediate results, and manuscript sources are archived in the accompanying public repository.
+*Use of AI tools.* The author used generative AI to assist with formatting the text, choosing words that suited the tone, and writing analysis code. The author reviewed and edited the content as needed and takes full responsibility for the content of the published article.
 
 ---
 
-**Abstract** (146 words). Since Goldstein, Lutz, and Scherbov (2003) showed that a single "forgotten" parity-specific variance parameter σ resolved a large share of the low-fertility puzzle once tempo effects on the mean age at childbearing were acknowledged, the dual of quantum and tempo has become a standard lens in formal demography. National income and wealth accounting has no equivalent diagnostic. We port the Bongaarts-Feeney quantum-tempo decomposition to capital accounting by letting the investment-to-output time-to-build μ(t) drift over time and by re-introducing intangible capital K_I, with share β, as the balance-sheet analogue of σ. Across 39 OECD and middle-income economies (Penn World Table 10.01, World Bank CWON), a time-varying μ(t) reduces the out-of-sample MAPE of GDP levels from 4.60% to 3.99% while a joint production-cum-wealth identification produces internally consistent flow and stock accounts. A sister medical-spending paper is in preparation.
+**Abstract** (168 words). Goldstein, Lutz, and Scherbov (2003) showed that a single "forgotten" parity-specific variance parameter resolved a large share of the low-fertility puzzle once tempo effects on the mean age at childbearing were acknowledged. National income and wealth accounting has no equivalent diagnostic. We port the Bongaarts-Feeney quantum-tempo decomposition to capital accounting by letting the investment-to-output time-to-build μ(t) drift over time and by re-introducing intangible capital K_I, with share β, as the balance-sheet analogue of the forgotten variance. Using a grid-search joint identification and residual bootstrap across 39 OECD and middle-income economies (Penn World Table 10.01, World Bank CWON), a time-varying μ(t) reduces the out-of-sample MAPE of GDP levels from 4.60% to 3.99%, a 13% relative improvement. Joint production-cum-wealth identification produces internally consistent flow and stock accounts, with a novel Relational PIM diagnostic that quantifies the degree of consistency between the two accounts.
 
-**Keywords**: tempo effect; intangible capital; perpetual inventory method; wealth accounting; Beyond-GDP.
+**Keywords**: time-to-build; intangible capital; perpetual inventory method; bootstrap inference; out-of-sample prediction; flow-stock consistency.
 
-**JEL codes**: E01, E22, O47.
+**JEL codes**: E01, E22, O47, C13.
 
 ---
 

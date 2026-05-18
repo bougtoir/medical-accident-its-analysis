@@ -1,12 +1,11 @@
 """Build final manuscript .docx (JA + EN) with inline figures/tables
 and a single editable .pptx (EN figures) for per-slide editing.
 
-Formatted for Journal of Economic Dynamics and Control (Elsevier):
+Formatted for Empirical Economics (Springer):
   - Double-spaced (2.0 line spacing)
   - Times New Roman 12pt body text
   - Author-date references (alphabetical reference list)
   - Figures supplied as separate files + inline in manuscript
-  - Highlights file (highlights.txt) submitted separately
 
 Usage:  python build_docx_pptx.py
 Outputs into ../manuscript/ :
