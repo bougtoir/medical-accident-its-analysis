@@ -451,6 +451,7 @@ def make_fig7_delta_sensitivity_bilingual(lang: str = "en"):
     fig, ax = plt.subplots(figsize=(9, 6))
     highlight_countries = list(labels["highlight"].keys())
     highlight_colors = ["#c44e52", "#4c72b0", "#55a868", "#dd8452", "#8172b2"]
+    highlight_markers = ["o", "s", "D", "^", "p"]
 
     # Plot non-highlighted countries in grey
     other_plotted = False
@@ -465,15 +466,38 @@ def make_fig7_delta_sensitivity_bilingual(lang: str = "en"):
                 other_plotted = True
             ax.plot(delta_factors, vals, **kw)
 
-    # Plot highlighted countries
-    for country, color in zip(highlight_countries, highlight_colors):
+    # Collect highlighted country values to detect overlaps
+    highlight_vals = {}
+    for country in highlight_countries:
         row = dsens[dsens["country"] == country]
         if row.empty:
             continue
-        vals = [float(row[f"mu_d{df:.2f}"].iloc[0]) for df in delta_factors]
+        highlight_vals[country] = [
+            float(row[f"mu_d{df:.2f}"].iloc[0]) for df in delta_factors]
+
+    # Apply small vertical jitter to separate overlapping lines
+    jitter_step = 0.06
+    seen_baselines = {}
+    jittered_vals = {}
+    for country in highlight_countries:
+        if country not in highlight_vals:
+            continue
+        baseline = round(highlight_vals[country][2], 4)  # value at factor=1.00
+        if baseline not in seen_baselines:
+            seen_baselines[baseline] = 0
+        offset = seen_baselines[baseline] * jitter_step
+        seen_baselines[baseline] += 1
+        jittered_vals[country] = [v + offset for v in highlight_vals[country]]
+
+    # Plot highlighted countries with distinct markers
+    for (country, color, marker) in zip(
+            highlight_countries, highlight_colors, highlight_markers):
+        if country not in jittered_vals:
+            continue
+        vals = jittered_vals[country]
         display_name = labels["highlight"][country]
-        ax.plot(delta_factors, vals, "o-", color=color, lw=2, ms=5,
-                label=display_name)
+        ax.plot(delta_factors, vals, marker=marker, linestyle="-",
+                color=color, lw=2, ms=7, label=display_name)
 
     ax.set_xlabel(labels["xlab"])
     ax.set_ylabel(labels["ylab"])
