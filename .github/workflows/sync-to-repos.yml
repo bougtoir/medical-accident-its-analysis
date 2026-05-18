@@ -1,0 +1,278 @@
+name: Sync branches to independent repos
+
+# Schedule runs from the default branch (master), so the workflow file
+# only needs to exist here. Runs every 15 minutes to detect branch changes.
+# Can also be triggered manually via workflow_dispatch.
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout wip repo (all branches)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.SYNC_PAT }}
+
+      - name: Sync all tracked branches
+        env:
+          SYNC_PAT: ${{ secrets.SYNC_PAT }}
+        run: |
+          # Define branch -> target repo mapping
+          declare -A BRANCH_MAP
+
+          # ── Original entries ──
+          BRANCH_MAP["IONE-stratification-framework"]="ione-stratification-framework"
+          BRANCH_MAP["devin/1774274321-rct-decomposition-paper"]="kotha-rct-decomposition"
+          BRANCH_MAP["devin/1774353301-icr-paper"]="linko-icr-paper"
+          BRANCH_MAP["devin/1774514189-medical-accident-its-analysis"]="medical-accident-its-analysis"
+          BRANCH_MAP["devin/1774578035-cetacean-acoustic-analysis"]="cetacean-acoustic-analysis"
+          BRANCH_MAP["devin/1774681647-yoshka-pkpd-package"]="yoshika-pkpd"
+          BRANCH_MAP["devin/1774686640-cryoanesthesia-scoping-review"]="cryoanesthesia-scoping-review"
+          BRANCH_MAP["devin/1774689702-bbb-bhb-research"]="bbb-bhb-research"
+          BRANCH_MAP["devin/1774689786-onishi-submission-strategy"]="onishi-submission-strategy"
+          BRANCH_MAP["devin/1774689807-tempo-effect-paper"]="tempo-effect-paper"
+          BRANCH_MAP["devin/1774689832-bja-zero-calibration-paper"]="bja-zero-calibration-paper"
+          BRANCH_MAP["devin/1774689833-bja-manuscript-initial"]="bja-initial-compartment-pk"
+          BRANCH_MAP["devin/1774689842-wada-tue-scoping-review"]="wada-tue-scoping-review"
+          BRANCH_MAP["devin/1774690226-reproducibility-crisis-commercial-software"]="reproducibility-crisis-commercial-software"
+          BRANCH_MAP["devin/1774690359-anesthesia-regional-variation-japan"]="anesthesia-regional-variation-japan"
+          BRANCH_MAP["devin/1774690362-vaporizer-price-study"]="vaporizer-price-study"
+          BRANCH_MAP["devin/1774690371-ndb-pain-regional-variation-japan"]="ndb-pain-regional-variation-japan"
+          BRANCH_MAP["scoping-review/hansens-disease-work-visa-screening"]="hansens-disease-work-visa-screening"
+          BRANCH_MAP["tasuki-electoral-model"]="tasuki-electoral-model"
+          BRANCH_MAP["devin/1772247034-mafb-analysis"]="mafb-population-projection"
+          BRANCH_MAP["devin/1772961348-fim-interactive-dashboard"]="fim-interactive-dashboard"
+          BRANCH_MAP["devin/1773039065-cluster-statistical-testing"]="cluster-statistical-testing"
+          BRANCH_MAP["devin/1773285176-takalith-arduboy-fx"]="takalith-arduboy-fx"
+          BRANCH_MAP["devin/1773295400-border-check-arduboy"]="border-check-arduboy"
+          BRANCH_MAP["devin/1773350746-starchart-constellation-fixes"]="starchart-arduboy"
+          BRANCH_MAP["devin/1773634645-nuitka-build"]="nuitka-build-tools"
+
+          # ── Weibull series ──
+          BRANCH_MAP["weibull-5domain-comparison"]="weibull-5domain-comparison"
+          BRANCH_MAP["weibull-6domain-integrated"]="weibull-6domain-integrated"
+          BRANCH_MAP["weibull-antipsychotic-dropout"]="weibull-antipsychotic-dropout"
+          BRANCH_MAP["weibull-cardiac-rehab-dropout"]="weibull-cardiac-rehab-dropout"
+          BRANCH_MAP["weibull-clinical-trial-dropout"]="weibull-clinical-trial-dropout"
+          BRANCH_MAP["weibull-hiv-art-dropout"]="weibull-hiv-art-dropout"
+          BRANCH_MAP["weibull-substance-use-dropout"]="weibull-substance-use-dropout"
+
+          # ── Academic slides / zero-calibration ──
+          BRANCH_MAP["devin/1775549411-anesthesiology-academic-roi-slides"]="anesthesiology-academic-roi-slides"
+          BRANCH_MAP["devin/1775637899-pmea-zero-calibration"]="pmea-zero-calibration"
+
+          # ── Bland-Altman / BA series ──
+          BRANCH_MAP["devin/1775690994-ba-plot-3d-simulation"]="ba-plot-3d-simulation"
+          BRANCH_MAP["devin/1775722045-ba-sphere-meridian"]="ba-sphere-meridian"
+
+          # ── Weibull clinical dropout (separate from weibull-clinical-trial-dropout) ──
+          BRANCH_MAP["devin/1776116163-weibull-clinical-dropout"]="weibull-clinical-dropout"
+
+          # ── Submissions / revisions ──
+          BRANCH_MAP["devin/1776157392-pdr-submission-revision"]="pdr-submission-revision"
+          BRANCH_MAP["devin/1776162271-germany-reunification-analysis"]="germany-reunification-analysis"
+          BRANCH_MAP["devin/1776288480-demres-submission"]="demres-submission"
+          BRANCH_MAP["devin/1776939083-ijqhc-submission"]="ijqhc-submission"
+
+          # ── GDP / healthcare economics ──
+          BRANCH_MAP["devin/1776760815-gdp-tempo-poc"]="gdp-tempo-poc"
+          BRANCH_MAP["devin/1776763216-healthcare-sustainable"]="healthcare-sustainable"
+          BRANCH_MAP["devin/1776765895-gdp-cwon-joint"]="gdp-cwon-joint"
+          BRANCH_MAP["devin/1776768797-gdp-tempo-paper"]="gdp-tempo-paper"
+
+          # ── Spectral causality ──
+          BRANCH_MAP["devin/1777462980-spectral-causality-brainstorm"]="spectral-causality-brainstorm"
+          BRANCH_MAP["devin/1777863337-spectral-causality-jmlr"]="spectral-causality-jmlr"
+          BRANCH_MAP["devin/1777865298-spectral-causality-a2-ecd"]="spectral-causality-a2-ecd"
+
+          # ── Medical Sapir-Whorf ──
+          BRANCH_MAP["devin/1777545460-medical-sapir-whorf-paper"]="medical-sapir-whorf-paper"
+          BRANCH_MAP["devin/1777545466-medical-sapir-whorf-paper"]="medical-sapir-whorf-paper-v2"
+          BRANCH_MAP["devin/1777545531-medical-sapir-whorf-formalization"]="medical-sapir-whorf-formalization"
+
+          # ── Other research projects ──
+          # REMOVED: karoshi-who-analysis (no unique content vs master)
+          BRANCH_MAP["devin/1777547587-pwv-vitaldb-analysis"]="pwv-vitaldb-analysis"
+          BRANCH_MAP["devin/1777594452-buddhist-food-map"]="buddhist-food-map"
+          BRANCH_MAP["devin/1777594554-khmer-inscription-analysis"]="khmer-inscription-analysis"
+          BRANCH_MAP["devin/1777601123-khmer-civic-summary"]="khmer-civic-summary"
+          # REMOVED: figure-redistribution (no unique content vs master)
+          BRANCH_MAP["devin/1777901782-healthcare-economic-effect"]="healthcare-economic-effect"
+          BRANCH_MAP["devin/1777908700-canonical-curves-reexamination"]="canonical-curves-reexamination"
+          BRANCH_MAP["devin/1777909479-desflurane-critical-appraisal"]="desflurane-critical-appraisal"
+          BRANCH_MAP["devin/rokid-lyrics"]="rokid-lyrics"
+
+          # ── Flood prediction / subsurface flood control ──
+          BRANCH_MAP["devin/1778846737-flood-prediction-models"]="flood-prediction-review"
+
+          # ── TATSUKI electoral model sub-branches ──
+          BRANCH_MAP["devin/1777844647-tatsuki-electoral-studies"]="tatsuki-electoral-studies"
+          BRANCH_MAP["devin/1777989587-jcss-ssr-submission"]="jcss-ssr-submission"
+          BRANCH_MAP["devin/1777989710-tatsuki-3journal-submission"]="tatsuki-3journal-submission"
+
+          # ── Subdirectory filter map ──
+          # When a branch contains multiple project folders (e.g. branched from
+          # master), SUBDIR_MAP tells the sync to extract ONLY the specified
+          # subdirectory so the public repo stays clean.
+          declare -A SUBDIR_MAP
+
+          # Problem B fixes (branches with unrelated folders mixed in)
+          SUBDIR_MAP["devin/1778846737-flood-prediction-models"]="flood-prediction-review"
+          SUBDIR_MAP["devin/1777462980-spectral-causality-brainstorm"]="spectral-causality-brainstorm"
+          SUBDIR_MAP["devin/1777863337-spectral-causality-jmlr"]="spectral-causality-jmlr"
+          SUBDIR_MAP["devin/1777865298-spectral-causality-a2-ecd"]="spectral-causality-a2-ecd"
+          SUBDIR_MAP["devin/1777545466-medical-sapir-whorf-paper"]="medical_sapir_whorf"
+          SUBDIR_MAP["devin/1776760815-gdp-tempo-poc"]="gdp_tempo_poc"
+          SUBDIR_MAP["devin/1776765895-gdp-cwon-joint"]="gdp_cwon_integration"
+          SUBDIR_MAP["devin/1776288480-demres-submission"]="tempo-effect-paper"
+          SUBDIR_MAP["devin/1777901782-healthcare-economic-effect"]="healthcare_economic_effect"
+          SUBDIR_MAP["devin/1777908700-canonical-curves-reexamination"]="canonical_curves_reexamination"
+          SUBDIR_MAP["devin/1777909479-desflurane-critical-appraisal"]="desflurane_critical_appraisal"
+          SUBDIR_MAP["devin/1777601123-khmer-civic-summary"]="khmer_inscription_analysis"
+
+          # Problem A fixes + future-proofing (single-dir branches)
+          SUBDIR_MAP["devin/1776157392-pdr-submission-revision"]="tempo-effect-paper"
+          SUBDIR_MAP["devin/1776162271-germany-reunification-analysis"]="tempo-effect-paper"
+          SUBDIR_MAP["devin/1776763216-healthcare-sustainable"]="healthcare_tempo_poc"
+          SUBDIR_MAP["devin/1777844647-tatsuki-electoral-studies"]="tasuki-electoral-model"
+          SUBDIR_MAP["devin/1777989587-jcss-ssr-submission"]="tasuki-electoral-model"
+          SUBDIR_MAP["devin/1777989710-tatsuki-3journal-submission"]="tasuki-electoral-model"
+          SUBDIR_MAP["devin/1777545460-medical-sapir-whorf-paper"]="medical_sapir_whorf"
+          SUBDIR_MAP["devin/1777545531-medical-sapir-whorf-formalization"]="medical_sapir_whorf"
+          SUBDIR_MAP["devin/1777594452-buddhist-food-map"]="buddhist_food_lexicon_map"
+          SUBDIR_MAP["devin/1777594554-khmer-inscription-analysis"]="khmer_inscription_analysis"
+          SUBDIR_MAP["devin/1777547587-pwv-vitaldb-analysis"]="pwv_vitaldb_analysis"
+          SUBDIR_MAP["devin/1776768797-gdp-tempo-paper"]="gdp_tempo_paper"
+
+          OWNER="bougtoir"
+
+          # Validate PAT owner matches target namespace
+          PAT_USER=$(curl -s -H "Authorization: token ${SYNC_PAT}" \
+            https://api.github.com/user | python3 -c "import json,sys; print(json.load(sys.stdin).get('login',''))")
+          if [ "$PAT_USER" != "$OWNER" ]; then
+            echo "ERROR: SYNC_PAT belongs to '$PAT_USER', expected '$OWNER'"
+            exit 1
+          fi
+          echo "Validated PAT owner: $PAT_USER"
+
+          SYNCED=0
+          SKIPPED=0
+          FAILED=0
+          CREATED=0
+
+          for BRANCH in "${!BRANCH_MAP[@]}"; do
+            TARGET_REPO="${BRANCH_MAP[$BRANCH]}"
+
+            # Get wip branch SHA
+            WIP_SHA=$(git rev-parse "origin/$BRANCH" 2>/dev/null || echo "")
+            if [ -z "$WIP_SHA" ]; then
+              echo "SKIP: Branch '$BRANCH' not found in wip"
+              SKIPPED=$((SKIPPED + 1))
+              continue
+            fi
+
+            # Get target repo main branch SHA
+            TARGET_SHA=$(git ls-remote "https://x-access-token:${SYNC_PAT}@github.com/${OWNER}/${TARGET_REPO}.git" refs/heads/main 2>/dev/null | cut -f1 || echo "")
+
+            # If target repo does not exist, create it
+            if [ -z "$TARGET_SHA" ]; then
+              # Check if repo exists but is empty (ls-remote returns empty for empty repos too)
+              HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+                -H "Authorization: token ${SYNC_PAT}" \
+                "https://api.github.com/repos/${OWNER}/${TARGET_REPO}")
+              if [ "$HTTP_CODE" = "404" ]; then
+                echo "CREATE: Creating repo ${OWNER}/${TARGET_REPO} for branch $BRANCH"
+                CREATE_RESP=$(curl -s -w "\n%{http_code}" \
+                  -X POST \
+                  -H "Authorization: token ${SYNC_PAT}" \
+                  -H "Accept: application/vnd.github+json" \
+                  "https://api.github.com/user/repos" \
+                  -d "{\"name\":\"${TARGET_REPO}\",\"private\":false,\"auto_init\":false}")
+                # POST /user/repos creates under the authenticated user (validated above as $OWNER)
+                CREATE_CODE=$(echo "$CREATE_RESP" | tail -1)
+                if [ "$CREATE_CODE" != "201" ]; then
+                  echo "ERROR: Failed to create repo $TARGET_REPO (HTTP $CREATE_CODE)"
+                  FAILED=$((FAILED + 1))
+                  continue
+                fi
+                CREATED=$((CREATED + 1))
+                # Small delay to let GitHub propagate
+                sleep 2
+              fi
+            fi
+
+            # Determine what to push
+            PUSH_REF="origin/$BRANCH"
+            COMPARE_SHA="$WIP_SHA"
+
+            # Use branch tip date for deterministic but realistic timestamps
+            ORIG_DATE=$(git log -1 --format='%aI' "origin/$BRANCH")
+
+            # If SUBDIR_MAP entry exists, extract only that subdirectory
+            SUBDIR="${SUBDIR_MAP[$BRANCH]:-}"
+            if [ -n "$SUBDIR" ]; then
+              # Verify the subdirectory exists in the branch
+              if ! git rev-parse "origin/$BRANCH:$SUBDIR" >/dev/null 2>&1; then
+                echo "ERROR: Subdirectory '$SUBDIR' not found in branch '$BRANCH'"
+                FAILED=$((FAILED + 1))
+                continue
+              fi
+              TEMP_INDEX=$(mktemp)
+              GIT_INDEX_FILE="$TEMP_INDEX" git read-tree "origin/${BRANCH}:${SUBDIR}"
+              FILTERED_TREE=$(GIT_INDEX_FILE="$TEMP_INDEX" git write-tree)
+              rm -f "$TEMP_INDEX"
+              COMPARE_SHA=$(GIT_AUTHOR_DATE="$ORIG_DATE" \
+                GIT_COMMITTER_DATE="$ORIG_DATE" \
+                GIT_AUTHOR_NAME="wip-sync" GIT_AUTHOR_EMAIL="sync@wip" \
+                GIT_COMMITTER_NAME="wip-sync" GIT_COMMITTER_EMAIL="sync@wip" \
+                git commit-tree "$FILTERED_TREE" -m "sync: $BRANCH (subdir: $SUBDIR)")
+              PUSH_REF="$COMPARE_SHA"
+            else
+              # No subdir filter — strip .github/workflows/ if present
+              # (PAT without 'workflow' scope cannot push workflow files)
+              WORKFLOW_FILES=$(git ls-tree -r --name-only "origin/$BRANCH" -- .github/workflows/ 2>/dev/null | head -1)
+              if [ -n "$WORKFLOW_FILES" ]; then
+                TEMP_INDEX=$(mktemp)
+                GIT_INDEX_FILE="$TEMP_INDEX" git read-tree "origin/$BRANCH"
+                GIT_INDEX_FILE="$TEMP_INDEX" git rm -rf --cached .github/workflows/ >/dev/null 2>&1 || true
+                FILTERED_TREE=$(GIT_INDEX_FILE="$TEMP_INDEX" git write-tree)
+                rm -f "$TEMP_INDEX"
+                COMPARE_SHA=$(GIT_AUTHOR_DATE="$ORIG_DATE" \
+                  GIT_COMMITTER_DATE="$ORIG_DATE" \
+                  GIT_AUTHOR_NAME="wip-sync" GIT_AUTHOR_EMAIL="sync@wip" \
+                  GIT_COMMITTER_NAME="wip-sync" GIT_COMMITTER_EMAIL="sync@wip" \
+                  git commit-tree "$FILTERED_TREE" -m "sync: $BRANCH (workflows stripped)")
+                PUSH_REF="$COMPARE_SHA"
+              fi
+            fi
+
+            # Compare SHAs - skip if already in sync
+            if [ "$COMPARE_SHA" = "$TARGET_SHA" ]; then
+              echo "SKIP: $BRANCH -> $TARGET_REPO (already in sync: $COMPARE_SHA)"
+              SKIPPED=$((SKIPPED + 1))
+              continue
+            fi
+
+            echo "SYNC: $BRANCH -> $TARGET_REPO (wip: $WIP_SHA, target: ${TARGET_SHA:-empty})"
+            if git push --force "https://x-access-token:${SYNC_PAT}@github.com/${OWNER}/${TARGET_REPO}.git" "$PUSH_REF:refs/heads/main" 2>&1; then
+              SYNCED=$((SYNCED + 1))
+            else
+              echo "ERROR: Failed to sync $BRANCH -> $TARGET_REPO"
+              FAILED=$((FAILED + 1))
+            fi
+          done
+
+          echo ""
+          echo "Done: $SYNCED synced, $SKIPPED skipped, $FAILED failed, $CREATED repos created"
+          if [ "$FAILED" -gt 0 ]; then
+            exit 1
+          fi
