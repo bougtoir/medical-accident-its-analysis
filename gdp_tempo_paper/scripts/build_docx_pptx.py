@@ -1,6 +1,12 @@
 """Build final manuscript .docx (JA + EN) with inline figures/tables
 and a single editable .pptx (EN figures) for per-slide editing.
 
+Formatted for Macroeconomic Dynamics (Cambridge University Press):
+  - Double-spaced (2.0 line spacing)
+  - Running head on page 2
+  - Times New Roman 12pt body text
+  - Author-date references
+
 Usage:  python build_docx_pptx.py
 Outputs into ../manuscript/ :
   - manuscript_en.docx
@@ -8,6 +14,8 @@ Outputs into ../manuscript/ :
   - figures_en.pptx
   - table1_model_metrics.docx
   - table2_correspondence.docx
+  - table3_rpim.docx
+  - table4_extended_oos.docx
 """
 from __future__ import annotations
 
@@ -98,20 +106,21 @@ def set_font(run, name="Times New Roman", size=11, bold=False, italic=False):
 
 def add_heading(doc, text, level, lang):
     h = doc.add_paragraph()
-    h.paragraph_format.space_before = Pt(12)
+    h.paragraph_format.space_before = Pt(18)
     h.paragraph_format.space_after = Pt(6)
+    h.paragraph_format.line_spacing = 2.0
     run = h.add_run(text)
-    set_font(run, size={1: 16, 2: 13, 3: 12}[level], bold=True)
+    set_font(run, size={1: 16, 2: 14, 3: 12}[level], bold=True)
     return h
 
 
 def add_para(doc, text, lang, italic=False):
     p = doc.add_paragraph()
     p.paragraph_format.space_after = Pt(6)
-    p.paragraph_format.line_spacing = 1.5
-    p.paragraph_format.first_line_indent = Pt(12)
+    p.paragraph_format.line_spacing = 2.0
+    p.paragraph_format.first_line_indent = Pt(24)
     run = p.add_run(text)
-    set_font(run, italic=italic)
+    set_font(run, size=12, italic=italic)
     return p
 
 
