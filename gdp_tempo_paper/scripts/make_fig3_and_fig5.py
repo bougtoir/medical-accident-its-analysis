@@ -493,19 +493,21 @@ def make_fig7_delta_sensitivity_bilingual(lang: str = "en"):
     for country in extra_countries:
         all_vals[country] = [float(v) for v in varying[country]]
 
-    # Apply small vertical jitter to separate overlapping lines
-    jitter_step = 0.06
-    seen_baselines = {}
-    jittered_vals = {}
+    # Apply small symmetric vertical jitter to separate overlapping lines
+    jitter_step = 0.005
+    baseline_groups: dict[float, list[str]] = {}
     for country in list(highlight_countries) + extra_countries:
         if country not in all_vals:
             continue
         baseline = round(all_vals[country][2], 4)
-        if baseline not in seen_baselines:
-            seen_baselines[baseline] = 0
-        offset = seen_baselines[baseline] * jitter_step
-        seen_baselines[baseline] += 1
-        jittered_vals[country] = [v + offset for v in all_vals[country]]
+        baseline_groups.setdefault(baseline, []).append(country)
+
+    jittered_vals = {}
+    for baseline, members in baseline_groups.items():
+        n = len(members)
+        for idx, country in enumerate(members):
+            offset = (idx - (n - 1) / 2) * jitter_step
+            jittered_vals[country] = [v + offset for v in all_vals[country]]
 
     # Plot highlighted countries
     for country, color, marker in zip(
