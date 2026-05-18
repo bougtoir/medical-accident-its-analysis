@@ -508,6 +508,172 @@ def make_table3_rpim():
     print("wrote table3_rpim")
 
 
+def make_fig8_conditional_oos_bilingual(lang: str = "en"):
+    """Fig. 8: conditional OOS — MAPE for interior-solution vs boundary
+    countries, showing that tempo correction is more effective where mu is
+    genuinely informative."""
+    cond_path = os.path.join(DATA, "conditional_oos.json")
+    if not os.path.exists(cond_path):
+        print("skip fig8 — conditional_oos.json not found")
+        return
+    with open(cond_path) as fh:
+        cond = json.load(fh)
+
+    labels = {
+        "en": {
+            "title": "Fig. 8. Conditional OOS evaluation: "
+                     "interior-solution vs boundary countries",
+            "ylabel": "Median out-of-sample MAPE (%)",
+            "interior": f"Interior ({cond['n_interior']} countries)",
+            "boundary": f"Boundary ({cond['n_boundary']} countries)",
+            "all": "All (39 countries)",
+        },
+        "ja": {
+            "title": "図8. 条件付き標本外評価: "
+                     "内点解国 vs 境界解国",
+            "ylabel": "標本外MAPE中央値（%）",
+            "interior": f"内点解（{cond['n_interior']}カ国）",
+            "boundary": f"境界解（{cond['n_boundary']}カ国）",
+            "all": "全体（39カ国）",
+        },
+    }[lang]
+
+    models = ["M0", "M1", "M2", "M3", "M4"]
+    int_vals = [cond.get(f"interior_{m}_median", np.nan) for m in models]
+    bnd_vals = [cond.get(f"boundary_{m}_median", np.nan) for m in models]
+    all_vals = [cond.get(f"all_{m}_median", np.nan) for m in models]
+
+    x = np.arange(len(models))
+    width = 0.25
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.bar(x - width, int_vals, width, label=labels["interior"],
+           color="#4c72b0", alpha=0.85)
+    ax.bar(x, bnd_vals, width, label=labels["boundary"],
+           color="#dd8452", alpha=0.85)
+    ax.bar(x + width, all_vals, width, label=labels["all"],
+           color="#888888", alpha=0.65)
+
+    ax.set_xticks(x)
+    ax.set_xticklabels(models)
+    ax.set_ylabel(labels["ylabel"])
+    ax.set_title(labels["title"], fontsize=11)
+    ax.legend(loc="best", fontsize=9)
+    ax.grid(axis="y", alpha=0.3)
+
+    # Add value labels on bars
+    for bars in ax.containers:
+        for bar in bars:
+            h = bar.get_height()
+            if np.isfinite(h):
+                ax.annotate(f"{h:.1f}", (bar.get_x() + bar.get_width() / 2, h),
+                            ha="center", va="bottom", fontsize=7)
+
+    plt.tight_layout()
+    out = os.path.join(FIG, f"fig8_conditional_oos_{lang}.png")
+    plt.savefig(out, dpi=180)
+    plt.close()
+    print("wrote", out)
+
+
+def make_fig9_rho2_regression_bilingual(lang: str = "en"):
+    """Fig. 9: cross-sectional regression of rho2 on R&D intensity."""
+    reg_path = os.path.join(DATA, "rho2_regression.json")
+    if not os.path.exists(reg_path):
+        print("skip fig9 — rho2_regression.json not found")
+        return
+    with open(reg_path) as fh:
+        reg = json.load(fh)
+
+    labels = {
+        "en": {
+            "title": r"Fig. 9. Cross-sectional regression: "
+                     r"$\hat{\rho}_2$ on R&D intensity",
+            "xlabel": "Mean R&D expenditure (% of GDP)",
+            "ylabel": r"$\hat{\rho}_2$ (PIM-CWON elasticity)",
+            "panel_a": r"(a) M0: $\hat{\rho}_2$ vs R&D intensity",
+            "panel_b": r"(b) M4: $\hat{\rho}_2$ vs R&D intensity",
+            "fit": "OLS fit",
+            "ref": r"$\rho_2 = 1$",
+        },
+        "ja": {
+            "title": r"図9. クロスセクション回帰: "
+                     r"$\hat{\rho}_2$とR&D強度",
+            "xlabel": "平均R&D支出（対GDP比%）",
+            "ylabel": r"$\hat{\rho}_2$（PIM-CWON弾力性）",
+            "panel_a": r"(a) M0: $\hat{\rho}_2$ vs R&D強度",
+            "panel_b": r"(b) M4: $\hat{\rho}_2$ vs R&D強度",
+            "fit": "OLS回帰直線",
+            "ref": r"$\rho_2 = 1$",
+        },
+    }[lang]
+
+    rnd = np.array(reg["rnd_intensity"])
+    m0_rho2 = np.array(reg["M0_rho2"])
+    m4_rho2 = np.array(reg["M4_rho2"])
+    iso3 = reg["iso3"]
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
+
+    for ax, rho2, model, panel_label in [
+        (ax1, m0_rho2, "M0", labels["panel_a"]),
+        (ax2, m4_rho2, "M4", labels["panel_b"]),
+    ]:
+        ax.scatter(rnd, rho2, c="#4c72b0" if model == "M0" else "#c44e52",
+                   s=30, alpha=0.7, edgecolors="black", lw=0.3)
+        # Regression line
+        intercept = reg[f"{model}_intercept"]
+        slope = reg[f"{model}_slope"]
+        r2 = reg[f"{model}_R2"]
+        t = reg[f"{model}_t_stat"]
+        x_range = np.linspace(rnd.min() - 0.2, rnd.max() + 0.2, 100)
+        ax.plot(x_range, intercept + slope * x_range, "--",
+                color="black", lw=1.2,
+                label=f"{labels['fit']} (R²={r2:.3f}, t={t:.2f})")
+        ax.axhline(1.0, color="grey", ls=":", lw=0.8, label=labels["ref"])
+        # Label outliers
+        for i, iso in enumerate(iso3):
+            if abs(rho2[i] - 1.0) > 0.3 or rnd[i] > 3.5:
+                ax.annotate(iso, (rnd[i], rho2[i]), fontsize=7, alpha=0.8)
+        ax.set_xlabel(labels["xlabel"])
+        ax.set_ylabel(labels["ylabel"])
+        ax.set_title(panel_label)
+        ax.legend(fontsize=8)
+        ax.grid(alpha=0.3)
+
+    fig.suptitle(labels["title"], y=0.99, fontsize=12)
+    plt.tight_layout(rect=[0, 0, 1, 0.97])
+    out = os.path.join(FIG, f"fig9_rho2_regression_{lang}.png")
+    plt.savefig(out, dpi=180, bbox_inches="tight")
+    plt.close()
+    print("wrote", out)
+
+
+def make_table4_extended_oos():
+    """Table 4: Extended OOS metrics (direction accuracy + CWON RMSE)."""
+    ext_path = os.path.join(DATA, "extended_oos.csv")
+    if not os.path.exists(ext_path):
+        print("skip table4 — extended_oos.csv not found")
+        return
+    ext = pd.read_csv(ext_path)
+    rows = []
+    for model in ("M0", "M1", "M2", "M3", "M4"):
+        dc = f"{model}_dir_acc"
+        cr = f"{model}_cwon_rmse"
+        da = ext[dc].dropna() if dc in ext.columns else pd.Series(dtype=float)
+        cw = ext[cr].dropna() if cr in ext.columns else pd.Series(dtype=float)
+        rows.append({
+            "Model": model,
+            "Dir. acc. median (%)": round(float(da.median()), 1) if len(da) else "",
+            "Dir. acc. mean (%)": round(float(da.mean()), 1) if len(da) else "",
+            "CWON RMSE median": f"{float(cw.median()):.4f}" if len(cw) else "",
+            "CWON RMSE mean": f"{float(cw.mean()):.4f}" if len(cw) else "",
+            "N": int(da.notna().sum()) if len(da) else 0,
+        })
+    t4 = pd.DataFrame(rows)
+    t4.to_csv(os.path.join(TAB, "table4_extended_oos.csv"), index=False)
+    print("wrote table4_extended_oos")
+
+
 def main():
     for lang in ("en", "ja"):
         make_fig1_bilingual(lang)
@@ -517,8 +683,11 @@ def main():
         make_fig5(lang)
         make_fig6_rpim_bilingual(lang)
         make_fig7_delta_sensitivity_bilingual(lang)
+        make_fig8_conditional_oos_bilingual(lang)
+        make_fig9_rho2_regression_bilingual(lang)
     make_tables()
     make_table3_rpim()
+    make_table4_extended_oos()
     print("done")
 
 

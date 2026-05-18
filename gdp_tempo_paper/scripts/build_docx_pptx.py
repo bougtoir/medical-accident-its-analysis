@@ -66,6 +66,14 @@ FIG_LIST = [
      "Delta-mu sensitivity: mu_hat under +/-20% depreciation perturbation.",
      "δ-μ感度分析: 減価償却率±20%変動下のμ̂。",
      "fig7_delta_sensitivity_{lang}.png"),
+    ("fig8", "Fig. 8", "図8",
+     "Conditional OOS evaluation: interior-solution vs boundary countries.",
+     "条件付き標本外評価: 内点解国 vs 境界解国。",
+     "fig8_conditional_oos_{lang}.png"),
+    ("fig9", "Fig. 9", "図9",
+     "Cross-sectional regression of rho_2 on R&D intensity.",
+     "ρ̂₂のR&D強度に対するクロスセクション回帰。",
+     "fig9_rho2_regression_{lang}.png"),
 ]
 
 
@@ -176,11 +184,13 @@ def build_manuscript(lang: str):
     t2 = pd.read_csv(os.path.join(TAB, "table2_correspondence.csv"))
     t3_path = os.path.join(TAB, "table3_rpim.csv")
     t3 = pd.read_csv(t3_path) if os.path.exists(t3_path) else None
+    t4_path = os.path.join(TAB, "table4_extended_oos.csv")
+    t4 = pd.read_csv(t4_path) if os.path.exists(t4_path) else None
 
     # Figure caption lookup by index
     fig_cap = {}
     for key, en_prefix, ja_prefix, en_cap, ja_cap, pattern in FIG_LIST:
-        idx = int(key[-1])
+        idx = int(key.replace("fig", ""))
         fig_cap[idx] = {
             "en": (en_prefix, en_cap, pattern.format(lang="en")),
             "ja": (ja_prefix, ja_cap, pattern.format(lang="ja")),
@@ -193,6 +203,8 @@ def build_manuscript(lang: str):
     t2_cap_ja = "人口・資本テンポ対応関係。"
     t3_cap_en = "Relational PIM diagnostics: rho_2 summary under M0, M1, M2, M4."
     t3_cap_ja = "関係型PIM診断: M0, M1, M2, M4におけるρ̂₂の要約。"
+    t4_cap_en = "Extended OOS metrics: direction accuracy and CWON trajectory RMSE."
+    t4_cap_ja = "拡張標本外指標: 方向精度およびCWON軌跡RMSE。"
 
     doc = Document()
     # Use sensible page margins
@@ -259,6 +271,13 @@ def build_manuscript(lang: str):
                         t3,
                         t3_cap_en if lang == "en" else t3_cap_ja,
                     )
+                elif idx == 4 and t4 is not None:
+                    add_table_block(
+                        doc,
+                        "Table 4." if lang == "en" else "表4.",
+                        t4,
+                        t4_cap_en if lang == "en" else t4_cap_ja,
+                    )
             else:
                 # Drop markdown emphasis markers for clean rendering
                 text = stripped
@@ -297,6 +316,13 @@ def build_standalone_tables():
         table_list.append(
             ("table3_rpim.docx", t3,
              "Table 3. Relational PIM diagnostics: rho_2 summary under M0, M1, M2, M4.",
+             None))
+    t4_path = os.path.join(TAB, "table4_extended_oos.csv")
+    t4 = pd.read_csv(t4_path) if os.path.exists(t4_path) else None
+    if t4 is not None:
+        table_list.append(
+            ("table4_extended_oos.docx", t4,
+             "Table 4. Extended OOS metrics: direction accuracy and CWON trajectory RMSE.",
              None))
     for name, df, cap, widths in table_list:
         d = Document()
