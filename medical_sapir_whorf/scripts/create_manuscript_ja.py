@@ -1,827 +1,884 @@
 #!/usr/bin/env python3
 """
 Generate the Japanese manuscript for:
-「医療版サピア＝ウォーフ仮説：疾患分類体系はいかにして臨床的現実を構成するか
- ―― ICD-11移行と過労死概念からの考察」
+「疾患分類学的相対性：医療版サピア＝ウォーフ仮説の定式化」
 
-Outputs: medical_sapir_whorf/output/manuscript_ja.docx
+Outputs:
+  - manuscript_ja.docx  (日本語原稿・図表インライン)
+  - figures_ja.pptx     (日本語図表・編集可能)
+  - tables_ja.docx      (日本語表・編集可能)
 """
 
-import os
-import re
+import os, re, textwrap
+from pathlib import Path
+
 from docx import Document
 from docx.shared import Pt, Inches, Cm, RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.enum.table import WD_TABLE_ALIGNMENT
+from docx.oxml.ns import qn
 
-OUT_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "output")
-os.makedirs(OUT_DIR, exist_ok=True)
+from pptx import Presentation
+from pptx.util import Inches as PptxInches, Pt as PptxPt
+from pptx.enum.text import PP_ALIGN
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import matplotlib.font_manager as fm
+
+OUT_DIR = Path(__file__).resolve().parent.parent / "output"
+OUT_DIR.mkdir(exist_ok=True)
+
+# ---------------------------------------------------------------------------
+# Japanese font setup for matplotlib
+# ---------------------------------------------------------------------------
+
+def setup_japanese_font():
+    """Find and set a Japanese font for matplotlib."""
+    jp_fonts = ['IPAGothic', 'IPAPGothic', 'Noto Sans CJK JP', 'TakaoPGothic',
+                'VL PGothic', 'Takao PGothic', 'DejaVu Sans']
+    for font_name in jp_fonts:
+        try:
+            fp = fm.findfont(fm.FontProperties(family=font_name), fallback_to_default=False)
+            if fp and 'DejaVu' not in fp:
+                plt.rcParams['font.family'] = font_name
+                return font_name
+        except Exception:
+            continue
+    # Fallback: use any available CJK font
+    for f in fm.fontManager.ttflist:
+        if any(kw in f.name.lower() for kw in ['gothic', 'mincho', 'cjk', 'ipa', 'noto']):
+            plt.rcParams['font.family'] = f.name
+            return f.name
+    return None
 
 
-def add_para_with_refs(doc, text, style="Normal"):
-    p = doc.add_paragraph(style=style)
-    parts = re.split(r"(\{[^}]+\})", text)
+# ---------------------------------------------------------------------------
+# Utility helpers
+# ---------------------------------------------------------------------------
+
+def add_superscript_text(paragraph, text):
+    parts = re.split(r'(\{[^}]+\})', text)
     for part in parts:
-        if part.startswith("{") and part.endswith("}"):
-            run = p.add_run(part[1:-1])
+        if part.startswith('{') and part.endswith('}'):
+            run = paragraph.add_run(part[1:-1])
             run.font.superscript = True
             run.font.size = Pt(8)
         else:
-            run = p.add_run(part)
+            run = paragraph.add_run(part)
             run.font.size = Pt(11)
+    return paragraph
+
+
+def set_cell_text(cell, text, bold=False, size=Pt(10)):
+    cell.text = ""
+    p = cell.paragraphs[0]
+    run = p.add_run(text)
+    run.font.size = size
+    run.bold = bold
+
+
+def add_heading(doc, text, level):
+    h = doc.add_heading(text, level=level)
+    for run in h.runs:
+        run.font.color.rgb = RGBColor(0, 0, 0)
+    return h
+
+
+def add_body(doc, text):
+    p = doc.add_paragraph()
+    p.style = doc.styles['Normal']
+    add_superscript_text(p, text)
+    p.paragraph_format.space_after = Pt(6)
+    p.paragraph_format.line_spacing = 1.5
     return p
 
 
-def set_cell_text(cell, text, bold=False, size=Pt(9)):
-    cell.text = ""
-    run = cell.paragraphs[0].add_run(text)
-    run.bold = bold
-    run.font.size = size
+# ---------------------------------------------------------------------------
+# Figure generation (Japanese)
+# ---------------------------------------------------------------------------
+
+def create_figure1_ja():
+    font_name = setup_japanese_font()
+    fig, ax = plt.subplots(figsize=(10, 7))
+    ax.set_xlim(0, 10)
+    ax.set_ylim(0, 8)
+    ax.axis('off')
+    fig.patch.set_facecolor('white')
+
+    ax.text(5, 7.6, '疾患分類学的相対性フレームワーク',
+            ha='center', va='center', fontsize=14, fontweight='bold')
+
+    box1 = dict(boxstyle='round,pad=0.4', facecolor='#E8F4FD', edgecolor='#2196F3', linewidth=2)
+    ax.text(1.8, 6.2, 'レベル1：認知的\n（臨床推論）', ha='center', va='center',
+            fontsize=10, bbox=box1)
+
+    box2 = dict(boxstyle='round,pad=0.4', facecolor='#FFF3E0', edgecolor='#FF9800', linewidth=2)
+    ax.text(5, 6.2, 'レベル2：制度的\n（研究・ガイドライン）', ha='center', va='center',
+            fontsize=10, bbox=box2)
+
+    box3 = dict(boxstyle='round,pad=0.4', facecolor='#E8F5E9', edgecolor='#4CAF50', linewidth=2)
+    ax.text(8.2, 6.2, 'レベル3：集団的\n（疫学パターン）', ha='center', va='center',
+            fontsize=10, bbox=box3)
+
+    central = dict(boxstyle='round,pad=0.6', facecolor='#F3E5F5', edgecolor='#9C27B0', linewidth=2.5)
+    ax.text(5, 4.0, '疾患分類学的\nフレームワーク\n（疾患分類体系）', ha='center', va='center',
+            fontsize=11, fontweight='bold', bbox=central)
+
+    arrow_style = dict(arrowstyle='->', color='#666666', lw=1.5,
+                       connectionstyle='arc3,rad=0.1')
+    ax.annotate('', xy=(1.8, 5.5), xytext=(4.0, 4.7), arrowprops=arrow_style)
+    ax.annotate('', xy=(5, 5.5), xytext=(5, 4.7), arrowprops=arrow_style)
+    ax.annotate('', xy=(8.2, 5.5), xytext=(6.0, 4.7), arrowprops=arrow_style)
+
+    loop_style = dict(arrowstyle='->', color='#E91E63', lw=1.8,
+                      connectionstyle='arc3,rad=-0.4', linestyle='dashed')
+    ax.annotate('', xy=(3.8, 3.5), xytext=(1.5, 5.5), arrowprops=loop_style)
+    ax.text(0.8, 4.5, 'ループ\n効果', ha='center', va='center',
+            fontsize=8, color='#E91E63', fontstyle='italic')
+
+    weak_box = dict(boxstyle='round,pad=0.3', facecolor='#FAFAFA', edgecolor='#999999', linewidth=1)
+    ax.text(2.5, 1.8, '弱い形式\n（影響）', ha='center', va='center', fontsize=9, bbox=weak_box)
+    ax.text(7.5, 1.8, '強い形式\n（決定）', ha='center', va='center', fontsize=9, bbox=weak_box)
+
+    ax.annotate('', xy=(7.5, 1.2), xytext=(2.5, 1.2),
+                arrowprops=dict(arrowstyle='<->', color='#333333', lw=1.5))
+    ax.text(5, 0.9, '疾患分類学的制約のスペクトル', ha='center', va='center',
+            fontsize=9, fontstyle='italic', color='#555555')
+
+    counter_box = dict(boxstyle='round,pad=0.3', facecolor='#FFEBEE', edgecolor='#F44336', linewidth=1.5)
+    ax.text(5, 2.8, '反証：分類非依存性疾患\n（例：痩身理想のない文化での拒食症）',
+            ha='center', va='center', fontsize=8, bbox=counter_box)
+
+    ax.annotate('', xy=(5, 3.3), xytext=(5, 3.0),
+                arrowprops=dict(arrowstyle='->', color='#F44336', lw=1.2))
+
+    fig_path = OUT_DIR / "figure1_framework_ja.png"
+    fig.savefig(fig_path, dpi=300, bbox_inches='tight')
+    plt.close(fig)
+    return fig_path
 
 
-def add_heading(doc, text, level=1):
-    return doc.add_heading(text, level=level)
+def create_figure2_ja():
+    font_name = setup_japanese_font()
+    fig, ax = plt.subplots(figsize=(10, 5))
+    ax.set_xlim(0, 10)
+    ax.set_ylim(0, 5)
+    ax.axis('off')
+    fig.patch.set_facecolor('white')
+
+    ax.text(5, 4.7, '疾患分類学的ループメカニズム', ha='center', fontsize=13, fontweight='bold')
+
+    positions = [(2, 3.2), (8, 3.2), (8, 1.2), (2, 1.2)]
+    labels = [
+        '疾患分類学的\n分類体系\n（ICD, DSM等）',
+        '臨床実践\n（診断・治療・\n紹介パターン）',
+        '患者体験\n（自己同一化・\n症状表現）',
+        '疫学的データ\nとエビデンス\n（有病率・転帰）'
+    ]
+    colors = ['#E8F4FD', '#FFF3E0', '#E8F5E9', '#FCE4EC']
+    edge_colors = ['#2196F3', '#FF9800', '#4CAF50', '#E91E63']
+
+    for (x, y), label, fc, ec in zip(positions, labels, colors, edge_colors):
+        bbox = dict(boxstyle='round,pad=0.4', facecolor=fc, edgecolor=ec, linewidth=2)
+        ax.text(x, y, label, ha='center', va='center', fontsize=9, bbox=bbox)
+
+    arrow_kw = dict(arrowstyle='->', lw=2, color='#555555')
+    ax.annotate('', xy=(6.3, 3.2), xytext=(3.7, 3.2), arrowprops=arrow_kw)
+    ax.annotate('', xy=(8, 2.0), xytext=(8, 2.6), arrowprops=arrow_kw)
+    ax.annotate('', xy=(3.7, 1.2), xytext=(6.3, 1.2), arrowprops=arrow_kw)
+    ax.annotate('', xy=(2, 2.6), xytext=(2, 2.0), arrowprops=arrow_kw)
+
+    ax.text(5, 3.5, '形成する', ha='center', fontsize=8, fontstyle='italic', color='#666')
+    ax.text(8.6, 2.3, '規定する', ha='center', fontsize=8, fontstyle='italic', color='#666', rotation=90)
+    ax.text(5, 0.9, '生成する', ha='center', fontsize=8, fontstyle='italic', color='#666')
+    ax.text(1.4, 2.3, '改訂する', ha='center', fontsize=8, fontstyle='italic', color='#666', rotation=90)
+
+    fig_path = OUT_DIR / "figure2_looping_ja.png"
+    fig.savefig(fig_path, dpi=300, bbox_inches='tight')
+    plt.close(fig)
+    return fig_path
+
+
+# ---------------------------------------------------------------------------
+# Content
+# ---------------------------------------------------------------------------
+
+TITLE = "疾患分類学的相対性：医療版サピア＝ウォーフ仮説の定式化"
+AUTHORS = "大西 達季"
+AFFILIATIONS = ""
+
+ABSTRACT = (
+    "【背景】言語学のサピア＝ウォーフ仮説は、言語の構造が認知と知覚に影響を与えると主張する。"
+    "医療においても類似の現象が存在する可能性がある：疾患分類学的フレームワーク（疾患の分類"
+    "・命名体系）は、臨床的現実を単に記述するだけでなく、能動的にそれを形成している可能性がある。"
+    "疾患概念が診療体系を規定するという主張は直感的に明らかに思えるが、その効果は自明の域を超えて"
+    "おり、体系的な理論的取り扱いが必要であると我々は主張する。"
+    "【目的】本論文は「疾患分類学的相対性」フレームワークを提案する。これは医療分類体系に適用された"
+    "サピア＝ウォーフ仮説の形式的な類似物である。仮説の強い形式と弱い形式を定義し、3つのレベルの"
+    "効果（認知的・制度的・集団的）を画定し、Ian Hackingのループ効果メカニズムを中核的なフィード"
+    "バック動態として組み込む。"
+    "【方法】科学哲学、医療人類学、診断の社会学、臨床医学からの知見を統合して理論的フレームワークを"
+    "構築する。疼痛医学、産業保健（過労死）、ICD改定史からの症例研究を例証的根拠として分析する。"
+    "分類非依存性の疾患発現（例：痩身理想のない社会における拒食症）からの反証を統合し、フレーム"
+    "ワークの境界条件を画定する。"
+    "【結果】疾患分類学的相対性フレームワークは6つの命題と3つの検証可能な予測を同定する。疾患分類"
+    "学的カテゴリが臨床推論に対する認知的制約（診断的閉鎖）、研究資金配分と治療経路の制度的決定因、"
+    "疫学パターンの集団レベルでの形成因として機能することを示す。"
+    "【結論】疾患分類学的相対性フレームワークは、疾患分類体系がいかに診療を形成するかを理解するための"
+    "構造化された理論的レンズを提供する。このフレームワークはICD改定前後の自然実験デザインに適した"
+    "検証可能な予測を生成し、疾患分類学的政策と臨床教育に実践的含意を持つ。"
+)
+
+KEYWORDS = [
+    "サピア＝ウォーフ仮説",
+    "疾患分類学",
+    "疾患分類",
+    "言語的相対性",
+    "ループ効果",
+    "医学の哲学",
+    "ICD",
+    "診断ラベル",
+]
+
+REFERENCES = [
+    "Sapir E. The status of linguistics as a science. Language. 1929;5(4):207–14.",
+    "Whorf BL. Language, thought, and reality: selected writings of Benjamin Lee Whorf. Carroll JB, editor. Cambridge (MA): MIT Press; 1956.",
+    "Warner R. The relationship between language and disease concepts. Int J Psychiatry Med. 1976;7(1):57–68.",
+    "Hacking I. The looping effects of human kinds. In: Sperber D, Premack D, Premack AJ, editors. Causal cognition: a multidisciplinary debate. Oxford: Clarendon Press; 1995. p. 351–94.",
+    "Hacking I. Making up people. London Review of Books. 2006;28(16):23–6.",
+    "Kleinman A. The illness narratives: suffering, healing, and the human condition. New York: Basic Books; 1988.（邦訳：クラインマン A. 病いの語り. 誠信書房; 1996.）",
+    "Jutel A. Sociology of diagnosis: a preliminary review. Sociol Health Illn. 2009;31(2):278–99.",
+    "Zachar P, Kendler KS. The philosophy of nosology. Annu Rev Clin Psychol. 2017;13:49–71.",
+    "Boorse C. Health as a theoretical concept. Philos Sci. 1977;44(4):542–73.",
+    "Swartz L. Anorexia nervosa as a culture-bound syndrome. Soc Sci Med. 1985;20(7):725–30.",
+    "Michaleff ZA, Glasziou P, Thomas R. Consequences of a diagnostic label: a systematic scoping review and thematic framework. Front Public Health. 2021;9:725877.",
+    "Nickel B, Moynihan R, Barratt A, Brito JP, McCaffery K. Words do matter: a systematic review on how different terminology for the same condition influences management preferences. BMJ Open. 2017;7(7):e014129.",
+    "Iwasaki K, Takahashi M, Nakata A. Health problems due to long working hours in Japan: working hours, workers' compensation (karoshi), and preventive measures. Ind Health. 2006;44(4):537–40.",
+    "Nishiyama K, Johnson JV. Karoshi—death from overwork: occupational health consequences of Japanese production management. Int J Health Serv. 1997;27(4):625–41.",
+    "World Health Organization. ICD-11 for Mortality and Morbidity Statistics. Geneva: WHO; 2019.",
+    "Reed GM, First MB, Kogan CS, et al. Innovations and changes in the ICD-11 classification of mental, behavioural and neurodevelopmental disorders. World Psychiatry. 2019;18(1):3–19.",
+    "Treede RD, Rief W, Barke A, et al. Chronic pain as a symptom or a disease: the IASP Classification of Chronic Pain for the International Classification of Diseases (ICD-11). Pain. 2019;160(1):19–27.",
+    "Tsou JY. Natural kinds, psychiatric classification and the history of the DSM. Hist Psychiatry. 2016;27(4):406–24.",
+    "Cooper R. Classifying madness: a philosophical examination of the Diagnostic and Statistical Manual of Mental Disorders. Dordrecht: Springer; 2005.",
+    "Fabrega H Jr. Disease and social behavior: an interdisciplinary perspective. Cambridge (MA): MIT Press; 1974.",
+    "Eisenberg L. Disease and illness: distinctions between professional and popular ideas of sickness. Cult Med Psychiatry. 1977;1(1):9–23.",
+    "Rosenhan DL. On being sane in insane places. Science. 1973;179(4070):250–8.",
+    "Thibault JM, Bhatt DL, Engel GL. The biopsychosocial model: past, present, future. Psychosomatics. 2003;44(4):267–75.",
+    "Boroditsky L. Does language shape thought? Mandarin and English speakers' conceptions of time. Cogn Psychol. 2001;43(1):1–22.",
+    "Lupyan G, Bergen B. How language programs the mind. Top Cogn Sci. 2016;8(2):408–24.",
+    "Conrad P. The medicalization of society: on the transformation of human conditions into treatable disorders. Baltimore: Johns Hopkins University Press; 2007.",
+    "Bowker GC, Star SL. Sorting things out: classification and its consequences. Cambridge (MA): MIT Press; 1999.",
+    "Craddock N, Owen MJ. The Kraepelinian dichotomy — going, going... but still not gone. Br J Psychiatry. 2010;196(2):92–5.",
+    "Frances A. Saving normal: an insider's revolt against out-of-control psychiatric diagnosis, DSM-5, Big Pharma, and the medicalization of ordinary life. New York: William Morrow; 2013.",
+    "Kirmayer LJ. Cultural variations in the clinical presentation of depression and anxiety: implications for diagnosis and treatment. J Clin Psychiatry. 2001;62 Suppl 13:22–8.",
+]
+
+
+INTRO_PARAS = [
+    (
+        "サピア＝ウォーフ仮説は、20世紀初頭にEdward SapirとBenjamin Lee Whorfによって定式化"
+        "された仮説であり、言語の構造がその話者の認知と世界観に影響を与えると主張する。{1,2}"
+        "その強い形式（言語決定論）では言語が思考を決定し、弱い形式（言語相対性）では言語が"
+        "習慣的な思考パターンに影響を与えるが完全には制約しないとする。{24,25}強い形式は"
+        "言語学では大部分が放棄されているが、色彩知覚・空間認知・時間的認知を含む複数の"
+        "領域において弱い形式を支持する堅固な証拠が存在する。{24}"
+    ),
+    (
+        "医療においても類似の現象が作用している可能性がある。疾患分類学的フレームワーク"
+        "——疾患が分類・命名・体系化される公式体系——は、臨床医学の「言語」を構成する。"
+        "自然言語のカテゴリが話者の知覚と推論を形成するように、疾患分類学的カテゴリは"
+        "臨床医が患者をいかに知覚し、診断し、治療するかを形成する可能性がある。"
+        "Warnerは1976年にこの類推を初めて探求し、異なる文化の言語構造が根本的に異なる"
+        "疾患概念につながると論じた。{3}しかし、この並行関係は初期の観察を超えて形式的に"
+        "発展されていない。"
+    ),
+    (
+        "「疾患概念が診療を形成する」という主張は自明に真であるように見えるかもしれない"
+        "——医療は結局のところ疾患カテゴリを中心に組織されている。しかし我々は、その効果は"
+        "自明の域をはるかに超えており、体系的な理論的取り扱いが必要であると主張する。"
+        "この現象には、臨床推論に対する認知的効果（診断的閉鎖）、研究資金配分と治療"
+        "ガイドラインに対する制度的効果、疫学パターンに対する集団レベルの効果が含まれる。"
+        "さらに、Ian Hackingが精神医学的分類について示したように、特有のループメカニズムが"
+        "作用する：分類体系が患者の自己同一化と症状表現を変化させ、それが翻って元の分類を"
+        "補強するデータを生成する。{4,5}"
+    ),
+    (
+        "同時に、この仮説を制約する証拠も存在する。Kleinmanは、痩せていることが理想とされ"
+        "ない文化においても拒食症が発生することを観察しており、{6,10}一部の疾患は疾患分類"
+        "学的枠組みとは独立に発現する生物学的基盤を有することを示唆する。適切な理論的フレーム"
+        "ワークは、疾患分類学的カテゴリの構成的力と分類非依存性の疾患現象の存在の両方を"
+        "包含しなければならない。"
+    ),
+    (
+        "本論文では、「疾患分類学的相対性」（Nosological Relativity, NR）フレームワークを"
+        "提案する——医療分類体系に適用されたサピア＝ウォーフ仮説の形式的類似物である。"
+        "フレームワークの中核命題を定義し、強い形式と弱い形式を区別し、3つのレベルの効果を"
+        "画定し、ループメカニズムを中核的フィードバック動態として定式化する。次に症例研究で"
+        "フレームワークを例証し、実証的研究に適した検証可能な予測を導出する。"
+    ),
+]
+
+BACKGROUND_SECTIONS = {
+    "言語学におけるサピア＝ウォーフ仮説": [
+        (
+            "言語的相対性仮説は、その最初の定式化以来、相当な修正を経てきた。{1,2}現代の研究は"
+            "中庸な立場を支持する：言語は思考を厳格に決定しないが、習慣的な認知パターンに影響を"
+            "与える。{24,25}Boroditskyは、中国語と英語の話者が時間を異なって概念化することを"
+            "示し、各言語が時間関係を符号化する構造的差異と一致する。{24}LupyanとBergenは、"
+            "言語的ラベルがカテゴリ化を促進し知覚処理を調節することを示した。{25}これらの知見は、"
+            "記号的分類体系が測定可能な認知的効果を発揮することを確立する——我々はこの原理を"
+            "医療疾患分類学に拡張する。"
+        ),
+    ],
+    "言語と疾患に関する先行研究": [
+        (
+            "Warnerの1976年の論文は、サピア＝ウォーフ仮説を医療に明示的に適用した最初の"
+            "研究を代表する。{3}彼はインド＝ヨーロッパ語族の言語構造——特に疾病を記述する際の"
+            "動詞よりも名詞の使用、空間メタファーの多用、主語＝述語の二分法——が静的、単因的、"
+            "二元論的な疾患概念を促進すると論じた。Warnerは、これらの言語的特徴が外科手術への"
+            "過度な依存を促進し、疾患原因における社会的・心理的因子の認識を阻害すると示唆した。"
+        ),
+        (
+            "その後の研究は、定式化なしにこの観点を拡張してきた。Eisenbergは「疾患」（生物医学的"
+            "構成概念）と「病い」（患者の生きた経験）を区別し、これらの構成概念間のギャップが"
+            "文化的・言語的カテゴリによって媒介されることを示した。{21}Fabregaは疾患を"
+            "社会的行動と結びつける学際的枠組みを提供した。{20}Kleinmanの医療人類学は、"
+            "疾病の文化的カテゴリがラベリング、援助希求、治療的応答を導くことを実証した。{6}"
+            "Hackingの人間種の哲学はループ効果概念を導入し、精神医学的分類が受動的なラベルでは"
+            "なく、それが記述する現象の能動的構成要素であることを示した。{4,5}Jutelの診断の"
+            "社会学は、診断行為自体が臨床的出会いを超えた帰結を持つ社会的事象であることを"
+            "示した。{7}"
+        ),
+        (
+            "これらの豊かな知的伝統にもかかわらず、疾患分類学的カテゴリが言語的相対性と類似した"
+            "方法で診療を形成するという命題に対する統合的な形式的フレームワークは存在しない。"
+            "本論文はこのギャップを埋める。"
+        ),
+    ],
+}
+
+FRAMEWORK_INTRO = (
+    "ここで疾患分類学的相対性（NR）フレームワークを提示する。フレームワークは中核テーゼ、"
+    "6つの形式的命題、3つのレベルの効果、ループメカニズムモデルから構成される（図1）。"
+)
+
+PROPOSITIONS = [
+    (
+        "命題1（中核テーゼ）。",
+        "疾患分類学的フレームワーク——疾患が分類・命名される体系——は、既存の臨床的現実を"
+        "単に記述するのではなく、医療システムの複数のレベルにおいて疾病の知覚・分類・管理を"
+        "能動的に形成する。"
+    ),
+    (
+        "命題2（弱い形式）。",
+        "疾患分類学的カテゴリは臨床推論、研究優先事項、患者転帰に影響を与えるが、完全には"
+        "決定しない。臨床医は訓練のカテゴリの外で推論することが可能であるが、そのような"
+        "推論は追加の認知的努力を必要とし、統計的に頻度が低い。"
+    ),
+    (
+        "命題3（強い形式）。",
+        "特定の疾患——特に客観的バイオマーカーを欠くもの——については、疾患分類学的カテゴリが"
+        "事実上臨床的現実を決定する：分類体系に名称が存在しない状態は診断・治療・研究の注目を"
+        "受けず、したがって医療システム内で機能的に存在しないことになる。"
+    ),
+    (
+        "命題4（認知的レベル）。",
+        "疾患分類学的カテゴリは臨床医にとっての認知スキーマとして機能し、診断的閉鎖"
+        "（カテゴリが付与された時点で診断推論が停止する現象）、カテゴリ整合的特徴への"
+        "アンカリングバイアス、カテゴリ横断的パターンの知覚困難を生じさせる。"
+    ),
+    (
+        "命題5（制度的レベル）。",
+        "疾患分類学的カテゴリは研究資金配分、臨床ガイドライン策定、専門医研修、診療報酬"
+        "体系を構造化する。疾患分類学的表現を持たない疾患は、その疾病負担に比して不釣り合いに"
+        "少ない制度的支援を受ける。"
+    ),
+    (
+        "命題6（集団レベル）。",
+        "疾患分類学的カテゴリは、差別的な症例発見、診断的移行（カテゴリ変更時の既存症例の"
+        "再分類）、援助希求行動を変化させる新たな疾患アイデンティティの創出を通じて、"
+        "疫学パターンを形成する。"
+    ),
+]
+
+LOOPING_PARAS = [
+    (
+        "NRフレームワークの中核はループメカニズムであり、Hackingの人間種の分析から適応した"
+        "ものである（図2）。{4,5}メカニズムは以下のように作用する："
+    ),
+    (
+        "段階1（分類→実践）：疾患分類学的カテゴリが公式体系（例：ICD, DSM）内で導入または"
+        "改訂される。これにより、カテゴリを中心に組織された診断基準、治療アルゴリズム、"
+        "紹介経路が創出される。"
+    ),
+    (
+        "段階2（実践→体験）：カテゴリを使用する臨床医が患者に診断を伝達し、患者はそれを"
+        "自己理解に組み込む。診断ラベルは症状解釈の枠組み、疾患アイデンティティの基盤、"
+        "社会的役割を提供する。{11}"
+    ),
+    (
+        "段階3（体験→データ）：診断カテゴリに自己同一化した患者は、カテゴリを使用して"
+        "コード化される医療希求行動、症状報告、臨床的出会いを生成する。これによりカテゴリの"
+        "存在と整合的な疫学的データが産出される。{26}"
+    ),
+    (
+        "段階4（データ→分類）：疫学的データが疾患分類学的カテゴリの妥当性確認と精緻化に"
+        "使用される。定義と整合的なデータを生成するカテゴリは経験的に支持されているように"
+        "見え、ループが完結する。"
+    ),
+    (
+        "このループメカニズムは自己強化的なサイクルを創出し、「自然の関節で切る」カテゴリと、"
+        "それが記述すると主張するまさにそのパターンを生成するカテゴリとの区別を困難にする。{18,19}"
+    ),
+]
+
+EVIDENCE_SECTIONS = {
+    "疼痛医学における診断的閉鎖": [
+        (
+            "ICD-11における独立した疾患実体としての慢性疼痛の認知（コードMG30）は、疾患分類学的"
+            "カテゴリの認知的レベルの効果を例証する。{17}ICD-11以前、慢性疼痛は基礎疾患の症状として"
+            "もっぱら分類されていた。この疾患分類学的枠組みは臨床推論を制約した：基礎疾患が同定されると"
+            "（例：変形性関節症）、疼痛メカニズムの診断的探索は典型的に停止した——我々がこれを"
+            "診断的閉鎖と呼ぶ現象である。{4}"
+        ),
+        (
+            "独立した診断実体としての慢性疼痛の導入は自然実験の条件を創出する。NRフレームワークは、"
+            "ICD-11の慢性疼痛カテゴリの採用後、臨床医が：(a)基礎疾患のレンズのみを通じて疼痛を"
+            "治療するのではなく、より多くの患者を疼痛専門医に紹介する；(b)疼痛特異的治療の処方を"
+            "増加させる；(c)疾患分類学的変更ではなく検出の改善に帰される慢性疼痛有病率に関する"
+            "新たな疫学的データを生成すると予測する。"
+        ),
+        (
+            "Nickelらはシステマティックレビューにおいて、同一疾患に対する異なる用語が臨床医と"
+            "患者の管理選好に影響を与えることを示した。{12}この知見は命題2を直接支持する："
+            "疾患分類学的ラベルは臨床推論に影響を与えるが、決定はしない。"
+        ),
+    ],
+    "過労死：文化特異的な疾患分類学的革新": [
+        (
+            "過労死は命題3——疾患分類学的相対性の強い形式——の説得的な例証を提供する。この概念は"
+            "1970年代の日本で、基礎にある心血管または脳血管イベントとは区別された、法的・医学的に"
+            "認知された死因として出現した。{13,14}他の国々では、過重労働の文脈で発生する同一の"
+            "病態生理学的イベント（心筋梗塞、脳卒中）は、職業的因果関係への言及なしに臓器特異的"
+            "カテゴリの下に分類される。"
+        ),
+        (
+            "日本における疾患分類学的カテゴリとしての過労死の存在は、NRフレームワークと整合的な"
+            "効果のカスケードを生じさせてきた：(a)認知的レベルでは、日本の臨床医は労働年齢成人の"
+            "突然の心血管死の鑑別診断において職業的過重労働を考慮する——等価のカテゴリを持たない"
+            "国々では大部分不在の考慮である；(b)制度的レベルでは、日本は過労死認定のための専用の"
+            "法医学的装置を発展させ、他国には存在しない特定の残業時間閾値（「80時間の過労死ライン」）"
+            "を設定している；(c)集団レベルでは、日本は過労死統計を独自の疫学的現象として報告し、"
+            "カテゴリが存在しない国々では構造的に不可能な政策的応答（2014年過労死等防止対策"
+            "推進法）を生成している。"
+        ),
+        (
+            "ICD-11における分類可能な職業的現象としてのバーンアウト（QD85）の収載は、この"
+            "疾患分類学的革新の部分的な国際的拡散を提供し、NRフレームワークはこのコードを"
+            "採用する国々が——より小さな規模で——日本で観察された制度的・疫学的パターンを"
+            "再現し始めると予測する。{15,16}"
+        ),
+    ],
+    "自然実験としてのICD改定": [
+        (
+            "国際疾病分類の大規模改定はNRフレームワークの自然実験を構成する。ICD-10からICD-11への"
+            "移行はいくつかの疾患分類学的革新を導入し、その効果は前後比較デザインを用いて追跡"
+            "可能である（表1）。{15,16}"
+        ),
+        (
+            "理論的に特に興味深いのは、性別不合の精神および行動の障害（ICD-10, 第V章）から"
+            "性の健康に関連する状態（ICD-11, 第17章）への再分類である。NRフレームワークは、"
+            "この再分類が3つのレベルすべてで測定可能な変化を生じさせると予測する：臨床医における"
+            "精神疾患との認知的連合の減少、精神科サービスから離れたケア経路の制度的再編成、"
+            "スティグマ関連のケアアクセス障壁の集団レベルでの減少。{16}"
+        ),
+    ],
+    "反証：分類非依存性疾患": [
+        (
+            "NRフレームワークは、一部の疾患が疾患分類学的枠組みとは独立して発現するという"
+            "証拠を包含しなければならない。Kleinmanは痩せていることが理想とされない文化において"
+            "拒食症が発生することを記録し、{6}Swartzは拒食症の中核的特徴が持続する場合でも"
+            "その形態が文化間で変動するがゆえに、拒食症は文化結合症候群として理解されるべきだと"
+            "論じた。{10}Kirmayerはさらに、うつ病や不安の臨床的発現における文化的変異が"
+            "単純な普遍主義的仮定を複雑にすることを記録している。{30}より広くは、明確な"
+            "病因因子を持つ感染症（例：結核、マラリア）は、それがどのように分類されるかに"
+            "かかわらず発現する。"
+        ),
+        (
+            "これらの観察は疾患分類学的相対性の境界条件を画定する。我々は、疾患分類学的効果の"
+            "強度は基礎にある生物学的シグナルの強度と反比例すると提案する：強い、客観的に測定"
+            "可能な生物学的基盤を持つ疾患（例：骨折、同定可能な病原体を持つ感染症）は疾患分類学的"
+            "形成に対する感受性が低い一方、主に症状群、機能障害、主観的体験によって定義される疾患"
+            "（例：線維筋痛症、慢性疲労症候群、多くの精神障害）は高い感受性を持つ。{9}この勾配は"
+            "NRフレームワークの検証可能な予測を構成する。"
+        ),
+    ],
+}
+
+TABLE1_CAPTION = "表1. ICD-11における主要な疾患分類学的革新と疾患分類学的相対性フレームワークにおける予測効果"
+TABLE1_HEADERS = ["ICD-11の変更", "認知的レベル", "制度的レベル", "集団レベル"]
+TABLE1_ROWS = [
+    [
+        "独立した疾患実体としての慢性疼痛（MG30）",
+        "臨床医が疼痛を症状ではなく一次的診断として考慮",
+        "疼痛医学が専用の資金源とガイドラインを獲得",
+        "検出の改善に帰される慢性疼痛有病率の増加",
+    ],
+    [
+        "職業的現象としてのバーンアウト（QD85）",
+        "臨床医が疲弊の症例で職業的因子をスクリーニング",
+        "産業保健サービスがバーンアウト特異的プロトコルを策定",
+        "バーンアウト有病率に関する新たな疫学データの出現",
+    ],
+    [
+        "ゲーム障害（6C51）",
+        "臨床医が病的ゲームを診断可能な状態として同定",
+        "ゲーム障害の治療センターと臨床ガイドラインの発展",
+        "ゲーム障害の発生率データの生成と報告",
+    ],
+    [
+        "複雑性PTSD（6B41）",
+        "臨床医がトラウマ患者で複雑性と単純性のPTSDを区別",
+        "複雑性PTSDメカニズムに特化した研究資金の配分",
+        "既存PTSD患者の再分類による有病率推定値の変化",
+    ],
+    [
+        "性別不合の再分類（HA60–HA6Z）",
+        "精神疾患との認知的連合の減少",
+        "精神科サービスから離れたケア経路の再編成",
+        "スティグマ関連のケアアクセス障壁の減少",
+    ],
+]
+
+PREDICTIONS_PARAS = [
+    (
+        "NRフレームワークは3つの経験的に検証可能な予測を生成する："
+    ),
+    (
+        "予測1（ICD改定効果）：ICD-11における新たな診断カテゴリの導入は、基礎にある"
+        "生物学的発生率のいかなる変化とも独立に、対応する疾患の検出率、専門医紹介、"
+        "標的治療処方の増加を伴う。これはICD移行日前後のレセプトデータの中断時系列分析を"
+        "用いて検証可能である。"
+    ),
+    (
+        "予測2（バイオマーカー勾配）：診断・治療パターンに対する疾患分類学的効果の規模は、"
+        "当該疾患に対する客観的バイオマーカーの利用可能性と特異度と逆相関する。もっぱら"
+        "臨床基準で診断される疾患は、確定的な検査・画像マーカーを持つ疾患よりも大きな"
+        "効果を示す。"
+    ),
+    (
+        "予測3（国際間の乖離）：同一の病態生理学的現象に対して異なる疾患分類学的伝統を"
+        "持つ国々（例：日本の過労死対他国の臓器特異的コーディング）は、それらの疾患に"
+        "対する診断、治療、産業保健政策、患者の自己同一化において体系的に異なるパターンを"
+        "示す。"
+    ),
+]
+
+DISCUSSION_PARAS = [
+    (
+        "疾患分類学的相対性フレームワークは、診療と疾患分類学的政策にいくつかの含意を提供する。"
+    ),
+    (
+        "第一に、疾患分類学的改定は、臨床的現実の改善された記述としてのみではなく、臨床実践を"
+        "能動的に再形成する介入として理解されるべきである。これは、分類体系の改定プロセスに、"
+        "法規制の規制影響評価に類似した前向きの影響評価を組み込むべきことを示唆する。{8,27}"
+    ),
+    (
+        "第二に、臨床教育は診断カテゴリの認知的効果に関する明示的な教育を含むべきである。"
+        "診断的閉鎖——カテゴリが付与された時点で診断推論を停止する傾向——の認知は、他の認知的"
+        "ヒューリスティックのデバイアシング訓練と類似して、その効果を部分的に緩和しうる。{22}"
+        "生物心理社会的アプローチとの統合は、カテゴリ的思考に内在する還元主義をさらに"
+        "打ち消す可能性がある。{23}"
+    ),
+    (
+        "第三に、フレームワークは新たな診断カテゴリを創出する提案を評価するための原則的基盤を"
+        "提供する。疾患分類学的認知の利益（検出の改善、研究資金、治療開発）は、実体化の"
+        "リスク（暫定的カテゴリを自然種として扱うこと）およびループ効果のリスク（カテゴリが"
+        "それが記述するまさにその現象を生成すること）と衡量されなければならない。{26,29}"
+    ),
+    (
+        "本フレームワークの限界を認めるべきである。NRフレームワークは現段階では主に理論的"
+        "構成概念であり、上述の検証可能な予測は経験的妥当性確認を必要とする。自然言語と"
+        "疾患分類学的体系の間の類推は不完全である：自然言語は暗黙的に習得され集団全体で"
+        "使用されるが、疾患分類学的体系は明示的に構築され主に専門家によって使用される。"
+        "さらに、フレームワークは疾患分類学的カテゴリの構成的効果を最小化すべきか活用すべきか"
+        "という規範的問題には取り組まない。{8}"
+    ),
+]
+
+CONCLUSION_PARAS = [
+    (
+        "我々は疾患分類体系がいかに診療を形成するかを理解するための形式的な理論的レンズとして"
+        "疾患分類学的相対性フレームワークを提案した。言語学のサピア＝ウォーフ仮説、科学哲学の"
+        "Hackingのループ効果メカニズム、医療人類学と診断の社会学からの証拠に基づき、6つの"
+        "命題、3つのレベルの効果、3つの検証可能な予測を定義した。"
+    ),
+    (
+        "フレームワークは生物学的疾患基盤の存在を否定しない；むしろ、これらの基盤が知覚・"
+        "分類・管理される疾患分類学的「レンズ」が体系的で予測可能な歪みを導入すると論じる。"
+        "これらの歪みを明示的かつ検証可能にすることにより、NRフレームワークは実証的研究の"
+        "新たな方途を開き、疾患分類学的政策に原則的な指針を提供する。{27,28}"
+    ),
+    (
+        "今後の研究は、上述の3つの予測の経験的検証——特にICD-10からICD-11への移行を自然"
+        "実験として用いること——を優先すべきである。疾患分類学的伝統が乖離する疾患（過労死"
+        "など）の国際比較研究は、追加の有望な研究デザインを提供する。究極的に、疾患分類学的"
+        "相対性フレームワークは医療における反省的転回を促す：疾患を分類する我々の体系は"
+        "生物学的現実の中立的な鏡ではなく、臨床知識の構築における能動的な参与者であるという"
+        "認識である。"
+    ),
+]
+
+
+# ---------------------------------------------------------------------------
+# Build the Japanese manuscript
+# ---------------------------------------------------------------------------
+
+def build_manuscript(fig1_path, fig2_path):
+    doc = Document()
+    style = doc.styles['Normal']
+    font = style.font
+    font.name = 'Times New Roman'
+    font.size = Pt(11)
+    style.paragraph_format.line_spacing = 1.5
+
+    # Title page
+    tp = doc.add_paragraph()
+    tp.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    run = tp.add_run(TITLE)
+    run.bold = True
+    run.font.size = Pt(16)
+
+    tp2 = doc.add_paragraph()
+    tp2.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    run2 = tp2.add_run(AUTHORS)
+    run2.font.size = Pt(12)
+
+    doc.add_paragraph()
+
+    # Abstract
+    add_heading(doc, '抄録', level=1)
+    add_body(doc, ABSTRACT)
+    kw_para = doc.add_paragraph()
+    kw_run = kw_para.add_run('キーワード：')
+    kw_run.bold = True
+    kw_run.font.size = Pt(11)
+    kw_text = kw_para.add_run('；'.join(KEYWORDS))
+    kw_text.font.size = Pt(11)
+
+    doc.add_page_break()
+
+    # 1. Introduction
+    add_heading(doc, '1. 緒言', level=1)
+    for para_text in INTRO_PARAS:
+        add_body(doc, para_text)
+
+    # 2. Background
+    add_heading(doc, '2. 背景', level=1)
+    sec_num = 1
+    for sub_title, paras in BACKGROUND_SECTIONS.items():
+        add_heading(doc, f'2.{sec_num} {sub_title}', level=2)
+        sec_num += 1
+        for para_text in paras:
+            add_body(doc, para_text)
+
+    # 3. Framework
+    add_heading(doc, '3. 疾患分類学的相対性フレームワーク', level=1)
+    add_body(doc, FRAMEWORK_INTRO)
+
+    # Figure 1
+    doc.add_paragraph()
+    fig1_para = doc.add_paragraph()
+    fig1_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    run = fig1_para.add_run()
+    run.add_picture(str(fig1_path), width=Inches(5.5))
+    cap1 = doc.add_paragraph()
+    cap1.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    cap1.paragraph_format.space_before = Pt(12)
+    cap_run = cap1.add_run(
+        '図1. 疾患分類学的相対性フレームワーク。疾患分類学的カテゴリは'
+        'ループメカニズムを通じて3つのレベル（認知的・制度的・集団的）で'
+        '診療を形成する。効果の強度は弱い形式（影響）から強い形式（決定）'
+        'までのスペクトルに沿って変動する。'
+    )
+    cap_run.italic = True
+    cap_run.font.size = Pt(10)
+    doc.add_paragraph()
+
+    # Propositions
+    add_heading(doc, '3.1 中核命題', level=2)
+    for prop_title, prop_text in PROPOSITIONS:
+        p = doc.add_paragraph()
+        p.paragraph_format.space_after = Pt(6)
+        p.paragraph_format.line_spacing = 1.5
+        run_t = p.add_run(prop_title + ' ')
+        run_t.bold = True
+        run_t.font.size = Pt(11)
+        run_b = p.add_run(prop_text)
+        run_b.font.size = Pt(11)
+
+    # Looping mechanism
+    add_heading(doc, '3.2 ループメカニズム', level=2)
+    for para_text in LOOPING_PARAS:
+        add_body(doc, para_text)
+
+    # Figure 2
+    doc.add_paragraph()
+    fig2_para = doc.add_paragraph()
+    fig2_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    run = fig2_para.add_run()
+    run.add_picture(str(fig2_path), width=Inches(5.5))
+    cap2 = doc.add_paragraph()
+    cap2.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    cap2.paragraph_format.space_before = Pt(12)
+    cap_run2 = cap2.add_run(
+        '図2. 疾患分類学的ループメカニズム。分類→実践→体験→データ→分類の'
+        '4段階サイクル。この自己強化的ループが疾患分類学的相対性フレームワークの'
+        '中核動態である。'
+    )
+    cap_run2.italic = True
+    cap_run2.font.size = Pt(10)
+    doc.add_paragraph()
+
+    # 4. Evidence
+    add_heading(doc, '4. 根拠と症例研究', level=1)
+    sec_num = 1
+    for sub_title, paras in EVIDENCE_SECTIONS.items():
+        add_heading(doc, f'4.{sec_num} {sub_title}', level=2)
+        sec_num += 1
+        for i, para_text in enumerate(paras):
+            add_body(doc, para_text)
+            if '自然実験としてのICD改定' in sub_title and i == 0:
+                doc.add_paragraph()
+                t1cap = doc.add_paragraph()
+                t1cap.paragraph_format.space_before = Pt(14)
+                t1_run = t1cap.add_run(TABLE1_CAPTION)
+                t1_run.bold = True
+                t1_run.font.size = Pt(10)
+                table = doc.add_table(rows=1 + len(TABLE1_ROWS), cols=4)
+                table.style = 'Table Grid'
+                table.alignment = WD_TABLE_ALIGNMENT.CENTER
+                for j, header in enumerate(TABLE1_HEADERS):
+                    set_cell_text(table.rows[0].cells[j], header, bold=True, size=Pt(9))
+                for r_idx, row_data in enumerate(TABLE1_ROWS):
+                    for c_idx, cell_text in enumerate(row_data):
+                        set_cell_text(table.rows[r_idx + 1].cells[c_idx], cell_text, size=Pt(9))
+                widths = [Inches(1.6), Inches(1.6), Inches(1.6), Inches(1.6)]
+                for row in table.rows:
+                    for idx, width in enumerate(widths):
+                        row.cells[idx].width = width
+                doc.add_paragraph()
+
+    # 5. Predictions
+    add_heading(doc, '5. 検証可能な予測', level=1)
+    for para_text in PREDICTIONS_PARAS:
+        add_body(doc, para_text)
+
+    # 6. Discussion
+    add_heading(doc, '6. 考察', level=1)
+    for para_text in DISCUSSION_PARAS:
+        add_body(doc, para_text)
+
+    # 7. Conclusion
+    add_heading(doc, '7. 結論', level=1)
+    for para_text in CONCLUSION_PARAS:
+        add_body(doc, para_text)
+
+    # References
+    doc.add_page_break()
+    add_heading(doc, '参考文献', level=1)
+    for i, ref in enumerate(REFERENCES, 1):
+        p = doc.add_paragraph()
+        p.paragraph_format.space_after = Pt(2)
+        p.paragraph_format.line_spacing = 1.15
+        run_num = p.add_run(f'{i}. ')
+        run_num.bold = True
+        run_num.font.size = Pt(10)
+        run_ref = p.add_run(ref)
+        run_ref.font.size = Pt(10)
+
+    out_path = OUT_DIR / "manuscript_ja.docx"
+    doc.save(str(out_path))
+    print(f"日本語原稿保存: {out_path}")
+    return out_path
+
+
+def build_figures_pptx(fig1_path, fig2_path):
+    prs = Presentation()
+    prs.slide_width = PptxInches(13.333)
+    prs.slide_height = PptxInches(7.5)
+
+    for fig_path, title_text, caption_text in [
+        (fig1_path,
+         "図1. 疾患分類学的相対性フレームワーク",
+         "疾患分類学的カテゴリはループメカニズムを通じて3つのレベルで診療を形成する。"),
+        (fig2_path,
+         "図2. 疾患分類学的ループメカニズム",
+         "分類→実践→体験→データ→分類の4段階サイクル。"),
+    ]:
+        slide_layout = prs.slide_layouts[6]
+        slide = prs.slides.add_slide(slide_layout)
+        txBox = slide.shapes.add_textbox(PptxInches(0.5), PptxInches(0.3),
+                                          PptxInches(12.333), PptxInches(0.8))
+        tf = txBox.text_frame
+        tf.word_wrap = True
+        p = tf.paragraphs[0]
+        p.text = title_text
+        p.font.size = PptxPt(24)
+        p.font.bold = True
+        p.alignment = PP_ALIGN.CENTER
+
+        slide.shapes.add_picture(str(fig_path), PptxInches(1.5), PptxInches(1.3), width=PptxInches(10.333))
+
+        capBox = slide.shapes.add_textbox(PptxInches(0.5), PptxInches(6.3),
+                                           PptxInches(12.333), PptxInches(1.0))
+        cf = capBox.text_frame
+        cf.word_wrap = True
+        cp = cf.paragraphs[0]
+        cp.text = caption_text
+        cp.font.size = PptxPt(14)
+        cp.font.italic = True
+        cp.alignment = PP_ALIGN.CENTER
+
+    out_path = OUT_DIR / "figures_ja.pptx"
+    prs.save(str(out_path))
+    print(f"日本語図表PPTX保存: {out_path}")
+    return out_path
+
+
+def build_tables_docx():
+    doc = Document()
+    style = doc.styles['Normal']
+    style.font.name = 'Times New Roman'
+    style.font.size = Pt(10)
+    add_heading(doc, TABLE1_CAPTION, level=2)
+    table = doc.add_table(rows=1 + len(TABLE1_ROWS), cols=4)
+    table.style = 'Table Grid'
+    for j, header in enumerate(TABLE1_HEADERS):
+        set_cell_text(table.rows[0].cells[j], header, bold=True, size=Pt(10))
+    for r_idx, row_data in enumerate(TABLE1_ROWS):
+        for c_idx, cell_text in enumerate(row_data):
+            set_cell_text(table.rows[r_idx + 1].cells[c_idx], cell_text, size=Pt(10))
+    out_path = OUT_DIR / "tables_ja.docx"
+    doc.save(str(out_path))
+    print(f"日本語表DOCX保存: {out_path}")
+    return out_path
 
 
 def main():
-    doc = Document()
-
-    for section in doc.sections:
-        section.top_margin = Cm(2.54)
-        section.bottom_margin = Cm(2.54)
-        section.left_margin = Cm(2.54)
-        section.right_margin = Cm(2.54)
-
-    style = doc.styles["Normal"]
-    font = style.font
-    font.name = "Times New Roman"
-    font.size = Pt(11)
-    style.paragraph_format.space_after = Pt(6)
-    style.paragraph_format.line_spacing = 1.5
-
-    # =====================================================================
-    # タイトルページ
-    # =====================================================================
-    p = doc.add_paragraph()
-    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    run = p.add_run("展望論文")
-    run.bold = True
-    run.font.size = Pt(12)
-
-    p = doc.add_paragraph()
-    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    p.space_before = Pt(24)
-    run = p.add_run(
-        "医療版サピア＝ウォーフ仮説：疾患分類体系はいかにして臨床的現実を構成するか\n"
-        "\u2015\u2015 ICD-11移行と過労死概念からの考察"
-    )
-    run.bold = True
-    run.font.size = Pt(14)
-
-    p = doc.add_paragraph()
-    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    p.space_before = Pt(18)
-    run = p.add_run("[著者名]")
-    run.font.size = Pt(11)
-    run.italic = True
-
-    p = doc.add_paragraph()
-    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    run = p.add_run("[所属機関]")
-    run.font.size = Pt(10)
-    run.italic = True
-
-    p = doc.add_paragraph()
-    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    p.space_before = Pt(12)
-    run = p.add_run("責任著者：[氏名、メールアドレス、住所]")
-    run.font.size = Pt(10)
-    run.italic = True
-
-    p = doc.add_paragraph()
-    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    p.space_before = Pt(12)
-    run = p.add_run("本文語数：約4,500語（参考文献を除く）")
-    run.font.size = Pt(10)
-
-    doc.add_page_break()
-
-    # =====================================================================
-    # 要旨
-    # =====================================================================
-    add_heading(doc, "要旨", level=1)
-
-    add_para_with_refs(
-        doc,
-        "疾患分類体系は一般に、臨床知識を整理するための中立的な道具とみなされている。"
-        "本稿では、言語が認知を形作るとするサピア＝ウォーフ仮説{1,2}を医療に援用し、"
-        "「医療版サピア＝ウォーフ仮説」を提唱する。すなわち、疾患分類体系は臨床的現実を"
-        "単に記述するのではなく、能動的に構成しており、診断推論・治療選択・資源配分・"
-        "患者体験に対して、制度的・構造的議論だけでは説明しきれない影響を及ぼしている"
-        "というものである。"
-    )
-
-    add_para_with_refs(
-        doc,
-        "本仮説を二つの補完的な根拠から展開する。第一に、過労死（karoshi）を"
-        "取り上げる。過労死は日本に固有の疾患概念であり、西洋の疾病分類には直接の対応物"
-        "がない。同一の生物学的事象に対して、当該概念の有無が医療システムの応答を根本的"
-        "に変えることを示す。{12,13} さらに、29年間の日本の労災補償データ"
-        "（1996〜2024年度）を用いた独自の実証分析を提示する。分断時系列分析は、"
-        "2001年の認定基準改正後に認定件数が3.71倍に増加したことを示し"
-        "（β = 231.4, p < 0.001）、国際比較では、日本と韓国が"
-        "多くの西洋諸国より低い生産年齢心血管疾患死亡率にもかかわらず包括的な"
-        "認定制度を有する唯一の国であることを明らかにし、診断カテゴリーが臨床的"
-        "インフラストラクチャーを反映するのではなく創出することを支持する。"
-        "第二に、ICD-10からICD-11への移行を前向きの自然実験として活用することを"
-        "提案する。特に慢性疼痛（MG30）とバーンアウト（QD85）に焦点を"
-        "当てる。{14,15}"
-    )
-
-    add_para_with_refs(
-        doc,
-        "本論はKleinmanの疾患（disease）\u2013病い（illness）\u2013病人役割（sickness）"
-        "の枠組み{16,17}およびHackingのループ効果理論{7,8}に位置づけ、医療版"
-        "サピア＝ウォーフ効果が主として病人役割（sickness）レベルで作動しつつ、"
-        "病い（illness）体験にフィードバックする構造を論じる。この視座は疾病分類改定、"
-        "異文化間医療、診断の哲学に対して含意をもつ。"
-    )
-
-    p = doc.add_paragraph()
-    run = p.add_run("キーワード：")
-    run.bold = True
-    run = p.add_run(
-        "サピア＝ウォーフ仮説、疾患分類、ICD-11、過労死、疾病分類学、"
-        "医療人類学、ループ効果、慢性疼痛、医学哲学"
-    )
-
-    doc.add_page_break()
-
-    # =====================================================================
-    # 序論
-    # =====================================================================
-    add_heading(doc, "序論", level=1)
-
-    add_para_with_refs(
-        doc,
-        "言語学におけるサピア＝ウォーフ仮説は、言語の構造がその話者の認知と世界観に"
-        "影響を与えるとするものである。{1,2} 強い形態（言語決定論）では言語が思考を"
-        "決定し、弱い形態（言語相対論）では言語が思考に影響を与えるとする。強い形態は"
-        "概ね否定されているが、弱い形態については相当の実証的根拠がある。異なる言語の"
-        "話者は色彩・時間・空間関係を異なる仕方で知覚することが示されている。{3,4}"
-    )
-
-    add_para_with_refs(
-        doc,
-        "医療もまた、疾患分類体系という独自の「言語」を持つ。国際疾病分類（ICD）、"
-        "精神疾患の診断と統計マニュアル（DSM）、およびそれらの地域的変種は、"
-        "どのような症状の集合が認定された疾患を構成するかを定義し、それらに名前と"
-        "コードを付与し、それによって臨床医が病いを知覚・伝達・行動する語彙を決定する。"
-        "疾病分類が臨床実践に影響するのは、一つのレベルでは自明である。医療が"
-        "組織される上部構造だからである。しかし本稿では、その影響が行政的便宜を超えて"
-        "臨床認知そのものの領域にまで及ぶと主張する。我々はこの効果を「医療版"
-        "サピア＝ウォーフ仮説」と呼ぶ。{5}"
-    )
-
-    add_para_with_refs(
-        doc,
-        "医療版サピア＝ウォーフ仮説は、疾患分類体系が臨床的現実を形成する様態が、"
-        "自然言語の認知への効果と類似しており、潜在的に同程度に深遠であると主張する。"
-        "具体的には、疾病分類学的枠組みが以下の効果を産出すると提案する。"
-        "（1）診断的閉鎖：分類上のラベルが付与されると臨床的探索が終了する傾向、{6}"
-        "（2）ループ効果：Hackingが論じた、分類カテゴリーがそれが分類する現象と"
-        "相互作用しそれを変容させる現象、{7,8}"
-        "（3）インフラストラクチャー創出：命名された疾患が研究資金・診療ガイドライン・"
-        "専門医教育を引き寄せ、未命名の状態は不可視のままに留まる効果、{9,10}"
-        "（4）疾病分類学的プラセボ：命名行為自体が測定可能な治療効果を産出する"
-        "現象。{11}"
-    )
-
-    add_para_with_refs(
-        doc,
-        "本仮説を理論的思弁を超えて展開するため、二つの実証戦略を追求する。"
-        "第一に、過労死（karoshi）を異文化間自然実験として分析する。日本は労働関連"
-        "心血管死に対する診断カテゴリーを有するが、大半の国にはその等価物がなく、"
-        "同一の生物学的事象が疾病分類学的概念の有無によってどう処理されるかの"
-        "比較が可能である。{12,13} 第二に、進行中のICD-10からICD-11への移行を"
-        "前向き自然実験として活用し、慢性疼痛分類の構造変化（MG30）およびバーンアウト"
-        "の公式分類（QD85）を試金石とすることを提案する。{14,15}"
-    )
-
-    # =====================================================================
-    # 理論的枠組み
-    # =====================================================================
-    add_heading(doc, "理論的枠組み", level=1)
-    add_heading(doc, "言語相対論から疾病分類相対論へ", level=2)
-
-    add_para_with_refs(
-        doc,
-        "サピア＝ウォーフ仮説の原型は自然言語を対象とする。ホピ語の話者は英語話者"
-        "とは異なる仕方で時間を概念化する。それはホピ語が時間関係を異なる仕方で"
-        "符号化するからである。{1} 我々は構造的な並行性に注目して、この枠組みを"
-        "医療「言語」に拡張する。自然言語が経験の連続体を離散的カテゴリー（色彩用語、"
-        "親族名称、空間前置詞）に分割するのと同様に、疾患分類体系は人間の苦しみの"
-        "連続体を離散的な診断実体に分割する。問いは、この分割が単なる記述に過ぎないか、"
-        "それともその対象を構成するのかにある。"
-    )
-
-    add_para_with_refs(
-        doc,
-        "Arthur Kleinmanの三部構造が有用な分析的足場を提供する。{16,17} 彼は"
-        "疾患（disease：生物医学的病態）、病い（illness：患者の主観的苦痛体験）、"
-        "病人役割（sickness：疾患の社会的役割と制度的認知）を区別する。"
-        "我々は医療版サピア＝ウォーフ効果が主として病人役割（sickness）レベルで"
-        "作動すると提案する。すなわち疾患カテゴリーの社会的・制度的構成においてである。"
-        "しかし決定的に重要なのは、それが疾患（disease）レベル（診断・治療経路を介して）"
-        "および病い（illness）レベル（患者の自己理解と病い行動を介して）の両方に"
-        "フィードバックすることである。このフィードバックループこそが、本現象を"
-        "「自明な」制度的効果の域を超えて高める（図1）。"
-    )
-
-    # --- 図1 インライン ---
-    fig1_path = os.path.join(OUT_DIR, "figure1_ja.png")
-    if os.path.exists(fig1_path):
-        p = doc.add_paragraph()
-        p.space_before = Pt(18)
-        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        run = p.add_run()
-        run.add_picture(fig1_path, width=Inches(5.5))
-    else:
-        p = doc.add_paragraph()
-        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        run = p.add_run("[図1：figures_tables_ja.pptx参照]")
-        run.italic = True
-
-    p = doc.add_paragraph()
-    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    p.space_before = Pt(12)
-    run = p.add_run(
-        "図1. 医療版サピア＝ウォーフのフィードバックループ。疾病分類学的カテゴリーは"
-        "病人役割レベルで作動し、制度的応答を形成する。この変化は疾患認識（変化した"
-        "診断パターンを介して）および病い体験（患者の自己理解を介して）にフィードバック"
-        "し、単純なトップダウンの制度的効果を超える再帰的ループを創出する。"
-    )
-    run.italic = True
-    run.font.size = Pt(9)
-    p.space_after = Pt(18)
-
-    add_heading(doc, "医療版サピア＝ウォーフ効果のメカニズム", level=2)
-
-    add_para_with_refs(
-        doc,
-        "疾病分類学的カテゴリーが臨床的現実を形成する4つの異なるメカニズムを同定する。"
-    )
-
-    mechanisms = [
-        (
-            "診断的閉鎖",
-            "臨床的プレゼンテーションに診断名が付与されると、さらなる探索は停止する"
-            "傾向がある。これは認知心理学では「早期閉鎖」{6}として、臨床推論では"
-            "「アンカーバイアス」{18}として十分に文書化されている。しかし医療版"
-            "サピア＝ウォーフの視点は構造的次元を加える。利用可能な診断ラベルの"
-            "セットは個人の認知だけでなく臨床ワークフロー全体を制約する。分類コードを"
-            "持たない状態は請求も、監査も、疫学的研究もできず、体系的な不可視性を"
-            "生み出す。"
-        ),
-        (
-            "ループ効果",
-            "Hackingの「ループ効果」概念は、人間科学における分類カテゴリーがその"
-            "対象と相互作用する仕方を記述する。{7,8} 精神医学では例えば、DSM-IIIに"
-            "「多重人格障害」が導入された後にその診断が急増し、カテゴリー自体が疾患の"
-            "有病率を形成したことが示唆された。我々はループ効果が精神疾患に限定されず、"
-            "診断に主観的報告や行動的要素が関与するところ——すなわち医療の大部分——で"
-            "生じると主張する。"
-        ),
-        (
-            "インフラストラクチャー創出",
-            "命名された疾患は研究資金、診療ガイドライン、専門医教育プログラム、"
-            "患者団体、医薬品開発を引き寄せる。「医学的に説明できない症状」から"
-            "「慢性疲労症候群」へ、さらに「筋痛性脳脊髄炎/慢性疲労症候群（ME/CFS）」"
-            "への移行は、命名がインフラストラクチャーを創出する過程を例示する。"
-            "各改名には資金、臨床的注目、患者アイデンティティの変動が伴った。{9,10} "
-            "COVID-19パンデミックは「Long COVID」で劇的な事例を提供し、迅速な命名が"
-            "前例のない速度で研究インフラストラクチャーを触媒した。{19}"
-        ),
-        (
-            "疾病分類学的プラセボ",
-            "診断を受けること自体が治療効果を持ちうる。特に不確実性と苦痛を特徴と"
-            "する状態においてそうである。慢性疼痛では、特定の診断名を受けた患者は、"
-            "新たな治療が提供されなくても、より高い満足度と低い不安を報告することが"
-            "研究で示されている。{11,20} この効果は薬理学的プラセボとは異なり、"
-            "認知的・社会的メカニズムを通じて作動する。ラベルは患者の体験を妥当化し、"
-            "不確実性を低減し、苦痛を理解するための物語的枠組みを提供する。"
-        ),
-    ]
-
-    for title, body in mechanisms:
-        p = doc.add_paragraph()
-        run = p.add_run(f"{title}. ")
-        run.bold = True
-        run.font.size = Pt(11)
-        parts = re.split(r"(\{[^}]+\})", body)
-        for part in parts:
-            if part.startswith("{") and part.endswith("}"):
-                run = p.add_run(part[1:-1])
-                run.font.superscript = True
-                run.font.size = Pt(8)
-            else:
-                run = p.add_run(part)
-                run.font.size = Pt(11)
-
-    # =====================================================================
-    # 事例研究1：過労死
-    # =====================================================================
-    add_heading(doc, "事例研究1：過労死と職業衛生の疾病分類学的形成", level=1)
-
-    add_para_with_refs(
-        doc,
-        "過労死（karoshi）は、過重労働に起因する死亡、主として過度の労働時間により"
-        "惹起・増悪された心血管・脳血管イベントによる死亡を指す日本の社会医学的"
-        "概念である。{12,21} 1970年代後半に初めて同定され、1987年に労災補償制度で"
-        "正式に認定された過労死は、大多数の国の医療制度に直接の対応物を持たない。{13,22}"
-        "この異文化間非対称性が、医療版サピア＝ウォーフ仮説を検証するための自然実験"
-        "を提供する。"
-    )
-
-    add_heading(doc, "生物学的基盤の共通性", level=2)
-
-    add_para_with_refs(
-        doc,
-        "過労死の基盤にある生物学的事象——慢性ストレスと長時間労働により惹起された"
-        "心筋梗塞、脳卒中、急性心不全——は日本に固有のものではない。メタアナリシスに"
-        "より、週55時間以上の労働は標準労働時間と比較して冠動脈疾患リスクの13%増加"
-        "および脳卒中リスクの33%増加と関連し、地理的地域による有意な変動はないことが"
-        "確立されている。{23,24} 病態生理は普遍的であり、異なるのは疾病分類学的な"
-        "枠づけのみである。"
-    )
-
-    add_heading(doc, "分岐する臨床応答", level=2)
-
-    add_para_with_refs(
-        doc,
-        "日本では、認定されたカテゴリーとしての過労死の存在が、当該概念を持たない国に"
-        "は並行物のない臨床的・制度的応答の連鎖を産出する（表1）。数ヶ月にわたる"
-        "週80時間労働の後に脳卒中で搬送された中年サラリーマンに対して、日本の医療"
-        "システムは既成の診断パスウェイを持つ。当該イベントは潜在的に業務関連として"
-        "コーディングされ、産業医が紹介され、労災補償申請が開始されうる。{13,22}"
-        "過労死概念を持たない国では、同一の患者は標準的な脳血管障害の診断を受け、"
-        "労働条件への体系的な問い合わせは行われない。"
-    )
-
-    # --- 表1 ---
-    p = doc.add_paragraph()
-    p.space_before = Pt(12)
-    run = p.add_run(
-        "表1. 日本（過労死概念あり）と当該概念を持たない国における"
-        "労働関連心血管イベントへの臨床的・制度的応答の比較"
-    )
-    run.bold = True
-    run.font.size = Pt(10)
-
-    table = doc.add_table(rows=7, cols=3)
-    table.style = "Table Grid"
-    table.alignment = WD_TABLE_ALIGNMENT.CENTER
-
-    headers = ["領域", "日本（過労死概念あり）", "対応概念を持たない国"]
-    for i, h in enumerate(headers):
-        set_cell_text(table.rows[0].cells[i], h, bold=True)
-
-    rows_data = [
-        ["診断パスウェイ",
-         "労働歴が体系的に評価される；産業医コンサルテーションが発動",
-         "標準的CVA/MI精査；労働条件は稀にしか記録されない"],
-        ["コーディング",
-         "心血管イベントを過重労働と結びつける特定コード",
-         "標準的ICD心血管コード；労働との紐付けなし"],
-        ["補償",
-         "法的基準を伴う専用の労災補償パスウェイ（例：月80時間超の残業）",
-         "一般的な障害保険；心血管イベントに対する業務特異的パスウェイなし"],
-        ["疫学的追跡",
-         "1987年以降の過労死症例の全国統計が維持",
-         "労働関連心血管死亡の体系的追跡なし"],
-        ["予防インフラ",
-         "時間外労働上限規制、年次健康診断、「過労死110番」",
-         "一般的な産業衛生規制；標的型心血管予防なし"],
-        ["研究資金",
-         "過労死専門の研究プログラム；大規模疫学データセット",
-         "労働関連心血管疾患は産業衛生のサブトピックとして研究"],
-    ]
-    for r, row_data in enumerate(rows_data, start=1):
-        for c, val in enumerate(row_data):
-            set_cell_text(table.rows[r].cells[c], val)
-
-    p = doc.add_paragraph()
-    p.space_after = Pt(12)
-
-    add_para_with_refs(
-        doc,
-        "この分岐はインフラストラクチャー創出メカニズムを例示する。過労死の命名は"
-        "既存の現実を単に記述したのではなく、法的基準・補償パスウェイ・疫学的監視・"
-        "予防プログラムという制度的装置全体を創出し、それが今度は労働関連心血管疾患の"
-        "検出・治療・予防のあり方を形成した。{12,25} ICD-11におけるバーンアウトの"
-        "職業的現象としての分類（QD85）は、日本の過労死概念に影響を受けた、この"
-        "疾病分類学的カテゴリーの国際的拡散を表しており、前向き研究の機会を"
-        "提供する。{14}"
-    )
-
-    add_heading(doc, "命名効果の量的証拠", level=2)
-
-    add_para_with_refs(
-        doc,
-        "岩崎らは、過重労働関連心血管・脳血管疾患の新認定基準導入が認定症例率の"
-        "2.58倍増加と関連していたことを示し、分類の変更が疾患認識に測定可能な"
-        "シフトを産出することを示唆した。{25} 決定的に重要なのは、この増加が単に"
-        "発生率の増加に帰せないことである。むしろ、それは作動中の医療版"
-        "サピア＝ウォーフ効果を反映している。疾病分類学的言語を変えることが、"
-        "医療システムが知覚しうるものを変えたのである。"
-    )
-
-    add_heading(doc, "過労死認定の分断時系列分析", level=2)
-
-    add_para_with_refs(
-        doc,
-        "この効果をより精密に定量化するため、厚生労働省の脳・心臓疾患労災補償状況"
-        "年次報告から29年間の労災補償データ（1996〜2024年度）を編纂した。{32} "
-        "2001年12月の認定基準改正を主要介入点とする分断時系列（ITS）分析を"
-        "セグメント回帰により実施した。2001年改正は「80時間ルール」を導入し、"
-        "労働関連心血管疾患の認定適格性を大幅に拡大した。"
-    )
-
-    add_para_with_refs(
-        doc,
-        "結果は顕著である（図3）。ITS回帰は、既存の時間的傾向を統制した上で、"
-        "認定基準改正直後にβ = 231.4件（p < 0.001）の統計的に有意な水準変化を"
-        "示した。年間平均認定件数は改正前（1996〜2001年度）の91.7件から、"
-        "改正直後（2002〜2008年度）の339.9件へと3.71倍に増加した。認定率"
-        "（認定件数／請求件数）は17.1%から39.6%に急上昇した。二標本t検定は"
-        "この差が高度に有意であることを確認した（t = 14.1, p < 0.0001）。"
-        "注目すべきは、負の傾斜変化（β = −17.2, p = 0.040）が、初期の急増後の"
-        "基線への漸進的回帰を示していることであり、これは以前認識されなかった症例の"
-        "「追いつき」効果とそれに続く安定化に一致する。"
-    )
-
-    add_para_with_refs(
-        doc,
-        "2021年9月の第二次改正は、不規則な勤務形態や心理的ストレスなどの"
-        "残業時間以外の要因を認定基準に追加したものであり、直近年度（2022〜2024"
-        "年度：194、216、241件）の緩やかな上昇と関連している。2021年改正後の"
-        "観察期間はロバストなITS分析には不十分であるが、方向性の変化は医療版"
-        "サピア＝ウォーフの予測に一致する。すなわち、疾病分類学的境界を拡大すれば、"
-        "システムが認識する範囲が拡大するのである。"
-    )
-
-    # --- 図3 インライン ---
-    fig3_path = os.path.join(OUT_DIR, "figure3_karoshi_its_ja.png")
-    if os.path.exists(fig3_path):
-        p = doc.add_paragraph()
-        p.space_before = Pt(18)
-        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        run = p.add_run()
-        run.add_picture(fig3_path, width=Inches(5.5))
-    else:
-        p = doc.add_paragraph()
-        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        run = p.add_run("[図3：output/figure3_karoshi_its_ja.png参照]")
-        run.italic = True
-
-    p = doc.add_paragraph()
-    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    p.space_before = Pt(12)
-    run = p.add_run(
-        "図3. 過労死の労災認定件数の分断時系列分析（1996〜2024年度）。"
-        "パネルA：年間認定件数（水色）と死亡件数（赤）、ITS回帰線付き。"
-        "縦線は2001年および2021年の認定基準改正を示す。"
-        "パネルB：請求件数と認定率（%）。"
-        "データソース：厚生労働省「脳・心臓疾患に係る労災補償状況」年次報告。"
-    )
-    run.italic = True
-    run.font.size = Pt(9)
-    p.space_after = Pt(18)
-
-    add_heading(doc, "国際比較：診断カテゴリーがインフラストラクチャーを創出する",
-                level=2)
-
-    add_para_with_refs(
-        doc,
-        "医療版サピア＝ウォーフ仮説が正しければ、労働関連心血管疾患の国際的認定"
-        "パターンは、基礎疾患負荷ではなく過労死類似の診断カテゴリーの有無と相関する"
-        "はずである。この予測を検証するため、WHO死亡データベースから8カ国の"
-        "生産年齢人口（25〜64歳）の心血管疾患死亡率を比較した（図4）。{33}"
-    )
-
-    add_para_with_refs(
-        doc,
-        "結果は仮説を支持する。日本と韓国——包括的な過労死／過労死（과로사, "
-        "gwarosa）認定制度を有する唯一の二カ国——は、比較対象国の中で最も低い"
-        "生産年齢心血管疾患死亡率を示す（それぞれ10万人対23.0および28.0）。"
-        "対照的に、心血管疾患死亡率がより高い国（例：米国57.0、ドイツ37.0、"
-        "英国34.6/10万人）では、労働関連心血管死の体系的認定制度は非常に限定的"
-        "であるか存在しない。{34} 日本は年間約200〜300件の労働関連心血管疾患を"
-        "認定するが、同等の西洋諸国では10件未満である。この逆説——より低い疾患負荷に"
-        "もかかわらずはるかに高い認定——は、まさに医療版サピア＝ウォーフ仮説が予測"
-        "するものである。診断カテゴリーが基礎疾患の発生率とは独立に、認定のための"
-        "制度的インフラストラクチャーを創出するのである。"
-    )
-
-    # --- 図4 インライン ---
-    fig4_path = os.path.join(OUT_DIR, "figure4_international_cvd_ja.png")
-    if os.path.exists(fig4_path):
-        p = doc.add_paragraph()
-        p.space_before = Pt(18)
-        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        run = p.add_run()
-        run.add_picture(fig4_path, width=Inches(5.5))
-    else:
-        p = doc.add_paragraph()
-        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        run = p.add_run("[図4：output/figure4_international_cvd_ja.png参照]")
-        run.italic = True
-
-    p = doc.add_paragraph()
-    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    p.space_before = Pt(12)
-    run = p.add_run(
-        "図4. 生産年齢人口の心血管疾患死亡率と職業性心血管疾患認定制度の国際比較。"
-        "パネルA：国別の虚血性心疾患および脳血管疾患死亡率（10万人対、25〜64歳）。"
-        "赤字は過労死類似の認定制度を有する国。"
-        "パネルB：労働関連心血管疾患認定制度の水準と年間認定件数。"
-        "データソース：WHO死亡データベース、各国労働統計。"
-    )
-    run.italic = True
-    run.font.size = Pt(9)
-    p.space_after = Pt(18)
-
-    # =====================================================================
-    # 事例研究2：ICD-11
-    # =====================================================================
-    add_heading(doc, "事例研究2：自然実験としてのICD-11移行", level=1)
-
-    add_para_with_refs(
-        doc,
-        "ICD-10からICD-11への移行は、30年ぶりの世界的疾患分類体系の最も重大な"
-        "改定を表す。いくつかの構造的変更が、医療版サピア＝ウォーフ仮説を前向きに"
-        "検証する機会を提供する（表2）。"
-    )
-
-    # --- 表2 ---
-    p = doc.add_paragraph()
-    p.space_before = Pt(12)
-    run = p.add_run(
-        "表2. 医療版サピア＝ウォーフ分析に適するICD-11の主要な構造変化"
-    )
-    run.bold = True
-    run.font.size = Pt(10)
-
-    table2 = doc.add_table(rows=5, cols=3)
-    table2.style = "Table Grid"
-    table2.alignment = WD_TABLE_ALIGNMENT.CENTER
-
-    for i, h in enumerate(["ICD-11の変更", "検証可能な事項",
-                            "予測されるサピア＝ウォーフ効果"]):
-        set_cell_text(table2.rows[0].cells[i], h, bold=True)
-
-    t2_data = [
-        ["慢性疼痛独立章（MG30）",
-         "慢性疼痛に対する紹介パターン・専門医利用・治療法の変化",
-         "疼痛がそれ自体の疾患実体として認識され、専門医紹介の増加と専用治療プログラムの創設へ"],
-        ["バーンアウトの職業的現象としての分類（QD85）",
-         "過労死類似概念の国際的拡散；病気休暇パターンと産業保健相談の変化",
-         "公式分類が日本における過労死と類似のインフラストラクチャーを触媒"],
-        ["ゲーム障害（6C51）",
-         "分類前後の発生率の推移；受療行動",
-         "分類が臨床的実体を創出し、認知と潜在的に有病率の両方を増加させる（ループ効果）"],
-        ["性別不合が精神障害から性の健康に関連する状態へ移動",
-         "スティグマ・治療アクセス・患者の自己同定の変化",
-         "再分類が生物学的基盤を変えることなく病い体験と受療行動を変容させる"],
-    ]
-    for r, row_data in enumerate(t2_data, start=1):
-        for c, val in enumerate(row_data):
-            set_cell_text(table2.rows[r].cells[c], val)
-
-    p = doc.add_paragraph()
-    p.space_after = Pt(12)
-
-    add_heading(doc, "慢性疼痛：症状から疾患へ", level=2)
-
-    add_para_with_refs(
-        doc,
-        "ICD-11における慢性疼痛独立章（MG30）の新設はパラダイムシフトを表す。"
-        "慢性疼痛はもはや他の疾患の単なる症状ではなく、それ自体の疾患実体である。{15,26}"
-        "この再分類は臨床実践に連鎖的効果を産出すると予測される。フィールドテストは"
-        "新分類の優れた診断コーディング性能と臨床的有用性を実証しており、臨床医が"
-        "臨床的現実を捕捉するために新カテゴリーが有用であると認識していることを"
-        "示唆する。{27}"
-    )
-
-    add_para_with_refs(
-        doc,
-        "医療版サピア＝ウォーフの視点から、MG30の導入は以下を予測する。"
-        "（1）慢性疼痛患者が「主」診断の付随として管理されるのではなく、専用の"
-        "疼痛サービスに紹介される割合の増加、（2）慢性疼痛特異的治療ガイドラインの"
-        "策定、（3）「腰が悪い」から「慢性疼痛疾患を持っている」への患者の"
-        "自己理解の変容、（4）疾患カテゴリーとしての慢性疼痛に特化した新規研究"
-        "資金の創出。重要なことに、侵害可塑性疼痛（nociplastic pain）の概念——"
-        "2017年にIASPが導入した、組織損傷や体性感覚系の病変の証拠なしに"
-        "変容した侵害受容から生じる疼痛の第三の機序記述子{28}——は、命名が臨床的"
-        "実体を創出する過程を例示する。以前「医学的に説明不能」として退けられた"
-        "状態が、今や独立した病態生理学的カテゴリーとして認識されている。"
-    )
-
-    add_heading(doc, "提案する研究デザイン", level=2)
-
-    add_para_with_refs(
-        doc,
-        "ICD-11を早期に採用した国における採用前後の臨床アウトカムを比較する"
-        "分断時系列分析を提案する。主要アウトカムは以下を含む。"
-        "（1）疼痛クリニックおよび産業保健サービスへの紹介率、"
-        "（2）慢性疼痛薬の処方パターン、"
-        "（3）ストレス関連心血管イベントに対する労災補償申請、"
-        "（4）診断満足度と自己効力感を含む患者報告アウトカム指標。"
-        "副次アウトカムは研究資金配分と出版動向を追跡する。ICD-11を異なる時期に"
-        "採用する国々が、因果推論を強化する段階的採用デザインを提供する"
-        "（図2）。{29}"
-    )
-
-    # --- 図2 インライン ---
-    fig2_path = os.path.join(OUT_DIR, "figure2_ja.png")
-    if os.path.exists(fig2_path):
-        p = doc.add_paragraph()
-        p.space_before = Pt(18)
-        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        run = p.add_run()
-        run.add_picture(fig2_path, width=Inches(5.5))
-    else:
-        p = doc.add_paragraph()
-        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        run = p.add_run("[図2：figures_tables_ja.pptx参照]")
-        run.italic = True
-
-    p = doc.add_paragraph()
-    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    p.space_before = Pt(12)
-    run = p.add_run(
-        "図2. ICD-11採用を自然実験として活用する提案研究デザイン。国家間の段階的"
-        "採用が多重ベースラインデザインを可能にし、分類変更の臨床実践への効果に"
-        "関する因果推論を強化する。"
-    )
-    run.italic = True
-    run.font.size = Pt(9)
-    p.space_after = Pt(18)
-
-    # =====================================================================
-    # 考察
-    # =====================================================================
-    add_heading(doc, "考察", level=1)
-
-    add_heading(doc, "疾患\u2013病い\u2013病人役割の枠組みの精緻化", level=2)
-
-    add_para_with_refs(
-        doc,
-        "医療版サピア＝ウォーフ仮説はKleinmanの三部構造を、その三つのレベル間の"
-        "フィードバックメカニズムを特定することにより精緻化する。{16,17} 古典的定式化"
-        "では、疾患（disease）は生物医学的現実、病い（illness）は主観的体験、"
-        "病人役割（sickness）は社会的役割である。我々の分析は、疾患レベルでは生物学的"
-        "プロセスが確かに概ね概念非依存であることを示唆する。心筋梗塞は疾病分類に"
-        "労働関連心臓死のカテゴリーが含まれるか否かに関わらず発生する。しかし病人役割"
-        "レベルでは、サピア＝ウォーフ効果は強力かつ広範である。疾病分類学的カテゴリーの"
-        "有無がどの状態が認識・治療・補償されるかを決定する。決定的に重要なのは、"
-        "この病人役割レベルの効果が病い（illness）レベルに——患者の自己理解・受療行動・"
-        "主観的体験を変容させて——、さらには疾患（disease）レベルにも——どの生物学的"
-        "プロセスが調査・治療・モニタリングされるかを形成して——フィードバックすること"
-        "である。"
-    )
-
-    add_para_with_refs(
-        doc,
-        "この再帰的構造が、医療版サピア＝ウォーフ効果を「制度は実践を形成する」"
-        "という自明の理から区別する。主張は医療システムが行政的カテゴリーに応答する"
-        "こと（これは自明に真であろう）ではなく、疾病分類学的カテゴリーがより深い"
-        "意味で臨床的現実を構成するということである。それらは何が疾患として数えられ、"
-        "誰が患者として数えられ、何が治療として数えられるかを決定する。サピア＝ウォーフ"
-        "の枠づけは、これらの構成的効果が所与の疾病分類体系内で作業する実践者にとって"
-        "しばしば不可視であるという決定的な洞察を加える。それは母語の認知的効果がその"
-        "話者にとって不可視であるのと同様である。"
-    )
-
-    add_heading(doc, "疾病分類改定への含意", level=2)
-
-    add_para_with_refs(
-        doc,
-        "医療版サピア＝ウォーフ仮説が正しければ、疾病分類改定は単なる行政的作業で"
-        "なく、真の臨床的帰結を伴う介入である。診断カテゴリーを創設または廃止する"
-        "決定は、言語に語を導入または除去することに類似する。それは知覚・伝達・行動"
-        "しうるものの領域を拡大または縮小する。これは疾患分類を担う組織にとって"
-        "実践的含意を持つ。具体的には、ICD改定に際して行政的アウトカム（コーディング"
-        "精度、請求）だけでなく臨床アウトカム（診断パターン、治療選択、患者体験）をも"
-        "追跡する前向き影響評価が伴われるべきである。{30}"
-    )
-
-    add_heading(doc, "異文化間医療への含意", level=2)
-
-    add_para_with_refs(
-        doc,
-        "過労死の事例は、異なる文化が根本的に異なる疾病分類学的語彙を持ちうることを"
-        "示す。それは患者ケアに対して現実的な帰結を伴う。これは十分に研究された"
-        "文化結合症候群{31}の領域を超えて、医療が組織される構造そのものにまで及ぶ。"
-        "ICD-11が特定の文化的文脈から生まれた概念（過労死がQD85バーンアウトに影響し、"
-        "侵害可塑性疼痛が西洋の疼痛科学を反映するなど）を取り込むにつれ、それは"
-        "疾病分類学的概念の国際的拡散の媒体となる。医療版サピア＝ウォーフ効果を"
-        "理解することは、この拡散の帰結を予測し管理するために不可欠である。"
-    )
-
-    add_heading(doc, "限界", level=2)
-
-    add_para_with_refs(
-        doc,
-        "いくつかの限界を認める必要がある。第一に、自然言語と疾病分類体系の類推は"
-        "不完全である。疾患分類は明示的に構築され定期的に改訂されるが、自然言語は"
-        "有機的に進化する。しかしこの差異は我々の論拠を弱めるのではなくむしろ強化する。"
-        "それは疾病分類学的言語の構成的効果が意図的であり、したがって研究と介入に"
-        "服しうることを含意するからである。第二に、ICD-11の自然実験デザインは医学知識・"
-        "技術・医療政策の同時的変化による交絡に直面する。段階的採用デザインはこの懸念に"
-        "部分的に対処するが、排除はできない。第三に、我々は二つの事例研究に焦点を"
-        "当てた。医療版サピア＝ウォーフ効果の異なる医学領域にわたる一般性を確立するには"
-        "さらなる研究が必要である。"
-    )
-
-    # =====================================================================
-    # 結論
-    # =====================================================================
-    add_heading(doc, "結論", level=1)
-
-    add_para_with_refs(
-        doc,
-        "我々は医療版サピア＝ウォーフ仮説を提唱した。疾患分類体系は診断的閉鎖、"
-        "ループ効果、インフラストラクチャー創出、疾病分類学的プラセボのメカニズムを"
-        "通じて臨床的現実を形成する。過労死の事例は、疾病分類学的概念の有無が同一の"
-        "生物学的事象に対する医療システムの応答を根本的に変えることを実証する。"
-        "29年間の日本の労災補償データを用いた分断時系列分析は、2001年の認定基準"
-        "改正後に認定件数が3.71倍に増加したことを示す直接的な実証的証拠を提供し"
-        "（β = 231.4, p < 0.001）、国際比較は疾患負荷ではなく診断的"
-        "インフラストラクチャーが認定パターンを決定することを示す。"
-        "ICD-10からICD-11への移行は、この仮説を前向きに検証する前例のない機会を"
-        "提供する。医療版サピア＝ウォーフ仮説は、疾病分類改定が行政的"
-        "帳簿整理ではなく、医療的現実を再構成する力を持つ臨床的介入として理解される"
-        "べきことを含意する。"
-    )
-
-    # =====================================================================
-    # 参考文献
-    # =====================================================================
-    doc.add_page_break()
-    add_heading(doc, "参考文献", level=1)
-
-    references = [
-        "Whorf BL. Language, Thought, and Reality: Selected Writings. MIT Press; 1956.",
-        "Sapir E. The status of linguistics as a science. Language. 1929;5(4):207\u2013214.",
-        "Boroditsky L. Does language shape thought? Mandarin and English speakers\u2019 conceptions of time. Cogn Psychol. 2001;43(1):1\u201322.",
-        "Winawer J, Witthoft N, Frank MC, Wu L, Wade AR, Boroditsky L. Russian blues reveal effects of language on color discrimination. Proc Natl Acad Sci U S A. 2007;104(19):7780\u20137785.",
-        "Warner R. The relationship between language and disease concepts. Int J Psychiatry Med. 1977;7(1):57\u201368.",
-        "Croskerry P. The importance of cognitive errors in diagnosis and strategies to minimize them. Acad Med. 2003;78(8):775\u2013780.",
-        "Hacking I. The looping effects of human kinds. In: Sperber D, Premack D, Premack AJ, eds. Causal Cognition: A Multidisciplinary Debate. Clarendon Press; 1995:351\u2013394.",
-        "Hacking I. The Social Construction of What? Harvard University Press; 1999.",
-        "Rosenberg CE. The tyranny of diagnosis: specific entities and individual experience. Milbank Q. 2002;80(2):237\u2013260.",
-        "Jutel A. Putting a Name to It: Diagnosis in Contemporary Society. Johns Hopkins University Press; 2011.",
-        "Kendall NAS, Linton SJ, Main CJ. Guide to Assessing Psychosocial Yellow Flags in Acute Low Back Pain. Accident Rehabilitation & Compensation Insurance Corporation of New Zealand; 1997.",
-        "Uehata T. Long working hours and occupational stress-related cardiovascular attacks among middle-aged workers in Japan. J Hum Ergol (Tokyo). 1991;20(2):147\u2013153.",
-        "National Defense Counsel for Victims of Karoshi. Karoshi: When the Corporate Warrior Dies of Overwork. Mado-sha; 1990.",
-        "World Health Organization. International Classification of Diseases 11th Revision (ICD-11). WHO; 2019. Accessed April 2026. https://icd.who.int/",
-        "Treede RD, Rief W, Barke A, et al. Chronic pain as a symptom or a disease: the IASP Classification of Chronic Pain for the International Classification of Diseases (ICD-11). Pain. 2019;160(1):19\u201327.",
-        "Kleinman A, Eisenberg L, Good B. Culture, illness, and care: clinical lessons from anthropologic and cross-cultural research. Ann Intern Med. 1978;88(2):251\u2013258.",
-        "Kleinman A. The Illness Narratives: Suffering, Healing, and the Human Condition. Basic Books; 1988.",
-        "Tversky A, Kahneman D. Judgment under uncertainty: heuristics and biases. Science. 1974;185(4157):1124\u20131131.",
-        "Callard F, Perego E. How and why patients made Long Covid. Soc Sci Med. 2021;268:113426.",
-        "Haugli L, Steen E, Laerum E, Nygard R, Finset A. Learning to have less pain \u2014 is it possible? A one-year follow-up study of the effects of a personal construct group learning programme on patients with chronic musculoskeletal pain. Patient Educ Couns. 2001;45(2):111\u2013118.",
-        "Nishiyama K, Johnson JV. Karoshi \u2014 death from overwork: occupational health consequences of Japanese production management. Int J Health Serv. 1997;27(4):625\u2013641.",
-        "Kato T. Karoshi: death from overwork. In: Kawakami N, ed. Occupational Health Psychology. Springer; 2014:153\u2013167.",
-        "Kivim\u00e4ki M, Jokela M, Nyberg ST, et al. Long working hours and risk of coronary heart disease and stroke: a systematic review and meta-analysis of published and unpublished data for 603,838 individuals. Lancet. 2015;386(10005):1739\u20131746.",
-        "Descatha A, Sembajwe G, Pega F, et al. The effect of exposure to long working hours on stroke: a systematic review and meta-analysis from the WHO/ILO Joint Estimates of the Work-related Burden of Disease and Injury. Environ Int. 2020;142:105746.",
-        "Iwasaki K, Takahashi M, Nakata A. Health problems due to long working hours in Japan: working hours, workers\u2019 compensation (karoshi), and preventive measures. Ind Health. 2006;44(4):537\u2013540.",
-        "Nicholas M, Vlaeyen JWS, Rief W, et al. The IASP classification of chronic pain for ICD-11: chronic primary pain. Pain. 2019;160(1):28\u201337.",
-        "Barke A, Korwisi B, Jakob R, Konstanjsek N, Rief W, Treede RD. Classification of chronic pain for the International Classification of Diseases (ICD-11): results of the 2017 international World Health Organization field testing. Pain. 2022;163(2):e310\u2013e318.",
-        "Kosek E, Cohen M, Baron R, et al. Do we need a third mechanistic descriptor for chronic pain states? Pain. 2016;157(7):1382\u20131386.",
-        "Bernal JL, Cummins S, Gasparrini A. Interrupted time series regression for the evaluation of public health interventions: a tutorial. Int J Epidemiol. 2017;46(1):348\u2013355.",
-        "Jutel A, Nettleton S. Towards a sociology of diagnosis: reflections and opportunities. Soc Sci Med. 2011;73(6):793\u2013800.",
-        "Simons RC, Hughes CC, eds. The Culture-Bound Syndromes: Folk Illnesses of Psychiatric and Anthropological Interest. D. Reidel Publishing; 1985.",
-        "Ministry of Health, Labour and Welfare. Status of Workers\u2019 Compensation for Brain/Cardiovascular Diseases and Mental Disorders (Annual Reports, FY2001\u2013FY2024). Tokyo: MHLW; 2025. https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/koyou_roudou/roudoukijun/rousai/090316_00002.html",
-        "World Health Organization. WHO Mortality Database. Geneva: WHO; 2026. Accessed April 2026. https://www.who.int/data-collections/mortality",
-        "Pega F, N\u00e1fr\u00e1di B, Momen NC, et al. Global, regional, and national burdens of ischemic heart disease and stroke attributable to exposure to long working hours for 194 countries, 2000\u20132016: a systematic analysis from the WHO/ILO Joint Estimates of the Work-related Burden of Disease and Injury. Environ Int. 2021;154:106595.",
-    ]
-
-    for i, ref in enumerate(references, start=1):
-        p = doc.add_paragraph()
-        run = p.add_run(f"{i}. ")
-        run.font.size = Pt(10)
-        run = p.add_run(ref)
-        run.font.size = Pt(10)
-        p.paragraph_format.space_after = Pt(2)
-        p.paragraph_format.line_spacing = 1.15
-
-    # SAVE
-    out_path = os.path.join(OUT_DIR, "manuscript_ja.docx")
-    doc.save(out_path)
-    print(f"Saved: {out_path}")
-
-
-if __name__ == "__main__":
+    print("日本語図表を生成中...")
+    fig1 = create_figure1_ja()
+    fig2 = create_figure2_ja()
+    print("日本語原稿を構築中...")
+    build_manuscript(fig1, fig2)
+    print("日本語図表PPTXを構築中...")
+    build_figures_pptx(fig1, fig2)
+    print("日本語表DOCXを構築中...")
+    build_tables_docx()
+    print("完了!")
+
+
+if __name__ == '__main__':
     main()
