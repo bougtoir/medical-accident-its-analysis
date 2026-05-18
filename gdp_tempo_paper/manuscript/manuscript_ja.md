@@ -294,6 +294,8 @@ Beyond-GDP プログラムは、フロー指標（GDP）をストック指標（
 
 ## 参考文献
 
+Altug, Sumru (1989) Time-to-build and aggregate fluctuations: some new evidence. *International Economic Review* 30, 889–920.
+
 Arrow, Kenneth J., Partha Dasgupta, Lawrence H. Goulder, Kevin J. Mumford, and Kirsten Oleson (2012) Sustainability and the measurement of wealth. *Environment and Development Economics* 17, 317–353.
 
 Bongaarts, John and Griffith Feeney (1998) On the quantum and tempo of fertility. *Population and Development Review* 24, 271–291.
@@ -301,6 +303,8 @@ Bongaarts, John and Griffith Feeney (1998) On the quantum and tempo of fertility
 Bongaarts, John and Tomáš Sobotka (2012) A demographic explanation for the recent rise in European fertility. *Population and Development Review* 38, 83–120.
 
 Brass, William (1971) On the scale of mortality. In William Brass (ed.), *Biological Aspects of Demography*, pp. 69–110. London: Taylor and Francis.
+
+Christiano, Lawrence J. and Richard M. Todd (1996) Time to plan and aggregate fluctuations. *Federal Reserve Bank of Minneapolis Quarterly Review* 20, 14–27.
 
 Corrado, Carol, Charles Hulten, and Daniel Sichel (2005) Measuring capital and technology: an expanded framework. In Carol Corrado, John Haltiwanger, and Daniel Sichel (eds.), *Measuring Capital in the New Economy*, pp. 11–46. Chicago: University of Chicago Press.
 
@@ -314,9 +318,13 @@ Dasgupta, Partha (2021) *The Economics of Biodiversity: The Dasgupta Review*. Lo
 
 De Rassenfosse, Gaétan and Adam B. Jaffe (2018) Intellectual property and public-science spillovers: an overview and research directions. *Review of Economic Research on Copyright Issues* 15, 1–22.
 
+Edge, Rochelle M. (2007) Time-to-build, time-to-plan, habit-persistence, and the liquidity effect. *Journal of Monetary Economics* 54, 1644–1669.
+
 Feenstra, Robert C., Robert Inklaar, and Marcel P. Timmer (2015) The next generation of the Penn World Table. *American Economic Review* 105, 3150–3182.
 
 Goldstein, Joshua R., Wolfgang Lutz, and Sergei Scherbov (2003) Long-term population decline in Europe: the relative importance of tempo effects and generational length. *Population and Development Review* 29, 699–707.
+
+Griliches, Zvi (1996) The discovery of the residual: a historical note. *Journal of Economic Literature* 34, 1324–1330.
 
 Hamano, Masashige and Yongchao Zhao (2017) Fiscal sustainability and land prices in Japan. *Journal of the Japanese and International Economies* 46, 17–29.
 
@@ -324,7 +332,11 @@ Haskel, Jonathan and Stian Westlake (2017) *Capitalism without Capital: The Rise
 
 Haskel, Jonathan and Stian Westlake (2022) *Restarting the Future: How to Fix the Intangible Economy*. Princeton: Princeton University Press.
 
+Hulten, Charles R. (1992) Growth accounting when technical change is embodied in capital. *American Economic Review* 82, 964–980.
+
 Inklaar, Robert and Marcel P. Timmer (2013) Capital, labor and TFP in PWT 8.0. Groningen Growth and Development Centre Research Memorandum GD-144.
+
+Jorgenson, Dale W. and Zvi Griliches (1967) The explanation of productivity change. *Review of Economic Studies* 34, 249–283.
 
 Jorgenson, Dale W. (2018) Production and welfare: progress in economic measurement. *Journal of Economic Literature* 56, 867–919.
 
@@ -343,6 +355,8 @@ Lange, Glenn-Marie, Quentin Wodon, and Kevin Carey (eds.) (2018) *The Changing W
 Managi, Shunsuke and Pushpam Kumar (eds.) (2018) *Inclusive Wealth Report 2018*. London: Routledge.
 
 Mayer, Thomas (1960) Plant and equipment lead times. *Journal of Business* 33, 127–132.
+
+Nishimura, Kiyohiko G. and Yumi Saita (2005) Land prices in Japan: historical and international comparisons. Bank of Japan Review 2005-E-5.
 
 OECD (2013) *Supporting Investment in Knowledge Capital, Growth and Innovation*. Paris: OECD Publishing.
 
