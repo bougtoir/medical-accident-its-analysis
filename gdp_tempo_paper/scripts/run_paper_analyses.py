@@ -799,8 +799,9 @@ def run_conditional_oos(oos: pd.DataFrame,
           flush=True)
     for model in ("M0", "M1", "M2", "M4"):
         k = f"interior_{model}_median"
-        print(f"    {model} interior median={result.get(k, 'N/A'):.2f}",
-              flush=True)
+        v = result.get(k, "N/A")
+        fmt = f"{v:.2f}" if isinstance(v, (int, float)) else str(v)
+        print(f"    {model} interior median={fmt}", flush=True)
     return result
 
 
