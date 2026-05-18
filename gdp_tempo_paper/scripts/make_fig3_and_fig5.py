@@ -155,7 +155,7 @@ def make_fig5(lang: str = "en"):
                 arrowprops=dict(arrowstyle="->", lw=1.5))
     ax.annotate("", xy=(7.1, 4.7), xytext=(5.9, 4.7),
                 arrowprops=dict(arrowstyle="->", lw=1.5))
-    ax.text(8, 4.1, labels["balance"], ha="center", fontsize=9,
+    ax.text(8, 3.85, labels["balance"], ha="center", fontsize=9,
             style="italic")
     ax.text(0.6, 4.7, labels["arrow_demog"], ha="center", va="center",
             fontsize=11, fontweight="bold")
@@ -168,7 +168,7 @@ def make_fig5(lang: str = "en"):
                 arrowprops=dict(arrowstyle="->", lw=1.5))
     ax.annotate("", xy=(7.1, 1.7), xytext=(5.9, 1.7),
                 arrowprops=dict(arrowstyle="->", lw=1.5))
-    ax.text(8, 1.1, labels["balance_c"], ha="center", fontsize=9,
+    ax.text(8, 0.85, labels["balance_c"], ha="center", fontsize=9,
             style="italic")
     ax.text(0.6, 1.7, labels["arrow_capital"], ha="center", va="center",
             fontsize=11, fontweight="bold")
@@ -453,12 +453,17 @@ def make_fig7_delta_sensitivity_bilingual(lang: str = "en"):
     highlight_colors = ["#c44e52", "#4c72b0", "#55a868", "#dd8452", "#8172b2"]
 
     # Plot non-highlighted countries in grey
+    other_plotted = False
     for _, row in dsens.iterrows():
         if row["country"] in highlight_countries:
             continue
         vals = [row[f"mu_d{df:.2f}"] for df in delta_factors]
         if max(vals) - min(vals) > 0.01:
-            ax.plot(delta_factors, vals, color="#cccccc", lw=0.5, alpha=0.5)
+            kw = dict(color="#aaaaaa", lw=0.8, alpha=0.6)
+            if not other_plotted:
+                kw["label"] = labels["other"]
+                other_plotted = True
+            ax.plot(delta_factors, vals, **kw)
 
     # Plot highlighted countries
     for country, color in zip(highlight_countries, highlight_colors):
