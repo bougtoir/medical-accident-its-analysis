@@ -8,17 +8,19 @@
 
 電話：+81-749-27-1023. E-mail: bougtoir@gmail.com. ORCID: 0000-0001-7261-9062.
 
+**ランニングヘッド**: 資本会計におけるテンポ効果
+
 **キーワード**: テンポ効果、無形資本、恒久棚卸法、タイム・トゥ・ビルド、フロー=ストック整合性、Beyond-GDP。
 
 **JEL コード**: E01（国民所得・生産勘定の測定とデータ）、E22（投資・資本・無形資本）、O47（経済成長・集計生産性の測定）。
 
 **CRediT 著者貢献**: O.T.: 構想、方法論、ソフトウェア、形式的解析、原稿執筆（初稿）、執筆（査読・編集）。
 
-**生成 AI の科学的執筆への使用についての宣言**: 文面のフォーマット整形、文体に合う語彙の選択、およびコード作成の補助に生成 AI を用いた。
+**生成 AI の科学的執筆への使用についての宣言**: 著者は、文面のフォーマット整形、文体に合う語彙の選択、およびコード作成の補助に生成 AI を用いた。
 
 **利益相反**: 著者は開示すべき利益相反を有しない。
 
-**データ・コード公開**: 本研究で用いた Penn World Table 10.01 と World Bank CWON のデータは、それぞれ Groningen Growth and Development Centre および世界銀行から公開されている。解析スクリプト、中間結果、原稿ソースは付随する公開リポジトリにすべて保管されている。
+**データ・コード公開**: 本研究で用いた Penn World Table 10.01、World Bank CWON、および World Bank WDI のデータは、それぞれ Groningen Growth and Development Centre および世界銀行から公開されている。解析スクリプト、中間結果、原稿ソースは付随する公開リポジトリにすべて保管されている。
 
 ---
 
@@ -292,56 +294,66 @@ Beyond-GDP プログラムは、フロー指標（GDP）をストック指標（
 
 ## 参考文献
 
-Arrow, K. J., P. Dasgupta, L. H. Goulder, K. J. Mumford, and K. Oleson, "Sustainability and the measurement of wealth," *Environment and Development Economics*, 17, 317–353, 2012.
+Arrow, Kenneth J., Partha Dasgupta, Lawrence H. Goulder, Kevin J. Mumford, and Kirsten Oleson (2012) Sustainability and the measurement of wealth. *Environment and Development Economics* 17, 317–353.
 
-Bongaarts, J. and G. Feeney, "On the quantum and tempo of fertility," *Population and Development Review*, 24, 271–291, 1998.
+Bongaarts, John and Griffith Feeney (1998) On the quantum and tempo of fertility. *Population and Development Review* 24, 271–291.
 
-Bongaarts, J. and T. Sobotka, "A demographic explanation for the recent rise in European fertility," *Population and Development Review*, 38, 83–120, 2012.
+Bongaarts, John and Tomáš Sobotka (2012) A demographic explanation for the recent rise in European fertility. *Population and Development Review* 38, 83–120.
 
-Corrado, C., C. Hulten, and D. Sichel, "Measuring capital and technology: an expanded framework," in C. Corrado, J. Haltiwanger, and D. Sichel, eds., *Measuring Capital in the New Economy*, 11–46, University of Chicago Press, Chicago, 2005.
+Brass, William (1971) On the scale of mortality. In William Brass (ed.), *Biological Aspects of Demography*, pp. 69–110. London: Taylor and Francis.
 
-Corrado, C., C. Hulten, and D. Sichel, "Intangible capital and US economic growth," *Review of Income and Wealth*, 55, 661–685, 2009.
+Corrado, Carol, Charles Hulten, and Daniel Sichel (2005) Measuring capital and technology: an expanded framework. In Carol Corrado, John Haltiwanger, and Daniel Sichel (eds.), *Measuring Capital in the New Economy*, pp. 11–46. Chicago: University of Chicago Press.
 
-Corrado, C., J. Haskel, C. Jona-Lasinio, and M. Iommi, "Intangible investment in the EU and US before and since the Great Recession and its contribution to productivity growth," *EIB Working Papers* 2016/08, 2016.
+Corrado, Carol, Charles Hulten, and Daniel Sichel (2009) Intangible capital and US economic growth. *Review of Income and Wealth* 55, 661–685.
 
-Dasgupta, P., *The Economics of Biodiversity: The Dasgupta Review*, HM Treasury, London, 2021.
+Corrado, Carol, Jonathan Haskel, Cecilia Jona-Lasinio, and Massimiliano Iommi (2016) Intangible investment in the EU and US before and since the Great Recession and its contribution to productivity growth. EIB Working Papers 2016/08.
 
-Feenstra, R. C., R. Inklaar, and M. P. Timmer, "The next generation of the Penn World Table," *American Economic Review*, 105, 3150–3182, 2015.
+Corrado, Carol, Jonathan Haskel, Massimiliano Iommi, and Cecilia Jona-Lasinio (2020) Intangible capital, innovation and productivity à la Jorgenson: evidence from Europe and the US. In Barbara M. Fraumeni (ed.), *Measuring Economic Growth and Productivity*, pp. 363–385. Academic Press.
 
-Goldstein, J. R., W. Lutz, and S. Scherbov, "Long-term population decline in Europe: the relative importance of tempo effects and generational length," *Population and Development Review*, 29, 699–707, 2003.
+Dasgupta, Partha (2021) *The Economics of Biodiversity: The Dasgupta Review*. London: HM Treasury.
 
-Hamano, M. and Y. Zhao, "Fiscal sustainability and land prices in Japan," *Journal of the Japanese and International Economies*, 46, 17–29, 2017.
+De Rassenfosse, Gaétan and Adam B. Jaffe (2018) Intellectual property and public-science spillovers: an overview and research directions. *Review of Economic Research on Copyright Issues* 15, 1–22.
 
-Haskel, J. and S. Westlake, *Capitalism without Capital: The Rise of the Intangible Economy*, Princeton University Press, Princeton, 2017.
+Feenstra, Robert C., Robert Inklaar, and Marcel P. Timmer (2015) The next generation of the Penn World Table. *American Economic Review* 105, 3150–3182.
 
-Jorgenson, D. W., "Production and welfare: progress in economic measurement," *Journal of Economic Literature*, 56, 867–919, 2018.
+Goldstein, Joshua R., Wolfgang Lutz, and Sergei Scherbov (2003) Long-term population decline in Europe: the relative importance of tempo effects and generational length. *Population and Development Review* 29, 699–707.
 
-Kaboski, J. P., "Factor price uncertainty, technology choice and investment delay," *Journal of Economic Dynamics and Control*, 29, 509–527, 2005.
+Hamano, Masashige and Yongchao Zhao (2017) Fiscal sustainability and land prices in Japan. *Journal of the Japanese and International Economies* 46, 17–29.
 
-Koeva, P., "The facts about time-to-build," *IMF Working Paper* 00/138, 2000.
+Haskel, Jonathan and Stian Westlake (2017) *Capitalism without Capital: The Rise of the Intangible Economy*. Princeton: Princeton University Press.
 
-Inklaar, R. and M. P. Timmer, "Capital, labor and TFP in PWT8.0," *GGDC Research Memorandum*, GD-134, 2013.
+Haskel, Jonathan and Stian Westlake (2022) *Restarting the Future: How to Fix the Intangible Economy*. Princeton: Princeton University Press.
 
-Jorgenson, D. W., F. M. Gollop, and B. M. Fraumeni, *Productivity and U.S. Economic Growth*, Harvard University Press, Cambridge, MA, 2018 (reprint edition).
+Inklaar, Robert and Marcel P. Timmer (2013) Capital, labor and TFP in PWT 8.0. Groningen Growth and Development Centre Research Memorandum GD-144.
 
-Kohler, H.-P., F. C. Billari, and J. A. Ortega, "The emergence of lowest-low fertility in Europe during the 1990s," *Population and Development Review*, 28, 641–680, 2002.
+Jorgenson, Dale W. (2018) Production and welfare: progress in economic measurement. *Journal of Economic Literature* 56, 867–919.
 
-Kydland, F. E. and E. C. Prescott, "Time to build and aggregate fluctuations," *Econometrica*, 50, 1345–1370, 1982.
+Jorgenson, Dale W., Mun S. Ho, and Kevin J. Stiroh (2018) *Productivity, Vol. 3: Information Technology and the American Growth Resurgence*. Cambridge, MA: MIT Press.
 
-Lange, G.-M., Q. Wodon, and K. Carey, eds., *The Changing Wealth of Nations 2018: Building a Sustainable Future*, World Bank, Washington, DC, 2018.
+Kaboski, Joseph P. (2005) Factor price uncertainty, technology choice and investment delay. *Journal of Economic Dynamics and Control* 29, 509–527.
 
-Managi, S. and P. Kumar, eds., *Inclusive Wealth Report 2018*, Routledge, London, 2018.
+Koeva, Petya (2000) The facts about time-to-build. IMF Working Paper 00/138.
 
-Mayer, T., "Plant and equipment lead times," *Journal of Business*, 33, 127–132, 1960.
+Kohler, Hans-Peter, Francesco C. Billari, and José Antonio Ortega (2002) The emergence of lowest-low fertility in Europe during the 1990s. *Population and Development Review* 28, 641–680.
 
-Roth, F., "Intangible capital and productivity growth in the EU: a panel data perspective," *Hamburg Discussion Papers in International Economics*, 13, 2023.
+Kydland, Finn E. and Edward C. Prescott (1982) Time to build and aggregate fluctuations. *Econometrica* 50, 1345–1370.
 
-Salomon, J. A., H. Wang, M. K. Freeman, T. Vos, A. D. Flaxman, A. D. Lopez, and C. J. L. Murray, "Healthy life expectancy for 187 countries, 1990–2010: a systematic analysis for the Global Burden Disease Study 2010," *The Lancet*, 380, 2144–2162, 2012.
+Lange, Glenn-Marie, Quentin Wodon, and Kevin Carey (eds.) (2018) *The Changing Wealth of Nations 2018: Building a Sustainable Future*. Washington, DC: World Bank.
 
-Smets, F. and R. Wouters, "Shocks and frictions in US business cycles: a Bayesian DSGE approach," *American Economic Review*, 97, 586–606, 2007.
+Managi, Shunsuke and Pushpam Kumar (eds.) (2018) *Inclusive Wealth Report 2018*. London: Routledge.
 
-Solow, R. M., "Technical change and the aggregate production function," *Review of Economics and Statistics*, 39, 312–320, 1957.
+Mayer, Thomas (1960) Plant and equipment lead times. *Journal of Business* 33, 127–132.
 
-Stiglitz, J. E., A. Sen, and J.-P. Fitoussi, *Report by the Commission on the Measurement of Economic Performance and Social Progress*, Paris, 2009.
+OECD (2013) *Supporting Investment in Knowledge Capital, Growth and Innovation*. Paris: OECD Publishing.
 
-UNECE, *Framework and Suggested Indicators to Measure Sustainable Development*, United Nations, Geneva, 2014.
+Roth, Felix (2023) Intangible capital and productivity growth in the EU: a panel data perspective. *Hamburg Discussion Papers in International Economics* 13.
+
+Salomon, Joshua A., Haidong Wang, Michael K. Freeman, Theo Vos, Abraham D. Flaxman, Alan D. Lopez, and Christopher J. L. Murray (2012) Healthy life expectancy for 187 countries, 1990–2010: a systematic analysis for the Global Burden Disease Study 2010. *The Lancet* 380, 2144–2162.
+
+Smets, Frank and Rafael Wouters (2007) Shocks and frictions in US business cycles: a Bayesian DSGE approach. *American Economic Review* 97, 586–606.
+
+Solow, Robert M. (1957) Technical change and the aggregate production function. *Review of Economics and Statistics* 39, 312–320.
+
+Stiglitz, Joseph E., Amartya Sen, and Jean-Paul Fitoussi (2009) *Report by the Commission on the Measurement of Economic Performance and Social Progress*. Paris.
+
+UNECE (2014) *Framework and Suggested Indicators to Measure Sustainable Development*. Geneva: United Nations.
