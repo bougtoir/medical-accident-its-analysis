@@ -136,14 +136,225 @@ def add_heading(doc, text, level, lang):
     return h
 
 
+GREEK_LETTERS = set("αβγδεζηθικλμνξοπρσςτυφχψω"
+                     "ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ")
+
+# Tokens that should be rendered in italic when they appear as standalone
+# variable-like identifiers in math context.
+MATH_VARS = re.compile(
+    r"""(?<![A-Za-z_])      # not preceded by letter/underscore
+    (                        # group 1: the variable token
+      [A-Z]                  # single capital letter ...
+      (?:_[A-Za-z0-9]+)?    # ... optionally followed by _subscript
+      |                      # OR
+      [αβγδεζηθικλμνξοπρσςτυφχψωΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ] # Greek letter
+      (?:_[A-Za-z0-9]+)?    # optional subscript
+    )
+    (?![A-Za-z])             # not followed by letter
+    """,
+    re.VERBOSE,
+)
+
+# Pattern to detect subscript notations: _{...} or _X (single char)
+SUB_RE = re.compile(r'_\{([^}]+)\}|_([A-Za-z0-9])')
+# Pattern to detect superscript notations: ^{...} or ^X (single char) or trailing *
+SUP_RE = re.compile(r'\^\{([^}]+)\}|\^([A-Za-z0-9])')
+
+# Displayed equation: 4-space indent, optional label like (M0), (1), (2)
+EQUATION_RE = re.compile(r'^    (.+?)\s{2,}\(([A-Za-z0-9]+)\)\s*$')
+EQUATION_NOLABEL_RE = re.compile(r'^    (.+?)\s*$')
+
+
+def _is_greek(ch):
+    return ch in GREEK_LETTERS
+
+
+def _add_run(paragraph, text, size=12, bold=False, italic=False,
+             superscript=False, subscript=False, font_name="Times New Roman"):
+    """Add a single run with specified formatting."""
+    run = paragraph.add_run(text)
+    set_font(run, name=font_name, size=size, bold=bold, italic=italic)
+    if superscript:
+        run.font.superscript = True
+    if subscript:
+        run.font.subscript = True
+    return run
+
+
+def add_math_runs(paragraph, text, size=12, base_italic=False):
+    """Parse *text* and emit Word runs with proper math formatting.
+
+    Rules applied (in order of priority):
+    1. Markdown-style *italic* spans → italic runs.
+    2. Subscript notation  _{...}  or  _x  → subscript runs.
+    3. Superscript notation ^{...} or ^x  → superscript runs.
+    4. Greek letters → always italic.
+    5. Single uppercase letters that look like variables (K, I, Y, L, A, W, S,
+       N, B) → italic when adjacent to math context (parens, subscripts, Greek).
+    6. Everything else → roman (upright).
+    """
+    if not text:
+        return
+
+    # Step 1: split on markdown italic markers *...*
+    # We process each segment for math notation
+    parts = re.split(r'(\*[^*]+\*)', text)
+
+    for part in parts:
+        if not part:
+            continue
+        if part.startswith('*') and part.endswith('*') and len(part) > 2:
+            # Markdown italic span — render entire span in italic, then parse
+            # subscripts/superscripts within
+            inner = part[1:-1]
+            _emit_math_segment(paragraph, inner, size, force_italic=True)
+        else:
+            _emit_math_segment(paragraph, inner=part, size=size,
+                               force_italic=base_italic)
+
+
+def _emit_math_segment(paragraph, inner, size, force_italic=False,
+                       force_bold=False):
+    """Emit a text segment with subscript/superscript/Greek handling."""
+    pos = 0
+    while pos < len(inner):
+        ch = inner[pos]
+
+        # Check for subscript notation
+        if ch == '_' and pos + 1 < len(inner):
+            if inner[pos + 1] == '{':
+                # _{...} subscript
+                end = inner.find('}', pos + 2)
+                if end != -1:
+                    sub_text = inner[pos + 2:end]
+                    _add_run(paragraph, sub_text, size=size,
+                             bold=force_bold, italic=True, subscript=True)
+                    pos = end + 1
+                    continue
+            else:
+                # _x single-char subscript
+                sub_text = inner[pos + 1]
+                _add_run(paragraph, sub_text, size=size,
+                         bold=force_bold, italic=True, subscript=True)
+                pos += 2
+                continue
+
+        # Check for superscript notation
+        if ch == '^' and pos + 1 < len(inner):
+            if inner[pos + 1] == '{':
+                end = inner.find('}', pos + 2)
+                if end != -1:
+                    sup_text = inner[pos + 2:end]
+                    _add_run(paragraph, sup_text, size=size,
+                             bold=force_bold, italic=True, superscript=True)
+                    pos = end + 1
+                    continue
+            else:
+                sup_text = inner[pos + 1]
+                _add_run(paragraph, sup_text, size=size,
+                         bold=force_bold, italic=True, superscript=True)
+                pos += 2
+                continue
+
+        # Greek letter → always italic
+        if _is_greek(ch):
+            _add_run(paragraph, ch, size=size, bold=force_bold, italic=True)
+            pos += 1
+            continue
+
+        # Collect a run of "normal" characters (not _ ^ or Greek)
+        start = pos
+        while pos < len(inner):
+            if inner[pos] in ('_', '^') or _is_greek(inner[pos]):
+                break
+            pos += 1
+        chunk = inner[start:pos]
+        if chunk:
+            _add_run(paragraph, chunk, size=size,
+                     bold=force_bold, italic=force_italic)
+
+
 def add_para(doc, text, lang, italic=False):
     p = doc.add_paragraph()
     p.paragraph_format.space_after = Pt(6)
     p.paragraph_format.line_spacing = 2.0
     p.paragraph_format.first_line_indent = Pt(24)
-    run = p.add_run(text)
-    set_font(run, size=12, italic=italic)
+    add_math_runs(p, text, size=12, base_italic=italic)
     return p
+
+
+def add_rich_para(doc, text, lang, bullet=False):
+    """Add a paragraph with bold **...** spans and math-aware formatting."""
+    p = doc.add_paragraph()
+    p.paragraph_format.space_after = Pt(6)
+    p.paragraph_format.line_spacing = 2.0
+    if bullet:
+        p.paragraph_format.left_indent = Pt(36)
+        p.paragraph_format.first_line_indent = Pt(-18)
+    else:
+        p.paragraph_format.first_line_indent = Pt(24)
+
+    # Unescape markdown backslash-escaped characters (e.g. \* → *)
+    text = re.sub(r'\\([*_\\`])', r'\1', text)
+
+    # Split on **bold** markers first
+    parts = re.split(r'(\*\*[^*]+\*\*)', text)
+    for part in parts:
+        if not part:
+            continue
+        if part.startswith('**') and part.endswith('**') and len(part) > 4:
+            inner = part[2:-2]
+            # Bold span — emit with bold + math formatting
+            _emit_bold_math(p, inner, size=12)
+        else:
+            # Normal text — emit with math formatting (handles *italic*, Greek, sub/sup)
+            add_math_runs(p, part, size=12, base_italic=False)
+    return p
+
+
+def _emit_bold_math(paragraph, text, size=12):
+    """Emit bold text with math-aware formatting (Greek italic, sub/sup)."""
+    parts = re.split(r'(\*[^*]+\*)', text)
+    for part in parts:
+        if not part:
+            continue
+        if part.startswith('*') and part.endswith('*') and len(part) > 2:
+            inner = part[1:-1]
+            _emit_math_segment(paragraph, inner, size, force_italic=True,
+                               force_bold=True)
+        else:
+            _emit_math_segment(paragraph, part, size, force_italic=False,
+                               force_bold=True)
+
+
+def add_equation_block(doc, equation_text, label=None):
+    """Add a displayed equation: centered equation with right-aligned label."""
+    p = doc.add_paragraph()
+    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    p.paragraph_format.space_before = Pt(12)
+    p.paragraph_format.space_after = Pt(12)
+    p.paragraph_format.line_spacing = 2.0
+    p.paragraph_format.first_line_indent = Pt(0)
+
+    # Render equation body with math formatting
+    add_math_runs(p, equation_text.strip(), size=12, base_italic=True)
+
+    # Add equation label right-aligned using a tab stop
+    if label:
+        # Add tab + label in upright (non-italic)
+        tab_run = p.add_run("\t")
+        set_font(tab_run, size=12)
+        label_run = p.add_run(f"({label})")
+        set_font(label_run, size=12, italic=False)
+        # Set a right-aligned tab stop at the right margin
+        pPr = p._element.get_or_add_pPr()
+        tabs = OxmlElement('w:tabs')
+        tab = OxmlElement('w:tab')
+        tab.set(qn('w:val'), 'right')
+        tab.set(qn('w:pos'), '9072')  # ~16cm from left = right margin
+        tab.set(qn('w:leader'), 'none')
+        tabs.append(tab)
+        pPr.append(tabs)
 
 
 def add_figure(doc, png_path, caption_prefix, caption_text):
@@ -188,20 +399,18 @@ def add_dataframe_as_table(doc, df: pd.DataFrame, col_widths=None, font_size=10)
         border_el.set(qn('w:color'), '000000')
         borders.append(border_el)
     tblPr.append(borders)
-    # Header
+    # Header — math-aware formatting for Greek/subscript in column names
     for j, col in enumerate(df.columns):
         c = tbl.rows[0].cells[j]
         c.text = ""
         p = c.paragraphs[0]
-        r = p.add_run(str(col))
-        set_font(r, size=font_size, bold=True)
+        _emit_math_segment(p, str(col), size=font_size, force_bold=True)
     for i, row in enumerate(df.itertuples(index=False), start=1):
         for j, v in enumerate(row):
             c = tbl.rows[i].cells[j]
             c.text = ""
             p = c.paragraphs[0]
-            r = p.add_run(str(v))
-            set_font(r, size=font_size)
+            _emit_math_segment(p, str(v), size=font_size)
     if col_widths:
         for row in tbl.rows:
             for idx, w in enumerate(col_widths):
@@ -344,16 +553,22 @@ def build_manuscript(lang: str):
                         t5_cap_en if lang == "en" else t5_cap_ja,
                     )
             else:
-                # Drop markdown emphasis markers for clean rendering
+                # Displayed equation: 4-space indent with label (M0), (1), etc.
+                m_eq = EQUATION_RE.match(line)
+                if m_eq:
+                    add_equation_block(doc, m_eq.group(1), m_eq.group(2))
+                    i += 1
+                    continue
+
                 text = stripped
-                # preserve bold sentence like "**Abstract** (146 words)."
-                text = re.sub(r"\*\*(.+?)\*\*", r"\1", text)
-                text = re.sub(r"\*(.+?)\*", r"\1", text)
                 # section separator
                 if text in ("Tables", "表", "References", "参考文献"):
                     add_heading(doc, text, 2, lang)
+                # Bullet list items: * text...
+                elif text.startswith("* "):
+                    add_rich_para(doc, "•  " + text[2:], lang, bullet=True)
                 else:
-                    add_para(doc, text, lang)
+                    add_rich_para(doc, text, lang)
         i += 1
 
     out = os.path.join(MS, f"manuscript_{lang}.docx")
