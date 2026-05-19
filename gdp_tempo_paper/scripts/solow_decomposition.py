@@ -336,7 +336,7 @@ def make_fig11(cf_df: pd.DataFrame, lang: str = "en"):
            label=labels["adjusted"])
     # Add percentage labels
     for i, (_, row) in enumerate(top12.iterrows()):
-        ax.annotate(f"+{row['pca_gap_pct']:.0f}%",
+        ax.annotate(f"+{row['pca_gap_pct']:.1f}%",
                     xy=(i + w / 2, row["cwon_pca_adjusted"]),
                     ha="center", va="bottom", fontsize=8, color="#c44e52")
     ax.set_xticks(x)
