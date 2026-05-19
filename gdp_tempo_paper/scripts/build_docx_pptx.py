@@ -10,8 +10,8 @@ Formatted for Economica (Wiley / LSE):
 
 Usage:  python build_docx_pptx.py
 Outputs into ../manuscript/ :
-  - manuscript_en.docx
-  - manuscript_ja.docx
+  - manuscript_en.docx / .pdf  (PDF for Editorial Express submission)
+  - manuscript_ja.docx / .pdf
   - figures_en.pptx
   - table1_model_metrics.docx
   - table2_correspondence.docx
@@ -115,11 +115,23 @@ def set_font(run, name="Times New Roman", size=11, bold=False, italic=False):
 
 
 def add_heading(doc, text, level, lang):
+    """Add heading with Economica formatting.
+
+    Level 1 (## in md): section heading — ALL CAPS (EN), centred, 14pt bold.
+    Level 2 (## special): same as level 1 but 14pt.
+    Level 3 (### in md): subsection — flush left, 12pt bold.
+    """
     h = doc.add_paragraph()
     h.paragraph_format.space_before = Pt(18)
     h.paragraph_format.space_after = Pt(6)
     h.paragraph_format.line_spacing = 2.0
-    run = h.add_run(text)
+    # Economica: section headings centred and ALL CAPS
+    if level in (1, 2):
+        h.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        display_text = text.upper() if lang == "en" else text
+    else:
+        display_text = text
+    run = h.add_run(display_text)
     set_font(run, size={1: 16, 2: 14, 3: 12}[level], bold=True)
     return h
 
@@ -153,6 +165,29 @@ def add_figure(doc, png_path, caption_prefix, caption_text):
 def add_dataframe_as_table(doc, df: pd.DataFrame, col_widths=None, font_size=10):
     tbl = doc.add_table(rows=1 + len(df), cols=len(df.columns))
     tbl.style = "Table Grid"
+    # Economica: no vertical rules in tables
+    tbl_element = tbl._tbl
+    tblPr = tbl_element.tblPr
+    if tblPr is None:
+        tblPr = OxmlElement('w:tblPr')
+        tbl_element.insert(0, tblPr)
+    borders = OxmlElement('w:tblBorders')
+    for border_name in ('left', 'right', 'insideV'):
+        border_el = OxmlElement(f'w:{border_name}')
+        border_el.set(qn('w:val'), 'none')
+        border_el.set(qn('w:sz'), '0')
+        border_el.set(qn('w:space'), '0')
+        border_el.set(qn('w:color'), 'auto')
+        borders.append(border_el)
+    # Keep horizontal rules
+    for border_name in ('top', 'bottom', 'insideH'):
+        border_el = OxmlElement(f'w:{border_name}')
+        border_el.set(qn('w:val'), 'single')
+        border_el.set(qn('w:sz'), '4')
+        border_el.set(qn('w:space'), '0')
+        border_el.set(qn('w:color'), '000000')
+        borders.append(border_el)
+    tblPr.append(borders)
     # Header
     for j, col in enumerate(df.columns):
         c = tbl.rows[0].cells[j]
@@ -418,11 +453,40 @@ def build_pptx():
     print("wrote", out)
 
 
+# ---------------------------------------------------------------------------
+# PDF conversion via LibreOffice (fonts embedded by default)
+
+def convert_docx_to_pdf(docx_path: str):
+    """Convert a .docx file to PDF using LibreOffice.
+
+    LibreOffice embeds fonts by default, satisfying the Editorial Express
+    requirement that all fonts be embedded in the PDF.
+    """
+    import subprocess
+    out_dir = os.path.dirname(docx_path)
+    cmd = [
+        "libreoffice", "--headless", "--convert-to", "pdf",
+        "--outdir", out_dir, docx_path,
+    ]
+    result = subprocess.run(cmd, capture_output=True, text=True, timeout=120)
+    if result.returncode != 0:
+        print(f"WARNING: PDF conversion failed for {docx_path}")
+        print(result.stderr)
+    else:
+        pdf_path = docx_path.replace(".docx", ".pdf")
+        print(f"wrote {pdf_path}")
+
+
 def main():
     build_manuscript("en")
     build_manuscript("ja")
     build_standalone_tables()
     build_pptx()
+    # Convert manuscripts to PDF for Economica submission (PDF-only)
+    for lang in ("en", "ja"):
+        docx = os.path.join(MS, f"manuscript_{lang}.docx")
+        if os.path.exists(docx):
+            convert_docx_to_pdf(docx)
 
 
 if __name__ == "__main__":
