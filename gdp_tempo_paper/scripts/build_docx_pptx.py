@@ -1,11 +1,12 @@
 """Build final manuscript .docx (JA + EN) with inline figures/tables
 and a single editable .pptx (EN figures) for per-slide editing.
 
-Formatted for Empirical Economics (Springer):
+Formatted for Economica (Wiley / LSE):
   - Double-spaced (2.0 line spacing)
   - Times New Roman 12pt body text
   - Author-date references (alphabetical reference list)
-  - Figures supplied as separate files + inline in manuscript
+  - Figures inline in manuscript + separate files for submission
+  - PDF submission via editorialexpress.com
 
 Usage:  python build_docx_pptx.py
 Outputs into ../manuscript/ :
@@ -16,6 +17,7 @@ Outputs into ../manuscript/ :
   - table2_correspondence.docx
   - table3_rpim.docx
   - table4_extended_oos.docx
+  - table5_tempo_artifact.docx
 """
 from __future__ import annotations
 
@@ -82,6 +84,14 @@ FIG_LIST = [
      "Cross-sectional regression of rho_2 on R&D intensity.",
      "ρ̂₂のR&D強度に対するクロスセクション回帰。",
      "fig9_rho2_regression_{lang}.png"),
+    ("fig10", "Fig. 10", "図10",
+     "Solow-residual decomposition: M0 vs tempo-adjusted (M2) vs joint (M4) for six representative countries.",
+     "ソロー残差の分解: M0 vs テンポ調整(M2) vs 統合(M4)、代表6カ国。",
+     "fig10_solow_decomp_{lang}.png"),
+    ("fig11", "Fig. 11", "図11",
+     "National wealth: CWON official vs intangible-adjusted produced capital (2019).",
+     "国富: CWON公式値 vs 無形資本調整後の生産資本（2019年）。",
+     "fig11_counterfactual_wealth_{lang}.png"),
 ]
 
 
@@ -195,6 +205,8 @@ def build_manuscript(lang: str):
     t3 = pd.read_csv(t3_path) if os.path.exists(t3_path) else None
     t4_path = os.path.join(TAB, "table4_extended_oos.csv")
     t4 = pd.read_csv(t4_path) if os.path.exists(t4_path) else None
+    t5_path = os.path.join(TAB, "table5_tempo_artifact.csv")
+    t5 = pd.read_csv(t5_path) if os.path.exists(t5_path) else None
 
     # Figure caption lookup by index
     fig_cap = {}
@@ -214,6 +226,8 @@ def build_manuscript(lang: str):
     t3_cap_ja = "関係型PIM診断: M0, M1, M2, M4におけるρ̂₂の要約。"
     t4_cap_en = "Extended OOS metrics: direction accuracy and CWON trajectory RMSE."
     t4_cap_ja = "拡張標本外指標: 方向精度およびCWON軌跡RMSE。"
+    t5_cap_en = "Tempo-artifact share of TFP-growth variance: percentage reduction in Var(d log TFP) from M0 to M2 (tempo) and M0 to M4 (joint)."
+    t5_cap_ja = "テンポ・アーティファクトのTFP成長率分散シェア: M0→M2（テンポ）およびM0→M4（統合）。"
 
     doc = Document()
     # Use sensible page margins
@@ -287,6 +301,13 @@ def build_manuscript(lang: str):
                         t4,
                         t4_cap_en if lang == "en" else t4_cap_ja,
                     )
+                elif idx == 5 and t5 is not None:
+                    add_table_block(
+                        doc,
+                        "Table 5." if lang == "en" else "表5.",
+                        t5,
+                        t5_cap_en if lang == "en" else t5_cap_ja,
+                    )
             else:
                 # Drop markdown emphasis markers for clean rendering
                 text = stripped
@@ -332,6 +353,13 @@ def build_standalone_tables():
         table_list.append(
             ("table4_extended_oos.docx", t4,
              "Table 4. Extended OOS metrics: direction accuracy and CWON trajectory RMSE.",
+             None))
+    t5_path = os.path.join(TAB, "table5_tempo_artifact.csv")
+    t5 = pd.read_csv(t5_path) if os.path.exists(t5_path) else None
+    if t5 is not None:
+        table_list.append(
+            ("table5_tempo_artifact.docx", t5,
+             "Table 5. Tempo-artifact share of TFP-growth variance.",
              None))
     for name, df, cap, widths in table_list:
         d = Document()

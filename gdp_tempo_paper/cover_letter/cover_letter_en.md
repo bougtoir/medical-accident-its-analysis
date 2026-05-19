@@ -8,20 +8,18 @@ ORCID: 0000-0001-7261-9062
 
 19 May 2026
 
-The Coordinating Editor
-*Empirical Economics*
+The Editors
+*Economica*
 
-Dear Editor,
+Dear Professors Besley, den Haan, Ghatak, Ngai, Overman, and Thomas,
 
-I am pleased to submit for your consideration the enclosed manuscript, **"Drifting Time-to-Build and the Forgotten Intangible Share: A Joint Identification of Flow and Stock National Accounts"**, as an Article for *Empirical Economics*.
+I am pleased to submit for your consideration the enclosed manuscript, **"What the Solow Residual Has Been Hiding: Tempo Drift and the Missing Intangible Share in National Capital Stocks"**, as an Article for *Economica*.
 
-The paper applies a joint identification framework to estimate two latent parameters — a time-varying investment-to-output lag μ(t) and an intangible-capital share β — using both national-income flow data (Penn World Table 10.01) and national-wealth stock data (World Bank Changing Wealth of Nations) across 39 OECD and middle-income economies. The identification strategy, based on grid search over non-convex objective surfaces with residual bootstrap inference, exploits the information content of both the production side and the wealth side to pin down structural parameters that neither data source alone can identify.
+The paper addresses a fundamental question in growth accounting: how much of what we call TFP is a genuine productivity residual, and how much is a book-keeping artefact of mis-timed capital stocks and omitted intangibles? I show that two parameters — a time-varying investment-to-output lag μ(t) and an intangible-capital share β — jointly account for a measurable share of measured TFP variation across 39 OECD and middle-income economies (Penn World Table 10.01, World Bank CWON, 1995–2019). Letting μ drift reduces out-of-sample GDP forecast error by 13 %, and a Solow-residual decomposition reveals that up to 30 % of TFP-growth variance can be re-attributed to tempo drift and missing intangibles rather than genuine innovation. When both corrections are applied, production-side (flow) and wealth-side (stock) national accounts agree to within 1–2 % for most countries — the first empirical success, to my knowledge, of the "unified national-wealth accounting" programme that Stiglitz, Sen, and Fitoussi (2009) called for.
 
-The empirical results include: (i) a time-varying μ(t) reduces the median out-of-sample MAPE of GDP levels on a 2015–2019 holdout from 4.60% to 3.99% — a 13% relative improvement; (ii) joint identification rejects μ = 0 for 35/39 countries and β = 0 for 28/39, with bootstrap 95% intervals whose shape varies systematically with R&D intensity; (iii) a novel Relational PIM diagnostic — transplanting the Brass relational model from demography — shows that the corrections move the PIM–CWON consistency parameter ρ̂₂ toward unity (median 0.801 → 0.833); (iv) a CWON trajectory RMSE metric on the holdout reveals a 15% improvement under tempo drift (M2) relative to the Solow baseline, capturing model performance along a dimension that GDP-level MAPE misses.
+I believe this work is well suited to *Economica* for three reasons. First, it speaks directly to the economic substance of the Solow residual — a topic of central interest in macroeconomics and growth theory since Griliches (1996). The paper is framed not as a measurement exercise but as a discovery about what TFP has been measuring. Second, the identification exploits a structural analogy with the demographic tempo literature (Bongaarts and Feeney, 1998; Goldstein, Lutz, and Scherbov, 2003) that is novel in economics and generates falsifiable predictions. Third, the counterfactual wealth calculations have concrete policy implications for the Beyond-GDP debate, showing that official statistics systematically understate the productive capital base of innovation-intensive economies.
 
-I believe this work is well suited to *Empirical Economics* for three reasons. First, it applies advanced econometric and statistical methods (grid search on non-convex surfaces, residual bootstrap, joint loss minimisation) to confront economic theory with observed data across a large cross-country panel — directly matching the journal's stated scope. Second, the identification strategy does not require structural assumptions beyond the standard production function and perpetual inventory method, making it replicable across different data vintages and country samples. Third, the Relational PIM diagnostic is a general-purpose empirical tool for assessing flow–stock consistency in any national-accounting context, with potential applications beyond the capital-accounting setting studied here.
-
-The manuscript is approximately 8,500 words of body text, with nine figures and four tables.
+The manuscript is approximately 10,000 words of body text, with eleven figures and five tables.
 
 I confirm the following:
 
