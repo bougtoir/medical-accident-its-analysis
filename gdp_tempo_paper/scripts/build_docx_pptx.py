@@ -221,7 +221,13 @@ def _emit_math_segment(paragraph, inner, size, force_italic=False,
         ch = inner[pos]
 
         # Check for subscript notation
-        if ch == '_' and pos + 1 < len(inner):
+        if ch == '_':
+            if pos + 1 >= len(inner):
+                # Trailing _ — emit as literal
+                _add_run(paragraph, ch, size=size,
+                         bold=force_bold, italic=force_italic)
+                pos += 1
+                continue
             if inner[pos + 1] == '{':
                 # _{...} subscript
                 end = inner.find('}', pos + 2)
@@ -230,6 +236,12 @@ def _emit_math_segment(paragraph, inner, size, force_italic=False,
                     _add_run(paragraph, sub_text, size=size,
                              bold=force_bold, italic=True, subscript=True)
                     pos = end + 1
+                    continue
+                else:
+                    # Unclosed brace — emit _{ as literal
+                    _add_run(paragraph, '_{', size=size,
+                             bold=force_bold, italic=force_italic)
+                    pos += 2
                     continue
             else:
                 # _x single-char subscript
@@ -240,7 +252,13 @@ def _emit_math_segment(paragraph, inner, size, force_italic=False,
                 continue
 
         # Check for superscript notation
-        if ch == '^' and pos + 1 < len(inner):
+        if ch == '^':
+            if pos + 1 >= len(inner):
+                # Trailing ^ — emit as literal
+                _add_run(paragraph, ch, size=size,
+                         bold=force_bold, italic=force_italic)
+                pos += 1
+                continue
             if inner[pos + 1] == '{':
                 end = inner.find('}', pos + 2)
                 if end != -1:
@@ -248,6 +266,12 @@ def _emit_math_segment(paragraph, inner, size, force_italic=False,
                     _add_run(paragraph, sup_text, size=size,
                              bold=force_bold, italic=True, superscript=True)
                     pos = end + 1
+                    continue
+                else:
+                    # Unclosed brace — emit ^{ as literal
+                    _add_run(paragraph, '^{', size=size,
+                             bold=force_bold, italic=force_italic)
+                    pos += 2
                     continue
             else:
                 sup_text = inner[pos + 1]
