@@ -221,7 +221,13 @@ def _emit_math_segment(paragraph, inner, size, force_italic=False,
         ch = inner[pos]
 
         # Check for subscript notation
-        if ch == '_' and pos + 1 < len(inner):
+        if ch == '_':
+            if pos + 1 >= len(inner):
+                # Trailing _ — emit as literal
+                _add_run(paragraph, ch, size=size,
+                         bold=force_bold, italic=force_italic)
+                pos += 1
+                continue
             if inner[pos + 1] == '{':
                 # _{...} subscript
                 end = inner.find('}', pos + 2)
@@ -230,6 +236,12 @@ def _emit_math_segment(paragraph, inner, size, force_italic=False,
                     _add_run(paragraph, sub_text, size=size,
                              bold=force_bold, italic=True, subscript=True)
                     pos = end + 1
+                    continue
+                else:
+                    # Unclosed brace — emit _{ as literal
+                    _add_run(paragraph, '_{', size=size,
+                             bold=force_bold, italic=force_italic)
+                    pos += 2
                     continue
             else:
                 # _x single-char subscript
@@ -240,7 +252,13 @@ def _emit_math_segment(paragraph, inner, size, force_italic=False,
                 continue
 
         # Check for superscript notation
-        if ch == '^' and pos + 1 < len(inner):
+        if ch == '^':
+            if pos + 1 >= len(inner):
+                # Trailing ^ — emit as literal
+                _add_run(paragraph, ch, size=size,
+                         bold=force_bold, italic=force_italic)
+                pos += 1
+                continue
             if inner[pos + 1] == '{':
                 end = inner.find('}', pos + 2)
                 if end != -1:
@@ -248,6 +266,12 @@ def _emit_math_segment(paragraph, inner, size, force_italic=False,
                     _add_run(paragraph, sup_text, size=size,
                              bold=force_bold, italic=True, superscript=True)
                     pos = end + 1
+                    continue
+                else:
+                    # Unclosed brace — emit ^{ as literal
+                    _add_run(paragraph, '^{', size=size,
+                             bold=force_bold, italic=force_italic)
+                    pos += 2
                     continue
             else:
                 sup_text = inner[pos + 1]
@@ -692,11 +716,89 @@ def convert_docx_to_pdf(docx_path: str):
         print(f"wrote {pdf_path}")
 
 
+def build_cover_letter():
+    """Build cover letter docx from markdown source."""
+    CL = os.path.join(ROOT, "cover_letter")
+    md_path = os.path.join(CL, "cover_letter_en.md")
+    if not os.path.exists(md_path):
+        print(f"cover letter not found: {md_path}")
+        return
+    with open(md_path, encoding="utf-8") as fh:
+        lines = fh.readlines()
+
+    doc = Document()
+    for section in doc.sections:
+        section.top_margin = Cm(2.5)
+        section.bottom_margin = Cm(2.5)
+        section.left_margin = Cm(2.5)
+        section.right_margin = Cm(2.5)
+
+    for raw_line in lines:
+        line = raw_line.rstrip("\n")
+        stripped = line.strip()
+
+        if not stripped:
+            # Blank line → small spacer paragraph
+            spacer = doc.add_paragraph()
+            spacer.paragraph_format.space_after = Pt(0)
+            spacer.paragraph_format.space_before = Pt(0)
+            spacer.paragraph_format.line_spacing = 1.5
+            continue
+
+        # Bullet list items
+        if stripped.startswith("- "):
+            p = doc.add_paragraph()
+            p.paragraph_format.space_after = Pt(2)
+            p.paragraph_format.line_spacing = 1.5
+            p.paragraph_format.left_indent = Pt(36)
+            p.paragraph_format.first_line_indent = Pt(-18)
+            text = "•  " + stripped[2:]
+            text = re.sub(r'\\([*_\\`])', r'\1', text)
+            add_math_runs(p, text, size=12, base_italic=False)
+            continue
+
+        p = doc.add_paragraph()
+        p.paragraph_format.space_after = Pt(2)
+        p.paragraph_format.line_spacing = 1.5
+
+        # Handle bold + italic markdown
+        text = stripped
+        text = re.sub(r'\\([*_\\`])', r'\1', text)
+
+        # Split on **bold** markers
+        parts = re.split(r'(\*\*[^*]+\*\*)', text)
+        for part in parts:
+            if not part:
+                continue
+            if part.startswith('**') and part.endswith('**') and len(part) > 4:
+                inner = part[2:-2]
+                # Bold — further split on *italic*
+                sub_parts = re.split(r'(\*[^*]+\*)', inner)
+                for sp in sub_parts:
+                    if not sp:
+                        continue
+                    if sp.startswith('*') and sp.endswith('*') and len(sp) > 2:
+                        _emit_math_segment(p, sp[1:-1], size=12,
+                                           force_italic=True, force_bold=True)
+                    else:
+                        _emit_math_segment(p, sp, size=12,
+                                           force_italic=False, force_bold=True)
+            else:
+                # Normal text — handle *italic* within
+                add_math_runs(p, part, size=12, base_italic=False)
+
+    out = os.path.join(CL, "cover_letter_en.docx")
+    doc.save(out)
+    print(f"wrote {out}")
+    convert_docx_to_pdf(out)
+
+
 def main():
     build_manuscript("en")
     build_manuscript("ja")
     build_standalone_tables()
     build_pptx()
+    build_cover_letter()
     # Convert manuscripts to PDF for Economica submission (PDF-only)
     for lang in ("en", "ja"):
         docx = os.path.join(MS, f"manuscript_{lang}.docx")
