@@ -1,6 +1,6 @@
 # What the Solow Residual Has Been Hiding: Tempo Drift and the Missing Intangible Share in National Capital Stocks
 
-**Tatsuki Onishi**
+**Onishi Tatsuki**
 
 Data Science AI Innovation Research Promotion Center, Shiga University
 
