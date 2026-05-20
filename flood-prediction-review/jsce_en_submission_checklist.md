@@ -28,7 +28,7 @@
 | Item | Status | Notes |
 |------|--------|-------|
 | Article Type | OK | Academic paper |
-| Title (English + Japanese) | OK | Both provided |
+| Title (English only) | OK | English only (per reviewer request) |
 | Authors (full names) | PLACEHOLDER | **Author to complete** |
 | JSCE membership | PLACEHOLDER | **Author to complete** |
 | Institutional affiliations | PLACEHOLDER | **Author to complete** |
@@ -50,7 +50,7 @@
 | Word limit | 14,000 words (excl. Abstract, Fig. legends, Refs) | OK (each fig/table = 250 words equivalent) |
 | Font | Times New Roman | OK |
 | Spacing | Double-spaced | OK |
-| Line numbers | Required | **Add in Word before submission** |
+| Line numbers | Required | OK (continuous, added programmatically) |
 | Page numbers | Required | **Add in Word before submission** |
 | Paper size | A4 | OK |
 
@@ -70,7 +70,7 @@
 | 8. Policy Implications | OK |
 | 9. Conclusions | OK |
 | Acknowledgements | OK |
-| References | OK (27 entries, Vancouver style) |
+| References | OK (27 entries, Vancouver style, DOIs added where available) |
 | Figure Legends | OK (at end of manuscript) |
 
 ### 3.3 Section Numbering
@@ -125,7 +125,7 @@
 ## 5. Pre-submission Final Checklist
 
 - [ ] **Complete author information in Title Page and Cover Letter** (red placeholders)
-- [ ] **Add line numbers in Word** (Insert > Line Numbers > Continuous)
+- [x] **Line numbers** — added programmatically (continuous numbering)
 - [ ] **Add page numbers in Word** (Insert > Page Number > Bottom of Page)
 - [ ] **Verify word count** (Select main text only, excl. Abstract/Legends/Refs; check Word count)
 - [ ] **Register on Editorial Manager** (first-time users)

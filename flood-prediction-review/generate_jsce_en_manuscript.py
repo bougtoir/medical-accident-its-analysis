@@ -24,7 +24,7 @@ from docx.shared import Pt, Mm, Inches, RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml.ns import qn
 
-OUTDIR = "/home/ubuntu/repos/wip/flood-prediction-review"
+OUTDIR = os.path.dirname(os.path.abspath(__file__))
 
 doc = Document()
 
@@ -38,6 +38,14 @@ section.top_margin = Mm(25)
 section.bottom_margin = Mm(25)
 section.left_margin = Mm(25)
 section.right_margin = Mm(25)
+
+# Line numbering (continuous)
+sectPr = section._sectPr
+ln_num = sectPr.makeelement(qn('w:lnNumType'), {
+    qn('w:countBy'): '1',
+    qn('w:restart'): 'continuous',
+})
+sectPr.append(ln_num)
 
 # ============================================================
 # Styles: Times New Roman, 12pt, double-spaced
@@ -664,18 +672,18 @@ refs = [
     '3) MLIT: River improvement initiatives, https://www.mlit.go.jp/river/basic_info/',
     '4) KSB News: Oda River flood control project reported to have "reduced water levels" during the 2024 heavy rainfall, 7 February 2025.',
     '5) California Department of Water Resources: Flood-Managed Aquifer Recharge (Flood-MAR), https://water.ca.gov/Programs/All-Programs/Flood-MAR',
-    '6) Chang, Y.-L., Huang, W.-C. and Lee, Y.-H.: Flood hazard mitigation in land subsidence prone coastal areas by optimal groundwater pumping, Water Resour. Manag., 2019.',
+    '6) Chang, Y.-L., Tsai, T.-L. and Yang, J.-C.: Flood hazard mitigation in land subsidence prone coastal areas by optimal groundwater pumping, J. Flood Risk Manag., Vol. 12, e12517, 2019. doi: 10.1111/jfr3.12517',
     '7) MLIT Kanto Regional Development Bureau: Metropolitan Area Outer Underground Discharge Channel, https://www.ktr.mlit.go.jp/edogawa/gaikaku/',
-    '8) Maeno, S.: Effect of relocating the confluence of the Takahashi and Oda Rivers, J. Hydraul. Eng., JSCE, Vol. 51, pp. 613-618, 2007.',
+    '8) Maeno, S.: Effect of relocating the confluence of the Takahashi and Oda Rivers, J. Hydraul. Eng., JSCE, Vol. 51, pp. 613-618, 2007. doi: 10.2208/prohe.51.613',
     '9) Mississippi Levee Board: Yazoo Backwater Project, https://msleveeboard.com/',
     '10) Mississippi State University Extension: Final Report: Survey of Overlooked Costs of the 2019 Backwater Flood in the Yazoo Mississippi Delta.',
-    '11) Berkowitz, J. F., Page, L. A. and Noble, C. V.: Forested wetland hydrology in a large Mississippi River tributary system, Wetlands, 2019.',
-    '12) Li, A. and Tsai, F. T.-C.: Understanding dynamics of groundwater flows in the Mississippi River Delta, J. Hydrol., Vol. 583, 124616, 2020.',
-    '13) Dillon, P., Stuyfzand, P., Grischek, T., Lluria, M., Pyne, R. D. G., Jain, R. C., Bear, J., Schwarz, J., Wang, W., Fernandez, E., Stefan, C., Pettenati, M., van der Gun, J., Sprenger, C., Massmann, G., Scanlon, B. R., Xanke, J., Jokela, P., Zheng, Y., Rossetto, R., Shamrukh, M., Pavelic, P., Murray, E., Ross, A., Bonilla Valverde, J. P., Palma Nava, A., Ansems, N., Posavec, K., Ha, K., Martin, R. and Sapiano, M.: Managed aquifer recharge: rediscovering nature as a leading edge technology, Water Sci. Technol., Vol. 62, No. 10, pp. 2338-2345, 2010.',
-    '14) Nishizawa Katazakai, S. and Zhang, J.: Long-term flood control in central Japan: A half-century groundwater monitoring and evaluating adaptation measures, Groundwater Sustain. Dev., Vol. 33, 101585, 2026.',
+    '11) Berkowitz, J. F., Johnson, D. R. and Price, J. J.: Forested wetland hydrology in a large Mississippi River tributary system, Wetlands, Vol. 40, pp. 1133-1148, 2020. doi: 10.1007/s13157-019-01249-5',
+    '12) Li, A. and Tsai, F. T.-C.: Understanding dynamics of groundwater flows in the Mississippi River Delta, J. Hydrol., Vol. 583, 124616, 2020. doi: 10.1016/j.jhydrol.2020.124616',
+    '13) Dillon, P., Stuyfzand, P., Grischek, T., Lluria, M., Pyne, R. D. G., Jain, R. C., Bear, J., Schwarz, J., Wang, W., Fernandez, E., Stefan, C., Pettenati, M., van der Gun, J., Sprenger, C., Massmann, G., Scanlon, B. R., Xanke, J., Jokela, P., Zheng, Y., Rossetto, R., Shamrukh, M., Pavelic, P., Murray, E., Ross, A., Bonilla Valverde, J. P., Palma Nava, A., Ansems, N., Posavec, K., Ha, K., Martin, R. and Sapiano, M.: Managed aquifer recharge: rediscovering nature as a leading edge technology, Water Sci. Technol., Vol. 62, No. 10, pp. 2338-2345, 2010. doi: 10.2166/wst.2010.444',
+    '14) Nishizawa Katazakai, S. and Zhang, J.: Long-term flood control in central Japan: A half-century groundwater monitoring and evaluating adaptation measures for sustainable use, Groundwater Sustain. Dev., Vol. 33, 101585, 2026. doi: 10.1016/j.gsd.2026.101585',
     '15) IEA Hydropower Implementing Agreement: Case Study 11-02: Large Scale Pumped Storage Power Plants, Japan, 2006.',
     '16) EU CORDIS: Recovery of Energy from Released Water and Reserve Flow from a Flood Protection Reservoir, Project ID: HY.-00410-87.',
-    '17) Chang, J., Guo, A., Wang, Y. and Ha, Y.: The flood resource utilization of cascade hydropower stations based on the multi-scenario water level drawdown method, EGU General Assembly 2025, EGU25-14374.',
+    '17) Chang, J., Jing, Z., Wang, X. and Meng, X.: The flood resource utilization of cascade hydropower stations based on the multi-scenario water level drawdown method, EGU General Assembly 2025, EGU25-14374. doi: 10.5194/egusphere-egu25-14374',
     '18) Kinoshita, S. and Tokunaga, Y.: Water resources management in Japan, IWRA Proceedings, 2003.',
     '19) USGS: GSFLOW: Coupled Groundwater and Surface-Water Flow Model, https://water.usgs.gov/ogw/gsflow/',
     '20) Cabinet Council on Land Subsidence Countermeasures: Basic Policy on Land Subsidence Countermeasures, 1991.',
