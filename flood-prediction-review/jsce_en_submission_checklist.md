@@ -51,7 +51,7 @@
 | Font | Times New Roman | OK |
 | Spacing | Double-spaced | OK |
 | Line numbers | Required | OK (continuous, added programmatically) |
-| Page numbers | Required | **Add in Word before submission** |
+| Page numbers | Required | OK (bottom centre, added programmatically) |
 | Paper size | A4 | OK |
 
 ### 3.2 Content Structure
@@ -126,7 +126,7 @@
 
 - [ ] **Complete author information in Title Page and Cover Letter** (red placeholders)
 - [x] **Line numbers** — added programmatically (continuous numbering)
-- [ ] **Add page numbers in Word** (Insert > Page Number > Bottom of Page)
+- [x] **Page numbers** — added programmatically (bottom centre)
 - [ ] **Verify word count** (Select main text only, excl. Abstract/Legends/Refs; check Word count)
 - [ ] **Register on Editorial Manager** (first-time users)
 - [ ] **Upload to Editorial Manager**:

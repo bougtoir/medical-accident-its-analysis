@@ -36,6 +36,22 @@ ln_num = sectPr.makeelement(qn('w:lnNumType'), {
 })
 sectPr.append(ln_num)
 
+# ── Page numbers (bottom centre) ──
+footer = section.footer
+footer.is_linked_to_previous = False
+fp = footer.paragraphs[0]
+fp.alignment = WD_ALIGN_PARAGRAPH.CENTER
+run_pg = fp.add_run()
+fldChar1 = run_pg._r.makeelement(qn('w:fldChar'), {qn('w:fldCharType'): 'begin'})
+run_pg._r.append(fldChar1)
+run_pg2 = fp.add_run()
+instrText = run_pg2._r.makeelement(qn('w:instrText'), {})
+instrText.text = ' PAGE '
+run_pg2._r.append(instrText)
+run_pg3 = fp.add_run()
+fldChar2 = run_pg3._r.makeelement(qn('w:fldChar'), {qn('w:fldCharType'): 'end'})
+run_pg3._r.append(fldChar2)
+
 # ── Styles ──
 style = doc.styles["Normal"]
 style.font.name = "Times New Roman"

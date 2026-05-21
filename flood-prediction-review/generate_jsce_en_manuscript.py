@@ -47,6 +47,22 @@ ln_num = sectPr.makeelement(qn('w:lnNumType'), {
 })
 sectPr.append(ln_num)
 
+# Page numbers (bottom centre)
+footer = section.footer
+footer.is_linked_to_previous = False
+fp = footer.paragraphs[0]
+fp.alignment = WD_ALIGN_PARAGRAPH.CENTER
+run_pg = fp.add_run()
+fldChar1 = run_pg._r.makeelement(qn('w:fldChar'), {qn('w:fldCharType'): 'begin'})
+run_pg._r.append(fldChar1)
+run_pg2 = fp.add_run()
+instrText = run_pg2._r.makeelement(qn('w:instrText'), {})
+instrText.text = ' PAGE '
+run_pg2._r.append(instrText)
+run_pg3 = fp.add_run()
+fldChar2 = run_pg3._r.makeelement(qn('w:fldChar'), {qn('w:fldCharType'): 'end'})
+run_pg3._r.append(fldChar2)
+
 # ============================================================
 # Styles: Times New Roman, 12pt, double-spaced
 # ============================================================
@@ -659,6 +675,17 @@ add_body_no_indent(
     "Science and Disaster Resilience (NIED), the MLIT Chugoku Regional Development Bureau, "
     "the MLIT Kanto Regional Development Bureau, the Geological Survey of Japan (GSJ/AIST), "
     "and Okayama Prefecture. The authors gratefully acknowledge these organisations."
+)
+
+# ============================================================
+# DATA AND CODE AVAILABILITY
+# ============================================================
+add_heading_bold("DATA AND CODE AVAILABILITY")
+add_body_no_indent(
+    "All simulation code, data processing scripts, and figure generation code used in this "
+    "study are publicly available at https://github.com/bougtoir/flood-prediction-review. "
+    "The hydrological and geological data used are from publicly accessible sources cited "
+    "in the text."
 )
 
 # ============================================================
