@@ -678,6 +678,17 @@ add_body_no_indent(
 )
 
 # ============================================================
+# DATA AND CODE AVAILABILITY
+# ============================================================
+add_heading_bold("DATA AND CODE AVAILABILITY")
+add_body_no_indent(
+    "All simulation code, data processing scripts, and figure generation code used in this "
+    "study are publicly available at https://github.com/bougtoir/flood-prediction-review. "
+    "The hydrological and geological data used are from publicly accessible sources cited "
+    "in the text."
+)
+
+# ============================================================
 # REFERENCES
 # ============================================================
 add_heading_bold("REFERENCES")
