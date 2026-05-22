@@ -32,23 +32,25 @@ def write_keypoints():
 
     key_points = [
         'The EU desflurane ban was associated with a progressive, agent-specific decline in '
-        'secondary market vaporiser prices, while sevoflurane and isoflurane prices remained stable.',
+        'secondary market vaporiser prices, while sevoflurane and isoflurane prices remained '
+        'stable throughout the study period.',
 
-        'The desflurane price decline began during the legislative process, well before the formal '
-        'prohibition date, demonstrating that the regulation was well signalled and its economic '
-        'consequences were predictable.',
+        'Sevoflurane and isoflurane vaporiser prices were unaffected by the desflurane '
+        'regulation, indicating that the ban produced no collateral damage to the broader '
+        'anaesthetic equipment market.',
 
         'Between-agent comparison confirmed that the desflurane effect size was significantly '
-        'larger than that of sevoflurane (P=0.043), providing quantitative evidence of '
-        'agent-specificity.',
+        'larger than that of sevoflurane (P=0.043), while the two non-regulated agents were '
+        'indistinguishable from each other (P=0.17).',
 
-        'Early compliance with the regulation during the legislative phase was associated with '
-        'better cost recovery on the secondary market, potentially freeing capital for '
-        'reinvestment in alternative equipment.',
+        'The desflurane price decline began during the legislative process, well before the '
+        'formal prohibition date, demonstrating that the regulation was well signalled and '
+        'its economic consequences were predictable.',
 
-        'These findings suggest that well-designed environmental regulation of anaesthetic agents '
-        'can produce measurable, predictable economic outcomes, and that early adoption may '
-        'support broader anaesthetic choice and patient care.',
+        'These findings provide the first empirical evidence that targeted environmental '
+        'regulation of a single anaesthetic agent can achieve its objectives without '
+        'destabilising the wider equipment market\u2014a reassuring precedent as further '
+        'environmental restrictions are anticipated.',
     ]
 
     for kp in key_points:
