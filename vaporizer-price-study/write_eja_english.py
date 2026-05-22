@@ -718,6 +718,7 @@ def write_eja_paper():
         'effect size comparison (P=0.043) indicates a robust, progressive and agent-specific '
         'price decline.')
 
+    sevo_vs_iso = es_comparisons['Sevoflurane_vs_Isoflurane']
     doc.add_paragraph(
         'The absence of collateral damage is the central finding. One of the most common '
         'objections to targeted regulation is that restricting a single product destabilises '
@@ -725,8 +726,10 @@ def write_eja_paper():
         'alternatives, or generalised loss of confidence in equipment longevity. Our data '
         'refute this concern for the EU desflurane ban: between-agent comparison showed a '
         'significant difference only between the regulated agent and sevoflurane '
-        '(\u0394d=\u22120.64, P=0.043), while the two non-regulated agents were '
-        'indistinguishable from each other (\u0394d=+0.33, P=0.17). The regulation '
+        f'(\u0394d={des_vs_sevo["diff"]:.2f}, P={fmt_p(des_vs_sevo["p"])}), '
+        'while the two non-regulated agents were '
+        f'indistinguishable from each other (\u0394d={sevo_vs_iso["diff"]:+.2f}, '
+        f'P={fmt_p(sevo_vs_iso["p"])}). The regulation '
         'operated surgically, affecting only its intended target.')
 
     add_para_with_refs(doc,
