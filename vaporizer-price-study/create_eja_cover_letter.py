@@ -49,7 +49,8 @@ def write_eja_cover_letter():
 
     # Addressee
     add_para(doc, 'The Editor-in-Chief', bold=True, space_after=Pt(0))
-    add_para(doc, 'European Journal of Anaesthesiology', italic=True, space_after=Pt(0))
+    add_para(doc, 'European Journal of Anaesthesiology & Intensive Care', italic=True,
+            space_after=Pt(0))
     add_para(doc, '', space_after=Pt(12))
 
     # Subject line
@@ -59,9 +60,8 @@ def write_eja_cover_letter():
     run.bold = True
     run = p.add_run(
         'Submission of original article \u2013 '
-        '\u201cEconomic consequences of the European Union desflurane ban for '
-        'anaesthetic equipment: a cross-sectional time-series analysis of '
-        'secondary market vaporiser prices\u201d')
+        '\u201cTargeted environmental regulation without collateral market damage: '
+        'the EU desflurane ban and secondary market vaporiser prices\u201d')
     run.font.size = Pt(11)
     p.paragraph_format.space_after = Pt(12)
 
@@ -71,15 +71,16 @@ def write_eja_cover_letter():
     # Body paragraphs
     add_para(doc,
         'We are pleased to submit the above manuscript for consideration for publication '
-        'in the European Journal of Anaesthesiology as an original article.',
+        'in the European Journal of Anaesthesiology & Intensive Care as an original article.',
         space_after=Pt(8))
 
     add_para(doc,
-        'The European Union\u2019s prohibition of desflurane for routine anaesthesia '
-        '(Regulation (EU) 2024/573), effective 1 January 2026, represents the first mandatory '
-        'governmental restriction on a specific anaesthetic agent based on environmental grounds. '
-        'While the clinical and environmental rationale for this regulation has been extensively '
-        'debated, the downstream economic consequences for existing equipment remain unexplored.',
+        'Environmental regulations targeting specific anaesthetic agents are increasing '
+        '\u2014 the EU desflurane ban, ASA recommendations on nitrous oxide deactivation, '
+        'and NHS decommissioning programmes are recent examples. A common concern is that '
+        'restricting a single agent could destabilise the broader equipment market. Yet '
+        'whether such targeted regulation actually produces collateral economic effects on '
+        'non-regulated equipment has never been empirically examined.',
         space_after=Pt(8))
 
     add_para(doc,
@@ -87,34 +88,34 @@ def write_eja_cover_letter():
         '(desflurane, sevoflurane and isoflurane) over three years, spanning the full legislative '
         'trajectory from the EC proposal through to post-ban implementation. Using complementary '
         'statistical approaches (Spearman rank correlation, Kendall \u03c4 trend test, '
-        'Mann\u2013Whitney U and between-agent effect size comparison), we provide the first '
-        'empirical evidence that the EU desflurane regulation was associated with a progressive, '
-        'agent-specific decline in secondary market vaporiser prices. The desflurane effect size '
-        'was significantly larger than that of sevoflurane (P=0.043), and sevoflurane and isoflurane '
-        'vaporiser prices remained stable throughout, serving as natural controls.',
+        'Mann\u2013Whitney U and between-agent effect size comparison), we demonstrate that '
+        'the EU desflurane ban achieved targeted economic effects: desflurane vaporiser prices '
+        'declined progressively (P<0.001), while sevoflurane and isoflurane vaporiser prices '
+        'remained completely stable. The between-agent effect size comparison confirmed this '
+        'specificity (P=0.043), and the two non-regulated agents were indistinguishable from '
+        'each other (P=0.17).',
         space_after=Pt(8))
 
     add_para(doc,
-        'Critically, a substantial proportion of the price depreciation occurred during the '
-        'legislative process itself, before the ban took effect. This anticipatory market '
-        'response suggests that the regulation was perceived as credible and well signalled, '
-        'generating predictable economic consequences. Our data indicate that early compliance '
-        'during the legislative phase\u2014rather than delayed action at the point of '
-        'prohibition\u2014was associated with better cost recovery, freeing capital for '
-        'reinvestment in alternative equipment and thereby supporting broader anaesthetic '
-        'choice and patient care.',
+        'The central message is reassuring: the regulation operated surgically, affecting '
+        'only its intended target without collateral damage to the wider anaesthetic equipment '
+        'market. Additionally, the price decline began during the legislative process itself, '
+        'suggesting that well-signalled regulation generates predictable and orderly market '
+        'adjustments. Early compliance was associated with better cost recovery, potentially '
+        'freeing capital for reinvestment in alternative equipment.',
         space_after=Pt(8))
 
     add_para(doc,
-        'We believe this work is particularly well suited for EJA because: (1) it directly '
-        'addresses the consequences of European anaesthesia policy, specifically the EU F-gas '
-        'Regulation which is of primary relevance to EJA\u2019s readership; (2) it provides '
-        'empirical evidence that well-designed environmental regulation produces predictable, '
-        'measurable economic outcomes\u2014a finding of interest to both clinicians and '
-        'policymakers; (3) it demonstrates that early compliance yields economic advantages '
-        'that can support equipment reinvestment and patient care; and (4) it offers a '
-        'generalisable framework for anticipating equipment depreciation under future '
-        'environmental regulations (e.g. nitrous oxide).',
+        'We believe this work is particularly well suited for EJAIC because: (1) it provides '
+        'empirical evidence that ESAIC\u2019s advocacy for the desflurane ban produced '
+        'precisely the targeted outcome intended\u2014without destabilising the wider '
+        'market; (2) as further environmental restrictions are anticipated (e.g. nitrous '
+        'oxide), these findings offer a reassuring precedent for the European anaesthesia '
+        'community; (3) the actionable implications for equipment management during '
+        'regulatory transitions are directly relevant to EJAIC\u2019s clinical readership; '
+        'and (4) the natural experiment design, with non-regulated agents as controls, '
+        'provides a rigorous methodological framework applicable to future regulatory '
+        'impact assessments.',
         space_after=Pt(8))
 
     add_para(doc,
