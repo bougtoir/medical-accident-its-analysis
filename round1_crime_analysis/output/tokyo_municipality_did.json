@@ -1,0 +1,57 @@
+{
+  "Total Crimes": {
+    "coefficient": 21.1,
+    "std_error": 135.4,
+    "p_value": 0.8763,
+    "ci_95": [
+      -244.2,
+      286.4
+    ],
+    "significant": false,
+    "n_obs": 865
+  },
+  "Violent Crime": {
+    "coefficient": -2.8,
+    "std_error": 1.1,
+    "p_value": 0.0123,
+    "ci_95": [
+      -5.0,
+      -0.6
+    ],
+    "significant": true,
+    "n_obs": 865
+  },
+  "Assault/Battery": {
+    "coefficient": 0.9,
+    "std_error": 5.4,
+    "p_value": 0.8698,
+    "ci_95": [
+      -9.6,
+      11.4
+    ],
+    "significant": false,
+    "n_obs": 865
+  },
+  "Burglary": {
+    "coefficient": 29.5,
+    "std_error": 12.5,
+    "p_value": 0.018,
+    "ci_95": [
+      5.1,
+      54.0
+    ],
+    "significant": true,
+    "n_obs": 865
+  },
+  "Non-intrusion Theft": {
+    "coefficient": -20.7,
+    "std_error": 101.4,
+    "p_value": 0.838,
+    "ci_95": [
+      -219.5,
+      178.0
+    ],
+    "significant": false,
+    "n_obs": 865
+  }
+}
