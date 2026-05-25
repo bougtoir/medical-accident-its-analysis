@@ -114,6 +114,9 @@ jobs:
           # ── SR + ANCOVA signal processing ──
           BRANCH_MAP["devin/1779720458-sr-ancova-signal-processing"]="sr-ancova-signal-processing"
 
+          # ── DVS noise inverse problem (JATIS submission) ──
+          BRANCH_MAP["devin/1779728490-dvs-jatis-submission"]="dvs-jatis-submission"
+
           # ── Flood prediction / subsurface flood control ──
           BRANCH_MAP["devin/1778846737-flood-prediction-models"]="flood-prediction-review"
 
@@ -156,6 +159,7 @@ jobs:
           SUBDIR_MAP["devin/1777547587-pwv-vitaldb-analysis"]="pwv_vitaldb_analysis"
           SUBDIR_MAP["devin/1776768797-gdp-tempo-paper"]="gdp_tempo_paper"
           SUBDIR_MAP["devin/1779720458-sr-ancova-signal-processing"]="sr_ancova_framework"
+          SUBDIR_MAP["devin/1779728490-dvs-jatis-submission"]="dvs_noise_inverse_problem"
 
           OWNER="bougtoir"
 
