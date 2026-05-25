@@ -1,0 +1,18 @@
+{
+  "Total Crimes": {
+    "coefficient": 354.3,
+    "p_value": 0.1244
+  },
+  "Assault/Battery": {
+    "coefficient": -0.7,
+    "p_value": 0.8967
+  },
+  "Burglary": {
+    "coefficient": 52.3,
+    "p_value": 0.0054
+  },
+  "Non-intrusion Theft": {
+    "coefficient": 250.1,
+    "p_value": 0.1487
+  }
+}

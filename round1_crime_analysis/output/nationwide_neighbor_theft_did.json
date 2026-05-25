@@ -1,0 +1,18 @@
+{
+  "Total Theft": {
+    "coefficient": -31.53,
+    "p_value": 0.0
+  },
+  "Car Break-in": {
+    "coefficient": -7.63,
+    "p_value": 0.0
+  },
+  "Bicycle Theft": {
+    "coefficient": -15.81,
+    "p_value": 0.0
+  },
+  "Purse Snatching": {
+    "coefficient": -0.61,
+    "p_value": 0.0
+  }
+}

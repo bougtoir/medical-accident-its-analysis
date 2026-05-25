@@ -1,0 +1,13 @@
+{
+  "coefficient": 14199.1,
+  "std_error": 7408.1,
+  "p_value": 0.0553,
+  "ci_95": [
+    -320.6,
+    28718.8
+  ],
+  "significant": false,
+  "n_obs": 1034,
+  "n_r1_prefs": 36,
+  "n_ctrl_prefs": 11
+}
