@@ -514,6 +514,9 @@ def fig7_mutual_information():
 
     fig, ax = plt.subplots(1, 1, figsize=(5, 3.5))
 
+    n_phase = 40  # phase bins for numerical integration
+    phase_bins = np.linspace(0, 2 * np.pi, n_phase, endpoint=False)
+
     for rho, col in zip(rho_values, colors):
         mi_vals = []
         for sigma in sigma_range:
@@ -521,21 +524,22 @@ def fig7_mutual_information():
             if sigma_eff < 1e-10:
                 mi_vals.append(0.0)
                 continue
-            # Average event probability
-            p0 = erfc(theta / (np.sqrt(2) * sigma_eff))
-            # Event prob at signal peak (s = A)
-            p_peak = 0.5 * erfc((theta - A) / (np.sqrt(2) * sigma_eff))
-            # Event prob at signal trough (s = -A)
-            p_trough = 0.5 * erfc((theta + A) / (np.sqrt(2) * sigma_eff))
-            # Simple MI estimate: average over two extreme phases
+            # Two-sided event probability P(|s+n|>θ) for each phase
+            s_vals = A * np.sin(phase_bins)
+            sqrt2_sig = np.sqrt(2) * sigma_eff
+            p_cond = (0.5 * erfc((theta - s_vals) / sqrt2_sig)
+                      + 0.5 * erfc((theta + s_vals) / sqrt2_sig))
+            # Marginal event probability (average over phases)
+            p0 = np.mean(p_cond)
             if p0 < 1e-15 or p0 > 1 - 1e-15:
                 mi_vals.append(0.0)
                 continue
-            mi = 0
-            for p_cond in [p_peak, p_trough]:
-                p_cond = np.clip(p_cond, 1e-15, 1 - 1e-15)
-                mi += 0.5 * (p_cond * np.log2(p_cond / p0) +
-                             (1 - p_cond) * np.log2((1 - p_cond) / (1 - p0)))
+            # MI via KL divergence averaged over phase bins
+            p_cond = np.clip(p_cond, 1e-15, 1 - 1e-15)
+            mi = np.mean(
+                p_cond * np.log2(p_cond / p0)
+                + (1 - p_cond) * np.log2((1 - p_cond) / (1 - p0))
+            )
             mi_vals.append(max(0, mi))
 
         label = r'$\rho=%.1f$' % rho if rho > 0 else r'No adjustment ($\rho=0$)'
