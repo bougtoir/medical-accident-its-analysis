@@ -175,6 +175,13 @@ region_data = defaultdict(list)
 for r in rows:
     region_data[r['region']].append(r['acute_analgesic_per_surgery'])
 
+all_acute = [r['acute_analgesic_per_surgery'] for r in rows]
+national_mean = np.mean(all_acute)
+national_sd = np.std(all_acute, ddof=1)
+national_min = min(all_acute)
+national_max = max(all_acute)
+national_fold = national_max / national_min
+
 # ============================================================
 # タイトルページ
 # ============================================================
@@ -400,8 +407,8 @@ add_heading_text('結果', level=1)
 add_heading_text('Phase 1: 急性周術期鎮痛薬処方の地域変動', level=2)
 doc.add_paragraph(
     '2023年4月〜2024年3月に、NDBは47都道府県で7,903,515件の入院手術と'
-    '274,579,851単位の鎮痛薬処方を記録した。全国平均の鎮痛薬／手術指数は35.78（SD 5.56）で、'
-    '岐阜25.20〜鹿児島49.75の1.97倍の差を示した（9地方間Kruskal\u2013Wallis P<0.001；表1）。'
+    f'274,579,851単位の鎮痛薬処方を記録した。全国平均の鎮痛薬／手術指数は{national_mean:.2f}（SD {national_sd:.2f}）で、'
+    f'岐阜{national_min:.2f}〜鹿児島{national_max:.2f}の{national_fold:.2f}倍の差を示した（9地方間Kruskal\u2013Wallis P<0.001；表1）。'
 )
 
 # === 表1 ===
