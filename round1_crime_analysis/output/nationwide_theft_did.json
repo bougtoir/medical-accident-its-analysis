@@ -1,0 +1,86 @@
+{
+  "Total Theft": {
+    "coefficient": -31.86,
+    "std_error": 4.71,
+    "p_value": 0.0,
+    "ci_95": [
+      -41.08,
+      -22.63
+    ],
+    "significant": true,
+    "n_obs": 10009,
+    "interpretation": "negative = R1 municipalities show steeper decline"
+  },
+  "Purse Snatching": {
+    "coefficient": -0.62,
+    "std_error": 0.13,
+    "p_value": 0.0,
+    "ci_95": [
+      -0.88,
+      -0.36
+    ],
+    "significant": true,
+    "n_obs": 10009,
+    "interpretation": "negative = R1 municipalities show steeper decline"
+  },
+  "Car Break-in": {
+    "coefficient": -7.68,
+    "std_error": 1.17,
+    "p_value": 0.0,
+    "ci_95": [
+      -9.97,
+      -5.38
+    ],
+    "significant": true,
+    "n_obs": 10009,
+    "interpretation": "negative = R1 municipalities show steeper decline"
+  },
+  "Parts Theft": {
+    "coefficient": -2.56,
+    "std_error": 0.68,
+    "p_value": 0.0002,
+    "ci_95": [
+      -3.9,
+      -1.22
+    ],
+    "significant": true,
+    "n_obs": 10009,
+    "interpretation": "negative = R1 municipalities show steeper decline"
+  },
+  "Car Theft": {
+    "coefficient": -0.34,
+    "std_error": 0.27,
+    "p_value": 0.2093,
+    "ci_95": [
+      -0.88,
+      0.19
+    ],
+    "significant": false,
+    "n_obs": 10009,
+    "interpretation": "negative = R1 municipalities show steeper decline"
+  },
+  "Motorcycle Theft": {
+    "coefficient": -2.35,
+    "std_error": 0.63,
+    "p_value": 0.0002,
+    "ci_95": [
+      -3.59,
+      -1.12
+    ],
+    "significant": true,
+    "n_obs": 10009,
+    "interpretation": "negative = R1 municipalities show steeper decline"
+  },
+  "Bicycle Theft": {
+    "coefficient": -16.1,
+    "std_error": 3.16,
+    "p_value": 0.0,
+    "ci_95": [
+      -22.29,
+      -9.9
+    ],
+    "significant": true,
+    "n_obs": 10009,
+    "interpretation": "negative = R1 municipalities show steeper decline"
+  }
+}

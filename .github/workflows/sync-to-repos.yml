@@ -117,6 +117,9 @@ jobs:
           # ── DVS noise inverse problem (JATIS submission) ──
           BRANCH_MAP["devin/1779728490-dvs-jatis-submission"]="dvs-jatis-submission"
 
+          # ── Round1 × crime rate analysis ──
+          BRANCH_MAP["devin/1779745617-round1-crime-analysis"]="round1-crime-analysis"
+
           # ── Flood prediction / subsurface flood control ──
           BRANCH_MAP["devin/1778846737-flood-prediction-models"]="flood-prediction-review"
 
@@ -154,6 +157,7 @@ jobs:
           SUBDIR_MAP["devin/1777989710-tatsuki-3journal-submission"]="tasuki-electoral-model"
           SUBDIR_MAP["devin/1777545460-medical-sapir-whorf-paper"]="medical_sapir_whorf"
           SUBDIR_MAP["devin/1777545531-medical-sapir-whorf-formalization"]="medical_sapir_whorf"
+          SUBDIR_MAP["devin/1779745617-round1-crime-analysis"]="round1_crime_analysis"
           SUBDIR_MAP["devin/1777594452-buddhist-food-map"]="buddhist_food_lexicon_map"
           SUBDIR_MAP["devin/1777594554-khmer-inscription-analysis"]="khmer_inscription_analysis"
           SUBDIR_MAP["devin/1777547587-pwv-vitaldb-analysis"]="pwv_vitaldb_analysis"
