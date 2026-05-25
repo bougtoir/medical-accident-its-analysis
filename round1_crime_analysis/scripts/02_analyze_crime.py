@@ -139,6 +139,7 @@ def plot_crime_trends_comparison(df):
     """Plot violent and property crime trends for R1 vs non-R1 states."""
     analysis_years = range(2005, 2020)
     sub = df[df["Year"].isin(analysis_years)]
+    sub = sub[~sub["State"].str.contains("Total|United States", na=False)]
 
     crime_types = {
         "Violent Crime": "Data.Rates.Violent.All",
