@@ -13,17 +13,301 @@ SPIE formatting:
 - Single-paragraph abstract (≤200 words)
 - Figures inline with captions below
 - Section numbering: 1, 1.1, 1.2, etc.
+- Equations as Word equation objects (OMML)
 """
 
 import re
+from lxml import etree
 from docx import Document
 from docx.shared import Inches, Pt, Cm
+from docx.oxml.ns import qn
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from pathlib import Path
 
 OUT_DIR = Path(__file__).resolve().parent
 FIG_DIR = OUT_DIR
 
+
+# =========================================================
+# OMML equation helpers
+# =========================================================
+
+def _mr(parent, text, italic=True, bold=False):
+    """Create a math run (m:r) with text."""
+    r = etree.SubElement(parent, qn('m:r'))
+    if not italic or bold:
+        rPr = etree.SubElement(r, qn('m:rPr'))
+        if not italic:
+            sty = etree.SubElement(rPr, qn('m:sty'))
+            sty.set(qn('m:val'), 'p')
+        if bold:
+            sty = etree.SubElement(rPr, qn('m:sty'))
+            sty.set(qn('m:val'), 'b')
+    t = etree.SubElement(r, qn('m:t'))
+    t.text = text
+    t.set('{http://www.w3.org/XML/1998/namespace}space', 'preserve')
+    return r
+
+
+def _sub(parent, base, sub):
+    """Create subscript: base_sub."""
+    el = etree.SubElement(parent, qn('m:sSub'))
+    e = etree.SubElement(el, qn('m:e'))
+    _mr(e, base)
+    s = etree.SubElement(el, qn('m:sub'))
+    _mr(s, sub)
+    return el
+
+
+def _sup(parent, base, sup):
+    """Create superscript: base^sup."""
+    el = etree.SubElement(parent, qn('m:sSup'))
+    e = etree.SubElement(el, qn('m:e'))
+    _mr(e, base)
+    s = etree.SubElement(el, qn('m:sup'))
+    _mr(s, sup)
+    return el
+
+
+def _frac(parent, num_builder, den_builder):
+    """Create fraction with builder functions for numerator and denominator."""
+    f = etree.SubElement(parent, qn('m:f'))
+    num = etree.SubElement(f, qn('m:num'))
+    num_builder(num)
+    den = etree.SubElement(f, qn('m:den'))
+    den_builder(den)
+    return f
+
+
+def _delim(parent, content_builder, left='(', right=')'):
+    """Create delimiter (parentheses, brackets)."""
+    d = etree.SubElement(parent, qn('m:d'))
+    dPr = etree.SubElement(d, qn('m:dPr'))
+    begChr = etree.SubElement(dPr, qn('m:begChr'))
+    begChr.set(qn('m:val'), left)
+    endChr = etree.SubElement(dPr, qn('m:endChr'))
+    endChr.set(qn('m:val'), right)
+    e = etree.SubElement(d, qn('m:e'))
+    content_builder(e)
+    return d
+
+
+def _bar(parent, text):
+    """Create accent bar (hat/overline): x̂ or x̄."""
+    acc = etree.SubElement(parent, qn('m:acc'))
+    accPr = etree.SubElement(acc, qn('m:accPr'))
+    chrEl = etree.SubElement(accPr, qn('m:chr'))
+    chrEl.set(qn('m:val'), '\u0302')  # combining circumflex (hat)
+    e = etree.SubElement(acc, qn('m:e'))
+    _mr(e, text)
+    return acc
+
+
+def _hat(parent, text):
+    """Create hat accent: x̂."""
+    return _bar(parent, text)
+
+
+def _func(parent, name, arg_builder):
+    """Create function application: name(args)."""
+    _mr(parent, name, italic=False)
+    _delim(parent, arg_builder)
+
+
+def add_display_equation(doc, builder_func, eq_num=None):
+    """Add a display equation (centered) with optional number."""
+    p = doc.add_paragraph()
+    p.paragraph_format.space_before = Pt(8)
+    p.paragraph_format.space_after = Pt(8)
+    omathpara = etree.SubElement(p._element, qn('m:oMathPara'))
+    omath = etree.SubElement(omathpara, qn('m:oMath'))
+    builder_func(omath)
+    if eq_num:
+        run = p.add_run(f'    ({eq_num})')
+        run.font.size = Pt(12)
+    return p
+
+
+def add_inline_math(p, builder_func):
+    """Add inline equation within a paragraph."""
+    omath = etree.SubElement(p._element, qn('m:oMath'))
+    builder_func(omath)
+    return omath
+
+
+# =========================================================
+# Equation definitions for this manuscript
+# =========================================================
+
+def eq_a5_model(omath):
+    """Eq (1): λ_noise(T, I_bg) = I_dark,ref · exp(α·ΔT) · (1 + β·I_bg)"""
+    _sub(omath, '\u03bb', 'noise')
+    def _args(e):
+        _mr(e, 'T, ')
+        _sub(e, 'I', 'bg')
+    _delim(omath, _args)
+    _mr(omath, ' = ')
+    _sub(omath, 'I', 'dark,ref')
+    _mr(omath, ' \u22c5 exp')
+    def _exp_arg(e):
+        _mr(e, '\u03b1 \u22c5 \u0394T')
+    _delim(omath, _exp_arg)
+    _mr(omath, ' \u22c5 ')
+    def _bg(e):
+        _mr(e, '1 + \u03b2 \u22c5 ')
+        _sub(e, 'I', 'bg')
+    _delim(omath, _bg)
+
+
+def eq_accuracy(omath):
+    """Eq (2): α = 1 − ‖ê_noise − e_noise,true‖ / ‖e_noise,true‖"""
+    _mr(omath, '\u03b1 = 1 \u2212 ')
+    def _num(n):
+        _mr(n, '\u2016')
+        _hat(n, 'e')
+        _sub(n, '', 'noise')
+        _mr(n, ' \u2212 ')
+        _sub(n, 'e', 'noise,true')
+        _mr(n, '\u2016')
+    def _den(d):
+        _mr(d, '\u2016')
+        _sub(d, 'e', 'noise,true')
+        _mr(d, '\u2016')
+    _frac(omath, _num, _den)
+
+
+def eq_residual_noise(omath):
+    """Eq (3): σ_residual = (1 − α) · σ_original"""
+    _sub(omath, '\u03c3', 'residual')
+    _mr(omath, ' = ')
+    def _factor(e):
+        _mr(e, '1 \u2212 \u03b1')
+    _delim(omath, _factor)
+    _mr(omath, ' \u22c5 ')
+    _sub(omath, '\u03c3', 'original')
+
+
+def eq_snr_improvement(omath):
+    """Eq (4): SNR_after / SNR_before = 1 / (1 − α)"""
+    def _num(n):
+        _sub(n, 'SNR', 'after')
+    def _den(d):
+        _sub(d, 'SNR', 'before')
+    _frac(omath, _num, _den)
+    _mr(omath, ' = ')
+    def _num2(n):
+        _mr(n, '1', italic=False)
+    def _den2(d):
+        _mr(d, '1 \u2212 \u03b1')
+    _frac(omath, _num2, _den2)
+
+
+def eq_map_estimation(omath):
+    """Eq (5): θ̂ = argmax_θ p(e_cal|θ) · p(θ|θ_prior)"""
+    _hat(omath, '\u03b8')
+    _mr(omath, ' = ')
+    _sub(omath, 'argmax', '\u03b8')
+    _mr(omath, ' p')
+    def _likelihood(e):
+        _sub(e, 'e', 'cal')
+        _mr(e, ' | \u03b8')
+    _delim(omath, _likelihood)
+    _mr(omath, ' \u22c5 p')
+    def _prior(e):
+        _mr(e, '\u03b8 | ')
+        _sub(e, '\u03b8', 'prior')
+    _delim(omath, _prior)
+
+
+def eq_nn_output(omath):
+    """Eq (6): λ̂_noise = λ_physics · (1 + Δλ_aux) + Δλ_corr"""
+    _hat(omath, '\u03bb')
+    _mr(omath, '')
+    _sub(omath, '', 'noise')
+    _mr(omath, ' = ')
+    _sub(omath, '\u03bb', 'physics')
+    _mr(omath, ' \u22c5 ')
+    def _modulation(e):
+        _mr(e, '1 + \u0394')
+        _sub(e, '\u03bb', 'aux')
+    _delim(omath, _modulation)
+    _mr(omath, ' + \u0394')
+    _sub(omath, '\u03bb', 'corr')
+
+
+def eq_p_noise(omath):
+    """Eq (7): P_noise(e_i) = λ̂_noise(x_i,y_i,t_i) / [λ̂_noise(...) + λ̂_signal(...)]"""
+    _sub(omath, 'P', 'noise')
+    def _ei(e):
+        _sub(e, 'e', 'i')
+    _delim(omath, _ei)
+    _mr(omath, ' = ')
+    def _num(n):
+        _hat(n, '\u03bb')
+        _sub(n, '', 'noise')
+        def _coords(e):
+            _sub(e, 'x', 'i')
+            _mr(e, ', ')
+            _sub(e, 'y', 'i')
+            _mr(e, ', ')
+            _sub(e, 't', 'i')
+        _delim(n, _coords)
+    def _den(d):
+        _hat(d, '\u03bb')
+        _sub(d, '', 'noise')
+        def _c1(e):
+            _sub(e, 'x', 'i')
+            _mr(e, ', ')
+            _sub(e, 'y', 'i')
+            _mr(e, ', ')
+            _sub(e, 't', 'i')
+        _delim(d, _c1)
+        _mr(d, ' + ')
+        _hat(d, '\u03bb')
+        _sub(d, '', 'signal')
+        def _c2(e):
+            _sub(e, 'x', 'i')
+            _mr(e, ', ')
+            _sub(e, 'y', 'i')
+            _mr(e, ', ')
+            _sub(e, 't', 'i')
+        _delim(d, _c2)
+    _frac(omath, _num, _den)
+
+
+def eq_fano(omath):
+    """Eq (8): F = Var(N_k) / Mean(N_k)"""
+    _mr(omath, 'F', italic=True)
+    _mr(omath, ' = ', italic=False)
+    def _num(n):
+        _mr(n, 'Var', italic=False)
+        def _nk(e):
+            _sub(e, 'N', 'k')
+        _delim(n, _nk)
+    def _den(d):
+        _mr(d, 'Mean', italic=False)
+        def _nk(e):
+            _sub(e, 'N', 'k')
+        _delim(d, _nk)
+    _frac(omath, _num, _den)
+
+
+def eq_detection_limit(omath):
+    """Eq (9): Δm ≈ 2.5 log₁₀(1/(1−α))"""
+    _mr(omath, '\u0394m \u2248 2.5 ')
+    _sub(omath, 'log', '10')
+    def _arg(e):
+        def _n(n):
+            _mr(n, '1', italic=False)
+        def _d(d):
+            _mr(d, '1 \u2212 \u03b1')
+        _frac(e, _n, _d)
+    _delim(omath, _arg)
+
+
+# =========================================================
+# Document building helpers
+# =========================================================
 
 def add_heading(doc, text, level=1):
     h = doc.add_heading(text, level=level)
@@ -245,9 +529,7 @@ def build_manuscript():
     add_paragraph(doc, (
         'The parametric noise rate model (hereafter A5){16} takes the form:'
     ))
-    add_paragraph(doc, (
-        '    \u03bb_noise(T, I_bg) = I_dark,ref \u00b7 exp(\u03b1\u00b7\u0394T) \u00b7 (1 + \u03b2\u00b7I_bg),'
-    ), space_before=6, space_after=6)
+    add_display_equation(doc, eq_a5_model, eq_num='1')
     add_paragraph(doc, (
         'where I_dark,ref is the reference dark current rate, \u03b1 \u2248 0.06\u20130.08 K\u207b\u00b9 '
         'is the temperature coefficient, \u0394T is the temperature offset from reference, '
@@ -302,14 +584,17 @@ def build_manuscript():
 
     add_heading(doc, '3.1 Fundamental principle', level=2)
     add_paragraph(doc, (
-        'Let \u03b1 denote the noise model accuracy: '
-        '\u03b1 = 1 \u2212 ||\u00ea_noise \u2212 e_noise,true|| / ||e_noise,true||. '
-        'The residual noise level after subtraction is '
-        '\u03c3_residual = (1\u2212\u03b1)\u00b7\u03c3_original, yielding an SNR improvement ratio:'
+        'Let \u03b1 denote the noise model accuracy:'
     ))
+    add_display_equation(doc, eq_accuracy, eq_num='2')
     add_paragraph(doc, (
-        '    SNR_after / SNR_before = 1 / (1 \u2212 \u03b1).'
-    ), space_before=6, space_after=6)
+        'The residual noise level after subtraction is:'
+    ))
+    add_display_equation(doc, eq_residual_noise, eq_num='3')
+    add_paragraph(doc, (
+        'yielding an SNR improvement ratio:'
+    ))
+    add_display_equation(doc, eq_snr_improvement, eq_num='4')
     add_paragraph(doc, (
         'At \u03b1 = 0.9, this gives 10\u00d7 improvement; at \u03b1 = 0.99, 100\u00d7. This simple '
         'scaling law motivates the emphasis on noise model accuracy rather than '
@@ -335,26 +620,22 @@ def build_manuscript():
         'Phase 1: Offline calibration (pre-observation). Record dark events '
         '(lens cap), flat-field events (integrating sphere), and thermal sweep '
         'events (\u0394T = \u00b15\u00b0C). Fit the A5 forward model{16} to obtain per-pixel '
-        'parameter maps via MAP estimation: '
-        '\u03b8\u0302 = argmax_\u03b8 p(e_cal|\u03b8)\u00b7p(\u03b8|\u03b8_prior).'
+        'parameter maps via MAP estimation:'
     ))
+    add_display_equation(doc, eq_map_estimation, eq_num='5')
     add_paragraph(doc, (
         'Phase 2: Online inference (real-time). A Physics-Informed Neural Network '
-        'predicts per-pixel noise rates: '
-        '\u03bb\u0302_noise(x,y,t) = NN_PI(\u03b8_pixel_map, aux(t); W). '
+        'predicts per-pixel noise rates. '
         'The network comprises three layers: (a) Physics model layer (fixed weights, '
         'A5 model baseline), (b) Auxiliary-channel coupling layer (MLP [64-32-1] '
         'learning non-stationary variations), (c) Spatio-temporal correlation layer '
-        '(Conv2D 3\u00d73 learning inter-pixel noise correlations). Output: '
-        '\u03bb\u0302_noise = \u03bb_physics \u00b7 (1 + \u0394\u03bb_aux) + \u0394\u03bb_corr.'
+        '(Conv2D 3\u00d73 learning inter-pixel noise correlations). Output:'
     ))
+    add_display_equation(doc, eq_nn_output, eq_num='6')
     add_paragraph(doc, (
         'Per-event noise probability (following iDQ{13}):'
     ))
-    add_paragraph(doc, (
-        '    P_noise(e_i) = \u03bb\u0302_noise(x_i,y_i,t_i) / '
-        '[\u03bb\u0302_noise(x_i,y_i,t_i) + \u03bb\u0302_signal(x_i,y_i,t_i)].'
-    ), space_before=6, space_after=6)
+    add_display_equation(doc, eq_p_noise, eq_num='7')
     add_paragraph(doc, (
         'Phase 3: Residual generation. Soft subtraction (recommended): assign '
         'weight w_i = 1 \u2212 P_noise(e_i); retain events with w_i > w_threshold. '
@@ -372,9 +653,7 @@ def build_manuscript():
         'pixels with Fano \u2248 1 (Poisson-consistent) are noise-dominated, while '
         'Fano \u226b 1 indicates bursty signal. Formally:'
     ))
-    add_paragraph(doc, (
-        '    F = Var(N_k) / Mean(N_k),'
-    ), space_before=6, space_after=6)
+    add_display_equation(doc, eq_fano, eq_num='8')
     add_paragraph(doc, (
         'where N_k is the event count in temporal bin k. Per-event noise probability '
         'is computed from noise-dominated pixels (Fano \u2264 2). Events with '
@@ -622,8 +901,11 @@ def build_manuscript():
         'structure in the residual is signal\u2014regardless of morphology. Combined '
         'with event-level shift-and-stack,{25} this could detect fast-moving faint '
         'objects (10\u201350 m near-Earth objects) beyond the reach of frame-based '
-        'telescopes. The detection limit improvement scales as '
-        '\u0394m \u2248 2.5 log\u2081\u2080(1/(1\u2212\u03b1)), giving \u0394m > 2.5 mag at \u03b1 = 0.9.'
+        'telescopes. The detection limit improvement scales as:'
+    ))
+    add_display_equation(doc, eq_detection_limit, eq_num='9')
+    add_paragraph(doc, (
+        'giving \u0394m > 2.5 mag at \u03b1 = 0.9.'
     ))
 
     add_heading(doc, '7.5 Limitations and future work', level=2)

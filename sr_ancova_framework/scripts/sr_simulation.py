@@ -207,7 +207,7 @@ def fig1_schematic():
     ax.axvline(x=-theta_val, color='k', ls='--', lw=1)
     ax.set_xlabel(r'Residual noise $\varepsilon$')
     ax.set_ylabel('Probability density')
-    ax.set_title(r'(c) Covariate adjustment ($\sigma=0.8\theta$)')
+    ax.set_title(r'(c) Covariate adjustment ($\sigma=\theta$)')
     ax.legend(fontsize=7, loc='upper right')
 
     fig.tight_layout()
