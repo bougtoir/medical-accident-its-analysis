@@ -508,7 +508,7 @@ def build_manuscript():
 
     add_heading(doc, '5.4 A5-based noise rate simulation', level=2)
     add_paragraph(doc, (
-        'Using the parametric model [Eq. (1)], we simulate noise rates and SNR '
+        'Using the A5 parametric model, we simulate noise rates and SNR '
         'improvements across the temperature\u2013illuminance parameter space '
         '(T \u2208 [10, 65]\u00b0C, I_bg \u2208 [0.1, 1000] lux). Figure 5 shows the '
         'predicted noise rate map, SNR improvement factor, and the temperature '

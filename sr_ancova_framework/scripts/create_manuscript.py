@@ -230,6 +230,15 @@ def build_manuscript():
         'sufficiently signal-correlated (Fig. 1b).'
     ))
 
+    # Fig 2 — placed after first citation in Sec II.B
+    add_figure(doc, FIG_DIR / 'fig2_sr_curves.png',
+               'FIG. 2. Stochastic resonance curves for a threshold detector (A/\u03b8 = 0.3). '
+               'Solid lines: analytical SNR from two-state theory [Eq. (1)]. Black circles '
+               'with error bars: Monte Carlo validation (15 trials per point). Covariate '
+               'adjustment shifts the SR peak rightward, meaning the detector tolerates more '
+               'input noise when a good noise model is available.',
+               width=Inches(4.5))
+
     add_heading(doc, 'C. Covariate adjustment as noise reduction', level=2)
     add_paragraph(doc, (
         'Suppose the noise n(t) depends on observable covariates z(t) = (z\u2081(t), \u2026, z_k(t))\u1d40 '
@@ -291,6 +300,15 @@ def build_manuscript():
         'large benefit of covariate adjustment in high-noise environments.'
     ))
 
+    # Fig 5 — placed after first citation in Sec II.D
+    add_figure(doc, FIG_DIR / 'fig5_optimal_rho.png',
+               'FIG. 5. (a) Optimal noise model accuracy \u03c1* versus input noise. Yellow shading: '
+               'SR regime (\u03c3 < \u03b8) where \u03c1* = 0. Blue shading: excess noise regime (\u03c3 > \u03b8) '
+               'where \u03c1* = \u221a(1 \u2212 \u03b8\u00b2/\u03c3\u00b2). Dashed line: analytical prediction. '
+               '(b) Peak SNR improvement at optimal \u03c1* grows exponentially with input noise, '
+               'reaching ~100\u00d7 at \u03c3/\u03b8 = 4.',
+               width=Inches(5.5))
+
     # =========================================================
     # III. Numerical Simulations
     # =========================================================
@@ -313,15 +331,6 @@ def build_manuscript():
         'values (when measured in effective noise), confirming that covariate adjustment '
         'translates the SR curve without altering its shape.'
     ))
-
-    # Fig 2
-    add_figure(doc, FIG_DIR / 'fig2_sr_curves.png',
-               'FIG. 2. Stochastic resonance curves for a threshold detector (A/\u03b8 = 0.3). '
-               'Solid lines: analytical SNR from two-state theory [Eq. (1)]. Black circles '
-               'with error bars: Monte Carlo validation (15 trials per point). Covariate '
-               'adjustment shifts the SR peak rightward, meaning the detector tolerates more '
-               'input noise when a good noise model is available.',
-               width=Inches(4.5))
 
     add_heading(doc, 'B. Detection probabilities', level=2)
     add_paragraph(doc, (
@@ -360,15 +369,6 @@ def build_manuscript():
         'exponential scaling underscores the practical importance of covariate adjustment '
         'in high-noise environments, which are typical for many sensor applications.'
     ))
-
-    # Fig 5
-    add_figure(doc, FIG_DIR / 'fig5_optimal_rho.png',
-               'FIG. 5. (a) Optimal noise model accuracy \u03c1* versus input noise. Yellow shading: '
-               'SR regime (\u03c3 < \u03b8) where \u03c1* = 0. Blue shading: excess noise regime (\u03c3 > \u03b8) '
-               'where \u03c1* = \u221a(1 \u2212 \u03b8\u00b2/\u03c3\u00b2). Dashed line: analytical prediction. '
-               '(b) Peak SNR improvement at optimal \u03c1* grows exponentially with input noise, '
-               'reaching ~100\u00d7 at \u03c3/\u03b8 = 4.',
-               width=Inches(5.5))
 
     add_heading(doc, 'D. Information-theoretic perspective', level=2)
     add_paragraph(doc, (
@@ -611,8 +611,8 @@ def build_manuscript():
         'system where (i) a threshold or nonlinearity mediates signal detection and '
         '(ii) the noise has observable structure. Examples include neural spike detection '
         'in electrophysiology [24], quantum key distribution in noisy channels [25], '
-        'radar target detection in clutter [26], and molecular detection at the single-molecule '
-        'level [27]. In each case, the key question \u2014 \u201chow much noise should we remove?\u201d \u2014 '
+        'radar target detection in clutter [26], and ion channel current sensing at the '
+        'single-molecule level [27]. In each case, the key question \u2014 \u201chow much noise should we remove?\u201d \u2014 '
         'has the same answer: reduce the effective noise to the SR optimum, and no further.'
     ))
 
@@ -638,6 +638,17 @@ def build_manuscript():
         'noise regime. The principle \u2014 reduce noise to the SR optimum, not to zero \u2014 offers '
         'a quantitative design criterion for any threshold-based detection system operating '
         'in noisy environments.'
+    ))
+
+    # =========================================================
+    # Data Availability Statement (APS required)
+    # =========================================================
+    add_heading(doc, 'DATA AVAILABILITY STATEMENT', level=1)
+    add_paragraph(doc, (
+        'The simulation code and scripts used to generate all figures and the manuscript '
+        'are publicly available at https://github.com/bougtoir/sr-ancova-framework. '
+        'The EBSSA dataset used for the DVS application (Sec. IV) is publicly available '
+        'via the Tonic library [19].'
     ))
 
     # =========================================================
@@ -750,10 +761,9 @@ def build_manuscript():
         '[26] M. A. Richards, J. A. Scheer, and W. A. Holm, Principles of Modern Radar: '
         'Basic Principles (SciTech Publishing, 2010).',
 
-        '[27] T. Finateu et al., \u201cA 1280\u00d7720 back-illuminated stacked temporal contrast '
-        'event-based vision sensor with 4.86 \u00b5m pixels, 1.066 GEPS readout, '
-        'programmable event-rate controller and compressive data-formatting pipeline,\u201d '
-        'in IEEE ISSCC Dig. Tech. Papers (2020), pp. 112\u2013114.',
+        '[27] S. M. Bezrukov and I. Vodyanoy, \u201cNoise-induced enhancement of signal '
+        'transduction across voltage-dependent ion channels,\u201d '
+        'Nature 378, 362 (1995).',
     ]
     for ref in references:
         add_paragraph(doc, ref, space_after=3)
