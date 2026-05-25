@@ -111,6 +111,9 @@ jobs:
           BRANCH_MAP["devin/1777909479-desflurane-critical-appraisal"]="desflurane-critical-appraisal"
           BRANCH_MAP["devin/rokid-lyrics"]="rokid-lyrics"
 
+          # ── SR + ANCOVA signal processing ──
+          BRANCH_MAP["devin/1779720458-sr-ancova-signal-processing"]="sr-ancova-signal-processing"
+
           # ── Flood prediction / subsurface flood control ──
           BRANCH_MAP["devin/1778846737-flood-prediction-models"]="flood-prediction-review"
 
@@ -152,6 +155,7 @@ jobs:
           SUBDIR_MAP["devin/1777594554-khmer-inscription-analysis"]="khmer_inscription_analysis"
           SUBDIR_MAP["devin/1777547587-pwv-vitaldb-analysis"]="pwv_vitaldb_analysis"
           SUBDIR_MAP["devin/1776768797-gdp-tempo-paper"]="gdp_tempo_paper"
+          SUBDIR_MAP["devin/1779720458-sr-ancova-signal-processing"]="sr_ancova_framework"
 
           OWNER="bougtoir"
 
