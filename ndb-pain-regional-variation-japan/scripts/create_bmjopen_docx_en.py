@@ -316,6 +316,11 @@ national_min = min(all_acute)
 national_max = max(all_acute)
 national_fold = national_max / national_min
 
+min_row = min(rows, key=lambda r: r['acute_analgesic_per_surgery'])
+max_row = max(rows, key=lambda r: r['acute_analgesic_per_surgery'])
+min_pref_en = PREF_EN.get(min_row['pref_name'], min_row['pref_name'])
+max_pref_en = PREF_EN.get(max_row['pref_name'], max_row['pref_name'])
+
 neuro_ranked = sorted(rows, key=lambda r: r['neuropathic_per_surgery'], reverse=True)
 top3_neuro = neuro_ranked[:3]
 
@@ -724,7 +729,7 @@ r1 = (
     'During April 2023\u2013March 2024, the NDB recorded 7,903,515 inpatient surgical procedures '
     'and 274,579,851 analgesic prescription units across 47 prefectures. '
     f'The national mean analgesic-per-surgery index was {national_mean:.2f} (SD {national_sd:.2f}), '
-    f'ranging from {national_min:.2f} (Gifu) to {national_max:.2f} (Kagoshima)\u2014a {national_fold:.2f}-fold difference '
+    f'ranging from {national_min:.2f} ({min_pref_en}) to {national_max:.2f} ({max_pref_en})\u2014a {national_fold:.2f}-fold difference '
     '(Kruskal\u2013Wallis P<0.001 across nine regions; table 1).'
 )
 doc.add_paragraph(r1)
