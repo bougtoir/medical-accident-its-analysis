@@ -184,8 +184,8 @@ national_fold = national_max / national_min
 
 min_row = min(rows, key=lambda r: r['acute_analgesic_per_surgery'])
 max_row = max(rows, key=lambda r: r['acute_analgesic_per_surgery'])
-min_pref = min_row['pref_name'].rstrip('県府都')
-max_pref = max_row['pref_name'].rstrip('県府都')
+min_pref = re.sub(r'[県府都]$', '', min_row['pref_name'])
+max_pref = re.sub(r'[県府都]$', '', max_row['pref_name'])
 
 # ============================================================
 # タイトルページ
