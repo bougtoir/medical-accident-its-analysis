@@ -1,0 +1,6 @@
+# Large downloaded data files (reproducible via scripts)
+data/state_crime_full.csv
+data/state_crime.csv
+__pycache__/
+*.pyc
+estimated_crimes_state.csv

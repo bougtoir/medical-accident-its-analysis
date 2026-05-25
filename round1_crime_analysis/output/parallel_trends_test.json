@@ -1,0 +1,12 @@
+{
+  "Violent Crime": {
+    "interaction_coef": -5.827,
+    "p_value": 0.088,
+    "parallel": true
+  },
+  "Property Crime": {
+    "interaction_coef": -48.525,
+    "p_value": 0.121,
+    "parallel": true
+  }
+}
