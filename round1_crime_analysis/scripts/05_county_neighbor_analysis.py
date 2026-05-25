@@ -165,6 +165,9 @@ def load_county_crime(ucr_json_dir):
                 "coverage": entry.get("coverage_indicator", 0),
             })
     df = pd.DataFrame(rows)
+    if df.empty:
+        print("County crime data: 0 rows (no matching JSON files found)")
+        return df
     print(f"County crime data: {len(df)} rows ({df['year'].nunique()} years, "
           f"{df['fips'].nunique()} counties)")
     return df
