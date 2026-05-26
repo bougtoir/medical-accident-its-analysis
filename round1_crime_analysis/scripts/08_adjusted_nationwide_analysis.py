@@ -136,7 +136,7 @@ def load_ssdse():
         employed = safe_float(102)
         unemployed = safe_float(105)
 
-        labor_force = (employed or 0) + (unemployed or 0)
+        labor_force = (0 if np.isnan(employed) else employed) + (0 if np.isnan(unemployed) else unemployed)
 
         key = f"{pref}_{city}"
         covariates[key] = {
@@ -316,7 +316,11 @@ def run_models(df):
         reg_adj = df[adj_cols].dropna().copy()
         reg_adj = reg_adj.rename(columns={col: "crime_rate"})
 
-        cov_formula = " + ".join(c for c in cov_cols if c in reg_adj.columns)
+        # Interact time-invariant covariates with trend so they explain
+        # differential crime trends across municipalities. Static levels
+        # are already absorbed by C(municipality) fixed effects.
+        cov_trend_terms = [f"{c}:trend" for c in cov_cols if c in reg_adj.columns]
+        cov_formula = " + ".join(cov_trend_terms)
         try:
             m_adj = smf.ols(
                 f"crime_rate ~ r1_trend + {cov_formula} + C(municipality) + C(year)",

@@ -11,12 +11,12 @@
       "n_obs": 9058
     },
     "adjusted": {
-      "coefficient": -6.051,
-      "std_error": 1.419,
-      "p_value": 0.0,
+      "coefficient": -1.929,
+      "std_error": 1.387,
+      "p_value": 0.1642,
       "ci_95": [
-        -8.833,
-        -3.27
+        -4.647,
+        0.789
       ],
       "n_obs": 9058,
       "covariates": [
@@ -43,12 +43,12 @@
       "n_obs": 9058
     },
     "adjusted": {
-      "coefficient": -4.378,
-      "std_error": 1.0,
-      "p_value": 0.0,
+      "coefficient": -1.247,
+      "std_error": 1.023,
+      "p_value": 0.2227,
       "ci_95": [
-        -6.338,
-        -2.418
+        -3.252,
+        0.758
       ],
       "n_obs": 9058,
       "covariates": [
@@ -75,12 +75,12 @@
       "n_obs": 9058
     },
     "adjusted": {
-      "coefficient": -0.561,
-      "std_error": 0.412,
-      "p_value": 0.1729,
+      "coefficient": -0.387,
+      "std_error": 0.425,
+      "p_value": 0.3622,
       "ci_95": [
-        -1.369,
-        0.246
+        -1.22,
+        0.446
       ],
       "n_obs": 9058,
       "covariates": [
@@ -107,12 +107,12 @@
       "n_obs": 9058
     },
     "adjusted": {
-      "coefficient": -0.285,
-      "std_error": 0.265,
-      "p_value": 0.2821,
+      "coefficient": -0.186,
+      "std_error": 0.272,
+      "p_value": 0.4943,
       "ci_95": [
-        -0.804,
-        0.234
+        -0.72,
+        0.347
       ],
       "n_obs": 9058,
       "covariates": [
@@ -139,12 +139,12 @@
       "n_obs": 9058
     },
     "adjusted": {
-      "coefficient": -0.661,
-      "std_error": 0.23,
-      "p_value": 0.0041,
+      "coefficient": -0.269,
+      "std_error": 0.235,
+      "p_value": 0.2527,
       "ci_95": [
-        -1.111,
-        -0.21
+        -0.729,
+        0.192
       ],
       "n_obs": 9058,
       "covariates": [
@@ -171,12 +171,12 @@
       "n_obs": 9058
     },
     "adjusted": {
-      "coefficient": -0.162,
-      "std_error": 0.038,
-      "p_value": 0.0,
+      "coefficient": -0.063,
+      "std_error": 0.034,
+      "p_value": 0.0635,
       "ci_95": [
-        -0.237,
-        -0.088
+        -0.13,
+        0.004
       ],
       "n_obs": 9058,
       "covariates": [
@@ -203,12 +203,12 @@
       "n_obs": 9058
     },
     "adjusted": {
-      "coefficient": 0.253,
-      "std_error": 0.138,
-      "p_value": 0.067,
+      "coefficient": 0.479,
+      "std_error": 0.188,
+      "p_value": 0.0111,
       "ci_95": [
-        -0.018,
-        0.524
+        0.109,
+        0.848
       ],
       "n_obs": 9058,
       "covariates": [
