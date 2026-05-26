@@ -1,24 +1,24 @@
 {
   "Total Theft": {
     "unadjusted": {
-      "coefficient": -6.09,
-      "std_error": 1.42,
+      "coefficient": -6.051,
+      "std_error": 1.418,
       "p_value": 0.0,
       "ci_95": [
-        -8.873,
-        -3.307
+        -8.831,
+        -3.271
       ],
-      "n_obs": 9029
+      "n_obs": 9058
     },
     "adjusted": {
-      "coefficient": -6.083,
-      "std_error": 1.421,
+      "coefficient": -6.051,
+      "std_error": 1.419,
       "p_value": 0.0,
       "ci_95": [
-        -8.867,
-        -3.298
+        -8.833,
+        -3.27
       ],
-      "n_obs": 9024,
+      "n_obs": 9058,
       "covariates": [
         "pop_density",
         "under15_ratio",
@@ -33,24 +33,24 @@
   },
   "Bicycle Theft": {
     "unadjusted": {
-      "coefficient": -4.38,
-      "std_error": 0.999,
+      "coefficient": -4.378,
+      "std_error": 1.0,
       "p_value": 0.0,
       "ci_95": [
-        -6.339,
-        -2.421
+        -6.337,
+        -2.419
       ],
-      "n_obs": 9029
+      "n_obs": 9058
     },
     "adjusted": {
-      "coefficient": -4.379,
+      "coefficient": -4.378,
       "std_error": 1.0,
       "p_value": 0.0,
       "ci_95": [
         -6.338,
-        -2.419
+        -2.418
       ],
-      "n_obs": 9024,
+      "n_obs": 9058,
       "covariates": [
         "pop_density",
         "under15_ratio",
@@ -65,24 +65,24 @@
   },
   "Car Break-in": {
     "unadjusted": {
-      "coefficient": -0.576,
+      "coefficient": -0.561,
       "std_error": 0.412,
-      "p_value": 0.1623,
+      "p_value": 0.1727,
       "ci_95": [
-        -1.384,
-        0.232
+        -1.368,
+        0.245
       ],
-      "n_obs": 9029
+      "n_obs": 9058
     },
     "adjusted": {
-      "coefficient": -0.575,
+      "coefficient": -0.561,
       "std_error": 0.412,
-      "p_value": 0.1631,
+      "p_value": 0.1729,
       "ci_95": [
-        -1.383,
-        0.233
+        -1.369,
+        0.246
       ],
-      "n_obs": 9024,
+      "n_obs": 9058,
       "covariates": [
         "pop_density",
         "under15_ratio",
@@ -97,24 +97,24 @@
   },
   "Parts Theft": {
     "unadjusted": {
-      "coefficient": -0.293,
+      "coefficient": -0.285,
       "std_error": 0.265,
-      "p_value": 0.2691,
+      "p_value": 0.2819,
       "ci_95": [
-        -0.812,
-        0.226
+        -0.803,
+        0.234
       ],
-      "n_obs": 9029
+      "n_obs": 9058
     },
     "adjusted": {
-      "coefficient": -0.314,
-      "std_error": 0.264,
-      "p_value": 0.2347,
+      "coefficient": -0.285,
+      "std_error": 0.265,
+      "p_value": 0.2821,
       "ci_95": [
-        -0.831,
-        0.204
+        -0.804,
+        0.234
       ],
-      "n_obs": 9024,
+      "n_obs": 9058,
       "covariates": [
         "pop_density",
         "under15_ratio",
@@ -129,24 +129,24 @@
   },
   "Motorcycle Theft": {
     "unadjusted": {
-      "coefficient": -0.671,
+      "coefficient": -0.661,
       "std_error": 0.23,
-      "p_value": 0.0035,
+      "p_value": 0.004,
       "ci_95": [
-        -1.122,
-        -0.221
+        -1.111,
+        -0.21
       ],
-      "n_obs": 9029
+      "n_obs": 9058
     },
     "adjusted": {
-      "coefficient": -0.671,
+      "coefficient": -0.661,
       "std_error": 0.23,
-      "p_value": 0.0035,
+      "p_value": 0.0041,
       "ci_95": [
-        -1.122,
-        -0.221
+        -1.111,
+        -0.21
       ],
-      "n_obs": 9024,
+      "n_obs": 9058,
       "covariates": [
         "pop_density",
         "under15_ratio",
@@ -161,24 +161,24 @@
   },
   "Purse Snatching": {
     "unadjusted": {
-      "coefficient": -0.163,
+      "coefficient": -0.162,
       "std_error": 0.038,
       "p_value": 0.0,
       "ci_95": [
-        -0.238,
+        -0.237,
         -0.088
       ],
-      "n_obs": 9029
+      "n_obs": 9058
     },
     "adjusted": {
-      "coefficient": -0.163,
+      "coefficient": -0.162,
       "std_error": 0.038,
       "p_value": 0.0,
       "ci_95": [
-        -0.238,
+        -0.237,
         -0.088
       ],
-      "n_obs": 9024,
+      "n_obs": 9058,
       "covariates": [
         "pop_density",
         "under15_ratio",
@@ -193,24 +193,24 @@
   },
   "Car Theft": {
     "unadjusted": {
-      "coefficient": 0.249,
+      "coefficient": 0.253,
       "std_error": 0.138,
-      "p_value": 0.0725,
+      "p_value": 0.0669,
       "ci_95": [
-        -0.023,
-        0.52
+        -0.018,
+        0.524
       ],
-      "n_obs": 9029
+      "n_obs": 9058
     },
     "adjusted": {
-      "coefficient": 0.269,
-      "std_error": 0.137,
-      "p_value": 0.0488,
+      "coefficient": 0.253,
+      "std_error": 0.138,
+      "p_value": 0.067,
       "ci_95": [
-        0.001,
-        0.537
+        -0.018,
+        0.524
       ],
-      "n_obs": 9024,
+      "n_obs": 9058,
       "covariates": [
         "pop_density",
         "under15_ratio",

@@ -89,8 +89,7 @@ DESIGNATED_CITIES = [
 def ward_to_city(pref, city):
     """Map ward-level municipality to parent designated city if applicable."""
     for dc in DESIGNATED_CITIES:
-        base = dc.rstrip("市")
-        if city.startswith(base) and city != dc:
+        if city.startswith(dc) and city != dc:
             return dc
     return city
 
@@ -142,15 +141,15 @@ def load_ssdse():
         key = f"{pref}_{city}"
         covariates[key] = {
             "population": pop,
-            "under15_ratio": under15 / pop if under15 else np.nan,
-            "working_age_ratio": working_age / pop if working_age else np.nan,
-            "elderly_ratio": elderly / pop if elderly else np.nan,
-            "pop_density": pop / hab_area if hab_area and hab_area > 0 else np.nan,
-            "per_capita_tax": (local_tax * 1000) / pop if local_tax else np.nan,
+            "under15_ratio": under15 / pop if not np.isnan(under15) else np.nan,
+            "working_age_ratio": working_age / pop if not np.isnan(working_age) else np.nan,
+            "elderly_ratio": elderly / pop if not np.isnan(elderly) else np.nan,
+            "pop_density": pop / hab_area if not np.isnan(hab_area) and hab_area > 0 else np.nan,
+            "per_capita_tax": (local_tax * 1000) / pop if not np.isnan(local_tax) else np.nan,
             "unemployment_rate": unemployed / labor_force if labor_force > 0 else np.nan,
-            "foreign_ratio": foreign_pop / pop if foreign_pop else np.nan,
-            "single_hh_ratio": single_hh / households if households and households > 0 else np.nan,
-            "net_migration_rate": (transfer_in - transfer_out) / pop if transfer_in and transfer_out else np.nan,
+            "foreign_ratio": foreign_pop / pop if not np.isnan(foreign_pop) else np.nan,
+            "single_hh_ratio": single_hh / households if not np.isnan(households) and households > 0 else np.nan,
+            "net_migration_rate": (transfer_in - transfer_out) / pop if not np.isnan(transfer_in) and not np.isnan(transfer_out) else np.nan,
         }
 
     print(f"SSDSE covariates loaded: {len(covariates)} municipalities")
