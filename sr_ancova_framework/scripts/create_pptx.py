@@ -35,28 +35,8 @@ FIGURES = [
         ),
     },
     {
-        'file': 'fig3_detection_probability.png',
+        'file': 'fig3_optimal_rho.png',
         'title': 'Figure 3',
-        'caption': (
-            'Detection probability P_D and false alarm probability P_FA as functions of '
-            'input noise level for different covariate model accuracies ρ. '
-            'Higher ρ suppresses both P_D and P_FA by reducing effective noise; '
-            'the net effect on detection performance depends on the operating regime.'
-        ),
-    },
-    {
-        'file': 'fig4_roc_comparison.png',
-        'title': 'Figure 4',
-        'caption': (
-            'ROC curves at fixed input noise σ_n/θ = 1.5 (excess noise regime) '
-            'for different covariate adjustment levels. In this regime, higher ρ '
-            'improves the ROC curve, confirming that covariate adjustment is beneficial '
-            'when the system operates above the SR optimum.'
-        ),
-    },
-    {
-        'file': 'fig5_optimal_rho.png',
-        'title': 'Figure 5',
         'caption': (
             'Optimal noise model accuracy ρ* and the corresponding SNR improvement. '
             '(a) When σ < θ (SR regime, yellow shading), ρ* = 0: any noise removal '
@@ -66,23 +46,43 @@ FIGURES = [
         ),
     },
     {
-        'file': 'fig6_dvs_application.png',
+        'file': 'fig4_detection_probability.png',
+        'title': 'Figure 4',
+        'caption': (
+            'Detection probability P_D and false alarm probability P_FA as functions of '
+            'input noise level for different covariate model accuracies ρ. '
+            'Higher ρ suppresses both P_D and P_FA by reducing effective noise; '
+            'the net effect on detection performance depends on the operating regime.'
+        ),
+    },
+    {
+        'file': 'fig5_roc_comparison.png',
+        'title': 'Figure 5',
+        'caption': (
+            'ROC curves at fixed input noise σ_n/θ = 1.5 (excess noise regime) '
+            'for different covariate adjustment levels (A/θ = 0.4). In this regime, '
+            'higher ρ improves the ROC curve, confirming that covariate adjustment is '
+            'beneficial when the system operates above the SR optimum.'
+        ),
+    },
+    {
+        'file': 'fig6_mutual_information.png',
         'title': 'Figure 6',
+        'caption': (
+            'Mutual information I(S; E) between the periodic signal and the event stream '
+            'as a function of input noise level. Covariate adjustment (ρ = 0.8) shifts '
+            'the MI peak to higher input noise, consistent with the SR curve analysis.'
+        ),
+    },
+    {
+        'file': 'fig7_dvs_application.png',
+        'title': 'Figure 7',
         'caption': (
             'Application to dynamic vision sensor (DVS) astronomical observation. '
             '(a) ROC-AUC for noise classification: the Fano filter (covariate adjustment '
             'approach) achieves AUC = 0.866, far exceeding temporal filtering and neural '
             'methods. (b) NRR vs SPR trade-off: the Fano filter preserves 93.9% of signal '
             'events while removing 71.3% of noise.'
-        ),
-    },
-    {
-        'file': 'fig7_mutual_information.png',
-        'title': 'Figure 7',
-        'caption': (
-            'Mutual information I(S; E) between the periodic signal and the event stream '
-            'as a function of input noise level. Covariate adjustment (ρ = 0.8) shifts '
-            'the MI peak to higher input noise, consistent with the SR curve analysis.'
         ),
     },
 ]

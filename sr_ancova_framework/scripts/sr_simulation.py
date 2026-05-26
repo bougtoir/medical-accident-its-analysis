@@ -5,11 +5,11 @@ Stochastic Resonance + Covariate-Adjusted Denoising Simulation
 Generates all figures for the PRE manuscript:
   Fig. 1 — Conceptual schematic: threshold detector + SR + ANCOVA analogy
   Fig. 2 — Classic SR curve (SNR vs noise) + covariate-adjusted shift
-  Fig. 3 — Detection probability P_D at fixed P_FA for different rho
-  Fig. 4 — ROC curves: raw vs covariate-adjusted
-  Fig. 5 — Optimal rho* vs input noise: "too much adjustment kills SR"
-  Fig. 6 — DVS application: EBSSA results in SR framework
-  Fig. 7 — Mutual information vs noise level
+  Fig. 3 — Optimal rho* vs input noise: "too much adjustment kills SR"
+  Fig. 4 — Detection probability P_D at fixed P_FA for different rho
+  Fig. 5 — ROC curves: raw vs covariate-adjusted
+  Fig. 6 — Mutual information vs noise level
+  Fig. 7 — DVS application: EBSSA results in SR framework
 
 Key insight: covariate adjustment (ANCOVA) reduces effective noise
   sigma_eff = sigma * sqrt(1 - rho^2).
@@ -278,12 +278,12 @@ def fig2_sr_curve():
     print("  -> fig2_sr_curves.png")
 
 
-def fig3_detection_probability():
+def fig4_detection_probability():
     """
-    Fig. 3: Detection probability improvement through covariate adjustment.
+    Fig. 4: Detection probability improvement through covariate adjustment.
     At fixed P_FA, how does P_D change with noise and rho?
     """
-    print("Generating Fig. 3: Detection probability...")
+    print("Generating Fig. 4: Detection probability...")
     A = 0.4
     theta = 1.0
     sigma_range = np.linspace(0.1, 3.0, 60)
@@ -331,15 +331,15 @@ def fig3_detection_probability():
     ax2.set_title('(b) $P_{FA}$')
 
     fig.tight_layout()
-    fig.savefig(OUT_DIR / 'fig3_detection_probability.png')
+    fig.savefig(OUT_DIR / 'fig4_detection_probability.png')
     plt.close(fig)
-    print("  -> fig3_detection_probability.png")
+    print("  -> fig4_detection_probability.png")
 
 
-def fig4_roc_comparison():
-    """Fig. 4: ROC curves for different rho at a fixed high-noise regime."""
-    print("Generating Fig. 4: ROC comparison...")
-    A = 0.5
+def fig5_roc_comparison():
+    """Fig. 5: ROC curves for different rho at a fixed high-noise regime."""
+    print("Generating Fig. 5: ROC comparison...")
+    A = 0.4
     sigma_n = 1.5  # well above theta=1 (noisy regime)
     theta_range = np.linspace(0.001, 5.0, 500)
 
@@ -364,7 +364,7 @@ def fig4_roc_comparison():
     ax.plot([0, 1], [0, 1], 'k--', lw=0.5, alpha=0.5)
     ax.set_xlabel(r'False alarm probability $P_{FA}$')
     ax.set_ylabel(r'Detection probability $P_D$')
-    ax.set_title(r'$A/\theta=0.5$, $\sigma_n/\theta=1.5$')
+    ax.set_title(r'$A/\theta=0.4$, $\sigma_n/\theta=1.5$')
     ax.legend(loc='lower right', framealpha=0.9, fontsize=8)
     ax.set_xlim(0, 1)
     ax.set_ylim(0, 1.02)
@@ -372,19 +372,19 @@ def fig4_roc_comparison():
     ax.grid(True, alpha=0.3)
 
     fig.tight_layout()
-    fig.savefig(OUT_DIR / 'fig4_roc_comparison.png')
+    fig.savefig(OUT_DIR / 'fig5_roc_comparison.png')
     plt.close(fig)
-    print("  -> fig4_roc_comparison.png")
+    print("  -> fig5_roc_comparison.png")
 
 
-def fig5_optimal_rho():
+def fig3_optimal_rho():
     """
-    Fig. 5: THE KEY RESULT — optimal rho* as a function of input noise.
+    Fig. 3: THE KEY RESULT — optimal rho* as a function of input noise.
     Shows that there exists an optimal noise model accuracy:
     - sigma < theta: rho* = 0 (don't adjust — you need the noise for SR)
     - sigma > theta: rho* = sqrt(1 - theta^2/sigma^2) (adjust to SR peak)
     """
-    print("Generating Fig. 5: Optimal rho*...")
+    print("Generating Fig. 3: Optimal rho*...")
     theta = 1.0
     A_values = [0.2, 0.3, 0.5]
     colors = ['#1f77b4', '#ff7f0e', '#2ca02c']
@@ -447,14 +447,14 @@ def fig5_optimal_rho():
     ax2.set_title('(b) SNR improvement at optimal $\\rho^*$')
 
     fig.tight_layout()
-    fig.savefig(OUT_DIR / 'fig5_optimal_rho.png')
+    fig.savefig(OUT_DIR / 'fig3_optimal_rho.png')
     plt.close(fig)
-    print("  -> fig5_optimal_rho.png")
+    print("  -> fig3_optimal_rho.png")
 
 
-def fig6_dvs_application():
+def fig7_dvs_application():
     """Fig. 6: DVS EBSSA results reinterpreted in SR+ANCOVA framework."""
-    print("Generating Fig. 6: DVS application...")
+    print("Generating Fig. 7: DVS application...")
     methods = ['Temporal\nFilter', 'Fano Filter\n(Covariate Adj.)', 'PI-DC-DVS\n(Neural)']
     auc_means = [0.534, 0.866, 0.546]
     auc_stds = [0.083, 0.107, 0.218]
@@ -495,17 +495,17 @@ def fig6_dvs_application():
                  color='gray')
 
     fig.tight_layout()
-    fig.savefig(OUT_DIR / 'fig6_dvs_application.png')
+    fig.savefig(OUT_DIR / 'fig7_dvs_application.png')
     plt.close(fig)
-    print("  -> fig6_dvs_application.png")
+    print("  -> fig7_dvs_application.png")
 
 
-def fig7_mutual_information():
+def fig6_mutual_information():
     """
     Fig. 7: Mutual information I(S;E) vs noise level.
     Analytical approximation based on event probability modulation.
     """
-    print("Generating Fig. 7: Mutual information...")
+    print("Generating Fig. 6: Mutual information...")
     A = 0.3
     theta = 1.0
     sigma_range = np.linspace(0.1, 4.0, 200)
@@ -553,9 +553,9 @@ def fig7_mutual_information():
     ax.grid(True, alpha=0.3)
 
     fig.tight_layout()
-    fig.savefig(OUT_DIR / 'fig7_mutual_information.png')
+    fig.savefig(OUT_DIR / 'fig6_mutual_information.png')
     plt.close(fig)
-    print("  -> fig7_mutual_information.png")
+    print("  -> fig6_mutual_information.png")
 
 
 # ===================================================================
@@ -565,9 +565,9 @@ if __name__ == '__main__':
     np.random.seed(2025)
     fig1_schematic()
     fig2_sr_curve()
-    fig3_detection_probability()
-    fig4_roc_comparison()
-    fig5_optimal_rho()
-    fig6_dvs_application()
-    fig7_mutual_information()
+    fig3_optimal_rho()
+    fig4_detection_probability()
+    fig5_roc_comparison()
+    fig6_mutual_information()
+    fig7_dvs_application()
     print("\nAll figures generated successfully.")

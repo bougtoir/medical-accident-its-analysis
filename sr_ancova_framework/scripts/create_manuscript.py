@@ -280,7 +280,7 @@ def build_manuscript():
         '            { \u221a(1 \u2212 \u03b8\u00b2/\u03c3\u00b2),              if \u03c3 > \u03b8.          (5)'
     ), space_before=6, space_after=6)
     add_paragraph(doc, (
-        'This result has a clear physical interpretation (Fig. 5a). When the input noise is '
+        'This result has a clear physical interpretation (Fig. 3a). When the input noise is '
         'at or below the SR optimum (\u03c3 \u2264 \u03b8), the system is already operating at peak '
         'efficiency; any noise removal moves the operating point away from the optimum and '
         'degrades the SNR. In this SR regime, the optimal strategy is to leave the noise '
@@ -295,14 +295,14 @@ def build_manuscript():
         '    SNR_out(\u03c3, \u03c1*) / SNR_out(\u03c3, 0) = (\u03c3/\u03b8)\u2074 exp(2(\u03c3\u00b2 \u2212 \u03b8\u00b2)/\u03c3\u00b2),    (6)'
     ), space_before=6, space_after=6)
     add_paragraph(doc, (
-        'which grows as ~exp(2\u03c3\u00b2/\u03b8\u00b2) for \u03c3 \u226b \u03b8 (Fig. 5b). This exponential growth reflects '
+        'which grows as ~exp(2\u03c3\u00b2/\u03b8\u00b2) for \u03c3 \u226b \u03b8 (Fig. 3b). This exponential growth reflects '
         'the severe penalty of operating far above the SR optimum and the correspondingly '
         'large benefit of covariate adjustment in high-noise environments.'
     ))
 
-    # Fig 5 — placed after first citation in Sec II.D
-    add_figure(doc, FIG_DIR / 'fig5_optimal_rho.png',
-               'FIG. 5. (a) Optimal noise model accuracy \u03c1* versus input noise. Yellow shading: '
+    # Fig 3 — placed after first citation in Sec II.D
+    add_figure(doc, FIG_DIR / 'fig3_optimal_rho.png',
+               'FIG. 3. (a) Optimal noise model accuracy \u03c1* versus input noise. Yellow shading: '
                'SR regime (\u03c3 < \u03b8) where \u03c1* = 0. Blue shading: excess noise regime (\u03c3 > \u03b8) '
                'where \u03c1* = \u221a(1 \u2212 \u03b8\u00b2/\u03c3\u00b2). Dashed line: analytical prediction. '
                '(b) Peak SNR improvement at optimal \u03c1* grows exponentially with input noise, '
@@ -334,33 +334,33 @@ def build_manuscript():
 
     add_heading(doc, 'B. Detection probabilities', level=2)
     add_paragraph(doc, (
-        'Figure 3 shows the detection probability P_D and false alarm probability P_FA as '
+        'Figure 4 shows the detection probability P_D and false alarm probability P_FA as '
         'functions of input noise for A/\u03b8 = 0.4. Both probabilities decrease with increasing '
         '\u03c1 at any fixed input noise level, because covariate adjustment reduces the effective '
         'noise that drives threshold crossings. The detection advantage of adjustment becomes '
-        'apparent in the ROC representation (Fig. 4), where the relevant metric is P_D at a '
+        'apparent in the ROC representation (Fig. 5), where the relevant metric is P_D at a '
         'given P_FA. In the excess noise regime (\u03c3/\u03b8 = 1.5), higher \u03c1 produces ROC curves '
         'that are progressively further above the chance diagonal, indicating improved '
         'discriminability between signal and noise.'
     ))
 
-    # Fig 3
-    add_figure(doc, FIG_DIR / 'fig3_detection_probability.png',
-               'FIG. 3. (a) Detection probability P_D and (b) false alarm probability P_FA '
+    # Fig 4
+    add_figure(doc, FIG_DIR / 'fig4_detection_probability.png',
+               'FIG. 4. (a) Detection probability P_D and (b) false alarm probability P_FA '
                'versus input noise level for different covariate model accuracies \u03c1 '
                '(A/\u03b8 = 0.4). Higher \u03c1 suppresses both probabilities by reducing effective noise.',
                width=Inches(5.5))
 
-    # Fig 4
-    add_figure(doc, FIG_DIR / 'fig4_roc_comparison.png',
-               'FIG. 4. ROC curves at \u03c3_n/\u03b8 = 1.5 (excess noise regime) for different \u03c1. '
+    # Fig 5
+    add_figure(doc, FIG_DIR / 'fig5_roc_comparison.png',
+               'FIG. 5. ROC curves at \u03c3_n/\u03b8 = 1.5 (excess noise regime) for different \u03c1. '
                'Covariate adjustment progressively improves detection performance, with '
                '\u03c1 = 0.95 achieving near-ideal separation between signal and noise events.',
                width=Inches(3.8))
 
     add_heading(doc, 'C. Optimal noise model accuracy', level=2)
     add_paragraph(doc, (
-        'Figure 5 presents the central result of this work. Panel (a) shows the numerically '
+        'Figure 3 presents the central result of this work. Panel (a) shows the numerically '
         'determined optimal \u03c1* as a function of input noise, confirming the analytical '
         'prediction \u03c1* = \u221a(1 \u2212 \u03b8\u00b2/\u03c3\u00b2) (dashed line). The transition at \u03c3 = \u03b8 is sharp: '
         'below this threshold, no adjustment is optimal; above it, the optimal adjustment '
@@ -372,7 +372,7 @@ def build_manuscript():
 
     add_heading(doc, 'D. Information-theoretic perspective', level=2)
     add_paragraph(doc, (
-        'Figure 7 shows the mutual information I(S; E) between the periodic signal and the '
+        'Figure 6 shows the mutual information I(S; E) between the periodic signal and the '
         'event stream as a function of input noise. Like the SNR measure, the mutual '
         'information exhibits an SR peak that shifts rightward with covariate adjustment. '
         'This confirms that the SR effect and the benefits of covariate adjustment are '
@@ -380,9 +380,9 @@ def build_manuscript():
         'SNR definition used.'
     ))
 
-    # Fig 7
-    add_figure(doc, FIG_DIR / 'fig7_mutual_information.png',
-               'FIG. 7. Mutual information I(S; E) between the periodic signal and the event '
+    # Fig 6
+    add_figure(doc, FIG_DIR / 'fig6_mutual_information.png',
+               'FIG. 6. Mutual information I(S; E) between the periodic signal and the event '
                'stream. The SR peak shifts rightward with covariate adjustment (\u03c1 = 0.8), '
                'consistent with the SNR analysis in Fig. 2.',
                width=Inches(4.5))
@@ -506,20 +506,20 @@ def build_manuscript():
         'are present within a fixed window.'
     ))
     add_paragraph(doc, (
-        'Figure 6a shows the noise classification performance. The Fano filter achieves '
+        'Figure 7a shows the noise classification performance. The Fano filter achieves '
         'ROC-AUC = 0.866 \u00b1 0.107, substantially outperforming both temporal filtering '
         '(AUC = 0.534 \u00b1 0.083) and the neural network approach '
         '(AUC = 0.546 \u00b1 0.218). The temporal filter achieves the highest raw noise '
         'removal rate (85.2%) but at the cost of destroying most signal events '
-        '(SPR = 21.6%), making it unsuitable for faint-object detection. Figure 6b shows '
+        '(SPR = 21.6%), making it unsuitable for faint-object detection. Figure 7b shows '
         'the NRR-SPR trade-off: the Fano filter removes 71.3% of noise events while '
         'preserving 93.9% of signal events, occupying the upper-right region of the '
         'performance space closest to the ideal point (NRR = 1, SPR = 1).'
     ))
 
-    # Fig 6
-    add_figure(doc, FIG_DIR / 'fig6_dvs_application.png',
-               'FIG. 6. Application to DVS astronomical observation (EBSSA dataset, 20 '
+    # Fig 7
+    add_figure(doc, FIG_DIR / 'fig7_dvs_application.png',
+               'FIG. 7. Application to DVS astronomical observation (EBSSA dataset, 20 '
                'recordings). (a) Noise classification ROC-AUC: the Fano filter (covariate '
                'adjustment) achieves 0.866, far exceeding temporal filtering and neural methods. '
                '(b) NRR vs SPR trade-off: the Fano filter preserves 93.9% of signal while '
@@ -541,7 +541,7 @@ def build_manuscript():
         'noise regime (\u03c3 \u226b \u03b8): the dark current noise rate far exceeds the astronomical '
         'signal event rate. The physics-informed covariate model (A5 + Fano filter) '
         'effectively achieves \u03c1 \u2248 0.7\u20130.9 in terms of noise prediction accuracy. According '
-        'to Fig. 5b, this should yield an SNR improvement of approximately 5\u201310\u00d7, consistent '
+        'to Fig. 3b, this should yield an SNR improvement of approximately 5\u201310\u00d7, consistent '
         'with the measured mean SNR improvement of 5.4\u00d7 in the EBSSA evaluation. The '
         'covariate adjustment does not eliminate noise entirely (NRR = 0.713, not 1.0), '
         'which is consistent with the framework\u2019s prediction that over-adjustment in the '
