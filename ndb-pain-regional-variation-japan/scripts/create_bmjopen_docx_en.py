@@ -70,6 +70,21 @@ REGION_EN = {
 }
 REGION_ORDER = ['北海道', '東北', '関東', '北陸・甲信越', '東海', '近畿', '中国', '四国', '九州・沖縄']
 
+PREF_EN = {
+    '北海道': 'Hokkaido', '青森県': 'Aomori', '岩手県': 'Iwate', '宮城県': 'Miyagi',
+    '秋田県': 'Akita', '山形県': 'Yamagata', '福島県': 'Fukushima', '茨城県': 'Ibaraki',
+    '栃木県': 'Tochigi', '群馬県': 'Gunma', '埼玉県': 'Saitama', '千葉県': 'Chiba',
+    '東京都': 'Tokyo', '神奈川県': 'Kanagawa', '新潟県': 'Niigata', '富山県': 'Toyama',
+    '石川県': 'Ishikawa', '福井県': 'Fukui', '山梨県': 'Yamanashi', '長野県': 'Nagano',
+    '岐阜県': 'Gifu', '静岡県': 'Shizuoka', '愛知県': 'Aichi', '三重県': 'Mie',
+    '滋賀県': 'Shiga', '京都府': 'Kyoto', '大阪府': 'Osaka', '兵庫県': 'Hyogo',
+    '奈良県': 'Nara', '和歌山県': 'Wakayama', '鳥取県': 'Tottori', '島根県': 'Shimane',
+    '岡山県': 'Okayama', '広島県': 'Hiroshima', '山口県': 'Yamaguchi', '徳島県': 'Tokushima',
+    '香川県': 'Kagawa', '愛媛県': 'Ehime', '高知県': 'Kochi', '福岡県': 'Fukuoka',
+    '佐賀県': 'Saga', '長崎県': 'Nagasaki', '熊本県': 'Kumamoto', '大分県': 'Oita',
+    '宮崎県': 'Miyazaki', '鹿児島県': 'Kagoshima', '沖縄県': 'Okinawa',
+}
+
 # ============================================================
 # REFERENCES — Vancouver style, numbered in order of first appearance
 # ============================================================
@@ -293,6 +308,21 @@ scr_neuro_non_tohoku = scr['neuropathic_outpatient']['scr_non_tohoku_mean']
 region_data = defaultdict(list)
 for r in rows:
     region_data[r['region']].append(r['acute_analgesic_per_surgery'])
+
+all_acute = [r['acute_analgesic_per_surgery'] for r in rows]
+national_mean = np.mean(all_acute)
+national_sd = np.std(all_acute, ddof=1)
+national_min = min(all_acute)
+national_max = max(all_acute)
+national_fold = national_max / national_min
+
+min_row = min(rows, key=lambda r: r['acute_analgesic_per_surgery'])
+max_row = max(rows, key=lambda r: r['acute_analgesic_per_surgery'])
+min_pref_en = PREF_EN.get(min_row['pref_name'], min_row['pref_name'])
+max_pref_en = PREF_EN.get(max_row['pref_name'], max_row['pref_name'])
+
+neuro_ranked = sorted(rows, key=lambda r: r['neuropathic_per_surgery'], reverse=True)
+top3_neuro = neuro_ranked[:3]
 
 # ============================================================
 # TITLE PAGE
@@ -698,8 +728,8 @@ add_heading_text('Phase 1: Regional variation in acute perioperative analgesic p
 r1 = (
     'During April 2023\u2013March 2024, the NDB recorded 7,903,515 inpatient surgical procedures '
     'and 274,579,851 analgesic prescription units across 47 prefectures. '
-    'The national mean analgesic-per-surgery index was 35.78 (SD 5.56), '
-    'ranging from 25.20 (Gifu) to 49.75 (Kagoshima)\u2014a 1.97-fold difference '
+    f'The national mean analgesic-per-surgery index was {national_mean:.2f} (SD {national_sd:.2f}), '
+    f'ranging from {national_min:.2f} ({min_pref_en}) to {national_max:.2f} ({max_pref_en})\u2014a {national_fold:.2f}-fold difference '
     '(Kruskal\u2013Wallis P<0.001 across nine regions; table 1).'
 )
 doc.add_paragraph(r1)
@@ -764,7 +794,12 @@ r3 = (
     f'({reg["model1_unadjusted"]["tohoku_mean"]:.1f} vs '
     f'{reg["model1_unadjusted"]["non_tohoku_mean"]:.1f}; P<0.001; '
     f'd={reg["model1_unadjusted"]["cohens_d"]:.2f}), '
-    f'with Iwate (566.7), Aomori (519.3), and Akita (461.1) '
+    f'with {PREF_EN.get(top3_neuro[0]["pref_name"], top3_neuro[0]["pref_name"])} '
+    f'({top3_neuro[0]["neuropathic_per_surgery"]:.1f}), '
+    f'{PREF_EN.get(top3_neuro[1]["pref_name"], top3_neuro[1]["pref_name"])} '
+    f'({top3_neuro[1]["neuropathic_per_surgery"]:.1f}), and '
+    f'{PREF_EN.get(top3_neuro[2]["pref_name"], top3_neuro[2]["pref_name"])} '
+    f'({top3_neuro[2]["neuropathic_per_surgery"]:.1f}) '
     f'occupying the top three nationally (figure 1).'
 )
 doc.add_paragraph(r3)
