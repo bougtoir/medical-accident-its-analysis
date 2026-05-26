@@ -66,11 +66,11 @@ def parse_tokyo_csv(path, year):
                 total = int(row[1])
             except (ValueError, IndexError):
                 continue
-            violent = int(row[2]) if row[2].strip() else 0
-            rough = int(row[5]) if row[5].strip() else 0
-            burglary = int(row[11]) if row[11].strip() else 0
-            theft_non = int(row[20]) if row[20].strip() else 0
-            other = int(row[32]) if row[32].strip() else 0
+            violent = int(row[2]) if len(row) > 2 and row[2].strip() else 0
+            rough = int(row[5]) if len(row) > 5 and row[5].strip() else 0
+            burglary = int(row[11]) if len(row) > 11 and row[11].strip() else 0
+            theft_non = int(row[20]) if len(row) > 20 and row[20].strip() else 0
+            other = int(row[32]) if len(row) > 32 and row[32].strip() else 0
 
             municipality = None
             for suffix in ["区", "市", "町", "村"]:
@@ -398,7 +398,7 @@ TOKYO_MUNI_NEIGHBORS = {
     "江東区": ["中央区", "墨田区", "江戸川区", "品川区", "港区"],
     "町田市": ["八王子市", "多摩市", "相模原市"],
     "板橋区": ["北区", "練馬区", "豊島区"],
-    "武蔵村山市": ["東大和市", "瑞穂町", "立川市", "昭島市"],
+    "武蔵村山市": ["東大和市", "西多摩郡瑞穂町", "立川市", "昭島市"],
     "府中市": ["調布市", "小金井市", "国分寺市", "多摩市", "稲城市", "国立市"],
 }
 

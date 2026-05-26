@@ -1,0 +1,90 @@
+{
+  "Violent Crime": {
+    "coefficient": -0.613,
+    "std_error": 12.196,
+    "p_value": 0.9599,
+    "ci_95": [
+      -24.517,
+      23.29
+    ],
+    "n_obs": 11506,
+    "n_counties": 3227
+  },
+  "Murder": {
+    "coefficient": 0.046,
+    "std_error": 0.21,
+    "p_value": 0.8254,
+    "ci_95": [
+      -0.366,
+      0.459
+    ],
+    "n_obs": 11506,
+    "n_counties": 3227
+  },
+  "Robbery": {
+    "coefficient": -4.648,
+    "std_error": 7.944,
+    "p_value": 0.5585,
+    "ci_95": [
+      -20.217,
+      10.922
+    ],
+    "n_obs": 11506,
+    "n_counties": 3227
+  },
+  "Aggravated Assault": {
+    "coefficient": 0.978,
+    "std_error": 7.0,
+    "p_value": 0.8889,
+    "ci_95": [
+      -12.742,
+      14.698
+    ],
+    "n_obs": 11506,
+    "n_counties": 3227
+  },
+  "Property Crime": {
+    "coefficient": -80.414,
+    "std_error": 44.149,
+    "p_value": 0.0685,
+    "ci_95": [
+      -166.946,
+      6.117
+    ],
+    "n_obs": 11506,
+    "n_counties": 3227
+  },
+  "Burglary": {
+    "coefficient": -65.565,
+    "std_error": 31.222,
+    "p_value": 0.0357,
+    "ci_95": [
+      -126.758,
+      -4.372
+    ],
+    "n_obs": 11506,
+    "n_counties": 3227
+  },
+  "Larceny-Theft": {
+    "coefficient": -14.006,
+    "std_error": 17.61,
+    "p_value": 0.4264,
+    "ci_95": [
+      -48.521,
+      20.509
+    ],
+    "n_obs": 11506,
+    "n_counties": 3227
+  },
+  "Motor Vehicle Theft": {
+    "coefficient": -0.857,
+    "std_error": 4.86,
+    "p_value": 0.8601,
+    "ci_95": [
+      -10.381,
+      8.668
+    ],
+    "n_obs": 11506,
+    "n_counties": 3227
+  }
+}
