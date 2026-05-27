@@ -165,6 +165,14 @@ jobs:
           SUBDIR_MAP["devin/1779720458-sr-ancova-signal-processing"]="sr_ancova_framework"
           SUBDIR_MAP["devin/1779728490-dvs-jatis-submission"]="dvs_noise_inverse_problem"
 
+          # ── File exclusion map ──
+          # Space-separated list of file paths (relative to subdir root if
+          # SUBDIR_MAP is set, or repo root otherwise) to exclude from sync.
+          # Use this to keep manuscript/cover-letter generation scripts out of
+          # public repos while still syncing data, analysis code, and outputs.
+          declare -A EXCLUDE_MAP
+          EXCLUDE_MAP["devin/1777908700-canonical-curves-reexamination"]="scripts/generate_manuscript.py scripts/generate_manuscript_ja.py scripts/generate_cover_letter.py scripts/generate_strobe_checklist.py cover_letter_ripr.docx cover_letter_jes.docx title_page_jes.docx strobe_checklist.docx manuscript_canonical_curves_ja.docx 52_canonical_curves_overview.md"
+
           OWNER="bougtoir"
 
           # Validate PAT owner matches target namespace
@@ -240,6 +248,15 @@ jobs:
               fi
               TEMP_INDEX=$(mktemp)
               GIT_INDEX_FILE="$TEMP_INDEX" git read-tree "origin/${BRANCH}:${SUBDIR}"
+
+              # Apply file exclusions if EXCLUDE_MAP entry exists
+              EXCLUDES="${EXCLUDE_MAP[$BRANCH]:-}"
+              if [ -n "$EXCLUDES" ]; then
+                for EXCL in $EXCLUDES; do
+                  GIT_INDEX_FILE="$TEMP_INDEX" git rm -rf --cached "$EXCL" >/dev/null 2>&1 || true
+                done
+              fi
+
               FILTERED_TREE=$(GIT_INDEX_FILE="$TEMP_INDEX" git write-tree)
               rm -f "$TEMP_INDEX"
               COMPARE_SHA=$(GIT_AUTHOR_DATE="$ORIG_DATE" \
@@ -249,20 +266,25 @@ jobs:
                 git commit-tree "$FILTERED_TREE" -m "sync: $BRANCH (subdir: $SUBDIR)")
               PUSH_REF="$COMPARE_SHA"
             else
-              # No subdir filter — strip .github/workflows/ if present
-              # (PAT without 'workflow' scope cannot push workflow files)
+              # No subdir filter — strip .github/workflows/ and apply exclusions
               WORKFLOW_FILES=$(git ls-tree -r --name-only "origin/$BRANCH" -- .github/workflows/ 2>/dev/null | head -1)
-              if [ -n "$WORKFLOW_FILES" ]; then
+              EXCLUDES="${EXCLUDE_MAP[$BRANCH]:-}"
+              if [ -n "$WORKFLOW_FILES" ] || [ -n "$EXCLUDES" ]; then
                 TEMP_INDEX=$(mktemp)
                 GIT_INDEX_FILE="$TEMP_INDEX" git read-tree "origin/$BRANCH"
                 GIT_INDEX_FILE="$TEMP_INDEX" git rm -rf --cached .github/workflows/ >/dev/null 2>&1 || true
+                if [ -n "$EXCLUDES" ]; then
+                  for EXCL in $EXCLUDES; do
+                    GIT_INDEX_FILE="$TEMP_INDEX" git rm -rf --cached "$EXCL" >/dev/null 2>&1 || true
+                  done
+                fi
                 FILTERED_TREE=$(GIT_INDEX_FILE="$TEMP_INDEX" git write-tree)
                 rm -f "$TEMP_INDEX"
                 COMPARE_SHA=$(GIT_AUTHOR_DATE="$ORIG_DATE" \
                   GIT_COMMITTER_DATE="$ORIG_DATE" \
                   GIT_AUTHOR_NAME="wip-sync" GIT_AUTHOR_EMAIL="sync@wip" \
                   GIT_COMMITTER_NAME="wip-sync" GIT_COMMITTER_EMAIL="sync@wip" \
-                  git commit-tree "$FILTERED_TREE" -m "sync: $BRANCH (workflows stripped)")
+                  git commit-tree "$FILTERED_TREE" -m "sync: $BRANCH (filtered)")
                 PUSH_REF="$COMPARE_SHA"
               fi
             fi
