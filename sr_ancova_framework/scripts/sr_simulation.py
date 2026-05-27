@@ -453,7 +453,7 @@ def fig3_optimal_rho():
 
 
 def fig7_dvs_application():
-    """Fig. 6: DVS EBSSA results reinterpreted in SR+ANCOVA framework."""
+    """Fig. 7: DVS EBSSA results reinterpreted in SR+ANCOVA framework."""
     print("Generating Fig. 7: DVS application...")
     methods = ['Temporal\nFilter', 'Fano Filter\n(Covariate Adj.)', 'PI-DC-DVS\n(Neural)']
     auc_means = [0.534, 0.866, 0.546]
@@ -502,7 +502,7 @@ def fig7_dvs_application():
 
 def fig6_mutual_information():
     """
-    Fig. 7: Mutual information I(S;E) vs noise level.
+    Fig. 6: Mutual information I(S;E) vs noise level.
     Analytical approximation based on event probability modulation.
     """
     print("Generating Fig. 6: Mutual information...")
