@@ -11,10 +11,14 @@ Usage:
     streamlit run aruco_app.py
 """
 
+import threading
+
+import av
 import cv2
 import numpy as np
 import streamlit as st
 from PIL import Image
+from streamlit_webrtc import VideoProcessorBase, webrtc_streamer
 
 from aruco_analyzer import (
     AlignmentResult,
@@ -42,9 +46,9 @@ st.title("術中体位アライメントツール（ArUcoマーカー版）")
 # Mode selection
 mode = st.sidebar.radio(
     "モード選択",
-    options=["体位比較", "刺入点ガイダンス（SNM）"],
+    options=["体位比較", "刺入点ガイダンス（SNM）", "連続モード（SNM）"],
     index=0,
-    help="体位比較: CT撮影時 vs 術中体位の比較\n刺入点ガイダンス: CT計測値から刺入点位置を表示",
+    help="体位比較: CT撮影時 vs 術中体位の比較\n刺入点ガイダンス: CT計測値から刺入点位置を表示\n連続モード: カメラでリアルタイム表示",
 )
 
 # Sidebar settings
@@ -295,6 +299,152 @@ if mode == "刺入点ガイダンス（SNM）":
 
 
 # ============================================================
+# MODE: 連続モード (Real-time Camera Mode)
+# ============================================================
+elif mode == "連続モード（SNM）":
+    st.markdown(
+        """
+    **連続モード（リアルタイムカメラ）**
+
+    カメラ映像にリアルタイムで刺入点クロスヘアをオーバーレイ表示します。
+    カメラをマーカーに向けると自動的に検出・表示されます。
+    """
+    )
+
+    # CT offset input (shared with static mode)
+    st.sidebar.markdown("### CT計測値入力")
+    st.sidebar.markdown(
+        """
+    **座標系の定義:**
+    - 原点マーカー → 軸マーカー方向 = 側方軸 (LAT)
+    - それに垂直（足側方向）= 尾側軸 (CAUD)
+    """
+    )
+
+    live_origin_id = st.sidebar.number_input(
+        "原点マーカーID",
+        min_value=0, max_value=49, value=0, step=1,
+        key="live_origin",
+    )
+    live_axis_id = st.sidebar.number_input(
+        "軸マーカーID",
+        min_value=0, max_value=49, value=1, step=1,
+        key="live_axis",
+    )
+
+    st.sidebar.markdown("---")
+    st.sidebar.markdown("**刺入点オフセット (CT計測値)**")
+    live_offset_caudal = st.sidebar.number_input(
+        "尾側オフセット (mm)",
+        min_value=-200.0, max_value=200.0, value=40.0, step=1.0,
+        key="live_caudal",
+    )
+    live_offset_lateral = st.sidebar.number_input(
+        "側方オフセット (mm)",
+        min_value=-200.0, max_value=200.0, value=15.0, step=1.0,
+        key="live_lateral",
+    )
+
+    class EntryPointVideoProcessor(VideoProcessorBase):
+        """Process video frames with ArUco detection and entry point overlay."""
+
+        def __init__(self):
+            self._lock = threading.Lock()
+            self._origin_id = 0
+            self._axis_id = 1
+            self._offset_caudal = 40.0
+            self._offset_lateral = 15.0
+            self._marker_size_cm = 5.0
+            self._last_detection_count = 0
+            self._last_scale = 0.0
+
+        def update_params(
+            self,
+            origin_id: int,
+            axis_id: int,
+            offset_caudal: float,
+            offset_lateral: float,
+            marker_size_cm: float,
+        ):
+            with self._lock:
+                self._origin_id = origin_id
+                self._axis_id = axis_id
+                self._offset_caudal = offset_caudal
+                self._offset_lateral = offset_lateral
+                self._marker_size_cm = marker_size_cm
+
+        def recv(self, frame: av.VideoFrame) -> av.VideoFrame:
+            img = frame.to_ndarray(format="bgr24")
+
+            with self._lock:
+                origin_id = self._origin_id
+                axis_id = self._axis_id
+                offset_caudal = self._offset_caudal
+                offset_lateral = self._offset_lateral
+                marker_size_cm = self._marker_size_cm
+
+            markers = detect_markers(img)
+            self._last_detection_count = len(markers)
+
+            if markers and origin_id != axis_id:
+                result = compute_entry_point_from_ct_offset(
+                    markers=markers,
+                    origin_marker_id=origin_id,
+                    axis_marker_id=axis_id,
+                    offset_caudal_mm=offset_caudal,
+                    offset_lateral_mm=offset_lateral,
+                    marker_physical_size_cm=marker_size_cm,
+                )
+                if result is not None:
+                    self._last_scale = result.px_per_mm
+                    img = draw_entry_point_guide(img, result, markers)
+                else:
+                    img = _draw_marker_status(img, markers, origin_id, axis_id)
+            elif markers:
+                img = _draw_marker_status(img, markers, origin_id, axis_id)
+            else:
+                cv2.putText(
+                    img, "No markers detected",
+                    (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2,
+                )
+
+            return av.VideoFrame.from_ndarray(img, format="bgr24")
+
+    ctx = webrtc_streamer(
+        key="snm-entry-point-live",
+        video_processor_factory=EntryPointVideoProcessor,
+        media_stream_constraints={
+            "video": {"frameRate": {"ideal": 5, "max": 10}},
+            "audio": False,
+        },
+        async_processing=True,
+    )
+
+    if ctx.video_processor:
+        ctx.video_processor.update_params(
+            origin_id=live_origin_id,
+            axis_id=live_axis_id,
+            offset_caudal=live_offset_caudal,
+            offset_lateral=live_offset_lateral,
+            marker_size_cm=marker_physical_size_cm,
+        )
+
+    st.markdown(
+        """
+    ---
+    ### 操作方法
+    1. 上の **START** ボタンを押してカメラを起動
+    2. カメラを体表のArUcoマーカーに向ける
+    3. マーカーが検出されると自動的にクロスヘアが表示される
+    4. サイドバーのオフセット値を変更するとリアルタイムで反映
+    5. クロスヘアの位置にペンでマーキング
+
+    **注意:** ブラウザがカメラへのアクセスを要求します。許可してください。
+    """
+    )
+
+
+# ============================================================
 # MODE: 体位比較 (Pose Comparison)
 # ============================================================
 else:
@@ -528,3 +678,44 @@ else:
 
 st.markdown("---")
 st.caption("ArUco Marker-Based Surgical Pose Alignment | OpenCV ArUco検出による術中体位アライメント支援ツール")
+
+
+def _draw_marker_status(
+    img: np.ndarray,
+    markers: list[MarkerInfo],
+    origin_id: int,
+    axis_id: int,
+) -> np.ndarray:
+    """Draw detected markers with status when entry point can't be computed."""
+    overlay = img.copy()
+    detected_ids = {m.marker_id for m in markers}
+
+    for m in markers:
+        pts = m.corners.astype(np.int32)
+        color = (0, 255, 0) if m.marker_id in (origin_id, axis_id) else (150, 150, 150)
+        cv2.polylines(overlay, [pts], True, color, 2)
+        center = tuple(m.center.astype(int))
+        cv2.circle(overlay, center, 4, color, -1)
+        label = f"ID:{m.marker_id}"
+        if m.marker_id == origin_id:
+            label += " (ORIGIN)"
+        elif m.marker_id == axis_id:
+            label += " (AXIS)"
+        cv2.putText(
+            overlay, label,
+            (center[0] + 8, center[1] - 8),
+            cv2.FONT_HERSHEY_SIMPLEX, 0.4, color, 1,
+        )
+
+    missing = []
+    if origin_id not in detected_ids:
+        missing.append(f"ORIGIN(ID:{origin_id})")
+    if axis_id not in detected_ids:
+        missing.append(f"AXIS(ID:{axis_id})")
+    if missing:
+        cv2.putText(
+            overlay, f"Missing: {', '.join(missing)}",
+            (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 165, 255), 2,
+        )
+
+    return overlay
