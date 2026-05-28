@@ -700,3 +700,58 @@ def draw_entry_point_guide(
     )
 
     return overlay
+
+
+def draw_probe_distance(
+    image: np.ndarray,
+    guide_result: EntryPointGuideResult,
+    probe_marker: MarkerInfo,
+) -> tuple[np.ndarray, float]:
+    """Draw probe-to-entry-point distance and encode it for audio feedback.
+
+    Args:
+        image: Image with entry point guide already drawn.
+        guide_result: The computed entry point guide result.
+        probe_marker: The detected probe marker being moved toward entry point.
+
+    Returns:
+        Tuple of (annotated image, distance in mm).
+    """
+    overlay = image.copy()
+    entry_px = guide_result.entry_position_px
+    probe_px = probe_marker.center
+
+    # Distance in mm
+    dist_px = np.linalg.norm(probe_px - entry_px)
+    dist_mm = dist_px / guide_result.px_per_mm
+
+    # Draw probe marker
+    probe_pt = tuple(probe_px.astype(int))
+    cv2.circle(overlay, probe_pt, 10, (255, 0, 255), 2)
+    cv2.putText(
+        overlay, f"PROBE (ID:{probe_marker.marker_id})",
+        (probe_pt[0] + 12, probe_pt[1] - 12),
+        cv2.FONT_HERSHEY_SIMPLEX, 0.45, (255, 0, 255), 1,
+    )
+
+    # Draw line from probe to entry point
+    entry_pt = tuple(entry_px.astype(int))
+    line_color = (0, 255, 0) if dist_mm <= 5.0 else (0, 165, 255) if dist_mm <= 15.0 else (0, 0, 255)
+    cv2.line(overlay, probe_pt, entry_pt, line_color, 2)
+
+    # Draw distance label
+    mid_x = (probe_pt[0] + entry_pt[0]) // 2
+    mid_y = (probe_pt[1] + entry_pt[1]) // 2
+    cv2.putText(
+        overlay, f"{dist_mm:.1f}mm",
+        (mid_x + 10, mid_y - 10),
+        cv2.FONT_HERSHEY_SIMPLEX, 0.7, line_color, 2,
+    )
+
+    # Encode distance into top-left 4x4 pixel block for JS audio readout
+    # Red channel = distance_mm * 2 (0-127.5mm range, 0.5mm resolution)
+    # Green channel = 42 (magic number to confirm valid encoding)
+    encoded_val = min(int(dist_mm * 2), 255)
+    overlay[0:4, 0:4] = (encoded_val, 42, 0)
+
+    return overlay, dist_mm

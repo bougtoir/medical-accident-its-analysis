@@ -32,8 +32,139 @@ from aruco_analyzer import (
     draw_alignment_overlay,
     draw_entry_point_guide,
     draw_markers_on_image,
+    draw_probe_distance,
     generate_marker_sheet,
 )
+
+_PROXIMITY_BEEP_JS = """
+<script>
+(function() {
+  // Proximity beep audio feedback via Web Audio API.
+  // Reads distance encoded in top-left pixels of the WebRTC video element.
+  // Pixel format: BGR → canvas reads as RGB
+  //   R (OpenCV B) = encoded distance value (distance_mm * 2)
+  //   G (OpenCV G) = 42 (magic validation byte)
+  //   B (OpenCV R) = 0
+  // When no probe: R=0, G=0, B=255
+
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  let beepTimer = null;
+  let isBeeping = false;
+  let currentOsc = null;
+  let currentGain = null;
+  let lastInterval = -1;
+
+  function startBeep() {
+    if (currentOsc) return;
+    currentOsc = audioCtx.createOscillator();
+    currentGain = audioCtx.createGain();
+    currentOsc.type = 'sine';
+    currentOsc.frequency.value = 880;
+    currentGain.gain.value = 0.3;
+    currentOsc.connect(currentGain);
+    currentGain.connect(audioCtx.destination);
+    currentOsc.start();
+    isBeeping = true;
+  }
+
+  function stopBeep() {
+    if (currentOsc) {
+      currentOsc.stop();
+      currentOsc.disconnect();
+      currentGain.disconnect();
+      currentOsc = null;
+      currentGain = null;
+    }
+    isBeeping = false;
+  }
+
+  function playPulse(durationMs) {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = 880;
+    gain.gain.value = 0.3;
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + durationMs / 1000);
+  }
+
+  function getBeepInterval(distMm) {
+    if (distMm < 0) return -1;       // no probe
+    if (distMm <= 5) return 0;       // continuous
+    if (distMm <= 10) return 150;    // fast
+    if (distMm <= 20) return 300;    // medium
+    return 1000;                     // slow
+  }
+
+  function readDistanceFromVideo() {
+    // Find the video element rendered by streamlit-webrtc
+    const videos = document.querySelectorAll('video');
+    let video = null;
+    for (const v of videos) {
+      if (v.videoWidth > 0 && v.videoHeight > 0 && !v.paused) {
+        video = v;
+        break;
+      }
+    }
+    if (!video) return -1;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = 8;
+    canvas.height = 8;
+    const ctx2d = canvas.getContext('2d', {willReadFrequently: true});
+    ctx2d.drawImage(video, 0, 0, 8, 8, 0, 0, 8, 8);
+    const pixel = ctx2d.getImageData(2, 2, 1, 1).data;
+    // Canvas reads as RGBA. OpenCV wrote BGR → WebRTC sends as-is.
+    // In canvas: R=OpenCV_B(encoded_val), G=OpenCV_G(42), B=OpenCV_R(0)
+    // Actually: WebRTC re-encodes, so video shows normal RGB.
+    // OpenCV BGR [encoded_val, 42, 0] → displayed as RGB [0, 42, encoded_val]
+    // So in canvas: R=0, G=42, B=encoded_val
+    const r = pixel[0];
+    const g = pixel[1];
+    const b = pixel[2];
+
+    // Validate magic byte (G=42)
+    if (g >= 38 && g <= 46) {
+      return b / 2.0;  // encoded_val / 2 = distance_mm
+    }
+    return -1;  // No valid encoding found
+  }
+
+  function updateAudio() {
+    if (audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+    const distMm = readDistanceFromVideo();
+    const interval = getBeepInterval(distMm);
+
+    if (interval === lastInterval) return;
+    lastInterval = interval;
+
+    // Clear existing timer
+    if (beepTimer) { clearInterval(beepTimer); beepTimer = null; }
+    stopBeep();
+
+    if (interval < 0) {
+      // No probe detected - silence
+      return;
+    }
+    if (interval === 0) {
+      // Continuous tone (target reached)
+      startBeep();
+      return;
+    }
+    // Pulsed beep
+    playPulse(80);
+    beepTimer = setInterval(function() { playPulse(80); }, interval);
+  }
+
+  // Poll every 200ms
+  setInterval(updateAudio, 200);
+})();
+</script>
+"""
 
 st.set_page_config(
     page_title="術中体位アライメント（ArUcoマーカー）",
@@ -345,6 +476,18 @@ elif mode == "連続モード（SNM）":
         key="live_lateral",
     )
 
+    st.sidebar.markdown("---")
+    st.sidebar.markdown("**プローブマーカー（近接音用）**")
+    live_probe_id = st.sidebar.number_input(
+        "プローブマーカーID",
+        min_value=0, max_value=49, value=10, step=1,
+        key="live_probe",
+        help="手持ちのマーカーID。刺入点に近づくとビープ音が速くなります",
+    )
+    live_beep_enabled = st.sidebar.checkbox(
+        "近接ビープ音を有効化", value=True, key="live_beep",
+    )
+
     class EntryPointVideoProcessor(VideoProcessorBase):
         """Process video frames with ArUco detection and entry point overlay."""
 
@@ -355,8 +498,11 @@ elif mode == "連続モード（SNM）":
             self._offset_caudal = 40.0
             self._offset_lateral = 15.0
             self._marker_size_cm = 5.0
+            self._probe_id = 10
+            self._beep_enabled = True
             self._last_detection_count = 0
             self._last_scale = 0.0
+            self._last_distance_mm = -1.0
 
         def update_params(
             self,
@@ -365,6 +511,8 @@ elif mode == "連続モード（SNM）":
             offset_caudal: float,
             offset_lateral: float,
             marker_size_cm: float,
+            probe_id: int,
+            beep_enabled: bool,
         ):
             with self._lock:
                 self._origin_id = origin_id
@@ -372,6 +520,8 @@ elif mode == "連続モード（SNM）":
                 self._offset_caudal = offset_caudal
                 self._offset_lateral = offset_lateral
                 self._marker_size_cm = marker_size_cm
+                self._probe_id = probe_id
+                self._beep_enabled = beep_enabled
 
         def recv(self, frame: av.VideoFrame) -> av.VideoFrame:
             img = frame.to_ndarray(format="bgr24")
@@ -382,9 +532,15 @@ elif mode == "連続モード（SNM）":
                 offset_caudal = self._offset_caudal
                 offset_lateral = self._offset_lateral
                 marker_size_cm = self._marker_size_cm
+                probe_id = self._probe_id
+                beep_enabled = self._beep_enabled
 
             markers = detect_markers(img)
             self._last_detection_count = len(markers)
+            marker_dict = {m.marker_id: m for m in markers}
+
+            # Reset distance encoding (no probe detected)
+            img[0:4, 0:4] = (255, 0, 0)  # No-probe signal
 
             if markers and origin_id != axis_id:
                 result = compute_entry_point_from_ct_offset(
@@ -398,15 +554,27 @@ elif mode == "連続モード（SNM）":
                 if result is not None:
                     self._last_scale = result.px_per_mm
                     img = draw_entry_point_guide(img, result, markers)
+
+                    # Check for probe marker and draw distance
+                    if beep_enabled and probe_id in marker_dict:
+                        img, dist_mm = draw_probe_distance(
+                            img, result, marker_dict[probe_id]
+                        )
+                        self._last_distance_mm = dist_mm
+                    else:
+                        self._last_distance_mm = -1.0
                 else:
                     img = _draw_marker_status(img, markers, origin_id, axis_id)
+                    self._last_distance_mm = -1.0
             elif markers:
                 img = _draw_marker_status(img, markers, origin_id, axis_id)
+                self._last_distance_mm = -1.0
             else:
                 cv2.putText(
                     img, "No markers detected",
                     (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2,
                 )
+                self._last_distance_mm = -1.0
 
             return av.VideoFrame.from_ndarray(img, format="bgr24")
 
@@ -427,6 +595,15 @@ elif mode == "連続モード（SNM）":
             offset_caudal=live_offset_caudal,
             offset_lateral=live_offset_lateral,
             marker_size_cm=marker_physical_size_cm,
+            probe_id=live_probe_id,
+            beep_enabled=live_beep_enabled,
+        )
+
+    # Inject JavaScript for proximity beep audio feedback
+    if live_beep_enabled:
+        st.components.v1.html(
+            _PROXIMITY_BEEP_JS,
+            height=0,
         )
 
     st.markdown(
@@ -436,8 +613,14 @@ elif mode == "連続モード（SNM）":
     1. 上の **START** ボタンを押してカメラを起動
     2. カメラを体表のArUcoマーカーに向ける
     3. マーカーが検出されると自動的にクロスヘアが表示される
-    4. サイドバーのオフセット値を変更するとリアルタイムで反映
-    5. クロスヘアの位置にペンでマーキング
+    4. **プローブマーカー**（手持ち）を刺入点に近づけるとビープ音が速くなる
+    5. 連続音になったらその位置にペンでマーキング
+
+    **ビープ音の距離:**
+    - 🔴 > 20mm: 遅いビープ（1秒間隔）
+    - 🟡 10-20mm: 中間ビープ（0.3秒間隔）
+    - 🟢 5-10mm: 速いビープ（0.15秒間隔）
+    - ✅ < 5mm: 連続音（目標到達）
 
     **注意:** ブラウザがカメラへのアクセスを要求します。許可してください。
     """
