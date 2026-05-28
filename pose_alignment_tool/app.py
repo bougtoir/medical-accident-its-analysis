@@ -178,6 +178,7 @@ if ref_file and target_file:
                     ref_result,
                     target_result,
                     comparisons,
+                    visibility_threshold=visibility_threshold,
                 )
             else:
                 overlay = target_result.image_with_pose

@@ -210,9 +210,12 @@ def _draw_pose_on_image(
 
 def _is_landmark_visible(landmark, threshold: float = 0.3) -> bool:
     """Check if a landmark has sufficient visibility/presence confidence."""
-    # MediaPipe landmarks have visibility and presence scores
-    vis = getattr(landmark, "visibility", 1.0) or 1.0
-    presence = getattr(landmark, "presence", 1.0) or 1.0
+    vis = getattr(landmark, "visibility", 1.0)
+    presence = getattr(landmark, "presence", 1.0)
+    if vis is None:
+        vis = 1.0
+    if presence is None:
+        presence = 1.0
     return vis > threshold and presence > threshold
 
 
@@ -380,6 +383,7 @@ def draw_comparison_overlay(
     ref_result: PoseResult,
     target_result: PoseResult,
     comparisons: list[AngleComparison],
+    visibility_threshold: float = 0.3,
 ) -> np.ndarray:
     """Draw correction arrows and annotations on the target image."""
     overlay = target_image.copy()
@@ -400,21 +404,27 @@ def draw_comparison_overlay(
     ref_landmarks = ref_result.landmarks
     tgt_landmarks = target_result.landmarks
 
-    # Draw reference pose as ghost overlay (semi-transparent blue)
+    # Draw reference pose as ghost overlay (semi-transparent blue, visible only)
     ghost = overlay.copy()
     for start_lm, end_lm in POSE_CONNECTIONS:
         start = ref_landmarks[int(start_lm)]
         end = ref_landmarks[int(end_lm)]
+        if not (_is_landmark_visible(start, visibility_threshold) and
+                _is_landmark_visible(end, visibility_threshold)):
+            continue
         pt1 = (int(start.x * w), int(start.y * h))
         pt2 = (int(end.x * w), int(end.y * h))
         cv2.line(ghost, pt1, pt2, (255, 150, 0), 2)  # Blue for reference
 
     cv2.addWeighted(ghost, 0.4, overlay, 0.6, 0, overlay)
 
-    # Draw target pose
+    # Draw target pose (visible landmarks only)
     for start_lm, end_lm in POSE_CONNECTIONS:
         start = tgt_landmarks[int(start_lm)]
         end = tgt_landmarks[int(end_lm)]
+        if not (_is_landmark_visible(start, visibility_threshold) and
+                _is_landmark_visible(end, visibility_threshold)):
+            continue
         pt1 = (int(start.x * w), int(start.y * h))
         pt2 = (int(end.x * w), int(end.y * h))
         cv2.line(overlay, pt1, pt2, (0, 255, 0), 2)  # Green for target
