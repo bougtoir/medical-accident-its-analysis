@@ -292,7 +292,7 @@ bl_sig = bl_reg[bl_reg["P-value"] < 0.05].sort_values("P-value")
 bl_nonsig = bl_reg[bl_reg["P-value"] >= 0.05]
 
 results_mv1 = (
-    f"In multivariable linear regression (n = {int(S['logit_tx_n']):,}; "
+    f"In multivariable linear regression (n = {int(S['ols_n']):,}; "
     f"adjusted R\u00b2 = {float(S['ols_adj_r2']):.3f}), "
     "the following factors were independently associated with increased EBL: "
 )

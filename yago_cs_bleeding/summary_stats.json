@@ -12,8 +12,8 @@
   "bl_range_max": 5500.0,
   "n_transfusion": "128",
   "pct_transfusion": 4.331641285956007,
-  "n_massive": "185",
-  "pct_massive": 6.260575296108291,
+  "n_massive": 185.0,
+  "pct_massive": 6.370523415977962,
   "n_emergency": "1357",
   "pct_emergency": 45.92216582064298,
   "age_mean": 33.42030456852792,
@@ -24,10 +24,11 @@
   "ols_r2": 0.20690074193764307,
   "ols_adj_r2": 0.20411206662800052,
   "auc_transfusion": 0.9458679030421345,
-  "auc_massive": 0.8204810785965987,
+  "auc_massive": 0.8203651573414779,
   "year_range": "2014-2024",
   "logit_tx_n": 2858,
   "logit_tx_events": "126",
-  "logit_mh_n": 2858,
-  "logit_mh_events": "183"
+  "logit_mh_n": 2856,
+  "logit_mh_events": 183.0,
+  "ols_n": 2855
 }

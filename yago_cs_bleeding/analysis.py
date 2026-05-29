@@ -143,7 +143,7 @@ df["oxytocin"] = pd.to_numeric(df["術中オキシトシン投与(U)"], errors="
 df["fluid_ml"] = pd.to_numeric(df["術中輸液量(ml)"], errors="coerce")
 
 # Define massive hemorrhage (≥1500 mL, a commonly used threshold for PPH)
-df["massive_hemorrhage"] = (df["総出血量"] >= 1500).astype(int)
+df["massive_hemorrhage"] = df["総出血量"].apply(lambda x: int(x >= 1500) if pd.notna(x) else np.nan)
 
 # Phenylephrine total dose
 df["phenylephrine_mg"] = pd.to_numeric(df["術中フェニレフリン投与(mg)"], errors="coerce")
@@ -598,8 +598,8 @@ ax.set_xlabel("Odds ratio (95% CI) — log scale")
 ax.set_title("Multivariable logistic regression: Factors associated with transfusion")
 
 for i, row in enumerate(or_plot.itertuples()):
-    sig = "***" if row._4 < 0.001 else "**" if row._4 < 0.01 else "*" if row._4 < 0.05 else ""
-    ax.annotate(f"OR {row.OR:.2f}, p={row._4:.3f}{sig}",
+    sig = "***" if row._5 < 0.001 else "**" if row._5 < 0.01 else "*" if row._5 < 0.05 else ""
+    ax.annotate(f"OR {row.OR:.2f}, p={row._5:.3f}{sig}",
                 xy=(or_plot["95% CI upper"].max() * 1.1, i),
                 fontsize=8, va="center")
 
@@ -704,6 +704,7 @@ summary = {
     "logit_tx_events": df_model_tx["transfusion"].sum(),
     "logit_mh_n": len(df_model_mh),
     "logit_mh_events": df_model_mh["massive_hemorrhage"].sum(),
+    "ols_n": len(df_model),
 }
 
 # Save as JSON for manuscript generation
