@@ -121,6 +121,29 @@ add_text_with_refs(p,
     "and scikit-learn 1.6."
 )
 
+add_heading(doc, "Sensitivity Analyses")
+p = doc.add_paragraph()
+add_text_with_refs(p,
+    "Six sensitivity analyses were performed using alternative IONV definitions to assess "
+    "the robustness of the primary finding. Definition C restricted IONV to the post-delivery "
+    "phase only (antiemetic use after delivery but not before). Definition D identified severe "
+    "IONV, defined as use of two or more different antiemetic drugs. Definition E used a "
+    "drug-specific approach, counting only 5-HT3 receptor antagonists (ondansetron or "
+    "granisetron) as IONV markers. Definition F excluded patients whose only antiemetic was "
+    "dexamethasone (frequently used prophylactically). Definition G treated the number of "
+    "antiemetic drugs used as a count outcome and applied Poisson regression to estimate "
+    "incidence rate ratios (IRR). Definition H stratified the primary analysis by the presence "
+    "or absence of intraoperative hypotension, to assess whether the twin–IONV association "
+    "differed by hypotension status."
+)
+
+p = doc.add_paragraph()
+add_text_with_refs(p,
+    "For definitions with sparse events (events-per-variable ratio <5), a reduced model with "
+    "six covariates (twin, age, BMI, gestational age, emergency, and hypotension) was used "
+    "to ensure model convergence."
+)
+
 # ========================= RESULTS ========================= #
 add_heading(doc, "Results", level=1)
 add_heading(doc, "Study Population")
@@ -424,6 +447,171 @@ if (FIG / "fig6_antiemetic_drugs.png").exists():
     p_cap6.runs[0].font.size = Pt(9)
     p_cap6.paragraph_format.space_before = Pt(12)
 
+# ========================= SENSITIVITY ANALYSIS RESULTS ========================= #
+add_heading(doc, "Sensitivity Analyses")
+
+# Load sensitivity stats
+sens_json_path = BASE / "sensitivity_stats.json"
+if sens_json_path.exists():
+    with open(sens_json_path) as f:
+        SS = json.load(f)
+
+    # Sensitivity rates table
+    p = doc.add_paragraph()
+    add_text_with_refs(p,
+        "IONV rates according to alternative definitions are shown in Figure 7 and Table 6. "
+        "With the primary definition (A), IONV rates were comparable between singletons "
+        f"({SS['definitions']['A']['singleton_pct']:.1f}%) and twins "
+        f"({SS['definitions']['A']['twin_pct']:.1f}%). "
+        "Most alternative definitions yielded similar non-significant differences. "
+        "However, when IONV was defined by 5-HT3 antagonist use only (Definition E), "
+        f"twins had a significantly higher rate ({SS['definitions']['E']['twin_pct']:.1f}% "
+        f"vs {SS['definitions']['E']['singleton_pct']:.1f}%, P = 0.020)."
+    )
+
+    # Insert Fig 7 - Sensitivity forest plot
+    if (FIG / "fig7_sensitivity_forest.png").exists():
+        doc.add_paragraph()
+        p_fig7 = doc.add_paragraph()
+        p_fig7.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        p_fig7.add_run().add_picture(str(FIG / "fig7_sensitivity_forest.png"), width=Inches(5.5))
+        p_cap7 = doc.add_paragraph(
+            "Figure 7. Forest plot: Effect of twin pregnancy on IONV across alternative definitions. "
+            "Definitions A–F: adjusted odds ratios from multivariable logistic regression. "
+            "Definition G: incidence rate ratio from Poisson regression. "
+            "Definition H: stratified by hypotension status.")
+        p_cap7.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        p_cap7.runs[0].italic = True
+        p_cap7.runs[0].font.size = Pt(9)
+        p_cap7.paragraph_format.space_before = Pt(12)
+
+    # Sensitivity summary table (Table 6)
+    sens_table_path = BASE / "tables" / "sensitivity_summary.csv"
+    if sens_table_path.exists():
+        sens_tab = pd.read_csv(sens_table_path)
+        table6 = doc.add_table(rows=1, cols=6)
+        table6.style = "Table Grid"
+        table6.alignment = WD_TABLE_ALIGNMENT.CENTER
+        hdr6 = table6.rows[0].cells
+        for i, h_text in enumerate(["Definition", "Label", "n", "Events", "Twin aOR/IRR [95% CI]", "P-value"]):
+            hdr6[i].text = h_text
+            for para in hdr6[i].paragraphs:
+                for run in para.runs:
+                    run.bold = True
+                    run.font.size = Pt(9)
+
+        for _, row in sens_tab.iterrows():
+            cells = table6.add_row().cells
+            cells[0].text = str(row["Definition"])
+            cells[1].text = str(row["Label"])
+            cells[2].text = str(int(row["n"])) if not pd.isna(row["n"]) else "—"
+            cells[3].text = str(int(row["Events"])) if not pd.isna(row["Events"]) else "—"
+            if pd.notna(row["twin_OR"]):
+                cells[4].text = f"{row['twin_OR']:.2f} [{row['twin_CI_lower']:.2f}–{row['twin_CI_upper']:.2f}]"
+                p_val = row["twin_P"]
+                cells[5].text = f"{p_val:.3f}" if p_val >= 0.001 else "< 0.001"
+            else:
+                cells[4].text = "—"
+                cells[5].text = "—"
+            for c in cells:
+                for para in c.paragraphs:
+                    for run in para.runs:
+                        run.font.size = Pt(9)
+
+        p_tab6 = doc.add_paragraph("Table 6. Sensitivity analyses: twin pregnancy and IONV across alternative definitions.")
+        p_tab6.runs[0].italic = True
+        p_tab6.runs[0].font.size = Pt(9)
+
+    # Insert Fig 8 - Sensitivity rates bar chart
+    if (FIG / "fig8_sensitivity_rates.png").exists():
+        doc.add_paragraph()
+        p_fig8 = doc.add_paragraph()
+        p_fig8.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        p_fig8.add_run().add_picture(str(FIG / "fig8_sensitivity_rates.png"), width=Inches(5.5))
+        p_cap8 = doc.add_paragraph("Figure 8. IONV rates by definition: Singleton vs Twin.")
+        p_cap8.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        p_cap8.runs[0].italic = True
+        p_cap8.runs[0].font.size = Pt(9)
+        p_cap8.paragraph_format.space_before = Pt(12)
+
+    # Regression results text
+    p = doc.add_paragraph()
+    add_text_with_refs(p,
+        "In multivariable logistic regression, twin pregnancy was not significantly associated "
+        "with IONV under any alternative definition (Table 6, Fig. 7). "
+    )
+
+    # 5-HT3 finding
+    e_result = [r for r in SS["regression"] if r["Definition"] == "E"]
+    if e_result and e_result[0].get("twin_OR") is not None and not pd.isna(e_result[0]["twin_OR"]):
+        e = e_result[0]
+        p_e_str = f"P = {e['twin_P']:.3f}" if e["twin_P"] >= 0.001 else "P < 0.001"
+        p2 = doc.add_paragraph()
+        add_text_with_refs(p2,
+            f"A notable exception was Definition E (5-HT3 antagonist use), where twin pregnancy "
+            f"was associated with significantly higher 5-HT3 antagonist use "
+            f"(adjusted OR {e['twin_OR']:.2f}, 95% CI {e['twin_CI_lower']:.2f}–{e['twin_CI_upper']:.2f}; "
+            f"{p_e_str}; reduced model with 6 covariates due to sparse events, {e['Events']} events). "
+            f"This suggests that while overall antiemetic use is similar, twins may have a different "
+            f"pattern of antiemetic prescribing, with more frequent use of serotonin receptor antagonists."
+        )
+
+    # Poisson
+    g_result = [r for r in SS["regression"] if r["Definition"] == "G"]
+    if g_result and g_result[0].get("twin_OR") is not None and not pd.isna(g_result[0]["twin_OR"]):
+        g = g_result[0]
+        p_g_str = f"P = {g['twin_P']:.3f}" if g["twin_P"] >= 0.001 else "P < 0.001"
+        p3 = doc.add_paragraph()
+        add_text_with_refs(p3,
+            f"In Poisson regression (Definition G), the antiemetic drug count did not differ "
+            f"significantly between groups (twin IRR {g['twin_OR']:.2f}, 95% CI "
+            f"{g['twin_CI_lower']:.2f}–{g['twin_CI_upper']:.2f}; {p_g_str})."
+        )
+
+    # Stratified analysis (Definition H)
+    add_heading(doc, "Hypotension-Stratified Analysis (Definition H)")
+    strata = SS.get("stratified", [])
+    if strata:
+        p4 = doc.add_paragraph()
+        hypo_pos = [x for x in strata if "+" in x["Stratum"]]
+        hypo_neg = [x for x in strata if "−" in x["Stratum"]]
+        text_parts = []
+        if hypo_pos and not pd.isna(hypo_pos[0]["twin_OR"]):
+            h_p = hypo_pos[0]
+            text_parts.append(
+                f"In the hypotension-present subgroup (n = {h_p['n']}), "
+                f"IONV rates were {h_p['singleton_rate']:.1f}% (singleton) vs "
+                f"{h_p['twin_rate']:.1f}% (twin), with twin aOR {h_p['twin_OR']:.2f} "
+                f"(95% CI {h_p['twin_CI_lower']:.2f}–{h_p['twin_CI_upper']:.2f}; "
+                f"P = {h_p['twin_P']:.3f})"
+            )
+        if hypo_neg and not pd.isna(hypo_neg[0]["twin_OR"]):
+            h_n = hypo_neg[0]
+            text_parts.append(
+                f"In the hypotension-absent subgroup (n = {h_n['n']}), "
+                f"rates were {h_n['singleton_rate']:.1f}% vs "
+                f"{h_n['twin_rate']:.1f}%, with twin aOR {h_n['twin_OR']:.2f} "
+                f"(95% CI {h_n['twin_CI_lower']:.2f}–{h_n['twin_CI_upper']:.2f}; "
+                f"P = {h_n['twin_P']:.3f})"
+            )
+        add_text_with_refs(p4,
+            ". ".join(text_parts) + ". "
+            "Neither stratum showed a significant association between twin pregnancy and IONV, "
+            "indicating that the null finding was consistent regardless of hypotension status (Fig. 9)."
+        )
+
+    # Insert Fig 9 - Stratified hypotension
+    if (FIG / "fig9_stratified_hypotension.png").exists():
+        doc.add_paragraph()
+        p_fig9 = doc.add_paragraph()
+        p_fig9.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        p_fig9.add_run().add_picture(str(FIG / "fig9_stratified_hypotension.png"), width=Inches(5.0))
+        p_cap9 = doc.add_paragraph("Figure 9. IONV rates stratified by intraoperative hypotension.")
+        p_cap9.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        p_cap9.runs[0].italic = True
+        p_cap9.runs[0].font.size = Pt(9)
+        p_cap9.paragraph_format.space_before = Pt(12)
+
 # Save
 doc.save(str(BASE / "manuscript_methods_results.docx"))
 print("Manuscript saved:", BASE / "manuscript_methods_results.docx")
@@ -446,6 +634,9 @@ fig_titles = {
     "fig4_ionv_timing.png": "Figure 4: IONV Rates by Timing Phase",
     "fig5_temporal_trend.png": "Figure 5: Temporal Trend of IONV Rates",
     "fig6_antiemetic_drugs.png": "Figure 6: Antiemetic Drug Usage Comparison",
+    "fig7_sensitivity_forest.png": "Figure 7: Sensitivity — Twin aOR Across Definitions",
+    "fig8_sensitivity_rates.png": "Figure 8: Sensitivity — IONV Rates by Definition",
+    "fig9_stratified_hypotension.png": "Figure 9: Definition H — Hypotension-Stratified IONV",
 }
 
 for fig_path in fig_files:
