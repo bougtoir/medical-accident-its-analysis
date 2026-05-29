@@ -1,0 +1,14 @@
+Variable,Emergency median [IQR],Elective median [IQR],P-value
+Age (years),32.0 [28.0–36.0],32.0 [29.0–35.0],0.8307
+BMI (kg/m²),25.0 [22.1–27.9],25.5 [23.1–28.2],0.1039
+Gestational age (weeks),35.4 [34.1–36.6],37.3 [37.0–37.4],0.0000
+Surgery time (min),43.0 [38.0–51.0],44.0 [39.0–51.0],0.4194
+Anesthesia time (min),57.0 [50.0–67.0],59.0 [51.0–68.0],0.1760
+Estimated blood loss (mL),1150.0 [880.0–1860.0],1220.0 [940.0–1625.0],0.7272
+Infusion volume (mL),1020.0 [750.0–1300.0],1050.0 [800.0–1300.0],0.4457
+Hypotensive episodes (count),0.0 [0.0–2.0],0.0 [0.0–2.0],0.3489
+Intrathecal bupivacaine (mg),10.0 [10.0–11.0],10.0 [10.0–11.0],0.4667
+Intrathecal fentanyl (μg),20.0 [15.0–23.8],20.0 [20.0–20.0],0.5505
+Intrathecal morphine (mg),0.1 [0.0–0.1],0.1 [0.0–0.1],0.7437
+Ephedrine (mg),0.0 [0.0–0.0],0.0 [0.0–0.0],0.4238
+Phenylephrine (mg),0.1 [0.0–0.2],0.1 [0.0–0.3],0.0279

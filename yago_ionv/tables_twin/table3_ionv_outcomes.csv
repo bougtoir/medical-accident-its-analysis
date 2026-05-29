@@ -1,0 +1,5 @@
+Outcome,Events,N,Rate (%),95% CI lower,95% CI upper
+Primary: any IONV (anesthesia→exit),58,342,16.96,13.35,21.30
+Secondary: IONV before delivery only,5,342,1.46,0.63,3.38
+Post-delivery IONV only,54,342,15.79,12.31,20.03
+5-HT3 antagonist use (Definition E),8,342,2.34,1.19,4.55

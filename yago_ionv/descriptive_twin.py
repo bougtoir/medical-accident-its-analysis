@@ -257,7 +257,7 @@ cont_rows = []
 for var, label in continuous_vars:
     if var not in df.columns:
         continue
-    s = df[var].dropna()
+    s = pd.to_numeric(df[var], errors="coerce").dropna()
     n = len(s)
     if n == 0:
         continue
@@ -438,8 +438,8 @@ comparison_rows = []
 for var, label in continuous_vars:
     if var not in df.columns:
         continue
-    e_vals = emerg[var].dropna()
-    l_vals = elect[var].dropna()
+    e_vals = pd.to_numeric(emerg[var], errors="coerce").dropna()
+    l_vals = pd.to_numeric(elect[var], errors="coerce").dropna()
     if len(e_vals) > 0 and len(l_vals) > 0:
         stat, p = stats.mannwhitneyu(e_vals, l_vals, alternative="two-sided")
     else:
@@ -600,21 +600,21 @@ print("11. SAVING SUMMARY JSON")
 print("=" * 60)
 
 summary = {
-    "n_raw": n_raw,
-    "n_excluded": n_excluded,
-    "n_pre_anesthesia_excluded": pre_ae_count,
-    "n_analysis": len(df),
+    "n_raw": int(n_raw),
+    "n_excluded": int(n_excluded),
+    "n_pre_anesthesia_excluded": int(pre_ae_count),
+    "n_analysis": int(len(df)),
     "exclusions": {reason: int(n) for reason, n in exclusions},
     "continuous_summary": {
         r["Variable"]: {
             "n": int(r["n"]),
-            "mean": round(r["Mean"], 2),
-            "sd": round(r["SD"], 2),
-            "median": round(r["Median"], 2),
-            "q1": round(r["Q1"], 2),
-            "q3": round(r["Q3"], 2),
-            "min": round(r["Min"], 2),
-            "max": round(r["Max"], 2),
+            "mean": round(float(r["Mean"]), 2),
+            "sd": round(float(r["SD"]), 2),
+            "median": round(float(r["Median"]), 2),
+            "q1": round(float(r["Q1"]), 2),
+            "q3": round(float(r["Q3"]), 2),
+            "min": round(float(r["Min"]), 2),
+            "max": round(float(r["Max"]), 2),
         }
         for r in cont_rows
     },
