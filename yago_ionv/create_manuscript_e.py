@@ -81,8 +81,8 @@ add_heading(doc, "方法")
 add_heading(doc, "研究デザイン・対象", level=2)
 add_paragraph(doc,
     f"2014年1月から2024年12月までに当院で帝王切開術を受けた"
-    f"{S['n_total']:,}例（単胎{S['n_single'] + (S['n_total'] - S['n_analysis']):,}例、"
-    f"双胎{S['n_twin'] + (S['n_total'] - S['n_analysis'] - S['n_single']):,}例を含む）を"
+    f"{S['n_total']:,}例（単胎{S['n_single_raw']:,}例、"
+    f"双胎{S['n_twin_raw']:,}例を含む）を"
     f"後方視的に検討した。")
 
 add_paragraph(doc,
@@ -97,17 +97,17 @@ add_paragraph(doc,
 add_heading(doc, "評価項目", level=2)
 
 add_paragraph(doc,
-    "IONVの定義として、研究計画書に規定した定義（定義A）に加え、"
-    "5-HT3受容体拮抗薬に基づく定義（定義E）を追加解析として実施した。")
+    "IONVの定義として、制吐薬全般の使用を指標とする広義の定義に加え、"
+    "5-HT3受容体拮抗薬の使用に限定した狭義の定義による追加解析を実施した。")
 
-add_paragraph(doc, "【定義A（プロトコル定義）】", bold=True)
+add_paragraph(doc, "【制吐薬（広義）】", bold=True)
 add_paragraph(doc,
     "主要評価項目：麻酔開始から退室までのいずれかの時点で制吐薬が投与された場合をIONVと定義した"
     "（メトクロプラミド、ドロペリドール、オンダンセトロン、グラニセトロン、ノバミン、"
     "アタラックスP、デキサメタゾンの7剤）。\n"
     "副次評価項目：麻酔開始から胎児娩出までの制吐薬投与のみをIONVと定義した。")
 
-add_paragraph(doc, "【定義E（5-HT3拮抗薬定義）】", bold=True)
+add_paragraph(doc, "【制吐薬（狭義）：5-HT3受容体拮抗薬】", bold=True)
 add_paragraph(doc,
     "上記7剤のうち、嘔気嘔吐に対する特異性が高い5-HT3受容体拮抗薬"
     "（オンダンセトロンまたはグラニセトロン）の投与のみをIONVの指標とした。"
@@ -133,7 +133,7 @@ add_paragraph(doc,
     "結果は調整済みオッズ比（aOR）と95%信頼区間（CI）で報告した。")
 
 add_paragraph(doc,
-    "定義Eの結果の頑健性を検証するため、共変量感度分析を行い、"
+    "制吐薬（狭義）の結果の頑健性を検証するため、共変量感度分析を行い、"
     "各共変量の追加・除外が双胎の効果推定値に与える影響を系統的に評価した。")
 
 add_paragraph(doc,
@@ -184,20 +184,20 @@ doc.add_paragraph()
 # ============================================================
 # Results: Definition A (Protocol)
 # ============================================================
-add_heading(doc, "定義A（プロトコル定義）によるIONV", level=2)
+add_heading(doc, "制吐薬（広義）によるIONV", level=2)
 
 o = S["outcomes"]
 r = S["regression"]
 
 add_paragraph(doc,
-    f"主要評価項目（定義A-Primary）のIONV発生率は、単胎群{o['A-Primary']['singleton_pct']:.1f}%"
+    f"主要評価項目（制吐薬（広義））のIONV発生率は、単胎群{o['A-Primary']['singleton_pct']:.1f}%"
     f"（{o['A-Primary']['singleton_n']}/{S['n_single']}例）、"
     f"双胎群{o['A-Primary']['twin_pct']:.1f}%"
     f"（{o['A-Primary']['twin_n']}/{S['n_twin']}例）であり、"
     f"有意差を認めなかった（{format_p(r['A-Primary']['twin_P'])}）。")
 
 add_paragraph(doc,
-    f"副次評価項目（定義A-Secondary、胎児娩出前のみ）のIONV発生率は、"
+    f"副次評価項目（胎児娩出前のみ）のIONV発生率は、"
     f"単胎群{o['A-Secondary']['singleton_pct']:.1f}%、"
     f"双胎群{o['A-Secondary']['twin_pct']:.1f}%であり、"
     f"こちらも有意差を認めなかった（{format_p(r['A-Secondary']['twin_P'])}）。")
@@ -212,10 +212,10 @@ add_paragraph(doc,
 # ============================================================
 # Results: Definition E
 # ============================================================
-add_heading(doc, "定義E（5-HT3拮抗薬定義）によるIONV", level=2)
+add_heading(doc, "制吐薬（狭義）によるIONV", level=2)
 
 add_paragraph(doc,
-    f"5-HT3拮抗薬の使用を指標とした定義E-Primaryでは、"
+    f"5-HT3拮抗薬の使用を指標とした狭義の主要評価項目では、"
     f"IONV発生率は単胎群{o['E-Primary']['singleton_pct']:.1f}%"
     f"（{o['E-Primary']['singleton_n']}/{S['n_single']}例）に対し、"
     f"双胎群{o['E-Primary']['twin_pct']:.1f}%"
@@ -231,7 +231,7 @@ add_paragraph(doc,
     f"{format_p(r['E-Primary']['twin_P'])}）（Fig. 2）。")
 
 add_paragraph(doc,
-    f"定義E-Secondary（5-HT3拮抗薬かつ胎児娩出前投与）では、"
+    f"狭義の副次評価項目（5-HT3拮抗薬かつ胎児娩出前投与）では、"
     f"単胎群{o['E-Secondary']['singleton_pct']:.2f}%に対し"
     f"双胎群{o['E-Secondary']['twin_pct']:.2f}%と高い傾向を示したが、"
     f"統計学的有意差には至らなかった"
@@ -241,7 +241,7 @@ add_paragraph(doc,
 
 # Fig 1: rates comparison
 add_figure(doc, BASE / "figures_e" / "fig1_rates_comparison.png",
-           "Fig. 1  IONV発生率の比較（定義A vs 定義E、単胎 vs 双胎）")
+           "Fig. 1  IONV発生率の比較（制吐薬（広義）vs 制吐薬（狭義）、単胎 vs 双胎）")
 
 # ============================================================
 # Results: Logistic regression detail
@@ -249,7 +249,7 @@ add_figure(doc, BASE / "figures_e" / "fig1_rates_comparison.png",
 add_heading(doc, "多変量ロジスティック回帰分析", level=2)
 
 # Table 2: Regression results
-add_paragraph(doc, "Table 2. 各定義におけるIONVの多変量ロジスティック回帰分析", bold=True)
+add_paragraph(doc, "Table 2. IONVの多変量ロジスティック回帰分析", bold=True)
 
 tbl2 = doc.add_table(rows=5, cols=6)
 tbl2.alignment = WD_TABLE_ALIGNMENT.CENTER
@@ -266,10 +266,10 @@ for j, h in enumerate(headers2):
 for i, key in enumerate(["A-Primary", "A-Secondary", "E-Primary", "E-Secondary"]):
     rr = r[key]
     labels_ja = {
-        "A-Primary": "定義A 主要（制吐薬全体）",
-        "A-Secondary": "定義A 副次（娩出前のみ）",
-        "E-Primary": "定義E 主要（5-HT3全体）",
-        "E-Secondary": "定義E 副次（5-HT3+娩出前）",
+        "A-Primary": "広義 主要（制吐薬全体）",
+        "A-Secondary": "広義 副次（娩出前のみ）",
+        "E-Primary": "狭義 主要（5-HT3拮抗薬）",
+        "E-Secondary": "狭義 副次（5-HT3+娩出前）",
     }
     vals = [
         labels_ja[key],
@@ -289,11 +289,11 @@ doc.add_paragraph()
 
 # Fig 2: Forest E-Primary
 add_figure(doc, BASE / "figures_e" / "fig2_forest_E_primary.png",
-           "Fig. 2  定義E-Primary（5-HT3拮抗薬使用）の多変量ロジスティック回帰分析")
+           "Fig. 2  制吐薬（狭義）使用の多変量ロジスティック回帰分析")
 
 # Fig 4: Protocol vs Def E comparison
 add_figure(doc, BASE / "figures_e" / "fig4_protocol_vs_defE.png",
-           "Fig. 4  双胎のIONV効果：定義A（プロトコル）vs 定義E（5-HT3拮抗薬）")
+           "Fig. 4  双胎のIONV効果：制吐薬（広義）vs 制吐薬（狭義）")
 
 # ============================================================
 # Results: Covariate sensitivity
@@ -303,7 +303,7 @@ add_heading(doc, "共変量感度分析", level=2)
 cov_df = pd.read_csv(BASE / "tables_e" / "covariate_sensitivity.csv")
 
 add_paragraph(doc,
-    "定義E-Primaryにおける双胎の効果推定値の頑健性を検証するため、"
+    "制吐薬（狭義）における双胎の効果推定値の頑健性を検証するため、"
     "共変量感度分析を実施した（Table 3, Fig. 3）。")
 
 add_paragraph(doc,
@@ -318,11 +318,11 @@ add_paragraph(doc,
     "全21モデル（粗モデル、各共変量の追加モデル9種、各共変量の除外モデル9種、"
     "縮小モデル2種）において、双胎のaORは2.56–3.67の範囲で一貫しており、"
     "すべてのモデルで統計学的に有意であった（P < 0.05）。"
-    "この結果は、定義E-Primaryにおける双胎の有意な関連が特定の共変量選択に依存しない"
+    "この結果は、制吐薬（狭義）における双胎の有意な関連が特定の共変量選択に依存しない"
     "頑健な所見であることを示している。")
 
 # Table 3: Covariate sensitivity
-add_paragraph(doc, "Table 3. 共変量感度分析（定義E-Primary）", bold=True)
+add_paragraph(doc, "Table 3. 共変量感度分析（制吐薬（狭義）主要評価項目）", bold=True)
 
 tbl3 = doc.add_table(rows=len(cov_df) + 1, cols=4)
 tbl3.alignment = WD_TABLE_ALIGNMENT.CENTER
@@ -352,7 +352,7 @@ doc.add_paragraph()
 
 # Fig 3: Covariate sensitivity forest
 add_figure(doc, BASE / "figures_e" / "fig3_covariate_sensitivity.png",
-           "Fig. 3  共変量感度分析：双胎の5-HT3拮抗薬使用に対する効果（定義E-Primary）")
+           "Fig. 3  共変量感度分析：双胎の制吐薬（狭義）使用に対する効果")
 
 # ============================================================
 # DISCUSSION (brief)
@@ -361,11 +361,11 @@ add_heading(doc, "考察", level=2)
 
 add_paragraph(doc,
     "本研究では、帝王切開術中のIONVに対する双胎妊娠の影響を後方視的に検討した。"
-    "研究計画書に規定した定義A（全制吐薬の使用）では、単胎と双胎の間にIONV発生率の"
+    "制吐薬全般の使用（広義の定義）では、単胎と双胎の間にIONV発生率の"
     "有意差を認めなかった。")
 
 add_paragraph(doc,
-    "一方、5-HT3受容体拮抗薬の使用に限定した定義Eでは、双胎群で有意に高率であり"
+    "一方、5-HT3受容体拮抗薬の使用に限定した狭義の定義では、双胎群で有意に高率であり"
     "（aOR 3.18, P = 0.007）、この結果は共変量感度分析においても一貫して頑健であった。"
     "制吐薬として記録された7剤のうち、メトクロプラミドやドロペリドールは"
     "消化管運動促進や鎮静など制吐以外の目的でも使用される。"
@@ -380,7 +380,7 @@ add_paragraph(doc,
     "が交絡因子として残る可能性がある。")
 
 add_paragraph(doc,
-    f"また、定義Eのイベント数は{S['regression']['E-Primary']['events']}件と少数であり、"
+    f"また、制吐薬（狭義）のイベント数は{S['regression']['E-Primary']['events']}件と少数であり、"
     f"信頼区間が比較的広い点に留意が必要である。"
     "今後、前方視的研究やIONVの重症度評価を含めた検討が望まれる。")
 

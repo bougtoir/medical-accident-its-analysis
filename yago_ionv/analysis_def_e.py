@@ -207,6 +207,8 @@ no_data = df_all["antiemetic_any"].isna() & ~all_exclude
 all_exclude = all_exclude | no_data
 
 n_total = len(df_all)
+n_single_raw = int((df_all["twin"] == 0).sum())
+n_twin_raw = int((df_all["twin"] == 1).sum())
 df = df_all[~all_exclude].copy()
 df_analysis = df[df["ae_pre_anesthesia"] != 1].copy()
 
@@ -253,8 +255,8 @@ t = df_analysis[df_analysis["twin"] == 1]
 outcomes = OrderedDict([
     ("A-Primary", ("ionv_A_primary", "Protocol: any antiemetic (any phase)")),
     ("A-Secondary", ("ionv_A_secondary", "Protocol: antiemetic before delivery")),
-    ("E-Primary", ("ionv_E_primary", "Def E: 5-HT3 antagonist (any phase)")),
-    ("E-Secondary", ("ionv_E_secondary", "Def E: 5-HT3 + before delivery phase")),
+    ("E-Primary", ("ionv_E_primary", "Narrow: 5-HT3 antagonist (any phase)")),
+    ("E-Secondary", ("ionv_E_secondary", "Narrow: 5-HT3 + before delivery phase")),
 ])
 
 print(f"\n{'Outcome':<15} {'Label':<40} {'Single n/N (%)':<22} {'Twin n/N (%)':<22} {'P':>8}")
@@ -388,6 +390,8 @@ for outcome_key, (col, label) in outcomes.items():
             y = df_m[col].astype(float)
             model = sm.Logit(y, X).fit(disp=0, maxiter=200)
             model_type = "reduced"
+        else:
+            raise
 
     twin_idx = covs.index("twin") + 1
     or_table = pd.DataFrame({
@@ -521,9 +525,9 @@ print("=" * 60)
 fig, axes = plt.subplots(1, 2, figsize=(12, 5))
 
 for ax_i, (title, primary_col, secondary_col, primary_label, secondary_label) in enumerate([
-    ("Protocol Definition (A)", "ionv_A_primary", "ionv_A_secondary",
+    ("Antiemetic (broad)", "ionv_A_primary", "ionv_A_secondary",
      "Any antiemetic", "Before delivery"),
-    ("5-HT3 Definition (E)", "ionv_E_primary", "ionv_E_secondary",
+    ("Antiemetic (narrow: 5-HT3)", "ionv_E_primary", "ionv_E_secondary",
      "5-HT3 antagonist (any)", "5-HT3 + before delivery"),
 ]):
     s_p = 100 * s[primary_col].mean()
@@ -551,7 +555,7 @@ for ax_i, (title, primary_col, secondary_col, primary_label, secondary_label) in
     axes[ax_i].set_title(title, fontsize=11)
     axes[ax_i].legend(fontsize=9)
 
-plt.suptitle("IONV Rates: Protocol vs 5-HT3 Definition", fontsize=13, y=1.02)
+plt.suptitle("IONV Rates: Broad vs Narrow Antiemetic Definition", fontsize=13, y=1.02)
 plt.tight_layout()
 plt.savefig(FIG / "fig1_rates_comparison.png")
 plt.close()
@@ -576,7 +580,7 @@ ax.axvline(1, color="red", linestyle="--", linewidth=0.8, alpha=0.7)
 ax.set_yticks(list(y_pos))
 ax.set_yticklabels(or_table_e["label"], fontsize=9)
 ax.set_xlabel("Odds Ratio (95% CI)")
-ax.set_title("Multivariable logistic regression:\n5-HT3 antagonist use (Definition E, primary)")
+ax.set_title("Multivariable logistic regression:\n5-HT3 antagonist use (narrow definition, primary)")
 
 for i, (_, row) in enumerate(or_table_e.iterrows()):
     sig = "***" if row["P-value"] < 0.001 else "**" if row["P-value"] < 0.01 else "*" if row["P-value"] < 0.05 else ""
@@ -607,7 +611,7 @@ ax.axvline(1, color="red", linestyle="--", linewidth=0.8, alpha=0.7)
 ax.set_yticks(list(y_pos))
 ax.set_yticklabels(plot_cov["Model"], fontsize=8)
 ax.set_xlabel("Adjusted Odds Ratio (95% CI)")
-ax.set_title("Covariate Sensitivity Analysis:\nTwin effect on 5-HT3 antagonist use (Definition E)")
+ax.set_title("Covariate Sensitivity Analysis:\nTwin effect on 5-HT3 antagonist use (narrow definition)")
 
 for i, (_, row) in enumerate(plot_cov.iterrows()):
     sig = "**" if row["P"] < 0.01 else "*" if row["P"] < 0.05 else ""
@@ -645,7 +649,7 @@ ax.axvline(1, color="red", linestyle="--", linewidth=0.8, alpha=0.7)
 ax.set_yticks(list(y_pos))
 ax.set_yticklabels(compare_df["Label"], fontsize=9)
 ax.set_xlabel("Adjusted Odds Ratio (95% CI)")
-ax.set_title("Twin effect on IONV: Protocol definition vs 5-HT3 definition")
+ax.set_title("Twin effect on IONV: Broad vs Narrow antiemetic definition")
 
 for i, (_, row) in enumerate(compare_df.iterrows()):
     sig = "**" if row["P"] < 0.01 else "*" if row["P"] < 0.05 else ""
@@ -665,6 +669,8 @@ print("Fig 4 saved")
 # ============================================================
 summary = {
     "n_total": n_total,
+    "n_single_raw": n_single_raw,
+    "n_twin_raw": n_twin_raw,
     "n_analysis": len(df_analysis),
     "n_single": int((df_analysis["twin"] == 0).sum()),
     "n_twin": int((df_analysis["twin"] == 1).sum()),

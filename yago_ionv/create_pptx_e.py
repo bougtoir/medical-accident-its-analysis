@@ -12,10 +12,10 @@ prs.slide_width = Inches(13.333)
 prs.slide_height = Inches(7.5)
 
 figures = [
-    ("fig1_rates_comparison.png", "Fig. 1: IONV Rates — Protocol (A) vs 5-HT3 (E)"),
-    ("fig2_forest_E_primary.png", "Fig. 2: Logistic Regression — 5-HT3 Use (Def E Primary)"),
-    ("fig3_covariate_sensitivity.png", "Fig. 3: Covariate Sensitivity Analysis (Def E Primary)"),
-    ("fig4_protocol_vs_defE.png", "Fig. 4: Twin Effect — Protocol vs 5-HT3 Definition"),
+    ("fig1_rates_comparison.png", "Fig. 1: IONV Rates — Broad vs Narrow Antiemetic Definition"),
+    ("fig2_forest_E_primary.png", "Fig. 2: Logistic Regression — 5-HT3 Antagonist Use (Narrow Definition)"),
+    ("fig3_covariate_sensitivity.png", "Fig. 3: Covariate Sensitivity Analysis (5-HT3 Antagonist)"),
+    ("fig4_protocol_vs_defE.png", "Fig. 4: Twin Effect — Broad vs Narrow Antiemetic Definition"),
 ]
 
 for fname, title in figures:
