@@ -538,7 +538,7 @@ if sens_json_path.exists():
     p = doc.add_paragraph()
     add_text_with_refs(p,
         "In multivariable logistic regression, twin pregnancy was not significantly associated "
-        "with IONV under any alternative definition (Table 6, Fig. 7). "
+        "with IONV under most alternative definitions (Table 6, Fig. 7). "
     )
 
     # 5-HT3 finding
