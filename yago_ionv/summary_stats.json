@@ -21,7 +21,7 @@
   "excl_intrauterine_fetal_death": 13,
   "excl_vanishing_twin": 3,
   "excl_triplet_pregnancy": 5,
-  "excl_no_anesthesia_data_available": 61,
+  "excl_no_anesthesia_data_available": 58,
   "primary_or_twin": 0.9241939941857013,
   "primary_or_twin_ci_lower": 0.67444671997809,
   "primary_or_twin_ci_upper": 1.2664225558346065,

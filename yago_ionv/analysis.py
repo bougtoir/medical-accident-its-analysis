@@ -309,7 +309,7 @@ exclusions.append(("Triplet pregnancy", triplet_mask.sum()))
 # Combined exclusion mask (any marked for exclusion in note)
 # Also include any generic "除外" in exclusion note
 generic_exclude_mask = df_all["exclusion_note"].str.contains("除外", na=False)
-all_exclude = generic_exclude_mask
+all_exclude = generic_exclude_mask | ga_mask | sbp_mask | iufd_mask | vt_mask | triplet_mask
 
 # Additionally exclude rows with NaN in key IONV columns (no anesthesia data available)
 no_data_mask = df_all["antiemetic_any"].isna() & ~all_exclude
@@ -422,7 +422,11 @@ def summarize_categorical(s_series, t_series, test="chi2"):
         [s_n, len(s) - s_n],
         [t_n, len(t) - t_n]
     ])
-    if table.min() < 5:
+    row_totals = table.sum(axis=1)
+    col_totals = table.sum(axis=0)
+    grand_total = table.sum()
+    expected = np.outer(row_totals, col_totals) / grand_total
+    if expected.min() < 5:
         _, p = stats.fisher_exact(table)
     else:
         _, p, _, _ = stats.chi2_contingency(table, correction=False)
@@ -518,7 +522,11 @@ for var, label in [("metoclopramide_mg", "Metoclopramide"),
         s_pct = 100 * s_any / len(s)
         t_pct = 100 * t_any / len(t)
         table = np.array([[s_any, len(s) - s_any], [t_any, len(t) - t_any]])
-        if table.min() < 5:
+        row_totals = table.sum(axis=1)
+        col_totals = table.sum(axis=0)
+        grand_total = table.sum()
+        expected = np.outer(row_totals, col_totals) / grand_total
+        if expected.min() < 5:
             _, p = stats.fisher_exact(table)
         else:
             _, p, _, _ = stats.chi2_contingency(table, correction=False)
@@ -659,23 +667,24 @@ plt.savefig(FIG / "fig1_ionv_rates.png")
 plt.close()
 print("Fig 1: IONV rates saved")
 
+label_map = {
+    "twin": "Twin pregnancy",
+    "年齢(歳)": "Age (per year)",
+    "BMI": "BMI (per kg/m²)",
+    "GA_weeks": "GA (per week)",
+    "emergency": "Emergency CS",
+    "prior_cs": "Prior CS",
+    "HDP": "HDP",
+    "epidural": "Epidural anesthesia",
+    "手術時間_min": "Surgery time (per min)",
+    "hypotension": "Hypotension (SBP < 90)",
+}
+
 # --- Fig 2: Forest plot (primary outcome) ---
 if or_p is not None:
     fig, ax = plt.subplots(figsize=(10, 6))
     
     or_plot = or_p.copy()
-    label_map = {
-        "twin": "Twin pregnancy",
-        "年齢(歳)": "Age (per year)",
-        "BMI": "BMI (per kg/m²)",
-        "GA_weeks": "GA (per week)",
-        "emergency": "Emergency CS",
-        "prior_cs": "Prior CS",
-        "HDP": "HDP",
-        "epidural": "Epidural anesthesia",
-        "手術時間_min": "Surgery time (per min)",
-        "hypotension": "Hypotension (SBP < 90)",
-    }
     or_plot["label"] = or_plot["Variable"].map(label_map).fillna(or_plot["Variable"])
     or_plot = or_plot.sort_values("P-value", ascending=False)
 

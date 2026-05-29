@@ -137,7 +137,7 @@ add_text_with_refs(p,
     f"A total of {n_total:,} women who underwent cesarean section during the study period "
     f"were identified ({S['n_single_raw']:,} singleton and {S['n_twin_raw']:,} twin pregnancies). "
     f"After applying exclusion criteria, {S['n_after_exclusion']:,} patients remained "
-    f"({S['n_after_exclusion'] - n_excl + S['n_excluded']:,} total; {S['excl_general_anesthesia']} "
+    f"({n_total:,} total; {S['excl_general_anesthesia']} "
     f"excluded for general anesthesia, {S['excl_intrauterine_fetal_death']} for intrauterine fetal death, "
     f"{S['excl_vanishing_twin']} for vanishing twin, {S['excl_triplet_pregnancy']} for triplet pregnancy, "
     f"{S['excl_pre-anesthesia_sbp_lt_90_mmhg']} for pre-anesthesia hypotension, and "
