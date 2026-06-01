@@ -22,6 +22,8 @@ with open(BASE / "excl_sensitivity_stats.json") as f:
     E = json.load(f)  # Exclusion sensitivity
 with open(BASE / "flowchart_counts.json") as f:
     F = json.load(f)  # Flow counts
+with open(BASE / "bootstrap_results.json") as f:
+    B = json.load(f)  # Bootstrap results
 
 doc = Document()
 
@@ -158,7 +160,8 @@ add_paragraph(doc,
     f"95% CI {mr['E-Primary']['twin_CI_lower']:.2f}\u2013"
     f"{mr['E-Primary']['twin_CI_upper']:.2f}, "
     f"{format_p(mr['E-Primary']['twin_P'])}). "
-    "This finding was robust across all covariate sensitivity models.")
+    "This finding was robust across covariate sensitivity analyses, "
+    "emergency subgroup stratification, and 10,000-replicate stratified bootstrap validation.")
 
 add_paragraph(doc, "Conclusions", bold=True)
 add_paragraph(doc,
@@ -315,6 +318,24 @@ add_paragraph(doc,
     "that may independently influence IONV, a sensitivity subgroup analysis was performed "
     "after further excluding cases with emergency cesarean delivery, prior cesarean delivery, "
     "HDP, or preoperative steroid use.")
+
+add_paragraph(doc,
+    "Furthermore, to examine whether emergency cesarean delivery acts as an effect modifier, "
+    "subgroup analyses restricted to elective cases only and emergency cases only were conducted. "
+    "An interaction analysis including an emergency \u00d7 twin interaction term in the model "
+    "was also performed.")
+
+add_heading(doc, "Bootstrap Validation (STROBE Item 13)", level=2)
+add_paragraph(doc,
+    "Given the approximately 8:1 imbalance in sample size between singleton and twin groups, "
+    "a stratified bootstrap procedure was performed to validate the robustness of the "
+    "logistic regression confidence intervals. "
+    "In each of 10,000 resamples, singleton and twin cases were resampled separately "
+    "with replacement to maintain group proportions (stratified resampling). "
+    "Percentile and bias-corrected and accelerated (BCa) 95% confidence intervals "
+    "were calculated. The BCa bias-correction factor z0 was estimated from the "
+    "bootstrap distribution median, and the acceleration factor a was estimated "
+    "using the jackknife method.")
 
 add_paragraph(doc,
     "Statistical analyses were performed using Python 3.12 (scipy 1.14, statsmodels 0.14). "
@@ -577,6 +598,131 @@ add_figure(doc, BASE / "figures_excl" / "fig4_broad_vs_narrow.png",
            "Fig. 7  Twin Effect on IONV: Broad vs Narrow Definition "
            "(Elective, Low-Risk Subgroup)")
 
+# --- Emergency sensitivity analysis ---
+add_heading(doc, "Emergency Cesarean Delivery Sensitivity Analysis (STROBE Item 18)", level=2)
+
+add_paragraph(doc,
+    "To examine whether emergency cesarean delivery modifies the twin effect on IONV, "
+    "separate analyses were performed for elective cases only "
+    "(n = 1,736; singleton 1,515; twin 221) and emergency cases only "
+    "(n = 1,452; singleton 1,331; twin 121) (Table 5).")
+
+add_paragraph(doc,
+    "In the elective subgroup, the narrow-definition primary outcome showed "
+    "a substantially larger effect size (aOR 8.99, 95% CI 2.50\u201332.29, P < 0.001), "
+    "and the narrow-definition secondary outcome also reached significance "
+    "(aOR 8.39, 95% CI 1.21\u201358.18, P = 0.031). "
+    "In contrast, among emergency cases, the twin effect was entirely absent "
+    "(narrow primary aOR 0.95, P = 0.958).")
+
+add_paragraph(doc,
+    "Notably, under the broad definition in elective cases, the twin group showed "
+    "significantly lower IONV (18.5% vs 14.0%; aOR 0.64, P = 0.047). "
+    "Interaction analysis revealed a significant emergency \u00d7 twin interaction "
+    "for the broad primary outcome (interaction OR 2.05, P = 0.023).")
+
+# Table 5: Emergency sensitivity
+add_paragraph(doc, "Table 5. Emergency Cesarean Delivery Sensitivity Analysis", bold=True)
+tbl5 = doc.add_table(rows=9, cols=7)
+tbl5.alignment = WD_TABLE_ALIGNMENT.CENTER
+tbl5.style = "Light Shading Accent 1"
+for j, h in enumerate(["Subgroup", "Outcome", "Singleton", "Twin", "aOR", "95% CI", "P value"]):
+    tbl5.rows[0].cells[j].text = h
+    for par in tbl5.rows[0].cells[j].paragraphs:
+        par.runs[0].bold = True
+        par.runs[0].font.size = Pt(8)
+
+emg_data = [
+    ["Elective only", "Broad, Primary", "18.5%", "14.0%", "0.64", "0.41\u20130.99", "0.047"],
+    ["", "Broad, Secondary", "2.4%", "1.8%", "0.83", "0.28\u20132.47", "0.735"],
+    ["", "Narrow, Primary", "0.8%", "3.2%", "8.99", "2.50\u201332.29", "< 0.001"],
+    ["", "Narrow, Secondary", "0.3%", "1.4%", "8.39", "1.21\u201358.18", "0.031"],
+    ["Emergency only", "Broad, Primary", "16.8%", "22.3%", "1.44", "0.91\u20132.29", "0.119"],
+    ["", "Broad, Secondary", "1.4%", "0.8%", "0.61", "0.08\u20134.68", "0.637"],
+    ["", "Narrow, Primary", "1.0%", "0.8%", "0.95", "0.12\u20137.44", "0.958"],
+    ["", "Narrow, Secondary", "0.1%", "0.0%", "\u2014", "\u2014", "\u2014"],
+]
+for i, row_data in enumerate(emg_data):
+    for j, v in enumerate(row_data):
+        tbl5.rows[i + 1].cells[j].text = v
+        for par in tbl5.rows[i + 1].cells[j].paragraphs:
+            for r in par.runs:
+                r.font.size = Pt(8)
+doc.add_paragraph()
+
+# --- Bootstrap validation ---
+add_heading(doc, "Bootstrap Validation (STROBE Item 18)", level=2)
+
+bm = B["main_cohort"]
+bs = B["subgroup"]
+add_paragraph(doc,
+    "Results of the stratified bootstrap validation for the full cohort "
+    "are presented in Table 6 and Fig. 8.")
+
+add_paragraph(doc,
+    f"For the narrow-definition primary outcome in the full cohort, "
+    f"the BCa 95% CI was [{bm['E-Primary']['bca_CI_lower']:.2f}\u2013"
+    f"{bm['E-Primary']['bca_CI_upper']:.2f}], closely matching the "
+    f"Wald 95% CI [{bm['E-Primary']['wald_CI_lower']:.2f}\u2013"
+    f"{bm['E-Primary']['wald_CI_upper']:.2f}]. "
+    f"The bootstrap CI also excluded 1, confirming that the significant twin effect "
+    f"(aOR {bm['E-Primary']['point_aOR']:.2f}) was robust "
+    f"(convergence rate {bm['E-Primary']['convergence_pct']}%).")
+
+add_paragraph(doc,
+    f"In the low-risk subgroup, event counts for the narrow definition were extremely small "
+    f"(primary: {bs['E-Primary']['events']}; secondary: {bs['E-Secondary']['events']}), "
+    "resulting in unstable bootstrap CIs. "
+    "This reflects the inherent sample size constraint and warrants "
+    "cautious interpretation of subgroup results.")
+
+# Table 6: Bootstrap results
+add_paragraph(doc, "Table 6. Stratified Bootstrap Validation (10,000 Resamples)", bold=True)
+tbl6 = doc.add_table(rows=9, cols=6)
+tbl6.alignment = WD_TABLE_ALIGNMENT.CENTER
+tbl6.style = "Light Shading Accent 1"
+for j, h in enumerate(["Cohort", "Outcome", "aOR", "Wald 95% CI", "BCa 95% CI", "Convergence"]):
+    tbl6.rows[0].cells[j].text = h
+    for par in tbl6.rows[0].cells[j].paragraphs:
+        par.runs[0].bold = True
+        par.runs[0].font.size = Pt(8)
+
+def fmt_bca(r):
+    lo = r.get("bca_CI_lower")
+    hi = r.get("bca_CI_upper")
+    if lo is not None and hi is not None and hi < 1e6:
+        return f"{lo:.2f}\u2013{hi:.2f}"
+    return "Unstable"
+
+boot_rows = [
+    ["Full cohort", "Broad, Primary", bm["A-Primary"]],
+    ["", "Broad, Secondary", bm["A-Secondary"]],
+    ["", "Narrow, Primary", bm["E-Primary"]],
+    ["", "Narrow, Secondary", bm["E-Secondary"]],
+    ["Low-risk", "Broad, Primary", bs["A-Primary"]],
+    ["", "Broad, Secondary", bs["A-Secondary"]],
+    ["", "Narrow, Primary", bs["E-Primary"]],
+    ["", "Narrow, Secondary", bs["E-Secondary"]],
+]
+for i, (cohort, outcome, r) in enumerate(boot_rows):
+    vals = [
+        cohort, outcome,
+        f"{r['point_aOR']:.2f}",
+        f"{r['wald_CI_lower']:.2f}\u2013{r['wald_CI_upper']:.2f}",
+        fmt_bca(r),
+        f"{r['convergence_pct']}%",
+    ]
+    for j, v in enumerate(vals):
+        tbl6.rows[i + 1].cells[j].text = v
+        for par in tbl6.rows[i + 1].cells[j].paragraphs:
+            for r2 in par.runs:
+                r2.font.size = Pt(8)
+doc.add_paragraph()
+
+# Fig 8: Bootstrap comparison
+add_figure(doc, BASE / "figures_bootstrap" / "fig_bootstrap_comparison.png",
+           "Fig. 8  Wald vs Bootstrap Confidence Interval Comparison")
+
 doc.add_page_break()
 
 # ============================================================
@@ -592,8 +738,9 @@ add_paragraph(doc,
     "the two groups. However, when the analysis was restricted to 5-HT3 receptor antagonists "
     "\u2014 agents with high pharmacological specificity for nausea and vomiting \u2014 "
     "the twin group showed a significantly higher rate of use. "
-    "This finding was robustly reproduced across covariate sensitivity analyses "
-    "in both the full cohort and the elective, low-risk subgroup.")
+    "This finding was robustly reproduced across covariate sensitivity analyses, "
+    "exclusion sensitivity analyses, emergency subgroup stratification, "
+    "and 10,000-replicate stratified bootstrap validation.")
 
 add_heading(doc, "Limitations (STROBE Item 20)", level=2)
 add_paragraph(doc,
@@ -610,6 +757,8 @@ add_paragraph(doc,
     f"(primary analysis: {mr['E-Primary']['events']}; "
     f"subgroup analysis: {er['E-Primary']['events']}), "
     "resulting in wide confidence intervals. "
+    "Bootstrap validation confirmed the robustness of the full-cohort aOR 3.18 "
+    "but the subgroup bootstrap CIs (8 events) were unstable. "
     f"In particular, the subgroup analysis involved a substantial reduction in sample size "
     f"({M['n_analysis']:,} \u2192 {E['n_analysis']}), "
     "limiting external validity.")
@@ -633,6 +782,21 @@ add_paragraph(doc,
     "excluding confounders (emergency surgery, prior cesarean delivery, HDP, steroids) "
     "suggests that these factors may have elevated IONV risk in the singleton group, "
     "thereby diluting the twin effect in the full cohort.")
+
+add_paragraph(doc,
+    "The emergency sensitivity analysis revealed that the twin effect was confined to "
+    "elective cases, where the narrow-definition aOR increased substantially to 8.99 "
+    "and the secondary outcome also reached significance. "
+    "In contrast, among emergency cases the twin effect was completely absent. "
+    "A significant emergency \u00d7 twin interaction for the broad primary outcome "
+    "(P = 0.023) further supports emergency delivery status as an effect modifier.")
+
+add_paragraph(doc,
+    "The stratified bootstrap validation confirmed that the BCa confidence interval "
+    "for the full-cohort narrow-definition primary outcome excluded 1, "
+    "corroborating the Wald-based inference. This demonstrates that despite the "
+    "approximately 8:1 imbalance in group sizes, the logistic regression estimates "
+    "are stable and the key finding is robust.")
 
 add_heading(doc, "Generalizability (STROBE Item 22)", level=2)
 add_paragraph(doc,

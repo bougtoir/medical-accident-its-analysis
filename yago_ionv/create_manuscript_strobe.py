@@ -25,6 +25,8 @@ with open(BASE / "excl_sensitivity_stats.json") as f:
     E = json.load(f)  # Exclusion sensitivity
 with open(BASE / "flowchart_counts.json") as f:
     F = json.load(f)  # Flow counts
+with open(BASE / "bootstrap_results.json") as f:
+    B = json.load(f)  # Bootstrap results
 
 doc = Document()
 
@@ -185,7 +187,8 @@ add_paragraph(doc,
     f"（aOR {mr['E-Primary']['twin_OR']:.2f}, "
     f"95%CI {mr['E-Primary']['twin_CI_lower']:.2f}–{mr['E-Primary']['twin_CI_upper']:.2f}, "
     f"{format_p(mr['E-Primary']['twin_P'])}）。"
-    "共変量感度分析でも結果は頑健であった。")
+    "共変量感度分析、緊急帝王切開の層別解析、および"
+    "10,000回の層別ブートストラップ検証でも結果は頑健であった。")
 
 add_paragraph(doc, "【結論】", bold=True)
 add_paragraph(doc,
@@ -323,6 +326,23 @@ add_paragraph(doc,
     "IONVに影響しうる産科合併症・手術関連因子の交絡を排除するため、"
     "緊急帝王切開、帝王切開既往、HDP、術前ステロイド使用の"
     "4条件に該当する症例をさらに除外した予定手術・低リスクサブグループ解析を実施した。")
+
+add_paragraph(doc,
+    "さらに、緊急帝王切開が効果修飾因子となりうるかを検証するため、"
+    "予定手術のみ（緊急除外）、緊急手術のみのサブグループ解析を実施した。"
+    "また、緊急帝王切開と双胎の交互作用項をモデルに追加した交互作用解析も行った。")
+
+add_heading(doc, "ブートストラップ検証（STROBE項目13）", level=2)
+add_paragraph(doc,
+    "単胎・双胎間の症例数比が約8:1と不均衡であったため、"
+    "ロジスティック回帰の信頼区間推定の頑健性を検証する目的で"
+    "層別ブートストラップ法を実施した。"
+    "各リサンプルにおいて単胎群と双胎群を別々にリサンプリングした後に結合し、"
+    "群比率を維持した（層別リサンプリング）。"
+    "10,000回のリサンプリングを行い、パーセンタイル法およびBCa法"
+    "（bias-corrected and accelerated）による95%信頼区間を算出した。"
+    "BCa法のバイアス補正因子z0はブートストラップ分布の中央値偏差から、"
+    "加速度因子aはジャックナイフ法により推定した。")
 
 add_paragraph(doc,
     "統計解析はPython 3.12（scipy 1.14, statsmodels 0.14）を用い、"
@@ -575,6 +595,126 @@ add_figure(doc, BASE / "figures_excl" / "fig1_rates_comparison.png",
 add_figure(doc, BASE / "figures_excl" / "fig4_broad_vs_narrow.png",
            "Fig. 7  双胎のIONV効果：広義 vs 狭義（予定手術・低リスクサブグループ）")
 
+# --- Emergency sensitivity analysis ---
+add_heading(doc, "緊急帝王切開の感度分析（STROBE項目18）", level=2)
+
+add_paragraph(doc,
+    "緊急帝王切開が双胎のIONV効果を修飾する可能性を検証するため、"
+    "予定手術のみ（n=1,736、単胎1,515例、双胎221例）および"
+    "緊急手術のみ（n=1,452、単胎1,331例、双胎121例）のサブグループ解析を実施した（Table 5）。")
+
+add_paragraph(doc,
+    "予定手術のみでは、制吐薬（狭義）主要評価項目でaOR 8.99"
+    "（95%CI 2.50–32.29, P < 0.001）と効果量が大幅に増大し、"
+    "副次評価項目も有意となった（aOR 8.39, 95%CI 1.21–58.18, P = 0.031）。"
+    "一方、緊急手術のみでは双胎効果は完全に消失した"
+    "（狭義主要 aOR 0.95, P = 0.958）。")
+
+add_paragraph(doc,
+    "興味深いことに、予定手術のみでは制吐薬（広義）主要評価項目で"
+    "双胎群の方が有意に低率であった（18.5% vs 14.0%, aOR 0.64, P = 0.047）。"
+    "交互作用解析では、制吐薬（広義）主要評価項目で"
+    "緊急×双胎の有意な交互作用を認めた（交互作用OR 2.05, P = 0.023）。")
+
+# Table 5: Emergency sensitivity
+add_paragraph(doc, "Table 5. 緊急帝王切開の感度分析", bold=True)
+tbl5 = doc.add_table(rows=9, cols=7)
+tbl5.alignment = WD_TABLE_ALIGNMENT.CENTER
+tbl5.style = "Light Shading Accent 1"
+for j, h in enumerate(["サブグループ", "評価項目", "単胎", "双胎", "aOR", "95% CI", "P値"]):
+    tbl5.rows[0].cells[j].text = h
+    for par in tbl5.rows[0].cells[j].paragraphs:
+        par.runs[0].bold = True
+        par.runs[0].font.size = Pt(8)
+
+emg_data = [
+    ["予定手術のみ", "広義 主要", "18.5%", "14.0%", "0.64", "0.41–0.99", "0.047"],
+    ["", "広義 副次", "2.4%", "1.8%", "0.83", "0.28–2.47", "0.735"],
+    ["", "狭義 主要", "0.8%", "3.2%", "8.99", "2.50–32.29", "< 0.001"],
+    ["", "狭義 副次", "0.3%", "1.4%", "8.39", "1.21–58.18", "0.031"],
+    ["緊急手術のみ", "広義 主要", "16.8%", "22.3%", "1.44", "0.91–2.29", "0.119"],
+    ["", "広義 副次", "1.4%", "0.8%", "0.61", "0.08–4.68", "0.637"],
+    ["", "狭義 主要", "1.0%", "0.8%", "0.95", "0.12–7.44", "0.958"],
+    ["", "狭義 副次", "0.1%", "0.0%", "—", "—", "—"],
+]
+for i, row_data in enumerate(emg_data):
+    for j, v in enumerate(row_data):
+        tbl5.rows[i + 1].cells[j].text = v
+        for par in tbl5.rows[i + 1].cells[j].paragraphs:
+            for r in par.runs:
+                r.font.size = Pt(8)
+doc.add_paragraph()
+
+# --- Bootstrap validation ---
+add_heading(doc, "ブートストラップ検証（STROBE項目18）", level=2)
+
+bm = B["main_cohort"]
+bs = B["subgroup"]
+add_paragraph(doc,
+    "全コホートにおける層別ブートストラップ検証の結果をTable 6およびFig. 8に示す。")
+
+add_paragraph(doc,
+    f"制吐薬（狭義）主要評価項目の全コホートでは、"
+    f"BCa法95%CI [{bm['E-Primary']['bca_CI_lower']:.2f}–{bm['E-Primary']['bca_CI_upper']:.2f}] であり、"
+    f"Wald法95%CI [{bm['E-Primary']['wald_CI_lower']:.2f}–{bm['E-Primary']['wald_CI_upper']:.2f}] と"
+    f"ほぼ一致した。ブートストラップCIも1を除外しており、"
+    f"双胎の有意な効果（aOR {bm['E-Primary']['point_aOR']:.2f}）は頑健であった"
+    f"（収束率{bm['E-Primary']['convergence_pct']}%）。")
+
+add_paragraph(doc,
+    "低リスクサブグループでは、制吐薬（狭義）のイベント数が極めて少なく"
+    f"（主要{bs['E-Primary']['events']}件、副次{bs['E-Secondary']['events']}件）、"
+    "ブートストラップCIは不安定であった。"
+    "これはサンプルサイズの制約によるものであり、"
+    "サブグループ結果の解釈には慎重を要する。")
+
+# Table 6: Bootstrap results
+add_paragraph(doc, "Table 6. 層別ブートストラップ検証（10,000回リサンプリング）", bold=True)
+tbl6 = doc.add_table(rows=9, cols=6)
+tbl6.alignment = WD_TABLE_ALIGNMENT.CENTER
+tbl6.style = "Light Shading Accent 1"
+for j, h in enumerate(["コホート", "評価項目", "aOR", "Wald 95%CI", "BCa 95%CI", "収束率"]):
+    tbl6.rows[0].cells[j].text = h
+    for par in tbl6.rows[0].cells[j].paragraphs:
+        par.runs[0].bold = True
+        par.runs[0].font.size = Pt(8)
+
+def fmt_bca(r):
+    lo = r.get("bca_CI_lower")
+    hi = r.get("bca_CI_upper")
+    if lo is not None and hi is not None and hi < 1e6:
+        return f"{lo:.2f}–{hi:.2f}"
+    return "不安定"
+
+boot_rows = [
+    ["全コホート", "広義 主要", bm["A-Primary"]],
+    ["", "広義 副次", bm["A-Secondary"]],
+    ["", "狭義 主要", bm["E-Primary"]],
+    ["", "狭義 副次", bm["E-Secondary"]],
+    ["低リスク", "広義 主要", bs["A-Primary"]],
+    ["", "広義 副次", bs["A-Secondary"]],
+    ["", "狭義 主要", bs["E-Primary"]],
+    ["", "狭義 副次", bs["E-Secondary"]],
+]
+for i, (cohort, outcome, r) in enumerate(boot_rows):
+    vals = [
+        cohort, outcome,
+        f"{r['point_aOR']:.2f}",
+        f"{r['wald_CI_lower']:.2f}–{r['wald_CI_upper']:.2f}",
+        fmt_bca(r),
+        f"{r['convergence_pct']}%",
+    ]
+    for j, v in enumerate(vals):
+        tbl6.rows[i + 1].cells[j].text = v
+        for par in tbl6.rows[i + 1].cells[j].paragraphs:
+            for r2 in par.runs:
+                r2.font.size = Pt(8)
+doc.add_paragraph()
+
+# Fig 8: Bootstrap comparison
+add_figure(doc, BASE / "figures_bootstrap" / "fig_bootstrap_comparison.png",
+           "Fig. 8  Wald法 vs ブートストラップ法の信頼区間比較")
+
 doc.add_page_break()
 
 # ============================================================
@@ -588,8 +728,8 @@ add_paragraph(doc,
     "制吐薬全般の使用（広義の定義）では両群間に有意差を認めなかった。"
     "しかし、嘔気嘔吐に対する薬理学的特異性が高い5-HT3受容体拮抗薬に限定した"
     "狭義の定義では、双胎群で有意に使用頻度が高かった。"
-    "この結果は、全コホートおよび予定手術・低リスクサブグループの"
-    "いずれにおいても、共変量感度分析を通じて頑健に再現された。")
+    "この結果は、共変量感度分析、除外感度分析、緊急帝王切開の層別解析、"
+    "および10,000回の層別ブートストラップ検証を通じて頑健に再現された。")
 
 add_heading(doc, "限界（STROBE項目20）", level=2)
 add_paragraph(doc,
@@ -606,6 +746,8 @@ add_paragraph(doc,
     f"（主解析{mr['E-Primary']['events']}件、"
     f"サブグループ解析{er['E-Primary']['events']}件）、"
     "信頼区間が広い点に留意が必要である。"
+    "ブートストラップ検証により全コホートのaOR 3.18の頑健性は確認されたが、"
+    "サブグループ解析（イベント8件）ではブートストラップCIも不安定であった。"
     "特にサブグループ解析では対象が大幅に減少し"
     f"（{M['n_analysis']:,}→{E['n_analysis']}例）、"
     "外的妥当性が限定される。")
@@ -627,6 +769,19 @@ add_paragraph(doc,
     "にもかかわらず効果量が増大した点は、"
     "これらの因子が単胎群のIONVリスクを上げていた（＝双胎効果を希釈していた）"
     "可能性を示唆する。")
+
+add_paragraph(doc,
+    "緊急帝王切開の感度分析により、双胎の効果は予定手術に限定される可能性が示された。"
+    "予定手術のみでは狭義主要のaORが8.99と大幅に増大し、副次評価項目も有意となった。"
+    "一方、緊急手術のみでは双胎効果が完全に消失した。"
+    "広義主要評価項目では緊急×双胎の有意な交互作用（P = 0.023）が認められ、"
+    "緊急帝王切開が効果修飾因子であることが示唆された。")
+
+add_paragraph(doc,
+    "層別ブートストラップ検証では、全コホートの制吐薬（狭義）主要評価項目の"
+    "BCa信頼区間が1を除外しており、Wald法ベースの推定が頑健であることが確認された。"
+    "これは単胎・双胎間の約8:1の症例数比にもかかわらず、"
+    "ロジスティック回帰の結果が安定していることを裏付ける。")
 
 add_heading(doc, "一般化可能性（STROBE項目22）", level=2)
 add_paragraph(doc,

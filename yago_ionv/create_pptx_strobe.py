@@ -26,6 +26,8 @@ with open(BASE / "excl_sensitivity_stats.json") as f:
     E = json.load(f)
 with open(BASE / "flowchart_counts.json") as f:
     F = json.load(f)
+with open(BASE / "bootstrap_results.json") as f:
+    B = json.load(f)
 
 prs = Presentation()
 prs.slide_width = Inches(13.333)
@@ -591,9 +593,102 @@ print("Slide 7 (Subgroup forest) created")
 
 
 # ============================================================
+# SLIDE 8: Bootstrap Validation Forest Plot (editable shapes)
+# ============================================================
+slide8 = prs.slides.add_slide(prs.slide_layouts[6])
+add_slide_title(slide8, "Figure 8. Wald vs Bootstrap Confidence Interval Comparison")
+add_slide_caption(slide8,
+    "Stratified bootstrap (10,000 resamples) validation of Wald-based CIs. "
+    "BCa CI for narrow primary (full cohort) excludes 1, confirming robust twin effect.")
+
+# Draw bootstrap comparison as a table of editable textboxes
+bm = B["main_cohort"]
+bs = B["subgroup"]
+
+def fmt_bca_pptx(r):
+    lo = r.get("bca_CI_lower")
+    hi = r.get("bca_CI_upper")
+    if lo is not None and hi is not None and hi < 1e6:
+        return f"{lo:.2f}\u2013{hi:.2f}"
+    return "Unstable"
+
+boot_table_data = [
+    ["Full cohort", "Broad, Primary", bm["A-Primary"]],
+    ["Full cohort", "Broad, Secondary", bm["A-Secondary"]],
+    ["Full cohort", "Narrow, Primary", bm["E-Primary"]],
+    ["Full cohort", "Narrow, Secondary", bm["E-Secondary"]],
+    ["Low-risk", "Broad, Primary", bs["A-Primary"]],
+    ["Low-risk", "Broad, Secondary", bs["A-Secondary"]],
+    ["Low-risk", "Narrow, Primary", bs["E-Primary"]],
+    ["Low-risk", "Narrow, Secondary", bs["E-Secondary"]],
+]
+
+headers = ["Cohort", "Outcome", "aOR", "Wald 95% CI", "BCa 95% CI", "Conv."]
+col_widths = [Inches(1.5), Inches(2.0), Inches(1.0), Inches(2.2), Inches(2.2), Inches(1.0)]
+table_left = Inches(1.5)
+table_top = Inches(1.0)
+row_height = Inches(0.45)
+
+# Header row
+x = table_left
+for h_idx, (header, w) in enumerate(zip(headers, col_widths)):
+    box = slide8.shapes.add_shape(MSO_SHAPE.RECTANGLE, x, table_top, w, row_height)
+    box.fill.solid()
+    box.fill.fore_color.rgb = DARK_BLUE
+    box.line.color.rgb = WHITE
+    tf = box.text_frame
+    tf.word_wrap = True
+    p = tf.paragraphs[0]
+    p.text = header
+    p.alignment = PP_ALIGN.CENTER
+    for run in p.runs:
+        run.font.size = Pt(10)
+        run.font.bold = True
+        run.font.color.rgb = WHITE
+    x += w
+
+# Data rows
+for r_idx, (cohort, outcome, r) in enumerate(boot_table_data):
+    y = table_top + row_height * (r_idx + 1)
+    row_fill = RGBColor(0xF5, 0xF5, 0xF5) if r_idx % 2 == 0 else WHITE
+    # Highlight narrow primary full cohort
+    is_key = (cohort == "Full cohort" and "Narrow, Primary" in outcome)
+    if is_key:
+        row_fill = RGBColor(0xE8, 0xF5, 0xE9)
+    vals = [
+        cohort if r_idx in [0, 4] else "",
+        outcome,
+        f"{r['point_aOR']:.2f}",
+        f"{r['wald_CI_lower']:.2f}\u2013{r['wald_CI_upper']:.2f}",
+        fmt_bca_pptx(r),
+        f"{r['convergence_pct']}%",
+    ]
+    x = table_left
+    for v_idx, (val, w) in enumerate(zip(vals, col_widths)):
+        box = slide8.shapes.add_shape(MSO_SHAPE.RECTANGLE, x, y, w, row_height)
+        box.fill.solid()
+        box.fill.fore_color.rgb = row_fill
+        box.line.color.rgb = RGBColor(0xCC, 0xCC, 0xCC)
+        box.line.width = Pt(0.5)
+        tf = box.text_frame
+        tf.word_wrap = True
+        p = tf.paragraphs[0]
+        p.text = val
+        p.alignment = PP_ALIGN.CENTER
+        for run in p.runs:
+            run.font.size = Pt(9)
+            run.font.color.rgb = BLACK
+            if is_key:
+                run.font.bold = True
+        x += w
+
+print("Slide 8 (Bootstrap comparison) created")
+
+
+# ============================================================
 # SAVE
 # ============================================================
 out_path = BASE / "figures_strobe.pptx"
 prs.save(str(out_path))
 print(f"\nEditable PPTX saved to {out_path}")
-print("All 7 slides with editable shapes/charts generated.")
+print("All 8 slides with editable shapes/charts generated.")
