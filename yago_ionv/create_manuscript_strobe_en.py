@@ -743,14 +743,24 @@ add_paragraph(doc,
     "and 10,000-replicate stratified bootstrap validation.")
 
 add_heading(doc, "Limitations (STROBE Item 20)", level=2)
-add_paragraph(doc,
+add_p_with_refs(doc,
     "This study has several limitations. "
     "First, as a retrospective study, direct assessment of IONV was not possible; "
     "antiemetic administration was used as a surrogate marker. "
-    "Antiemetics may have been administered for indications other than IONV "
-    "(e.g., opioid-induced pruritus prophylaxis). "
-    "However, the narrow definition restricted to 5-HT3 antagonists minimized this "
-    "confounding effect.")
+    "Most prior studies on IONV during cesarean delivery were prospective in design "
+    "and recorded the occurrence of nausea and vomiting through patient self-report "
+    "or direct intraoperative observation{3-6,7,9-11}. "
+    "In contrast, our retrospective design precluded direct assessment of subjective "
+    "nausea or its severity; instead, we used the fact of antiemetic dispensing as a "
+    "surrogate for IONV. This approach cannot exclude the possibility that antiemetics "
+    "were administered for indications other than IONV (e.g., opioid-induced pruritus "
+    "prophylaxis, gastrointestinal motility promotion). However, the narrow definition "
+    "restricted to 5-HT3 receptor antagonists \u2014 agents with high pharmacological "
+    "specificity for nausea and vomiting \u2014 minimized this confounding effect. "
+    "Although the surrogate-marker approach is unique to the present study, "
+    "George et al.{10} reported rescue antiemetic administration as a secondary "
+    "outcome of IONV, supporting the relevance of antiemetic use as an IONV-related "
+    "endpoint.")
 
 add_paragraph(doc,
     f"Second, the number of events for the narrow definition was small "
@@ -765,13 +775,24 @@ add_paragraph(doc,
 
 add_paragraph(doc,
     "Third, this was a single-center study, and multicenter studies are needed to "
-    "confirm generalizability. The inability to assess the severity of IONV "
-    "is also a limitation.")
+    "confirm generalizability.")
+
+add_p_with_refs(doc,
+    "Fourth, the inability to assess the severity of IONV is a limitation. "
+    "Some prior studies reported intraoperative nausea and vomiting as separate "
+    "outcomes{5}, but this distinction is not possible with our antiemetic-based "
+    "definition. While the hypothesis that 5-HT3 antagonist use reflects more severe "
+    "IONV is plausible, prospective studies are needed to confirm the association "
+    "between IONV severity and the choice of antiemetic agent.")
 
 add_heading(doc, "Interpretation and Clinical Significance (STROBE Item 21)", level=2)
-add_paragraph(doc,
+add_p_with_refs(doc,
     "The finding that 5-HT3 antagonist use was significantly higher in the twin group "
     "despite similar overall antiemetic use is noteworthy. "
+    "Prior studies defined IONV by the presence or absence of nausea and vomiting "
+    "through direct measurement{3-7,9-11}, whereas the present study used antiemetic "
+    "administration as a surrogate marker. This approach may have selectively captured "
+    "\u2018IONV requiring treatment\u2019 \u2014 a dimension not assessed in prior work. "
     "Possible interpretations include: (1) although the overall frequency of antiemetic "
     "use was similar, twins may experience more severe IONV requiring 5-HT3 antagonists; "
     "or (2) prescribing patterns may differ for twin pregnancies, with clinicians selecting "
