@@ -288,5 +288,14 @@
       "P": 0.006795196123716397,
       "AIC": 369.7138586357363
     }
-  ]
+  ],
+  "twin_chorionicity": {
+    "DD": 212,
+    "MD": 127,
+    "MM": 3
+  },
+  "twin_emergency": {
+    "emergency": 121,
+    "elective": 221
+  }
 }

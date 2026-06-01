@@ -390,6 +390,17 @@ add_paragraph(doc,
     f"（単胎{F['primary_analysis']['n_s']:,}例、"
     f"双胎{F['primary_analysis']['n_t']:,}例）であった（Fig. 1）。")
 
+# Twin subcategory breakdown (not shown in flowchart)
+tc = M.get("twin_chorionicity", {})
+te = M.get("twin_emergency", {})
+add_paragraph(doc,
+    f"双胎{F['primary_analysis']['n_t']:,}例の内訳は、"
+    f"絨毛膜性別ではDD双胎{tc.get('DD', 0)}例、"
+    f"MD双胎{tc.get('MD', 0)}例、"
+    f"MM双胎{tc.get('MM', 0)}例であった。"
+    f"手術区分別では予定手術{te.get('elective', 0)}例（{100*te.get('elective', 0)/F['primary_analysis']['n_t']:.1f}%）、"
+    f"緊急手術{te.get('emergency', 0)}例（{100*te.get('emergency', 0)/F['primary_analysis']['n_t']:.1f}%）であった。")
+
 # --- Descriptive data (STROBE 15) ---
 add_heading(doc, "患者背景（STROBE項目15）", level=2)
 add_paragraph(doc,
@@ -420,6 +431,19 @@ for i, (_, row) in enumerate(table1.iterrows()):
         for par in tbl.rows[i + 1].cells[j].paragraphs:
             for r in par.runs:
                 r.font.size = Pt(9)
+
+# Table 1 footnotes
+footnote_p = doc.add_paragraph()
+footnote_texts = [
+    "連続変数は中央値 [四分位範囲] で表示。",
+    "カテゴリ変数は n/N (%) で表示。",
+    "連続変数の群間比較にはMann-Whitney U検定、",
+    "カテゴリ変数の群間比較にはPearsonの\u03c7\u00b2検定を用いた",
+    "（期待度数5未満のセルがある場合はFisherの正確検定）。",
+]
+fn_run = footnote_p.add_run("".join(footnote_texts))
+fn_run.font.size = Pt(8)
+fn_run.font.italic = True
 doc.add_paragraph()
 
 # --- Outcome data (STROBE 16) ---

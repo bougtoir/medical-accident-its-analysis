@@ -184,7 +184,7 @@ merge_cols = [
     "antiemetic_any", "ae_pre_anesthesia", "ae_to_delivery", "ae_post_delivery",
     "metoclopramide_mg", "droperidol_mg", "ondansetron_mg", "granisetron_mg",
     "novamin_mg", "atarax_p_mg", "dexamethasone_mg",
-    "exclusion_note", "twin",
+    "exclusion_note", "twin", "双胎分類",
 ]
 
 s_cols = [c for c in merge_cols if c in single.columns]
@@ -192,7 +192,7 @@ t_cols = [c for c in merge_cols if c in twin.columns]
 df_all = pd.concat([single[s_cols], twin[t_cols]], ignore_index=True)
 
 for col in merge_cols:
-    if col in df_all.columns and col not in ["exclusion_note", "仮ID", "手術日"]:
+    if col in df_all.columns and col not in ["exclusion_note", "仮ID", "手術日", "双胎分類"]:
         df_all[col] = pd.to_numeric(df_all[col], errors="coerce")
 
 # Exclusions
@@ -298,6 +298,7 @@ def summarize_continuous(s_series, t_series):
         "Singleton": f"{s_med:.1f} [{s_q1:.1f}–{s_q3:.1f}]",
         "Twin": f"{t_med:.1f} [{t_q1:.1f}–{t_q3:.1f}]",
         "P-value": p,
+        "Test": "Mann-Whitney U",
     }
 
 def summarize_categorical(s_series, t_series):
@@ -312,13 +313,16 @@ def summarize_categorical(s_series, t_series):
     exp = np.outer(row_t, col_t) / table.sum()
     if exp.min() < 5:
         _, p = stats.fisher_exact(table)
+        test_used = "Fisher's exact"
     else:
         _, p, _, _ = stats.chi2_contingency(table, correction=False)
+        test_used = "Chi-squared"
     return {
         "Variable": s_series.name, "Type": "categorical",
         "Singleton": f"{s_n}/{len(s_val)} ({s_pct:.1f}%)",
         "Twin": f"{t_n}/{len(t_val)} ({t_pct:.1f}%)",
         "P-value": p,
+        "Test": test_used,
     }
 
 table1_rows = []
@@ -686,6 +690,13 @@ summary = {
     },
     "regression": regression_results,
     "covariate_sensitivity": cov_sensitivity,
+    "twin_chorionicity": {
+        k: int(v) for k, v in t["双胎分類"].value_counts(dropna=False).items()
+    } if "双胎分類" in t.columns else {},
+    "twin_emergency": {
+        "emergency": int((t["emergency"] == 1).sum()),
+        "elective": int((t["emergency"] == 0).sum()),
+    },
 }
 
 with open(BASE / "def_e_stats.json", "w") as f:

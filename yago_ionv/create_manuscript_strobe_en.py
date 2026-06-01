@@ -383,6 +383,18 @@ add_paragraph(doc,
     f"were excluded, yielding a final analytical cohort of {F['primary_analysis']['n']:,} cases "
     f"(singleton {F['primary_analysis']['n_s']:,}; twin {F['primary_analysis']['n_t']:,}) (Fig. 1).")
 
+# Twin subcategory breakdown (not shown in flowchart)
+tc = M.get("twin_chorionicity", {})
+te = M.get("twin_emergency", {})
+add_paragraph(doc,
+    f"Among the {F['primary_analysis']['n_t']:,} twin pregnancies, "
+    f"chorionicity was dichorionic-diamniotic (DD) in {tc.get('DD', 0)}, "
+    f"monochorionic-diamniotic (MD) in {tc.get('MD', 0)}, "
+    f"and monochorionic-monoamniotic (MM) in {tc.get('MM', 0)}. "
+    f"By urgency, {te.get('elective', 0)} ({100*te.get('elective', 0)/F['primary_analysis']['n_t']:.1f}%) "
+    f"were elective and {te.get('emergency', 0)} ({100*te.get('emergency', 0)/F['primary_analysis']['n_t']:.1f}%) "
+    f"were emergency cesarean deliveries.")
+
 # --- Descriptive data (STROBE 15) ---
 add_heading(doc, "Baseline Characteristics (STROBE Item 15)", level=2)
 add_paragraph(doc,
@@ -414,6 +426,17 @@ for i, (_, row) in enumerate(table1.iterrows()):
         for par in tbl.rows[i + 1].cells[j].paragraphs:
             for r in par.runs:
                 r.font.size = Pt(9)
+
+# Table 1 footnotes
+footnote_p = doc.add_paragraph()
+fn_text = ("Continuous variables are presented as median [interquartile range]. "
+           "Categorical variables are presented as n/N (%). "
+           "Continuous variables were compared using the Mann-Whitney U test; "
+           "categorical variables were compared using Pearson\u2019s \u03c7\u00b2 test "
+           "(or Fisher\u2019s exact test when any expected cell count was <5).")
+fn_run = footnote_p.add_run(fn_text)
+fn_run.font.size = Pt(8)
+fn_run.font.italic = True
 doc.add_paragraph()
 
 # --- Outcome data (STROBE 16) ---
