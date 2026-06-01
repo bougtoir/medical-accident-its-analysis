@@ -211,6 +211,24 @@ add_p_with_refs(doc,
     "IONVは患者満足度を低下させるだけでなく、内臓脱出により手術操作の妨げとなる{4-6}。")
 
 add_p_with_refs(doc,
+    "IONVの主要な機序として、"
+    "（1）脊髄くも膜下麻酔による交感神経遮断に起因する低血圧、"
+    "（2）過剰な循環血液量の再分布による腸管低灌流とセロトニン遊離、"
+    "（3）交感神経遮断下での迷走神経優位、"
+    "（4）子宮操作・腹膜牽引による内臓刺激、"
+    "（5）子宮収縮薬（オキシトシン）投与"
+    "が報告されている{2,12}。")
+
+add_p_with_refs(doc,
+    "双胎妊娠では、これらの機序を増幅しうる生理学的特徴が知られている。"
+    "双胎では単胎に比べ循環血液量が約400 mL多く増加し、"
+    "心拍数・一回拍出量・心係数がより大きく上昇する{13}。"
+    "さらに、増大した子宮による大動脈・下大静脈圧迫は"
+    "双胎でより高度かつ頻回であり、"
+    "脊髄くも膜下麻酔との交互作用により高度の低血圧が生じやすい{9,13}。"
+    "これらの知見から、双胎妊娠は理論的にIONVのリスクを高めうると考えられる。")
+
+add_p_with_refs(doc,
     "先行研究では、IONVの危険因子として術中低血圧、術中疼痛、"
     "30分を超える手術時間、35 kg/m²を超えるBMI、"
     "妊娠高血圧症候群（Hypertensive Disorders of Pregnancy; HDP）、"
@@ -782,6 +800,17 @@ add_p_with_refs(doc,
     "より重度のIONV（=5-HT3拮抗薬が必要なレベル）が多い可能性、"
     "（2）双胎に対する処方パターンが異なる（より特異性の高い薬剤が選択される）可能性がある。")
 
+add_p_with_refs(doc,
+    "IONVの主要な機序は低血圧、迷走神経活動、内臓刺激であるが{2,12}、"
+    "双胎妊娠はこれらすべてを増幅しうる生理学的特徴を有する{13}。"
+    "本研究の双胎342例を含む3,188例のコホートは、"
+    "双胎におけるIONVを正面から検討した最大規模の研究であり、"
+    "この知見はIONVのメカニズム解明に寄与しうる。"
+    "広義（制吐薬全般）では差がないにもかかわらず狭義（5-HT3拮抗薬）で有意差が出るという結果は、"
+    "IONVの『量』ではなく『質（重症度・治療必要度）』が双胎で異なる可能性を示唆している。"
+    "低血圧を共変量として調整済みのモデルで双胎効果が残存することから、"
+    "低血圧以外の経路（腸管低灌流によるセロトニン遊離、内臓刺激等）の関与が示唆される。")
+
 add_paragraph(doc,
     "サブグループ解析で交絡因子（緊急手術、既往、HDP、ステロイド）を除外した"
     "にもかかわらず効果量が増大した点は、"
@@ -802,11 +831,15 @@ add_paragraph(doc,
     "ロジスティック回帰の結果が安定していることを裏付ける。")
 
 add_heading(doc, "一般化可能性（STROBE項目22）", level=2)
-add_paragraph(doc,
+add_p_with_refs(doc,
     "本研究は地域中核病院の10年間のデータに基づいており、"
     "日本における一般的な帝王切開管理を反映している。"
+    "双胎342例を含む本コホートは、"
+    "双胎を系統的に除外してきた先行研究{9-11}とは異なり、"
+    "双胎におけるIONVを直接検証した最大規模のデータである。"
     "ただし、制吐薬の処方パターンは施設や時代によって異なる可能性があり、"
-    "結果の外挿には注意を要する。")
+    "結果の外挿には注意を要する。"
+    "今後、前向き多施設研究により双胎におけるIONVのメカニズムを解明することが期待される。")
 
 doc.add_page_break()
 
@@ -827,6 +860,8 @@ references = [
     "Chen Z, Zhou J, Wan L, Huang H. Norepinephrine versus phenylephrine infusion for preventing postspinal hypotension during cesarean section for twin pregnancy: a double-blinded randomized controlled clinical trial. BMC Anesthesiol. 2022;22:17.",
     "George RB, McKeen DM, Dominguez JE, et al. Randomized trial of phenylephrine infusion vs. bolus for nausea & vomiting during cesarean in obese women. Can J Anaesth. 2018;65:254-262.",
     "Ngan Kee WD, Lee SWY, Ng FF, et al. Randomized double-blinded comparison of norepinephrine and phenylephrine for maintenance of blood pressure during spinal anesthesia for cesarean delivery. Anesthesiology. 2015;122:736-45.",
+    "Jelting Y, Klein C, Harlander T, et al. Preventing nausea and vomiting in women undergoing regional anesthesia for cesarean section: challenges and solutions. Local Reg Anesth. 2017;10:83-90.",
+    "Farrer JR, Peralta FM. Anaesthesia for the parturient with multiple gestations. BJA Educ. 2022;22(8):306-311.",
 ]
 
 for i, ref in enumerate(references):

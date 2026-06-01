@@ -185,6 +185,25 @@ add_p_with_refs(doc,
     "procedures through visceral prolapse{4\u20136}.")
 
 add_p_with_refs(doc,
+    "The principal mechanisms of IONV include: "
+    "(1) hypotension resulting from sympathetic blockade during spinal anesthesia; "
+    "(2) gut hypoperfusion and serotonin release due to redistribution of circulating blood volume; "
+    "(3) unopposed vagal activity under sympathetic blockade; "
+    "(4) visceral stimulation from uterine manipulation and peritoneal traction; and "
+    "(5) uterotonic (oxytocin) administration{2,12}.")
+
+add_p_with_refs(doc,
+    "Twin pregnancies possess physiological characteristics that may amplify each of "
+    "these mechanisms. Compared with singleton pregnancies, twins are associated with an "
+    "approximately 400 mL greater increase in circulating blood volume, as well as greater "
+    "increases in heart rate, stroke volume, and cardiac index{13}. "
+    "Moreover, aortocaval compression by the larger uterus is more frequent and severe "
+    "in twin pregnancies, and this effect is exacerbated by neuraxial anesthesia, "
+    "predisposing to profound hypotension{9,13}. "
+    "These observations suggest that twin pregnancy may theoretically increase "
+    "the risk of IONV.")
+
+add_p_with_refs(doc,
     "Previous studies have identified risk factors for IONV including intraoperative "
     "hypotension, intraoperative pain, operative duration exceeding 30 minutes, "
     "body mass index (BMI) exceeding 35 kg/m\u00b2, hypertensive disorders of pregnancy (HDP), "
@@ -798,6 +817,22 @@ add_p_with_refs(doc,
     "or (2) prescribing patterns may differ for twin pregnancies, with clinicians selecting "
     "more specific agents.")
 
+add_p_with_refs(doc,
+    "The principal mechanisms of IONV are hypotension, vagal activity, and visceral "
+    "stimulation{2,12}, and twin pregnancy amplifies all of these through greater "
+    "circulating blood volume, enhanced aortocaval compression, and reduced cardiac "
+    "reserve{13}. "
+    "The present cohort of 3,188 cases including 342 twins represents the largest "
+    "study to directly examine IONV in twin pregnancies, and these findings may contribute "
+    "to elucidating the mechanisms of IONV. "
+    "The observation that differences emerged only under the narrow (5-HT3 antagonist) "
+    "definition, but not the broad definition, suggests that the \u2018quality\u2019 "
+    "(severity and treatment necessity) rather than the \u2018quantity\u2019 of IONV may "
+    "differ in twins. "
+    "The persistence of the twin effect after adjusting for hypotension as a covariate "
+    "suggests involvement of pathways beyond hypotension, such as serotonin release "
+    "from gut hypoperfusion or enhanced visceral stimulation.")
+
 add_paragraph(doc,
     "The observation that the effect size increased in the subgroup analysis after "
     "excluding confounders (emergency surgery, prior cesarean delivery, HDP, steroids) "
@@ -820,11 +855,16 @@ add_paragraph(doc,
     "are stable and the key finding is robust.")
 
 add_heading(doc, "Generalizability (STROBE Item 22)", level=2)
-add_paragraph(doc,
+add_p_with_refs(doc,
     "This study was based on 10 years of data from a regional referral hospital, "
     "reflecting typical cesarean delivery management in Japan. "
+    "The present cohort including 342 twin cases provides the largest dataset "
+    "to directly examine IONV in twin pregnancies, in contrast to prior studies "
+    "that systematically excluded twins{9-11}. "
     "However, antiemetic prescribing patterns may vary across institutions and eras, "
-    "and caution is warranted in extrapolating these results.")
+    "and caution is warranted in extrapolating these results. "
+    "Future prospective multicenter studies are warranted to elucidate "
+    "the mechanisms of IONV in twin pregnancies.")
 
 doc.add_page_break()
 
@@ -875,6 +915,13 @@ references = [
     "Ngan Kee WD, Lee SWY, Ng FF, et al. Randomized double-blinded comparison of "
     "norepinephrine and phenylephrine for maintenance of blood pressure during spinal "
     "anesthesia for cesarean delivery. Anesthesiology. 2015;122:736-45.",
+
+    "Jelting Y, Klein C, Harlander T, et al. Preventing nausea and vomiting in women "
+    "undergoing regional anesthesia for cesarean section: challenges and solutions. "
+    "Local Reg Anesth. 2017;10:83-90.",
+
+    "Farrer JR, Peralta FM. Anaesthesia for the parturient with multiple gestations. "
+    "BJA Educ. 2022;22(8):306-311.",
 ]
 
 for i, ref in enumerate(references):
