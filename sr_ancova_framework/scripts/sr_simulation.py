@@ -215,6 +215,70 @@ def fig1_schematic():
     plt.close(fig)
     print("  -> fig1_schematic.png")
 
+    # Also export individual panels for editable PPTX
+    for idx, ax_label in enumerate(['a', 'b', 'c']):
+        fig_single, ax_single = plt.subplots(1, 1, figsize=(4, 3))
+        # Re-draw each panel individually
+        if idx == 0:
+            np.random.seed(42)
+            t2 = np.linspace(0, 2, 500)
+            s2 = 0.3 * np.sin(2 * np.pi * 2 * t2)
+            n2 = np.random.normal(0, 0.6, len(t2))
+            x2 = s2 + n2
+            th = 0.8
+            ev = np.abs(x2) > th
+            ax_single.plot(t2, x2, 'b-', lw=0.5, alpha=0.6, label=r'$x(t) = s(t) + n(t)$')
+            ax_single.plot(t2, s2, 'r-', lw=1.5, label=r'$s(t)$')
+            ax_single.axhline(y=th, color='k', ls='--', lw=1, label=r'$\theta$')
+            ax_single.axhline(y=-th, color='k', ls='--', lw=1)
+            et = t2[ev]
+            ax_single.plot(et, np.ones_like(et) * 1.3, 'k|', ms=5, mew=0.5)
+            ax_single.set_xlabel('Time')
+            ax_single.set_ylabel('Amplitude')
+            ax_single.set_ylim(-2.2, 1.7)
+            ax_single.legend(fontsize=8, loc='lower left')
+        elif idx == 1:
+            np.random.seed(123)
+            t2 = np.linspace(0, 2, 500)
+            s2 = 0.3 * np.sin(2 * np.pi * 2 * t2)
+            th = 0.8
+            sigmas2 = [0.2, 0.7, 1.8]
+            labels2 = [r'$\sigma/\theta=0.25$', r'$\sigma/\theta=0.88$ (opt.)',
+                       r'$\sigma/\theta=2.25$']
+            colors2 = ['#d62728', '#2ca02c', '#1f77b4']
+            for sigma, lab, col in zip(sigmas2, labels2, colors2):
+                n2 = np.random.normal(0, sigma, len(t2))
+                x2 = s2 + n2
+                ev2 = np.abs(x2) > th
+                kernel = np.ones(30) / 30
+                rate = np.convolve(ev2.astype(float), kernel, mode='same')
+                ax_single.plot(t2, rate, color=col, lw=1.2, label=lab)
+            ax_single.set_xlabel('Time')
+            ax_single.set_ylabel('Event rate (smoothed)')
+            ax_single.legend(fontsize=8, loc='upper right')
+            ax_single.set_ylim(bottom=-0.02)
+        else:
+            sigma_base = 0.8
+            x_range = np.linspace(-3, 3, 300)
+            rho_vals2 = [0, 0.5, 0.8, 0.95]
+            colors2 = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728']
+            th = 0.8
+            for rho, col in zip(rho_vals2, colors2):
+                sigma_eff = sigma_base * np.sqrt(max(1 - rho**2, 0.005))
+                pdf = np.exp(-x_range**2 / (2 * sigma_eff**2)) / (sigma_eff * np.sqrt(2 * np.pi))
+                label = r'$\rho=%.2f$' % rho if rho > 0 else r'Raw ($\rho=0$)'
+                ax_single.plot(x_range, pdf, color=col, lw=1.3, label=label)
+            ax_single.axvline(x=th, color='k', ls='--', lw=1)
+            ax_single.axvline(x=-th, color='k', ls='--', lw=1)
+            ax_single.set_xlabel(r'Residual noise $\varepsilon$')
+            ax_single.set_ylabel('Probability density')
+            ax_single.legend(fontsize=8, loc='upper right')
+
+        fig_single.tight_layout()
+        fig_single.savefig(OUT_DIR / f'fig1{ax_label}.png', dpi=200)
+        plt.close(fig_single)
+    print("  -> fig1a.png, fig1b.png, fig1c.png (individual panels)")
+
 
 def fig2_sr_curve():
     """
