@@ -602,7 +602,7 @@ def create_manuscript():
     add_text(p,
         f"The Lipset Hypothesis (Lipset, 1959) was outlier-dependent "
         f"(p = {fmt_p(lipset['f_test']['p_value'])} full, "
-        f"p = {fmt_p(lipset['sensitivity']['p_clean'])} after removal of Gulf oil states). "
+        f"p = {fmt_p(lipset['sensitivity']['p_clean'])} after removal of high-income outliers). "
         f"{pol_v.get('NOT_SIGNIFICANT', 0)}/5 were non-significant."
     )
 
