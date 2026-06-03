@@ -1,0 +1,110 @@
+{
+  "total": {
+    "n": 3479,
+    "n_s": 3113,
+    "n_t": 366
+  },
+  "exclusion_steps": [
+    {
+      "reason": "General anesthesia",
+      "reason_ja": "全身麻酔",
+      "n": 6,
+      "n_s": 4,
+      "n_t": 2
+    },
+    {
+      "reason": "SBP < 90 mmHg at admission",
+      "reason_ja": "入室時SBP 90 mmHg未満",
+      "n": 4,
+      "n_s": 3,
+      "n_t": 1
+    },
+    {
+      "reason": "Intrauterine fetal death (IUFD)",
+      "reason_ja": "子宮内胎児死亡（IUFD）",
+      "n": 13,
+      "n_s": 4,
+      "n_t": 9
+    },
+    {
+      "reason": "Vanishing twin",
+      "reason_ja": "Vanishing twin",
+      "n": 3,
+      "n_s": 0,
+      "n_t": 3
+    },
+    {
+      "reason": "Triplet pregnancy",
+      "reason_ja": "品胎",
+      "n": 5,
+      "n_s": 5,
+      "n_t": 0
+    },
+    {
+      "reason": "Other exclusion criteria",
+      "reason_ja": "その他の除外基準",
+      "n": 147,
+      "n_s": 143,
+      "n_t": 4
+    },
+    {
+      "reason": "Missing anesthesia data",
+      "reason_ja": "麻酔データ欠損",
+      "n": 58,
+      "n_s": 57,
+      "n_t": 1
+    }
+  ],
+  "total_excluded": {
+    "n": 236,
+    "n_s": 216,
+    "n_t": 20
+  },
+  "eligible": {
+    "n": 3243,
+    "n_s": 2897,
+    "n_t": 346
+  },
+  "preop_antiemetic": {
+    "n": 55,
+    "n_s": 51,
+    "n_t": 4
+  },
+  "primary_analysis": {
+    "n": 3188,
+    "n_s": 2846,
+    "n_t": 342
+  },
+  "exclusion_sensitivity": {
+    "Emergency CS": {
+      "n": 1452,
+      "n_s": 1331,
+      "n_t": 121
+    },
+    "Prior CS": {
+      "n": 1320,
+      "n_s": 1280,
+      "n_t": 40
+    },
+    "HDP": {
+      "n": 317,
+      "n_s": 284,
+      "n_t": 33
+    },
+    "Preoperative steroid": {
+      "n": 232,
+      "n_s": 207,
+      "n_t": 25
+    }
+  },
+  "exclusion_sensitivity_total": {
+    "n": 2525,
+    "n_s": 2367,
+    "n_t": 158
+  },
+  "subgroup_analysis": {
+    "n": 663,
+    "n_s": 479,
+    "n_t": 184
+  }
+}
