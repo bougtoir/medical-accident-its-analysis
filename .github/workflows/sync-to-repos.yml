@@ -42,6 +42,7 @@ jobs:
           BRANCH_MAP["devin/1774689807-tempo-effect-paper"]="tempo-effect-paper"
           BRANCH_MAP["devin/1774689832-bja-zero-calibration-paper"]="bja-zero-calibration-paper"
           BRANCH_MAP["devin/1774689833-bja-manuscript-initial"]="bja-initial-compartment-pk"
+          BRANCH_MAP["devin/1780446375-cp-submission"]="bja-initial-compartment-pk"
           BRANCH_MAP["devin/1774689842-wada-tue-scoping-review"]="wada-tue-scoping-review"
           BRANCH_MAP["devin/1774690226-reproducibility-crisis-commercial-software"]="reproducibility-crisis-commercial-software"
           BRANCH_MAP["devin/1774690359-anesthesia-regional-variation-japan"]="anesthesia-regional-variation-japan"
