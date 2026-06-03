@@ -714,13 +714,14 @@ def build_manuscript():
 
         # --- Sec IV.A: DVS noise physics ---
         '[14] R. Gra\u00e7a and T. Delbruck, \u201cUnraveling the paradox of intensity-dependent '
-        'DVS pixel noise,\u201d preprint arXiv:2304.04019 (2023).',
+        'DVS pixel noise,\u201d preprint arXiv:2109.08640 (2021).',
 
-        '[15] B. McReynolds, R. Gra\u00e7a, and T. Delbruck, \u201cCharacterization of event camera '
-        'noise with a once-in-a-lifetime photon,\u201d preprint arXiv:2304.03494 (2023).',
+        '[15] B. McReynolds, R. Gra\u00e7a, and T. Delbruck, \u201cExploiting alternating DVS shot '
+        'noise event pair statistics to reduce background activity rates,\u201d '
+        'preprint arXiv:2304.03494 (2023).',
 
-        '[16] R. Gra\u00e7a and T. Delbruck, \u201cA large-signal theory for the differential DVS '
-        'pixel,\u201d preprint arXiv:2505.07386 (2025).',
+        '[16] R. Gra\u00e7a and T. Delbruck, \u201cTowards a physically realistic computationally '
+        'efficient DVS pixel model,\u201d preprint arXiv:2505.07386 (2025).',
 
         # --- Sec IV.C: Noise inverse problem / DeepClean ---
         '[17] G. Vajente, Y. Huang, M. Isi, J. C. Driggers, J. S. Kissel, '
@@ -728,12 +729,12 @@ def build_manuscript():
         'out of gravitational-wave detectors,\u201d Phys. Rev. D 101, 042003 (2020).',
 
         '[18] R. Essick, P. Godwin, C. Hanna, L. Blackburn, and E. Katsavounidis, '
-        '\u201ciDQ: Statistical inference of non-astrophysical noise transients in '
-        'gravitational-wave detectors with auxiliary channel data,\u201d Mach. Learn.: '
+        '\u201ciDQ: Statistical inference of non-Gaussian noise with auxiliary degrees '
+        'of freedom in gravitational-wave detectors,\u201d Mach. Learn.: '
         'Sci. Technol. 2, 015004 (2021).',
 
         # --- Sec IV.D: EBSSA dataset and temporal filter ---
-        '[19] S. Afshar, N. Hamilton, L. Davis, A. van Schaik, and G. Cohen, '
+        '[19] S. Afshar, A. P. Nicholson, A. van Schaik, and G. Cohen, '
         '\u201cEvent-based object detection and tracking for space situational awareness,\u201d '
         'preprint arXiv:1911.08730 (2019).',
 
@@ -747,7 +748,7 @@ def build_manuscript():
         '[22] S. Mitaim and B. Kosko, \u201cAdaptive stochastic resonance in noisy neurons '
         'based on mutual information,\u201d IEEE Trans. Neural Netw. 15, 1526 (2004).',
 
-        '[23] N. G. Stocks, \u201cInformation transmission in parallel threshold networks: '
+        '[23] N. G. Stocks, \u201cInformation transmission in parallel threshold arrays: '
         'Suprathreshold stochastic resonance,\u201d Phys. Rev. E 63, 041114 (2001).',
 
         # --- Sec V.D: broader applicability ---
