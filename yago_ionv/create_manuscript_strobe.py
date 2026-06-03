@@ -876,7 +876,7 @@ references = [
     "Juhani TP, Hannele H. Complications during spinal anesthesia for cesarean delivery: a clinical report of one year's experience. Reg Anesth. 1993;18(2):128-31.",
     "Balki M, Carvalho J. Intraoperative nausea and vomiting during cesarean section under regional anesthesia. Int J Obstet Anesth. 2005;14(3):230-41.",
     "Mercier FJ, Diemunsch P, Ducloy-Bouthors AS, et al. 6% hydroxyethyl starch (130/0.4) vs Ringer's lactate preloading before spinal anaesthesia for Caesarean delivery: the randomized, double-blind, multicentre CAESAR trial. Br J Anaesth. 2014;113(3):459-467.",
-    "Santos A, Datta S. Prophylactic use of droperidol for control of nausea and vomiting during spinal anesthesia for cesarean section. Obstet Anesth Digest. 1984;4(3):89.",
+    "Santos A, Datta S. Prophylactic use of droperidol for control of nausea and vomiting during spinal anesthesia for cesarean section. Anesth Analg. 1984;63(1):85-87.",
     "Mishriky B, Habib A. Metoclopramide for nausea and vomiting prophylaxis during and after Caesarean delivery: a systematic review and meta-analysis. Br J Anaesth. 2012;108(3):374-83.",
     "Harmon D, Ryan M, Kelly A, Bowen M. Acupressure and prevention of nausea and vomiting during and after spinal anaesthesia for caesarean section. Br J Anaesth. 2000;84(4):463-7.",
     "Ashagrie HE, Filatie TD, Melesse DY, Mustefa SY. The incidence and factors associated with intraoperative nausea and vomiting during cesarean section under spinal anesthesia. Int J Surg Open. 2020;26:49-54.",
