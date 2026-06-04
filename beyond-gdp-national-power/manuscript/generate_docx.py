@@ -270,7 +270,7 @@ def process_body(doc, body, refs):
             current_para = []
             title = clean_latex(par_m.group(1), refs)
             p = doc.add_paragraph()
-            run = p.add_run(title + ". ")
+            run = p.add_run(title + (" " if title.endswith(".") else ". "))
             run.bold = True
             # Rest of line after \paragraph{...}
             rest = re.sub(r'\\paragraph\{.+?\}', '', line).strip()
