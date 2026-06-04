@@ -620,10 +620,11 @@ def robustness_analysis(df):
     print(f"  Sign changes (OR < 1): {(finite_ors < 1).sum()}")
     print(f"  Always significant (p < 0.05): "
           f"{'Yes' if (loo_ps < 0.05).all() else 'No'}")
-    # Most influential polity
-    max_change_idx = np.argmax(np.abs(finite_ors - or_observed))
+    # Most influential polity (search over all loo_ors, replacing inf with or_observed)
+    max_change_idx = np.argmax(np.abs(np.where(np.isfinite(loo_ors), loo_ors, or_observed) - or_observed))
+    loo_or_display = loo_ors[max_change_idx]
     print(f"  Most influential polity: {d.iloc[max_change_idx]['entity']} "
-          f"(OR changes to {finite_ors[max_change_idx]:.3f})")
+          f"(OR changes to {loo_or_display:.3f})")
 
     results["loo"] = {
         "full_or": float(or_observed),
