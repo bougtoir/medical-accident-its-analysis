@@ -1218,7 +1218,7 @@ def create_manuscript_tex(results):
 
     # JEL
     W(r"\subsection*{JEL Classification}")
-    W(r"N40, N70, F50, O33, C12")
+    W(r"N40, N70, F50, O33, C25")
     W()
 
     # Bibliography
