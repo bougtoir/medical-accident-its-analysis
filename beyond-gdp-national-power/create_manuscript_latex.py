@@ -470,12 +470,11 @@ def create_manuscript_tex(results):
     W()
 
     # Author
-    W(r"\author*[1]{\fnm{Onishi} \sur{Tatsuki}}\email{bougtoir@gmail.com}")
+    W(r"\author*[1]{\fnm{Author} \sur{Name}}\email{author@example.com}")
     W()
-    W(r"\affil*[1]{\orgdiv{Data Science AI Innovation Research Promotion Center}, "
-      r"\orgname{Shiga University}, "
-      r"\orgaddress{\street{1-1-1 Bamba}, \city{Hikone}, "
-      r"\postcode{522-8522}, \state{Shiga}, \country{Japan}}}")
+    W(r"\affil*[1]{\orgdiv{Department}, \orgname{University}, "
+      r"\orgaddress{\street{Street}, \city{City}, "
+      r"\postcode{00000}, \state{State}, \country{Country}}}")
     W()
 
     # Abstract
@@ -1206,33 +1205,15 @@ def create_manuscript_tex(results):
     W(r"\section*{Statements and Declarations}")
     W()
     W(r"\subsection*{Funding}")
-    W(r"This work received no external funding.")
+    W(r"[To be completed by author]")
     W()
     W(r"\subsection*{Competing Interests}")
-    W(r"The author declares no conflicts of interest.")
-    W()
-    W(r"\subsection*{Acknowledgments}")
-    W(r"None.")
-    W()
-    W(r"\subsection*{ORCID}")
-    W(r"Onishi Tatsuki: \href{https://orcid.org/0000-0001-7261-9062}"
-      r"{0000-0001-7261-9062}")
-    W()
-    W(r"\subsection*{Author Contributions}")
-    W(r"O.T.: Conceptualization, Methodology, Software, Formal analysis, "
-      r"Writing --- original draft, Writing --- review \& editing.")
-    W()
-    W(r"\subsection*{Declaration of Generative Artificial Intelligence (AI) in Scientific Writing}")
-    W(r"We used devin.ai to help with formatting the text and choosing words that suited "
-      r"the tone, and to help writing codes. The author takes full responsibility for the "
-      r"accuracy and content of the manuscript.")
+    W(r"The author declares no competing interests.")
     W()
     W(r"\subsection*{Data Availability}")
-    W(r"The complete dataset and analysis code are available at "
-      r"\url{https://github.com/bougtoir/gdp-tempo-paper}. "
+    W(r"The complete dataset and analysis code are available at [repository URL]. "
       f"Supplementary Table~S1 provides the full dataset of {N} polities with all coded "
-      r"variables. This study uses only publicly available historical data; "
-      r"we gratefully acknowledge the open-data sources on which the dataset is built.")
+      r"variables.")
     W()
 
     # JEL
@@ -1275,10 +1256,8 @@ def create_table_s1_latex(results):
     tex.append(r"\usepackage{array}")
     tex.append(r"\usepackage[T1]{fontenc}")
     tex.append(r"\begin{document}")
-    tex.append(r"\scriptsize")
-    tex.append(r"\setlength{\LTleft}{0pt}")
-    tex.append(r"\setlength{\LTright}{0pt}")
-    tex.append(r"\begin{longtable}{@{}r l l l l l l l p{5.5cm}@{}}")
+    tex.append(r"\footnotesize")
+    tex.append(r"\begin{longtable}{rlllllllp{6cm}}")
     tex.append(r"\caption{Supplementary Table S1: Full dataset of 96 historical polities.} \\")
     tex.append(r"\toprule")
     tex.append(r"\# & Polity & Modern Country & Period & Era & Dominant & Closure & Outcome & Turning-Point Event \\")
@@ -1328,11 +1307,8 @@ def create_cover_letter_tex():
     tex.append(r"\usepackage[margin=2.5cm]{geometry}")
     tex.append(r"\usepackage[T1]{fontenc}")
     tex.append(r"\usepackage{hyperref}")
-    tex.append(r"\signature{Onishi Tatsuki\\Data Science AI Innovation Research Promotion Center, "
-               r"Shiga University\\bougtoir@gmail.com}")
-    tex.append(r"\address{Onishi Tatsuki\\Data Science AI Innovation Research Promotion Center, "
-               r"Shiga University\\1-1-1 Bamba, Hikone, Shiga 522-8522, Japan\\"
-               r"bougtoir@gmail.com}")
+    tex.append(r"\signature{Author Name\\Affiliation\\Email}")
+    tex.append(r"\address{Author Name\\Affiliation\\City, Country\\Email}")
     tex.append(r"\begin{document}")
     tex.append(r"\begin{letter}{Prof.\ Claude Diebolt\\Managing Editor, \emph{Cliometrica}}")
     tex.append(r"\opening{Dear Professor Diebolt,}")
