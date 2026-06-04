@@ -138,26 +138,29 @@ def tex_to_docx():
     doc.add_paragraph()
     doc.add_paragraph()
 
-    # Extract abstract
-    abs_m = re.search(r'\\abstract\{(.*?)\}', tex, re.DOTALL)
-    if abs_m:
+    # Extract abstract (use balanced brace matching)
+    abs_pos = tex.find('\\abstract{')
+    if abs_pos >= 0:
+        brace_pos = tex.index('{', abs_pos + len('\\abstract'))
+        abs_text, _ = extract_braced(tex, brace_pos)
         p = doc.add_paragraph()
         run = p.add_run("Abstract")
         run.bold = True
         run.font.size = Pt(12)
-        abs_text = abs_m.group(1).strip()
-        abs_text = clean_latex(abs_text, refs)
+        abs_text = clean_latex(abs_text.strip(), refs)
         p = doc.add_paragraph(abs_text)
         p.paragraph_format.first_line_indent = Pt(0)
 
-    # Extract keywords
-    kw_m = re.search(r'\\keywords\{(.+?)\}', tex, re.DOTALL)
-    if kw_m:
+    # Extract keywords (use balanced brace matching)
+    kw_pos = tex.find('\\keywords{')
+    if kw_pos >= 0:
+        brace_pos = tex.index('{', kw_pos + len('\\keywords'))
+        kw_text, _ = extract_braced(tex, brace_pos)
         doc.add_paragraph()
         p = doc.add_paragraph()
         run = p.add_run("Keywords: ")
         run.bold = True
-        kw_text = kw_m.group(1).strip()
+        kw_text = kw_text.strip()
         kw_text = re.sub(r'\\\\', '; ', kw_text)
         kw_text = kw_text.replace('\n', ' ')
         p.add_run(kw_text)
@@ -464,12 +467,21 @@ def get_sec_label(label):
     return sec_map.get(label, label)
 
 
+def extract_command_arg(content, command):
+    """Extract argument of a LaTeX command using balanced brace matching."""
+    pos = content.find(f'\\{command}' + '{')
+    if pos < 0:
+        return ""
+    brace_pos = content.index('{', pos + len(f'\\{command}'))
+    value, _ = extract_braced(content, brace_pos)
+    return value
+
+
 def insert_figure(doc, fig_lines, refs):
     """Insert figure into document."""
     content = '\n'.join(fig_lines)
-    # Extract caption
-    cap_m = re.search(r'\\caption\{(.+?)\}', content, re.DOTALL)
-    caption = cap_m.group(1) if cap_m else ""
+    # Extract caption (balanced brace matching)
+    caption = extract_command_arg(content, 'caption')
     caption = clean_latex(caption, refs)
     # Extract label to get figure number
     lab_m = re.search(r'\\label\{fig:([^}]+)\}', content)
@@ -507,9 +519,8 @@ def insert_figure(doc, fig_lines, refs):
 def insert_table(doc, tab_lines, refs):
     """Insert table into document."""
     content = '\n'.join(tab_lines)
-    # Extract caption
-    cap_m = re.search(r'\\caption\{(.+?)\}', content, re.DOTALL)
-    caption = cap_m.group(1) if cap_m else ""
+    # Extract caption (balanced brace matching)
+    caption = extract_command_arg(content, 'caption')
     caption = clean_latex(caption, refs)
     # Extract label
     lab_m = re.search(r'\\label\{tab:([^}]+)\}', content)
@@ -579,9 +590,9 @@ def insert_table(doc, tab_lines, refs):
                             run.font.size = Pt(10)
 
     # Footnote if present
-    fn_m = re.search(r'\\footnotetext\{(.+?)\}', content, re.DOTALL)
-    if fn_m:
-        fn = clean_latex(fn_m.group(1), refs)
+    fn_text = extract_command_arg(content, 'footnotetext')
+    if fn_text:
+        fn = clean_latex(fn_text, refs)
         p = doc.add_paragraph()
         p.paragraph_format.space_before = Pt(3)
         run = p.add_run(f"Note: {fn}")
