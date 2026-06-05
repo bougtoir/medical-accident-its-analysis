@@ -8,16 +8,13 @@ on:
     - cron: '*/15 * * * *'
   workflow_dispatch:
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
 jobs:
   sync:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - name: Checkout wip repo (all branches)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
           token: ${{ secrets.SYNC_PAT }}
