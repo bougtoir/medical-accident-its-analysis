@@ -1,15 +1,15 @@
-Variable,Type,Singleton,Twin,P-value,Test
-Age (years),continuous,34.0 [30.0–37.0],32.0 [29.0–35.0],6.221695276149446e-07,Mann-Whitney U
-BMI (kg/m²),continuous,24.8 [22.5–27.8],25.3 [22.8–28.0],0.18330281569986873,Mann-Whitney U
-Gestational age (weeks),continuous,38.0 [37.0–38.6],37.0 [36.1–37.3],1.1155735132481617e-53,Mann-Whitney U
-Surgery time (min),continuous,47.0 [40.0–57.0],44.0 [38.0–51.0],6.2290035042603005e-09,Mann-Whitney U
-Anesthesia time (min),continuous,64.0 [55.0–76.0],58.0 [51.0–67.8],4.703763737398087e-13,Mann-Whitney U
-Estimated blood loss (mL),continuous,650.0 [450.0–930.0],1195.0 [922.5–1670.0],1.454567266676134e-78,Mann-Whitney U
-Infusion volume (mL),continuous,1000.0 [750.0–1250.0],1050.0 [800.0–1300.0],0.05377691562040284,Mann-Whitney U
-Hypotensive episodes (count),continuous,1.0 [0.0–2.0],0.0 [0.0–2.0],0.002248995220141688,Mann-Whitney U
-Emergency CS,categorical,1331/2846 (46.8%),121/342 (35.4%),6.460752652006819e-05,Chi-squared
-Prior CS,categorical,1280/2846 (45.0%),40/342 (11.7%),3.648283472204188e-32,Chi-squared
-HDP,categorical,284/2846 (10.0%),33/342 (9.6%),0.8472961479564666,Chi-squared
-Preoperative steroid,categorical,207/2839 (7.3%),25/342 (7.3%),0.9900066295300622,Chi-squared
-Epidural anesthesia,categorical,912/2846 (32.0%),105/342 (30.7%),0.6145742558641055,Chi-squared
-Hypotension (SBP < 90),categorical,1502/2845 (52.8%),151/342 (44.2%),0.002509232067039908,Chi-squared
+Variable,Type,Singleton,Twin,P-value
+Age (years),continuous,34.0 [30.0–37.0],32.0 [29.0–35.0],6.221695276149446e-07
+BMI (kg/m²),continuous,24.8 [22.5–27.8],25.3 [22.8–28.0],0.18330281569986873
+Gestational age (weeks),continuous,38.0 [37.0–38.6],37.0 [36.1–37.3],1.1155735132481617e-53
+Surgery time (min),continuous,47.0 [40.0–57.0],44.0 [38.0–51.0],6.2290035042603005e-09
+Anesthesia time (min),continuous,64.0 [55.0–76.0],58.0 [51.0–67.8],4.703763737398087e-13
+Estimated blood loss (mL),continuous,650.0 [450.0–930.0],1195.0 [922.5–1670.0],1.454567266676134e-78
+Infusion volume (mL),continuous,1000.0 [750.0–1250.0],1050.0 [800.0–1300.0],0.05377691562040284
+Hypotensive episodes (count),continuous,1.0 [0.0–2.0],0.0 [0.0–2.0],0.002248995220141688
+Emergency CS,categorical,1331/2846 (46.8%),121/342 (35.4%),6.460752652006819e-05
+Prior CS,categorical,1280/2846 (45.0%),40/342 (11.7%),3.648283472204188e-32
+HDP,categorical,284/2846 (10.0%),33/342 (9.6%),0.8472961479564666
+Preoperative steroid,categorical,207/2839 (7.3%),25/342 (7.3%),0.9900066295300622
+Epidural anesthesia,categorical,912/2846 (32.0%),105/342 (30.7%),0.6145742558641055
+Hypotension (SBP < 90),categorical,1502/2845 (52.8%),151/342 (44.2%),0.002509232067039908

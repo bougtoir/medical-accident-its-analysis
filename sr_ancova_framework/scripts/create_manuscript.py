@@ -105,27 +105,25 @@ def build_manuscript():
     # =========================================================
     add_heading(doc, 'Abstract', level=1)
     add_paragraph(doc, (
-        'Stochastic resonance (SR) \u2014 the counterintuitive enhancement of signal detection '
-        'by noise in nonlinear threshold systems \u2014 has been extensively studied in bistable '
-        'and excitable systems. Independently, covariate adjustment methods from statistical '
-        'modeling (analogous to analysis of covariance, ANCOVA) provide systematic tools for '
-        'separating signal from structured noise when the noise depends on observable covariates. '
-        'Here we unify these two perspectives for threshold-based event detectors. We show '
-        'analytically that covariate adjustment with noise model correlation \u03c1 reduces the '
-        'effective noise variance by a factor (1 \u2212 \u03c1\u00b2), shifting the operating point on the '
-        'SR curve. This leads to a central result: there exists an optimal noise model accuracy '
-        '\u03c1* = \u221a(1 \u2212 \u03b8\u00b2/\u03c3\u00b2) that maximizes output signal-to-noise ratio, where \u03b8 is the '
-        'detection threshold and \u03c3 is the input noise level. When the system operates in the '
-        'excess noise regime (\u03c3 > \u03b8), covariate adjustment is beneficial and the SNR gain grows '
-        'exponentially with input noise. When the system is already at the SR optimum (\u03c3 \u2248 \u03b8), '
-        'any noise removal degrades performance. We validate this framework through Monte Carlo '
-        'simulations and demonstrate its practical application using dynamic vision sensor (DVS) '
-        'data from astronomical observations. A physics-informed noise model based on the DVS '
-        'pixel circuit \u2014 incorporating dark current shot noise, background illuminance, and '
-        'threshold mismatch \u2014 provides the covariate structure. The resulting Fano-factor-based '
-        'noise classification achieves ROC-AUC = 0.866 with 93.9% signal preservation on 20 '
-        'recordings from the Event-Based Space Situational Awareness dataset, consistent with '
-        'the theoretical framework\u2019s predictions for the excess noise regime.'
+        'Stochastic resonance (SR) allows noise to enhance weak-signal detection in '
+        'threshold systems: output signal-to-noise ratio (SNR) peaks at an intermediate '
+        'noise level rather than at zero noise. Separately, covariate adjustment\u2014as in '
+        'analysis of covariance (ANCOVA)\u2014reduces noise variance by modeling its dependence '
+        'on observable auxiliary variables. We unify these ideas for threshold-based event '
+        'detectors. A noise model with correlation \u03c1 to the true noise shrinks the effective '
+        'variance by (1 \u2212 \u03c1\u00b2), shifting the detector\u2019s operating point along the SR curve. '
+        'Maximizing output SNR over \u03c1 yields an optimal model accuracy '
+        '\u03c1* = \u221a(1 \u2212 \u03b8\u00b2/\u03c3\u00b2), where \u03b8 is the threshold and \u03c3 the noise level. '
+        'In the excess-noise regime (\u03c3 > \u03b8), adjustment helps and the SNR gain grows '
+        'exponentially with \u03c3; at the SR optimum (\u03c3 \u2248 \u03b8), any noise removal is '
+        'counterproductive. Monte Carlo simulations confirm the analytical predictions. '
+        'As a practical demonstration, we apply the framework to dynamic vision sensor '
+        '(DVS) astronomical observations, where a circuit-level noise model\u2014parameterized '
+        'by dark current, background illuminance, and threshold mismatch\u2014supplies the '
+        'covariate structure. A Fano-factor classifier built on this model achieves '
+        'ROC-AUC = 0.866 with 93.9% signal preservation across 20 recordings from the '
+        'Event-Based Space Situational Awareness dataset, matching the theory\u2019s '
+        'predictions for the excess-noise regime.'
     ))
 
     # =========================================================
@@ -133,46 +131,42 @@ def build_manuscript():
     # =========================================================
     add_heading(doc, 'I. INTRODUCTION', level=1)
     add_paragraph(doc, (
-        'The relationship between noise and signal detection in nonlinear systems presents a '
-        'fundamental paradox: while noise is conventionally regarded as a nuisance that degrades '
-        'measurement quality, stochastic resonance (SR) demonstrates that an optimal amount of '
-        'noise can actually enhance the detection of weak signals in threshold-based systems '
-        '[1\u20133]. This phenomenon, first described in the context of paleoclimatic oscillations '
-        '[4] and subsequently observed across diverse physical, biological, and engineered systems '
-        '[5], challenges the conventional wisdom that noise should always be minimized.'
+        'In threshold-based detectors, noise plays a dual role. At low levels it is '
+        'innocuous; at high levels it overwhelms the signal. Between these extremes, '
+        'stochastic resonance (SR) produces a counter-intuitive optimum where a finite '
+        'noise level maximizes signal detection [1\u20133]. Discovered in the context of '
+        'paleoclimatic periodicities [4] and since confirmed in physical, biological, '
+        'and engineered systems [5], SR implies that indiscriminate noise suppression '
+        'can be self-defeating.'
     ))
     add_paragraph(doc, (
-        'Separately, the field of statistical modeling has long recognized that noise need not '
-        'be treated as an undifferentiated nuisance variable. Analysis of covariance (ANCOVA) '
-        'and related regression techniques model noise as a function of observable covariates \u2014 '
-        'temperature, instrumental parameters, environmental conditions \u2014 and adjust '
-        'observations accordingly [6]. The adjusted residuals have reduced variance, improving '
-        'the precision of downstream inference. This covariate adjustment philosophy has been '
-        'applied in signal processing contexts including adaptive noise cancellation [7], '
-        'Wiener filtering [8], and physics-informed denoising [9], though typically without '
-        'reference to the SR framework.'
+        'A complementary tradition treats noise not as a monolithic nuisance but as a '
+        'structured quantity depending on measurable covariates\u2014temperature, '
+        'instrumental drift, illumination\u2014which can be modeled and subtracted. This '
+        'is the logic of analysis of covariance (ANCOVA) [6] and its signal-processing '
+        'counterparts: adaptive noise cancellation [7], Wiener filtering [8], and '
+        'physics-informed denoising [9]. In all cases the residual variance shrinks as '
+        'the noise model improves, yet the SR implications of partial noise removal are '
+        'seldom discussed.'
     ))
     add_paragraph(doc, (
-        'These two perspectives \u2014 noise as beneficial resource (SR) and noise as modelable '
-        'covariate (ANCOVA) \u2014 have developed largely in isolation. The SR literature focuses '
-        'on characterizing the optimal noise level for detection but rarely addresses how to '
-        'navigate toward that optimum in practice. The denoising literature focuses on removing '
-        'noise but does not consider whether complete noise removal might be counterproductive '
-        'in threshold-based systems. This disconnect is particularly relevant for emerging '
-        'sensor technologies such as dynamic vision sensors (DVS) [10], single-photon detectors '
-        '[11], and neuromorphic systems [12], all of which employ threshold-based event '
-        'generation where SR effects are intrinsic.'
+        'These two viewpoints have evolved in isolation. SR theory identifies the '
+        'optimal noise level but offers no prescription for reaching it; denoising '
+        'methods remove noise without asking whether total removal is desirable. '
+        'The gap matters for threshold-based sensors now in active development\u2014dynamic '
+        'vision sensors (DVS) [10], single-photon detectors [11], neuromorphic circuits '
+        '[12]\u2014all of which fire events by threshold crossing and therefore exhibit '
+        'intrinsic SR effects.'
     ))
     add_paragraph(doc, (
-        'In this paper, we bridge these two perspectives by analyzing how covariate adjustment '
-        'interacts with stochastic resonance in threshold-based event detectors. We derive an '
-        'analytical expression for the optimal noise model accuracy \u2014 the degree to which noise '
-        'should be modeled and removed \u2014 as a function of the system\u2019s noise-to-threshold '
-        'ratio. Our central finding is that the optimal strategy is not to remove all '
-        'modelable noise, but to adjust noise precisely to the SR optimum. We validate this '
-        'framework through numerical simulations and demonstrate its application to DVS-based '
-        'astronomical observations, where circuit-level noise physics provides a rich covariate '
-        'structure amenable to this framework.'
+        'Here we connect the two by analyzing covariate adjustment in the presence of '
+        'SR. For a threshold detector whose noise depends on observable covariates, '
+        'we derive a closed-form optimal model accuracy\u2014the fraction of noise that '
+        'should be removed\u2014as a function of the noise-to-threshold ratio. '
+        'The answer is not \u201cremove everything you can model,\u201d but rather \u201creduce '
+        'noise to the SR optimum and stop.\u201d We verify this result via Monte Carlo '
+        'simulation and illustrate it with DVS astronomical data, where pixel-level '
+        'noise physics supplies a natural covariate structure.'
     ))
 
     # =========================================================
@@ -182,21 +176,19 @@ def build_manuscript():
 
     add_heading(doc, 'A. Threshold-based event detector', level=2)
     add_paragraph(doc, (
-        'We consider a general threshold-based event detector that receives a continuous '
-        'input x(t) = s(t) + n(t), where s(t) is a deterministic signal and n(t) is '
-        'zero-mean Gaussian noise with variance \u03c3\u00b2. The detector generates a binary event '
-        'stream E(t) according to'
+        'Consider a threshold detector receiving x(t) = s(t) + n(t), where s(t) is a '
+        'deterministic signal and n(t) is zero-mean Gaussian noise with variance \u03c3\u00b2. '
+        'The output event stream is'
     ))
     add_paragraph(doc, (
         '    E(t) = 1    if |x(t)| > \u03b8,\n'
         '    E(t) = 0    otherwise,'
     ), space_before=6, space_after=6)
     add_paragraph(doc, (
-        'where \u03b8 > 0 is the detection threshold. This model encompasses a wide class of '
-        'physical detectors including level-crossing detectors, neuronal firing models, '
-        'Schmitt triggers, single-photon avalanche diodes, and dynamic vision sensor pixels '
-        '[10, 13]. The signal is assumed subthreshold: A \u2261 max|s(t)| < \u03b8, so that events '
-        'can only occur when noise assists the signal in crossing the threshold (Fig. 1a).'
+        'with threshold \u03b8 > 0. This encompasses level-crossing detectors, neuronal '
+        'integrate-and-fire models, Schmitt triggers, single-photon avalanche diodes, '
+        'and DVS pixels [10, 13]. The signal is subthreshold, A \u2261 max|s(t)| < \u03b8, '
+        'so events occur only when noise assists a threshold crossing (Fig. 1a).'
     ))
 
     # Fig 1
@@ -213,21 +205,17 @@ def build_manuscript():
 
     add_heading(doc, 'B. Stochastic resonance in threshold detectors', level=2)
     add_paragraph(doc, (
-        'Following the two-state theory of McNamara and Wiesenfeld [1], the output '
-        'signal-to-noise ratio of the event stream for a weak periodic signal '
-        's(t) = A sin(2\u03c0f\u2080t) can be expressed as'
+        'For a weak sinusoid s(t) = A sin(2\u03c0f\u2080t), the two-state theory [1] '
+        'gives the output SNR of the event stream as'
     ))
     add_paragraph(doc, (
         '    SNR_out(\u03c3) \u221d (A/\u03c3\u00b2)\u00b2 exp(\u22122\u03b8\u00b2/\u03c3\u00b2).                   (1)'
     ), space_before=6, space_after=6)
     add_paragraph(doc, (
-        'This function exhibits a single maximum at \u03c3* = \u03b8 (Fig. 2), which is the hallmark '
-        'of stochastic resonance: the output SNR is maximized at an intermediate noise level '
-        'equal to the detection threshold, independent of the signal amplitude A. For \u03c3 < \u03b8, '
-        'insufficient noise reaches the threshold and events are rare; for \u03c3 \u226b \u03b8, events are '
-        'frequent but dominated by noise with little signal modulation. The optimal regime '
-        '\u03c3 \u2248 \u03b8 balances these effects, producing events that are both frequent enough and '
-        'sufficiently signal-correlated (Fig. 1b).'
+        'Equation (1) peaks at \u03c3* = \u03b8 (Fig. 2), independent of A. Below \u03b8, '
+        'threshold crossings are too rare; far above \u03b8, events are frequent but carry '
+        'little signal modulation. At \u03c3 \u2248 \u03b8 the two effects balance, producing '
+        'a maximally informative event stream (Fig. 1b).'
     ))
 
     # Fig 2 — placed after first citation in Sec II.B
@@ -241,63 +229,59 @@ def build_manuscript():
 
     add_heading(doc, 'C. Covariate adjustment as noise reduction', level=2)
     add_paragraph(doc, (
-        'Suppose the noise n(t) depends on observable covariates z(t) = (z\u2081(t), \u2026, z_k(t))\u1d40 '
-        'through a parametric model n\u0302(t) = f(z(t); \u03b2). In the ANCOVA analogy, these '
-        'covariates play the role of confounding variables that are modeled and \u201cadjusted out.\u201d '
-        'The adjusted observation is'
+        'Suppose n(t) depends on observable covariates z(t) = (z\u2081(t), \u2026, z_k(t))\u1d40 '
+        'through a model n\u0302(t) = f(z(t); \u03b2). Subtracting this estimate\u2014the ANCOVA '
+        'adjustment\u2014gives'
     ))
     add_paragraph(doc, (
         '    x_adj(t) = x(t) \u2212 n\u0302(t) = s(t) + \u03b5(t),                   (2)'
     ), space_before=6, space_after=6)
     add_paragraph(doc, (
-        'where \u03b5(t) = n(t) \u2212 n\u0302(t) is the residual noise. If the noise model achieves '
-        'correlation \u03c1 = Corr(n\u0302, n), then'
+        'where \u03b5(t) = n(t) \u2212 n\u0302(t) is the residual. If the model achieves '
+        'correlation \u03c1 = Corr(n\u0302, n) with the true noise, then'
     ))
     add_paragraph(doc, (
         '    Var(\u03b5) = (1 \u2212 \u03c1\u00b2) \u03c3\u00b2,                                  (3)'
     ), space_before=6, space_after=6)
     add_paragraph(doc, (
-        'so the effective noise level after adjustment is \u03c3_eff = \u03c3\u221a(1 \u2212 \u03c1\u00b2). Crucially, '
-        'this covariate adjustment does not change the threshold \u03b8 or the signal s(t); it '
-        'only reduces the noise variance. From the perspective of the SR curve, covariate '
-        'adjustment moves the operating point leftward (toward lower effective noise) by a '
-        'factor \u221a(1 \u2212 \u03c1\u00b2) (Fig. 1c).'
+        'so \u03c3_eff = \u03c3\u221a(1 \u2212 \u03c1\u00b2). Because the threshold \u03b8 and signal s(t) '
+        'are unchanged, the adjustment is equivalent to sliding the operating '
+        'point leftward along the SR curve by the factor \u221a(1 \u2212 \u03c1\u00b2) (Fig. 1c).'
     ))
 
     add_heading(doc, 'D. Optimal noise model accuracy', level=2)
     add_paragraph(doc, (
-        'Combining the SR expression with the covariate adjustment model, the output SNR '
-        'as a function of both input noise \u03c3 and model correlation \u03c1 is'
+        'Substituting \u03c3_eff into Eq. (1) gives the output SNR as a joint function '
+        'of \u03c3 and \u03c1:'
     ))
     add_paragraph(doc, (
         '    SNR_out(\u03c3, \u03c1) \u221d [A / (\u03c3\u00b2(1 \u2212 \u03c1\u00b2))]\u00b2 exp(\u22122\u03b8\u00b2 / [\u03c3\u00b2(1 \u2212 \u03c1\u00b2)]).     (4)'
     ), space_before=6, space_after=6)
     add_paragraph(doc, (
-        'Maximizing over \u03c1 at fixed \u03c3 yields the optimal noise model accuracy:'
+        'Maximizing over \u03c1 at fixed \u03c3:'
     ))
     add_paragraph(doc, (
         '    \u03c1*(\u03c3) = { 0,                          if \u03c3 \u2264 \u03b8,\n'
         '            { \u221a(1 \u2212 \u03b8\u00b2/\u03c3\u00b2),              if \u03c3 > \u03b8.          (5)'
     ), space_before=6, space_after=6)
     add_paragraph(doc, (
-        'This result has a clear physical interpretation (Fig. 3a). When the input noise is '
-        'at or below the SR optimum (\u03c3 \u2264 \u03b8), the system is already operating at peak '
-        'efficiency; any noise removal moves the operating point away from the optimum and '
-        'degrades the SNR. In this SR regime, the optimal strategy is to leave the noise '
-        'untouched (\u03c1* = 0). When the input noise exceeds the SR optimum (\u03c3 > \u03b8), the system '
-        'is in the excess noise regime, and covariate adjustment should reduce the effective '
-        'noise precisely to the SR optimum: \u03c3_eff = \u03c3\u221a(1 \u2212 \u03c1*\u00b2) = \u03b8.'
+        'The two regimes have distinct physics (Fig. 3a). For \u03c3 \u2264 \u03b8 the detector '
+        'already sits at or below the SR peak; removing noise moves it further from '
+        'the optimum, so \u03c1* = 0. For \u03c3 > \u03b8 the system is above the peak and '
+        'adjustment should bring the effective noise exactly to the SR optimum: '
+        '\u03c3_eff = \u03c3\u221a(1 \u2212 \u03c1*\u00b2) = \u03b8.'
     ))
     add_paragraph(doc, (
-        'At the optimal \u03c1*, the SNR improvement relative to no adjustment is'
+        'The resulting SNR gain over the unadjusted case is'
     ))
     add_paragraph(doc, (
         '    SNR_out(\u03c3, \u03c1*) / SNR_out(\u03c3, 0) = (\u03c3/\u03b8)\u2074 exp(2(\u03c3\u00b2 \u2212 \u03b8\u00b2)/\u03c3\u00b2),    (6)'
     ), space_before=6, space_after=6)
     add_paragraph(doc, (
-        'which grows as ~exp(2\u03c3\u00b2/\u03b8\u00b2) for \u03c3 \u226b \u03b8 (Fig. 3b). This exponential growth reflects '
-        'the severe penalty of operating far above the SR optimum and the correspondingly '
-        'large benefit of covariate adjustment in high-noise environments.'
+        'which scales as ~exp(2\u03c3\u00b2/\u03b8\u00b2) for \u03c3 \u226b \u03b8 (Fig. 3b). The exponential '
+        'growth reflects the steep penalty of operating far above the SR peak, '
+        'and the correspondingly large payoff of accurate noise modeling in '
+        'high-noise environments.'
     ))
 
     # Fig 3 — placed after first citation in Sec II.D
@@ -315,33 +299,29 @@ def build_manuscript():
     add_heading(doc, 'III. NUMERICAL SIMULATIONS', level=1)
 
     add_paragraph(doc, (
-        'We validate the analytical results through Monte Carlo simulations of a threshold '
-        'detector with Gaussian noise. The signal is a sinusoid s(t) = A sin(2\u03c0f\u2080t) with '
-        'A/\u03b8 = 0.3 and f\u2080 = 5 Hz, sampled at dt = 1 ms for N = 10\u2075 time steps per trial.'
+        'We test the analytical predictions with Monte Carlo simulations. '
+        'The signal is s(t) = A sin(2\u03c0f\u2080t) with A/\u03b8 = 0.3, f\u2080 = 5 Hz, '
+        'dt = 1 ms, and N = 10\u2075 steps per trial.'
     ))
 
     add_heading(doc, 'A. Stochastic resonance curves', level=2)
     add_paragraph(doc, (
-        'Figure 2 shows the output SNR as a function of input noise level for different '
-        'covariate adjustment strengths. The Monte Carlo estimates (black circles) confirm '
-        'the analytical prediction (black curve) for the unadjusted case (\u03c1 = 0), with '
-        'the SR peak occurring at \u03c3/\u03b8 \u2248 1.0. The adjusted curves (colored lines) show '
-        'the SR peak shifting rightward to \u03c3/\u03b8 \u2248 1/\u221a(1 \u2212 \u03c1\u00b2), consistent with the '
-        'analytical framework. Notably, the peak height remains constant across all \u03c1 '
-        'values (when measured in effective noise), confirming that covariate adjustment '
-        'translates the SR curve without altering its shape.'
+        'Figure 2 plots output SNR against input noise for several \u03c1 values. '
+        'Monte Carlo estimates (circles) agree with the analytical curve for \u03c1 = 0, '
+        'peaking at \u03c3/\u03b8 \u2248 1. The adjusted curves shift rightward to '
+        '\u03c3/\u03b8 \u2248 1/\u221a(1 \u2212 \u03c1\u00b2) as predicted. The peak amplitude is unchanged '
+        'when expressed in effective-noise units, confirming that adjustment translates '
+        'the SR curve without distorting it.'
     ))
 
     add_heading(doc, 'B. Detection probabilities', level=2)
     add_paragraph(doc, (
-        'Figure 4 shows the detection probability P_D and false alarm probability P_FA as '
-        'functions of input noise for A/\u03b8 = 0.4. Both probabilities decrease with increasing '
-        '\u03c1 at any fixed input noise level, because covariate adjustment reduces the effective '
-        'noise that drives threshold crossings. The detection advantage of adjustment becomes '
-        'apparent in the ROC representation (Fig. 5), where the relevant metric is P_D at a '
-        'given P_FA. In the excess noise regime (\u03c3/\u03b8 = 1.5), higher \u03c1 produces ROC curves '
-        'that are progressively further above the chance diagonal, indicating improved '
-        'discriminability between signal and noise.'
+        'Figure 4 shows detection probability P_D and false-alarm probability P_FA '
+        'versus input noise (A/\u03b8 = 0.4). Both decrease with \u03c1 because adjustment '
+        'suppresses the effective noise driving threshold crossings. The net benefit '
+        'is clearer in the ROC plane (Fig. 5): at \u03c3/\u03b8 = 1.5, increasing \u03c1 lifts '
+        'the ROC curve well above the chance diagonal, demonstrating improved '
+        'signal\u2013noise discrimination.'
     ))
 
     # Fig 4
@@ -360,24 +340,20 @@ def build_manuscript():
 
     add_heading(doc, 'C. Optimal noise model accuracy', level=2)
     add_paragraph(doc, (
-        'Figure 3 presents the central result of this work. Panel (a) shows the numerically '
-        'determined optimal \u03c1* as a function of input noise, confirming the analytical '
-        'prediction \u03c1* = \u221a(1 \u2212 \u03b8\u00b2/\u03c3\u00b2) (dashed line). The transition at \u03c3 = \u03b8 is sharp: '
-        'below this threshold, no adjustment is optimal; above it, the optimal adjustment '
-        'increases rapidly. Panel (b) shows that the SNR gain at optimal \u03c1* grows '
-        'exponentially with input noise, reaching factors of ~100\u00d7 at \u03c3/\u03b8 = 4. This '
-        'exponential scaling underscores the practical importance of covariate adjustment '
-        'in high-noise environments, which are typical for many sensor applications.'
+        'Figure 3 summarizes the optimal adjustment. Panel (a) compares the '
+        'numerically determined \u03c1* with the prediction \u03c1* = \u221a(1 \u2212 \u03b8\u00b2/\u03c3\u00b2) (dashed '
+        'line). The transition at \u03c3 = \u03b8 is sharp: below it, \u03c1* = 0; above it, '
+        '\u03c1* rises steeply. Panel (b) shows the resulting SNR gain, which grows '
+        'exponentially and exceeds 100\u00d7 by \u03c3/\u03b8 = 4\u2014a regime common in sensor '
+        'applications with large dark-current or thermal noise.'
     ))
 
     add_heading(doc, 'D. Information-theoretic perspective', level=2)
     add_paragraph(doc, (
-        'Figure 6 shows the mutual information I(S; E) between the periodic signal and the '
-        'event stream as a function of input noise. Like the SNR measure, the mutual '
-        'information exhibits an SR peak that shifts rightward with covariate adjustment. '
-        'This confirms that the SR effect and the benefits of covariate adjustment are '
-        'robust to the choice of performance metric and not an artifact of the particular '
-        'SNR definition used.'
+        'Figure 6 shows mutual information I(S; E) between signal and events. '
+        'The SR peak shifts rightward with \u03c1 in the same manner as the SNR '
+        'peak, confirming that the benefit of partial noise removal is not an '
+        'artifact of the SNR definition.'
     ))
 
     # Fig 6
@@ -393,128 +369,112 @@ def build_manuscript():
     add_heading(doc, 'IV. APPLICATION: DYNAMIC VISION SENSORS', level=1)
 
     add_paragraph(doc, (
-        'To demonstrate the practical relevance of the covariate-adjusted SR framework, '
-        'we apply it to event-based astronomical observations using dynamic vision sensors '
-        '(DVS). A DVS pixel fires an event when the logarithmic light intensity change '
-        'exceeds a threshold \u03b8_ON or \u03b8_OFF [10], making it a direct physical realization '
-        'of the threshold detector model analyzed above.'
+        'We now apply the framework to event-based astronomical observations with '
+        'dynamic vision sensors (DVS). Each DVS pixel fires when the log-intensity '
+        'change exceeds \u03b8_ON or \u03b8_OFF [10]\u2014a physical realization of the threshold '
+        'detector analyzed above.'
     ))
 
     # ---- IV.A DVS noise physics ----
     add_heading(doc, 'A. DVS noise physics', level=2)
     add_paragraph(doc, (
-        'The circuit-level physics of DVS noise has been systematically characterized '
-        'through a series of studies at UZH/ETH Zurich. Gra\u00e7a and Delbruck [14] established '
-        'that photon shot noise sets a fundamental lower bound on the background activity '
-        '(BA) rate at twice the photon shot noise level, arising from the differential '
-        'nature of the DVS pixel circuit. McReynolds et al. [15] further demonstrated that '
-        'shot-noise-induced events exhibit characteristic alternating ON\u2194OFF polarity '
-        'patterns, providing an additional discriminant between noise and signal events.'
+        'DVS noise physics has been characterized through a series of circuit-level '
+        'studies. Gra\u00e7a and Delbruck [14] showed that photon shot noise sets a '
+        'lower bound on background activity (BA) at twice the shot-noise level, '
+        'a consequence of the differential pixel architecture. McReynolds et al. '
+        '[15] exploited the resulting alternating ON\u2194OFF polarity pattern of '
+        'shot-noise events as a discriminant against signal.'
     ))
     add_paragraph(doc, (
-        'Most importantly for the present work, Gra\u00e7a and Delbruck [16] introduced a '
-        'large-signal differential-equation DVS pixel model incorporating first-passage-time '
-        'stochastic event generation, achieving >1000\u00d7 computational speedup over Monte '
-        'Carlo transistor-level simulation while maintaining physical realism. From this '
-        'model, a five-parameter analytical noise rate model (the A5 model) can be derived. '
-        'The parametric form is'
+        'For our purposes the most relevant contribution is the physically realistic '
+        'DVS pixel model of Gra\u00e7a and Delbruck [16], which formulates event generation '
+        'as a first-passage-time process and runs >1000\u00d7 faster than transistor-level '
+        'Monte Carlo while retaining quantitative accuracy. A five-parameter '
+        'analytical noise-rate expression (the A5 model) derived from it takes the form'
     ))
     add_paragraph(doc, (
         '    \u03bb_noise(T, I_bg) = I_dark,ref \u00b7 exp(\u03b1 \u00b7 \u0394T) \u00b7 (1 + \u03b2 \u00b7 I_bg),       (7)'
     ), space_before=6, space_after=6)
     add_paragraph(doc, (
-        'where I_dark,ref is the reference dark current rate at a baseline temperature, '
-        '\u03b1 is the temperature coefficient (typically ~0.06\u20130.08 K\u207b\u00b9 for silicon), '
-        '\u0394T is the temperature offset from baseline, \u03b2 is the background illuminance '
-        'sensitivity coefficient, and I_bg is the background illuminance. The remaining '
-        'parameters account for per-pixel threshold mismatch (\u03b8_mismatch) and readout '
-        'bandwidth. This model provides the forward model F(\u03b8) for the noise covariate '
-        'structure: the observable covariates z(t) = (T, I_bg, \u03b8_mismatch, ...) predict '
-        'the per-pixel noise rate through Eq. (7), enabling the covariate adjustment '
+        'Here I_dark,ref is the dark-current rate at a reference temperature, '
+        '\u03b1 \u2248 0.06\u20130.08 K\u207b\u00b9 is the silicon temperature coefficient, '
+        '\u0394T the temperature offset, \u03b2 the illuminance sensitivity, and I_bg '
+        'the background illuminance. Additional parameters capture per-pixel '
+        'threshold mismatch and readout bandwidth. The covariates '
+        'z(t) = (T, I_bg, \u03b8_mismatch, ...) thus predict per-pixel noise rates '
+        'via Eq. (7), providing the covariate structure needed for the adjustment '
         'framework of Sec. II.C.'
     ))
 
     # ---- IV.B Fano factor ----
     add_heading(doc, 'B. Fano factor as noise discriminant', level=2)
     add_paragraph(doc, (
-        'The Fano factor F \u2014 the ratio of event count variance to mean across temporal '
-        'bins \u2014 provides a local test statistic for distinguishing noise-dominated from '
-        'signal-modulated event streams. For a homogeneous Poisson process (pure noise), '
-        'F = 1 by definition. When a deterministic signal modulates the event rate, the '
-        'periodic bunching of events produces F > 1. Conversely, certain inhibitory '
-        'processes can produce F < 1. The Fano factor thus acts as a physics-informed '
-        'test statistic that exploits the known Poisson nature of DVS shot noise.'
+        'The Fano factor F = Var(N)/Mean(N) of event counts in temporal bins '
+        'distinguishes noise from signal at the pixel level. Pure Poisson noise '
+        'gives F = 1; a periodically modulated rate bunches events and produces '
+        'F > 1. The Fano factor therefore serves as a physics-grounded test '
+        'statistic exploiting the known Poisson character of DVS shot noise.'
     ))
     add_paragraph(doc, (
-        'For each pixel, we compute the event count in non-overlapping temporal bins of '
-        'width \u0394t, yielding a count sequence {N_1, N_2, ..., N_K}. The sample Fano factor '
-        'is F = Var(N_k) / Mean(N_k). Pixels with F \u2264 F_threshold (typically F_threshold '
-        '\u2248 2) are classified as noise-dominated; their event statistics are used to estimate '
-        'the local noise rate \u03bb_noise(x, y). Per-event noise probability is then computed as'
+        'In practice, events in each pixel are binned into non-overlapping windows of '
+        'width \u0394t, giving counts {N_1, ..., N_K}. Pixels with F \u2264 F_thr (we use '
+        'F_thr \u2248 2) are labeled noise-dominated and define the local noise rate '
+        '\u03bb_noise(x, y). Per-event noise probability follows as'
     ))
     add_paragraph(doc, (
         '    P_noise(e_i) = \u03bb_noise(x_i, y_i, t_i) / '
         '[\u03bb_noise(x_i, y_i, t_i) + \u03bb_signal(x_i, y_i, t_i)],     (8)'
     ), space_before=6, space_after=6)
     add_paragraph(doc, (
-        'where \u03bb_signal is estimated from the excess event rate in pixels with F > F_threshold. '
-        'Events with P_noise > \u03c4 (typically \u03c4 = 0.5) are classified as noise and removed. '
-        'This probabilistic thinning is the operational realization of covariate adjustment '
-        'in the DVS context: the physics-informed noise model [Eq. (7)] combined with the '
-        'Fano factor test provides the covariate structure, and the noise probability '
-        'assignment [Eq. (8)] provides the adjustment mechanism.'
+        'where \u03bb_signal is estimated from excess rates in pixels with F > F_thr. '
+        'Events satisfying P_noise > 0.5 are removed. This probabilistic thinning '
+        'is the DVS realization of covariate adjustment: Eq. (7) supplies the '
+        'covariate model, the Fano test identifies noise-dominated pixels, and '
+        'Eq. (8) effects the adjustment.'
     ))
 
     # ---- IV.C Connection to noise inverse problem ----
     add_heading(doc, 'C. Connection to the noise inverse problem', level=2)
     add_paragraph(doc, (
-        'The covariate adjustment procedure described above can be viewed as solving a '
-        'noise inverse problem: given the observation (raw event stream), reconstruct the '
-        'noise component using the physics-based forward model [Eq. (7)] and subtract it '
-        'to recover the signal. This paradigm has been highly successful in gravitational-wave '
-        'astronomy, where auxiliary witness channels are used to model and subtract '
-        'non-stationary instrumental noise from the strain signal [17, 18]. The key '
-        'structural analogy is:'
+        'The procedure above can be cast as a noise inverse problem: given raw events, '
+        'reconstruct the noise component via Eq. (7) and subtract. The same logic '
+        'drives gravitational-wave denoising, where witness channels model '
+        'non-stationary instrumental noise in strain data [17, 18]. The structural '
+        'parallel is:'
     ))
     add_paragraph(doc, (
         '    GW astronomy:    h(t) = s(t) + n_instr(t; aux channels)\n'
         '    DVS observation:  E(t) = E_signal(t) + E_noise(t; T, I_bg, \u03b8_mismatch)'
     ), space_before=6, space_after=6)
     add_paragraph(doc, (
-        'In both cases, the noise depends on observable auxiliary parameters (witness channels '
-        'for LIGO; temperature, illuminance, and pixel parameters for DVS), and the goal is '
-        'to model and remove the noise contribution while preserving the signal. The noise '
-        'model accuracy \u03b1 = 1 \u2212 ||\u03b5_noise|| / ||n_true|| maps to the correlation parameter '
-        '\u03c1 in our framework: \u03c1 \u2248 \u03b1 for small residuals. The SNR improvement then follows '
-        'from Eq. (6) rather than the simpler linear estimate SNR \u221d 1/(1\u2212\u03b1) used in the '
-        'gravitational-wave context, because DVS event detection involves a threshold '
-        'nonlinearity where SR effects are significant.'
+        'In both settings the noise depends on observable auxiliaries (witness channels '
+        'for LIGO; T, I_bg, \u03b8_mismatch for DVS). The noise-model accuracy '
+        '\u03b1 = 1 \u2212 ||\u03b5|| / ||n|| maps to \u03c1 \u2248 \u03b1. The SNR gain, however, follows '
+        'Eq. (6) rather than the linear estimate SNR \u221d 1/(1\u2212\u03b1) used in '
+        'gravitational-wave analyses, because the threshold nonlinearity introduces '
+        'SR-mediated amplification.'
     ))
 
     # ---- IV.D Experimental results ----
     add_heading(doc, 'D. Experimental evaluation', level=2)
     add_paragraph(doc, (
-        'We evaluate the framework on 20 recordings from the Event-Based Space Situational '
-        'Awareness (EBSSA) dataset [19], which contains DVS observations of satellites and '
-        'space debris against a star field using DAVIS240C sensors. The task is to classify '
-        'each event as signal (astronomical object) or noise (dark current, background). '
-        'Three methods are compared: (i) the Fano filter (covariate adjustment approach '
-        'described above), (ii) a simplified physics-informed neural network with three '
-        'layers (physics model, temporal modulation, spatio-temporal correlation) trained '
-        'self-supervised on noise-dominated pixels, and (iii) conventional temporal filtering '
-        '[20], which retains events only when a sufficient number of spatiotemporal neighbors '
-        'are present within a fixed window.'
+        'We evaluate on 20 recordings from the Event-Based Space Situational Awareness '
+        '(EBSSA) dataset [19]\u2014DVS observations of satellites and debris against star '
+        'fields (DAVIS240C sensor). The binary classification task labels each event '
+        'as signal (astronomical object) or noise (dark current / background). Three '
+        'methods are compared: (i) the Fano filter described above, (ii) a three-layer '
+        'physics-informed neural network trained self-supervised on noise-dominated '
+        'pixels, and (iii) conventional temporal filtering [20], which retains '
+        'events only if enough spatiotemporal neighbors fall within a fixed window.'
     ))
     add_paragraph(doc, (
-        'Figure 7a shows the noise classification performance. The Fano filter achieves '
-        'ROC-AUC = 0.866 \u00b1 0.107, substantially outperforming both temporal filtering '
-        '(AUC = 0.534 \u00b1 0.083) and the neural network approach '
-        '(AUC = 0.546 \u00b1 0.218). The temporal filter achieves the highest raw noise '
-        'removal rate (85.2%) but at the cost of destroying most signal events '
-        '(SPR = 21.6%), making it unsuitable for faint-object detection. Figure 7b shows '
-        'the NRR-SPR trade-off: the Fano filter removes 71.3% of noise events while '
-        'preserving 93.9% of signal events, occupying the upper-right region of the '
-        'performance space closest to the ideal point (NRR = 1, SPR = 1).'
+        'Results are shown in Fig. 7. The Fano filter achieves ROC-AUC = 0.866 \u00b1 0.107, '
+        'well above temporal filtering (0.534 \u00b1 0.083) and the neural network '
+        '(0.546 \u00b1 0.218). The temporal filter removes more raw noise (85.2%) but '
+        'destroys most signal (SPR = 21.6%), disqualifying it for faint-object work. '
+        'Panel (b) shows the NRR\u2013SPR trade-off: the Fano filter removes 71.3% of '
+        'noise while preserving 93.9% of signal, closest to the ideal corner '
+        '(NRR = 1, SPR = 1).'
     ))
 
     # Fig 7
@@ -527,34 +487,28 @@ def build_manuscript():
                width=Inches(5.5))
 
     add_paragraph(doc, (
-        'Using the A5 parametric model [Eq. (7)], we further simulate noise rates and SNR '
-        'improvements across the temperature-illuminance parameter space '
-        '(T \u2208 [10, 65]\u00b0C, I_bg \u2208 [0.1, 1000] lux). The simulation predicts a mean '
-        'SNR improvement of 5.4\u00d7 (max 10.0\u00d7) at 90% noise model accuracy, consistent '
-        'with the measured Fano filter performance.'
+        'Sweeping the A5 model over T \u2208 [10, 65]\u00b0C and I_bg \u2208 [0.1, 1000] lux '
+        'predicts a mean SNR gain of 5.4\u00d7 (max 10.0\u00d7) at 90% model accuracy, '
+        'consistent with the measured Fano-filter performance.'
     ))
 
     # ---- IV.E Interpretation in SR framework ----
     add_heading(doc, 'E. Interpretation in the SR framework', level=2)
     add_paragraph(doc, (
-        'In the SR framework, DVS astronomical observations operate firmly in the excess '
-        'noise regime (\u03c3 \u226b \u03b8): the dark current noise rate far exceeds the astronomical '
-        'signal event rate. The physics-informed covariate model (A5 + Fano filter) '
-        'effectively achieves \u03c1 \u2248 0.7\u20130.9 in terms of noise prediction accuracy. According '
-        'to Fig. 3b, this should yield an SNR improvement of approximately 5\u201310\u00d7, consistent '
-        'with the measured mean SNR improvement of 5.4\u00d7 in the EBSSA evaluation. The '
-        'covariate adjustment does not eliminate noise entirely (NRR = 0.713, not 1.0), '
-        'which is consistent with the framework\u2019s prediction that over-adjustment in the '
-        'SR context is suboptimal.'
+        'DVS astronomical observations lie deep in the excess-noise regime '
+        '(\u03c3 \u226b \u03b8): dark-current rates dominate signal rates by orders of magnitude. '
+        'The A5 + Fano model achieves \u03c1 \u2248 0.7\u20130.9, which Fig. 3b predicts '
+        'should yield 5\u201310\u00d7 SNR improvement\u2014matching the measured 5.4\u00d7. That '
+        'noise is not eliminated entirely (NRR = 0.713) accords with the prediction '
+        'that over-removal past the SR optimum is counterproductive.'
     ))
     add_paragraph(doc, (
-        'The fact that the simplified neural network (AUC = 0.546) performs poorly without '
-        'auxiliary channels, while the Fano filter (AUC = 0.866) succeeds with physics-informed '
-        'covariates alone, underscores a key prediction of the framework: the quality of '
-        'covariate adjustment (\u03c1) matters more than the complexity of the adjustment method. '
-        'A simple physics model that captures the dominant noise mechanisms achieves high \u03c1 '
-        'and correspondingly large SNR gains, while a more flexible model without the right '
-        'covariates cannot compensate.'
+        'The neural network (AUC = 0.546), despite greater flexibility, lacks '
+        'access to the physics-informed covariates and cannot match the Fano filter '
+        '(AUC = 0.866). This illustrates a prediction of the framework: what matters '
+        'is the fidelity of the noise model (\u03c1), not the complexity of the method. '
+        'A simple model that captures the dominant noise physics achieves high \u03c1 '
+        'and large SNR gains; a flexible model with wrong inputs cannot compensate.'
     ))
 
     # =========================================================
@@ -563,57 +517,49 @@ def build_manuscript():
     add_heading(doc, 'V. DISCUSSION', level=1)
 
     add_paragraph(doc, (
-        'The covariate-adjusted SR framework yields several insights relevant to both '
-        'theory and practice.'
+        'We discuss implications for theory, sensor design, and extensions.'
     ))
 
     add_heading(doc, 'A. Connection to forbidden-interval theorems', level=2)
     add_paragraph(doc, (
-        'The existence of an optimal \u03c1* is closely related to the forbidden-interval '
-        'theorem of Kosko and Mitaim [21, 22], which states that SR occurs in a threshold '
-        'system if and only if the noise distribution satisfies certain conditions on its '
-        'support relative to the threshold. Covariate adjustment modifies the effective '
-        'noise distribution, potentially moving it into or out of the forbidden interval. '
-        'Our result \u03c1* = \u221a(1 \u2212 \u03b8\u00b2/\u03c3\u00b2) provides a constructive criterion for when and how '
-        'much adjustment is beneficial, complementing the existential characterization of '
-        'the forbidden-interval theorem.'
+        'The forbidden-interval theorem [21, 22] gives necessary and sufficient '
+        'conditions on a noise distribution for SR to occur. Covariate adjustment '
+        'reshapes the effective distribution and can move it into or out of the '
+        'forbidden interval. Our expression \u03c1* = \u221a(1 \u2212 \u03b8\u00b2/\u03c3\u00b2) provides a '
+        'constructive prescription\u2014how much to adjust\u2014complementing the '
+        'theorem\u2019s existential characterization.'
     ))
 
     add_heading(doc, 'B. Implications for sensor design', level=2)
     add_paragraph(doc, (
-        'The framework suggests that threshold-based sensors should be co-designed with '
-        'noise models. Rather than minimizing noise at the hardware level (which may be '
-        'costly or impractical), a sensor can operate with higher noise if an accurate '
-        'covariate model is available for post-hoc adjustment. The optimal design point '
-        'is one where the residual noise (after model-based adjustment) matches the '
-        'threshold: \u03c3_eff = \u03b8. This principle applies broadly to neuromorphic sensors, '
-        'event cameras, single-photon detectors, and other threshold-based devices.'
+        'A practical corollary is that threshold sensors should be co-designed with '
+        'noise models. Hardware noise reduction is costly; if an accurate covariate '
+        'model is available, the sensor can tolerate higher raw noise and rely on '
+        'post-hoc adjustment. The design target becomes \u03c3_eff = \u03b8 after adjustment, '
+        'not \u03c3 = \u03b8 in hardware. This applies to neuromorphic sensors, event '
+        'cameras, single-photon detectors, and related threshold devices.'
     ))
 
     add_heading(doc, 'C. Limitations and extensions', level=2)
     add_paragraph(doc, (
-        'Our analysis assumes (i) additive Gaussian noise, (ii) a fixed threshold, and '
-        '(iii) a linear noise model (\u03c1 characterizes correlation). Real systems may exhibit '
-        'non-Gaussian noise (e.g., shot noise following Poisson statistics), adaptive '
-        'thresholds, and nonlinear noise dependencies. Extending the framework to these '
-        'cases would require replacing the analytical SNR formula with appropriate '
-        'generalizations \u2014 for instance, using the forbidden-interval theorem directly for '
-        'non-Gaussian noise [21], or employing information-theoretic metrics for systems '
-        'with adaptive thresholds [23]. The DVS application demonstrates that the '
-        'framework\u2019s qualitative predictions (covariate adjustment helps in the excess '
-        'noise regime; there is an optimal adjustment level) remain valid even when these '
-        'assumptions are only approximately satisfied.'
+        'The analysis assumes additive Gaussian noise, a fixed threshold, and a linear '
+        'noise model. Real systems may have Poisson shot noise, adaptive thresholds, '
+        'or nonlinear noise dependencies. Generalizations could invoke the '
+        'forbidden-interval theorem for non-Gaussian cases [21] or information-theoretic '
+        'metrics for adaptive thresholds [23]. The DVS application shows that '
+        'the qualitative predictions\u2014adjustment helps above the SR optimum; '
+        'over-removal hurts\u2014survive even when these assumptions hold only '
+        'approximately.'
     ))
 
     add_heading(doc, 'D. Broader applicability', level=2)
     add_paragraph(doc, (
-        'Beyond event-based sensors, the covariate-adjusted SR principle applies to any '
-        'system where (i) a threshold or nonlinearity mediates signal detection and '
-        '(ii) the noise has observable structure. Examples include neural spike detection '
-        'in electrophysiology [24], quantum key distribution in noisy channels [25], '
-        'radar target detection in clutter [26], and ion channel current sensing at the '
-        'single-molecule level [27]. In each case, the key question \u2014 \u201chow much noise should we remove?\u201d \u2014 '
-        'has the same answer: reduce the effective noise to the SR optimum, and no further.'
+        'The principle extends to any detection system combining a threshold '
+        'nonlinearity with structured noise: neural spike detection [24], '
+        'quantum key distribution in noisy channels [25], radar target detection '
+        'in clutter [26], and ion-channel sensing at the single-molecule level [27]. '
+        'In each case the prescription is the same: reduce noise to the SR '
+        'optimum, and stop.'
     ))
 
     # =========================================================
@@ -621,23 +567,21 @@ def build_manuscript():
     # =========================================================
     add_heading(doc, 'VI. CONCLUSION', level=1)
     add_paragraph(doc, (
-        'We have presented a unified framework connecting stochastic resonance theory '
-        'with covariate adjustment methods for threshold-based event detectors. The '
-        'central result is an analytical expression for the optimal noise model accuracy '
-        '\u03c1* = \u221a(1 \u2212 \u03b8\u00b2/\u03c3\u00b2) that maximizes output SNR by balancing noise removal against '
-        'the SR benefit of residual noise. This result bridges two previously disconnected '
-        'research traditions: stochastic resonance (which characterizes when noise helps) '
-        'and covariate adjustment (which provides tools for controlled noise reduction).'
+        'We have derived a closed-form optimal noise-model accuracy '
+        '\u03c1* = \u221a(1 \u2212 \u03b8\u00b2/\u03c3\u00b2) for threshold-based event detectors, connecting '
+        'stochastic resonance theory (when does noise help?) with covariate adjustment '
+        '(how much noise should be removed?). The answer\u2014reduce effective noise to '
+        'the SR peak and no further\u2014provides a quantitative bridge between these '
+        'two traditions.'
     ))
     add_paragraph(doc, (
-        'The framework is validated through simulations and demonstrated on DVS astronomical '
-        'data, where a physics-informed noise model based on circuit-level DVS pixel theory '
-        'provides the covariate structure. The Fano-factor-based noise classification achieves '
-        'ROC-AUC = 0.866 on the EBSSA dataset with 93.9% signal preservation and a mean SNR '
-        'improvement of 5.4\u00d7, consistent with the theoretical predictions for the excess '
-        'noise regime. The principle \u2014 reduce noise to the SR optimum, not to zero \u2014 offers '
-        'a quantitative design criterion for any threshold-based detection system operating '
-        'in noisy environments.'
+        'Simulations confirm the analytical predictions across the full \u03c3/\u03b8 range. '
+        'Applied to DVS astronomical data, a circuit-level noise model yields a '
+        'Fano-factor classifier with ROC-AUC = 0.866, 93.9% signal preservation, '
+        'and 5.4\u00d7 mean SNR gain\u2014quantitatively consistent with the excess-noise-regime '
+        'prediction. The principle offers a design criterion for any '
+        'threshold-based detector operating in structured noise: model the noise, '
+        'subtract to the SR optimum, and accept the residual as beneficial.'
     ))
 
     # =========================================================
@@ -645,10 +589,9 @@ def build_manuscript():
     # =========================================================
     add_heading(doc, 'DATA AVAILABILITY STATEMENT', level=1)
     add_paragraph(doc, (
-        'The simulation code and scripts used to generate all figures and the manuscript '
-        'are publicly available at https://github.com/bougtoir/sr-ancova-framework. '
-        'The EBSSA dataset used for the DVS application (Sec. IV) is publicly available '
-        'via the Tonic library [19].'
+        'Simulation code and figure-generation scripts are available at '
+        'https://github.com/bougtoir/sr-ancova-framework. The EBSSA dataset '
+        '(Sec. IV) is distributed via the Tonic library [19].'
     ))
 
     # =========================================================
@@ -714,13 +657,14 @@ def build_manuscript():
 
         # --- Sec IV.A: DVS noise physics ---
         '[14] R. Gra\u00e7a and T. Delbruck, \u201cUnraveling the paradox of intensity-dependent '
-        'DVS pixel noise,\u201d preprint arXiv:2304.04019 (2023).',
+        'DVS pixel noise,\u201d preprint arXiv:2109.08640 (2021).',
 
-        '[15] B. McReynolds, R. Gra\u00e7a, and T. Delbruck, \u201cCharacterization of event camera '
-        'noise with a once-in-a-lifetime photon,\u201d preprint arXiv:2304.03494 (2023).',
+        '[15] B. McReynolds, R. Gra\u00e7a, and T. Delbruck, \u201cExploiting alternating DVS shot '
+        'noise event pair statistics to reduce background activity rates,\u201d '
+        'preprint arXiv:2304.03494 (2023).',
 
-        '[16] R. Gra\u00e7a and T. Delbruck, \u201cA large-signal theory for the differential DVS '
-        'pixel,\u201d preprint arXiv:2505.07386 (2025).',
+        '[16] R. Gra\u00e7a and T. Delbruck, \u201cTowards a physically realistic computationally '
+        'efficient DVS pixel model,\u201d preprint arXiv:2505.07386 (2025).',
 
         # --- Sec IV.C: Noise inverse problem / DeepClean ---
         '[17] G. Vajente, Y. Huang, M. Isi, J. C. Driggers, J. S. Kissel, '
@@ -728,12 +672,12 @@ def build_manuscript():
         'out of gravitational-wave detectors,\u201d Phys. Rev. D 101, 042003 (2020).',
 
         '[18] R. Essick, P. Godwin, C. Hanna, L. Blackburn, and E. Katsavounidis, '
-        '\u201ciDQ: Statistical inference of non-astrophysical noise transients in '
-        'gravitational-wave detectors with auxiliary channel data,\u201d Mach. Learn.: '
+        '\u201ciDQ: Statistical inference of non-Gaussian noise with auxiliary degrees '
+        'of freedom in gravitational-wave detectors,\u201d Mach. Learn.: '
         'Sci. Technol. 2, 015004 (2021).',
 
         # --- Sec IV.D: EBSSA dataset and temporal filter ---
-        '[19] S. Afshar, N. Hamilton, L. Davis, A. van Schaik, and G. Cohen, '
+        '[19] S. Afshar, A. P. Nicholson, A. van Schaik, and G. Cohen, '
         '\u201cEvent-based object detection and tracking for space situational awareness,\u201d '
         'preprint arXiv:1911.08730 (2019).',
 
@@ -747,7 +691,7 @@ def build_manuscript():
         '[22] S. Mitaim and B. Kosko, \u201cAdaptive stochastic resonance in noisy neurons '
         'based on mutual information,\u201d IEEE Trans. Neural Netw. 15, 1526 (2004).',
 
-        '[23] N. G. Stocks, \u201cInformation transmission in parallel threshold networks: '
+        '[23] N. G. Stocks, \u201cInformation transmission in parallel threshold arrays: '
         'Suprathreshold stochastic resonance,\u201d Phys. Rev. E 63, 041114 (2001).',
 
         # --- Sec V.D: broader applicability ---

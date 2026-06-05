@@ -41,7 +41,8 @@ jobs:
           BRANCH_MAP["devin/1774689786-onishi-submission-strategy"]="onishi-submission-strategy"
           BRANCH_MAP["devin/1774689807-tempo-effect-paper"]="tempo-effect-paper"
           BRANCH_MAP["devin/1774689832-bja-zero-calibration-paper"]="bja-zero-calibration-paper"
-          BRANCH_MAP["devin/1774689833-bja-manuscript-initial"]="bja-initial-compartment-pk"
+          # devin/1774689833-bja-manuscript-initial superseded by cp-submission branch
+          BRANCH_MAP["devin/1780446375-cp-submission"]="bja-initial-compartment-pk"
           BRANCH_MAP["devin/1774689842-wada-tue-scoping-review"]="wada-tue-scoping-review"
           BRANCH_MAP["devin/1774690226-reproducibility-crisis-commercial-software"]="reproducibility-crisis-commercial-software"
           BRANCH_MAP["devin/1774690359-anesthesia-regional-variation-japan"]="anesthesia-regional-variation-japan"
@@ -171,7 +172,7 @@ jobs:
           # Use this to keep manuscript/cover-letter generation scripts out of
           # public repos while still syncing data, analysis code, and outputs.
           declare -A EXCLUDE_MAP
-          EXCLUDE_MAP["devin/1777908700-canonical-curves-reexamination"]="scripts/generate_manuscript.py scripts/generate_manuscript_ja.py scripts/generate_cover_letter.py scripts/generate_strobe_checklist.py cover_letter_ripr.docx cover_letter_jes.docx title_page_jes.docx strobe_checklist.docx manuscript_canonical_curves_ja.docx 52_canonical_curves_overview.md"
+          EXCLUDE_MAP["devin/1777908700-canonical-curves-reexamination"]="scripts/generate_manuscript.py scripts/generate_manuscript_ja.py scripts/generate_manuscript_boer.py scripts/generate_cover_letter.py scripts/generate_cover_letter_boer.py scripts/generate_strobe_checklist.py cover_letter_ripr.docx cover_letter_jes.docx cover_letter_boer.docx title_page_jes.docx strobe_checklist.docx manuscript_canonical_curves_ja.docx 52_canonical_curves_overview.md"
 
           OWNER="bougtoir"
 

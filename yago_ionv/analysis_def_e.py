@@ -184,7 +184,7 @@ merge_cols = [
     "antiemetic_any", "ae_pre_anesthesia", "ae_to_delivery", "ae_post_delivery",
     "metoclopramide_mg", "droperidol_mg", "ondansetron_mg", "granisetron_mg",
     "novamin_mg", "atarax_p_mg", "dexamethasone_mg",
-    "exclusion_note", "twin", "双胎分類",
+    "exclusion_note", "twin",
 ]
 
 s_cols = [c for c in merge_cols if c in single.columns]
@@ -192,7 +192,7 @@ t_cols = [c for c in merge_cols if c in twin.columns]
 df_all = pd.concat([single[s_cols], twin[t_cols]], ignore_index=True)
 
 for col in merge_cols:
-    if col in df_all.columns and col not in ["exclusion_note", "仮ID", "手術日", "双胎分類"]:
+    if col in df_all.columns and col not in ["exclusion_note", "仮ID", "手術日"]:
         df_all[col] = pd.to_numeric(df_all[col], errors="coerce")
 
 # Exclusions
@@ -207,8 +207,6 @@ no_data = df_all["antiemetic_any"].isna() & ~all_exclude
 all_exclude = all_exclude | no_data
 
 n_total = len(df_all)
-n_single_raw = int((df_all["twin"] == 0).sum())
-n_twin_raw = int((df_all["twin"] == 1).sum())
 df = df_all[~all_exclude].copy()
 df_analysis = df[df["ae_pre_anesthesia"] != 1].copy()
 
@@ -255,8 +253,8 @@ t = df_analysis[df_analysis["twin"] == 1]
 outcomes = OrderedDict([
     ("A-Primary", ("ionv_A_primary", "Protocol: any antiemetic (any phase)")),
     ("A-Secondary", ("ionv_A_secondary", "Protocol: antiemetic before delivery")),
-    ("E-Primary", ("ionv_E_primary", "Narrow: 5-HT3 antagonist (any phase)")),
-    ("E-Secondary", ("ionv_E_secondary", "Narrow: 5-HT3 + before delivery phase")),
+    ("E-Primary", ("ionv_E_primary", "Def E: 5-HT3 antagonist (any phase)")),
+    ("E-Secondary", ("ionv_E_secondary", "Def E: 5-HT3 + before delivery phase")),
 ])
 
 print(f"\n{'Outcome':<15} {'Label':<40} {'Single n/N (%)':<22} {'Twin n/N (%)':<22} {'P':>8}")
@@ -298,7 +296,6 @@ def summarize_continuous(s_series, t_series):
         "Singleton": f"{s_med:.1f} [{s_q1:.1f}–{s_q3:.1f}]",
         "Twin": f"{t_med:.1f} [{t_q1:.1f}–{t_q3:.1f}]",
         "P-value": p,
-        "Test": "Mann-Whitney U",
     }
 
 def summarize_categorical(s_series, t_series):
@@ -313,16 +310,13 @@ def summarize_categorical(s_series, t_series):
     exp = np.outer(row_t, col_t) / table.sum()
     if exp.min() < 5:
         _, p = stats.fisher_exact(table)
-        test_used = "Fisher's exact"
     else:
         _, p, _, _ = stats.chi2_contingency(table, correction=False)
-        test_used = "Chi-squared"
     return {
         "Variable": s_series.name, "Type": "categorical",
         "Singleton": f"{s_n}/{len(s_val)} ({s_pct:.1f}%)",
         "Twin": f"{t_n}/{len(t_val)} ({t_pct:.1f}%)",
         "P-value": p,
-        "Test": test_used,
     }
 
 table1_rows = []
@@ -394,8 +388,6 @@ for outcome_key, (col, label) in outcomes.items():
             y = df_m[col].astype(float)
             model = sm.Logit(y, X).fit(disp=0, maxiter=200)
             model_type = "reduced"
-        else:
-            raise
 
     twin_idx = covs.index("twin") + 1
     or_table = pd.DataFrame({
@@ -529,9 +521,9 @@ print("=" * 60)
 fig, axes = plt.subplots(1, 2, figsize=(12, 5))
 
 for ax_i, (title, primary_col, secondary_col, primary_label, secondary_label) in enumerate([
-    ("Antiemetic (broad)", "ionv_A_primary", "ionv_A_secondary",
+    ("Protocol Definition (A)", "ionv_A_primary", "ionv_A_secondary",
      "Any antiemetic", "Before delivery"),
-    ("Antiemetic (narrow: 5-HT3)", "ionv_E_primary", "ionv_E_secondary",
+    ("5-HT3 Definition (E)", "ionv_E_primary", "ionv_E_secondary",
      "5-HT3 antagonist (any)", "5-HT3 + before delivery"),
 ]):
     s_p = 100 * s[primary_col].mean()
@@ -559,7 +551,7 @@ for ax_i, (title, primary_col, secondary_col, primary_label, secondary_label) in
     axes[ax_i].set_title(title, fontsize=11)
     axes[ax_i].legend(fontsize=9)
 
-plt.suptitle("IONV Rates: Broad vs Narrow Antiemetic Definition", fontsize=13, y=1.02)
+plt.suptitle("IONV Rates: Protocol vs 5-HT3 Definition", fontsize=13, y=1.02)
 plt.tight_layout()
 plt.savefig(FIG / "fig1_rates_comparison.png")
 plt.close()
@@ -584,7 +576,7 @@ ax.axvline(1, color="red", linestyle="--", linewidth=0.8, alpha=0.7)
 ax.set_yticks(list(y_pos))
 ax.set_yticklabels(or_table_e["label"], fontsize=9)
 ax.set_xlabel("Odds Ratio (95% CI)")
-ax.set_title("Multivariable logistic regression:\n5-HT3 antagonist use (narrow definition, primary)")
+ax.set_title("Multivariable logistic regression:\n5-HT3 antagonist use (Definition E, primary)")
 
 for i, (_, row) in enumerate(or_table_e.iterrows()):
     sig = "***" if row["P-value"] < 0.001 else "**" if row["P-value"] < 0.01 else "*" if row["P-value"] < 0.05 else ""
@@ -615,7 +607,7 @@ ax.axvline(1, color="red", linestyle="--", linewidth=0.8, alpha=0.7)
 ax.set_yticks(list(y_pos))
 ax.set_yticklabels(plot_cov["Model"], fontsize=8)
 ax.set_xlabel("Adjusted Odds Ratio (95% CI)")
-ax.set_title("Covariate Sensitivity Analysis:\nTwin effect on 5-HT3 antagonist use (narrow definition)")
+ax.set_title("Covariate Sensitivity Analysis:\nTwin effect on 5-HT3 antagonist use (Definition E)")
 
 for i, (_, row) in enumerate(plot_cov.iterrows()):
     sig = "**" if row["P"] < 0.01 else "*" if row["P"] < 0.05 else ""
@@ -653,7 +645,7 @@ ax.axvline(1, color="red", linestyle="--", linewidth=0.8, alpha=0.7)
 ax.set_yticks(list(y_pos))
 ax.set_yticklabels(compare_df["Label"], fontsize=9)
 ax.set_xlabel("Adjusted Odds Ratio (95% CI)")
-ax.set_title("Twin effect on IONV: Broad vs Narrow antiemetic definition")
+ax.set_title("Twin effect on IONV: Protocol definition vs 5-HT3 definition")
 
 for i, (_, row) in enumerate(compare_df.iterrows()):
     sig = "**" if row["P"] < 0.01 else "*" if row["P"] < 0.05 else ""
@@ -673,8 +665,6 @@ print("Fig 4 saved")
 # ============================================================
 summary = {
     "n_total": n_total,
-    "n_single_raw": n_single_raw,
-    "n_twin_raw": n_twin_raw,
     "n_analysis": len(df_analysis),
     "n_single": int((df_analysis["twin"] == 0).sum()),
     "n_twin": int((df_analysis["twin"] == 1).sum()),
@@ -690,13 +680,6 @@ summary = {
     },
     "regression": regression_results,
     "covariate_sensitivity": cov_sensitivity,
-    "twin_chorionicity": {
-        k: int(v) for k, v in t["双胎分類"].value_counts(dropna=False).items()
-    } if "双胎分類" in t.columns else {},
-    "twin_emergency": {
-        "emergency": int((t["emergency"] == 1).sum()),
-        "elective": int((t["emergency"] == 0).sum()),
-    },
 }
 
 with open(BASE / "def_e_stats.json", "w") as f:

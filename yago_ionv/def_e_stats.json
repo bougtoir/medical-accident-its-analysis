@@ -1,7 +1,5 @@
 {
   "n_total": 3479,
-  "n_single_raw": 3113,
-  "n_twin_raw": 366,
   "n_analysis": 3188,
   "n_single": 2846,
   "n_twin": 342,
@@ -21,14 +19,14 @@
       "twin_pct": 1.461988304093567
     },
     "E-Primary": {
-      "label": "Narrow: 5-HT3 antagonist (any phase)",
+      "label": "Def E: 5-HT3 antagonist (any phase)",
       "singleton_n": 25,
       "singleton_pct": 0.8784258608573436,
       "twin_n": 8,
       "twin_pct": 2.3391812865497075
     },
     "E-Secondary": {
-      "label": "Narrow: 5-HT3 + before delivery phase",
+      "label": "Def E: 5-HT3 + before delivery phase",
       "singleton_n": 6,
       "singleton_pct": 0.21082220660576245,
       "twin_n": 3,
@@ -85,7 +83,7 @@
       ]
     },
     "E-Primary": {
-      "label": "Narrow: 5-HT3 antagonist (any phase)",
+      "label": "Def E: 5-HT3 antagonist (any phase)",
       "col": "ionv_E_primary",
       "n": 3153,
       "events": 33,
@@ -105,7 +103,7 @@
       ]
     },
     "E-Secondary": {
-      "label": "Narrow: 5-HT3 + before delivery phase",
+      "label": "Def E: 5-HT3 + before delivery phase",
       "col": "ionv_E_secondary",
       "n": 3153,
       "events": 9,
@@ -288,14 +286,5 @@
       "P": 0.006795196123716397,
       "AIC": 369.7138586357363
     }
-  ],
-  "twin_chorionicity": {
-    "DD": 212,
-    "MD": 127,
-    "MM": 3
-  },
-  "twin_emergency": {
-    "emergency": 121,
-    "elective": 221
-  }
+  ]
 }
