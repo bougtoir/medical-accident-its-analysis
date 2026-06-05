@@ -131,6 +131,33 @@ jobs:
           # ── Flood prediction / subsurface flood control ──
           BRANCH_MAP["devin/1778846737-flood-prediction-models"]="flood-prediction-review"
 
+          # ── Beyond-GDP / national power (EEH submission) ──
+          BRANCH_MAP["devin/1780598984-causal-identification-strengthening"]="beyond-gdp-national-power"
+
+          # ── Biwa archaeological prospection ──
+          BRANCH_MAP["devin/1778845403-biwa-archaeological-prospection"]="biwa-archaeological-prospection"
+
+          # ── Clinical noise inverse problem ──
+          BRANCH_MAP["devin/1778901415-clinical-noise-inverse-problem"]="clinical-noise-inverse-problem"
+
+          # ── Meeting slides ──
+          BRANCH_MAP["devin/1778748159-meeting-slides"]="meeting-slides"
+
+          # ── Paper dashboard ──
+          BRANCH_MAP["devin/1778311668-paper-dashboard"]="paper-dashboard"
+
+          # ── Pose alignment tool ──
+          BRANCH_MAP["devin/1779968862-pose-alignment-tool"]="pose-alignment-tool"
+
+          # ── Project hub ──
+          BRANCH_MAP["devin/1778322522-project-hub"]="project-hub"
+
+          # ── Yago CS bleeding analysis ──
+          BRANCH_MAP["devin/1780039674-yago-cs-bleeding-analysis"]="yago-cs-bleeding-analysis"
+
+          # ── Yago IONV analysis ──
+          BRANCH_MAP["devin/1780052155-yago-ionv-analysis"]="yago-ionv-analysis"
+
           # ── TATSUKI electoral model sub-branches ──
           BRANCH_MAP["devin/1777844647-tatsuki-electoral-studies"]="tatsuki-electoral-studies"
           BRANCH_MAP["devin/1777989587-jcss-ssr-submission"]="jcss-ssr-submission"
@@ -172,6 +199,18 @@ jobs:
           SUBDIR_MAP["devin/1776768797-gdp-tempo-paper"]="gdp_tempo_paper"
           SUBDIR_MAP["devin/1779720458-sr-ancova-signal-processing"]="sr_ancova_framework"
           SUBDIR_MAP["devin/1779728490-dvs-jatis-submission"]="dvs_noise_inverse_problem"
+
+          # New project syncs
+          SUBDIR_MAP["devin/1780598984-causal-identification-strengthening"]="beyond-gdp-national-power"
+          SUBDIR_MAP["devin/1778845403-biwa-archaeological-prospection"]="biwa_archaeological_prospection"
+          SUBDIR_MAP["devin/1778901415-clinical-noise-inverse-problem"]="clinical_noise_inverse_problem"
+          SUBDIR_MAP["devin/1778748159-meeting-slides"]="meeting-slides"
+          SUBDIR_MAP["devin/1778311668-paper-dashboard"]="paper-dashboard"
+          SUBDIR_MAP["devin/1779968862-pose-alignment-tool"]="pose_alignment_tool"
+          SUBDIR_MAP["devin/1778322522-project-hub"]="project-hub"
+          SUBDIR_MAP["devin/1780039674-yago-cs-bleeding-analysis"]="yago_cs_bleeding"
+          SUBDIR_MAP["devin/1780052155-yago-ionv-analysis"]="yago_ionv"
+          SUBDIR_MAP["devin/1775637899-pmea-zero-calibration"]="zero_calibration_pmea"
 
           # ── File exclusion map ──
           # Space-separated list of file paths (relative to subdir root if
