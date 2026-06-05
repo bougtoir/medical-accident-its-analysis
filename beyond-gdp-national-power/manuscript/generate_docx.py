@@ -216,7 +216,7 @@ def tex_to_docx():
     p = doc.add_paragraph()
     run = p.add_run("JEL Classification: ")
     run.bold = True
-    p.add_run("N40, N70, F50, O33, C12")
+    p.add_run("N40, N70, F50, O33, C25")
 
     # --- References ---
     doc.add_page_break()
