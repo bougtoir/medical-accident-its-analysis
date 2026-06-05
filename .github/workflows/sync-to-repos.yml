@@ -171,7 +171,7 @@ jobs:
           # Use this to keep manuscript/cover-letter generation scripts out of
           # public repos while still syncing data, analysis code, and outputs.
           declare -A EXCLUDE_MAP
-          EXCLUDE_MAP["devin/1777908700-canonical-curves-reexamination"]="scripts/generate_manuscript.py scripts/generate_manuscript_ja.py scripts/generate_cover_letter.py scripts/generate_strobe_checklist.py cover_letter_ripr.docx cover_letter_jes.docx title_page_jes.docx strobe_checklist.docx manuscript_canonical_curves_ja.docx 52_canonical_curves_overview.md"
+          EXCLUDE_MAP["devin/1777908700-canonical-curves-reexamination"]="scripts/generate_manuscript.py scripts/generate_manuscript_ja.py scripts/generate_manuscript_boer.py scripts/generate_cover_letter.py scripts/generate_cover_letter_boer.py scripts/generate_strobe_checklist.py cover_letter_ripr.docx cover_letter_jes.docx cover_letter_boer.docx title_page_jes.docx strobe_checklist.docx manuscript_canonical_curves_ja.docx 52_canonical_curves_overview.md"
 
           OWNER="bougtoir"
 
