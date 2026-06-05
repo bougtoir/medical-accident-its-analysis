@@ -159,8 +159,8 @@ def fig1_schematic():
     x = s + n
     theta_val = 0.8
     events = np.abs(x) > theta_val
-    ax.plot(t, x, 'b-', lw=0.5, alpha=0.6, label=r'$x(t) = s(t) + n(t)$')
-    ax.plot(t, s, 'r-', lw=1.5, label=r'$s(t)$')
+    ax.plot(t, x, color='0.5', ls='-', lw=0.5, alpha=0.7, label=r'$x(t) = s(t) + n(t)$')
+    ax.plot(t, s, 'k-', lw=1.8, label=r'$s(t)$')
     ax.axhline(y=theta_val, color='k', ls='--', lw=1, label=r'$\theta$')
     ax.axhline(y=-theta_val, color='k', ls='--', lw=1)
     event_times = t[events]
@@ -177,15 +177,15 @@ def fig1_schematic():
     sigmas = [0.2, 0.7, 1.8]
     labels_sr = [r'$\sigma/\theta=0.25$', r'$\sigma/\theta=0.88$ (near opt.)',
                  r'$\sigma/\theta=2.25$']
-    colors_sr = ['#d62728', '#2ca02c', '#1f77b4']
-    for sigma, lab, col in zip(sigmas, labels_sr, colors_sr):
+    styles_sr = [('#d62728', '-', 1.4), ('#2ca02c', '--', 1.4), ('#1f77b4', '-.', 1.4)]
+    for sigma, lab, (col, ls, lw) in zip(sigmas, labels_sr, styles_sr):
         n_trial = np.random.normal(0, sigma, len(t))
         x_trial = s + n_trial
         events_trial = np.abs(x_trial) > theta_val
         # Smooth event rate
         kernel = np.ones(30) / 30
         rate = np.convolve(events_trial.astype(float), kernel, mode='same')
-        ax.plot(t, rate, color=col, lw=1.2, label=lab)
+        ax.plot(t, rate, color=col, ls=ls, lw=lw, label=lab)
     ax.set_xlabel('Time')
     ax.set_ylabel('Event rate (smoothed)')
     ax.set_title('(b) Stochastic resonance')
@@ -197,12 +197,12 @@ def fig1_schematic():
     sigma_base = 0.8
     x_range = np.linspace(-3, 3, 300)
     rho_vals = [0, 0.5, 0.8, 0.95]
-    colors_c = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728']
-    for rho, col in zip(rho_vals, colors_c):
+    styles_c = [('k', '-', 1.5), ('#1f77b4', '--', 1.3), ('#2ca02c', '-.', 1.3), ('#d62728', ':', 1.5)]
+    for rho, (col, ls, lw) in zip(rho_vals, styles_c):
         sigma_eff = sigma_base * np.sqrt(max(1 - rho**2, 0.005))
         pdf = np.exp(-x_range**2 / (2 * sigma_eff**2)) / (sigma_eff * np.sqrt(2 * np.pi))
         label = r'$\rho=%.2f$' % rho if rho > 0 else r'Raw ($\rho=0$)'
-        ax.plot(x_range, pdf, color=col, lw=1.3, label=label)
+        ax.plot(x_range, pdf, color=col, ls=ls, lw=lw, label=label)
     ax.axvline(x=theta_val, color='k', ls='--', lw=1)
     ax.axvline(x=-theta_val, color='k', ls='--', lw=1)
     ax.set_xlabel(r'Residual noise $\varepsilon$')
@@ -227,8 +227,8 @@ def fig1_schematic():
             x2 = s2 + n2
             th = 0.8
             ev = np.abs(x2) > th
-            ax_single.plot(t2, x2, 'b-', lw=0.5, alpha=0.6, label=r'$x(t) = s(t) + n(t)$')
-            ax_single.plot(t2, s2, 'r-', lw=1.5, label=r'$s(t)$')
+            ax_single.plot(t2, x2, color='0.5', ls='-', lw=0.5, alpha=0.7, label=r'$x(t) = s(t) + n(t)$')
+            ax_single.plot(t2, s2, 'k-', lw=1.8, label=r'$s(t)$')
             ax_single.axhline(y=th, color='k', ls='--', lw=1, label=r'$\theta$')
             ax_single.axhline(y=-th, color='k', ls='--', lw=1)
             et = t2[ev]
@@ -245,14 +245,14 @@ def fig1_schematic():
             sigmas2 = [0.2, 0.7, 1.8]
             labels2 = [r'$\sigma/\theta=0.25$', r'$\sigma/\theta=0.88$ (opt.)',
                        r'$\sigma/\theta=2.25$']
-            colors2 = ['#d62728', '#2ca02c', '#1f77b4']
-            for sigma, lab, col in zip(sigmas2, labels2, colors2):
+            styles2 = [('#d62728', '-', 1.4), ('#2ca02c', '--', 1.4), ('#1f77b4', '-.', 1.4)]
+            for sigma, lab, (col, ls, lw) in zip(sigmas2, labels2, styles2):
                 n2 = np.random.normal(0, sigma, len(t2))
                 x2 = s2 + n2
                 ev2 = np.abs(x2) > th
                 kernel = np.ones(30) / 30
                 rate = np.convolve(ev2.astype(float), kernel, mode='same')
-                ax_single.plot(t2, rate, color=col, lw=1.2, label=lab)
+                ax_single.plot(t2, rate, color=col, ls=ls, lw=lw, label=lab)
             ax_single.set_xlabel('Time')
             ax_single.set_ylabel('Event rate (smoothed)')
             ax_single.legend(fontsize=8, loc='upper right')
@@ -261,13 +261,13 @@ def fig1_schematic():
             sigma_base = 0.8
             x_range = np.linspace(-3, 3, 300)
             rho_vals2 = [0, 0.5, 0.8, 0.95]
-            colors2 = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728']
+            styles2 = [('k', '-', 1.5), ('#1f77b4', '--', 1.3), ('#2ca02c', '-.', 1.3), ('#d62728', ':', 1.5)]
             th = 0.8
-            for rho, col in zip(rho_vals2, colors2):
+            for rho, (col, ls, lw) in zip(rho_vals2, styles2):
                 sigma_eff = sigma_base * np.sqrt(max(1 - rho**2, 0.005))
                 pdf = np.exp(-x_range**2 / (2 * sigma_eff**2)) / (sigma_eff * np.sqrt(2 * np.pi))
                 label = r'$\rho=%.2f$' % rho if rho > 0 else r'Raw ($\rho=0$)'
-                ax_single.plot(x_range, pdf, color=col, lw=1.3, label=label)
+                ax_single.plot(x_range, pdf, color=col, ls=ls, lw=lw, label=label)
             ax_single.axvline(x=th, color='k', ls='--', lw=1)
             ax_single.axvline(x=-th, color='k', ls='--', lw=1)
             ax_single.set_xlabel(r'Residual noise $\varepsilon$')
@@ -313,13 +313,13 @@ def fig2_sr_curve():
     fig, ax = plt.subplots(1, 1, figsize=(5, 3.8))
     ax.plot(sigma_range / theta, snr_raw_n, 'k-', lw=2,
             label=r'No adjustment ($\rho=0$)')
-    colors = ['#1f77b4', '#2ca02c', '#d62728']
-    for rho, col in zip(rho_vals, colors):
-        ax.plot(sigma_range / theta, snr_adj_n[rho], color=col, lw=1.5,
+    styles_fig2 = [('#1f77b4', '--', 1.5), ('#2ca02c', '-.', 1.5), ('#d62728', ':', 1.8)]
+    for rho, (col, ls, lw) in zip(rho_vals, styles_fig2):
+        ax.plot(sigma_range / theta, snr_adj_n[rho], color=col, ls=ls, lw=lw,
                 label=r'$\rho=%.2f$' % rho)
     # MC points
     ax.errorbar(sigma_mc / theta, mc_snr_n, yerr=mc_se / mc_peak,
-                fmt='ko', ms=4, capsize=2, lw=0.8, zorder=5,
+                fmt='ks', ms=4, capsize=2, lw=0.8, zorder=5,
                 label='MC validation')
 
     # Mark optima
@@ -352,11 +352,11 @@ def fig4_detection_probability():
     theta = 1.0
     sigma_range = np.linspace(0.1, 3.0, 60)
     rho_values = [0.0, 0.5, 0.8, 0.95]
-    colors = ['k', '#1f77b4', '#2ca02c', '#d62728']
+    styles_fig4 = [('k', '-', 1.5), ('#1f77b4', '--', 1.5), ('#2ca02c', '-.', 1.5), ('#d62728', ':', 1.8)]
 
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 3.5))
 
-    for rho, col in zip(rho_values, colors):
+    for rho, (col, ls, lw) in zip(rho_values, styles_fig4):
         pds = []
         pfas = []
         for sigma in sigma_range:
@@ -375,8 +375,8 @@ def fig4_detection_probability():
             pds.append(pd)
 
         label = r'$\rho=%.2f$' % rho if rho > 0 else r'No adjustment ($\rho=0$)'
-        ax1.plot(sigma_range / theta, pds, color=col, lw=1.5, label=label)
-        ax2.plot(sigma_range / theta, pfas, color=col, lw=1.5, label=label)
+        ax1.plot(sigma_range / theta, pds, color=col, ls=ls, lw=lw, label=label)
+        ax2.plot(sigma_range / theta, pfas, color=col, ls=ls, lw=lw, label=label)
 
     ax1.set_xlabel(r'Input noise $\sigma_n / \theta$')
     ax1.set_ylabel(r'Detection probability $P_D$')
@@ -408,22 +408,22 @@ def fig5_roc_comparison():
     theta_range = np.linspace(0.001, 5.0, 500)
 
     rho_values = [0.0, 0.5, 0.8, 0.95]
-    colors = ['k', '#1f77b4', '#2ca02c', '#d62728']
+    styles_fig5 = [('k', '-', 1.5), ('#1f77b4', '--', 1.5), ('#2ca02c', '-.', 1.5), ('#d62728', ':', 1.8)]
     labels = [r'Raw ($\rho=0$)', r'$\rho=0.50$', r'$\rho=0.80$', r'$\rho=0.95$']
 
     fig, ax = plt.subplots(1, 1, figsize=(4.5, 4))
 
-    for rho, col, label in zip(rho_values, colors, labels):
+    for rho, (col, ls, lw), label in zip(rho_values, styles_fig5, labels):
         sigma_eff = sigma_n * np.sqrt(max(1 - rho**2, 1e-12))
         if sigma_eff < 1e-10:
-            ax.plot([0, 0, 1], [0, 1, 1], color=col, lw=1.5, label=label)
+            ax.plot([0, 0, 1], [0, 1, 1], color=col, ls=ls, lw=lw, label=label)
             continue
         pfa = erfc(theta_range / (np.sqrt(2) * sigma_eff))
         pd = (0.5 * erfc((theta_range - A) / (np.sqrt(2) * sigma_eff))
              + 0.5 * erfc((theta_range + A) / (np.sqrt(2) * sigma_eff)))
         # Sort by P_FA
         sort_idx = np.argsort(pfa)
-        ax.plot(pfa[sort_idx], pd[sort_idx], color=col, lw=1.5, label=label)
+        ax.plot(pfa[sort_idx], pd[sort_idx], color=col, ls=ls, lw=lw, label=label)
 
     ax.plot([0, 1], [0, 1], 'k--', lw=0.5, alpha=0.5)
     ax.set_xlabel(r'False alarm probability $P_{FA}$')
@@ -451,13 +451,13 @@ def fig3_optimal_rho():
     print("Generating Fig. 3: Optimal rho*...")
     theta = 1.0
     A_values = [0.2, 0.3, 0.5]
-    colors = ['#1f77b4', '#ff7f0e', '#2ca02c']
+    styles_fig3 = [('#1f77b4', '-', 1.5), ('#ff7f0e', '--', 1.5), ('#2ca02c', '-.', 1.5)]
 
     sigma_range = np.linspace(0.3, 4.0, 100)
 
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 3.5))
 
-    for A, col in zip(A_values, colors):
+    for A, (col, ls, lw) in zip(A_values, styles_fig3):
         rho_opt = []
         snr_improvement = []
         for sigma in sigma_range:
@@ -473,9 +473,9 @@ def fig3_optimal_rho():
             else:
                 snr_improvement.append(1.0)
 
-        ax1.plot(sigma_range / theta, rho_opt, color=col, lw=1.5,
+        ax1.plot(sigma_range / theta, rho_opt, color=col, ls=ls, lw=lw,
                  label=r'$A/\theta=%.1f$' % (A / theta))
-        ax2.plot(sigma_range / theta, snr_improvement, color=col, lw=1.5,
+        ax2.plot(sigma_range / theta, snr_improvement, color=col, ls=ls, lw=lw,
                  label=r'$A/\theta=%.1f$' % (A / theta))
 
     # Analytical rho* curve (independent of A)
@@ -483,15 +483,15 @@ def fig3_optimal_rho():
     for i, sigma in enumerate(sigma_range):
         if sigma > theta:
             rho_theory[i] = np.sqrt(1 - (theta / sigma)**2)
-    ax1.plot(sigma_range / theta, rho_theory, 'k--', lw=1,
+    ax1.plot(sigma_range / theta, rho_theory, 'k:', lw=1.2,
              label=r'$\rho^* = \sqrt{1 - (\theta/\sigma)^2}$')
 
-    ax1.axvline(x=1.0, color='gray', ls=':', lw=0.8, alpha=0.6)
-    ax1.annotate(r'$\sigma = \theta$', xy=(1.02, 0.9), fontsize=8, color='gray')
-    ax1.fill_betweenx([0, 1], 0, 1, color='lightyellow', alpha=0.4, zorder=0)
-    ax1.fill_betweenx([0, 1], 1, 4, color='lightblue', alpha=0.2, zorder=0)
-    ax1.text(0.5, 0.05, 'SR\nregime', ha='center', fontsize=7, color='gray')
-    ax1.text(2.5, 0.05, 'Excess noise\nregime', ha='center', fontsize=7, color='gray')
+    ax1.axvline(x=1.0, color='0.5', ls=':', lw=0.8)
+    ax1.annotate(r'$\sigma = \theta$', xy=(1.02, 0.9), fontsize=8, color='0.4')
+    ax1.fill_betweenx([0, 1], 0, 1, color='0.92', alpha=0.6, zorder=0)
+    ax1.fill_betweenx([0, 1], 1, 4, color='0.82', alpha=0.4, zorder=0)
+    ax1.text(0.5, 0.05, 'SR\nregime', ha='center', fontsize=7, color='0.4')
+    ax1.text(2.5, 0.05, 'Excess noise\nregime', ha='center', fontsize=7, color='0.4')
     ax1.set_xlabel(r'Input noise level $\sigma_n / \theta$')
     ax1.set_ylabel(r'Optimal $\rho^*$')
     ax1.legend(loc='upper left', fontsize=7, framealpha=0.9)
@@ -500,8 +500,8 @@ def fig3_optimal_rho():
     ax1.grid(True, alpha=0.3)
     ax1.set_title('(a) Optimal noise model accuracy')
 
-    ax2.axvline(x=1.0, color='gray', ls=':', lw=0.8, alpha=0.6)
-    ax2.axhline(y=1.0, color='gray', ls='--', lw=0.8, alpha=0.6)
+    ax2.axvline(x=1.0, color='0.5', ls=':', lw=0.8)
+    ax2.axhline(y=1.0, color='0.5', ls='--', lw=0.8)
     ax2.set_xlabel(r'Input noise level $\sigma_n / \theta$')
     ax2.set_ylabel(r'Peak SNR gain at $\rho^*$')
     ax2.legend(loc='upper left', fontsize=7, framealpha=0.9)
@@ -525,17 +525,20 @@ def fig7_dvs_application():
     nrr_means = [0.852, 0.713, 0.171]
     spr_means = [0.216, 0.939, 0.841]
     colors_bar = ['#636363', '#e6550d', '#3182bd']
+    hatches_bar = ['///', '', '\\\\']
 
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 3.5))
 
     x = np.arange(len(methods))
     bars = ax1.bar(x, auc_means, yerr=auc_stds, color=colors_bar,
-                   edgecolor='black', lw=0.5, capsize=3, width=0.6)
+                   edgecolor='black', lw=0.8, capsize=3, width=0.6)
+    for bar, hatch in zip(bars, hatches_bar):
+        bar.set_hatch(hatch)
     ax1.set_xticks(x)
     ax1.set_xticklabels(methods, fontsize=8)
     ax1.set_ylabel('ROC-AUC')
     ax1.set_ylim(0, 1.15)
-    ax1.axhline(y=0.5, color='gray', ls='--', lw=0.8, label='Chance')
+    ax1.axhline(y=0.5, color='0.5', ls='--', lw=0.8, label='Chance')
     ax1.legend(fontsize=8)
     ax1.grid(True, alpha=0.3, axis='y')
     ax1.set_title('(a) Noise classification performance')
@@ -543,9 +546,11 @@ def fig7_dvs_application():
         ax1.text(bar.get_x() + bar.get_width()/2, bar.get_height() + 0.04,
                  f'{val:.3f}', ha='center', va='bottom', fontsize=8)
 
+    markers_scatter = ['o', 's', '^']
     for i, (nrr, spr, method) in enumerate(zip(nrr_means, spr_means, methods)):
         ax2.scatter(nrr, spr, s=100, c=colors_bar[i], edgecolors='black',
-                    lw=0.5, zorder=3, label=method.replace('\n', ' '))
+                    marker=markers_scatter[i],
+                    lw=0.8, zorder=3, label=method.replace('\n', ' '))
     ax2.set_xlabel('Noise Removal Rate (NRR)')
     ax2.set_ylabel('Signal Preservation Rate (SPR)')
     ax2.set_xlim(0, 1.05)
@@ -555,8 +560,8 @@ def fig7_dvs_application():
     ax2.set_title('(b) NRR vs SPR trade-off')
     ax2.annotate('Ideal', xy=(1, 1), fontsize=8, ha='center',
                  xytext=(0.82, 0.88),
-                 arrowprops=dict(arrowstyle='->', lw=0.8, color='gray'),
-                 color='gray')
+                 arrowprops=dict(arrowstyle='->', lw=0.8, color='0.4'),
+                 color='0.4')
 
     fig.tight_layout()
     fig.savefig(OUT_DIR / 'fig7_dvs_application.png')
@@ -574,14 +579,14 @@ def fig6_mutual_information():
     theta = 1.0
     sigma_range = np.linspace(0.1, 4.0, 200)
     rho_values = [0.0, 0.8]
-    colors = ['k', '#d62728']
+    styles_fig6 = [('k', '-', 1.5), ('#d62728', '--', 1.5)]
 
     fig, ax = plt.subplots(1, 1, figsize=(5, 3.5))
 
     n_phase = 40  # phase bins for numerical integration
     phase_bins = np.linspace(0, 2 * np.pi, n_phase, endpoint=False)
 
-    for rho, col in zip(rho_values, colors):
+    for rho, (col, ls, lw) in zip(rho_values, styles_fig6):
         mi_vals = []
         for sigma in sigma_range:
             sigma_eff = sigma * np.sqrt(max(1 - rho**2, 1e-12))
@@ -607,7 +612,7 @@ def fig6_mutual_information():
             mi_vals.append(max(0, mi))
 
         label = r'$\rho=%.1f$' % rho if rho > 0 else r'No adjustment ($\rho=0$)'
-        ax.plot(sigma_range / theta, mi_vals, color=col, lw=1.5, label=label)
+        ax.plot(sigma_range / theta, mi_vals, color=col, ls=ls, lw=lw, label=label)
 
     ax.set_xlabel(r'Input noise level $\sigma_n / \theta$')
     ax.set_ylabel(r'Mutual information $I(S; E)$ [bits]')
