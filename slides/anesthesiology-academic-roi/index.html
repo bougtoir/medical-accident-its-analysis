@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>三方よしに基づく麻酔科アカデミックROI最大化支援</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/theme/white.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&display=swap');
+
+    :root {
+      --primary: #1a3a5c;
+      --accent: #2980b9;
+      --accent-light: #e8f4fd;
+      --gold: #d4a843;
+      --green: #27ae60;
+      --red: #c0392b;
+      --gray: #7f8c8d;
+      --light-bg: #f8f9fa;
+    }
+
+    .reveal {
+      font-family: 'Noto Sans JP', sans-serif;
+      font-size: 28px;
+      color: #2c3e50;
+    }
+
+    .reveal h1, .reveal h2, .reveal h3 {
+      font-family: 'Noto Sans JP', sans-serif;
+      color: var(--primary);
+      font-weight: 700;
+      text-transform: none;
+      letter-spacing: 0.02em;
+    }
+
+    .reveal h1 { font-size: 1.8em; }
+    .reveal h2 { font-size: 1.4em; margin-bottom: 0.6em; }
+    .reveal h3 { font-size: 1.1em; color: var(--accent); }
+
+    .reveal .slide-number {
+      font-size: 14px;
+      color: var(--gray);
+    }
+
+    /* Title slide */
+    .title-slide h1 {
+      font-size: 1.6em;
+      line-height: 1.4;
+      margin-bottom: 0.3em;
+      color: var(--primary);
+    }
+    .title-slide .subtitle {
+      font-size: 0.85em;
+      color: var(--accent);
+      font-weight: 400;
+      margin-bottom: 1.5em;
+    }
+    .title-slide .org {
+      font-size: 0.75em;
+      color: var(--gray);
+      margin-top: 1em;
+    }
+
+    /* Card grid layout */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-top: 20px;
+    }
+    .card-grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+      margin-top: 20px;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px 20px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      text-align: left;
+      border-top: 4px solid var(--accent);
+    }
+    .card.gold { border-top-color: var(--gold); }
+    .card.green { border-top-color: var(--green); }
+    .card.red { border-top-color: var(--red); }
+    .card h3 {
+      font-size: 0.85em;
+      margin: 0 0 12px 0;
+      color: var(--primary);
+    }
+    .card ul {
+      font-size: 0.72em;
+      margin: 0;
+      padding-left: 1.2em;
+      line-height: 1.7;
+    }
+    .card p {
+      font-size: 0.72em;
+      margin: 4px 0;
+      line-height: 1.6;
+    }
+
+    /* Highlight box */
+    .highlight-box {
+      background: var(--accent-light);
+      border-left: 5px solid var(--accent);
+      padding: 16px 24px;
+      border-radius: 0 8px 8px 0;
+      margin-top: 24px;
+      font-weight: 500;
+      font-size: 0.85em;
+      text-align: center;
+    }
+
+    /* Big number */
+    .big-number {
+      font-size: 2.5em;
+      font-weight: 900;
+      color: var(--accent);
+      line-height: 1.2;
+    }
+    .big-number.gold { color: var(--gold); }
+    .big-number.green { color: var(--green); }
+
+    /* Comparison table */
+    .comparison {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-top: 20px;
+    }
+    .comparison .before {
+      background: #fdf2f2;
+      border-radius: 12px;
+      padding: 24px;
+      border-top: 4px solid var(--red);
+    }
+    .comparison .after {
+      background: #e8f8f0;
+      border-radius: 12px;
+      padding: 24px;
+      border-top: 4px solid var(--green);
+    }
+    .comparison h3 {
+      margin: 0 0 12px 0;
+      font-size: 0.85em;
+    }
+    .comparison ul {
+      font-size: 0.72em;
+      padding-left: 1.2em;
+      line-height: 1.8;
+    }
+
+    /* Flow arrow */
+    .flow-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 20px;
+    }
+    .flow-box {
+      background: white;
+      border-radius: 10px;
+      padding: 16px 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      font-size: 0.72em;
+      font-weight: 500;
+      text-align: center;
+      min-width: 160px;
+    }
+    .flow-arrow {
+      font-size: 1.5em;
+      color: var(--accent);
+      font-weight: bold;
+    }
+
+    /* ROI equation */
+    .roi-equation {
+      background: var(--primary);
+      color: white;
+      border-radius: 12px;
+      padding: 20px 30px;
+      font-size: 1.1em;
+      font-weight: 700;
+      text-align: center;
+      margin: 20px auto;
+      max-width: 700px;
+    }
+
+    /* Timeline */
+    .timeline {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-top: 20px;
+    }
+    .timeline-item {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      text-align: left;
+      position: relative;
+    }
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      border-radius: 12px 12px 0 0;
+    }
+    .timeline-item:nth-child(1)::before { background: var(--accent); }
+    .timeline-item:nth-child(2)::before { background: var(--gold); }
+    .timeline-item:nth-child(3)::before { background: var(--green); }
+    .timeline-item h3 {
+      font-size: 0.8em;
+      margin: 0 0 10px 0;
+    }
+    .timeline-item ul {
+      font-size: 0.68em;
+      padding-left: 1.2em;
+      line-height: 1.7;
+    }
+
+    /* Source note */
+    .source-note {
+      font-size: 0.48em;
+      color: var(--gray);
+      text-align: left;
+      margin-top: 20px;
+      line-height: 1.5;
+    }
+
+    /* Section divider */
+    .section-divider {
+      text-align: center;
+    }
+    .section-divider h2 {
+      font-size: 1.6em;
+      margin-bottom: 0.3em;
+    }
+    .section-divider p {
+      font-size: 0.9em;
+      color: var(--gray);
+    }
+
+    /* Sanpo-yoshi circle */
+    .sanpo-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 10px;
+    }
+    .sanpo-circle {
+      position: relative;
+      width: 520px;
+      height: 420px;
+    }
+    .sanpo-node {
+      position: absolute;
+      width: 200px;
+      border-radius: 50%;
+      padding: 30px 20px;
+      text-align: center;
+      font-size: 0.65em;
+      line-height: 1.5;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    }
+    .sanpo-node h3 {
+      font-size: 1.1em;
+      margin: 0 0 6px 0;
+    }
+    .sanpo-node.patient {
+      background: #e8f4fd;
+      border: 3px solid var(--accent);
+      top: 0; left: 50%;
+      transform: translateX(-50%);
+    }
+    .sanpo-node.doctor {
+      background: #fef9e7;
+      border: 3px solid var(--gold);
+      bottom: 0; left: 0;
+    }
+    .sanpo-node.hospital {
+      background: #e8f8f0;
+      border: 3px solid var(--green);
+      bottom: 0; right: 0;
+    }
+
+    /* Final message */
+    .final-message {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      color: white;
+      border-radius: 16px;
+      padding: 40px;
+      font-size: 0.95em;
+      line-height: 1.8;
+      max-width: 720px;
+      margin: 30px auto;
+      text-align: center;
+    }
+
+    /* Slide background */
+    .reveal .slides section {
+      padding: 20px 40px;
+    }
+
+    /* Impact numbers row */
+    .impact-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-top: 16px;
+    }
+    .impact-item {
+      background: white;
+      border-radius: 12px;
+      padding: 20px 16px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+      text-align: center;
+    }
+    .impact-item .label {
+      font-size: 0.65em;
+      color: var(--gray);
+      margin-bottom: 6px;
+    }
+    .impact-item .value {
+      font-size: 1.6em;
+      font-weight: 900;
+      color: var(--accent);
+    }
+    .impact-item .value.gold { color: var(--gold); }
+    .impact-item .value.green { color: var(--green); }
+    .impact-item .unit {
+      font-size: 0.6em;
+      color: #555;
+    }
+
+    /* Layer service */
+    .layer-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .layer {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      overflow: hidden;
+    }
+    .layer-label {
+      padding: 16px;
+      color: white;
+      font-weight: 700;
+      font-size: 0.72em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+    .layer:nth-child(1) .layer-label { background: var(--primary); }
+    .layer:nth-child(2) .layer-label { background: var(--accent); }
+    .layer:nth-child(3) .layer-label { background: var(--green); }
+    .layer-content {
+      padding: 14px 20px;
+      font-size: 0.68em;
+      text-align: left;
+      display: flex;
+      align-items: center;
+    }
+    .layer-content ul {
+      margin: 0;
+      padding-left: 1.2em;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+      <!-- Slide 1: Title -->
+      <section class="title-slide">
+        <h1>三方よしに基づく<br>麻酔科アカデミックROI最大化支援</h1>
+        <div class="subtitle">― 分散型学術基盤による持続可能な医療体制 ―</div>
+        <div style="margin-top: 30px;">
+          <div style="display:inline-flex; align-items:center; gap:16px;">
+            <div style="width:60px; height:60px; background:var(--primary); border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:0.55em; font-weight:700; line-height:1.2;">滋賀<br>大学</div>
+            <div style="text-align:left;">
+              <div style="font-size:0.7em; font-weight:700; color:var(--primary);">滋賀大学 データサイエンス・AIイノベーション研究推進センター</div>
+              <div style="font-size:0.55em; color:var(--gray);">DSAI Center, Shiga University</div>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:36px; display:flex; justify-content:center; gap:40px; font-size:0.55em; color:var(--gray);">
+          <span>理念：三方よし</span>
+          <span>構造：分散型教育基盤</span>
+          <span>意思決定：ROI</span>
+        </div>
+      </section>
+
+      <!-- Slide 2: Background - Shiga University -->
+      <section>
+        <h2>滋賀大学の位置づけ</h2>
+        <div class="card-grid" style="grid-template-columns: 1fr 1fr;">
+          <div class="card" style="border-top-color: var(--primary);">
+            <h3>歴史的背景</h3>
+            <ul>
+              <li><strong>近江商人・彦根商業専門学校</strong>の流れを汲む</li>
+              <li><strong>「三方よし」</strong>の思想を学問の基盤に</li>
+              <li>「売り手よし、買い手よし、世間よし」を<br>現代の医療・経営に再定義</li>
+            </ul>
+          </div>
+          <div class="card" style="border-top-color: var(--accent);">
+            <h3>データサイエンスの拠点</h3>
+            <ul>
+              <li><strong>日本初のデータサイエンス学部</strong>（2017年設立）</li>
+              <li>文部科学省「数理・データサイエンス教育の<br>全国展開」拠点校</li>
+              <li>DSAI研究推進センターによる<br>産学連携・社会実装</li>
+            </ul>
+          </div>
+        </div>
+        <div class="highlight-box">
+          理念（三方よし）とデータサイエンスを統合した意思決定支援
+        </div>
+        <div class="source-note">
+          出典: 滋賀大学データサイエンス学部公式サイト / 文部科学省「数理・データサイエンス・AI教育プログラム認定制度」
+        </div>
+      </section>
+
+      <!-- Slide 3: Problem + System Change (merged slides 3+4) -->
+      <section>
+        <h2>麻酔科の構造課題と制度変化</h2>
+        <div class="card-grid">
+          <div class="card red">
+            <h3>専攻医確保の困難</h3>
+            <ul>
+              <li>2025年度 麻酔科専攻医<br>採用数 <strong>497名</strong></li>
+              <li>都市部・大学病院への集中</li>
+              <li>8都道府県にシーリング設定</li>
+            </ul>
+          </div>
+          <div class="card red">
+            <h3>学術要件の高度化</h3>
+            <ul>
+              <li>機構専門医へ完全移行<br>（学会専門医は2023年度終了）</li>
+              <li>指導医申請に<strong>発表・査読<br>実績 3.5単位</strong>が必要</li>
+              <li>論文化の実質必須化</li>
+            </ul>
+          </div>
+          <div class="card red">
+            <h3>手術室稼働の制約</h3>
+            <ul>
+              <li>日本病院会調査で人員不足<br><strong>診療科1位が麻酔科</strong></li>
+              <li>手術件数増 vs 麻酔科医不足</li>
+              <li>2024年 医師の働き方改革<br>で更に顕在化</li>
+            </ul>
+          </div>
+        </div>
+        <div class="highlight-box">
+          臨床だけでは完結しない時代 ― 個別努力では解決困難な構造問題
+        </div>
+        <div class="source-note">
+          出典: 日本専門医機構 2025年度専攻医採用数（GemMed, 2025.3.25） / 日本麻酔科学会 認定資格要件一覧（2025） / 日本病院会アンケート調査（2019） / 柚木(2024)「高度急性期病院における麻酔科医の勤務実態」商大ビジネスレビュー
+        </div>
+      </section>
+
+      <!-- Slide 4: Why Now - Distributed Academic Platform -->
+      <section>
+        <h2>分散型アカデミック基盤の必要性</h2>
+        <div class="flow-row">
+          <div class="flow-box" style="background:#fdf2f2; border:2px solid var(--red);">
+            <div style="font-weight:700; color:var(--red); margin-bottom:4px;">現状</div>
+            学術要件の強化<br>専攻医の都市・大学集中
+          </div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-box" style="background:#fff8e1; border:2px solid var(--gold);">
+            <div style="font-weight:700; color:var(--gold); margin-bottom:4px;">リスク</div>
+            地域医療の空洞化<br>医師負担の偏在
+          </div>
+          <div class="flow-arrow">&rarr;</div>
+          <div class="flow-box" style="background:#e8f8f0; border:2px solid var(--green);">
+            <div style="font-weight:700; color:var(--green); margin-bottom:4px;">解決策</div>
+            市中病院で完結する<br>学術基盤の構築
+          </div>
+        </div>
+        <div style="margin-top:28px;">
+          <div class="card-grid-2">
+            <div class="card" style="border-top-color:var(--red);">
+              <h3>放置した場合</h3>
+              <ul>
+                <li>地方で専門医取得が困難に</li>
+                <li>市中病院から専攻医が離脱</li>
+                <li>手術制限 → 病院収益悪化</li>
+                <li>地域住民の手術アクセス低下</li>
+              </ul>
+            </div>
+            <div class="card green">
+              <h3>分散型基盤がある場合</h3>
+              <ul>
+                <li>市中病院でも学術業績を達成</li>
+                <li>専攻医が地方に残る動機づけ</li>
+                <li>手術体制維持 → 安定経営</li>
+                <li>地域医療の持続可能性向上</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="source-note">
+          出典: 厚生労働省「医師偏在対策について」（令和7年9月, 第4回地域医療構想検討会） / 専攻医都道府県別採用数（日本専門医機構, 2025）— 東京都1,812名 vs 山形県39名
+        </div>
+      </section>
+
+      <!-- Slide 5: Sanpo-yoshi Redefinition -->
+      <section>
+        <h2>三方よしによる価値の再定義</h2>
+        <div class="sanpo-container">
+          <div class="sanpo-circle">
+            <div class="sanpo-node patient">
+              <h3 style="color:var(--accent);">患者よし</h3>
+              <div>安全性の向上<br>地域医療の維持<br>合併症リスク低減</div>
+            </div>
+            <div class="sanpo-node doctor">
+              <h3 style="color:var(--gold);">医療者よし</h3>
+              <div>論文化支援<br>専門医取得支援<br>過重労働の分散</div>
+            </div>
+            <div class="sanpo-node hospital">
+              <h3 style="color:var(--green);">病院よし</h3>
+              <div>専攻医の確保<br>手術機能の維持<br>経営基盤の安定</div>
+            </div>
+          </div>
+        </div>
+        <div class="highlight-box" style="margin-top:0;">
+          「研究支援」ではない ― <strong>専攻医1人あたりの価値を最大化</strong>する分散型アカデミック基盤の構築
+        </div>
+      </section>
+
+      <!-- Slide 6: ROI Structure + Impact (merged slides 8+9) -->
+      <section>
+        <h2>ROI構造と具体インパクト</h2>
+        <div class="roi-equation">
+          ROI = 増収 + コスト削減 + 採用効果 &minus; 投資
+        </div>
+        <div class="card-grid">
+          <div class="card" style="border-top-color:var(--accent);">
+            <h3>増収効果</h3>
+            <ul>
+              <li>手術件数の増加</li>
+              <li>麻酔管理料(I)<br>全身麻酔 <strong>1,050点/件</strong></li>
+              <li>専攻医1人 &asymp; 年間200症例</li>
+            </ul>
+          </div>
+          <div class="card gold">
+            <h3>コスト削減</h3>
+            <ul>
+              <li>術後合併症の減少</li>
+              <li>ICU滞在日数の短縮</li>
+              <li>エビデンスに基づく<br>周術期管理の最適化</li>
+            </ul>
+          </div>
+          <div class="card green">
+            <h3>採用効果（最大）</h3>
+            <ul>
+              <li>専攻医の確保・維持</li>
+              <li>学術環境による<br>リクルーティング力強化</li>
+              <li>離職防止</li>
+            </ul>
+          </div>
+        </div>
+        <div class="impact-row" style="margin-top:20px;">
+          <div class="impact-item">
+            <div class="label">専攻医1人の麻酔収益</div>
+            <div class="value">1,200<span class="unit">万〜</span>1,500<span class="unit">万円/年</span></div>
+          </div>
+          <div class="impact-item">
+            <div class="label">病院全体への波及効果</div>
+            <div class="value gold">2,000<span class="unit">万〜</span>5,000<span class="unit">万円規模</span></div>
+          </div>
+          <div class="impact-item">
+            <div class="label">ROI倍率</div>
+            <div class="value green">10<span class="unit">倍以上</span></div>
+          </div>
+        </div>
+        <div class="source-note">
+          出典: 令和6年度診療報酬点数表 L009 麻酔管理料(I) / 柚木(2024)「手術室収益は急性期病院収入の大きな割合を占める」商大ビジネスレビュー14(2) / DPC包括評価における全身麻酔手術の診療報酬構造より試算
+        </div>
+      </section>
+
+      <!-- Slide 7: Service Content + Differentiation (merged slides 10+11) -->
+      <section>
+        <h2>サービス内容と差別化</h2>
+        <div class="layer-stack">
+          <div class="layer">
+            <div class="layer-label">Layer 1<br>論文化支援</div>
+            <div class="layer-content">
+              <ul>
+                <li>研究デザイン設計</li>
+                <li>統計解析（因果推論・傾向スコア・操作変数法）</li>
+                <li>論文作成・投稿支援（英文校正含む）</li>
+              </ul>
+            </div>
+          </div>
+          <div class="layer">
+            <div class="layer-label">Layer 2<br>臨床改善</div>
+            <div class="layer-content">
+              <ul>
+                <li>術中データ解析（バイタル・薬剤使用パターン）</li>
+                <li>術後合併症リスクモデル構築</li>
+                <li>周術期アウトカム改善提案</li>
+              </ul>
+            </div>
+          </div>
+          <div class="layer">
+            <div class="layer-label">Layer 3<br>KPI可視化</div>
+            <div class="layer-content">
+              <ul>
+                <li>三方よしROIダッシュボード</li>
+                <li>症例構成・手術室稼働率分析</li>
+                <li>専攻医獲得効果のモニタリング</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="comparison" style="margin-top:20px;">
+          <div class="before">
+            <h3 style="color:var(--red);">従来の統計支援</h3>
+            <ul>
+              <li>統計代行（単発支援）</li>
+              <li>汎用的な手法</li>
+              <li>臨床・経営との連動なし</li>
+            </ul>
+          </div>
+          <div class="after">
+            <h3 style="color:var(--green);">本提案</h3>
+            <ul>
+              <li><strong>因果推論</strong>に基づく高品質分析</li>
+              <li><strong>医療特化</strong>のドメイン知識</li>
+              <li><strong>論文と収益を同時に実現</strong></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 8: Pricing and ROI -->
+      <section>
+        <h2>価格とROI</h2>
+        <div style="display:grid; grid-template-columns: 1fr 2fr; gap:30px; margin-top:20px; align-items:center;">
+          <div style="text-align:center;">
+            <div style="font-size:0.7em; color:var(--gray); margin-bottom:8px;">年間サービス費用</div>
+            <div class="big-number" style="font-size:2.2em;">50<span style="font-size:0.5em;">万</span>〜100<span style="font-size:0.5em;">万円</span></div>
+          </div>
+          <div>
+            <div class="card green" style="margin-bottom:16px;">
+              <h3>リターン試算</h3>
+              <table style="font-size:0.7em; width:100%; border-collapse:collapse;">
+                <tr style="border-bottom:1px solid #eee;">
+                  <td style="padding:8px 0;">専攻医1人の維持・増員効果</td>
+                  <td style="padding:8px 0; text-align:right; font-weight:700; color:var(--green);">1,000万円以上/年</td>
+                </tr>
+                <tr style="border-bottom:1px solid #eee;">
+                  <td style="padding:8px 0;">論文化による指導医認定維持</td>
+                  <td style="padding:8px 0; text-align:right; font-weight:700; color:var(--green);">研修施設維持（プライスレス）</td>
+                </tr>
+                <tr>
+                  <td style="padding:8px 0;">術後合併症削減・ICU短縮</td>
+                  <td style="padding:8px 0; text-align:right; font-weight:700; color:var(--green);">数百万円/年</td>
+                </tr>
+              </table>
+            </div>
+            <div style="background:var(--primary); color:white; border-radius:10px; padding:16px 24px; text-align:center;">
+              <span style="font-size:0.75em;">投資対効果</span>
+              <span style="font-size:1.8em; font-weight:900; margin-left:16px;">ROI 10倍以上</span>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:20px; background:linear-gradient(135deg, #c0392b, #e74c3c); color:white; border-radius:12px; padding:18px 28px; text-align:center; font-size:0.82em;">
+          <span style="font-size:1.3em; font-weight:900;">年間対応可能施設数：最大10施設限定</span><br>
+          <span style="font-size:0.85em; opacity:0.95;">高品質な因果推論・論文化支援を維持するため、物理的に対応できるのは10施設が上限です</span>
+        </div>
+        <div class="highlight-box" style="margin-top:12px;">
+          三方よしを前提とした持続可能な投資 ― 倫理と経営が両立する構造
+        </div>
+        <div class="source-note">
+          出典: 麻酔管理料(I) 全身麻酔1,050点 × 200症例/年 = 約2,100万点（約2,100万円）の直接収益、手術関連入院収益を含めると2,000万〜5,000万円規模 / 令和6年度診療報酬点数表
+        </div>
+      </section>
+
+      <!-- Slide 9: Implementation Steps -->
+      <section>
+        <h2>導入ステップ</h2>
+        <div class="timeline">
+          <div class="timeline-item">
+            <h3 style="color:var(--accent);">Phase 1（0〜3ヶ月）</h3>
+            <div style="font-size:0.65em; color:var(--gray); margin-bottom:8px;">基盤構築</div>
+            <ul>
+              <li>既存データの整理・構造化</li>
+              <li>研究テーマ設定（1〜2本）</li>
+              <li>研究デザイン策定</li>
+              <li>IRB申請サポート</li>
+            </ul>
+          </div>
+          <div class="timeline-item">
+            <h3 style="color:var(--gold);">Phase 2（3〜6ヶ月）</h3>
+            <div style="font-size:0.65em; color:var(--gray); margin-bottom:8px;">解析・モデル構築</div>
+            <ul>
+              <li>統計解析の実施</li>
+              <li>因果推論モデル構築</li>
+              <li>リスク予測モデル開発</li>
+              <li>中間報告・フィードバック</li>
+            </ul>
+          </div>
+          <div class="timeline-item">
+            <h3 style="color:var(--green);">Phase 3（6〜12ヶ月）</h3>
+            <div style="font-size:0.65em; color:var(--gray); margin-bottom:8px;">成果化・運用</div>
+            <ul>
+              <li>論文化・学会発表</li>
+              <li>KPIダッシュボード運用開始</li>
+              <li>ROI効果測定</li>
+              <li>次年度計画策定</li>
+            </ul>
+          </div>
+        </div>
+        <div style="margin-top:24px; display:grid; grid-template-columns: repeat(3, 1fr); gap:16px; text-align:center; font-size:0.65em;">
+          <div style="background:var(--accent-light); padding:12px; border-radius:8px;">
+            <strong>成果物:</strong> 研究計画書
+          </div>
+          <div style="background:#fef9e7; padding:12px; border-radius:8px;">
+            <strong>成果物:</strong> 解析レポート
+          </div>
+          <div style="background:#e8f8f0; padding:12px; border-radius:8px;">
+            <strong>成果物:</strong> 論文 + ダッシュボード
+          </div>
+        </div>
+      </section>
+
+      <!-- Slide 10: Final Message -->
+      <section>
+        <h2>まとめ</h2>
+        <div class="final-message">
+          三方よしの考え方に基づき、<br>
+          <strong>患者・医療者・病院経営</strong>すべてに価値が出る形で、<br>
+          市中病院でも専門医取得が完結する<br>
+          <strong style="font-size:1.15em;">分散型アカデミック基盤</strong>を構築します
+        </div>
+        <div style="margin-top:24px;">
+          <div class="card-grid">
+            <div class="card" style="text-align:center; border-top-color:var(--primary);">
+              <h3>倫理（医療）</h3>
+              <p style="font-size:0.85em;">三方よし</p>
+            </div>
+            <div class="card" style="text-align:center; border-top-color:var(--accent);">
+              <h3>制度（専門医）</h3>
+              <p style="font-size:0.85em;">分散型学術基盤</p>
+            </div>
+            <div class="card" style="text-align:center; border-top-color:var(--green);">
+              <h3>経営</h3>
+              <p style="font-size:0.85em;">ROI 10倍以上</p>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:20px; background:linear-gradient(135deg, #c0392b, #e74c3c); color:white; border-radius:10px; padding:14px 24px; text-align:center; font-size:0.78em;">
+          年間対応枠 <strong style="font-size:1.3em;">10施設限定</strong> ― お早めにご相談ください
+        </div>
+        <div style="margin-top:16px; font-size:0.7em; color:var(--gray); text-align:center;">
+          三層統合型提案 ― 滋賀大学 データサイエンス・AIイノベーション研究推進センター
+        </div>
+      </section>
+
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/reveal.js@5.1.0/dist/reveal.js"></script>
+  <script>
+    Reveal.initialize({
+      hash: true,
+      slideNumber: 'c/t',
+      width: 960,
+      height: 700,
+      margin: 0.04,
+      transition: 'slide',
+      transitionSpeed: 'default',
+      center: true,
+      plugins: []
+    });
+  </script>
+</body>
+</html>
