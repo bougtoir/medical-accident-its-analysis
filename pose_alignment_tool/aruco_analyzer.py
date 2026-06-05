@@ -18,6 +18,14 @@ import numpy as np
 # Use 4x4 dictionary with 50 markers (small, robust, sufficient for body markers)
 ARUCO_DICT = cv2.aruco.DICT_4X4_50
 
+# Standard marker physical sizes for mm conversion
+MARKER_SIZES_CM = {
+    "小 (2cm)": 2.0,
+    "中 (3cm)": 3.0,
+    "大 (4cm)": 4.0,
+    "特大 (5cm)": 5.0,
+}
+
 
 @dataclass
 class MarkerInfo:
@@ -56,6 +64,7 @@ class AlignmentResult:
     )
     alignment_score: float = 0.0  # 0-100, higher = better aligned
     corrections: list[str] = field(default_factory=list)
+
 
 
 def detect_markers(image: np.ndarray) -> list[MarkerInfo]:
@@ -466,3 +475,283 @@ def generate_marker_sheet(
     )
 
     return sheet
+
+
+def compute_px_per_mm(
+    markers: list[MarkerInfo], marker_physical_size_cm: float
+) -> float:
+    """Compute pixels-per-mm scale factor from detected markers.
+
+    Uses the average marker side length (in px) and known physical size.
+
+    Args:
+        markers: Detected markers with corner data.
+        marker_physical_size_cm: Physical side length of markers in cm.
+
+    Returns:
+        Pixels per millimeter.
+    """
+    if not markers:
+        return 0.0
+
+    side_lengths = []
+    for m in markers:
+        # Average the 4 side lengths of the marker
+        for i in range(4):
+            p1 = m.corners[i]
+            p2 = m.corners[(i + 1) % 4]
+            side_lengths.append(np.linalg.norm(p2 - p1))
+
+    avg_side_px = np.median(side_lengths)
+    physical_mm = marker_physical_size_cm * 10.0  # cm -> mm
+    return avg_side_px / physical_mm
+
+
+@dataclass
+class EntryPointGuideResult:
+    """Result of entry point guide calculation from CT offsets."""
+
+    entry_position_px: np.ndarray  # Calculated entry point position in pixels
+    origin_marker_id: int  # Primary reference marker used as origin
+    axis_marker_id: int  # Secondary marker defining the axis
+    offset_caudal_mm: float  # Offset along caudal direction (mm)
+    offset_lateral_mm: float  # Offset lateral (+ = right, - = left) (mm)
+    px_per_mm: float  # Scale factor used
+    markers_used: list[int]  # All marker IDs used
+
+
+def compute_entry_point_from_ct_offset(
+    markers: list[MarkerInfo],
+    origin_marker_id: int,
+    axis_marker_id: int,
+    offset_caudal_mm: float,
+    offset_lateral_mm: float,
+    marker_physical_size_cm: float = 5.0,
+) -> EntryPointGuideResult | None:
+    """Compute entry point position from CT-measured offsets.
+
+    Uses two body reference markers to establish a coordinate system:
+    - Origin: the primary marker (e.g., left PSIS)
+    - Axis: the secondary marker defines the lateral axis direction
+      (origin → axis = lateral direction, perpendicular = caudal/cranial)
+
+    For prone position (伏臥位) with markers on back:
+    - Caudal (+) = toward feet, Cranial (-) = toward head
+    - Lateral right (+) / left (-) relative to origin→axis direction
+
+    Args:
+        markers: Detected markers in the intraoperative image.
+        origin_marker_id: ID of the marker used as coordinate origin.
+        axis_marker_id: ID of the marker defining the lateral axis.
+        offset_caudal_mm: Offset in caudal direction (+ = toward feet).
+        offset_lateral_mm: Offset in lateral direction (+ = toward axis marker).
+        marker_physical_size_cm: Physical marker size for scale calibration.
+
+    Returns:
+        EntryPointGuideResult or None if required markers not detected.
+    """
+    marker_dict = {m.marker_id: m for m in markers}
+
+    if origin_marker_id not in marker_dict or axis_marker_id not in marker_dict:
+        return None
+
+    # Compute scale
+    px_per_mm = compute_px_per_mm(markers, marker_physical_size_cm)
+    if px_per_mm <= 0:
+        return None
+
+    origin = marker_dict[origin_marker_id].center
+    axis_pt = marker_dict[axis_marker_id].center
+
+    # Lateral axis: origin → axis_marker direction
+    lateral_vec = axis_pt - origin
+    lateral_dist = np.linalg.norm(lateral_vec)
+    if lateral_dist < 1e-6:
+        return None
+    lateral_unit = lateral_vec / lateral_dist
+
+    # Caudal axis: perpendicular to lateral, pointing "down" in image
+    # In image coords (y increases downward), rotate lateral 90° clockwise
+    caudal_unit = np.array([lateral_unit[1], -lateral_unit[0]])
+    # Ensure caudal points downward (toward feet in prone position)
+    if caudal_unit[1] < 0:
+        caudal_unit = -caudal_unit
+
+    # Calculate entry point position
+    offset_px_caudal = offset_caudal_mm * px_per_mm
+    offset_px_lateral = offset_lateral_mm * px_per_mm
+
+    entry_pos = origin + caudal_unit * offset_px_caudal + lateral_unit * offset_px_lateral
+
+    return EntryPointGuideResult(
+        entry_position_px=entry_pos,
+        origin_marker_id=origin_marker_id,
+        axis_marker_id=axis_marker_id,
+        offset_caudal_mm=offset_caudal_mm,
+        offset_lateral_mm=offset_lateral_mm,
+        px_per_mm=px_per_mm,
+        markers_used=[m.marker_id for m in markers],
+    )
+
+
+def draw_entry_point_guide(
+    image: np.ndarray,
+    guide_result: EntryPointGuideResult,
+    markers: list[MarkerInfo],
+) -> np.ndarray:
+    """Draw entry point guide overlay on intraoperative image.
+
+    Shows:
+    - Body reference markers with labels
+    - Coordinate axes (caudal + lateral)
+    - Crosshair at calculated entry point
+    - Scale bar in mm
+    - Tolerance circle (S3 foramen size ~5mm radius)
+    """
+    overlay = image.copy()
+    marker_dict = {m.marker_id: m for m in markers}
+
+    # Draw all detected markers
+    for m in markers:
+        pts = m.corners.astype(np.int32)
+        if m.marker_id == guide_result.origin_marker_id:
+            color = (0, 200, 255)  # Orange for origin
+            label = f"ORIGIN (ID:{m.marker_id})"
+        elif m.marker_id == guide_result.axis_marker_id:
+            color = (255, 200, 0)  # Cyan for axis
+            label = f"AXIS (ID:{m.marker_id})"
+        else:
+            color = (150, 150, 150)  # Gray for others
+            label = f"ID:{m.marker_id}"
+        cv2.polylines(overlay, [pts], True, color, 2)
+        center = tuple(m.center.astype(int))
+        cv2.circle(overlay, center, 4, color, -1)
+        cv2.putText(
+            overlay, label,
+            (center[0] + 8, center[1] - 8),
+            cv2.FONT_HERSHEY_SIMPLEX, 0.45, color, 1,
+        )
+
+    # Draw coordinate axes from origin
+    origin = marker_dict[guide_result.origin_marker_id].center
+    axis_pt = marker_dict[guide_result.axis_marker_id].center
+    origin_int = tuple(origin.astype(int))
+
+    # Lateral axis (origin → axis marker)
+    lateral_vec = axis_pt - origin
+    lateral_unit = lateral_vec / np.linalg.norm(lateral_vec)
+    axis_len_px = 40
+    lateral_end = tuple((origin + lateral_unit * axis_len_px).astype(int))
+    cv2.arrowedLine(overlay, origin_int, lateral_end, (255, 200, 0), 1, tipLength=0.3)
+    cv2.putText(overlay, "LAT", lateral_end, cv2.FONT_HERSHEY_SIMPLEX, 0.3, (255, 200, 0), 1)
+
+    # Caudal axis
+    caudal_unit = np.array([lateral_unit[1], -lateral_unit[0]])
+    if caudal_unit[1] < 0:
+        caudal_unit = -caudal_unit
+    caudal_end = tuple((origin + caudal_unit * axis_len_px).astype(int))
+    cv2.arrowedLine(overlay, origin_int, caudal_end, (0, 255, 255), 1, tipLength=0.3)
+    cv2.putText(overlay, "CAUD", caudal_end, cv2.FONT_HERSHEY_SIMPLEX, 0.3, (0, 255, 255), 1)
+
+    # Draw entry point crosshair
+    entry = tuple(guide_result.entry_position_px.astype(int))
+    cross_size = 25
+    # Main crosshair lines (bright green)
+    cv2.line(overlay, (entry[0] - cross_size, entry[1]),
+             (entry[0] + cross_size, entry[1]), (0, 255, 0), 2)
+    cv2.line(overlay, (entry[0], entry[1] - cross_size),
+             (entry[0], entry[1] + cross_size), (0, 255, 0), 2)
+    # Outer circle
+    cv2.circle(overlay, entry, cross_size, (0, 255, 0), 2, cv2.LINE_AA)
+    # Inner dot
+    cv2.circle(overlay, entry, 3, (0, 255, 0), -1)
+
+    # Label
+    cv2.putText(
+        overlay, "ENTRY POINT",
+        (entry[0] + cross_size + 5, entry[1] - 8),
+        cv2.FONT_HERSHEY_SIMPLEX, 0.55, (0, 255, 0), 2,
+    )
+    cv2.putText(
+        overlay,
+        f"({guide_result.offset_caudal_mm:.1f}mm caudal, "
+        f"{guide_result.offset_lateral_mm:.1f}mm lat)",
+        (entry[0] + cross_size + 5, entry[1] + 12),
+        cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 255, 0), 1,
+    )
+
+    # Draw tolerance circle (S3 foramen ~5mm diameter → 2.5mm radius)
+    tolerance_radius_px = int(guide_result.px_per_mm * 2.5)
+    cv2.circle(overlay, entry, tolerance_radius_px, (0, 200, 0), 1, cv2.LINE_AA)
+
+    # Draw 10mm scale bar in bottom-left
+    scale_mm = 10
+    scale_px = int(guide_result.px_per_mm * scale_mm)
+    h, w = overlay.shape[:2]
+    bar_y = h - 30
+    bar_x = 20
+    cv2.line(overlay, (bar_x, bar_y), (bar_x + scale_px, bar_y), (255, 255, 255), 2)
+    cv2.line(overlay, (bar_x, bar_y - 5), (bar_x, bar_y + 5), (255, 255, 255), 1)
+    cv2.line(overlay, (bar_x + scale_px, bar_y - 5), (bar_x + scale_px, bar_y + 5), (255, 255, 255), 1)
+    cv2.putText(
+        overlay, f"{scale_mm}mm",
+        (bar_x + scale_px // 3, bar_y - 8),
+        cv2.FONT_HERSHEY_SIMPLEX, 0.4, (255, 255, 255), 1,
+    )
+
+    return overlay
+
+
+def draw_probe_distance(
+    image: np.ndarray,
+    guide_result: EntryPointGuideResult,
+    probe_marker: MarkerInfo,
+) -> tuple[np.ndarray, float]:
+    """Draw probe-to-entry-point distance and encode it for audio feedback.
+
+    Args:
+        image: Image with entry point guide already drawn.
+        guide_result: The computed entry point guide result.
+        probe_marker: The detected probe marker being moved toward entry point.
+
+    Returns:
+        Tuple of (annotated image, distance in mm).
+    """
+    overlay = image.copy()
+    entry_px = guide_result.entry_position_px
+    probe_px = probe_marker.center
+
+    # Distance in mm
+    dist_px = np.linalg.norm(probe_px - entry_px)
+    dist_mm = dist_px / guide_result.px_per_mm
+
+    # Draw probe marker
+    probe_pt = tuple(probe_px.astype(int))
+    cv2.circle(overlay, probe_pt, 10, (255, 0, 255), 2)
+    cv2.putText(
+        overlay, f"PROBE (ID:{probe_marker.marker_id})",
+        (probe_pt[0] + 12, probe_pt[1] - 12),
+        cv2.FONT_HERSHEY_SIMPLEX, 0.45, (255, 0, 255), 1,
+    )
+
+    # Draw line from probe to entry point
+    entry_pt = tuple(entry_px.astype(int))
+    line_color = (0, 255, 0) if dist_mm <= 5.0 else (0, 165, 255) if dist_mm <= 15.0 else (0, 0, 255)
+    cv2.line(overlay, probe_pt, entry_pt, line_color, 2)
+
+    # Draw distance label
+    mid_x = (probe_pt[0] + entry_pt[0]) // 2
+    mid_y = (probe_pt[1] + entry_pt[1]) // 2
+    cv2.putText(
+        overlay, f"{dist_mm:.1f}mm",
+        (mid_x + 10, mid_y - 10),
+        cv2.FONT_HERSHEY_SIMPLEX, 0.7, line_color, 2,
+    )
+
+    # Encode distance into top-left 4x4 pixel block for JS audio readout
+    # Red channel = distance_mm * 2 (0-127.5mm range, 0.5mm resolution)
+    # Green channel = 42 (magic number to confirm valid encoding)
+    encoded_val = min(int(dist_mm * 2), 255)
+    overlay[0:4, 0:4] = (encoded_val, 42, 0)
+
+    return overlay, dist_mm
