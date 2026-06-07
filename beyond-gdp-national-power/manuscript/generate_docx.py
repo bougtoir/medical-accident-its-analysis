@@ -222,8 +222,8 @@ def tex_to_docx():
     doc.add_page_break()
     doc.add_heading("References", level=1)
 
-    # Sort alphabetically by author
-    sorted_refs = sorted(refs.items(), key=lambda x: x[1]['authors'])
+    # Sort alphabetically by author, then by year for same authors
+    sorted_refs = sorted(refs.items(), key=lambda x: (x[1]['authors'], x[1].get('year', '')))
     for key, ref_data in sorted_refs:
         p = doc.add_paragraph(ref_data['formatted'])
         p.paragraph_format.first_line_indent = Cm(-1.27)
