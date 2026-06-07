@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate EEH submission docx from manuscript.tex and references.bib."""
+"""Generate E&P (Economics & Politics, Wiley) submission docx from manuscript.tex and references.bib."""
 import re
 from pathlib import Path
 from docx import Document
@@ -216,14 +216,14 @@ def tex_to_docx():
     p = doc.add_paragraph()
     run = p.add_run("JEL Classification: ")
     run.bold = True
-    p.add_run("N40, N70, F50, O33, C25")
+    p.add_run("D72, N40, N70, F50, O33, C25")
 
     # --- References ---
     doc.add_page_break()
     doc.add_heading("References", level=1)
 
-    # Sort alphabetically by author
-    sorted_refs = sorted(refs.items(), key=lambda x: x[1]['authors'])
+    # Sort alphabetically by author, then by year for same authors
+    sorted_refs = sorted(refs.items(), key=lambda x: (x[1]['authors'], x[1].get('year', '')))
     for key, ref_data in sorted_refs:
         p = doc.add_paragraph(ref_data['formatted'])
         p.paragraph_format.first_line_indent = Cm(-1.27)
