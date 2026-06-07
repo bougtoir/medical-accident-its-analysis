@@ -128,8 +128,8 @@ jobs:
           # ── Flood prediction / subsurface flood control ──
           BRANCH_MAP["devin/1778846737-flood-prediction-models"]="flood-prediction-review"
 
-          # ── Beyond-GDP / national power (EEH submission) ──
-          BRANCH_MAP["devin/1780598984-causal-identification-strengthening"]="beyond-gdp-national-power"
+          # ── Beyond-GDP / national power (E&P submission) ──
+          BRANCH_MAP["devin/1780790605-ep-submission-prep"]="beyond-gdp-national-power"
 
           # ── Biwa archaeological prospection ──
           BRANCH_MAP["devin/1778845403-biwa-archaeological-prospection"]="biwa-archaeological-prospection"
@@ -198,7 +198,7 @@ jobs:
           SUBDIR_MAP["devin/1779728490-dvs-jatis-submission"]="dvs_noise_inverse_problem"
 
           # New project syncs
-          SUBDIR_MAP["devin/1780598984-causal-identification-strengthening"]="beyond-gdp-national-power"
+          SUBDIR_MAP["devin/1780790605-ep-submission-prep"]="beyond-gdp-national-power"
           SUBDIR_MAP["devin/1778845403-biwa-archaeological-prospection"]="biwa_archaeological_prospection"
           SUBDIR_MAP["devin/1778901415-clinical-noise-inverse-problem"]="clinical_noise_inverse_problem"
           SUBDIR_MAP["devin/1778748159-meeting-slides"]="meeting-slides"
