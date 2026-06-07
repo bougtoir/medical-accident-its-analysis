@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate EEH submission docx from manuscript.tex and references.bib."""
+"""Generate E&P (Economics & Politics, Wiley) submission docx from manuscript.tex and references.bib."""
 import re
 from pathlib import Path
 from docx import Document
@@ -216,7 +216,7 @@ def tex_to_docx():
     p = doc.add_paragraph()
     run = p.add_run("JEL Classification: ")
     run.bold = True
-    p.add_run("N40, N70, F50, O33, C25")
+    p.add_run("D72, N40, N70, F50, O33, C25")
 
     # --- References ---
     doc.add_page_break()
