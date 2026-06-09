@@ -757,7 +757,7 @@ p_cap2.add_run(
 
 models = [
     ('Model 1 (unadjusted)', '\u2014',
-     f'd={reg["model1_unadjusted"]["cohens_d"]:.2f}', 'Kruskal\u2013Wallis P<0.001'),
+     'Kruskal\u2013Wallis H, P<0.001', 'Omnibus 9-region test'),
     ('Model 2 (all confounders)',
      f'R\u00b2={reg["model2_adjusted"]["R2"]:.3f}',
      f'R\u00b2adj={reg["model2_adjusted"]["R2_adj"]:.3f}',

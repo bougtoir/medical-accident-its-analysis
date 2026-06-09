@@ -548,6 +548,7 @@ doc.add_paragraph(r3_text)
 
 add_inline_figure(
     '都道府県別の外来神経障害性疼痛薬処方（手術あたり）。'
+    '棒は地域ブロック別に色分け。'
     '破線は全国平均を示す。',
     1
 )
@@ -590,7 +591,7 @@ p_cap2.add_run(
 
 models = [
     ('モデル1（未調整）', '—',
-     f'd={reg["model1_unadjusted"]["cohens_d"]:.2f}', 'Kruskal–Wallis P<0.001'),
+     'Kruskal–Wallis H, P<0.001', '9地域オムニバス検定'),
     ('モデル2（全交絡因子）',
      f'R\u00b2={reg["model2_adjusted"]["R2"]:.3f}',
      f'R\u00b2adj={reg["model2_adjusted"]["R2_adj"]:.3f}',
