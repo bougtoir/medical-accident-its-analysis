@@ -593,15 +593,15 @@ models = [
      f'd={reg["model1_unadjusted"]["cohens_d"]:.2f}', 'Kruskal–Wallis P<0.001'),
     ('モデル2（全交絡因子）',
      f'R\u00b2={reg["model2_adjusted"]["R2"]:.3f}',
-     f'R\u00b2={reg["model2_adjusted"]["R2"]:.3f}',
+     f'R\u00b2adj={reg["model2_adjusted"]["R2_adj"]:.3f}',
      '地域指標NS'),
     ('モデル3（コア神経障害薬）',
      f'R\u00b2={reg["model3_core_neuropathic"]["R2"]:.3f}',
-     f'R\u00b2={reg["model3_core_neuropathic"]["R2"]:.3f}',
+     f'R\u00b2adj={reg["model3_core_neuropathic"]["R2_adj"]:.3f}',
      '地域指標NS'),
     ('モデル4（神経ブロック）',
      f'R\u00b2={reg["model4_nerve_blocks"]["R2"]:.3f}',
-     f'R\u00b2={reg["model4_nerve_blocks"]["R2"]:.3f}',
+     f'R\u00b2adj={reg["model4_nerve_blocks"]["R2_adj"]:.3f}',
      '地域指標NS'),
     ('モデル5（統合）',
      f'R\u00b2={reg["model5_integrated"]["R2"]:.3f}',
@@ -689,8 +689,8 @@ p = doc.add_paragraph()
 add_ref_runs(p, d1)
 
 d2 = (
-    f'第二に、方法論的に最も重要な知見として、神経障害性疼痛薬処方の顕著な地域差'
-    f'（未調整d={unadj_d:.2f}）は、交絡疾患プロキシ、'
+    f'第二に、方法論的に最も重要な知見として、神経障害性疼痛薬処方の顕著な地域間'
+    f'クラスタリングは、交絡疾患プロキシ、'
     f'特に糖尿病薬処方（r=0.87）によって大部分が説明された。'
     f'調整後、見かけの地域間差は大幅に減弱し非有意となった。'
     f'これは重要な示唆を持つ：神経障害性疼痛薬を慢性疼痛の代理指標とする'
