@@ -8,16 +8,13 @@ on:
     - cron: '*/15 * * * *'
   workflow_dispatch:
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
 jobs:
   sync:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - name: Checkout wip repo (all branches)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
           token: ${{ secrets.SYNC_PAT }}
@@ -41,7 +38,8 @@ jobs:
           BRANCH_MAP["devin/1774689786-onishi-submission-strategy"]="onishi-submission-strategy"
           BRANCH_MAP["devin/1774689807-tempo-effect-paper"]="tempo-effect-paper"
           BRANCH_MAP["devin/1774689832-bja-zero-calibration-paper"]="bja-zero-calibration-paper"
-          BRANCH_MAP["devin/1774689833-bja-manuscript-initial"]="bja-initial-compartment-pk"
+          # devin/1774689833-bja-manuscript-initial superseded by cp-submission branch
+          BRANCH_MAP["devin/1780446375-cp-submission"]="bja-initial-compartment-pk"
           BRANCH_MAP["devin/1774689842-wada-tue-scoping-review"]="wada-tue-scoping-review"
           BRANCH_MAP["devin/1774690226-reproducibility-crisis-commercial-software"]="reproducibility-crisis-commercial-software"
           BRANCH_MAP["devin/1774690359-anesthesia-regional-variation-japan"]="anesthesia-regional-variation-japan"
@@ -56,6 +54,13 @@ jobs:
           BRANCH_MAP["devin/1773295400-border-check-arduboy"]="border-check-arduboy"
           BRANCH_MAP["devin/1773350746-starchart-constellation-fixes"]="starchart-arduboy"
           BRANCH_MAP["devin/1773634645-nuitka-build"]="nuitka-build-tools"
+          BRANCH_MAP["weibull-6domain-integrated"]="weibull-6domain-integrated"
+          BRANCH_MAP["weibull-hiv-art-dropout"]="weibull-hiv-art-dropout"
+          BRANCH_MAP["weibull-antipsychotic-dropout"]="weibull-antipsychotic-dropout"
+          BRANCH_MAP["weibull-substance-use-dropout"]="weibull-substance-use-dropout"
+          BRANCH_MAP["weibull-cardiac-rehab-dropout"]="weibull-cardiac-rehab-dropout"
+          BRANCH_MAP["weibull-clinical-trial-dropout"]="weibull-clinical-trial-dropout"
+          BRANCH_MAP["weibull-5domain-comparison"]="weibull-5domain-comparison"
 
           # ── Weibull series ──
           BRANCH_MAP["weibull-5domain-comparison"]="weibull-5domain-comparison"
@@ -111,8 +116,44 @@ jobs:
           BRANCH_MAP["devin/1777909479-desflurane-critical-appraisal"]="desflurane-critical-appraisal"
           BRANCH_MAP["devin/rokid-lyrics"]="rokid-lyrics"
 
+          # ── SR + ANCOVA signal processing ──
+          BRANCH_MAP["devin/1779720458-sr-ancova-signal-processing"]="sr-ancova-signal-processing"
+
+          # ── DVS noise inverse problem (JATIS submission) ──
+          BRANCH_MAP["devin/1779728490-dvs-jatis-submission"]="dvs-jatis-submission"
+
+          # ── Round1 × crime rate analysis ──
+          BRANCH_MAP["devin/1779745617-round1-crime-analysis"]="round1-crime-analysis"
+
           # ── Flood prediction / subsurface flood control ──
           BRANCH_MAP["devin/1778846737-flood-prediction-models"]="flood-prediction-review"
+
+          # ── Beyond-GDP / national power (E&P submission) ──
+          BRANCH_MAP["devin/1780790605-ep-submission-prep"]="beyond-gdp-national-power"
+
+          # ── Biwa archaeological prospection ──
+          BRANCH_MAP["devin/1778845403-biwa-archaeological-prospection"]="biwa-archaeological-prospection"
+
+          # ── Clinical noise inverse problem ──
+          BRANCH_MAP["devin/1778901415-clinical-noise-inverse-problem"]="clinical-noise-inverse-problem"
+
+          # ── Meeting slides ──
+          BRANCH_MAP["devin/1778748159-meeting-slides"]="meeting-slides"
+
+          # ── Paper dashboard ──
+          BRANCH_MAP["devin/1778311668-paper-dashboard"]="paper-dashboard"
+
+          # ── Pose alignment tool ──
+          BRANCH_MAP["devin/1779968862-pose-alignment-tool"]="pose-alignment-tool"
+
+          # ── Project hub ──
+          BRANCH_MAP["devin/1778322522-project-hub"]="project-hub"
+
+          # ── Yago CS bleeding analysis ──
+          BRANCH_MAP["devin/1780039674-yago-cs-bleeding-analysis"]="yago-cs-bleeding-analysis"
+
+          # ── Yago IONV analysis ──
+          BRANCH_MAP["devin/1780052155-yago-ionv-analysis"]="yago-ionv-analysis"
 
           # ── TATSUKI electoral model sub-branches ──
           BRANCH_MAP["devin/1777844647-tatsuki-electoral-studies"]="tatsuki-electoral-studies"
@@ -148,10 +189,34 @@ jobs:
           SUBDIR_MAP["devin/1777989710-tatsuki-3journal-submission"]="tasuki-electoral-model"
           SUBDIR_MAP["devin/1777545460-medical-sapir-whorf-paper"]="medical_sapir_whorf"
           SUBDIR_MAP["devin/1777545531-medical-sapir-whorf-formalization"]="medical_sapir_whorf"
+          SUBDIR_MAP["devin/1779745617-round1-crime-analysis"]="round1_crime_analysis"
           SUBDIR_MAP["devin/1777594452-buddhist-food-map"]="buddhist_food_lexicon_map"
           SUBDIR_MAP["devin/1777594554-khmer-inscription-analysis"]="khmer_inscription_analysis"
           SUBDIR_MAP["devin/1777547587-pwv-vitaldb-analysis"]="pwv_vitaldb_analysis"
           SUBDIR_MAP["devin/1776768797-gdp-tempo-paper"]="gdp_tempo_paper"
+          SUBDIR_MAP["devin/1779720458-sr-ancova-signal-processing"]="sr_ancova_framework"
+          SUBDIR_MAP["devin/1779728490-dvs-jatis-submission"]="dvs_noise_inverse_problem"
+
+          # New project syncs
+          SUBDIR_MAP["devin/1780790605-ep-submission-prep"]="beyond-gdp-national-power"
+          SUBDIR_MAP["devin/1778845403-biwa-archaeological-prospection"]="biwa_archaeological_prospection"
+          SUBDIR_MAP["devin/1778901415-clinical-noise-inverse-problem"]="clinical_noise_inverse_problem"
+          SUBDIR_MAP["devin/1778748159-meeting-slides"]="meeting-slides"
+          SUBDIR_MAP["devin/1778311668-paper-dashboard"]="paper-dashboard"
+          SUBDIR_MAP["devin/1779968862-pose-alignment-tool"]="pose_alignment_tool"
+          SUBDIR_MAP["devin/1778322522-project-hub"]="project-hub"
+          SUBDIR_MAP["devin/1780039674-yago-cs-bleeding-analysis"]="yago_cs_bleeding"
+          SUBDIR_MAP["devin/1780052155-yago-ionv-analysis"]="yago_ionv"
+          SUBDIR_MAP["devin/1775637899-pmea-zero-calibration"]="zero_calibration_pmea"
+
+          # ── File exclusion map ──
+          # Space-separated list of file paths (relative to subdir root if
+          # SUBDIR_MAP is set, or repo root otherwise) to exclude from sync.
+          # Use this to keep manuscript/cover-letter generation scripts out of
+          # public repos while still syncing data, analysis code, and outputs.
+          declare -A EXCLUDE_MAP
+          EXCLUDE_MAP["devin/1777908700-canonical-curves-reexamination"]="scripts/generate_manuscript.py scripts/generate_manuscript_ja.py scripts/generate_manuscript_boer.py scripts/generate_cover_letter.py scripts/generate_cover_letter_boer.py scripts/generate_strobe_checklist.py cover_letter_ripr.docx cover_letter_jes.docx cover_letter_boer.docx title_page_jes.docx strobe_checklist.docx manuscript_canonical_curves_ja.docx 52_canonical_curves_overview.md"
+          EXCLUDE_MAP["devin/1780790605-ep-submission-prep"]="create_manuscript.py create_manuscript_latex.py create_cover_letter_and_checklist.py manuscript/generate_docx.py manuscript/generate_cover_letter_docx.py manuscript/generate_figures_pptx.py manuscript/manuscript.tex manuscript/references.bib manuscript/manuscript.docx manuscript/manuscript.pdf manuscript/cover_letter.docx manuscript/cover_letter.pdf manuscript/cover_letter.tex manuscript/figures_pptx.pptx manuscript/sn-basic.bst manuscript/sn-jnl.cls manuscript/strobe_checklist.docx manuscript/table_s1.docx manuscript/table_s1.pdf manuscript/table_s1.tex"
 
           OWNER="bougtoir"
 
@@ -228,6 +293,15 @@ jobs:
               fi
               TEMP_INDEX=$(mktemp)
               GIT_INDEX_FILE="$TEMP_INDEX" git read-tree "origin/${BRANCH}:${SUBDIR}"
+
+              # Apply file exclusions if EXCLUDE_MAP entry exists
+              EXCLUDES="${EXCLUDE_MAP[$BRANCH]:-}"
+              if [ -n "$EXCLUDES" ]; then
+                for EXCL in $EXCLUDES; do
+                  GIT_INDEX_FILE="$TEMP_INDEX" git rm -rf --cached "$EXCL" >/dev/null 2>&1 || true
+                done
+              fi
+
               FILTERED_TREE=$(GIT_INDEX_FILE="$TEMP_INDEX" git write-tree)
               rm -f "$TEMP_INDEX"
               COMPARE_SHA=$(GIT_AUTHOR_DATE="$ORIG_DATE" \
@@ -237,20 +311,25 @@ jobs:
                 git commit-tree "$FILTERED_TREE" -m "sync: $BRANCH (subdir: $SUBDIR)")
               PUSH_REF="$COMPARE_SHA"
             else
-              # No subdir filter — strip .github/workflows/ if present
-              # (PAT without 'workflow' scope cannot push workflow files)
+              # No subdir filter — strip .github/workflows/ and apply exclusions
               WORKFLOW_FILES=$(git ls-tree -r --name-only "origin/$BRANCH" -- .github/workflows/ 2>/dev/null | head -1)
-              if [ -n "$WORKFLOW_FILES" ]; then
+              EXCLUDES="${EXCLUDE_MAP[$BRANCH]:-}"
+              if [ -n "$WORKFLOW_FILES" ] || [ -n "$EXCLUDES" ]; then
                 TEMP_INDEX=$(mktemp)
                 GIT_INDEX_FILE="$TEMP_INDEX" git read-tree "origin/$BRANCH"
                 GIT_INDEX_FILE="$TEMP_INDEX" git rm -rf --cached .github/workflows/ >/dev/null 2>&1 || true
+                if [ -n "$EXCLUDES" ]; then
+                  for EXCL in $EXCLUDES; do
+                    GIT_INDEX_FILE="$TEMP_INDEX" git rm -rf --cached "$EXCL" >/dev/null 2>&1 || true
+                  done
+                fi
                 FILTERED_TREE=$(GIT_INDEX_FILE="$TEMP_INDEX" git write-tree)
                 rm -f "$TEMP_INDEX"
                 COMPARE_SHA=$(GIT_AUTHOR_DATE="$ORIG_DATE" \
                   GIT_COMMITTER_DATE="$ORIG_DATE" \
                   GIT_AUTHOR_NAME="wip-sync" GIT_AUTHOR_EMAIL="sync@wip" \
                   GIT_COMMITTER_NAME="wip-sync" GIT_COMMITTER_EMAIL="sync@wip" \
-                  git commit-tree "$FILTERED_TREE" -m "sync: $BRANCH (workflows stripped)")
+                  git commit-tree "$FILTERED_TREE" -m "sync: $BRANCH (filtered)")
                 PUSH_REF="$COMPARE_SHA"
               fi
             fi
