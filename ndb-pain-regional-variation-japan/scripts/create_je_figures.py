@@ -29,7 +29,7 @@ figure_sources = [
         'caption': (
             'Figure 1. Outpatient neuropathic pain drug prescribing per surgery by '
             'prefecture. Bars represent individual prefectures ordered by prescribing '
-            'index. Tohoku prefectures are indicated in red. '
+            'index. Bars are coloured by regional block. '
             'Dashed line indicates the national mean.'
         ),
     },

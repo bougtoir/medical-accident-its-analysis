@@ -43,7 +43,7 @@ highlights = [
     'Perioperative analgesic prescribing varies 1.97-fold across Japan\u2019s 47 prefectures.',
     'Nearly twofold variation persists after age-sex standardisation (SCR range, 64\u2013148).',
     'Diabetes drug prescribing (r=0.87) is the dominant confounder of neuropathic pain patterns.',
-    'Apparent regional clustering is attenuated 84% after confounder adjustment.',
+    'Apparent regional clustering becomes nonsignificant after confounder adjustment.',
     'NDB Open Data enable prefecture-level practice variation analysis at no cost.',
 ]
 
