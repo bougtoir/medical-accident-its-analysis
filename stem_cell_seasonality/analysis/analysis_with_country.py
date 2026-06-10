@@ -36,12 +36,16 @@ def load_data():
         countries = pd.read_csv(country_file)
         country_map = dict(zip(countries["accession"], countries["country"]))
         geo["country"] = geo["accession"].map(country_map)
-        geo["hemisphere"] = geo["country"].apply(
+        # Derive hemisphere from country, but only overwrite where country data exists
+        hemisphere_from_country = geo["country"].apply(
             lambda c: "Southern" if isinstance(c, str) and c.lower().strip() in SOUTHERN_HEMISPHERE
             else ("Northern" if isinstance(c, str) else None)
         )
+        # Merge: prefer country-based hemisphere, fall back to latitude-inferred
+        geo["hemisphere"] = hemisphere_from_country.combine_first(geo["hemisphere"])
         print(f"Country data merged: {geo['country'].notna().sum()} records with country")
     else:
+        geo["country"] = None
         print("No country file found, using existing hemisphere data")
 
     solar = pd.read_csv(os.path.join(OUTPUT_DIR, "noaa_solar_indices.csv"))
@@ -299,8 +303,13 @@ def write_report(geo, solar):
         f.write("### Finding 2: Hemisphere imbalance limits comparison\n\n")
         f.write(f"The iPSC/ESC research landscape is heavily Northern Hemisphere–biased. "
                 f"From our sample of {geo['country'].notna().sum()} datasets with country data:\n\n")
-        f.write(f"- NH: {len(nh):,} ({100*len(nh)/(len(nh)+len(sh)):.0f}%)\n")
-        f.write(f"- SH: {len(sh):,} ({100*len(sh)/(len(nh)+len(sh)):.0f}%)\n\n")
+        total_hemi = len(nh) + len(sh)
+        if total_hemi > 0:
+            f.write(f"- NH: {len(nh):,} ({100*len(nh)/total_hemi:.0f}%)\n")
+            f.write(f"- SH: {len(sh):,} ({100*len(sh)/total_hemi:.0f}%)\n\n")
+        else:
+            f.write(f"- NH: {len(nh):,}\n")
+            f.write(f"- SH: {len(sh):,}\n\n")
         f.write("This ~97:3 ratio means the global dataset is effectively a Northern Hemisphere "
                 "dataset. Hemisphere-inverted seasonal patterns cannot be robustly tested with "
                 "GEO data alone — **IVF registry data (HFEA, ANZARD) would provide the critical "
