@@ -19,7 +19,6 @@ Design:
 """
 
 import os
-import sys
 
 import matplotlib
 matplotlib.use('Agg')
@@ -31,7 +30,7 @@ from scipy import stats
 OUTPUT_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "output")
 
 # Academic year groupings
-APRIL_START = {"Japan", "South Korea"}  # April academic year
+MARCH_APRIL_START = {"Japan", "South Korea"}  # March/April academic year
 SEPT_OCT_START_NH = {"USA", "United Kingdom", "Germany", "China", "France",
                      "Italy", "Spain", "Canada", "Netherlands", "Belgium",
                      "Switzerland", "Sweden", "Denmark", "Austria", "Finland",
@@ -64,8 +63,8 @@ def assign_academic_group(country):
     if not isinstance(country, str):
         return None
     c = country.strip()
-    if c in APRIL_START:
-        return "April-start (JP/KR)"
+    if c in MARCH_APRIL_START:
+        return "Mar/Apr-start (JP/KR)"
     elif c in SEPT_OCT_START_NH:
         return "Sep/Oct-start (US/EU/CN)"
     elif c in JAN_FEB_START_SH:
@@ -182,10 +181,10 @@ def generate_figure(results, geo, country_stats):
 
     # Panel A: Overlaid normalized monthly distributions by academic group
     ax1 = fig.add_subplot(2, 2, 1)
-    colors = {"April-start (JP/KR)": "#E63946",
+    colors = {"Mar/Apr-start (JP/KR)": "#E63946",
               "Sep/Oct-start (US/EU/CN)": "#457B9D",
               "Jan/Feb-start (AU/NZ/BR, SH)": "#2A9D8F"}
-    markers = {"April-start (JP/KR)": "o",
+    markers = {"Mar/Apr-start (JP/KR)": "o",
                "Sep/Oct-start (US/EU/CN)": "s",
                "Jan/Feb-start (AU/NZ/BR, SH)": "D"}
 
@@ -270,12 +269,14 @@ def generate_figure(results, geo, country_stats):
     # Interpretation text
     interpretation = []
     # Check if April-start and Sep-start have similar peaks
-    apr_peak = results.get("April-start (JP/KR)", {}).get("circular_peak", 0)
+    apr_peak = results.get("Mar/Apr-start (JP/KR)", {}).get("circular_peak", 0)
     sep_peak = results.get("Sep/Oct-start (US/EU/CN)", {}).get("circular_peak", 0)
     sh_peak = results.get("Jan/Feb-start (AU/NZ/BR, SH)", {}).get("circular_peak", 0)
 
-    # Determine interpretation
-    if abs(apr_peak - sep_peak) < 2:
+    # Determine interpretation (use circular distance for month comparison)
+    diff_apr_sep = abs(apr_peak - sep_peak)
+    circ_diff_apr_sep = min(diff_apr_sep, 12 - diff_apr_sep)
+    if circ_diff_apr_sep < 2:
         interpretation.append("• JP/KR and US/EU peaks are SIMILAR (~same month)")
         interpretation.append("  → Inconsistent with pure academic-calendar hypothesis")
         interpretation.append("  → Suggests shared external driver (photoperiod?)")
@@ -284,7 +285,9 @@ def generate_figure(results, geo, country_stats):
         interpretation.append("  → Consistent with academic-calendar effect")
 
     if sh_peak > 0:
-        if abs(sh_peak - apr_peak) > 3 and abs(12 - abs(sh_peak - apr_peak)) > 3:
+        diff_sh_nh = abs(sh_peak - apr_peak)
+        circ_diff_sh = min(diff_sh_nh, 12 - diff_sh_nh)
+        if circ_diff_sh > 3:
             interpretation.append(f"• SH peak ({sh_peak:.1f}) differs from NH ({apr_peak:.1f})")
             interpretation.append("  → Possible hemisphere effect (photoperiod)")
         else:
@@ -346,9 +349,9 @@ def write_report(results, country_stats_df, geo):
         f.write("|-------|-----------|--------------------|-----------:|--:|\n")
         for gname in sorted(results.keys()):
             r = results[gname]
-            if "April" in gname:
+            if "Mar/Apr" in gname:
                 countries_str = "Japan, South Korea"
-                start = "April"
+                start = "Mar/Apr"
                 hemi = "NH"
             elif "Sep" in gname:
                 countries_str = "USA, UK, Germany, China, ..."
@@ -387,23 +390,26 @@ def write_report(results, country_stats_df, geo):
 
         f.write("\n## Interpretation\n\n")
 
-        apr_peak = results.get("April-start (JP/KR)", {}).get("circular_peak", 0)
+        apr_peak = results.get("Mar/Apr-start (JP/KR)", {}).get("circular_peak", 0)
         sep_peak = results.get("Sep/Oct-start (US/EU/CN)", {}).get("circular_peak", 0)
         sh_peak = results.get("Jan/Feb-start (AU/NZ/BR, SH)", {}).get("circular_peak", 0)
 
-        if abs(apr_peak - sep_peak) < 2:
-            f.write("**Key finding**: Japan/Korea (April academic year) and USA/Europe "
+        diff_apr_sep = abs(apr_peak - sep_peak)
+        circ_diff = min(diff_apr_sep, 12 - diff_apr_sep)
+        if circ_diff < 2:
+            f.write("**Key finding**: Japan/Korea (March/April academic year) and USA/Europe "
                     "(September academic year) show similar peak months in GEO submissions. "
                     "This is **inconsistent with a pure academic-calendar explanation** and "
                     "suggests a shared external driver.\n\n")
         else:
-            f.write(f"**Key finding**: Peak months differ between April-start ({apr_peak:.1f}) "
+            f.write(f"**Key finding**: Peak months differ between Mar/Apr-start ({apr_peak:.1f}) "
                     f"and Sep-start ({sep_peak:.1f}) groups. This pattern is "
                     f"**partially consistent with academic-calendar effects**.\n\n")
 
         if sh_peak > 0:
-            peak_diff = abs(apr_peak - sh_peak)
-            if peak_diff > 4 and peak_diff < 8:
+            diff_sh_nh = abs(apr_peak - sh_peak)
+            circ_diff_sh = min(diff_sh_nh, 12 - diff_sh_nh)
+            if circ_diff_sh > 3:
                 f.write("The Southern Hemisphere group shows a shifted peak, potentially "
                         "consistent with hemisphere inversion (photoperiod hypothesis). "
                         "However, sample size is small and interpretation requires caution.\n\n")
