@@ -215,7 +215,7 @@ def create_manuscript():
     p.alignment = WD_ALIGN_PARAGRAPH.LEFT
     run = p.add_run("Tatsuki Onishi")
     run.font.size = Pt(12)
-    run2 = p.add_run("{1,*}")
+    run2 = p.add_run("1,*")
     run2.font.superscript = True
     run2.font.size = Pt(9)
     set_paragraph_format(p, space_after=Pt(6))
@@ -311,7 +311,8 @@ def create_manuscript():
         "background.{3} Guidelines for reducing iPSC variability have focused on donor "
         "selection, passage control, and protocol standardization,{4,5} but even within "
         "a single laboratory using the same cell line and protocol, batch-to-batch "
-        "variability can be substantial and seemingly stochastic."
+        "variability can be substantial and seemingly stochastic. Meanwhile, culture-acquired "
+        "genetic variants accumulate over passages, adding another layer of confounding.{29}"
     )
 
     p = doc.add_paragraph()
@@ -494,7 +495,7 @@ def create_manuscript():
         "shown to positively regulate iPSC reprogramming efficiency through the "
         "SREBP1-CRY1 axis, while simultaneously suppressing differentiation programs "
         "including EMT and TGFβ signaling.{15} CRY proteins are photosensitive and "
-        "function as magnetoreceptors via the radical-pair mechanism,{25} placing them "
+        "function as magnetoreceptors via the radical-pair mechanism,{25,26} placing them "
         "at the intersection of light, magnetism, and stem cell fate."
     )
 
@@ -504,7 +505,9 @@ def create_manuscript():
         "The photoperiod-stem cell connection extends in vivo. Melatonin, whose production "
         "is directly controlled by the light-dark cycle, has been shown to metabolically "
         "reprogram hematopoietic and mesenchymal stem cells nightly, maintaining the "
-        "bone marrow stem cell reservoir.{18,19} Seasonal variation in melatonin production "
+        "bone marrow stem cell reservoir.{18,19} A recent comprehensive review further "
+        "documents the bidirectional crosstalk between clock components and Wnt, Notch, and "
+        "Hedgehog pathways in stem cell niches.{33} Seasonal variation in melatonin production "
         "(longer dark periods in winter → more melatonin) could influence the baseline "
         "state of donor-derived somatic cells used for iPSC reprogramming, potentially "
         "explaining why the season of somatic cell collection—not the season of "
