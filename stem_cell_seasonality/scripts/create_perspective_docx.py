@@ -290,6 +290,22 @@ def create_manuscript():
     p = doc.add_paragraph()
     set_paragraph_format(p, line_spacing=1.5)
     add_superscript_refs(p,
+        "A deeper methodological issue compounds the problem. Research using clonal systems—"
+        "isogenic cell lines, inbred mice, genetically identical iPSC clones—operates under "
+        "the implicit assumption that genetic homogeneity renders complex confounding "
+        "adjustment unnecessary. Because the genetic background is 'controlled,' "
+        "investigators rarely apply the stratification, regression, or sensitivity analyses "
+        "that epidemiologists would consider mandatory for observational data. This creates "
+        "a blind spot: non-genetic confounders (environmental, institutional, temporal) are "
+        "neither measured nor adjusted for, because the clonal paradigm implies they should "
+        "not exist. Our analysis reveals that they do exist—and that aggregate data from "
+        "clonal systems can be just as non-homogeneous and confounded as observational "
+        "cohort data when institutional and environmental variation is ignored."
+    )
+
+    p = doc.add_paragraph()
+    set_paragraph_format(p, line_spacing=1.5)
+    add_superscript_refs(p,
         "The scale of the problem is not trivial. Multi-site reproducibility studies "
         "consistently report substantial inter-laboratory variation in PSC differentiation "
         "outcomes even when nominally identical protocols are followed.{2} Volpato et al. "
@@ -806,6 +822,20 @@ def create_manuscript():
         "stem cell databases is an institutional calendar artifact, meaning that "
         "database-mining approaches cannot resolve the question—only prospective "
         "measurement can."
+    )
+
+    p = doc.add_paragraph()
+    set_paragraph_format(p, line_spacing=1.5)
+    add_superscript_refs(p,
+        "More broadly, this work exposes a methodological complacency inherent in "
+        "clonal research. The assumption that genetically homogeneous systems require no "
+        "confounding adjustment has allowed non-genetic sources of variation—environmental, "
+        "institutional, and temporal—to accumulate undetected. Our GEO natural experiment "
+        "demonstrates how a seemingly homogeneous global dataset can be driven by a single "
+        "country's fiscal calendar. This lesson extends beyond PSC biology to any field "
+        "where clonal or isogenic systems create a false sense of experimental control: "
+        "genetic uniformity does not guarantee environmental uniformity, and aggregate "
+        "data from clonal experiments are not immune to confounding."
     )
 
     p = doc.add_paragraph()
