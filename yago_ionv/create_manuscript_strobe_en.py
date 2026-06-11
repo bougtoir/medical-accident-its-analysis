@@ -861,11 +861,23 @@ else:
         "resulting in wide confidence intervals.")
 
 add_paragraph(doc,
-    "Third, this was a single-center study, and multicenter studies are needed to "
+    "Third, exclusion of patients with baseline SBP <90 mmHg at admission "
+    "precluded full assessment of the effect of twin pregnancy on baseline "
+    "hemodynamic status. Twin pregnancies have competing circulatory characteristics "
+    "— greater circulating blood volume versus more pronounced aortocaval compression "
+    "— and the distribution of admission blood pressure may differ between singleton "
+    "and twin pregnancies. Although the number of excluded cases was small "
+    f"({F['exclusion_steps'][1]['n']} patients: "
+    f"{F['exclusion_steps'][1]['n_s']} singleton, {F['exclusion_steps'][1]['n_t']} twin), "
+    "this selection bias may have influenced the between-group comparison of "
+    "intraoperative hypotension.")
+
+add_paragraph(doc,
+    "Fourth, this was a single-center study, and multicenter studies are needed to "
     "confirm generalizability.")
 
 add_p_with_refs(doc,
-    "Fourth, the inability to assess the severity of IONV is a limitation. "
+    "Fifth, the inability to assess the severity of IONV is a limitation. "
     "Some prior studies reported intraoperative nausea and vomiting as separate "
     "outcomes{5}, but this distinction is not possible with our antiemetic-based "
     "definition. While the hypothesis that 5-HT3 antagonist use reflects more severe "
