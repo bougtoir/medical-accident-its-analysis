@@ -13,8 +13,8 @@ Outputs into ../manuscript/ :
   - manuscript_en.docx / .pdf  (PDF for Editorial Express submission)
   - manuscript_ja.docx / .pdf
   - figures_en.pptx
-  - table1_model_metrics.docx
-  - table2_correspondence.docx
+  - table1_correspondence.docx
+  - table2_model_metrics.docx
   - table3_rpim.docx
   - table4_extended_oos.docx
   - table5_tempo_artifact.docx
@@ -49,17 +49,17 @@ os.makedirs(MS, exist_ok=True)
 
 FIG_LIST = [
     ("fig1", "Fig. 1", "図1",
-     "In-sample 1-year GDP growth RMSE across M0-M4 for 39 countries (lower is better).",
-     "39カ国における単年GDP成長率RMSEの標本内比較（M0-M4、小さいほど良い）。",
-     "fig1_m_ranking_{lang}.png"),
-    ("fig2", "Fig. 2", "図2",
-     "Out-of-sample MAPE on 2015-19 held-out window; M2 achieves 13% relative improvement vs M0.",
-     "2015-19年のホールドアウト窓における標本外MAPE。M2はM0比で相対13%改善。",
-     "fig2_oos_{lang}.png"),
-    ("fig3", "Fig. 3", "図3",
      "PIM stock K_tang+betaK_I versus CWON PCA (within-country demeaned log).",
      "PIM資本ストックK_tang+βK_IとCWON PCAの軌跡比較（国内平均除去対数）。",
      "fig3_trajectories_{lang}.png"),
+    ("fig2", "Fig. 2", "図2",
+     "In-sample 1-year GDP growth RMSE across M0-M4 for 39 countries (lower is better).",
+     "39カ国における単年GDP成長率RMSEの標本内比較（M0-M4、小さいほど良い）。",
+     "fig1_m_ranking_{lang}.png"),
+    ("fig3", "Fig. 3", "図3",
+     "Out-of-sample MAPE on 2015-19 held-out window; M2 achieves 13% relative improvement vs M0.",
+     "2015-19年のホールドアウト窓における標本外MAPE。M2はM0比で相対13%改善。",
+     "fig2_oos_{lang}.png"),
     ("fig4", "Fig. 4", "図4",
      "gamma_price sensitivity of PIM/CWON log-ratio; Japan gap closes around gamma=+0.02.",
      "PIM/CWON対数比のγ_price感度。日本の乖離はγ=+0.02で閉じる。",
@@ -482,11 +482,11 @@ def build_manuscript(lang: str):
             "ja": (ja_prefix, ja_cap, pattern.format(lang="ja")),
         }
 
-    t1_cap_en = "M0-M4: in-sample and out-of-sample performance across 39 countries. "\
+    t1_cap_en = "Population-capital tempo correspondence."
+    t1_cap_ja = "人口・資本テンポ対応関係。"
+    t2_cap_en = "M0-M4: in-sample and out-of-sample performance across 39 countries. "\
                 "Medians across countries; IQR in brackets."
-    t1_cap_ja = "M0-M4: 39カ国の標本内・標本外パフォーマンス（国間中央値、IQRを括弧内）。"
-    t2_cap_en = "Population-capital tempo correspondence."
-    t2_cap_ja = "人口・資本テンポ対応関係。"
+    t2_cap_ja = "M0-M4: 39カ国の標本内・標本外パフォーマンス（国間中央値、IQRを括弧内）。"
     t3_cap_en = "Relational PIM diagnostics: rho_2 summary under M0, M1, M2, M4."
     t3_cap_ja = "関係型PIM診断: M0, M1, M2, M4におけるρ̂₂の要約。"
     t4_cap_en = "Extended OOS metrics: direction accuracy and CWON trajectory RMSE."
@@ -541,16 +541,16 @@ def build_manuscript(lang: str):
                     add_table_block(
                         doc,
                         "Table 1." if lang == "en" else "表1.",
-                        t1,
+                        t2,
                         t1_cap_en if lang == "en" else t1_cap_ja,
+                        widths=[Inches(1.3), Inches(2.5), Inches(2.5)],
                     )
                 elif idx == 2:
                     add_table_block(
                         doc,
                         "Table 2." if lang == "en" else "表2.",
-                        t2,
+                        t1,
                         t2_cap_en if lang == "en" else t2_cap_ja,
-                        widths=[Inches(1.3), Inches(2.5), Inches(2.5)],
                     )
                 elif idx == 3 and t3 is not None:
                     add_table_block(
@@ -606,12 +606,12 @@ def build_standalone_tables():
     t3_path = os.path.join(TAB, "table3_rpim.csv")
     t3 = pd.read_csv(t3_path) if os.path.exists(t3_path) else None
     table_list = [
-        ("table1_model_metrics.docx", t1,
-         "Table 1. M0-M4: in-sample and out-of-sample performance across 39 countries.",
-         None),
-        ("table2_correspondence.docx", t2,
-         "Table 2. Population-capital tempo correspondence.",
+        ("table1_correspondence.docx", t2,
+         "Table 1. Population-capital tempo correspondence.",
          [Inches(1.3), Inches(2.5), Inches(2.5)]),
+        ("table2_model_metrics.docx", t1,
+         "Table 2. M0-M4: in-sample and out-of-sample performance across 39 countries.",
+         None),
     ]
     if t3 is not None:
         table_list.append(
