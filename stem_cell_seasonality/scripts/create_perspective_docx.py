@@ -55,10 +55,11 @@ REFERENCES = [
     "Cai J, Li X, Zhang Y, et al. Real-time monitoring reveals the effects of low "
     "concentrations of volatile organic compounds in the embryology laboratory. "
     "Hum Reprod. 2025;40(4):deaf008.",
-    # 7 - Worrilow (VOCs and IVF outcomes)
-    "Worrilow KC, Huynh HT, Gwozdziewicz JB, et al. Volatile organic compounds and "
-    "good laboratory practices in the IVF laboratory: the important parameters for "
-    "successful outcome in extended culture. J IVF Reprod Med Genet. 2017;5:182.",
+    # 7 - Agarwal (VOCs and IVF outcomes)
+    "Agarwal N, Chattopadhyay R, Ghosh S, et al. Volatile organic compounds and "
+    "good laboratory practices in the in vitro fertilization laboratory: the important "
+    "parameters for successful outcome in extended culture. J Assist Reprod Genet. "
+    "2017;34(8):999–1006.",
     # 8 - Panina (PSC drug sensitivity vs somatic cells)
     "Panina Y, Yamane J, Kobayashi K, Sone H, Fujibuchi W. Human ES and iPS cells "
     "display less drug resistance than differentiated cells, and naive-state induction "
@@ -104,7 +105,7 @@ REFERENCES = [
     "secondary cosmic radiation fluctuations. Bull Exp Biol Med. 2022;172(5):561–565.",
     # 19 - Leathersich (IVF season and oocyte collection)
     "Leathersich SJ, Hart RJ, Wijs LA, et al. Season at the time of oocyte collection "
-    "and frozen embryo transfer outcomes. Hum Reprod. 2023;38(9):1761–1770.",
+    "and frozen embryo transfer outcomes. Hum Reprod. 2023;38(9):1714–1722.",
     # 20 - Wang (IVF season, temperature, DNI)
     "Wang C, Chen J, Lin Z, et al. The impact of season, temperature, and direct normal "
     "irradiance on IVF pregnancy outcomes: a retrospective cohort study. Int J "
