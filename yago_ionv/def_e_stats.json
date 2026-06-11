@@ -5,62 +5,38 @@
   "n_twin": 342,
   "outcomes": {
     "A-Primary": {
-      "label": "Protocol: any antiemetic (any phase)",
-      "singleton_n": 504,
-      "singleton_pct": 17.70906535488405,
-      "twin_n": 58,
-      "twin_pct": 16.95906432748538
-    },
-    "A-Secondary": {
-      "label": "Protocol: antiemetic before delivery",
+      "label": "Broad: antiemetic before delivery",
       "singleton_n": 54,
       "singleton_pct": 1.8973998594518624,
       "twin_n": 5,
       "twin_pct": 1.461988304093567
     },
-    "E-Primary": {
-      "label": "Def E: 5-HT3 antagonist (any phase)",
-      "singleton_n": 25,
-      "singleton_pct": 0.8784258608573436,
-      "twin_n": 8,
-      "twin_pct": 2.3391812865497075
+    "A-Secondary": {
+      "label": "Broad: any antiemetic (anesthesia→exit)",
+      "singleton_n": 504,
+      "singleton_pct": 17.70906535488405,
+      "twin_n": 58,
+      "twin_pct": 16.95906432748538
     },
-    "E-Secondary": {
-      "label": "Def E: 5-HT3 + before delivery phase",
+    "E-Primary": {
+      "label": "Narrow: 5-HT3 before delivery",
       "singleton_n": 6,
       "singleton_pct": 0.21082220660576245,
       "twin_n": 3,
       "twin_pct": 0.8771929824561403
+    },
+    "E-Secondary": {
+      "label": "Narrow: 5-HT3 any phase (anesthesia→exit)",
+      "singleton_n": 25,
+      "singleton_pct": 0.8784258608573436,
+      "twin_n": 8,
+      "twin_pct": 2.3391812865497075
     }
   },
   "regression": {
     "A-Primary": {
-      "label": "Protocol: any antiemetic (any phase)",
+      "label": "Broad: antiemetic before delivery",
       "col": "ionv_A_primary",
-      "n": 3153,
-      "events": 556,
-      "twin_OR": 0.9241939941857013,
-      "twin_CI_lower": 0.67444671997809,
-      "twin_CI_upper": 1.2664225558346065,
-      "twin_P": 0.6238059408791594,
-      "AIC": 2918.2585577090667,
-      "model_type": "full",
-      "covariates": [
-        "twin",
-        "年齢(歳)",
-        "BMI",
-        "GA_weeks",
-        "emergency",
-        "prior_cs",
-        "HDP",
-        "epidural",
-        "手術時間_min",
-        "hypotension"
-      ]
-    },
-    "A-Secondary": {
-      "label": "Protocol: antiemetic before delivery",
-      "col": "ionv_A_secondary",
       "n": 3153,
       "events": 58,
       "twin_OR": 0.8171784715566838,
@@ -82,29 +58,33 @@
         "hypotension"
       ]
     },
-    "E-Primary": {
-      "label": "Def E: 5-HT3 antagonist (any phase)",
-      "col": "ionv_E_primary",
+    "A-Secondary": {
+      "label": "Broad: any antiemetic (anesthesia→exit)",
+      "col": "ionv_A_secondary",
       "n": 3153,
-      "events": 33,
-      "twin_OR": 3.182389476111665,
-      "twin_CI_lower": 1.3762716424945478,
-      "twin_CI_upper": 7.358723717731762,
-      "twin_P": 0.006795196123716397,
-      "AIC": 369.7138586357363,
-      "model_type": "reduced",
+      "events": 556,
+      "twin_OR": 0.9241939941857013,
+      "twin_CI_lower": 0.67444671997809,
+      "twin_CI_upper": 1.2664225558346065,
+      "twin_P": 0.6238059408791594,
+      "AIC": 2918.2585577090667,
+      "model_type": "full",
       "covariates": [
         "twin",
         "年齢(歳)",
         "BMI",
         "GA_weeks",
         "emergency",
+        "prior_cs",
+        "HDP",
+        "epidural",
+        "手術時間_min",
         "hypotension"
       ]
     },
-    "E-Secondary": {
-      "label": "Def E: 5-HT3 + before delivery phase",
-      "col": "ionv_E_secondary",
+    "E-Primary": {
+      "label": "Narrow: 5-HT3 before delivery",
+      "col": "ionv_E_primary",
       "n": 3153,
       "events": 9,
       "twin_OR": 3.482571231562402,
@@ -121,170 +101,199 @@
         "emergency",
         "hypotension"
       ]
+    },
+    "E-Secondary": {
+      "label": "Narrow: 5-HT3 any phase (anesthesia→exit)",
+      "col": "ionv_E_secondary",
+      "n": 3153,
+      "events": 33,
+      "twin_OR": 3.182389476111665,
+      "twin_CI_lower": 1.3762716424945478,
+      "twin_CI_upper": 7.358723717731762,
+      "twin_P": 0.006795196123716397,
+      "AIC": 369.7138586357363,
+      "model_type": "reduced",
+      "covariates": [
+        "twin",
+        "年齢(歳)",
+        "BMI",
+        "GA_weeks",
+        "emergency",
+        "hypotension"
+      ]
     }
   },
   "covariate_sensitivity": [
     {
       "Model": "Crude (twin only)",
       "n_covariates": 0,
-      "aOR": 2.7027544910180024,
-      "CI_lower": 1.209361415973689,
-      "CI_upper": 6.040280219157336,
-      "P": 0.01538183576666178,
-      "AIC": 366.4167415334838
+      "aOR": 4.188790560471939,
+      "CI_lower": 1.0428314304703206,
+      "CI_upper": 16.825314088956382,
+      "P": 0.04347884542924463,
+      "AIC": 124.32106309695068
     },
     {
       "Model": "Twin + Age (per year)",
       "n_covariates": 1,
-      "aOR": 3.026869679624115,
-      "CI_lower": 1.340403114950851,
-      "CI_upper": 6.8352124485802435,
-      "P": 0.007701128750475256,
-      "AIC": 364.4673155208897
+      "aOR": 4.150585780059025,
+      "CI_lower": 1.0209005128707702,
+      "CI_upper": 16.874672997454834,
+      "P": 0.046715593947839744,
+      "AIC": 126.31171598428458
     },
     {
       "Model": "Twin + BMI (per kg/m²)",
       "n_covariates": 1,
-      "aOR": 2.7221042391456827,
-      "CI_lower": 1.2161542468368398,
-      "CI_upper": 6.092855004246026,
-      "P": 0.014850443735086776,
-      "AIC": 366.34592997926677
+      "aOR": 4.178065283774908,
+      "CI_lower": 1.0386225958973196,
+      "CI_upper": 16.80709584447637,
+      "P": 0.04408063002507279,
+      "AIC": 126.09703796826997
     },
     {
       "Model": "Twin + GA (per week)",
       "n_covariates": 1,
-      "aOR": 2.7530863407194106,
-      "CI_lower": 1.2184303888743453,
-      "CI_upper": 6.220695469076531,
-      "P": 0.014892429306753692,
-      "AIC": 368.2919633479082
+      "aOR": 4.601375095032699,
+      "CI_lower": 1.087947022642805,
+      "CI_upper": 19.461106399974575,
+      "P": 0.038030193163955936,
+      "AIC": 125.96032697012566
     },
     {
       "Model": "Twin + Emergency CS",
       "n_covariates": 1,
-      "aOR": 2.6827052381444823,
-      "CI_lower": 1.1958395544878535,
-      "CI_upper": 6.018288463329923,
-      "P": 0.016674444926739685,
-      "AIC": 368.3823663996916
+      "aOR": 3.628042454326529,
+      "CI_lower": 0.8993105873653796,
+      "CI_upper": 14.636425096425345,
+      "P": 0.07016602510248916,
+      "AIC": 121.86759605885229
     },
     {
       "Model": "Twin + Prior CS",
       "n_covariates": 1,
-      "aOR": 2.5572632648866778,
-      "CI_lower": 1.107091149186088,
-      "CI_upper": 5.907007215030718,
-      "P": 0.02793934189670975,
-      "AIC": 368.21406147974926
+      "aOR": 5.053445654118742,
+      "CI_lower": 1.1265564618677593,
+      "CI_upper": 22.668471437989314,
+      "P": 0.03438080098273898,
+      "AIC": 125.82994697022137
     },
     {
       "Model": "Twin + HDP",
       "n_covariates": 1,
-      "aOR": 2.6995325885082275,
-      "CI_lower": 1.20775899708636,
-      "CI_upper": 6.033882764689391,
-      "P": 0.015522461780663901,
-      "AIC": 367.7859334245652
+      "aOR": 4.190776984346812,
+      "CI_lower": 1.0432937823713695,
+      "CI_upper": 16.833812325241478,
+      "P": 0.04341409371359544,
+      "AIC": 126.30593323704444
     },
     {
       "Model": "Twin + Epidural anesthesia",
       "n_covariates": 1,
-      "aOR": 2.6675982532751554,
-      "CI_lower": 1.1892521179700328,
-      "CI_upper": 5.983660094735248,
-      "P": 0.017290416543599172,
-      "AIC": 343.04369119426394
+      "aOR": 4.11965811969325,
+      "CI_lower": 1.023512866394193,
+      "CI_upper": 16.581699732749758,
+      "P": 0.04629705641984706,
+      "AIC": 119.46695211326681
     },
     {
       "Model": "Twin + Surgery time (per min)",
       "n_covariates": 1,
-      "aOR": 3.3635224373507002,
-      "CI_lower": 1.4758060628332117,
-      "CI_upper": 7.665833249690455,
-      "P": 0.0039021370691318478,
-      "AIC": 357.5179467032626
+      "aOR": 5.248336982261457,
+      "CI_lower": 1.2528099068528382,
+      "CI_upper": 21.986608605745076,
+      "P": 0.023308546497354275,
+      "AIC": 123.31020681869695
     },
     {
       "Model": "Twin + Hypotension (SBP < 90)",
       "n_covariates": 1,
-      "aOR": 2.769234609348329,
-      "CI_lower": 1.2360524572515603,
-      "CI_upper": 6.204154424533354,
-      "P": 0.013327863958342822,
-      "AIC": 367.760623631821
+      "aOR": 4.271364714921903,
+      "CI_lower": 1.0583236135170333,
+      "CI_upper": 17.239109375297172,
+      "P": 0.04139083207208422,
+      "AIC": 126.20074176404745
+    },
+    {
+      "Model": "Full minus Age (per year)",
+      "n_covariates": 8,
+      "aOR": 3.506694883967138,
+      "CI_lower": 0.6433675455666679,
+      "CI_upper": 19.11334989459311,
+      "P": 0.14700395750214065,
+      "AIC": 125.90383367997525
     },
     {
       "Model": "Full minus BMI (per kg/m²)",
       "n_covariates": 8,
-      "aOR": 3.001042587432794,
-      "CI_lower": 1.2067470677552863,
-      "CI_upper": 7.463251291207346,
-      "P": 0.01806578249022302,
-      "AIC": 342.4320947352342
+      "aOR": 3.351271124454181,
+      "CI_lower": 0.6100799159728041,
+      "CI_upper": 18.409093391792695,
+      "P": 0.1641032075901152,
+      "AIC": 125.87347401428792
+    },
+    {
+      "Model": "Full minus GA (per week)",
+      "n_covariates": 8,
+      "aOR": 3.5843852510538476,
+      "CI_lower": 0.6632767821466529,
+      "CI_upper": 19.370220658698795,
+      "P": 0.13807106871846567,
+      "AIC": 125.86001681376857
     },
     {
       "Model": "Full minus Emergency CS",
       "n_covariates": 8,
-      "aOR": 3.1358864598368124,
-      "CI_lower": 1.3100996039506083,
-      "CI_upper": 7.506134540712827,
-      "P": 0.010272975894592423,
-      "AIC": 340.38114911119106
+      "aOR": 5.9628443925790275,
+      "CI_lower": 1.1981604839591928,
+      "CI_upper": 29.67508420292896,
+      "P": 0.0292006080371244,
+      "AIC": 130.4708048325993
     },
     {
       "Model": "Full minus Prior CS",
       "n_covariates": 8,
-      "aOR": 3.671945888017552,
-      "CI_lower": 1.5448988619997275,
-      "CI_upper": 8.727552939663818,
-      "P": 0.0032332273149221534,
-      "AIC": 341.9767011374754
+      "aOR": 3.6604096349039574,
+      "CI_lower": 0.8094089666287908,
+      "CI_upper": 16.553558519500015,
+      "P": 0.09192574508255466,
+      "AIC": 125.753800172425
     },
     {
       "Model": "Full minus HDP",
       "n_covariates": 8,
-      "aOR": 3.011968128360013,
-      "CI_lower": 1.2072080215387049,
-      "CI_upper": 7.514820846446519,
-      "P": 0.018096011138737978,
-      "AIC": 341.2527799656795
+      "aOR": 3.3555070857048195,
+      "CI_lower": 0.6163220450420596,
+      "CI_upper": 18.268740981749037,
+      "P": 0.16145781806939974,
+      "AIC": 126.23343308391975
     },
     {
       "Model": "Full minus Epidural anesthesia",
       "n_covariates": 8,
-      "aOR": 3.363550598556669,
-      "CI_lower": 1.3663691945931982,
-      "CI_upper": 8.279952939380507,
-      "P": 0.008312006256623188,
-      "AIC": 363.0779036271767
+      "aOR": 3.9109538609084047,
+      "CI_lower": 0.7327282670392598,
+      "CI_upper": 20.87480555917302,
+      "P": 0.11048311147017013,
+      "AIC": 132.73277323889448
     },
     {
       "Model": "Full minus Surgery time (per min)",
       "n_covariates": 8,
-      "aOR": 2.688824729644024,
-      "CI_lower": 1.0866584983084764,
-      "CI_upper": 6.653220342913013,
-      "P": 0.03237480320846606,
-      "AIC": 347.7481466468699
-    },
-    {
-      "Model": "Full minus Hypotension (SBP < 90)",
-      "n_covariates": 8,
-      "aOR": 2.9417567974567636,
-      "CI_lower": 1.1816098321646393,
-      "CI_upper": 7.323849903592608,
-      "P": 0.020419588293355884,
-      "AIC": 341.18781251287305
+      "aOR": 3.124470990184368,
+      "CI_lower": 0.5618027828557198,
+      "CI_upper": 17.376772181299092,
+      "P": 0.1931443225093531,
+      "AIC": 127.02921423867363
     },
     {
       "Model": "Reduced (6 covariates)",
       "n_covariates": 5,
-      "aOR": 3.182389476111665,
-      "CI_lower": 1.3762716424945478,
-      "CI_upper": 7.358723717731762,
-      "P": 0.006795196123716397,
-      "AIC": 369.7138586357363
+      "aOR": 3.482571231562402,
+      "CI_lower": 0.805395236205961,
+      "CI_upper": 15.058820610908775,
+      "P": 0.09486753598012612,
+      "AIC": 129.59094353291403
     }
   ]
 }

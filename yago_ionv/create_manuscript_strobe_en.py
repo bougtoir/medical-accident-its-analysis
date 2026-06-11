@@ -170,8 +170,7 @@ add_paragraph(doc,
     "emergency subgroup stratification, and 10,000-replicate stratified bootstrap validation. "
     f"Intraoperative hypotension (SBP <90 mmHg), a secondary outcome, was less frequent "
     f"in the twin group ({S['hypo_twin_pct']:.1f}%) than in the singleton group "
-    f"({S['hypo_single_pct']:.1f}%; aOR {S['hypo_or_twin']:.2f}, "
-    f"{format_p(S['hypo_or_twin_p'])}).")
+    f"({S['hypo_single_pct']:.1f}%; {format_p(S['hypo_chi_p'])}).")
 
 add_paragraph(doc, "Conclusions", bold=True)
 add_paragraph(doc,
@@ -312,10 +311,8 @@ add_paragraph(doc,
     "As a secondary outcome, the frequency of intraoperative hypotension was assessed. "
     "Hypotension was defined as systolic blood pressure <90 mmHg, "
     "and the number of recorded episodes during surgery was used. "
-    "Multivariable logistic regression for hypotension occurrence (at least one episode) "
-    "and negative binomial regression for episode count were performed. "
     "Because hypotension was also used as a covariate in the IONV analysis, "
-    "it was excluded from covariates in the hypotension outcome analysis.")
+    "only descriptive statistics were used for between-group comparison.")
 
 add_heading(doc, "Covariates (STROBE Item 8)", level=2)
 add_paragraph(doc,
@@ -559,16 +556,8 @@ add_paragraph(doc,
     f"{S['hypo_count_twin_median']:.0f} [{S['hypo_count_twin_q1']:.0f}\u2013"
     f"{S['hypo_count_twin_q3']:.0f}] in twins (P = {S['hypo_count_p']:.3f}).")
 
-add_paragraph(doc,
-    f"Multivariable logistic regression (excluding hypotension from covariates) "
-    f"showed that twin pregnancy was significantly associated with lower odds of hypotension "
-    f"(aOR {S['hypo_or_twin']:.2f}, "
-    f"95% CI {S['hypo_or_twin_ci_lower']:.2f}\u2013{S['hypo_or_twin_ci_upper']:.2f}, "
-    f"{format_p(S['hypo_or_twin_p'])}). "
-    f"Negative binomial regression yielded an incidence rate ratio (IRR) of "
-    f"{S['hypo_irr_twin']:.2f} "
-    f"(95% CI {S['hypo_irr_twin_ci_lower']:.2f}\u2013{S['hypo_irr_twin_ci_upper']:.2f}, "
-    f"{format_p(S['hypo_irr_twin_p'])}).")
+# Note: hypotension is also used as a covariate in IONV analysis,
+# so only descriptive statistics are reported here (no regression).
 
 # ============================================================
 # SENSITIVITY ANALYSES (detachable block)
@@ -830,8 +819,7 @@ add_paragraph(doc, _key_finding_base_en)
 add_paragraph(doc,
     f"As a secondary outcome, intraoperative hypotension (SBP <90 mmHg) was less frequent "
     f"in the twin group ({S['hypo_twin_pct']:.1f}%) than in the singleton group "
-    f"({S['hypo_single_pct']:.1f}%; aOR {S['hypo_or_twin']:.2f}, "
-    f"{format_p(S['hypo_or_twin_p'])}). "
+    f"({S['hypo_single_pct']:.1f}%; {format_p(S['hypo_chi_p'])}). "
     "This finding, combined with the higher 5-HT3 antagonist use in twins, "
     "suggests involvement of non-hypotensive IONV pathways in twin pregnancies.")
 
@@ -1075,7 +1063,9 @@ strobe_items = [
      "Report category boundaries when continuous variables were categorized"),
     ("Main results", "16(c)", "Not applicable",
      "If relevant, consider translating estimates of relative risk into absolute risk"),
-    ("Other analyses", "17", "Results: Covariate Sensitivity Analysis, Exclusion Sensitivity Analysis",
+    ("Other analyses", "17",
+     "Results: Covariate Sensitivity Analysis, Exclusion Sensitivity Analysis"
+     if INCLUDE_SENSITIVITY else "Not applicable (main analysis only)",
      "Report other analyses done\u2014e.g., analyses of subgroups and interactions, and sensitivity analyses"),
     ("", "", "", ""),
     ("DISCUSSION", "", "", ""),
@@ -1150,20 +1140,23 @@ legends = [
      "Comparison of adjusted odds ratios for twin pregnancy across broad and narrow "
      "antiemetic definitions (primary and secondary outcomes). "
      "Only the narrow-definition primary outcome showed a significant association."),
-    ("Fig. 5",
-     "Covariate sensitivity analysis for the narrow-definition primary outcome. "
-     f"All {len(cov_df)} models yielded aOR in the range "
-     f"{cov_df['aOR'].min():.2f}\u2013{cov_df['aOR'].max():.2f}, "
-     "all P < 0.05, demonstrating robustness of the twin effect."),
-    ("Fig. 6",
-     "IONV rates in the elective, low-risk sensitivity subgroup "
-     f"(N = {F['subgroup_analysis']['n']:,}) after excluding emergency cesarean delivery, "
-     "prior cesarean delivery, HDP, and preoperative steroid use."),
-    ("Fig. 7",
-     "Comparison of adjusted odds ratios in the elective, low-risk sensitivity subgroup. "
-     f"The narrow-definition effect size increased from aOR {mr['E-Primary']['twin_OR']:.2f} "
-     f"(full cohort) to aOR {er['E-Primary']['twin_OR']:.2f} (subgroup)."),
 ]
+if INCLUDE_SENSITIVITY:
+    legends += [
+        ("Fig. 5",
+         "Covariate sensitivity analysis for the narrow-definition primary outcome. "
+         f"All {len(cov_df)} models yielded aOR in the range "
+         f"{cov_df['aOR'].min():.2f}\u2013{cov_df['aOR'].max():.2f}, "
+         "all P < 0.05, demonstrating robustness of the twin effect."),
+        ("Fig. 6",
+         "IONV rates in the elective, low-risk sensitivity subgroup "
+         f"(N = {F['subgroup_analysis']['n']:,}) after excluding emergency cesarean delivery, "
+         "prior cesarean delivery, HDP, and preoperative steroid use."),
+        ("Fig. 7",
+         "Comparison of adjusted odds ratios in the elective, low-risk sensitivity subgroup. "
+         f"The narrow-definition effect size increased from aOR {mr['E-Primary']['twin_OR']:.2f} "
+         f"(full cohort) to aOR {er['E-Primary']['twin_OR']:.2f} (subgroup)."),
+    ]
 
 for fig_label, legend_text in legends:
     p = doc.add_paragraph()

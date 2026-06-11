@@ -230,31 +230,33 @@ print("\n" + "=" * 60)
 print("2. DEFINITION E OUTCOMES")
 print("=" * 60)
 
-# Primary E: 5-HT3 antagonist at any time
-df_analysis["ionv_E_primary"] = (
+# 5-HT3 antagonist flag (any phase)
+_5ht3_any = (
     (df_analysis["ondansetron_mg"].fillna(0) > 0) |
     (df_analysis["granisetron_mg"].fillna(0) > 0)
 ).astype(int)
 
-# Secondary E: 5-HT3 antagonist AND antiemetic before delivery
-# (patient received antiemetic in ae_to_delivery phase AND had 5-HT3)
-df_analysis["ionv_E_secondary"] = (
-    (df_analysis["ionv_E_primary"] == 1) &
+# Primary E: 5-HT3 antagonist before delivery
+df_analysis["ionv_E_primary"] = (
+    (_5ht3_any == 1) &
     (df_analysis["ae_to_delivery"] == 1)
 ).astype(int)
 
-# Also define original protocol outcomes for comparison
-df_analysis["ionv_A_primary"] = ((df_analysis["ae_to_delivery"] == 1) | (df_analysis["ae_post_delivery"] == 1)).astype(int)
-df_analysis["ionv_A_secondary"] = (df_analysis["ae_to_delivery"] == 1).astype(int)
+# Secondary E: 5-HT3 antagonist at any time (anesthesia→exit)
+df_analysis["ionv_E_secondary"] = _5ht3_any
+
+# Broad-definition outcomes
+df_analysis["ionv_A_primary"] = (df_analysis["ae_to_delivery"] == 1).astype(int)
+df_analysis["ionv_A_secondary"] = ((df_analysis["ae_to_delivery"] == 1) | (df_analysis["ae_post_delivery"] == 1)).astype(int)
 
 s = df_analysis[df_analysis["twin"] == 0]
 t = df_analysis[df_analysis["twin"] == 1]
 
 outcomes = OrderedDict([
-    ("A-Primary", ("ionv_A_primary", "Protocol: any antiemetic (any phase)")),
-    ("A-Secondary", ("ionv_A_secondary", "Protocol: antiemetic before delivery")),
-    ("E-Primary", ("ionv_E_primary", "Def E: 5-HT3 antagonist (any phase)")),
-    ("E-Secondary", ("ionv_E_secondary", "Def E: 5-HT3 + before delivery phase")),
+    ("A-Primary", ("ionv_A_primary", "Broad: antiemetic before delivery")),
+    ("A-Secondary", ("ionv_A_secondary", "Broad: any antiemetic (anesthesia→exit)")),
+    ("E-Primary", ("ionv_E_primary", "Narrow: 5-HT3 before delivery")),
+    ("E-Secondary", ("ionv_E_secondary", "Narrow: 5-HT3 any phase (anesthesia→exit)")),
 ])
 
 print(f"\n{'Outcome':<15} {'Label':<40} {'Single n/N (%)':<22} {'Twin n/N (%)':<22} {'P':>8}")

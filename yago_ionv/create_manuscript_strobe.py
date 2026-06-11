@@ -197,7 +197,7 @@ add_paragraph(doc,
     "10,000回の層別ブートストラップ検証でも結果は頑健であった。"
     f"副次アウトカムの術中低血圧は双胎群（{S['hypo_twin_pct']:.1f}%）が"
     f"単胎群（{S['hypo_single_pct']:.1f}%）より低率であった"
-    f"（aOR {S['hypo_or_twin']:.2f}, {format_p(S['hypo_or_twin_p'])}）。")
+    f"（{format_p(S['hypo_chi_p'])}）。")
 
 add_paragraph(doc, "【結論】", bold=True)
 add_paragraph(doc,
@@ -324,10 +324,8 @@ add_paragraph(doc,
     "副次アウトカムとして、術中低血圧の発生頻度を評価した。"
     "低血圧は収縮期血圧 90 mmHg未満と定義し、"
     "術中に記録された該当値の回数を用いた。"
-    "低血圧の発生（1回以上）に対する多変量ロジスティック回帰分析、および"
-    "低血圧エピソード回数に対する負の二項回帰分析を実施した。"
-    "なお、低血圧はIONV解析の共変量としても使用するため、"
-    "低血圧アウトカム解析では共変量から低血圧を除外した。")
+    "低血圧はIONV解析において共変量としても使用しているため、"
+    "記述統計による群間比較にとどめた。")
 
 add_heading(doc, "共変量（STROBE項目8）", level=2)
 add_paragraph(doc,
@@ -562,16 +560,8 @@ add_paragraph(doc,
     f" [{S['hypo_count_twin_q1']:.0f}–{S['hypo_count_twin_q3']:.0f}]回であった"
     f"（P = {S['hypo_count_p']:.3f}）。")
 
-add_paragraph(doc,
-    f"多変量ロジスティック回帰分析（低血圧を共変量から除外）では、"
-    f"双胎は低血圧のオッズ低下と有意に関連していた"
-    f"（aOR {S['hypo_or_twin']:.2f}, "
-    f"95%CI {S['hypo_or_twin_ci_lower']:.2f}–{S['hypo_or_twin_ci_upper']:.2f}, "
-    f"{format_p(S['hypo_or_twin_p'])}）。"
-    f"負の二項回帰分析では、双胎の低血圧エピソード回数に対する"
-    f"発生率比（IRR）は{S['hypo_irr_twin']:.2f}"
-    f"（95%CI {S['hypo_irr_twin_ci_lower']:.2f}–{S['hypo_irr_twin_ci_upper']:.2f}, "
-    f"{format_p(S['hypo_irr_twin_p'])}）であった。")
+# Note: hypotension is also used as a covariate in IONV analysis,
+# so only descriptive statistics are reported here (no regression).
 
 # ============================================================
 # SENSITIVITY ANALYSES (detachable block — set INCLUDE_SENSITIVITY = False to omit)
@@ -819,8 +809,7 @@ add_paragraph(doc, _key_finding_base)
 add_paragraph(doc,
     f"副次アウトカムとして評価した術中低血圧（SBP <90 mmHg）は、"
     f"双胎群（{S['hypo_twin_pct']:.1f}%）が単胎群（{S['hypo_single_pct']:.1f}%）より"
-    f"有意に低率であった（aOR {S['hypo_or_twin']:.2f}, "
-    f"{format_p(S['hypo_or_twin_p'])}）。"
+    f"有意に低率であった（{format_p(S['hypo_chi_p'])}）。"
     "双胎では循環血液量の増大に伴い、脊髄くも膜下麻酔後の血圧低下に対する"
     "代償能が比較的保たれている可能性がある。"
     "あるいは、双胎に対してより積極的な血管収縮薬投与が行われた可能性も否定できない。"
@@ -983,7 +972,9 @@ strobe_items = [
     ("  Descriptive data", "14", "結果：患者背景、Table 1"),
     ("  Outcome data", "15", "結果：IONV発生率、Table 2"),
     ("  Main results", "16", "結果：多変量解析、Table 2, Fig. 3-4"),
-    ("  Other analyses", "17", "結果：共変量感度分析、除外感度分析、Table 3-4, Fig. 5-7"),
+    ("  Other analyses", "17",
+     "結果：共変量感度分析、除外感度分析、Table 3-4, Fig. 5-7"
+     if INCLUDE_SENSITIVITY else "該当なし（主解析のみ）"),
     ("Discussion", "", ""),
     ("  Key results", "18", "考察：主要な知見に記載"),
     ("  Limitations", "19", "考察：限界に記載"),
@@ -1043,20 +1034,23 @@ legends = [
      "Comparison of adjusted odds ratios for twin pregnancy across broad and narrow "
      "antiemetic definitions (primary and secondary outcomes). "
      "Only the narrow-definition primary outcome showed a significant association."),
-    ("Fig. 5",
-     "Covariate sensitivity analysis for the narrow-definition primary outcome. "
-     f"All {len(cov_df)} models yielded aOR in the range "
-     f"{cov_df['aOR'].min():.2f}–{cov_df['aOR'].max():.2f}, "
-     "all P < 0.05, demonstrating robustness of the twin effect."),
-    ("Fig. 6",
-     "IONV rates in the elective, low-risk sensitivity subgroup "
-     f"(N = {F['subgroup_analysis']['n']:,}) after excluding emergency CS, prior CS, "
-     "HDP, and preoperative steroid."),
-    ("Fig. 7",
-     "Comparison of adjusted odds ratios in the elective, low-risk sensitivity subgroup. "
-     f"The narrow-definition effect size increased from aOR {mr['E-Primary']['twin_OR']:.2f} "
-     f"(full cohort) to aOR {er['E-Primary']['twin_OR']:.2f} (subgroup)."),
 ]
+if INCLUDE_SENSITIVITY:
+    legends += [
+        ("Fig. 5",
+         "Covariate sensitivity analysis for the narrow-definition primary outcome. "
+         f"All {len(cov_df)} models yielded aOR in the range "
+         f"{cov_df['aOR'].min():.2f}–{cov_df['aOR'].max():.2f}, "
+         "all P < 0.05, demonstrating robustness of the twin effect."),
+        ("Fig. 6",
+         "IONV rates in the elective, low-risk sensitivity subgroup "
+         f"(N = {F['subgroup_analysis']['n']:,}) after excluding emergency CS, prior CS, "
+         "HDP, and preoperative steroid."),
+        ("Fig. 7",
+         "Comparison of adjusted odds ratios in the elective, low-risk sensitivity subgroup. "
+         f"The narrow-definition effect size increased from aOR {mr['E-Primary']['twin_OR']:.2f} "
+         f"(full cohort) to aOR {er['E-Primary']['twin_OR']:.2f} (subgroup)."),
+    ]
 
 for fig_label, legend_text in legends:
     p = doc.add_paragraph()
