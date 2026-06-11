@@ -6,18 +6,18 @@ Telephone: +81-749-27-1023
 E-mail: bougtoir@gmail.com
 ORCID: 0000-0001-7261-9062
 
-19 May 2026
+11 June 2026
 
-The Editors
-*Economica*
+The Editor
+*Journal of Economic Growth*
 
-Dear Professors Besley, den Haan, Ghatak, Ngai, Overman, and Thomas,
+Dear Professor Galor,
 
-I am pleased to submit for your consideration the enclosed manuscript, **"What the Solow Residual Has Been Hiding: Tempo Drift and the Missing Intangible Share in National Capital Stocks"**, as an Article for *Economica*.
+I am pleased to submit for your consideration the enclosed manuscript, **"What the Solow Residual Has Been Hiding: Tempo Drift and the Missing Intangible Share in National Capital Stocks"**, for publication in the *Journal of Economic Growth*.
 
 The paper addresses a fundamental question in growth accounting: how much of what we call TFP is a genuine productivity residual, and how much is a book-keeping artefact of mis-timed capital stocks and omitted intangibles? I show that two parameters — a time-varying investment-to-output lag μ(t) and an intangible-capital share β — jointly account for a measurable share of measured TFP variation across 39 OECD and middle-income economies (Penn World Table 10.01, World Bank CWON, 1995–2019). Letting μ drift reduces out-of-sample GDP forecast error by 13 %, and a Solow-residual decomposition reveals that up to 30 % of TFP-growth variance can be re-attributed to tempo drift and missing intangibles rather than genuine innovation. When both corrections are applied, production-side (flow) and wealth-side (stock) national accounts agree to within 1–2 % for most countries — the first empirical success, to my knowledge, of the "unified national-wealth accounting" programme that Stiglitz, Sen, and Fitoussi (2009) called for.
 
-I believe this work is well suited to *Economica* for three reasons. First, it speaks directly to the economic substance of the Solow residual — a topic of central interest in macroeconomics and growth theory since Griliches (1996). The paper is framed not as a measurement exercise but as a discovery about what TFP has been measuring. Second, the identification exploits a structural analogy with the demographic tempo literature (Bongaarts and Feeney, 1998; Goldstein, Lutz, and Scherbov, 2003) that is novel in economics and generates falsifiable predictions. Third, the counterfactual wealth calculations have concrete policy implications for the Beyond-GDP debate, showing that official statistics systematically understate the productive capital base of innovation-intensive economies.
+I believe this work is well suited to the *Journal of Economic Growth* for three reasons. First, it addresses the measurement foundations of long-run growth accounting — specifically, how the Solow residual confounds genuine productivity innovation with book-keeping artefacts arising from mis-timed capital stocks and omitted intangibles. This is a topic of central importance to the growth-accounting tradition that the *Journal* has advanced since its founding. Second, the identification strategy exploits a structural analogy with the demographic tempo literature (Bongaarts & Feeney, 1998; Goldstein, Lutz, & Scherbov, 2003), generating falsifiable predictions that are confirmed by the data: the joint flow–stock loss function collapses the (μ, β) parameter space from a broad ridge to a point for 28 of 39 countries, and the resulting parameter estimates move in the directions predicted by economic theory. The tempo adjustment was itself a neglected insight within demography — dormant from the 1970s until its 1998 revival — and to the best of my knowledge this paper is the first to transplant the framework to capital accounting and GDP measurement, a domain where the quantitative stakes are orders of magnitude larger. Third, the counterfactual wealth calculations have concrete implications for the Beyond-GDP debate, showing that official statistics systematically understate the productive capital base of innovation-intensive economies by 0.3–1.1 %.
 
 The manuscript is approximately 10,000 words of body text, with eleven figures and five tables.
 

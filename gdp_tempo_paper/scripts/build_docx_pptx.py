@@ -1,12 +1,12 @@
 """Build final manuscript .docx (JA + EN) with inline figures/tables
 and a single editable .pptx (EN figures) for per-slide editing.
 
-Formatted for Economica (Wiley / LSE):
-  - Double-spaced (2.0 line spacing)
+Formatted for Journal of Economic Growth (Springer):
+  - 1.5× line spacing
   - Times New Roman 12pt body text
-  - Author-date references (alphabetical reference list)
+  - APA 7 author-date references (alphabetical, with DOIs)
+  - Decimal section numbering (1, 1.1, 1.2, …)
   - Figures inline in manuscript + separate files for submission
-  - PDF submission via editorialexpress.com
 
 Usage:  python build_docx_pptx.py
 Outputs into ../manuscript/ :
@@ -115,22 +115,19 @@ def set_font(run, name="Times New Roman", size=11, bold=False, italic=False):
 
 
 def add_heading(doc, text, level, lang):
-    """Add heading with Economica formatting.
+    """Add heading with JEG / Springer formatting.
 
-    Level 1 (## in md): section heading — ALL CAPS (EN), centred, 14pt bold.
+    Level 1 (## in md): section heading — left-aligned, 14pt bold.
     Level 2 (## special): same as level 1 but 14pt.
     Level 3 (### in md): subsection — flush left, 12pt bold.
+    All levels: sentence case (no ALL CAPS), left-aligned.
     """
     h = doc.add_paragraph()
     h.paragraph_format.space_before = Pt(18)
     h.paragraph_format.space_after = Pt(6)
-    h.paragraph_format.line_spacing = 2.0
-    # Economica: section headings centred and ALL CAPS
-    if level in (1, 2):
-        h.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        display_text = text.upper() if lang == "en" else text
-    else:
-        display_text = text
+    h.paragraph_format.line_spacing = 1.5
+    # JEG/Springer: left-aligned, no ALL CAPS
+    display_text = text
     run = h.add_run(display_text)
     set_font(run, size={1: 16, 2: 14, 3: 12}[level], bold=True)
     return h
@@ -301,7 +298,7 @@ def _emit_math_segment(paragraph, inner, size, force_italic=False,
 def add_para(doc, text, lang, italic=False):
     p = doc.add_paragraph()
     p.paragraph_format.space_after = Pt(6)
-    p.paragraph_format.line_spacing = 2.0
+    p.paragraph_format.line_spacing = 1.5
     p.paragraph_format.first_line_indent = Pt(24)
     add_math_runs(p, text, size=12, base_italic=italic)
     return p
@@ -311,7 +308,7 @@ def add_rich_para(doc, text, lang, bullet=False):
     """Add a paragraph with bold **...** spans and math-aware formatting."""
     p = doc.add_paragraph()
     p.paragraph_format.space_after = Pt(6)
-    p.paragraph_format.line_spacing = 2.0
+    p.paragraph_format.line_spacing = 1.5
     if bullet:
         p.paragraph_format.left_indent = Pt(36)
         p.paragraph_format.first_line_indent = Pt(-18)
@@ -357,7 +354,7 @@ def add_equation_block(doc, equation_text, label=None):
     p.alignment = WD_ALIGN_PARAGRAPH.CENTER
     p.paragraph_format.space_before = Pt(12)
     p.paragraph_format.space_after = Pt(12)
-    p.paragraph_format.line_spacing = 2.0
+    p.paragraph_format.line_spacing = 1.5
     p.paragraph_format.first_line_indent = Pt(0)
 
     # Render equation body with math formatting
@@ -799,7 +796,7 @@ def main():
     build_standalone_tables()
     build_pptx()
     build_cover_letter()
-    # Convert manuscripts to PDF for Economica submission (PDF-only)
+    # Convert manuscripts to PDF
     for lang in ("en", "ja"):
         docx = os.path.join(MS, f"manuscript_{lang}.docx")
         if os.path.exists(docx):

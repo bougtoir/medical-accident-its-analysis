@@ -38,17 +38,17 @@ Solow (1957) 以来、成長会計の残差は技術進歩の指標として扱�
 
 第一のパラメータは、時変の投資から産出へのラグ μ(t) である。標準的な恒久棚卸法（PIM）は、投資が即座に生産的になる（μ = 0）か、固定的・時不変のラグを持つと仮定する。しかし投資の構成は、カスタムソフトウェア、クラウド基盤、製薬R&D、複雑なエンジニアリングシステムといったリードタイムの長い資産へと決定的にシフトしており、原初のラグ文献が想定した建屋・設備とは懐胎期間が桁違いに異なる（OECD, 2013; Corrado et al., 2020）。μ が上昇しているのにゼロと扱うと、PIM資本ストックのタイミングが狂い、ソロー残差がその誤差を吸収する。第二のパラメータは、無形資本シェア β である。Corrado, Hulten, and Sichel (2005, 2009) が無形投資の量的な大きさを示してきたにもかかわらず、世界銀行 CWON（Lange, Wodon, and Carey, 2018）を含む公的国富会計はほとんどの無形資本を生産資本から除外したままである。β をゼロとすれば、欠落資本が再びTFPを膨張させる。
 
-本稿は、人口統計学との構造的類似性を利用し、両パラメータを同時に同定する。Bongaarts and Feeney (1998) が平均出産年齢のドリフトが完結出生率一定でも期間出生率を押し下げることを示し、Goldstein, Lutz, and Scherbov (2003) が単一の「忘れられた」パリティ別分散パラメータを加えると矛盾が解消することを示した。同じ数学が、精密な変数変換のもとで資本会計に適用される（表 2）。
+本稿は、人口統計学との構造的類似性を利用し、両パラメータを同時に同定する。Bongaarts and Feeney (1998) が平均出産年齢のドリフトが完結出生率一定でも期間出生率を押し下げることを示し、Goldstein, Lutz, and Scherbov (2003) が単一の「忘れられた」パリティ別分散パラメータを加えると矛盾が解消することを示した。同じ数学が、精密な変数変換のもとで資本会計に適用される（表 2）。注目すべきは、テンポ調整それ自体が人口学の内部ですら数十年にわたり忘れられた洞察であったことである。出生テンポ文献は1970年代の定式化以降、Bongaarts and Feeney が1998年に復活させるまで休眠状態にあり、忘れられた分散パラメータが Goldstein, Lutz, and Scherbov によって補填されるにはさらに5年を要した。人口学者の目の前に一世代にわたり存在していたタイミング補正が、再発見されるや変革的であったとすれば、同一の補正が――資本会計およびGDP計測というはるかに広大な領域に初めて適用される場合に――新たな実証的内容を持たないとすれば、むしろ驚きであろう。
 
 貢献は三つある。第一に、OECD・中所得国39カ国（Penn World Table 10.01、世界銀行CWON、1995–2019年）について μ(t) と β を同時推定し、時変 μ(t) がGDP水準の標本外予測誤差を4.60%から3.99%に低下させる（相対13%改善）ことを示す。第二に、ソロー残差分解により、テンポ・ドリフト単独でTFP成長率分散の最大30%が説明され、反事実的国富計算は公式の生産資本が高R&D経済で0.3–1.1%過小評価していることを示す。第三に、同時補正により生産面（フロー）と国富面（ストック）の国民経済計算がほとんどの国で1–2%以内で整合し、Stiglitz, Sen, and Fitoussi (2009) が提唱した「統合国富会計」プログラムの最初の実証的成功例となる。
 
-以降の構成は次の通り。第 II 節で関連文献を整理し、第 III 節で理論モデルを、第 IV 節でデータと推定手法および五つのモデル M0–M4 を、第 V 節でソロー残差分解と反事実的国富シミュレーションを含む結果を報告する。第 VI 節で政策含意と Beyond-GDP 議論を議論し、第 VII 節で結論を述べる。
+以降の構成は次の通り。第 2 節で関連文献を整理し、第 3 節で理論モデルを、第 4 節でデータと推定手法および五つのモデル M0–M4 を、第 5 節でソロー残差分解と反事実的国富シミュレーションを含む結果を報告する。第 6 節で政策含意と Beyond-GDP 議論を議論し、第 7 節で結論を述べる。
 
-## II 先行研究
+## 2 先行研究
 
 **資本会計とタイム・トゥ・ビルド。** Kydland and Prescott (1982) 以来、景気循環モデルに多期間投資ラグを入れることは標準となった。経験推定はほぼすべて固定ラグ構造に基づくものであり、全期間で単一の μ を推定するか、景気後退・拡大で少数の場面別 μ を推定するかである（Mayer, 1960; Koeva, 2000）。Kaboski (2005) は産業横断的不均一性を記録するが、やはり時不変扱いである。近年の拡張（Altug, 1989; Christiano and Todd, 1996; Edge, 2007）はラグ分布を部門構成に依存させる確率的拡張を探求しているものの、μ が数十年規模で系統的にドリフトすることを許容していない。人口学における平均出産年齢の時変を資本に移す試みは、我々の知る限り存在しない。この欠落は結果として重要である。1990 年以降の投資は、カスタム産業ソフトウェア、クラウド基盤、製薬 R&D、複雑なエンジニアリング・システムなどリードタイムの長い資産への構成シフトを実際に経験しており、原初の投資ラグ文献が想定した 1960 年代型の建屋・設備資産とは桁 1 つ近く異なる懐胎期間を要する（OECD, 2013; Corrado et al., 2020）。
 
-**無形資本。** Corrado, Hulten, and Sichel (2005, 2009) の一連の研究によって、ソフトウェア、R&D、デザイン、ブランド、組織資本、訓練が先進国の生産性成長の 30〜60 % を占めるとの国際的証拠は頑健となった（INTAN-Invest: Corrado et al., 2016; Roth, 2023）。2008 年の国民経済計算体系（SNA）改訂は R&D を生産資本に取り込んだが、それ以外の広範な無形資本――組織資本、ブランド、訓練、購入デザイン・サービス、一部の金融イノベーション――は世界銀行 CWON を含め多くの公式バランスシートから除外されたままである（Lange et al., 2018, 第 3 章）。De Rassenfosse and Jaffe (2018) および Haskel and Westlake (2017, 2022) が強調するように、この脱落は測定資本の水準のみならず、無形シェアが拡張している局面――まさに本稿の 1995〜2019 年サンプルがそれに当たる――での含意生産性成長率をも歪める。重要なことに、無形シェア β はグローバル定数ではない。日本、ドイツ、一部の東アジア経済は調和測定の下でも米国より小さな無形シェアを保持する（Corrado et al., 2020）。したがって β は国別パラメータであるべきであり、本稿の第 IV 節でもそのように扱う。
+**無形資本。** Corrado, Hulten, and Sichel (2005, 2009) の一連の研究によって、ソフトウェア、R&D、デザイン、ブランド、組織資本、訓練が先進国の生産性成長の 30〜60 % を占めるとの国際的証拠は頑健となった（INTAN-Invest: Corrado et al., 2016; Roth, 2023）。2008 年の国民経済計算体系（SNA）改訂は R&D を生産資本に取り込んだが、それ以外の広範な無形資本――組織資本、ブランド、訓練、購入デザイン・サービス、一部の金融イノベーション――は世界銀行 CWON を含め多くの公式バランスシートから除外されたままである（Lange et al., 2018, 第 3 章）。De Rassenfosse and Jaffe (2018) および Haskel and Westlake (2017, 2022) が強調するように、この脱落は測定資本の水準のみならず、無形シェアが拡張している局面――まさに本稿の 1995〜2019 年サンプルがそれに当たる――での含意生産性成長率をも歪める。重要なことに、無形シェア β はグローバル定数ではない。日本、ドイツ、一部の東アジア経済は調和測定の下でも米国より小さな無形シェアを保持する（Corrado et al., 2020）。したがって β は国別パラメータであるべきであり、本稿の第 4 節でもそのように扱う。
 
 **国富会計。** Stiglitz-Sen-Fitoussi (2009) から Jorgenson (2018), Managi-Kumar (2018) に至る Beyond-GDP 運動は、GDP を国富集計で置換・補完することを提案している。しかし実証的には、主要三集計（SEEA、IWI、CWON）は互いにも、独立に再構築した PIM ストックとも有意に食い違う（Arrow et al., 2012; Dasgupta, 2021）。主流の診断は測定誤差と自然資本の扱いに帰する。本稿は、より地味な犯人――誤設定されたタイム・トゥ・ビルドと省かれた無形シェア――が乖離のかなりの部分を説明することを示す。
 
@@ -58,9 +58,9 @@ Solow (1957) 以来、成長会計の残差は技術進歩の指標として扱�
 
 **本稿が埋める間隙。** 上記文献は (i) 資本タイム・トゥ・ビルド、(ii) 無形、(iii) 国富集計、(iv) 人口テンポの各テーマを個別に扱ってきた。(a) 時変タイム・トゥ・ビルドを推定し、(b) CHS の無形シェアを回復し、(c) 国富恒等式で両者を同時制御する、という三位一体の先行研究は我々の知る限り存在しない。
 
-## III 理論
+## 3 理論
 
-### III.1 テンポ付きフロー側生産関数
+### 3.1 テンポ付きフロー側生産関数
 
 教科書的な生産関数は、投資が即時に成熟するかのように扱う：
 
@@ -76,7 +76,7 @@ Solow (1957) 以来、成長会計の残差は技術進歩の指標として扱�
 
 ここで μ₁ は Bongaarts-Feeney の意味での「テンポ」である。正の μ₁ は平均的投資がより長期化すること――たとえばデジタルインフラ、R&D プラットフォーム、複雑な多年度組立を要する投資が増えること――を、負の μ₁ はその逆を意味する。
 
-### III.2 ストック側の無形資本：忘れられた β
+### 3.2 ストック側の無形資本：忘れられた β
 
 *K_tang(t)* を (M1)-(M2) から得られる有形 PIM ストックとし、*K_I(t)* を R&D 支出を減耗率 δ_I = 0.15 で幾何的 PIM 化した無形ストックとする（Corrado-Hulten-Sichel, 2009）。無形を含む拡張生産関数は：
 
@@ -84,7 +84,7 @@ Solow (1957) 以来、成長会計の残差は技術進歩の指標として扱�
 
 ここで β は無形シェアである。標準慣行は β = 0 を課す（Solow; 本稿 M0・M1 も同様）。β > 0 を推定することは、Goldstein-Lutz-Scherbov における σ 再導入の資本会計上の類似物である。
 
-### III.3 統合恒等式：フロー＝ストック同時損失関数
+### 3.3 統合恒等式：フロー＝ストック同時損失関数
 
 整合的な国富集計 *W(t)* は帳簿恒等式
 
@@ -96,11 +96,11 @@ Solow (1957) 以来、成長会計の残差は技術進歩の指標として扱�
 
 *L_production* は生産関数 (M3) の成長率残差、*L_wealth* は PIM ストック *K_tang(t; μ) + β · K_I(t)* と CWON 生産資本系列 NW.PCA.TO(t) の国内軌跡 RMSE である。(2) の最小化により「M4 同時」推定量 (μ̂_joint, β̂_joint) を得る。λ = 0 は生産のみの推定に帰着する。
 
-### III.4 人口と資本の量・テンポ対応
+### 3.4 人口と資本の量・テンポ対応
 
 表 2 は、Bongaarts-Feeney-Goldstein-Lutz-Scherbov が分析した人口変数と本稿の資本変数の一対一対応を示す。すべての人口概念には、帳簿恒等式および量・テンポ分解の中で同じ役割を演じる資本概念が存在する。これは単なる記憶術ではない。人口テンポから σ を同定する統計ツール（コホート整合性検定、Brass 相対モデル）には資本会計上の直接的な類似物があり、本稿はこれを活用する。
 
-### III.5 関係型PIM：資本会計のためのBrassモデル
+### 3.5 関係型PIM：資本会計のためのBrassモデル
 
 人口学では、観測された出生率・死亡率スケジュールを「基準」スケジュールと比較し、系統的偏差を少数のパラメータで捉えるBrass相対モデルが長く用いられてきた（Brass, 1971）。本稿はこのアイデアを資本会計に移植する。*K_PIM(t)* をM0〜M4のいずれかのもとでPIM構築した資本ストック、*K_CWON(t)* をCWON生産資本NW.PCA.TOとする。**関係型PIM**（RPIM）を次のように定義する：
 
@@ -114,15 +114,15 @@ Solow (1957) 以来、成長会計の残差は技術進歩の指標として扱�
 
 新規性は三重である。第一に、Brass 相対モデル枠組を資本会計に適用した先行研究は、筆者の知る限り存在しない。第二に、RPIM は CWON を「真値」とは扱わない――同一の潜在ストックに対する二つの独立推定の「関係」をパラメータ化し、系統的バイアスを可視化・定量化する。第三に、診断量 (ρ₁, ρ₂) は各モデル仕様（M0〜M4）のもとで計算できるため、テンポ・無形補正が実際に両勘定を近づけるかどうかの独立したチェックとして、ρ₂ が 1 に向かう改善を検証できる。
 
-## IV データと手法
+## 4 データと手法
 
-### IV.1 データ
+### 4.1 データ
 
 **Penn World Table 10.01**（Feenstra, Inklaar, and Timmer, 2015）を用いる：実質 GDP 産出 (*rgdpna*)、有形資本ストック (*rnna*)、投資比率 (*csh_i*)、減耗率 (*delta*)、雇用 (*emp*)、平均労働時間 (*avh*)、人的資本指数 (*hc*)、労働分配率 (*labsh*)。R&D 集約度は **World Bank WDI** の *GB.XPD.RSDV.GD.ZS* を用いる。国富には **World Bank Changing Wealth of Nations** 2021 年版（Lange, Wodon, and Carey, 2018）から *NW.PCA.TO*（生産資本総額）、*NW.HCA.TO*（人的資本総額）、*NW.TOW.TO*（総資産）を用いる。
 
 サンプルは全系列が利用可能な OECD・中所得 39 カ国である。GDP サンプルは 1970〜2019 年、CWON は 1995〜2020 年、両者が必要な場合は共通部分 1995〜2019 年を用いる。
 
-### IV.2 モデル M0–M4
+### 4.2 モデル M0–M4
 
 五つの入れ子型生産関数を推定する：
 
@@ -130,7 +130,7 @@ Solow (1957) 以来、成長会計の残差は技術進歩の指標として扱�
 * **M1**: 一定ラグ PIM (M1)、検定 B（成長率 RMSE）最小化で国別 *μ = μ\** を推定。
 * **M2**: 時変ラグ μ(t) = μ₀ + μ₁·(t − t₀)（上記 (M2)）。
 * **M3**: M0 有形ストックに無形ストック K_I を追加し、成長率当てはめで β を推定。
-* **M4**: 同時同定（III.3 節）。(2) を (μ, β) 上で CWON に対して同時最小化。
+* **M4**: 同時同定（3.3 節）。(2) を (μ, β) 上で CWON に対して同時最小化。
 
 各モデルで標本内の二指標と標本外の一指標を報告する：
 
@@ -138,27 +138,27 @@ Solow (1957) 以来、成長会計の残差は技術進歩の指標として扱�
 * **検定 B（成長 RMSE）**: 1 年 log-GDP 差分の RMSE、パーセンテージ・ポイント。低いほど良い。
 * **標本外 MAPE**: 1970〜2014 年でパラメータ推定、訓練窓 TFP を延長して 2015〜2019 年の水準予測を生成。低いほど良い。
 
-### IV.3 推定手順とグリッド探索
+### 4.3 推定手順とグリッド探索
 
 五つのモデルすべてをグリッド探索で推定する。勾配最適化を用いない理由は三つある。第一に、目的関数 (2) は幾何ラグ核に由来する既知の非凸性を持ち、特に μ が小さく核が集中的になる場合に顕著である。第二に、グリッド探索は各（国，モデル）対について明示的な事後分布様面を生成し、下記の感度解析に利用できる。第三に、39 カ国 × 5 モデル × 1000 回ブートストラップを Nelder-Mead や BFGS の内側ループで回すと多くの国で実行不能となる。μ のグリッドは {0.01, 0.05, 0.10, 0.25, 0.50, 1.0, 1.5, 2.0, 3.0, 4.5, 6.0} 年、β のグリッドは {0.00, 0.02, ..., 0.34}、μ₁ は {−0.08, −0.04, −0.02, 0, +0.02, +0.04, +0.08} per year である。これらの区間は先行研究（Kaboski, 2005; Corrado et al., 2016）が報告するパラメータ値を包含するよう設定し、いずれの国でも最適値がグリッド境界に張り付かないことを確認した。基準年 t₀ は全カ国で 1970 年とし、μ₀ を基準年の平均ラグとして解釈可能にしている。
 
-### IV.4 ブートストラップ信頼区間
+### 4.4 ブートストラップ信頼区間
 
 各国について M4 の成長率残差を 100 回ブロック・ブートストラップ（ブロック長 1。PWT 年次成長率残差のトレンド除去後の自己相関はほぼ消滅しており、5 カ国のパイロットでブロック長 3 は 95 % 区間をほぼ変えなかった）。各反復の手順は以下の通り。(i) M4 の当てはめ成長率と対応残差を計算、(ii) 残差をリサンプリングして合成 log-GDP 系列を再構築、(iii) PWT 投資比率 *csh_i* と WDI 比率を使って合成投資系列と合成 R&D 集約度を逆算、(iv) *K_tang* と *K_I* を再構築、(v) 同時同定グリッドを再走して (μ_b, β_b) を格納する。95 % パーセンタイル区間は図 3 に、国別中央値は補助的 JSON に報告する。国別信頼区間は、長く変動の少ない系列（米国、カナダ、ドイツ、フランス、英国、日本、オーストラリア）で最も狭く、短期または移行期系列（エストニア、ラトビア、チリ）で最も広い。国間の多重検定の調整は行っていない。保守的な読者は Bonferroni 型の 5 %/39 ≈ 0.13 % 閾値を用いればよく、その閾値でも μ = 0 は 14 カ国で、β = 0 は 9 カ国で棄却される。
 
-### IV.5 γ_price 感度
+### 4.5 γ_price 感度
 
 日本などで残る PIM–CWON 乖離が資産価格再評価効果によるのか実ストックの差異なのかを検証するため、CWON PCA を年率 γ_price ∈ {−0.04, −0.02, 0, +0.02, +0.04} で膨張／収縮させた対照シナリオで比較を繰り返す。特定国で γ_price 感度が大きければ、乖離は価格再評価で主に説明される。小さければ実の差異である。±0.04 per year の区間は 1990 年代の日本都市地価下落率（Nishimura and Saita, 2005）と 2009〜2019 年の米国商業不動産の反転リフレ率を両端に含むので、経済的に意味のある幅である。強調しておきたいのは、γ_price は同時枠組の追加推定量ではないという点である。追加推定量であれば μ・β と並んで (2) に入るはずである。γ_price はむしろ診断道具であり、特定 γ_price 値での PIM と CWON の残差乖離は、(a) PIM 側の量的誤測定、(b) CWON 側の量的誤測定、(c) 真の構成変化（有形から無形への実シフトで両勘定がまだ完全に吸収していない）のいずれかを意味する。γ_price スイープはこれら三つを区別する助けとなる。
 
-## V 結果
+## 5 結果
 
-### V.1 標本内パラメータ分布と当てはめ
+### 5.1 標本内パラメータ分布と当てはめ
 
 **［表 1 をここに挿入］**
 
 表 1 に五モデルを要約する。三つの事実を強調したい。第一に、M0〜M4 の標本内成長率 RMSE 中央値はほとんど動かない（3.07〜3.10 pp）。これは Solow 会計の実務家が代替資本構築を試した際に繰り返し報告してきた事実と一致し（Jorgenson and Griliches, 1967; Hulten, 1992）、専門家コミュニティが M0 を規範的な基準として定着させてきた理由の一つでもある。標本内成長率の当てはめは μ をまったく規律しないのである。第二に、M0 の標本内水準 MAPE 中央値は 4.10 % であり、これは注意深く再推定された TFP 軌道が各時点で資本ストックの約 4 % 分の誤設定をほぼ完全に吸収しつつ、一階差分の当てはめを保持しうることを意味する。これは「TFP は我々の無知の尺度である」との Griliches (1996) の警句の完璧な実例である。十年規模で変動する資本誤設定は静かに十年規模 TFP に吸収され、そのうえでイノベーションと再解釈されてしまうのである。第三に、本稿の方法で最も重要なのは、39 カ国にわたる推定 μ\* の分布が著しく非退化であることである。M1 での四分位範囲は 0.1 年以下から 1.2 年以上にわたり、M2 のテンポ・ドリフト μ₁ の IQR は実質的に負側と正側の双方を含む。M0 に暗黙に含まれる「ユニバーサル μ」仮定は単に統計的に破られているだけでなく、サンプルの両方向で破られているのであり、これは景気循環文献で人気の 5 年固定ラグや 10 年固定ラグを含むあらゆる単一パラメータのグローバル補正が、サンプルのほぼ半数で偏る――正か負かのどちらか――ことを含意する。中央値国の M1 一定ラグ μ\* はおよそ 0.3 年、M2 テンポ・ドリフト μ₁ は平均でゼロ近傍だが国間分散は大きい（IQR はおおむね [−0.02, +0.05]）。M3 の無形シェア β は生産のみ当てはめでおよそ 0.06、CWON との同時同定 (M4) でもおよそ 0.06 である。
 
-### V.2 テンポ補正がもたらす標本外予測ゲイン
+### 5.2 テンポ補正がもたらす標本外予測ゲイン
 
 **［図 1 をここに挿入］**
 
@@ -172,7 +172,7 @@ Solow (1957) 以来、成長会計の残差は技術進歩の指標として扱�
 
 改善の国別内訳はこの描像を鋭くする。サンプル内で R&D 対 GDP 比の最も高い 10 カ国（イスラエル、韓国、スウェーデン、オーストリア、日本、ドイツ、デンマーク、フィンランド、ベルギー、米国）では M0→M2 の改善は平均 17.4 % であり、最も低い 10 カ国（メキシコ、コロンビア、トルコ、チリ、ギリシャ、ポルトガル、スペイン、イタリア、スロバキア、ラトビア）では 6.2 % である。このパターンはテンポ効果仮説の予測と正確に一致する。テンポ・ドリフトは資産構成が最も急速に変化する場所で最も重要であり、それはすなわち無形投資が最も速く伸びる場所である。1995〜2019 年に資産構成が安定していた国では μ(t) が効く余地が少なく、事実それらの国では M0 に近いものが最良である。M4（同時）のもとで同じ分解を行うと、同時同定の恩恵は異なる部分集合――CWON の生産資本勘定が最も充実している国（米国、英国、ドイツ、フランス、カナダ）――に集中することがわかる。これらの国では生産面残差のみでは β が特定できない局面でも、国富側の制約が β に有意な下限を与える。
 
-### V.3 フロー＝ストック整合
+### 5.3 フロー＝ストック整合
 
 **［図 3 をここに挿入］**
 
@@ -182,7 +182,7 @@ Solow (1957) 以来、成長会計の残差は技術進歩の指標として扱�
 
 図 4 は日本のずれが実ストック差ではなく資産価格再評価効果 γ_price によるかを検証する。γ_price ∈ [−0.04, +0.04] は日本の log 比率を合計で約 0.25 log 単位動かすので、観測された約 0.06 log 単位の乖離は γ_price ≈ 年 0.02 に相当する。これはまさに 1995〜2005 年の日本地価下落のオーダーである。したがって乖離は再評価アーチファクトであり、実資本量の乖離ではない。これは Hamano and Zhao (2017) ならびに日本の「失われた 10 年」国富会計は価格効果が量効果を圧倒するとの通説的見解を支持する。
 
-### V.4 同時同定：(μ̂, β̂) のブートストラップ信頼区間
+### 5.4 同時同定：(μ̂, β̂) のブートストラップ信頼区間
 
 **［図 5 をここに挿入］**
 
@@ -192,25 +192,25 @@ Solow (1957) 以来、成長会計の残差は技術進歩の指標として扱�
 
 ブートストラップ証拠を読む第二の視角は、(μ, β) 空間における 95 % 領域の「形状」が国毎に強く異なるということである。R&D 集約的経済（イスラエル、韓国、スウェーデン、米国）では事後分布領域は北東象限（μ ≥ 0.3 年、β ≥ 0.08）に多く存在し、テンポ補正と無形補正の両方が動き、かつ分離可能である。資産構成が安定した経済（メキシコ、コロンビア、トルコ、チリ）では領域は幅広な対角線状の尾根であり、尤度面は (μ, β) 空間の直線に沿ってほぼ平坦であるため、データは「短いテンポ＋大きい無形シェア」と「長いテンポ＋小さい無形シェア」をほぼ同等の確率で支持する。これは加法的分解の古典的同定問題であり、同時同定枠組の貢献は、事後信頼領域の尾根が国富制約を加えてはじめて点に崩落することにある。崩落の鋭さそのものが診断情報である。同時同定のもとでも 95 % 領域が広い尾根のままに留まる国はまさに CWON カバレッジが薄い国であり、それらの国に対する国別結論は政策提言に使用される前に国民会計ミクロデータと照らし合わせるべきである。点推定値だけではなく 95 % 領域の形状を併記することは、将来の CWON 型公表物に対する具体的提言となる。
 
-### V.5 関係型PIM診断
+### 5.5 関係型PIM診断
 
 **［図 6 をここに挿入］**
 
 **［表 3 をここに挿入］**
 
-図 6 と表 3 に III.5 節で定義した関係型 PIM 診断を報告する。二つの発見が際立つ。第一に、M0（即時 PIM、β = 0）のもとでの ρ̂₂ の 39 カ国中央値は 0.801 であり、整合ベンチマーク 1.0 を大きく下回る。ρ̂₂ ∈ [0.9, 1.1] に収まる国は 39 カ国中 9 カ国にすぎない。これは標準的 PIM が CWON に比べ資本成長を系統的に過小評価していること――あるいは同等に、CWON が PIM には捉えられない速成長成分（無形資産や再評価）を含むことを確認する。第二に、M4（テンポ＋無形の同時同定）のもとでは ρ̂₂ の中央値は 0.833 に上昇し、[0.9, 1.1] 整合帯に入る国数は 9 から 12 に増加する。改善は控えめだが系統的であり、テンポ・無形補正が PIM–CWON 関係を正しい方向に整合へ近づけていることを示す。M0・M4 双方で R² 中央値は 0.99 を超えており、対数線形関係 (M5) が PIM–CWON マッピングの優れた記述であることを確認できる。
+図 6 と表 3 に 3.5 節で定義した関係型 PIM 診断を報告する。二つの発見が際立つ。第一に、M0（即時 PIM、β = 0）のもとでの ρ̂₂ の 39 カ国中央値は 0.801 であり、整合ベンチマーク 1.0 を大きく下回る。ρ̂₂ ∈ [0.9, 1.1] に収まる国は 39 カ国中 9 カ国にすぎない。これは標準的 PIM が CWON に比べ資本成長を系統的に過小評価していること――あるいは同等に、CWON が PIM には捉えられない速成長成分（無形資産や再評価）を含むことを確認する。第二に、M4（テンポ＋無形の同時同定）のもとでは ρ̂₂ の中央値は 0.833 に上昇し、[0.9, 1.1] 整合帯に入る国数は 9 から 12 に増加する。改善は控えめだが系統的であり、テンポ・無形補正が PIM–CWON 関係を正しい方向に整合へ近づけていることを示す。M0・M4 双方で R² 中央値は 0.99 を超えており、対数線形関係 (M5) が PIM–CWON マッピングの優れた記述であることを確認できる。
 
 図 6(b) は M4 のもとで ρ̂₁ を ρ̂₂ に対してプロットしている。(ρ₁ = 0, ρ₂ = 1) の参照点から遠い国――特にスイス（ρ̂₂ ≈ 0.40）、ポーランド（ρ̂₂ ≈ 0.60）、ノルウェー（ρ̂₂ ≈ 0.66）――は、PIM と CWON の資産カバレッジまたは天然資源レントの扱いが最も異なることが知られている国と一致する。したがって RPIM 診断は国別資本勘定のための単純で解釈可能な品質管理ツールとして機能する。ρ̂₂ が 1 から顕著に逸脱する国は、両勘定の資産構成仮定をより詳細に検討する必要がある。
 
-### V.6 減価償却率–ラグ感度分析
+### 5.6 減価償却率–ラグ感度分析
 
 **［図 7 をここに挿入］**
 
-Inklaar の批判（VI.5 節）は、真の減価償却率 δ 自体がドリフトしていれば、我々が μ(t) に帰属しているものの一部が時変 δ(t) に吸収されうる可能性を提起する。我々はこれに直接対処するため、五つの減価償却シナリオ δ × {0.80, 0.90, 1.00, 1.10, 1.20} のもとで一定ラグ μ̂（M1）を再推定した。
+Inklaar の批判（6.6 節）は、真の減価償却率 δ 自体がドリフトしていれば、我々が μ(t) に帰属しているものの一部が時変 δ(t) に吸収されうる可能性を提起する。我々はこれに直接対処するため、五つの減価償却シナリオ δ × {0.80, 0.90, 1.00, 1.10, 1.20} のもとで一定ラグ μ̂（M1）を再推定した。
 
 図 7 に結果を示す。主たる発見は、大半の国で μ̂ が ±20% の減価償却変動に対して著しく安定していることである。μ̂ の国間平均は δ × 0.80 の 1.61 年から δ × 1.20 の 1.52 年へと動くが、その差はわずか 0.09 年――ベースライン推定値の 6% 未満である。μ̂ の中央値は五つのシナリオすべてで 0.26 年とほぼ不変である。内点解の μ̂ 値を持つ国（スロバキア、ルクセンブルク、英国、スウェーデン、スロベニア、コロンビア）は期待される負の関係を示す：減価償却が高いほど推定ラグはわずかに短くなる。これは、より速い減価が遅延に帰属されるはずの成長率変動の一部を吸収するためである。しかし感度は量的に小さく、±20% の δ 変動で μ̂ が動く幅は最も感度の高い国（スロバキア：5.75 → 4.50 年、ルクセンブルク：3.75 → 3.00 年）でも最大 1.25 年にとどまる。非ゼロのラグが標本外当てはめを改善するという定性的結論は、この範囲内のいかなる妥当な減価償却の誤設定に対しても頑健である。
 
-### V.7 条件付き標本外評価
+### 5.7 条件付き標本外評価
 
 **［図 8 をここに挿入］**
 
@@ -218,7 +218,7 @@ Inklaar の批判（VI.5 節）は、真の減価償却率 δ 自体がドリフ
 
 図 8 は OOS 評価を内点解の μ̂（μ̂ ∈ (0.02, 5.9)）を持つ 14 カ国――オーストラリア、ベルギー、カナダ、チリ、コロンビア、デンマーク、アイスランド、韓国、ルクセンブルク、ノルウェー、スロバキア、スロベニア、スウェーデン、英国――に限定する。このサブサンプルでは M1（一定ラグ）の MAPE 中央値は 4.23 % であり、M0 の 4.27 % から改善している。境界解国では M1 と M2 がより大きな改善を示す（境界 M1 = 3.98 %、境界 M2 = 3.83 % vs 境界 M0 = 4.72 %）。これはラグ補正がオプティマイザーが非ゼロ解を見出す国で正確に有効であることを示す。核心的洞察は、全サンプル中央値がテンポ補正が真に情報的な国とそれが機械的にゼロである国を混同しているということである。
 
-### V.8 拡張標本外指標
+### 5.8 拡張標本外指標
 
 **［表 4 をここに挿入］**
 
@@ -228,7 +228,7 @@ MAPE は GDP 水準の平均パーセント誤差を測るが、モデルが GDP
 
 第二に、CWON 軌跡 RMSE は各モデルの PIM 資本ストックがホールドアウト年の CWON 生産資本軌跡をどれだけ良く追跡するかを測る（平均除去対数比較）。M2（テンポドリフト）が最低の中央値 RMSE（0.0072）を達成し、M0（0.0085）に比べ 15 % の改善である。M1（一定ラグ）は中間的（0.0077）。M4 は 0.0085 と M0 に近い。これは無形補正が資本ストックの水準をシフトするが成長軌跡を変えないためである。軌跡指標は MAPE が見逃すモデル性能の次元を明らかにする：テンポドリフト（M2）は GDP 水準予測精度が同等であっても、PIM 資本と富面観測の整合を改善する。
 
-### V.9 RPIM 診断の資産構成決定要因
+### 5.9 RPIM 診断の資産構成決定要因
 
 **［図 9 をここに挿入］**
 
@@ -238,7 +238,7 @@ MAPE は GDP 水準の平均パーセント誤差を測るが、モデルが GDP
 
 クロスセクション R² は控えめ（13 %）にとどまり、PIM–CWON 乖離の他の多くの源泉（地価再評価、天然資源レント、資産寿命仮定の差異）を反映する。この結果は決定的というよりは示唆的に読むべきである：ρ̂₂ はランダムノイズではなく、部分的に各国の観測可能な資産構成差異を反映する。これは単一資産 PIM では直接モデル化できない資産別プロファイルへの間接的関与を提供し、複数資産 PIM データが利用可能になった際に ρ̂₂ を資産クラス別に分解するという自然な拡張を示す。
 
-### V.10 ソロー残差の歴史的分解
+### 5.10 ソロー残差の歴史的分解
 
 **［表 5 をここに挿入］**
 
@@ -250,7 +250,7 @@ M0 のもとでソロー残差は log A₀(t) = log Y − α log K₀ − (1 −
 
 図 10 は代表6カ国（日本、米国、ドイツ、韓国、英国、フランス）の TFP 時系列パスを表示する。各パネルで M0 曲線と M2 曲線の間の網掛け領域がテンポ・アーティファクトを測る。フランスでは M0 と M4 の残差が 2005 年以降急激に乖離しており、推定された β̂ = 0.34（表 1）と整合する。これらの結果は「So what?」への核心的回答を提供する：TFP 成長と呼ばれてきたものの少なからぬ部分は、資本ストックのタイミングを正しく計測し無形資本を許容すれば消失する会計歪みである。
 
-### V.11 反事実的国富：β が公式統計に含まれていたら
+### 5.11 反事実的国富：β が公式統計に含まれていたら
 
 **［図 11 をここに挿入］**
 
@@ -260,33 +260,45 @@ M0 のもとでソロー残差は log A₀(t) = log Y − α log K₀ − (1 −
 
 政策含意は具体的である：無形資本を国富会計から除外している国は、将来の成長の基盤となる生産資本を体系的に過小評価している。この過小評価は集計水準では小さいが、正確な知識経済の測定が最も重要なイノベーション集約経済に集中している。
 
-## VI 考察
+## 6 考察
 
-### VI.1 Solow 残差の再解釈
+### 6.1 Solow 残差の再解釈
 
-V.10 節の歴史的分解は、ソロー残差が真のイノベーションと資本ストック計測誤差を混同しているという長年の疑念に数字を与える。M0（即時 PIM、β = 0）のもとでは、資本フローのタイミングや構成に関するあらゆる誤設定がそのまま TFP に流れ込み、それがイノベーションと解釈される。我々は、39 カ国の Solow 残差の成長分散の可観測な部分が、イノベーションとは無関係な二つの会計補正――タイム・トゥ・ビルド μ(t) と無形シェア β――に再帰着することを示した。これはイノベーションが重要でないという主張ではない。残差解釈の前に、まず会計を済ませるべきだという主張である。
+5.10 節の歴史的分解は、ソロー残差が真のイノベーションと資本ストック計測誤差を混同しているという長年の疑念に数字を与える。M0（即時 PIM、β = 0）のもとでは、資本フローのタイミングや構成に関するあらゆる誤設定がそのまま TFP に流れ込み、それがイノベーションと解釈される。我々は、39 カ国の Solow 残差の成長分散の可観測な部分が、イノベーションとは無関係な二つの会計補正――タイム・トゥ・ビルド μ(t) と無形シェア β――に再帰着することを示した。これはイノベーションが重要でないという主張ではない。残差解釈の前に、まず会計を済ませるべきだという主張である。
 
-### VI.2 Bongaarts-Feeney-Goldstein-Lutz-Scherbov との類比
+### 6.2 Bongaarts-Feeney-Goldstein-Lutz-Scherbov との類比
 
 表 2 で示したように、期間出生率分析家は「タイミング分布のドリフトでフローが汚染されているとき、ストック過程をフローから測定する」問題を既に解決していた。本稿の貢献は、彼らの解――構造的タイミング・パラメータ＋単一の忘れられた量パラメータ――がそのまま国富会計に転用できることを示すことにある。これは比喩ではない。いずれの問題も「量率とタイミング・カーネルの畳み込み（ただし後者のパラメータがドリフトする）」という同一の統計対象の事例であり、単位変換を除けば同じ Bongaarts-Feeney 調整が効く。
 
-少なくとも最も保守的な水準では、第 V 節の結果は、我々が TFP 成長と呼んできたものの「一部分」は μ(t) と β を同時推定すると消失する帳簿上のアーチファクトであることを示す。一方でより踏み込んで見れば、量・テンポ枠組は「真のイノベーション」と「時期ずれの会計」の概念的区分がそもそも明確であったかを問うことを迫る。典型的な投資が 2019 年には 1995 年よりも長い懐胎期間を持つ（ソフトウェア統合、規制承認、ネットワーク補完を要する資産のシェアが上昇したため）のであれば、会計補正そのものが資本の構成変化についての経済的言明であり、「純粋な会計」と「純粋なイノベーション」の境界は浸透性を持つ。本稿の立場は、この二カテゴリーを対称に、同じパラメトリック機械で扱うべきであり、半世紀の成長会計を支配してきた M0（即時 μ、ゼロ β）の非対称な扱いを続けるべきでないというものである。
+少なくとも最も保守的な水準では、第 5 節の結果は、我々が TFP 成長と呼んできたものの「一部分」は μ(t) と β を同時推定すると消失する帳簿上のアーチファクトであることを示す。一方でより踏み込んで見れば、量・テンポ枠組は「真のイノベーション」と「時期ずれの会計」の概念的区分がそもそも明確であったかを問うことを迫る。典型的な投資が 2019 年には 1995 年よりも長い懐胎期間を持つ（ソフトウェア統合、規制承認、ネットワーク補完を要する資産のシェアが上昇したため）のであれば、会計補正そのものが資本の構成変化についての経済的言明であり、「純粋な会計」と「純粋なイノベーション」の境界は浸透性を持つ。本稿の立場は、この二カテゴリーを対称に、同じパラメトリック機械で扱うべきであり、半世紀の成長会計を支配してきた M0（即時 μ、ゼロ β）の非対称な扱いを続けるべきでないというものである。
 
-### VI.3 フロー＝ストック整合と Beyond-GDP
+### 6.3 同定戦略と信頼性
+
+μ(t) と β が生産面データのみからは分離同定できないのではないかという自然な反論がある。高い μ は測定資本蓄積を遅らせるが、低い β も類似の効果を持つ。本稿の同定戦略は、パラメータ空間の異なる次元をそれぞれ解消する三つの変動源に依拠する。
+
+*第一に、国富面制約。* 同時損失関数 (2) は生産面の成長率残差と国富面の軌跡乖離を同時にペナライズする。CWON 生産資本 NW.PCA.TO は独立した測定値であり――各国のバランスシートから独自の資産年命仮定、再評価慣行、減価償却スケジュールに基づいて作成される――、生産面残差のみでは得られない外部的規律を提供する。5.4 節のブートストラップ証拠はこれを定量化する。生産面残差のみでは (μ, β) 空間の 95 % 領域はほとんどの国で広い稜線となるが、国富制約を加えると 39 カ国中 28 カ国で 5 % 水準で稜線が 1 点に収縮する。この収縮は検証可能な含意をもつ。国富データが無情報であれば、同時推定と生産のみの事後分布は一致するはずである。
+
+*第二に、資産構成の国際間異質性。* R&D 集約度が系統的に異なる国は (μ, β) 空間の異なる領域を辿る。5.9 節で報告した R&D 集約度に対する ρ̂₂ の正の勾配（M4 下で傾き = 0.068, t = 2.34）は、β が観測可能な R&D 支出と相関するが機械的に決定はされない成分を捉えているという解釈と整合する。β が無形資本と無関係な生産面ノイズを吸収しているだけであれば、クロスセクション勾配が M0 から M4 で急になる理由はない。
+
+*第三に、減価償却率感度チェック。* 5.6 節の δ 変動実験は、ドリフトする減価償却率がテンポ効果を模倣しうるという懸念に対処する。μ̂ が ±20 % の減価償却率変動で基準推定量の 6 % 以内で安定するという知見は、テンポ・パラメータが減価償却の計測誤差のアーチファクトではないことを意味する。グリッド探索プロトコルのもとでは、二つのチャネルは単一方程式環境では理論的に混同されうるにもかかわらず実証的に分離可能である。
+
+これら三つの議論はいずれも、自然実験や操作変数設計で利用可能な種類の構造的同定の証明ではないことを認める。本稿の枠組はキャリブレートされた分解であり、因果モデルではない。三つの変動源が集合的に確立するのは、分解が「規律付けられている」こと――制約のない統計的演習ではなく、フローとストック勘定が一致すべきという要請によってパラメータが固定される会計恒等式のシステムであること――であり、結果として得られるパラメータ推定値が経済理論の予測する方向に動くこと（長い懐胎期間の投資がある経済で高い μ、R&D の多い経済で高い β）である。分解がより深い構造的意味で一意であるかどうか――代替的パラメータ配置が同一の観測値を生み出しうるかどうか――は、より豊かな資産クラスデータを用いた今後の研究に委ねる。
+
+### 6.4 フロー＝ストック整合と Beyond-GDP
 
 Beyond-GDP プログラムは、フロー指標（GDP）をストック指標（IWI、CWON、SEEA）で置換・補完すべきだと 20 年主張してきた。本稿の結果は、より建設的な統合を示唆する。フローもストックも同じ隠れパラメータを無視することで「同じ方向に」歪むのであり、パラメータを明示化すれば整合するのである。CWON 生産資本を国富会計のゴールド・スタンダードとして信頼する読者は、時変 μ(t) と非ゼロ β で構築した PIM ストックもまた信頼すべきである。両者は今や大半の国で 1〜2 % 以内で一致する（図 3）。Beyond-GDP への実用的な道筋は、フロー勘定を放棄することではなく、1990 年代末に期間合計特殊出生率を監査したのと同じ要領で、フロー勘定をテンポ・ドリフトと隠れ β について監査することである。
 
 特に Beyond-GDP 議論にとって三つの含意がある。第一に、フローとストックの勘定が和解不可能であるという主張――時に GDP を複合指標で置き換える根拠として提示される――は、同じ機械で勘定を監査すればデータによって支持されない。μ(t) と β を許容すれば、両勘定は合理的な各国統計元が分かれる二つの物の差の範囲内で一致する。第二に、複合指標の方向性（生産資本、人的資本、自然資本を一つの集計に合成する単一の見出し数字）は、構成要素ごとの整合が完了しないうちは時期尚早である。既存カテゴリーが内的に整合していないうちにカテゴリーを追加するのは、帳簿問題を複合化させるだけである。第三に、人口テンポ文献は Bongaarts and Feeney (1998) の当初の調整から豊かな多パラメータ枠組 (Goldstein et al., 2003; Bongaarts and Sobotka, 2012) へと進化したが、それは単一パラメータ版が真剣に受け止められ、実証的に有益であると証明された後のことであった。資本会計のテンポ補正は、出生文献が 1998 年にあったのと同じ段階にある。ここでの一パラメータ版は最後の言葉ではないが、まずは必然的な第一停止点であり、資産クラス別の μ ヘテロジニアティ、国別 β のドリフト、そして μ と減耗 δ の交互項などの追加パラメータは自然な次の精綻化の層となる。
 
-### VI.4 医療領域への展望
+### 6.5 医療領域への展望
 
 同じ機構は医療支出へ自然に拡張される。本稿が「GDP テンポ効果」ではなく「資本会計におけるテンポ効果」と呼称する理由はここにあり、量・テンポ分解は所得統計に固有のものではなく、タイミング分布のドリフトでフローが汚染されるあらゆるストック型アウトカム過程に共通する。姉妹論文（準備中）は、医療支出から平均寿命への中央値ラグが 2000 年以降 OECD で年 0.15 年ずつ延伸していること、そして類似の忘却パラメータ――予防・R&D に向かう医療支出のシェア（治療的ケアと対比して）――が米日寿命格差のさらなる部分を説明することを示す。世界保健機関の Healthy Life Expectancy プログラム（Salomon et al., 2012）と整合するが、既存の公的国富勘定のいずれにも組み込まれていない実質的含意は、無形医療シェア（予防・R&D 少）の低い国が、単純な一人当たり支出比較では効率よく見えるがストック的意味では脆弱に見える、ということである。広範な教訓は、タイミング構造がドリフトするあらゆるストック型アウトカム過程――健康年数ストック、人的資本ストック、蓄積医療 R&D ストック、さらには気候適応資本ストック――が、本稿で展開したテンポ＋忘却パラメータ補正の同じ対象になるということである。これら各領域への資本会計機械の横串し適用は一つの論文ではなく一つのプログラムであり、本稿はそのプログラムの第一歩である。
 
-### VI.5 限界
+### 6.6 限界
 
-三つの留保を付す。第一に、CWON に対する β の同定は、CWON 自身の品質以上には清潔にはならない。CWON は品質不均一な国別一次資料を統合している。特に土地と地下資産の扱いはヨーロッパと米国の間で大きく異なり（Lange et al., 2018, 第 2 章）、日本の残差乖離も少なくとも部分的には CWON が取り込んで PIM 構築が取り込まない地価再評価に起因する。第二に、V.4 節のブートストラップ信頼区間は、短系列・投資変動の大きい国で広い。点同定を主張しているわけではなく、区間推定と方向性を提供しているだけであり、国別政策結論はいずれも国民経済計算のミクロデータと照合してから確定的と見なすべきである。第三に、V.3 節の γ_price 感度実験は CWON デフレータを国レベルの単一スカラーで処理した。より注意深い研究は部門別デフレータ、国別地価指数、無形資本用の Tornqvist 連鎖価格指数を用いるべきで（Jorgenson et al., 2018）、これは今後の課題である。第四に、そしておそらく最も重要なことに、人口テンポ類比は示唆的ではあっても厳密ではない。人口ストックはよく測定された死亡率で減耗するのに対し、資本ストックは δ_t で減耗するが、この δ_t 自体が PWT の派生推定であり、移行経済では精度が低いことが知られる（Inklaar and Timmer, 2013）。真の δ が自体ドリフトしていれば、我々が μ(t) に帰している部分の一部は時変 δ(t) に吸収されうる。この二つのドリフトを切り分けるには、本稿の 39 カ国すべてで一様に利用可能ではない稼働率・資産除却データが必要である。
+三つの留保を付す。第一に、CWON に対する β の同定は、CWON 自身の品質以上には清潔にはならない。CWON は品質不均一な国別一次資料を統合している。特に土地と地下資産の扱いはヨーロッパと米国の間で大きく異なり（Lange et al., 2018, 第 2 章）、日本の残差乖離も少なくとも部分的には CWON が取り込んで PIM 構築が取り込まない地価再評価に起因する。第二に、5.4 節のブートストラップ信頼区間は、短系列・投資変動の大きい国で広い。点同定を主張しているわけではなく、区間推定と方向性を提供しているだけであり、国別政策結論はいずれも国民経済計算のミクロデータと照合してから確定的と見なすべきである。第三に、5.3 節の γ_price 感度実験は CWON デフレータを国レベルの単一スカラーで処理した。より注意深い研究は部門別デフレータ、国別地価指数、無形資本用の Tornqvist 連鎖価格指数を用いるべきで（Jorgenson et al., 2018）、これは今後の課題である。第四に、そしておそらく最も重要なことに、人口テンポ類比は示唆的ではあっても厳密ではない。人口ストックはよく測定された死亡率で減耗するのに対し、資本ストックは δ_t で減耗するが、この δ_t 自体が PWT の派生推定であり、移行経済では精度が低いことが知られる（Inklaar and Timmer, 2013）。真の δ が自体ドリフトしていれば、我々が μ(t) に帰している部分の一部は時変 δ(t) に吸収されうる。この二つのドリフトを切り分けるには、本稿の 39 カ国すべてで一様に利用可能ではない稼働率・資産除却データが必要である。
 
-## VII 結論
+## 7 結論
 
 国民所得・国富会計は誤った問いを立ててきた。正しい問いは「フローかストックか」ではなく、「両者を結ぶパラメータ――投資のタイム・トゥ・ビルドと無形資本のシェア――を推定しているのか、押し付けているのか」である。μ = 0、β = 0 を押し付けると、会計は静かに偏り、Solow 残差が誤差を吸収し、フロー勘定とストック勘定が乖離する。生産データ（PWT）と国富データ（CWON）の両方で同時に推定すれば、両勘定は先進国の大半で 1〜2 % 以内に再整合し、GDP 水準予測の標本外精度は 13 % 改善し、Beyond-GDP 議論は「次に問題となる忘れられたパラメータは何か」という議論になる。人口学は同じ問題を四半世紀前に人口について解決した。資本会計も今、同じことができる。
 
@@ -320,80 +332,80 @@ Beyond-GDP プログラムは、フロー指標（GDP）をストック指標（
 
 ## 参考文献
 
-ALTUG, S. (1989). Time-to-build and aggregate fluctuations: some new evidence. *International Economic Review* 30, 889–920.
+Altug, S. (1989). Time-to-build and aggregate fluctuations: Some new evidence. *International Economic Review*, *30*(4), 889–920.
 
-ARROW, K.J., DASGUPTA, P., GOULDER, L.H., MUMFORD, K.J. and OLESON, K. (2012). Sustainability and the measurement of wealth. *Environment and Development Economics* 17, 317–353.
+Arrow, K. J., Dasgupta, P., Goulder, L. H., Mumford, K. J., & Oleson, K. (2012). Sustainability and the measurement of wealth. *Environment and Development Economics*, *17*(3), 317–353. https://doi.org/10.1017/S1355770X12000137
 
-BONGAARTS, J. and FEENEY, G. (1998). On the quantum and tempo of fertility. *Population and Development Review* 24, 271–291.
+Bongaarts, J., & Feeney, G. (1998). On the quantum and tempo of fertility. *Population and Development Review*, *24*(2), 271–291. https://doi.org/10.2307/2807974
 
-BONGAARTS, J. and SOBOTKA, T. (2012). A demographic explanation for the recent rise in European fertility. *Population and Development Review* 38, 83–120.
+Bongaarts, J., & Sobotka, T. (2012). A demographic explanation for the recent rise in European fertility. *Population and Development Review*, *38*(1), 83–120. https://doi.org/10.1111/j.1728-4457.2012.00473.x
 
-BRASS, W. (1971). On the scale of mortality. In William Brass (ed.), *Biological Aspects of Demography*, pp. 69–110. London: Taylor and Francis.
+Brass, W. (1971). On the scale of mortality. In W. Brass (Ed.), *Biological aspects of demography* (pp. 69–110). Taylor and Francis.
 
-CHRISTIANO, L.J. and TODD, R.M. (1996). Time to plan and aggregate fluctuations. *Federal Reserve Bank of Minneapolis Quarterly Review* 20, 14–27.
+Christiano, L. J., & Todd, R. M. (1996). Time to plan and aggregate fluctuations. *Federal Reserve Bank of Minneapolis Quarterly Review*, *20*(1), 14–27.
 
-CORRADO, C., HULTEN, C. and SICHEL, D. (2005). Measuring capital and technology: an expanded framework. In Carol Corrado, John Haltiwanger, and Daniel Sichel (eds.), *Measuring Capital in the New Economy*, pp. 11–46. Chicago: University of Chicago Press.
+Corrado, C., Hulten, C., & Sichel, D. (2005). Measuring capital and technology: An expanded framework. In C. Corrado, J. Haltiwanger, & D. Sichel (Eds.), *Measuring capital in the new economy* (pp. 11–46). University of Chicago Press. https://doi.org/10.7208/chicago/9780226116174.003.0002
 
-CORRADO, C., HULTEN, C. and SICHEL, D. (2009). Intangible capital and US economic growth. *Review of Income and Wealth* 55, 661–685.
+Corrado, C., Hulten, C., & Sichel, D. (2009). Intangible capital and US economic growth. *Review of Income and Wealth*, *55*(3), 661–685. https://doi.org/10.1111/j.1475-4991.2009.00343.x
 
-CORRADO, C., HASKEL, J., JONA-LASINIO, C. and IOMMI, M. (2016). Intangible investment in the EU and US before and since the Great Recession and its contribution to productivity growth. EIB Working Papers 2016/08.
+Corrado, C., Haskel, J., Jona-Lasinio, C., & Iommi, M. (2016). Intangible investment in the EU and US before and since the Great Recession and its contribution to productivity growth (EIB Working Papers 2016/08). European Investment Bank.
 
-CORRADO, C., HASKEL, J., IOMMI, M. and JONA-LASINIO, C. (2020). Intangible capital, innovation and productivity à la Jorgenson: evidence from Europe and the US. In Barbara M. Fraumeni (ed.), *Measuring Economic Growth and Productivity*, pp. 363–385. Academic Press.
+Corrado, C., Haskel, J., Iommi, M., & Jona-Lasinio, C. (2020). Intangible capital, innovation and productivity à la Jorgenson: Evidence from Europe and the US. In B. M. Fraumeni (Ed.), *Measuring economic growth and productivity* (pp. 363–385). Academic Press. https://doi.org/10.1016/B978-0-12-817596-5.00019-2
 
-DASGUPTA, P. (2021). *The Economics of Biodiversity: The Dasgupta Review*. London: HM Treasury.
+Dasgupta, P. (2021). *The economics of biodiversity: The Dasgupta review*. HM Treasury.
 
-DE RASSENFOSSE, G. and JAFFE, A.B. (2018). Intellectual property and public-science spillovers: an overview and research directions. *Review of Economic Research on Copyright Issues* 15, 1–22.
+de Rassenfosse, G., & Jaffe, A. B. (2018). Intellectual property and public-science spillovers: An overview and research directions. *Review of Economic Research on Copyright Issues*, *15*(1), 1–22.
 
-EDGE, R.M. (2007). Time-to-build, time-to-plan, habit-persistence, and the liquidity effect. *Journal of Monetary Economics* 54, 1644–1669.
+Edge, R. M. (2007). Time-to-build, time-to-plan, habit-persistence, and the liquidity effect. *Journal of Monetary Economics*, *54*(6), 1644–1669. https://doi.org/10.1016/j.jmoneco.2006.07.005
 
-FEENSTRA, R.C., INKLAAR, R. and TIMMER, M.P. (2015). The next generation of the Penn World Table. *American Economic Review* 105, 3150–3182.
+Feenstra, R. C., Inklaar, R., & Timmer, M. P. (2015). The next generation of the Penn World Table. *American Economic Review*, *105*(10), 3150–3182. https://doi.org/10.1257/aer.20130954
 
-GOLDSTEIN, J.R., LUTZ, W. and SCHERBOV, S. (2003). Long-term population decline in Europe: the relative importance of tempo effects and generational length. *Population and Development Review* 29, 699–707.
+Goldstein, J. R., Lutz, W., & Scherbov, S. (2003). Long-term population decline in Europe: The relative importance of tempo effects and generational length. *Population and Development Review*, *29*(4), 699–707. https://doi.org/10.1111/j.1728-4457.2003.00699.x
 
-GRILICHES, Z. (1996). The discovery of the residual: a historical note. *Journal of Economic Literature* 34, 1324–1330.
+Griliches, Z. (1996). The discovery of the residual: A historical note. *Journal of Economic Literature*, *34*(3), 1324–1330.
 
-HAMANO, M. and ZHAO, Y. (2017). Fiscal sustainability and land prices in Japan. *Journal of the Japanese and International Economies* 46, 17–29.
+Hamano, M., & Zhao, Y. (2017). Fiscal sustainability and land prices in Japan. *Journal of the Japanese and International Economies*, *46*, 17–29. https://doi.org/10.1016/j.jjie.2017.09.001
 
-HASKEL, J. and WESTLAKE, S. (2017). *Capitalism without Capital: The Rise of the Intangible Economy*. Princeton: Princeton University Press.
+Haskel, J., & Westlake, S. (2017). *Capitalism without capital: The rise of the intangible economy*. Princeton University Press.
 
-HASKEL, J. and WESTLAKE, S. (2022). *Restarting the Future: How to Fix the Intangible Economy*. Princeton: Princeton University Press.
+Haskel, J., & Westlake, S. (2022). *Restarting the future: How to fix the intangible economy*. Princeton University Press.
 
-HULTEN, C.R. (1992). Growth accounting when technical change is embodied in capital. *American Economic Review* 82, 964–980.
+Hulten, C. R. (1992). Growth accounting when technical change is embodied in capital. *American Economic Review*, *82*(4), 964–980.
 
-INKLAAR, R. and TIMMER, M.P. (2013). Capital, labor and TFP in PWT 8.0. Groningen Growth and Development Centre Research Memorandum GD-144.
+Inklaar, R., & Timmer, M. P. (2013). Capital, labor and TFP in PWT 8.0 (Research Memorandum GD-144). Groningen Growth and Development Centre.
 
-JORGENSON, D.W. and GRILICHES, Z. (1967). The explanation of productivity change. *Review of Economic Studies* 34, 249–283.
+Jorgenson, D. W., & Griliches, Z. (1967). The explanation of productivity change. *Review of Economic Studies*, *34*(3), 249–283. https://doi.org/10.2307/2296675
 
-JORGENSON, D.W. (2018). Production and welfare: progress in economic measurement. *Journal of Economic Literature* 56, 867–919.
+Jorgenson, D. W. (2018). Production and welfare: Progress in economic measurement. *Journal of Economic Literature*, *56*(3), 867–919. https://doi.org/10.1257/jel.20171358
 
-JORGENSON, D.W., HO, M.S. and STIROH, K.J. (2018). *Productivity, Vol. 3: Information Technology and the American Growth Resurgence*. Cambridge, MA: MIT Press.
+Jorgenson, D. W., Ho, M. S., & Stiroh, K. J. (2018). *Productivity, Vol. 3: Information technology and the American growth resurgence*. MIT Press.
 
-KABOSKI, J.P. (2005). Factor price uncertainty, technology choice and investment delay. *Journal of Economic Dynamics and Control* 29, 509–527.
+Kaboski, J. P. (2005). Factor price uncertainty, technology choice and investment delay. *Journal of Economic Dynamics and Control*, *29*(3), 509–527. https://doi.org/10.1016/j.jedc.2004.02.004
 
-KOEVA, P. (2000). The facts about time-to-build. IMF Working Paper 00/138.
+Koeva, P. (2000). The facts about time-to-build (IMF Working Paper 00/138). International Monetary Fund.
 
-KOHLER, H.-P., BILLARI, F.C. and ORTEGA, J.A. (2002). The emergence of lowest-low fertility in Europe during the 1990s. *Population and Development Review* 28, 641–680.
+Kohler, H.-P., Billari, F. C., & Ortega, J. A. (2002). The emergence of lowest-low fertility in Europe during the 1990s. *Population and Development Review*, *28*(4), 641–680. https://doi.org/10.1111/j.1728-4457.2002.00641.x
 
-KYDLAND, F.E. and PRESCOTT, E.C. (1982). Time to build and aggregate fluctuations. *Econometrica* 50, 1345–1370.
+Kydland, F. E., & Prescott, E. C. (1982). Time to build and aggregate fluctuations. *Econometrica*, *50*(6), 1345–1370. https://doi.org/10.2307/1913386
 
-LANGE, G.-M., WODON, Q. and CAREY, K. (eds.) (2018). *The Changing Wealth of Nations 2018: Building a Sustainable Future*. Washington, DC: World Bank.
+Lange, G.-M., Wodon, Q., & Carey, K. (Eds.). (2018). *The changing wealth of nations 2018: Building a sustainable future*. World Bank. https://doi.org/10.1596/978-1-4648-1046-6
 
-MANAGI, S. and KUMAR, P. (eds.) (2018). *Inclusive Wealth Report 2018*. London: Routledge.
+Managi, S., & Kumar, P. (Eds.). (2018). *Inclusive wealth report 2018*. Routledge.
 
-MAYER, T. (1960). Plant and equipment lead times. *Journal of Business* 33, 127–132.
+Mayer, T. (1960). Plant and equipment lead times. *Journal of Business*, *33*(2), 127–132.
 
-NISHIMURA, K.G. and SAITA, Y. (2005). Land prices in Japan: historical and international comparisons. Bank of Japan Review 2005-E-5.
+Nishimura, K. G., & Saita, Y. (2005). Land prices in Japan: Historical and international comparisons (Bank of Japan Review 2005-E-5). Bank of Japan.
 
-OECD (2013). *Supporting Investment in Knowledge Capital, Growth and Innovation*. Paris: OECD Publishing.
+OECD. (2013). *Supporting investment in knowledge capital, growth and innovation*. OECD Publishing. https://doi.org/10.1787/9789264193307-en
 
-ROTH, F. (2023). Intangible capital and productivity growth in the EU: a panel data perspective. *Hamburg Discussion Papers in International Economics* 13.
+Roth, F. (2023). Intangible capital and productivity growth in the EU: A panel data perspective. *Hamburg Discussion Papers in International Economics*, *13*.
 
-SALOMON, J.A., WANG, H., FREEMAN, M.K., VOS, T., FLAXMAN, A.D., LOPEZ, A.D. and MURRAY, C.J.L. (2012). Healthy life expectancy for 187 countries, 1990–2010: a systematic analysis for the Global Burden Disease Study 2010. *The Lancet* 380, 2144–2162.
+Salomon, J. A., Wang, H., Freeman, M. K., Vos, T., Flaxman, A. D., Lopez, A. D., & Murray, C. J. L. (2012). Healthy life expectancy for 187 countries, 1990–2010: A systematic analysis for the Global Burden Disease Study 2010. *The Lancet*, *380*(9859), 2144–2162. https://doi.org/10.1016/S0140-6736(12)61690-0
 
-SMETS, F. and WOUTERS, R. (2007). Shocks and frictions in US business cycles: a Bayesian DSGE approach. *American Economic Review* 97, 586–606.
+Smets, F., & Wouters, R. (2007). Shocks and frictions in US business cycles: A Bayesian DSGE approach. *American Economic Review*, *97*(3), 586–606. https://doi.org/10.1257/aer.97.3.586
 
-SOLOW, R.M. (1957). Technical change and the aggregate production function. *Review of Economics and Statistics* 39, 312–320.
+Solow, R. M. (1957). Technical change and the aggregate production function. *Review of Economics and Statistics*, *39*(3), 312–320. https://doi.org/10.2307/1926047
 
-STIGLITZ, J.E., SEN, A. and FITOUSSI, J.-P. (2009). *Report by the Commission on the Measurement of Economic Performance and Social Progress*. Paris.
+Stiglitz, J. E., Sen, A., & Fitoussi, J.-P. (2009). *Report by the Commission on the Measurement of Economic Performance and Social Progress*. Commission on the Measurement of Economic Performance and Social Progress.
 
-UNECE (2014). *Framework and Suggested Indicators to Measure Sustainable Development*. Geneva: United Nations.
+UNECE. (2014). *Framework and suggested indicators to measure sustainable development*. United Nations.
