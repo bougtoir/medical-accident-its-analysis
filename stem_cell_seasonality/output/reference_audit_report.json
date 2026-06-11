@@ -1,0 +1,625 @@
+{
+  "timestamp": "2026-06-11T01:42:10Z",
+  "method": "Crossref API (articles) + Open Library (books) + HTTP (URLs) with severity classification",
+  "script": "scripts/verify_references.py",
+  "total_references": 26,
+  "summary": {
+    "match": 25,
+    "warning": 0,
+    "critical_mismatch": 1,
+    "unverified": 0
+  },
+  "results": [
+    {
+      "ref_number": 1,
+      "manuscript": "Kirkeby A, Main H, Carpenter M. Pluripotent stem-cell-derived therapies in clinical trial: a 2025 update. Cell Stem Cell. 2025;32(1):10–37.",
+      "status": "MATCH",
+      "issues": [],
+      "crossref": {
+        "doi": "10.1016/j.stem.2024.12.005",
+        "title": "Pluripotent stem-cell-derived therapies in clinical trial: A 2025 update",
+        "authors": [
+          "Kirkeby A",
+          "Main H",
+          "Carpenter M"
+        ],
+        "journal": "Cell Stem Cell",
+        "volume": "32",
+        "issue": "1",
+        "pages": "10-37",
+        "year": "2025",
+        "score": 73.925354
+      }
+    },
+    {
+      "ref_number": 2,
+      "manuscript": "Yamanaka S. Pluripotent stem cell-based cell therapy—promise and challenges. Cell Stem Cell. 2020;27(4):523–531.",
+      "status": "MATCH",
+      "issues": [],
+      "crossref": {
+        "doi": "10.1016/j.stem.2020.09.014",
+        "title": "Pluripotent Stem Cell-Based Cell Therapy—Promise and Challenges",
+        "authors": [
+          "Yamanaka S"
+        ],
+        "journal": "Cell Stem Cell",
+        "volume": "27",
+        "issue": "4",
+        "pages": "523-531",
+        "year": "2020",
+        "score": 71.36566
+      }
+    },
+    {
+      "ref_number": 3,
+      "manuscript": "Volpato V, Smith J, Sandor C, et al. Reproducibility of molecular phenotypes after long-term differentiation to human iPSC-derived neurons: a multi-site omics study. Stem Cell Reports. 2018;11(4):897–911.",
+      "status": "MATCH",
+      "issues": [],
+      "crossref": {
+        "doi": "10.1016/j.stemcr.2018.08.013",
+        "title": "Reproducibility of Molecular Phenotypes after Long-Term Differentiation to Human iPSC-Derived Neurons: A Multi-Site Omics Study",
+        "authors": [
+          "Volpato V",
+          "Smith J",
+          "Sandor C",
+          "Ried JS",
+          "Baud A"
+        ],
+        "journal": "Stem Cell Reports",
+        "volume": "11",
+        "issue": "4",
+        "pages": "897-911",
+        "year": "2018",
+        "score": 47.09248
+      }
+    },
+    {
+      "ref_number": 4,
+      "manuscript": "Volpato V, Webber C. Addressing variability in iPSC-derived models of human disease: guidelines to promote reproducibility. Dis Model Mech. 2020;13(1):dmm042317.",
+      "status": "MATCH",
+      "issues": [],
+      "crossref": {
+        "doi": "10.1242/dmm.042317",
+        "title": "Addressing variability in iPSC-derived models of human disease: guidelines to promote reproducibility",
+        "authors": [
+          "Volpato V",
+          "Webber C"
+        ],
+        "journal": "Disease Models &amp; Mechanisms",
+        "volume": "13",
+        "issue": "1",
+        "pages": "",
+        "year": "2020",
+        "score": 86.78376
+      }
+    },
+    {
+      "ref_number": 5,
+      "manuscript": "Ortmann D, Vallier L. Variability of human pluripotent stem cell lines. Curr Opin Genet Dev. 2017;46:179–185.",
+      "status": "MATCH",
+      "issues": [],
+      "crossref": {
+        "doi": "10.1016/j.gde.2017.07.004",
+        "title": "Variability of human pluripotent stem cell lines",
+        "authors": [
+          "Ortmann D",
+          "Vallier L"
+        ],
+        "journal": "Current Opinion in Genetics &amp; Development",
+        "volume": "46",
+        "issue": "",
+        "pages": "179-185",
+        "year": "2017",
+        "score": 51.10418
+      }
+    },
+    {
+      "ref_number": 6,
+      "manuscript": "Cai J, Li X, Zhang Y, et al. Real-time monitoring reveals the effects of low concentrations of volatile organic compounds in the embryology laboratory. Hum Reprod. 2025;40(4):deaf008.",
+      "status": "MATCH",
+      "issues": [],
+      "crossref": {
+        "doi": "10.1093/humrep/deaf008",
+        "title": "Real-time monitoring reveals the effects of low concentrations of volatile organic compounds in the embryology laboratory",
+        "authors": [
+          "Cai J",
+          "Zhou L",
+          "Liu L",
+          "Liu Z",
+          "Chen J"
+        ],
+        "journal": "Human Reproduction",
+        "volume": "40",
+        "issue": "4",
+        "pages": "601-611",
+        "year": "2025",
+        "score": 65.844154
+      }
+    },
+    {
+      "ref_number": 7,
+      "manuscript": "Agarwal N, Chattopadhyay R, Ghosh S, et al. Volatile organic compounds and good laboratory practices in the in vitro fertilization laboratory: the important parameters for successful outcome in extended culture. J Assist Reprod Genet. 2017;34(8):999–1006.",
+      "status": "MATCH",
+      "issues": [],
+      "crossref": {
+        "doi": "10.1007/s10815-017-0947-x",
+        "title": "Volatile organic compounds and good laboratory practices in the in vitro fertilization laboratory: the important parameters for successful outcome in extended culture",
+        "authors": [
+          "Agarwal N",
+          "Chattopadhyay R",
+          "Ghosh S",
+          "Bhoumik A",
+          "Goswami SK"
+        ],
+        "journal": "Journal of Assisted Reproduction and Genetics",
+        "volume": "34",
+        "issue": "8",
+        "pages": "999-1006",
+        "year": "2017",
+        "score": 85.80517
+      }
+    },
+    {
+      "ref_number": 8,
+      "manuscript": "Panina Y, Yamane J, Kobayashi K, Sone H, Fujibuchi W. Human ES and iPS cells display less drug resistance than differentiated cells, and naive-state induction further decreases drug resistance. J Toxicol Sci. 2021;46(3):131–142.",
+      "status": "MATCH",
+      "issues": [
+        {
+          "severity": "INFO",
+          "message": "Year +/-1 (online-first vs print): MS=2021 vs Crossref=2020"
+        }
+      ],
+      "crossref": {
+        "doi": "10.1101/2020.08.17.253492",
+        "title": "Human ES and iPS Cells Display Less Drug Resistance Than Differentiated Cells, and Naïve-State Induction Further Decreases Drug Resistance",
+        "authors": [
+          "Panina Y",
+          "Yamane J",
+          "Kobayashi K",
+          "Sone H",
+          "Fujibuchi W"
+        ],
+        "journal": "",
+        "volume": "",
+        "issue": "",
+        "pages": "",
+        "year": "2020",
+        "score": 127.38129
+      }
+    },
+    {
+      "ref_number": 9,
+      "manuscript": "McCreery KP, Stubb A, Stephens R, et al. Mechano-osmotic signals control chromatin state and fate transitions in pluripotent stem cells. Nat Cell Biol. 2025;27(10):1757–1770.",
+      "status": "MATCH",
+      "issues": [
+        {
+          "severity": "INFO",
+          "message": "Year +/-1 (online-first vs print): MS=2025 vs Crossref=2024"
+        }
+      ],
+      "crossref": {
+        "doi": "10.1101/2024.09.07.611779",
+        "title": "Mechano-osmotic signals control chromatin state and fate transitions in pluripotent stem cells",
+        "authors": [
+          "McCreery KP",
+          "Stubb A",
+          "Stephens R",
+          "Fursova NA",
+          "Cook A"
+        ],
+        "journal": "",
+        "volume": "",
+        "issue": "",
+        "pages": "",
+        "year": "2024",
+        "score": 64.47551
+      }
+    },
+    {
+      "ref_number": 10,
+      "manuscript": "Sato S, Hishida T, Kinouchi K, et al. The circadian clock CRY1 regulates pluripotent stem cell identity and somatic cell reprogramming. Cell Rep. 2023;42(6):112590.",
+      "status": "MATCH",
+      "issues": [],
+      "crossref": {
+        "doi": "10.1016/j.celrep.2023.112590",
+        "title": "The circadian clock CRY1 regulates pluripotent stem cell identity and somatic cell reprogramming",
+        "authors": [
+          "Sato S",
+          "Hishida T",
+          "Kinouchi K",
+          "Hatanaka F",
+          "Li Y"
+        ],
+        "journal": "Cell Reports",
+        "volume": "42",
+        "issue": "6",
+        "pages": "112590",
+        "year": "2023",
+        "score": 75.6853
+      }
+    },
+    {
+      "ref_number": 11,
+      "manuscript": "Ameneiro C, Moreira T, Fuentes-Iglesias A, et al. BMAL1 coordinates energy metabolism and differentiation of pluripotent stem cells. Life Sci Alliance. 2020;3(5):e201900534.",
+      "status": "MATCH",
+      "issues": [],
+      "crossref": {
+        "doi": "10.26508/lsa.201900534",
+        "title": "BMAL1 coordinates energy metabolism and differentiation of pluripotent stem cells",
+        "authors": [
+          "Ameneiro C",
+          "Moreira T",
+          "Fuentes-Iglesias A",
+          "Coego A",
+          "Garcia-Outeiral V"
+        ],
+        "journal": "Life Science Alliance",
+        "volume": "3",
+        "issue": "5",
+        "pages": "e201900534",
+        "year": "2020",
+        "score": 54.143642
+      }
+    },
+    {
+      "ref_number": 12,
+      "manuscript": "Golan K, Kollet O, Markus RP, Lapidot T. Daily light and darkness onset and circadian rhythms metabolically synchronize hematopoietic stem cell differentiation and maintenance. Exp Hematol. 2019;78:1–10.",
+      "status": "MATCH",
+      "issues": [],
+      "crossref": {
+        "doi": "10.1016/j.exphem.2019.08.008",
+        "title": "Daily light and darkness onset and circadian rhythms metabolically synchronize hematopoietic stem cell differentiation and maintenance: The role of bone marrow norepinephrine, tumor necrosis factor, and melatonin cycles",
+        "authors": [
+          "Golan K",
+          "Kollet O",
+          "Markus RP",
+          "Lapidot T"
+        ],
+        "journal": "Experimental Hematology",
+        "volume": "78",
+        "issue": "",
+        "pages": "1-10",
+        "year": "2019",
+        "score": 93.881714
+      }
+    },
+    {
+      "ref_number": 13,
+      "manuscript": "Bi S, Tang J, Zhang L, et al. Fine particulate matter reduces the pluripotency and proliferation of human embryonic stem cells through ROS induced AKT and ERK signaling pathway. Reprod Toxicol. 2020;96:231–240.",
+      "status": "MATCH",
+      "issues": [],
+      "crossref": {
+        "doi": "10.1016/j.reprotox.2020.07.010",
+        "title": "Fine particulate matter reduces the pluripotency and proliferation of human embryonic stem cells through ROS induced AKT and ERK signaling pathway",
+        "authors": [
+          "Bi S",
+          "Tang J",
+          "Zhang L",
+          "Huang L",
+          "Chen J"
+        ],
+        "journal": "Reproductive Toxicology",
+        "volume": "96",
+        "issue": "",
+        "pages": "231-240",
+        "year": "2020",
+        "score": 100.84637
+      }
+    },
+    {
+      "ref_number": 14,
+      "manuscript": "Chui JS-H, Izuel-Idoype T, Qualizza A, et al. Osmolar modulation drives reversible cell cycle exit and human pluripotent cell differentiation via NF-κB and WNT signaling. Adv Sci. 2024;11(7):2307554.",
+      "status": "MATCH",
+      "issues": [],
+      "crossref": {
+        "doi": "10.1002/advs.202307554",
+        "title": "Osmolar Modulation Drives Reversible Cell Cycle Exit and Human Pluripotent Cell Differentiation via NF‐κВ and WNT Signaling",
+        "authors": [
+          "Chui JS",
+          "Izuel‐Idoype T",
+          "Qualizza A",
+          "de Almeida RP",
+          "Piessens L"
+        ],
+        "journal": "Advanced Science",
+        "volume": "11",
+        "issue": "7",
+        "pages": "",
+        "year": "2024",
+        "score": 79.67054
+      }
+    },
+    {
+      "ref_number": 15,
+      "manuscript": "Mizuno M, Endo K, Katano H, et al. The environmental risk assessment of cell-processing facilities for cell therapy in a Japanese academic institution. PLoS One. 2020;15(8):e0236600.",
+      "status": "MATCH",
+      "issues": [],
+      "crossref": {
+        "doi": "10.1371/journal.pone.0236600",
+        "title": "The environmental risk assessment of cell-processing facilities for cell therapy in a Japanese academic institution",
+        "authors": [
+          "Mizuno M",
+          "Endo K",
+          "Katano H",
+          "Tsuji A",
+          "Kojima N"
+        ],
+        "journal": "PLOS ONE",
+        "volume": "15",
+        "issue": "8",
+        "pages": "e0236600",
+        "year": "2020",
+        "score": 58.02998
+      }
+    },
+    {
+      "ref_number": 16,
+      "manuscript": "Klein SG, Steckbauer A, Alsolami SM, et al. Toward best practices for controlling mammalian cell culture environments. Front Cell Dev Biol. 2022;10:788808.",
+      "status": "MATCH",
+      "issues": [],
+      "crossref": {
+        "doi": "10.3389/fcell.2022.788808",
+        "title": "Toward Best Practices for Controlling Mammalian Cell Culture Environments",
+        "authors": [
+          "Klein SG",
+          "Steckbauer A",
+          "Alsolami SM",
+          "Arossa S",
+          "Parry AJ"
+        ],
+        "journal": "Frontiers in Cell and Developmental Biology",
+        "volume": "10",
+        "issue": "",
+        "pages": "",
+        "year": "2022",
+        "score": 52.250748
+      }
+    },
+    {
+      "ref_number": 17,
+      "manuscript": "Czyz J, Nikolova T, Schuderer J, et al. Non-thermal effects of power-line magnetic fields (50 Hz) on gene expression levels of pluripotent embryonic stem cells. Mutat Res. 2004;557(1):63–74.",
+      "status": "MATCH",
+      "issues": [],
+      "crossref": {
+        "doi": "10.1016/j.mrgentox.2003.09.011",
+        "title": "Non-thermal effects of power-line magnetic fields (50Hz) on gene expression levels of pluripotent embryonic stem cells—the role of tumour suppressor p53",
+        "authors": [
+          "Czyz J",
+          "Nikolova T",
+          "Schuderer J",
+          "Kuster N",
+          "Wobus AM"
+        ],
+        "journal": "Mutation Research/Genetic Toxicology and Environmental Mutagenesis",
+        "volume": "557",
+        "issue": "1",
+        "pages": "63-74",
+        "year": "2004",
+        "score": 73.01186
+      }
+    },
+    {
+      "ref_number": 18,
+      "manuscript": "Diatroptova MA, Kosyreva AM, Diatroptov ME. About 4-day rhythm of proliferative activity of L-929 cells in culture correlates with the intensity of secondary cosmic radiation fluctuations. Bull Exp Biol Med. 2022;172(5):561–565.",
+      "status": "MATCH",
+      "issues": [],
+      "crossref": {
+        "doi": "10.1007/s10517-022-05433-2",
+        "title": "About 4-Day Rhythm of Proliferative Activity of L-929 Cells in Culture Correlates with the Intensity of Secondary Cosmic Radiation Fluctuations",
+        "authors": [
+          "Diatroptova MA",
+          "Kosyreva AM",
+          "Diatroptov ME"
+        ],
+        "journal": "Bulletin of Experimental Biology and Medicine",
+        "volume": "172",
+        "issue": "5",
+        "pages": "561-565",
+        "year": "2022",
+        "score": 91.60293
+      }
+    },
+    {
+      "ref_number": 19,
+      "manuscript": "Leathersich SJ, Hart RJ, Wijs LA, et al. Season at the time of oocyte collection and frozen embryo transfer outcomes. Hum Reprod. 2023;38(9):1714–1722.",
+      "status": "MATCH",
+      "issues": [],
+      "crossref": {
+        "doi": "10.1093/humrep/dead137",
+        "title": "Season at the time of oocyte collection and frozen embryo transfer outcomes",
+        "authors": [
+          "Leathersich SJ",
+          "Roche CS",
+          "Walls M",
+          "Nathan E",
+          "Hart RJ"
+        ],
+        "journal": "Human Reproduction",
+        "volume": "38",
+        "issue": "9",
+        "pages": "1714-1722",
+        "year": "2023",
+        "score": 63.92843
+      }
+    },
+    {
+      "ref_number": 20,
+      "manuscript": "Wang C, Chen J, Lin Z, et al. The impact of season, temperature, and direct normal irradiance on IVF pregnancy outcomes: a retrospective cohort study. Int J Biometeorol. 2025;69:2053–2065.",
+      "status": "MATCH",
+      "issues": [],
+      "crossref": {
+        "doi": "10.1007/s00484-025-02951-2",
+        "title": "The impact of season, temperature, and direct normal irradiance on IVF pregnancy outcomes: a retrospective cohort study",
+        "authors": [
+          "Wang C",
+          "Chen J",
+          "Lin Z",
+          "Shi L",
+          "Ruan Q"
+        ],
+        "journal": "International Journal of Biometeorology",
+        "volume": "69",
+        "issue": "8",
+        "pages": "2053-2065",
+        "year": "2025",
+        "score": 65.27847
+      }
+    },
+    {
+      "ref_number": 21,
+      "manuscript": "Braga DPA, Setti A, Guilherme P, Iaconelli A Jr, Borges E Jr. Association between meteorological season and embryo quality in the era of morphokinetics. J Assist Reprod Genet. 2025;42:1287–1298.",
+      "status": "MATCH",
+      "issues": [
+        {
+          "severity": "INFO",
+          "message": "Journal name difference: MS='J Assist Reprod Genet' vs Crossref='JBRA Assisted Reproduction'"
+        }
+      ],
+      "crossref": {
+        "doi": "10.5935/1518-0557.20250009",
+        "title": "Association between meteorological season and embryo quality in the era of morphokinetics",
+        "authors": [
+          "Braga DPdA",
+          "Setti A",
+          "Guilherme P",
+          "Iaconelli Junior A",
+          "Borges Jr. E"
+        ],
+        "journal": "JBRA Assisted Reproduction",
+        "volume": "",
+        "issue": "",
+        "pages": "",
+        "year": "2025",
+        "score": 61.414837
+      }
+    },
+    {
+      "ref_number": 22,
+      "manuscript": "Deng Q, Wu F, Wang J, et al. Association between season and pregnancy outcomes in fresh embryo transfer cycles: a systematic review and meta-analysis. Front Public Health. 2025;13:1660982.",
+      "status": "MATCH",
+      "issues": [],
+      "crossref": {
+        "doi": "10.3389/fpubh.2025.1660982",
+        "title": "Association between season and pregnancy outcomes in fresh embryo transfer cycles: a systematic review and meta-analysis",
+        "authors": [
+          "Deng Q",
+          "Wu F",
+          "Wang J",
+          "Huang J",
+          "Yin L"
+        ],
+        "journal": "Frontiers in Public Health",
+        "volume": "13",
+        "issue": "",
+        "pages": "",
+        "year": "2025",
+        "score": 68.878654
+      }
+    },
+    {
+      "ref_number": 23,
+      "manuscript": "Wang JP, Her WY, Meir YJ, Liu TS, Chang HL, Haung FL. Seasonal variation in cell cycle during early development of the mouse embryo. Reproduction. 1992;94(2):431–436.",
+      "status": "MATCH",
+      "issues": [],
+      "crossref": {
+        "doi": "10.1530/jrf.0.0940431",
+        "title": "Seasonal variation in cell cycle during early development of the mouse embryo",
+        "authors": [
+          "Wang J",
+          "Her W",
+          "Meir Y",
+          "Liu T",
+          "Chang H"
+        ],
+        "journal": "Reproduction",
+        "volume": "94",
+        "issue": "2",
+        "pages": "431-436",
+        "year": "1992",
+        "score": 49.25304
+      }
+    },
+    {
+      "ref_number": 24,
+      "manuscript": "Barrett T, Wilhite SE, Ledoux P, et al. NCBI GEO: archive for functional genomics data sets—update. Nucleic Acids Res. 2013;41(D):D991–D995.",
+      "status": "MATCH",
+      "issues": [
+        {
+          "severity": "INFO",
+          "message": "Year +/-1 (online-first vs print): MS=2013 vs Crossref=2012"
+        }
+      ],
+      "crossref": {
+        "doi": "10.1093/nar/gks1193",
+        "title": "NCBI GEO: archive for functional genomics data sets—update",
+        "authors": [
+          "Barrett T",
+          "Wilhite SE",
+          "Ledoux P",
+          "Evangelista C",
+          "Kim IF"
+        ],
+        "journal": "Nucleic Acids Research",
+        "volume": "41",
+        "issue": "D1",
+        "pages": "D991-D995",
+        "year": "2012",
+        "score": 46.43378
+      }
+    },
+    {
+      "ref_number": 25,
+      "manuscript": "Mardia KV, Jupp PE. Directional Statistics. Wiley; 2000.",
+      "status": "MATCH",
+      "issues": [
+        {
+          "severity": "INFO",
+          "message": "Year: MS=2000 vs OL first_publish=2008 (editions: 2008)"
+        }
+      ],
+      "verification": {
+        "source": "Open Library",
+        "title": "Directional Statistics",
+        "authors": [
+          "Kanti V. Mardia",
+          "Peter E. Jupp"
+        ],
+        "year": "2008",
+        "publisher": "",
+        "isbn": ""
+      }
+    },
+    {
+      "ref_number": 26,
+      "manuscript": "Karagiannis P, Takahashi K, Saito M, et al. Induced pluripotent stem cells and their use in human models of disease and development. Physiol Rev. 2019;99(1):79–114.",
+      "status": "CRITICAL_MISMATCH",
+      "issues": [
+        {
+          "severity": "CRITICAL",
+          "message": "Title mismatch (overlap=38%): MS='Induced pluripotent stem cells and their use in human models of disease and deve' vs CR='Clinical Potential of Induced Pluripotent Stem Cells'"
+        },
+        {
+          "severity": "WARNING",
+          "message": "Pages: MS=79–114 vs Crossref=3-12"
+        },
+        {
+          "severity": "INFO",
+          "message": "Journal name difference: MS='Physiol Rev' vs Crossref='Current Human Cell Research and Applications'"
+        }
+      ],
+      "crossref": {
+        "doi": "10.1007/978-981-13-3672-0_1",
+        "title": "Clinical Potential of Induced Pluripotent Stem Cells",
+        "authors": [
+          "Karagiannis P"
+        ],
+        "journal": "Current Human Cell Research and Applications",
+        "volume": "",
+        "issue": "",
+        "pages": "3-12",
+        "year": "2019",
+        "score": 44.352406
+      }
+    }
+  ]
+}
