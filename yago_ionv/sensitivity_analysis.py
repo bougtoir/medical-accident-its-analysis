@@ -8,8 +8,8 @@ For each definition, performs:
   3. Summary forest plot comparing twin aOR across definitions
 
 Definitions:
-  A (primary):  Any antiemetic (anesthesia→exit)           [from analysis.py]
-  B (secondary): Antiemetic before delivery only           [from analysis.py]
+  A (primary):  Antiemetic before delivery only            [from analysis.py]
+  B (secondary): Any antiemetic (anesthesia→exit)          [from analysis.py]
   C: Post-delivery IONV only (ae_post_delivery=1 AND ae_to_delivery≠1)
   D: Severe IONV (≥2 different antiemetic drugs used)
   E: 5-HT3 antagonist-based (ondansetron or granisetron only)
@@ -267,8 +267,8 @@ no_data_mask = df_all["antiemetic_any"].isna() & ~all_exclude
 all_exclude = all_exclude | no_data_mask
 df = df_all[~all_exclude].copy()
 
-df["ionv_primary"] = ((df["ae_to_delivery"] == 1) | (df["ae_post_delivery"] == 1)).astype(int)
-df["ionv_secondary"] = (df["ae_to_delivery"] == 1).astype(int)
+df["ionv_primary"] = (df["ae_to_delivery"] == 1).astype(int)
+df["ionv_secondary"] = ((df["ae_to_delivery"] == 1) | (df["ae_post_delivery"] == 1)).astype(int)
 
 df_analysis = df[df["ae_pre_anesthesia"] != 1].copy()
 print(f"Analysis cohort: {len(df_analysis)} ({(df_analysis['twin']==0).sum()} single + {(df_analysis['twin']==1).sum()} twin)")
@@ -326,8 +326,8 @@ s = df_analysis[df_analysis["twin"] == 0]
 t = df_analysis[df_analysis["twin"] == 1]
 
 definitions = OrderedDict([
-    ("A", ("ionv_primary", "Primary: any IONV")),
-    ("B", ("ionv_secondary", "Secondary: before delivery")),
+    ("A", ("ionv_primary", "Primary: before delivery")),
+    ("B", ("ionv_secondary", "Secondary: any IONV (anesthesia→exit)")),
     ("C", ("ionv_C", "Post-delivery only")),
     ("D", ("ionv_D", "Severe (≥2 drugs)")),
     ("E", ("ionv_E", "5-HT3 antagonist")),

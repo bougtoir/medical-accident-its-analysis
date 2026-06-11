@@ -4,8 +4,8 @@ Effect of Twin Pregnancy
 
 Retrospective single-center observational study
 Period: 2014-04-01 to 2024-10-23
-Primary outcome: antiemetic use (anesthesia start→delivery OR delivery→exit)
-Secondary outcome: antiemetic use (anesthesia start→delivery only)
+Primary outcome: antiemetic use (anesthesia start→delivery only)
+Secondary outcome: antiemetic use (anesthesia start→delivery OR delivery→exit)
 Comparison: singleton vs twin pregnancy
 """
 
@@ -332,13 +332,14 @@ print("\n" + "=" * 60)
 print("4. DEFINING OUTCOMES")
 print("=" * 60)
 
-# Primary outcome: antiemetic use at any time during surgery
+# Primary outcome: antiemetic use before delivery (麻酔開始〜胎児娩出)
+# Secondary outcome: antiemetic use at any time during surgery
 # (麻酔開始〜胎児娩出 OR 胎児娩出〜退室)
 # Per protocol: exclude patients who received pre-anesthesia antiemetic (入室〜麻酔開始=1)
 # from outcome count, as these are likely prophylactic
 
-df["ionv_primary"] = ((df["ae_to_delivery"] == 1) | (df["ae_post_delivery"] == 1)).astype(int)
-df["ionv_secondary"] = (df["ae_to_delivery"] == 1).astype(int)
+df["ionv_primary"] = (df["ae_to_delivery"] == 1).astype(int)
+df["ionv_secondary"] = ((df["ae_to_delivery"] == 1) | (df["ae_post_delivery"] == 1)).astype(int)
 
 # Per protocol note: patients with pre-anesthesia antiemetic use
 pre_ae_count = (df["ae_pre_anesthesia"] == 1).sum()
@@ -359,8 +360,8 @@ for grp_name, grp in [("Overall", df_analysis),
     p1 = grp["ionv_primary"].sum()
     p2 = grp["ionv_secondary"].sum()
     print(f"\n{grp_name} (n={n}):")
-    print(f"  Primary IONV: {p1} ({100*p1/n:.1f}%)")
-    print(f"  Secondary IONV (before delivery): {p2} ({100*p2/n:.1f}%)")
+    print(f"  Primary IONV (before delivery): {p1} ({100*p1/n:.1f}%)")
+    print(f"  Secondary IONV (anesthesia→exit): {p2} ({100*p2/n:.1f}%)")
 
 # HDP: merge 高血圧合併妊娠 and 妊娠高血圧症候群
 df_analysis["HDP"] = ((df_analysis["高血圧合併妊娠"] == 1) | (df_analysis["妊娠高血圧症候群"] == 1)).astype(int)
@@ -490,8 +491,8 @@ print("6. IONV OUTCOME COMPARISON")
 print("=" * 60)
 
 ionv_rows = []
-for outcome, label in [("ionv_primary", "Primary: any IONV (anesthesia→exit)"),
-                        ("ionv_secondary", "Secondary: IONV before delivery"),
+for outcome, label in [("ionv_primary", "Primary: IONV before delivery"),
+                        ("ionv_secondary", "Secondary: any IONV (anesthesia→exit)"),
                         ("ae_post_delivery", "Post-delivery IONV only")]:
     row = summarize_categorical(s[outcome], t[outcome])
     row["Outcome"] = label
@@ -617,6 +618,87 @@ except Exception as e:
     logit_secondary = None
     or_s = None
 
+# --- 8c. Secondary outcome: Hypotension (SBP < 90 mmHg) ---
+print("\n" + "=" * 60)
+print("8c. SECONDARY OUTCOME: HYPOTENSION")
+print("=" * 60)
+
+# Covariates for hypotension model (exclude hypotension itself from predictors)
+covariates_hypo = [c for c in covariates if c != "hypotension"]
+
+# Descriptive stats
+hypo_s = s["hypotension"].dropna()
+hypo_t = t["hypotension"].dropna()
+hypo_s_n = int(hypo_s.sum())
+hypo_t_n = int(hypo_t.sum())
+hypo_s_pct = 100 * hypo_s_n / len(hypo_s) if len(hypo_s) > 0 else 0
+hypo_t_pct = 100 * hypo_t_n / len(hypo_t) if len(hypo_t) > 0 else 0
+
+# Hypotension count (continuous)
+hypo_count_s = s["hypotension_count"].dropna()
+hypo_count_t = t["hypotension_count"].dropna()
+_, hypo_count_p = stats.mannwhitneyu(hypo_count_s, hypo_count_t, alternative="two-sided")
+
+# Chi-squared for binary
+hypo_table = np.array([[hypo_s_n, len(hypo_s) - hypo_s_n],
+                        [hypo_t_n, len(hypo_t) - hypo_t_n]])
+_, hypo_chi_p, _, _ = stats.chi2_contingency(hypo_table, correction=False)
+
+print(f"Hypotension (SBP < 90 mmHg):")
+print(f"  Singleton: {hypo_s_n}/{len(hypo_s)} ({hypo_s_pct:.1f}%)")
+print(f"  Twin:      {hypo_t_n}/{len(hypo_t)} ({hypo_t_pct:.1f}%)")
+print(f"  Chi-sq P = {hypo_chi_p:.4f}")
+print(f"  Hypotension count: Singleton median {hypo_count_s.median():.0f} "
+      f"[{hypo_count_s.quantile(0.25):.0f}-{hypo_count_s.quantile(0.75):.0f}], "
+      f"Twin median {hypo_count_t.median():.0f} "
+      f"[{hypo_count_t.quantile(0.25):.0f}-{hypo_count_t.quantile(0.75):.0f}], "
+      f"P = {hypo_count_p:.4f}")
+
+# Logistic regression: hypotension ~ twin + covariates (without hypotension)
+df_model_h = df_analysis[covariates_hypo + ["hypotension"]].dropna()
+print(f"Hypotension model: n={len(df_model_h)} complete cases")
+
+X_h = sm.add_constant(df_model_h[covariates_hypo].astype(float))
+y_h = df_model_h["hypotension"].astype(float)
+
+try:
+    logit_hypo = sm.Logit(y_h, X_h).fit(disp=0, maxiter=200)
+
+    or_h = pd.DataFrame({
+        "Variable": covariates_hypo,
+        "OR": np.exp(logit_hypo.params[1:]),
+        "95% CI lower": np.exp(logit_hypo.conf_int().iloc[1:, 0]),
+        "95% CI upper": np.exp(logit_hypo.conf_int().iloc[1:, 1]),
+        "P-value": logit_hypo.pvalues[1:],
+    })
+    or_h.to_csv(TAB / "table_logistic_hypotension.csv", index=False)
+    print("\nOdds ratios (hypotension):")
+    print(or_h.to_string(index=False))
+except Exception as e:
+    print(f"Hypotension logistic regression error: {e}")
+    logit_hypo = None
+    or_h = None
+
+# Negative binomial regression: hypotension_count ~ twin + covariates
+from statsmodels.discrete.discrete_model import NegativeBinomial
+df_model_hc = df_analysis[covariates_hypo + ["hypotension_count"]].dropna()
+X_hc = sm.add_constant(df_model_hc[covariates_hypo].astype(float))
+y_hc = df_model_hc["hypotension_count"].astype(float)
+
+try:
+    nb_hypo = NegativeBinomial(y_hc, X_hc).fit(disp=0, maxiter=200)
+    twin_idx_hc = covariates_hypo.index("twin") + 1
+    hypo_irr = float(np.exp(nb_hypo.params.iloc[twin_idx_hc]))
+    hypo_irr_ci = nb_hypo.conf_int().iloc[twin_idx_hc]
+    hypo_irr_ci_lo = float(np.exp(hypo_irr_ci.iloc[0]))
+    hypo_irr_ci_hi = float(np.exp(hypo_irr_ci.iloc[1]))
+    hypo_irr_p = float(nb_hypo.pvalues.iloc[twin_idx_hc])
+    print(f"\nNeg. binomial (hypotension count):")
+    print(f"  Twin IRR = {hypo_irr:.2f} (95%CI {hypo_irr_ci_lo:.2f}–{hypo_irr_ci_hi:.2f}), P = {hypo_irr_p:.4f}")
+except Exception as e:
+    print(f"Negative binomial error: {e}")
+    hypo_irr = hypo_irr_ci_lo = hypo_irr_ci_hi = hypo_irr_p = None
+
 # ============================================================
 # 9. FIGURES
 # ============================================================
@@ -628,8 +710,8 @@ print("=" * 60)
 fig, axes = plt.subplots(1, 2, figsize=(10, 5))
 
 for ax, outcome, title in [
-    (axes[0], "ionv_primary", "Primary outcome:\nAny intraoperative IONV"),
-    (axes[1], "ionv_secondary", "Secondary outcome:\nIONV before delivery"),
+    (axes[0], "ionv_primary", "Primary outcome:\nIONV before delivery"),
+    (axes[1], "ionv_secondary", "Secondary outcome:\nAny intraoperative IONV"),
 ]:
     s_rate = 100 * s[outcome].mean()
     t_rate = 100 * t[outcome].mean()
@@ -697,7 +779,7 @@ if or_p is not None:
     ax.set_yticks(list(y_pos))
     ax.set_yticklabels(or_plot["label"])
     ax.set_xlabel("Odds Ratio (95% CI)")
-    ax.set_title("Multivariable logistic regression: Factors associated with IONV\n(Primary outcome)")
+    ax.set_title("Multivariable logistic regression: Factors associated with IONV\n(Primary outcome: before delivery)")
     
     for i, row in enumerate(or_plot.itertuples()):
         sig = "***" if row._5 < 0.001 else "**" if row._5 < 0.01 else "*" if row._5 < 0.05 else ""
@@ -727,7 +809,7 @@ if or_s is not None:
     ax.set_yticks(list(y_pos))
     ax.set_yticklabels(or_plot_s["label"])
     ax.set_xlabel("Odds Ratio (95% CI)")
-    ax.set_title("Multivariable logistic regression: Factors associated with IONV\n(Secondary outcome: before delivery)")
+    ax.set_title("Multivariable logistic regression: Factors associated with IONV\n(Secondary outcome: anesthesia→exit)")
     
     for i, row in enumerate(or_plot_s.itertuples()):
         sig = "***" if row._5 < 0.001 else "**" if row._5 < 0.01 else "*" if row._5 < 0.05 else ""
@@ -881,6 +963,34 @@ if logit_secondary is not None:
     summary["secondary_or_twin_p"] = float(logit_secondary.pvalues.iloc[twin_idx])
     summary["secondary_model_n"] = len(df_model_s)
     summary["secondary_model_events"] = int(df_model_s["ionv_secondary"].sum())
+
+# Add hypotension secondary outcome
+summary["hypo_single_n"] = hypo_s_n
+summary["hypo_single_pct"] = float(hypo_s_pct)
+summary["hypo_twin_n"] = hypo_t_n
+summary["hypo_twin_pct"] = float(hypo_t_pct)
+summary["hypo_chi_p"] = float(hypo_chi_p)
+summary["hypo_count_single_median"] = float(hypo_count_s.median())
+summary["hypo_count_single_q1"] = float(hypo_count_s.quantile(0.25))
+summary["hypo_count_single_q3"] = float(hypo_count_s.quantile(0.75))
+summary["hypo_count_twin_median"] = float(hypo_count_t.median())
+summary["hypo_count_twin_q1"] = float(hypo_count_t.quantile(0.25))
+summary["hypo_count_twin_q3"] = float(hypo_count_t.quantile(0.75))
+summary["hypo_count_p"] = float(hypo_count_p)
+if logit_hypo is not None:
+    twin_idx_h = covariates_hypo.index("twin") + 1
+    summary["hypo_or_twin"] = float(np.exp(logit_hypo.params.iloc[twin_idx_h]))
+    ci_h = logit_hypo.conf_int().iloc[twin_idx_h]
+    summary["hypo_or_twin_ci_lower"] = float(np.exp(ci_h.iloc[0]))
+    summary["hypo_or_twin_ci_upper"] = float(np.exp(ci_h.iloc[1]))
+    summary["hypo_or_twin_p"] = float(logit_hypo.pvalues.iloc[twin_idx_h])
+    summary["hypo_model_n"] = len(df_model_h)
+    summary["hypo_model_events"] = int(df_model_h["hypotension"].sum())
+if hypo_irr is not None:
+    summary["hypo_irr_twin"] = hypo_irr
+    summary["hypo_irr_twin_ci_lower"] = hypo_irr_ci_lo
+    summary["hypo_irr_twin_ci_upper"] = hypo_irr_ci_hi
+    summary["hypo_irr_twin_p"] = hypo_irr_p
 
 import json
 with open(BASE / "summary_stats.json", "w") as f:

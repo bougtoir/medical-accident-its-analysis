@@ -343,10 +343,10 @@ create_bar_chart_slide(
     "Broad = all 7 antiemetics; Narrow = 5-HT3 antagonists (ondansetron, granisetron) only.",
     M["outcomes"],
     ["A-Primary", "A-Secondary", "E-Primary", "E-Secondary"],
-    ["Broad: Primary\n(any phase)",
-     "Broad: Secondary\n(before delivery)",
-     "Narrow: Primary\n(5-HT3, any phase)",
-     "Narrow: Secondary\n(5-HT3 + before delivery)"]
+    ["Broad: Primary\n(before delivery)",
+     "Broad: Secondary\n(any phase)",
+     "Narrow: Primary\n(5-HT3, before delivery)",
+     "Narrow: Secondary\n(5-HT3, any phase)"]
 )
 print("Slide 2 (Bar chart — full cohort) created")
 
@@ -493,7 +493,7 @@ for _, row in or_table_e.iterrows():
 create_forest_slide(
     prs,
     "Figure 3. Forest Plot — Narrow Antiemetic Definition (5-HT3)",
-    "Multivariable logistic regression for 5-HT3 antagonist use (primary outcome). "
+    "Multivariable logistic regression for 5-HT3 antagonist use (primary outcome: before delivery). "
     "Reduced model with 6 covariates. N = 3,153.",
     forest_data_3)
 print("Slide 3 (Forest — E-Primary) created")
@@ -559,10 +559,10 @@ create_bar_chart_slide(
     "prior CS, HDP, preoperative steroid. Singleton n=479, Twin n=184.",
     E["outcomes"],
     ["A-Primary", "A-Secondary", "E-Primary", "E-Secondary"],
-    ["Broad: Primary\n(any phase)",
-     "Broad: Secondary\n(before delivery)",
-     "Narrow: Primary\n(5-HT3, any phase)",
-     "Narrow: Secondary\n(5-HT3 + before delivery)"]
+    ["Broad: Primary\n(before delivery)",
+     "Broad: Secondary\n(any phase)",
+     "Narrow: Primary\n(5-HT3, before delivery)",
+     "Narrow: Secondary\n(5-HT3, any phase)"]
 )
 print("Slide 6 (Bar chart — subgroup) created")
 

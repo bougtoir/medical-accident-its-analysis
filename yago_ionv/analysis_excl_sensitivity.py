@@ -267,27 +267,29 @@ print("\n" + "=" * 60)
 print("2. OUTCOMES")
 print("=" * 60)
 
-df_analysis["ionv_E_primary"] = (
+_5ht3_any = (
     (df_analysis["ondansetron_mg"].fillna(0) > 0) |
     (df_analysis["granisetron_mg"].fillna(0) > 0)
 ).astype(int)
 
-df_analysis["ionv_E_secondary"] = (
-    (df_analysis["ionv_E_primary"] == 1) &
+df_analysis["ionv_E_primary"] = (
+    (_5ht3_any == 1) &
     (df_analysis["ae_to_delivery"] == 1)
 ).astype(int)
 
-df_analysis["ionv_A_primary"] = ((df_analysis["ae_to_delivery"] == 1) | (df_analysis["ae_post_delivery"] == 1)).astype(int)
-df_analysis["ionv_A_secondary"] = (df_analysis["ae_to_delivery"] == 1).astype(int)
+df_analysis["ionv_E_secondary"] = _5ht3_any
+
+df_analysis["ionv_A_primary"] = (df_analysis["ae_to_delivery"] == 1).astype(int)
+df_analysis["ionv_A_secondary"] = ((df_analysis["ae_to_delivery"] == 1) | (df_analysis["ae_post_delivery"] == 1)).astype(int)
 
 s = df_analysis[df_analysis["twin"] == 0]
 t = df_analysis[df_analysis["twin"] == 1]
 
 outcomes = OrderedDict([
-    ("A-Primary", ("ionv_A_primary", "Broad: any antiemetic (any phase)")),
-    ("A-Secondary", ("ionv_A_secondary", "Broad: antiemetic before delivery")),
-    ("E-Primary", ("ionv_E_primary", "Narrow: 5-HT3 antagonist (any phase)")),
-    ("E-Secondary", ("ionv_E_secondary", "Narrow: 5-HT3 + before delivery phase")),
+    ("A-Primary", ("ionv_A_primary", "Broad: antiemetic before delivery")),
+    ("A-Secondary", ("ionv_A_secondary", "Broad: any antiemetic (any phase)")),
+    ("E-Primary", ("ionv_E_primary", "Narrow: 5-HT3 + before delivery")),
+    ("E-Secondary", ("ionv_E_secondary", "Narrow: 5-HT3 antagonist (any phase)")),
 ])
 
 print(f"\n{'Outcome':<15} {'Label':<40} {'Single n/N (%)':<22} {'Twin n/N (%)':<22} {'P':>8}")
@@ -559,9 +561,9 @@ fig, axes = plt.subplots(1, 2, figsize=(12, 5))
 
 for ax_i, (title, primary_col, secondary_col, primary_label, secondary_label) in enumerate([
     ("Antiemetic (broad)", "ionv_A_primary", "ionv_A_secondary",
-     "Any antiemetic", "Before delivery"),
+     "Before delivery", "Any antiemetic"),
     ("Antiemetic (narrow: 5-HT3)", "ionv_E_primary", "ionv_E_secondary",
-     "5-HT3 antagonist (any)", "5-HT3 + before delivery"),
+     "5-HT3 + before delivery", "5-HT3 antagonist (any)"),
 ]):
     s_p = 100 * s[primary_col].mean()
     t_p = 100 * t[primary_col].mean()

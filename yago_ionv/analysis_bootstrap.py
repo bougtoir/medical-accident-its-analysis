@@ -224,16 +224,17 @@ for d in ["metoclopramide_mg", "droperidol_mg", "ondansetron_mg", "granisetron_m
     df_analysis[d] = pd.to_numeric(df_analysis[d], errors="coerce")
 
 # IONV outcomes
-df_analysis["ionv_E_primary"] = (
+_5ht3_any = (
     (df_analysis["ondansetron_mg"].fillna(0) > 0) |
     (df_analysis["granisetron_mg"].fillna(0) > 0)
 ).astype(int)
-df_analysis["ionv_E_secondary"] = (
-    (df_analysis["ionv_E_primary"] == 1) &
+df_analysis["ionv_E_primary"] = (
+    (_5ht3_any == 1) &
     (df_analysis["ae_to_delivery"] == 1)
 ).astype(int)
-df_analysis["ionv_A_primary"] = ((df_analysis["ae_to_delivery"] == 1) | (df_analysis["ae_post_delivery"] == 1)).astype(int)
-df_analysis["ionv_A_secondary"] = (df_analysis["ae_to_delivery"] == 1).astype(int)
+df_analysis["ionv_E_secondary"] = _5ht3_any
+df_analysis["ionv_A_primary"] = (df_analysis["ae_to_delivery"] == 1).astype(int)
+df_analysis["ionv_A_secondary"] = ((df_analysis["ae_to_delivery"] == 1) | (df_analysis["ae_post_delivery"] == 1)).astype(int)
 
 # Subgroup: exclude emergency, prior CS, HDP, preop steroid
 df_analysis["preop_steroid"] = pd.to_numeric(df_analysis["preop_steroid"], errors="coerce").fillna(0)
@@ -491,10 +492,10 @@ for ax_idx, (cohort, cohort_label) in enumerate([
     ax = axes[ax_idx]
 
     outcome_labels = {
-        "A-Primary": "Broad, Primary",
-        "A-Secondary": "Broad, Secondary",
-        "E-Primary": "Narrow, Primary",
-        "E-Secondary": "Narrow, Secondary",
+        "A-Primary": "Broad, Primary (before delivery)",
+        "A-Secondary": "Broad, Secondary (any phase)",
+        "E-Primary": "Narrow, Primary (5-HT3, before delivery)",
+        "E-Secondary": "Narrow, Secondary (5-HT3, any phase)",
     }
     y_pos = list(range(len(outcome_labels)))
     y_labels = list(outcome_labels.values())
