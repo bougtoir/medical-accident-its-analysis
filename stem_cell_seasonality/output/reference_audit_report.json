@@ -1,13 +1,13 @@
 {
-  "timestamp": "2026-06-11T01:15:26Z",
-  "method": "Crossref API bibliographic search with severity classification",
+  "timestamp": "2026-06-11T01:42:10Z",
+  "method": "Crossref API (articles) + Open Library (books) + HTTP (URLs) with severity classification",
   "script": "scripts/verify_references.py",
   "total_references": 26,
   "summary": {
-    "match": 24,
+    "match": 25,
     "warning": 0,
     "critical_mismatch": 1,
-    "unverified": 1
+    "unverified": 0
   },
   "results": [
     {
@@ -28,7 +28,7 @@
         "issue": "1",
         "pages": "10-37",
         "year": "2025",
-        "score": 73.99893
+        "score": 73.925354
       }
     },
     {
@@ -47,7 +47,7 @@
         "issue": "4",
         "pages": "523-531",
         "year": "2020",
-        "score": 71.41268
+        "score": 71.36566
       }
     },
     {
@@ -70,7 +70,7 @@
         "issue": "4",
         "pages": "897-911",
         "year": "2018",
-        "score": 47.08788
+        "score": 47.09248
       }
     },
     {
@@ -90,7 +90,7 @@
         "issue": "1",
         "pages": "",
         "year": "2020",
-        "score": 86.820816
+        "score": 86.78376
       }
     },
     {
@@ -110,7 +110,7 @@
         "issue": "",
         "pages": "179-185",
         "year": "2017",
-        "score": 51.112675
+        "score": 51.10418
       }
     },
     {
@@ -133,7 +133,7 @@
         "issue": "4",
         "pages": "601-611",
         "year": "2025",
-        "score": 65.84441
+        "score": 65.844154
       }
     },
     {
@@ -156,7 +156,7 @@
         "issue": "8",
         "pages": "999-1006",
         "year": "2017",
-        "score": 85.8056
+        "score": 85.80517
       }
     },
     {
@@ -184,7 +184,7 @@
         "issue": "",
         "pages": "",
         "year": "2020",
-        "score": 127.3809
+        "score": 127.38129
       }
     },
     {
@@ -212,7 +212,7 @@
         "issue": "",
         "pages": "",
         "year": "2024",
-        "score": 64.47395
+        "score": 64.47551
       }
     },
     {
@@ -235,7 +235,7 @@
         "issue": "6",
         "pages": "112590",
         "year": "2023",
-        "score": 75.68544
+        "score": 75.6853
       }
     },
     {
@@ -258,7 +258,7 @@
         "issue": "5",
         "pages": "e201900534",
         "year": "2020",
-        "score": 54.129303
+        "score": 54.143642
       }
     },
     {
@@ -280,7 +280,7 @@
         "issue": "",
         "pages": "1-10",
         "year": "2019",
-        "score": 94.02819
+        "score": 93.881714
       }
     },
     {
@@ -303,7 +303,7 @@
         "issue": "",
         "pages": "231-240",
         "year": "2020",
-        "score": 100.84612
+        "score": 100.84637
       }
     },
     {
@@ -326,7 +326,7 @@
         "issue": "7",
         "pages": "",
         "year": "2024",
-        "score": 79.601135
+        "score": 79.67054
       }
     },
     {
@@ -349,7 +349,7 @@
         "issue": "8",
         "pages": "e0236600",
         "year": "2020",
-        "score": 58.029877
+        "score": 58.02998
       }
     },
     {
@@ -372,7 +372,7 @@
         "issue": "",
         "pages": "",
         "year": "2022",
-        "score": 52.25045
+        "score": 52.250748
       }
     },
     {
@@ -395,7 +395,7 @@
         "issue": "1",
         "pages": "63-74",
         "year": "2004",
-        "score": 73.01158
+        "score": 73.01186
       }
     },
     {
@@ -416,7 +416,7 @@
         "issue": "5",
         "pages": "561-565",
         "year": "2022",
-        "score": 91.60231
+        "score": 91.60293
       }
     },
     {
@@ -439,7 +439,7 @@
         "issue": "9",
         "pages": "1714-1722",
         "year": "2023",
-        "score": 63.97709
+        "score": 63.92843
       }
     },
     {
@@ -462,7 +462,7 @@
         "issue": "8",
         "pages": "2053-2065",
         "year": "2025",
-        "score": 65.14785
+        "score": 65.27847
       }
     },
     {
@@ -490,7 +490,7 @@
         "issue": "",
         "pages": "",
         "year": "2025",
-        "score": 61.83556
+        "score": 61.414837
       }
     },
     {
@@ -513,7 +513,7 @@
         "issue": "",
         "pages": "",
         "year": "2025",
-        "score": 68.8732
+        "score": 68.878654
       }
     },
     {
@@ -536,7 +536,7 @@
         "issue": "2",
         "pages": "431-436",
         "year": "1992",
-        "score": 49.253334
+        "score": 49.25304
       }
     },
     {
@@ -564,21 +564,30 @@
         "issue": "D1",
         "pages": "D991-D995",
         "year": "2012",
-        "score": 46.433407
+        "score": 46.43378
       }
     },
     {
       "ref_number": 25,
       "manuscript": "Mardia KV, Jupp PE. Directional Statistics. Wiley; 2000.",
-      "status": "UNVERIFIED",
-      "reason": "Book — Crossref coverage unreliable for books",
+      "status": "MATCH",
       "issues": [
         {
           "severity": "INFO",
-          "message": "Skipped: book (manual verification recommended)"
+          "message": "Year: MS=2000 vs OL first_publish=2008 (editions: 2008)"
         }
       ],
-      "crossref": {}
+      "verification": {
+        "source": "Open Library",
+        "title": "Directional Statistics",
+        "authors": [
+          "Kanti V. Mardia",
+          "Peter E. Jupp"
+        ],
+        "year": "2008",
+        "publisher": "",
+        "isbn": ""
+      }
     },
     {
       "ref_number": 26,
@@ -609,7 +618,7 @@
         "issue": "",
         "pages": "3-12",
         "year": "2019",
-        "score": 44.3522
+        "score": 44.352406
       }
     }
   ]

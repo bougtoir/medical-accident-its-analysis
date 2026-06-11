@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 """
-Automated reference verification against Crossref API.
+Automated reference verification against Crossref API, Open Library, and URL checks.
 
-Queries each reference in the manuscript's REFERENCES list against Crossref,
-retrieves canonical metadata, and reports discrepancies with severity levels.
+Queries each reference in the manuscript's REFERENCES list against:
+- Crossref API (journal articles)
+- Open Library API (books)
+- HTTP HEAD requests (URLs)
 
 Usage:
     python scripts/verify_references.py
@@ -14,11 +16,11 @@ Output:
 
 Requirements:
     - requests (pip install requests)
-    - No API key needed (Crossref public API; polite pool with mailto)
+    - No API key needed (Crossref/Open Library public APIs)
 
 Reproducibility:
     This script produces deterministic output for a given REFERENCES list and
-    Crossref database state. Results may change if Crossref updates metadata.
+    database state. Results may change if APIs update metadata.
     The JSON report includes a timestamp for traceability.
 
 Severity classification:
@@ -42,6 +44,7 @@ except ImportError:
 
 # ─── Configuration ────────────────────────────────────────────────────────────
 CROSSREF_API = "https://api.crossref.org/works"
+OPENLIBRARY_API = "https://openlibrary.org/search.json"
 MAILTO = "bougtoir@gmail.com"  # polite pool for faster rate limits
 RATE_LIMIT_SECONDS = 1.0  # be polite to API
 
@@ -121,9 +124,22 @@ def parse_reference(ref_str):
     if journal_match:
         info["journal"] = journal_match.group(1).strip()
 
-    # Special case: books
-    if "Wiley" in ref_str or "Press" in ref_str or "Springer" in ref_str:
+    # Detect type: book, URL, or article
+    publisher_kw = ["Wiley", "Press", "Springer", "Elsevier", "Academic",
+                    "McGraw", "Oxford University", "Cambridge University"]
+    has_publisher = any(kw in ref_str for kw in publisher_kw)
+    has_journal_pattern = bool(re.search(r'\d{4};\d+\(', ref_str))  # Year;Vol(
+    if has_publisher and not has_journal_pattern:
         info["type"] = "book"
+        for kw in publisher_kw:
+            if kw in ref_str:
+                info["publisher"] = kw
+                break
+    elif re.search(r'https?://', ref_str):
+        info["type"] = "url"
+        url_match = re.search(r'(https?://[^\s,;]+)', ref_str)
+        if url_match:
+            info["url"] = url_match.group(1).rstrip(".")
     else:
         info["type"] = "article"
 
@@ -192,6 +208,215 @@ def pages_equivalent(ms_pages, cr_pages):
         return True
 
     return False
+
+
+# ─── Open Library Query (Books) ──────────────────────────────────────────────
+def query_openlibrary(ref_info):
+    """Query Open Library for a book and return match metadata."""
+    params = {"limit": 5}
+
+    if "title" in ref_info:
+        params["title"] = ref_info["title"]
+    if "first_author_surname" in ref_info:
+        params["author"] = ref_info["first_author_surname"]
+
+    try:
+        resp = requests.get(OPENLIBRARY_API, params=params, timeout=30)
+        resp.raise_for_status()
+        data = resp.json()
+    except Exception as e:
+        return {"error": str(e)}
+
+    docs = data.get("docs", [])
+    if not docs:
+        return {"error": "No results found in Open Library"}
+
+    # Find best match by title similarity
+    title_ms = ref_info.get("title", "").lower()
+    best = None
+    best_score = 0
+    for doc in docs[:5]:
+        doc_title = (doc.get("title") or "").lower()
+        words_ms = set(re.findall(r'\w+', title_ms))
+        words_doc = set(re.findall(r'\w+', doc_title))
+        if words_ms and words_doc:
+            overlap = len(words_ms & words_doc) / max(len(words_ms), len(words_doc))
+        else:
+            overlap = 0
+        if overlap > best_score:
+            best_score = overlap
+            best = doc
+
+    if not best or best_score < 0.3:
+        return {"error": "No matching book found in Open Library"}
+
+    # Collect all known publication years (editions differ)
+    publish_years = set()
+    if best.get("first_publish_year"):
+        publish_years.add(str(best["first_publish_year"]))
+    for y in (best.get("publish_year") or []):
+        publish_years.add(str(y))
+
+    return {
+        "title_openlibrary": best.get("title", ""),
+        "authors_openlibrary": best.get("author_name", []),
+        "publisher_openlibrary": (best.get("publisher") or [""])[0] if best.get("publisher") else "",
+        "year_openlibrary": str(best.get("first_publish_year", "")),
+        "all_years": sorted(publish_years),
+        "isbn": (best.get("isbn") or [""])[0] if best.get("isbn") else "",
+        "title_overlap": best_score,
+    }
+
+
+def compare_book(ref_idx, ref_str, ref_info, ol_result):
+    """Compare manuscript book reference against Open Library metadata."""
+    issues = []
+
+    if "error" in ol_result:
+        return {
+            "ref_number": ref_idx + 1,
+            "manuscript": ref_str,
+            "status": "UNVERIFIED",
+            "reason": ol_result["error"],
+            "issues": [{"severity": "WARNING", "message": f"Book not found: {ol_result['error']}"}],
+            "verification": {"source": "Open Library", "result": ol_result},
+        }
+
+    # Title check
+    title_overlap = ol_result.get("title_overlap", 0)
+    if title_overlap < 0.5:
+        issues.append({
+            "severity": "WARNING",
+            "message": f"Title partial match ({title_overlap:.0%}): "
+                       f"OL='{ol_result.get('title_openlibrary', '')}'"
+        })
+
+    # Author check
+    first_author_ms = ref_info.get("first_author_surname", "").lower()
+    authors_ol = ol_result.get("authors_openlibrary", [])
+    if first_author_ms and authors_ol:
+        found = any(first_author_ms in a.lower() for a in authors_ol)
+        if not found:
+            issues.append({
+                "severity": "WARNING",
+                "message": f"Author '{ref_info.get('first_author_surname', '')}' "
+                           f"not found in OL authors: {authors_ol[:3]}"
+            })
+
+    # Year check — books have multiple editions, so check all known years
+    year_ms = ref_info.get("year", "")
+    year_ol = ol_result.get("year_openlibrary", "")
+    all_years = ol_result.get("all_years", [])
+    if year_ms and year_ms in all_years:
+        pass  # Exact match with one of the known edition years
+    elif year_ms and year_ol and year_ms != year_ol:
+        year_diff = abs(int(year_ms) - int(year_ol)) if year_ms.isdigit() and year_ol.isdigit() else 99
+        # For books, editions typically span 5-10 years — be lenient
+        if year_diff <= 10:
+            issues.append({
+                "severity": "INFO",
+                "message": f"Year: MS={year_ms} vs OL first_publish={year_ol} "
+                           f"(editions: {', '.join(all_years[:5])})"
+            })
+        else:
+            issues.append({
+                "severity": "WARNING",
+                "message": f"Year: MS={year_ms} vs OL={year_ol}"
+            })
+
+    # Determine status
+    severities = [i["severity"] for i in issues]
+    if "CRITICAL" in severities:
+        status = "CRITICAL_MISMATCH"
+    elif "WARNING" in severities:
+        status = "WARNING"
+    else:
+        status = "MATCH"
+
+    return {
+        "ref_number": ref_idx + 1,
+        "manuscript": ref_str,
+        "status": status,
+        "issues": issues,
+        "verification": {
+            "source": "Open Library",
+            "title": ol_result.get("title_openlibrary", ""),
+            "authors": ol_result.get("authors_openlibrary", []),
+            "year": ol_result.get("year_openlibrary", ""),
+            "publisher": ol_result.get("publisher_openlibrary", ""),
+            "isbn": ol_result.get("isbn", ""),
+        },
+    }
+
+
+# ─── URL Reachability Check ──────────────────────────────────────────────────
+def check_url(ref_info):
+    """Check if a URL reference is reachable via HTTP HEAD/GET."""
+    url = ref_info.get("url", "")
+    if not url:
+        return {"error": "No URL found in reference"}
+
+    try:
+        # Try HEAD first (lightweight)
+        resp = requests.head(url, timeout=15, allow_redirects=True,
+                             headers={"User-Agent": "Mozilla/5.0 (Reference Checker)"})
+        if resp.status_code >= 400:
+            # Fallback to GET (some servers reject HEAD)
+            resp = requests.get(url, timeout=15, allow_redirects=True, stream=True,
+                                headers={"User-Agent": "Mozilla/5.0 (Reference Checker)"})
+        return {
+            "url": url,
+            "status_code": resp.status_code,
+            "reachable": resp.status_code < 400,
+            "final_url": resp.url,
+        }
+    except requests.exceptions.Timeout:
+        return {"url": url, "status_code": None, "reachable": False, "error": "Timeout"}
+    except requests.exceptions.ConnectionError as e:
+        return {"url": url, "status_code": None, "reachable": False, "error": f"Connection error: {e}"}
+    except Exception as e:
+        return {"url": url, "status_code": None, "reachable": False, "error": str(e)}
+
+
+def compare_url(ref_idx, ref_str, ref_info, url_result):
+    """Evaluate URL reference reachability."""
+    issues = []
+
+    if "error" in url_result and not url_result.get("reachable"):
+        issues.append({
+            "severity": "WARNING",
+            "message": f"URL unreachable: {url_result.get('error', 'unknown error')}"
+        })
+        return {
+            "ref_number": ref_idx + 1,
+            "manuscript": ref_str,
+            "status": "WARNING",
+            "issues": issues,
+            "verification": {"source": "HTTP", **url_result},
+        }
+
+    if not url_result.get("reachable"):
+        issues.append({
+            "severity": "WARNING",
+            "message": f"URL returned HTTP {url_result.get('status_code')}: {url_result.get('url')}"
+        })
+        status = "WARNING"
+    else:
+        status = "MATCH"
+
+    return {
+        "ref_number": ref_idx + 1,
+        "manuscript": ref_str,
+        "status": status,
+        "issues": issues,
+        "verification": {
+            "source": "HTTP",
+            "url": url_result.get("url", ""),
+            "status_code": url_result.get("status_code"),
+            "reachable": url_result.get("reachable", False),
+            "final_url": url_result.get("final_url", ""),
+        },
+    }
 
 
 # ─── Crossref Query ──────────────────────────────────────────────────────────
@@ -397,7 +622,7 @@ def generate_markdown_report(results, timestamp):
         "# Reference Verification Audit Report",
         "",
         f"**Generated:** {timestamp}",
-        f"**Method:** Automated Crossref API query (bibliographic search + author filter)",
+        f"**Method:** Articles → Crossref API | Books → Open Library API | URLs → HTTP reachability",
         f"**Source:** `scripts/create_perspective_docx.py` REFERENCES list",
         f"**Total references:** {len(results)}",
         "",
@@ -478,20 +703,23 @@ def generate_markdown_report(results, timestamp):
         "## Methodology",
         "",
         "1. Each reference is parsed to extract: first author surname, title, year, volume, pages",
-        "2. Crossref API is queried with `query.bibliographic` (title) + `query.author` (first author)",
-        "3. Top result metadata is compared field-by-field against manuscript values",
-        "4. Issues are classified by severity: CRITICAL > WARNING > INFO",
-        "5. Journal abbreviation differences (NLM vs full name) are classified as INFO (acceptable)",
-        "6. Article IDs (e.g., 'deaf008', 'e201900534') are recognized as valid page identifiers",
-        "7. Year differences of exactly +/-1 are classified as INFO (online-first vs print)",
+        "2. Reference type detected: article → Crossref API, book → Open Library API, URL → HTTP check",
+        "3. **Articles**: Crossref queried with `query.bibliographic` + `query.author`; metadata compared",
+        "4. **Books**: Open Library queried with title + author; title/author/year compared",
+        "5. **URLs**: HTTP HEAD request to verify reachability (status code < 400)",
+        "6. Issues classified by severity: CRITICAL > WARNING > INFO",
+        "7. Journal abbreviation differences (NLM vs full name) classified as INFO (acceptable)",
+        "8. Article IDs (e.g., 'deaf008', 'e201900534') recognized as valid page identifiers",
+        "9. Year differences of exactly +/-1 classified as INFO (online-first vs print)",
         "",
         "### Limitations",
         "",
         "- Crossref coverage is not 100% (some older/non-English journals may be missing)",
-        "- Books (e.g., Ref 25 Mardia & Jupp) may not have full Crossref entries",
+        "- Open Library coverage varies; some books may not have entries",
+        "- URL reachability may be affected by geoblocking, authentication, or temporary outages",
         "- Author name transliterations may differ between databases",
         "- This script verifies metadata accuracy, NOT whether the citation supports the claim in text",
-        "- A MATCH status means Crossref confirmed the paper exists with matching metadata —",
+        "- A MATCH status means the API confirmed the work exists with matching metadata —",
         "  it does NOT verify the full author list beyond the first author",
         "",
         "### Reproducibility",
@@ -510,7 +738,7 @@ def generate_markdown_report(results, timestamp):
 def main():
     print("=" * 70)
     print("REFERENCE VERIFICATION SCRIPT")
-    print("Querying Crossref API for each reference...")
+    print("Articles → Crossref API | Books → Open Library | URLs → HTTP check")
     print("=" * 70)
 
     # Load references
@@ -526,18 +754,24 @@ def main():
         # Parse reference
         ref_info = parse_reference(ref_str)
 
-        # Skip books (Crossref coverage is poor)
+        # Books: verify via Open Library
         if ref_info.get("type") == "book":
-            result = {
-                "ref_number": ref_num,
-                "manuscript": ref_str,
-                "status": "UNVERIFIED",
-                "reason": "Book — Crossref coverage unreliable for books",
-                "issues": [{"severity": "INFO", "message": "Skipped: book (manual verification recommended)"}],
-                "crossref": {},
-            }
+            ol_result = query_openlibrary(ref_info)
+            result = compare_book(idx, ref_str, ref_info, ol_result)
             results.append(result)
-            print(f"       → SKIPPED (book)")
+            icon = "✓" if result["status"] == "MATCH" else "⚠" if result["status"] == "WARNING" else "?"
+            print(f"       → {icon} {result['status']} (book, via Open Library)")
+            time.sleep(RATE_LIMIT_SECONDS)
+            continue
+
+        # URLs: verify reachability
+        if ref_info.get("type") == "url":
+            url_result = check_url(ref_info)
+            result = compare_url(idx, ref_str, ref_info, url_result)
+            results.append(result)
+            icon = "✓" if result["status"] == "MATCH" else "⚠"
+            print(f"       → {icon} {result['status']} (URL, HTTP {url_result.get('status_code', '?')})")
+            time.sleep(RATE_LIMIT_SECONDS)
             continue
 
         # Query Crossref
@@ -568,7 +802,7 @@ def main():
     # JSON report
     json_report = {
         "timestamp": timestamp,
-        "method": "Crossref API bibliographic search with severity classification",
+        "method": "Crossref API (articles) + Open Library (books) + HTTP (URLs) with severity classification",
         "script": "scripts/verify_references.py",
         "total_references": len(refs),
         "summary": {

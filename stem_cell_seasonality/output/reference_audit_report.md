@@ -1,7 +1,7 @@
 # Reference Verification Audit Report
 
-**Generated:** 2026-06-11T01:15:26Z
-**Method:** Automated Crossref API query (bibliographic search + author filter)
+**Generated:** 2026-06-11T01:42:10Z
+**Method:** Articles → Crossref API | Books → Open Library API | URLs → HTTP reachability
 **Source:** `scripts/create_perspective_docx.py` REFERENCES list
 **Total references:** 26
 
@@ -9,10 +9,10 @@
 
 | Status | Count | Meaning |
 |--------|-------|---------|
-| MATCH | 24 | Verified correct (INFO-level notes only) |
+| MATCH | 25 | Verified correct (INFO-level notes only) |
 | WARNING | 0 | Possible metadata error (year/vol/pages) |
 | CRITICAL_MISMATCH | 1 | Crossref found different paper — likely wrong ref |
-| UNVERIFIED | 1 | Could not verify (book, API miss) |
+| UNVERIFIED | 0 | Could not verify (book, API miss) |
 
 ### Severity Legend
 
@@ -21,16 +21,6 @@
 - **INFO**: Journal abbreviation vs full name, year +/-1 → acceptable/expected
 
 ## Issues Requiring Attention
-
-### ❓ Ref 25: UNVERIFIED
-
-**Manuscript:** Mardia KV, Jupp PE. Directional Statistics. Wiley; 2000.
-
-
-**Issues:**
-- [INFO] Skipped: book (manual verification recommended)
-
----
 
 ### 🚨 Ref 26: CRITICAL_MISMATCH
 
@@ -77,26 +67,29 @@
 | 22 | MATCH | Deng Q | 2025 |  |
 | 23 | MATCH | Wang J | 1992 |  |
 | 24 | MATCH | Barrett T | 2012 |  |
-| 25 | UNVERIFIED | ? | ? |  |
+| 25 | MATCH | ? | ? |  |
 | 26 | CRITICAL_MISMATCH | Karagiannis P | 2019 | Title mismatch (overlap=38%): MS='Induced pluripot; Pages: M |
 
 ## Methodology
 
 1. Each reference is parsed to extract: first author surname, title, year, volume, pages
-2. Crossref API is queried with `query.bibliographic` (title) + `query.author` (first author)
-3. Top result metadata is compared field-by-field against manuscript values
-4. Issues are classified by severity: CRITICAL > WARNING > INFO
-5. Journal abbreviation differences (NLM vs full name) are classified as INFO (acceptable)
-6. Article IDs (e.g., 'deaf008', 'e201900534') are recognized as valid page identifiers
-7. Year differences of exactly +/-1 are classified as INFO (online-first vs print)
+2. Reference type detected: article → Crossref API, book → Open Library API, URL → HTTP check
+3. **Articles**: Crossref queried with `query.bibliographic` + `query.author`; metadata compared
+4. **Books**: Open Library queried with title + author; title/author/year compared
+5. **URLs**: HTTP HEAD request to verify reachability (status code < 400)
+6. Issues classified by severity: CRITICAL > WARNING > INFO
+7. Journal abbreviation differences (NLM vs full name) classified as INFO (acceptable)
+8. Article IDs (e.g., 'deaf008', 'e201900534') recognized as valid page identifiers
+9. Year differences of exactly +/-1 classified as INFO (online-first vs print)
 
 ### Limitations
 
 - Crossref coverage is not 100% (some older/non-English journals may be missing)
-- Books (e.g., Ref 25 Mardia & Jupp) may not have full Crossref entries
+- Open Library coverage varies; some books may not have entries
+- URL reachability may be affected by geoblocking, authentication, or temporary outages
 - Author name transliterations may differ between databases
 - This script verifies metadata accuracy, NOT whether the citation supports the claim in text
-- A MATCH status means Crossref confirmed the paper exists with matching metadata —
+- A MATCH status means the API confirmed the work exists with matching metadata —
   it does NOT verify the full author list beyond the first author
 
 ### Reproducibility
