@@ -61,7 +61,7 @@ def convert_crossrefs_ja(text: str) -> str:
     def _replace_ja(m):
         return f"第 {roman_to_arabic(m.group(1))} 節"
     text = re.sub(r'第 ([IVX]+) 節', _replace_ja, text)
-    text = re.sub(r'III\.3 節', '3.3 節', text)
+    text = re.sub(r'III\.(\d+) 節', lambda m: f'3.{m.group(1)} 節', text)
     text = re.sub(r'IV\.(\d+) 節', lambda m: f'4.{m.group(1)} 節', text)
     text = re.sub(r'V\.(\d+) 節', lambda m: f'5.{m.group(1)} 節', text)
     text = re.sub(r'VI\.(\d+) 節', lambda m: f'6.{m.group(1)} 節', text)
