@@ -85,10 +85,10 @@ body_paras = [
     '(1) Acute perioperative analgesic prescribing varied 1.97-fold across prefectures, '
     'persisting after age-sex standardisation\u2014indicating supply-sensitive practice variation '
     'rather than demographic differences alone. '
-    '(2) The apparent regional pattern of neuropathic pain drug prescribing was largely '
+    '(2) The apparent regional clustering of neuropathic pain drug prescribing was largely '
     'explained by confounding disease proxies, particularly diabetes drug prescribing '
-    '(r=0.87); after adjustment, the inter-regional effect was attenuated by 84% and '
-    'became nonsignificant. '
+    '(r=0.87); after adjustment, inter-regional differences were substantially '
+    'attenuated and became nonsignificant. '
     '(3) Acute perioperative prescribing was a significant predictor of chronic pain-related '
     'prescribing even after confounder adjustment, suggesting a modest link between '
     'regional patterns of acute pain management and chronic pain burden.',

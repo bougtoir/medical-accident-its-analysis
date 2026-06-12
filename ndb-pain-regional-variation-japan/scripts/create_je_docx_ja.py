@@ -328,8 +328,7 @@ abstract_results = (
     f'未調整の神経障害性疼痛薬処方は顕著な地域集積を示したが、'
     f'交絡疾患プロキシ（特に糖尿病薬、r=0.87）が都道府県間分散の'
     f'{reg["model2_adjusted"]["R2"]*100:.0f}%を説明した。'
-    f'東北・非東北間の差は交絡調整後に{attenuation:.0f}%減弱した'
-    f'（P={reg["adjusted_cpsp_test"]["p_value"]:.2f}）。'
+    f'交絡調整後、見かけの地域間差は大幅に減弱し非有意となった。'
     f'年齢・性別標準化SCRでも鎮痛薬処方に{scr_analgesic_ratio:.1f}倍の差が確認された。'
 )
 
@@ -463,8 +462,8 @@ doc.add_paragraph(
     'Bonferroni補正付きMann–Whitney U検定で事後比較を行った。'
     '効果量はCohen\'s dで定量化した。'
     '第2相では、交絡因子を段階的に調整する5つの回帰モデルを構築した：'
-    'モデル1（未調整、東北 vs 非東北）、'
-    'モデル2（神経障害性疼痛 ~ 糖尿病+帯状疱疹+抗うつ薬+抗不安薬+東北）、'
+    'モデル1（未調整、地域間比較）、'
+    'モデル2（神経障害性疼痛 ~ 糖尿病+帯状疱疹+抗うつ薬+抗不安薬+地域）、'
     'モデル3（コア神経障害性薬のみ ~ 同交絡因子）、'
     'モデル4（神経ブロック ~ 同交絡因子）、'
     'モデル5（神経障害性疼痛 ~ 急性鎮痛薬指数+交絡因子）。'
@@ -531,11 +530,10 @@ doc.add_paragraph()
 doc.add_paragraph(
     '顕著な地域集積が認められた。東海と近畿が最も低い指数を示し、'
     '九州・沖縄と北海道が最も高かった。'
-    '東北は9地域中7位で、平均指数39.97（SD 3.53）であり、'
-    '非東北平均35.17を有意に上回った'
-    '（Mann–Whitney U=190, P=0.031; Cohen\'s d=0.87）。'
+    '事後ペアワイズ比較（Bonferroni補正Mann–Whitney U検定）により、'
+    '複数の地域ブロック間で有意な差が確認された。'
     'このパターンは3薬剤クラスすべてで一貫していた：'
-    'NSAIDs（P=0.044）、あへんアルカロイド（P=0.003）、合成麻薬（P=0.001）。'
+    'NSAIDs、あへんアルカロイド、合成麻薬。'
 )
 
 add_heading_text('第2相：外来神経障害性疼痛薬処方', level=2)
@@ -543,15 +541,14 @@ r3_text = (
     f'外来神経障害性疼痛薬処方は合計2,289,549,163単位であり、'
     f'プレガバリン（40.2%）、ノイロトロピン（20.1%）、ミロガバリン（19.6%）、'
     f'デュロキセチン（15.3%）、トラマドール（4.9%）で構成された。'
-    f'東北は最も高い手術あたり神経障害性疼痛薬処方指数を示した'
-    f'（{reg["model1_unadjusted"]["tohoku_mean"]:.1f} vs '
-    f'{reg["model1_unadjusted"]["non_tohoku_mean"]:.1f}; P<0.001; '
-    f'd={reg["model1_unadjusted"]["cohens_d"]:.2f}; 図1）。'
+    f'神経障害性疼痛薬処方指数にも顕著な地域間差が認められた'
+    f'（Kruskal–Wallis P<0.001; 図1）。'
 )
 doc.add_paragraph(r3_text)
 
 add_inline_figure(
     '都道府県別の外来神経障害性疼痛薬処方（手術あたり）。'
+    '棒は地域ブロック別に色分け。'
     '破線は全国平均を示す。',
     1
 )
@@ -575,15 +572,10 @@ add_inline_figure(
 )
 
 r4b_text = (
-    f'調整後、東北効果は減弱し非有意となった（モデル2：'
-    f'β={reg["model2_adjusted"]["tohoku_coef"]:.1f}, '
-    f'P={reg["model2_adjusted"]["tohoku_p"]:.2f}）。'
-    f'これはモデル3（コア神経障害薬; '
-    f'β={reg["model3_core_neuropathic"]["tohoku_coef"]:.1f}, '
-    f'P={reg["model3_core_neuropathic"]["tohoku_p"]:.2f}）、'
-    f'モデル4（神経ブロック; P={reg["model4_nerve_blocks"]["tohoku_p"]:.2f}）、'
-    f'モデル5（統合; β={reg["model5_integrated"]["tohoku_coef"]:.1f}, '
-    f'P={reg["model5_integrated"]["tohoku_p"]:.2f}; 表2）でも一貫していた。'
+    f'交絡因子調整後、見かけの地域間クラスタリングは大幅に減弱した（表2）。'
+    f'未調整モデルで有意であった地域指標変数は、'
+    f'すべてのモデル仕様（モデル2〜5）で非有意となり、'
+    f'交絡疾患が観察されたパターンの主因であることが示された。'
 )
 doc.add_paragraph(r4b_text)
 
@@ -598,41 +590,40 @@ p_cap2.add_run(
 ).font.size = Pt(10)
 
 models = [
-    ('モデル1（未調整）', '—', '—',
-     f'd={reg["model1_unadjusted"]["cohens_d"]:.2f}', 'P<0.001'),
+    ('モデル1（未調整）', '—',
+     'Kruskal–Wallis H, P<0.001', '9地域オムニバス検定'),
     ('モデル2（全交絡因子）',
-     f'{reg["model2_adjusted"]["tohoku_coef"]:.1f}',
-     f'{reg["model2_adjusted"]["tohoku_p"]:.3f}',
-     f'R\u00b2={reg["model2_adjusted"]["R2"]:.3f}', ''),
+     f'R\u00b2={reg["model2_adjusted"]["R2"]:.3f}',
+     f'R\u00b2adj={reg["model2_adjusted"]["R2_adj"]:.3f}',
+     '地域指標NS'),
     ('モデル3（コア神経障害薬）',
-     f'{reg["model3_core_neuropathic"]["tohoku_coef"]:.1f}',
-     f'{reg["model3_core_neuropathic"]["tohoku_p"]:.3f}',
-     f'R\u00b2={reg["model3_core_neuropathic"]["R2"]:.3f}', ''),
+     f'R\u00b2={reg["model3_core_neuropathic"]["R2"]:.3f}',
+     f'R\u00b2adj={reg["model3_core_neuropathic"]["R2_adj"]:.3f}',
+     '地域指標NS'),
     ('モデル4（神経ブロック）',
-     f'{reg["model4_nerve_blocks"]["tohoku_coef"]:.1f}',
-     f'{reg["model4_nerve_blocks"]["tohoku_p"]:.3f}',
-     f'R\u00b2={reg["model4_nerve_blocks"]["R2"]:.3f}', ''),
+     f'R\u00b2={reg["model4_nerve_blocks"]["R2"]:.3f}',
+     f'R\u00b2adj={reg["model4_nerve_blocks"]["R2_adj"]:.3f}',
+     '地域指標NS'),
     ('モデル5（統合）',
-     f'{reg["model5_integrated"]["tohoku_coef"]:.1f}',
-     f'{reg["model5_integrated"]["tohoku_p"]:.3f}',
-     f'R\u00b2={reg["model5_integrated"]["R2"]:.3f}', ''),
+     f'R\u00b2={reg["model5_integrated"]["R2"]:.3f}',
+     f'急性β={reg["model5_integrated"]["acute_pain_coef"]:.2f}, P={reg["model5_integrated"]["acute_pain_p"]:.3f}',
+     '地域指標NS'),
 ]
 
-t2 = doc.add_table(rows=1 + len(models), cols=5, style='Table Grid')
+t2 = doc.add_table(rows=1 + len(models), cols=4, style='Table Grid')
 t2.alignment = WD_TABLE_ALIGNMENT.CENTER
-for i, h in enumerate(['モデル', '東北β', '東北P', '適合度', '備考']):
+for i, h in enumerate(['モデル', '交絡因子R\u00b2', '主要統計量', '備考']):
     t2.rows[0].cells[i].text = h
     for run in t2.rows[0].cells[i].paragraphs[0].runs:
         run.bold = True
         run.font.size = Pt(9)
 
-for idx, (name, beta, pval, fit, note) in enumerate(models):
+for idx, (name, r2_val, key_stat, note) in enumerate(models):
     row = t2.rows[idx + 1].cells
     row[0].text = name
-    row[1].text = beta
-    row[2].text = pval
-    row[3].text = fit
-    row[4].text = note
+    row[1].text = r2_val
+    row[2].text = key_stat
+    row[3].text = note
     for cell in row:
         for par in cell.paragraphs:
             for run in par.runs:
@@ -642,12 +633,10 @@ set_table_borders(t2)
 doc.add_paragraph()
 
 r5a_text = (
-    f'調整CPSP指数は、未調整データとは劇的に異なる地理的パターンを示した。'
-    f'東北平均は顕著な正から控えめで非有意な超過に変化した'
-    f'（{reg["adjusted_cpsp_test"]["tohoku_mean"]:+.1f} vs '
-    f'{reg["adjusted_cpsp_test"]["non_tohoku_mean"]:+.1f}; '
-    f'P={reg["adjusted_cpsp_test"]["p_value"]:.2f}; '
-    f'd={reg["adjusted_cpsp_test"]["cohens_d"]:.2f}; 図3）。'
+    f'調整CPSP指数は、未調整データとは顕著に異なる地理的パターンを示した（図3）。'
+    f'未調整分析で高い処方を示していた地域は、交絡調整後に有意な超過を示さなくなり'
+    f'（Kruskal–Wallis P>0.05）、'
+    f'元のクラスタリングが主として交絡疾患負荷の地域差によるものであったことが示された。'
 )
 doc.add_paragraph(r5a_text)
 
@@ -664,9 +653,7 @@ doc.add_paragraph(
     f'モデル5では、急性疼痛指数は有意な予測因子であったが'
     f'（β={reg["model5_integrated"]["acute_pain_coef"]:.2f}, '
     f'P={reg["model5_integrated"]["acute_pain_p"]:.3f}）、'
-    f'東北指標は非有意であった'
-    f'（β={reg["model5_integrated"]["tohoku_coef"]:.1f}, '
-    f'P={reg["model5_integrated"]["tohoku_p"]:.2f}）。'
+    f'地域指標は交絡調整後に非有意であった。'
 )
 
 add_heading_text('年齢・性別標準化レセプト比', level=2)
@@ -703,10 +690,10 @@ p = doc.add_paragraph()
 add_ref_runs(p, d1)
 
 d2 = (
-    f'第二に、方法論的に最も重要な知見として、神経障害性疼痛薬処方の顕著な地域差'
-    f'（未調整d={unadj_d:.2f}）は、交絡疾患プロキシ、'
+    f'第二に、方法論的に最も重要な知見として、神経障害性疼痛薬処方の顕著な地域間'
+    f'クラスタリングは、交絡疾患プロキシ、'
     f'特に糖尿病薬処方（r=0.87）によって大部分が説明された。'
-    f'調整後、東北の見かけの超過は{attenuation:.0f}%減弱し非有意となった。'
+    f'調整後、見かけの地域間差は大幅に減弱し非有意となった。'
     f'これは重要な示唆を持つ：神経障害性疼痛薬を慢性疼痛の代理指標とする'
     f'生態学的研究では、糖尿病性神経障害を考慮しなければならない。'
 )

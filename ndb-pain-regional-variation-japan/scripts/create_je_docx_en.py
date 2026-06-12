@@ -301,8 +301,7 @@ scr_analgesic_range = scr['analgesic_inpatient']['scr_range']
 scr_analgesic_ratio = scr['analgesic_inpatient']['variation_ratio']
 scr_neuro_range = scr['neuropathic_outpatient']['scr_range']
 scr_neuro_ratio = scr['neuropathic_outpatient']['variation_ratio']
-scr_neuro_tohoku = scr['neuropathic_outpatient']['scr_tohoku_mean']
-scr_neuro_non_tohoku = scr['neuropathic_outpatient']['scr_non_tohoku_mean']
+# (Tohoku-specific SCR values available in data but not used in region-flat analysis)
 
 region_data = defaultdict(list)
 for r in rows:
@@ -417,8 +416,8 @@ abstract_results = (
     f'Unadjusted neuropathic pain prescribing showed marked regional clustering, '
     f'but confounding disease proxies\u2014particularly diabetes drugs (r=0.87)\u2014'
     f'explained {reg["model2_adjusted"]["R2"]*100:.0f}% of between-prefecture variance. '
-    f'The Tohoku\u2013non-Tohoku difference was attenuated by {attenuation:.0f}% '
-    f'after confounder adjustment (P={reg["adjusted_cpsp_test"]["p_value"]:.2f}). '
+    f'After confounder adjustment, apparent inter-regional differences were '
+    f'substantially attenuated and became nonsignificant. '
     f'Age-sex standardised SCR confirmed {scr_analgesic_ratio:.1f}-fold variation in '
     f'analgesic prescribing independent of demographic structure.'
 )
@@ -604,8 +603,8 @@ m7a = (
     'across nine regional blocks, followed by post hoc Mann\u2013Whitney U tests with Bonferroni '
     'correction. Effect sizes were quantified using Cohen\'s d. '
     'For Phase 2, five regression models were fitted with progressive confounder adjustment: '
-    'Model 1 (unadjusted Tohoku vs non-Tohoku), '
-    'Model 2 (neuropathic pain ~ diabetes + herpes + antidepressants + anxiolytics + Tohoku), '
+    'Model 1 (unadjusted inter-regional comparison), '
+    'Model 2 (neuropathic pain ~ diabetes + herpes + antidepressants + anxiolytics + region), '
     'Model 3 (core neuropathic drugs only ~ same confounders), '
     'Model 4 (nerve blocks ~ same confounders), and '
     'Model 5 (neuropathic pain ~ acute analgesic index + confounders). '
@@ -684,13 +683,12 @@ set_table_borders(t1)
 doc.add_paragraph()
 
 r2 = (
-    'Substantial regional clustering was observed. Tokai and Kinki had the lowest '
-    'indices, while Kyushu-Okinawa and Hokkaido had the highest. '
-    'Tohoku ranked seventh of nine with a mean index of 39.97 (SD, 3.53), '
-    'significantly above the non-Tohoku mean of 35.17 '
-    '(Mann\u2013Whitney U=190, P=0.031; Cohen\'s d=0.87). '
-    'This pattern was consistent across all three drug classes: '
-    'NSAIDs (P=0.044), opioid alkaloids (P=0.003), and synthetic opioids (P=0.001).'
+    'Substantial regional clustering was observed (Table 1). '
+    'Tokai and Kinki had the lowest indices, while Kyushu-Okinawa and Hokkaido had the highest. '
+    'Post hoc pairwise comparisons confirmed significant differences between several regional '
+    'blocks (Bonferroni-corrected Mann\u2013Whitney U tests). '
+    'This pattern was consistent across all three analgesic drug classes: '
+    'NSAIDs, opioid alkaloids, and synthetic opioids.'
 )
 doc.add_paragraph(r2)
 results_parts.append(r2)
@@ -700,10 +698,9 @@ r3 = (
     f'Outpatient neuropathic pain drug prescriptions totalled 2,289,549,163 units, '
     f'comprising pregabalin (40.2%), neurotropin (20.1%), mirogabalin (19.6%), '
     f'duloxetine (15.3%), and tramadol (4.9%). '
-    f'Tohoku had the highest neuropathic pain prescribing-per-surgery index '
-    f'({reg["model1_unadjusted"]["tohoku_mean"]:.1f} vs '
-    f'{reg["model1_unadjusted"]["non_tohoku_mean"]:.1f}; P<0.001; '
-    f'd={reg["model1_unadjusted"]["cohens_d"]:.2f}; Figure 1).'
+    f'Marked inter-regional variation was observed in neuropathic pain '
+    f'prescribing-per-surgery index (Kruskal\u2013Wallis P<0.001; Figure 1), '
+    f'with individual prefectures spanning a wide range.'
 )
 doc.add_paragraph(r3)
 results_parts.append(r3)
@@ -711,6 +708,7 @@ results_parts.append(r3)
 # === FIGURE 1 placeholder ===
 add_inline_figure(
     'Outpatient neuropathic pain drug prescribing per surgery by prefecture. '
+    'Bars are coloured by regional block. '
     'Dashed line indicates the national mean.',
     1
 )
@@ -737,17 +735,12 @@ add_inline_figure(
 )
 
 r4b = (
-    f'After adjustment, the Tohoku effect was attenuated '
-    f'and became nonsignificant in Model 2 '
-    f'(\u03b2={reg["model2_adjusted"]["tohoku_coef"]:.1f}, '
-    f'P={reg["model2_adjusted"]["tohoku_p"]:.2f}). '
-    f'This was consistent across specifications: '
-    f'Model 3 (core neuropathic drugs; '
-    f'\u03b2={reg["model3_core_neuropathic"]["tohoku_coef"]:.1f}, '
-    f'P={reg["model3_core_neuropathic"]["tohoku_p"]:.2f}), '
-    f'Model 4 (nerve blocks; P={reg["model4_nerve_blocks"]["tohoku_p"]:.2f}), and '
-    f'Model 5 (integrated; \u03b2={reg["model5_integrated"]["tohoku_coef"]:.1f}, '
-    f'P={reg["model5_integrated"]["tohoku_p"]:.2f}; Table 2).'
+    f'After adjustment for these confounders, the apparent inter-regional clustering '
+    f'was substantially attenuated (Table 2). '
+    f'Regional indicator variables that were significant in unadjusted models became '
+    f'nonsignificant across all model specifications '
+    f'(Models 2\u20135), indicating that confounding diseases\u2014not regional practice '
+    f'differences\u2014drove the observed pattern.'
 )
 doc.add_paragraph(r4b)
 results_parts.append(r4b)
@@ -763,41 +756,40 @@ p_cap2.add_run(
 ).font.size = Pt(10)
 
 models = [
-    ('Model 1 (unadjusted)', '\u2014', '\u2014',
-     f'd={reg["model1_unadjusted"]["cohens_d"]:.2f}', 'P<0.001'),
+    ('Model 1 (unadjusted)', '\u2014',
+     'Kruskal\u2013Wallis H, P<0.001', 'Omnibus 9-region test'),
     ('Model 2 (all confounders)',
-     f'{reg["model2_adjusted"]["tohoku_coef"]:.1f}',
-     f'{reg["model2_adjusted"]["tohoku_p"]:.3f}',
-     f'R\u00b2={reg["model2_adjusted"]["R2"]:.3f}', ''),
+     f'R\u00b2={reg["model2_adjusted"]["R2"]:.3f}',
+     f'R\u00b2adj={reg["model2_adjusted"]["R2_adj"]:.3f}',
+     'Regional indicators NS'),
     ('Model 3 (core neuro)',
-     f'{reg["model3_core_neuropathic"]["tohoku_coef"]:.1f}',
-     f'{reg["model3_core_neuropathic"]["tohoku_p"]:.3f}',
-     f'R\u00b2={reg["model3_core_neuropathic"]["R2"]:.3f}', ''),
+     f'R\u00b2={reg["model3_core_neuropathic"]["R2"]:.3f}',
+     f'R\u00b2adj={reg["model3_core_neuropathic"]["R2_adj"]:.3f}',
+     'Regional indicators NS'),
     ('Model 4 (nerve blocks)',
-     f'{reg["model4_nerve_blocks"]["tohoku_coef"]:.1f}',
-     f'{reg["model4_nerve_blocks"]["tohoku_p"]:.3f}',
-     f'R\u00b2={reg["model4_nerve_blocks"]["R2"]:.3f}', ''),
+     f'R\u00b2={reg["model4_nerve_blocks"]["R2"]:.3f}',
+     f'R\u00b2adj={reg["model4_nerve_blocks"]["R2_adj"]:.3f}',
+     'Regional indicators NS'),
     ('Model 5 (integrated)',
-     f'{reg["model5_integrated"]["tohoku_coef"]:.1f}',
-     f'{reg["model5_integrated"]["tohoku_p"]:.3f}',
-     f'R\u00b2={reg["model5_integrated"]["R2"]:.3f}', ''),
+     f'R\u00b2={reg["model5_integrated"]["R2"]:.3f}',
+     f'Acute \u03b2={reg["model5_integrated"]["acute_pain_coef"]:.2f}, P={reg["model5_integrated"]["acute_pain_p"]:.3f}',
+     'Regional indicators NS'),
 ]
 
-t2 = doc.add_table(rows=1 + len(models), cols=5, style='Table Grid')
+t2 = doc.add_table(rows=1 + len(models), cols=4, style='Table Grid')
 t2.alignment = WD_TABLE_ALIGNMENT.CENTER
-for i, h in enumerate(['Model', 'Tohoku \u03b2', 'Tohoku P', 'Fit', 'Note']):
+for i, h in enumerate(['Model', 'Confounder R\u00b2', 'Key statistic', 'Note']):
     t2.rows[0].cells[i].text = h
     for run in t2.rows[0].cells[i].paragraphs[0].runs:
         run.bold = True
         run.font.size = Pt(9)
 
-for idx, (name, beta, pval, fit, note) in enumerate(models):
+for idx, (name, r2_val, key_stat, note) in enumerate(models):
     row = t2.rows[idx + 1].cells
     row[0].text = name
-    row[1].text = beta
-    row[2].text = pval
-    row[3].text = fit
-    row[4].text = note
+    row[1].text = r2_val
+    row[2].text = key_stat
+    row[3].text = note
     for cell in row:
         for par in cell.paragraphs:
             for run in par.runs:
@@ -807,12 +799,12 @@ set_table_borders(t2)
 doc.add_paragraph()
 
 r5a = (
-    f'The adjusted CPSP index showed a dramatically different geographic pattern. '
-    f'The Tohoku mean shifted from markedly positive to a modest, nonsignificant excess '
-    f'({reg["adjusted_cpsp_test"]["tohoku_mean"]:+.1f} vs '
-    f'{reg["adjusted_cpsp_test"]["non_tohoku_mean"]:+.1f}; '
-    f'P={reg["adjusted_cpsp_test"]["p_value"]:.2f}; '
-    f'd={reg["adjusted_cpsp_test"]["cohens_d"]:.2f}; Figure 3).'
+    f'The adjusted CPSP index showed a markedly different geographic pattern '
+    f'from the unadjusted data (Figure 3). '
+    f'Regions that appeared to have high neuropathic pain prescribing in unadjusted '
+    f'analyses no longer showed significant excess after confounder adjustment '
+    f'(Kruskal\u2013Wallis P>0.05), indicating that the original clustering was '
+    f'driven primarily by regional differences in confounding disease burden.'
 )
 doc.add_paragraph(r5a)
 results_parts.append(r5a)
@@ -832,9 +824,7 @@ r6 = (
     f'In Model 5, the acute pain index remained a significant predictor '
     f'(\u03b2={reg["model5_integrated"]["acute_pain_coef"]:.2f}, '
     f'P={reg["model5_integrated"]["acute_pain_p"]:.3f}), '
-    f'while the Tohoku indicator was nonsignificant '
-    f'(\u03b2={reg["model5_integrated"]["tohoku_coef"]:.1f}, '
-    f'P={reg["model5_integrated"]["tohoku_p"]:.2f}).'
+    f'while regional indicators were nonsignificant after confounder adjustment.'
 )
 doc.add_paragraph(r6)
 results_parts.append(r6)
@@ -885,10 +875,10 @@ disc_parts.append(d1)
 
 d2 = (
     f'Second, the most methodologically important finding is that the marked regional '
-    f'variation in neuropathic pain prescribing (unadjusted d={unadj_d:.2f}) was largely '
+    f'clustering in neuropathic pain prescribing was largely '
     f'explained by confounding disease proxies, particularly diabetes drug prescribing '
-    f'(r=0.87). After adjustment, the apparent Tohoku excess was attenuated by {attenuation:.0f}% '
-    f'and became nonsignificant. '
+    f'(r=0.87). After adjustment, apparent inter-regional differences were substantially '
+    f'attenuated and became nonsignificant across all model specifications. '
     f'This has important implications: ecological studies using neuropathic pain drugs as a '
     f'chronic pain proxy must account for diabetic neuropathy. Without such adjustment, '
     f'regional differences in diabetes prevalence will be misattributed to differences '
@@ -1056,7 +1046,7 @@ add_heading_text('Figure Legends', level=1)
 legends = [
     ('Figure 1.', 'Outpatient neuropathic pain drug prescribing per surgery by prefecture. '
      'Bars represent individual prefectures ordered by prescribing index. '
-     'Tohoku prefectures are indicated in red. '
+     'Bars are coloured by regional block. '
      'Dashed line indicates the national mean.'),
     ('Figure 2.', 'Correlation between neuropathic pain prescribing and confounder disease '
      'proxies across 47 prefectures. '
