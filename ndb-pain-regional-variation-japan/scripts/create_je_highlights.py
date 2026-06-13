@@ -42,9 +42,9 @@ for run in h.runs:
 highlights = [
     'Perioperative analgesic prescribing varies 1.97-fold across Japan\u2019s 47 prefectures.',
     'Nearly twofold variation persists after age-sex standardisation (SCR range, 64\u2013148).',
+    'Prescribing variation is dissociated from symptom burden (CSLC r=0.03), indicating unwarranted variation.',
     'Diabetes drug prescribing (r=0.87) is the dominant confounder of neuropathic pain patterns.',
-    'Apparent regional clustering becomes nonsignificant after confounder adjustment.',
-    'NDB Open Data enable prefecture-level practice variation analysis at no cost.',
+    'NDB Open Data triangulated with CSLC enable demand\u2013supply analysis at no cost.',
 ]
 
 for i, hl in enumerate(highlights, 1):

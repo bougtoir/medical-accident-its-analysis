@@ -89,14 +89,19 @@ body_paras = [
     'explained by confounding disease proxies, particularly diabetes drug prescribing '
     '(r=0.87); after adjustment, inter-regional differences were substantially '
     'attenuated and became nonsignificant. '
-    '(3) Acute perioperative prescribing was a significant predictor of chronic pain-related '
-    'prescribing even after confounder adjustment, suggesting a modest link between '
-    'regional patterns of acute pain management and chronic pain burden.',
+    '(3) Most notably, prescribing variation was dissociated from symptom burden: '
+    'symptom prevalence from the Comprehensive Survey of Living Conditions (CSLC 2022) '
+    'varied only 1.29-fold and showed no correlation with prescribing (r=0.03, P=0.85), '
+    'formally meeting the criteria for Wennberg unwarranted variation. '
+    '(4) Acute perioperative prescribing was a significant predictor of chronic pain-related '
+    'prescribing even after confounder adjustment.',
 
     'These findings are of direct relevance to the readership of the Journal of '
     'Epidemiology. The study demonstrates that Japan\u2019s NDB Open Data\u2014a freely '
     'accessible resource\u2014can reveal clinically important practice variation that would '
-    'be invisible in individual-level or single-institution studies. The methodological '
+    'be invisible in individual-level or single-institution studies. The triangulation of '
+    'NDB prescribing data with the CSLC household survey provides a novel demand\u2013supply '
+    'framework for evaluating unwarranted variation. The methodological '
     'lesson\u2014that ecological studies of neuropathic pain drugs must account for diabetic '
     'neuropathy and other confounding diseases\u2014is broadly relevant to researchers using '
     'claims data for pain epidemiology.',

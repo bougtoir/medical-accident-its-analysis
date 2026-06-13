@@ -1,0 +1,90 @@
+{
+  "data_source": "CSLC 2022 (e-Stat Table 0002041077)",
+  "national_symptom_rate": 276.5,
+  "symptom_rate_stats": {
+    "mean": 287.44255319148937,
+    "sd": 17.73489246459659,
+    "min": 244.0,
+    "max": 314.9,
+    "range_ratio": 1.2905737704918032,
+    "min_pref": "東京都",
+    "max_pref": "兵庫県"
+  },
+  "correlations": {
+    "symptom_vs_acute": {
+      "pearson_r": 0.02913187387057492,
+      "pearson_p": 0.8458773329232645,
+      "spearman_rho": -0.03232148025061676,
+      "spearman_p": 0.8292415425987635
+    },
+    "symptom_vs_neuro_percapita": {
+      "pearson_r": 0.0763949599180412,
+      "pearson_p": 0.6097843106093572,
+      "spearman_rho": -0.03925990177132162,
+      "spearman_p": 0.7933170722346601
+    },
+    "symptom_vs_adjusted_cpsp": {
+      "pearson_r": 0.1854602656486936,
+      "pearson_p": 0.21200347420960616
+    }
+  },
+  "regression": {
+    "model_a_symptom_only": {
+      "R2": 0.005836189900878974,
+      "symptom_coef": 16.164131304949905
+    },
+    "model_b_symptom_plus_confounders": {
+      "R2": 0.5446999587092614,
+      "R2_adj": 0.489175563429903,
+      "symptom_coef": 29.459771168370597
+    }
+  },
+  "mismatch": {
+    "acute_mismatch_range": [
+      -3.199992198929202,
+      3.697087289549354
+    ],
+    "neuro_mismatch_range": [
+      -2.5455705482593816,
+      3.5321571618345335
+    ],
+    "region_summary": {
+      "Hokkaido": {
+        "acute_mismatch_mean": 2.270707010370846,
+        "neuro_mismatch_mean": 2.2021404602162478
+      },
+      "Tohoku": {
+        "acute_mismatch_mean": 0.6546372356161343,
+        "neuro_mismatch_mean": 1.6192361437523575
+      },
+      "Kanto": {
+        "acute_mismatch_mean": 0.889907997007373,
+        "neuro_mismatch_mean": 1.037974682118451
+      },
+      "Hokuriku-Koshinetsu": {
+        "acute_mismatch_mean": 0.07346676993818102,
+        "neuro_mismatch_mean": 0.059474533599567274
+      },
+      "Tokai": {
+        "acute_mismatch_mean": -1.3199018953294461,
+        "neuro_mismatch_mean": -0.6363734149434576
+      },
+      "Kinki": {
+        "acute_mismatch_mean": -1.7516790020904303,
+        "neuro_mismatch_mean": -1.5278780397060248
+      },
+      "Chugoku": {
+        "acute_mismatch_mean": -0.6178625126918939,
+        "neuro_mismatch_mean": -0.6287967155645741
+      },
+      "Shikoku": {
+        "acute_mismatch_mean": -0.52758665072443,
+        "neuro_mismatch_mean": -0.7823819935816829
+      },
+      "Kyushu-Okinawa": {
+        "acute_mismatch_mean": 1.0150817171836628,
+        "neuro_mismatch_mean": -0.19424423112466746
+      }
+    }
+  }
+}
