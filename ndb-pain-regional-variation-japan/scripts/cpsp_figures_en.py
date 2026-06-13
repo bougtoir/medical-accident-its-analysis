@@ -84,24 +84,31 @@ REGION_COLORS = {
 REGION_ORDER = ['北海道','東北','関東','北陸・甲信越','東海','近畿','中国','四国','九州・沖縄']
 
 # ============================================================
-# Figure 1: Unadjusted neuropathic pain drugs per surgery by prefecture
+# Figure 1: Unadjusted neuropathic pain drugs per surgery by prefecture (B&W)
 # ============================================================
+REGION_HATCHES = {
+    '北海道': '', '東北': '///', '関東': '\\\\\\',
+    '北陸・甲信越': '+++', '東海': '---', '近畿': '...',
+    '中国': 'xxx', '四国': 'ooo', '九州・沖縄': '***'
+}
+REGION_BAR_GRAYS = {
+    '北海道': '0.20', '東北': '0.35', '関東': '0.50',
+    '北陸・甲信越': '0.65', '東海': '0.10', '近畿': '0.80',
+    '中国': '0.40', '四国': '0.60', '九州・沖縄': '0.90'
+}
+
 fig, ax = plt.subplots(figsize=(16, 7))
 
 # Sort by value
 sorted_rows = sorted(rows, key=lambda x: x['neuropathic_per_surgery'])
 names = [pref_en(r['pref_name']) for r in sorted_rows]
 vals = [r['neuropathic_per_surgery'] for r in sorted_rows]
-colors = [REGION_COLORS[r['region']] for r in sorted_rows]
 tohoku_mask = [r['is_tohoku'] for r in sorted_rows]
 
-bars = ax.bar(range(len(names)), vals, color=colors, edgecolor='white', linewidth=0.5)
-
-# Highlight Tohoku with border
-for i, (bar, is_t) in enumerate(zip(bars, tohoku_mask)):
-    if is_t:
-        bar.set_edgecolor('#d62728')
-        bar.set_linewidth(2)
+bars = ax.bar(range(len(names)), vals, color=[REGION_BAR_GRAYS[r['region']] for r in sorted_rows],
+              edgecolor='black', linewidth=0.5)
+for bar, row in zip(bars, sorted_rows):
+    bar.set_hatch(REGION_HATCHES[row['region']])
 
 ax.axhline(y=np.mean(vals), color='black', linestyle='--', linewidth=1, alpha=0.7, label='National mean')
 ax.set_xticks(range(len(names)))
@@ -110,7 +117,8 @@ ax.set_ylabel('Outpatient neuropathic pain drug prescriptions / surgical cases',
 # Title removed per Pain submission guidelines (legends in manuscript text only)
 
 # Legend
-handles = [mpatches.Patch(color=REGION_COLORS[r], label=region_en(r)) for r in REGION_ORDER]
+handles = [mpatches.Patch(facecolor=REGION_BAR_GRAYS[r], edgecolor='black',
+           hatch=REGION_HATCHES[r], label=region_en(r)) for r in REGION_ORDER]
 handles.append(plt.Line2D([0],[0], color='black', linestyle='--', label='National mean'))
 ax.legend(handles=handles, loc='upper left', fontsize=8, ncol=2)
 ax.set_xlim(-0.5, len(names)-0.5)
@@ -121,8 +129,20 @@ plt.close()
 print("Saved fig1_neuropathic_unadjusted_en.png")
 
 # ============================================================
-# Figure 2: Confounder correlation scatter panels
+# Figure 2: Confounder correlation scatter panels (B&W)
 # ============================================================
+# Grayscale markers for print compatibility
+REGION_MARKERS = {
+    '北海道': 'o', '東北': 's', '関東': '^',
+    '北陸・甲信越': 'D', '東海': 'v', '近畿': 'p',
+    '中国': 'h', '四国': 'X', '九州・沖縄': '*'
+}
+REGION_GRAYS = {
+    '北海道': '0.15', '東北': '0.30', '関東': '0.45',
+    '北陸・甲信越': '0.60', '東海': '0.00', '近畿': '0.75',
+    '中国': '0.35', '四国': '0.55', '九州・沖縄': '0.85'
+}
+
 fig, axes = plt.subplots(2, 2, figsize=(14, 12))
 
 confounders = [
@@ -133,26 +153,34 @@ confounders = [
 ]
 
 for conf_key, conf_label, ax in confounders:
-    x = [r[conf_key] for r in rows]
-    y = [r['neuropathic_per_surgery'] for r in rows]
-    colors_pts = [REGION_COLORS[r['region']] for r in rows]
-    
-    for i, r in enumerate(rows):
-        ax.scatter(x[i], y[i], c=REGION_COLORS[r['region']], s=40, alpha=0.8, zorder=3,
-                  edgecolors='#d62728' if r['is_tohoku'] else 'white', linewidths=1.5 if r['is_tohoku'] else 0.5)
-    
+    x = np.array([r[conf_key] for r in rows])
+    y = np.array([r['neuropathic_per_surgery'] for r in rows])
+
+    for reg in REGION_ORDER:
+        mask = [r['region'] == reg for r in rows]
+        if not any(mask):
+            continue
+        xr = x[mask]
+        yr = y[mask]
+        ax.scatter(xr, yr, marker=REGION_MARKERS[reg], c=REGION_GRAYS[reg],
+                   s=50, alpha=0.9, zorder=3, edgecolors='black', linewidths=0.6,
+                   label=region_en(reg))
+
     # Regression line
     slope, intercept, r_val, p_val, se = stats.linregress(x, y)
     x_line = np.linspace(min(x), max(x), 100)
     ax.plot(x_line, intercept + slope * x_line, 'k--', alpha=0.5, linewidth=1)
-    
+
     ax.set_xlabel(conf_label, fontsize=10)
     ax.set_ylabel('Neuropathic pain drugs / surgery', fontsize=10)
     ax.set_title(f'r = {r_val:.3f}, p = {p_val:.4f}', fontsize=10)
     ax.grid(True, alpha=0.3)
 
 # Title removed per Pain submission guidelines (legends in manuscript text only)
-handles = [mpatches.Patch(color=REGION_COLORS[r], label=region_en(r)) for r in REGION_ORDER]
+handles = [plt.Line2D([0], [0], marker=REGION_MARKERS[r], color='w',
+           markerfacecolor=REGION_GRAYS[r], markeredgecolor='black',
+           markeredgewidth=0.6, markersize=8, label=region_en(r))
+           for r in REGION_ORDER]
 fig.legend(handles=handles, loc='lower center', ncol=5, fontsize=8, bbox_to_anchor=(0.5, -0.02))
 plt.tight_layout()
 plt.savefig(OUTPUT_DIR + 'fig2_confounder_correlations_en.png', dpi=600, bbox_inches='tight')
@@ -160,21 +188,19 @@ plt.close()
 print("Saved fig2_confounder_correlations_en.png")
 
 # ============================================================
-# Figure 3: Adjusted CPSP index by prefecture
+# Figure 3: Adjusted CPSP index by prefecture (B&W)
 # ============================================================
 fig, ax = plt.subplots(figsize=(16, 7))
 
 sorted_adj = sorted(rows, key=lambda x: x['adjusted_cpsp_index'])
 names_adj = [pref_en(r['pref_name']) for r in sorted_adj]
 vals_adj = [r['adjusted_cpsp_index'] for r in sorted_adj]
-colors_adj = [REGION_COLORS[r['region']] for r in sorted_adj]
-tohoku_adj = [r['is_tohoku'] for r in sorted_adj]
 
-bars = ax.bar(range(len(names_adj)), vals_adj, color=colors_adj, edgecolor='white', linewidth=0.5)
-for i, (bar, is_t) in enumerate(zip(bars, tohoku_adj)):
-    if is_t:
-        bar.set_edgecolor('#d62728')
-        bar.set_linewidth(2)
+bars = ax.bar(range(len(names_adj)), vals_adj,
+              color=[REGION_BAR_GRAYS[r['region']] for r in sorted_adj],
+              edgecolor='black', linewidth=0.5)
+for bar, row in zip(bars, sorted_adj):
+    bar.set_hatch(REGION_HATCHES[row['region']])
 
 ax.axhline(y=0, color='black', linestyle='-', linewidth=1, alpha=0.5)
 ax.set_xticks(range(len(names_adj)))
@@ -182,7 +208,8 @@ ax.set_xticklabels(names_adj, rotation=90, fontsize=7)
 ax.set_ylabel('Adjusted CPSP index (residual)', fontsize=11)
 # Title removed per Pain submission guidelines (legends in manuscript text only)
 
-handles = [mpatches.Patch(color=REGION_COLORS[r], label=region_en(r)) for r in REGION_ORDER]
+handles = [mpatches.Patch(facecolor=REGION_BAR_GRAYS[r], edgecolor='black',
+           hatch=REGION_HATCHES[r], label=region_en(r)) for r in REGION_ORDER]
 ax.legend(handles=handles, loc='upper left', fontsize=8, ncol=2)
 ax.set_xlim(-0.5, len(names_adj)-0.5)
 
@@ -192,7 +219,7 @@ plt.close()
 print("Saved fig3_adjusted_cpsp_index_en.png")
 
 # ============================================================
-# Figure 4: Region comparison - unadjusted vs adjusted (paired bar)
+# Figure 4: Region comparison - unadjusted vs adjusted (paired bar, B&W)
 # ============================================================
 fig, axes = plt.subplots(1, 2, figsize=(16, 7))
 
@@ -210,8 +237,11 @@ ax = axes[0]
 x_pos = range(len(region_order_sorted))
 means = [np.mean(region_raw[r]) for r in region_order_sorted]
 sds = [np.std(region_raw[r]) for r in region_order_sorted]
-colors_reg = [REGION_COLORS[r] for r in region_order_sorted]
-bars = ax.bar(x_pos, means, yerr=sds, color=colors_reg, edgecolor='white', capsize=3)
+bars = ax.bar(x_pos, means, yerr=sds,
+              color=[REGION_BAR_GRAYS[r] for r in region_order_sorted],
+              edgecolor='black', capsize=3)
+for bar, rname in zip(bars, region_order_sorted):
+    bar.set_hatch(REGION_HATCHES[rname])
 ax.axhline(y=np.mean([r['neuropathic_per_surgery'] for r in rows]), color='black', linestyle='--', alpha=0.5)
 ax.set_xticks(x_pos)
 ax.set_xticklabels([region_en(r) for r in region_order_sorted], rotation=45, ha='right', fontsize=9)
@@ -219,28 +249,21 @@ ax.set_ylabel('Neuropathic pain drugs / surgery', fontsize=10)
 ax.set_title('(A) Unadjusted', fontsize=12, fontweight='bold')
 ax.grid(axis='y', alpha=0.3)
 
-# Highlight Tohoku
-for i, (bar, rname) in enumerate(zip(bars, region_order_sorted)):
-    if rname == '東北':
-        bar.set_edgecolor('#d62728')
-        bar.set_linewidth(2)
-
 # Right: adjusted by region
 ax = axes[1]
 means_adj = [np.mean(region_adj[r]) for r in region_order_sorted]
 sds_adj = [np.std(region_adj[r]) for r in region_order_sorted]
-bars = ax.bar(x_pos, means_adj, yerr=sds_adj, color=colors_reg, edgecolor='white', capsize=3)
+bars = ax.bar(x_pos, means_adj, yerr=sds_adj,
+              color=[REGION_BAR_GRAYS[r] for r in region_order_sorted],
+              edgecolor='black', capsize=3)
+for bar, rname in zip(bars, region_order_sorted):
+    bar.set_hatch(REGION_HATCHES[rname])
 ax.axhline(y=0, color='black', linestyle='-', alpha=0.5)
 ax.set_xticks(x_pos)
 ax.set_xticklabels([region_en(r) for r in region_order_sorted], rotation=45, ha='right', fontsize=9)
 ax.set_ylabel('Adjusted CPSP index', fontsize=10)
 ax.set_title('(B) Confounder-adjusted', fontsize=12, fontweight='bold')
 ax.grid(axis='y', alpha=0.3)
-
-for i, (bar, rname) in enumerate(zip(bars, region_order_sorted)):
-    if rname == '東北':
-        bar.set_edgecolor('#d62728')
-        bar.set_linewidth(2)
 
 # Title removed per Pain submission guidelines (legends in manuscript text only)
 plt.tight_layout()

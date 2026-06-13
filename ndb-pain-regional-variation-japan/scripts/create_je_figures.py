@@ -29,7 +29,7 @@ figure_sources = [
         'caption': (
             'Figure 1. Outpatient neuropathic pain drug prescribing per surgery by '
             'prefecture. Bars represent individual prefectures ordered by prescribing '
-            'index. Bars are coloured by regional block. '
+            'index. Bars indicate regional blocks (distinguished by shading and hatch pattern). '
             'Dashed line indicates the national mean.'
         ),
     },
@@ -39,7 +39,7 @@ figure_sources = [
         'tiff_fallback': os.path.join(OUTPUT_DIR, 'Fig2_confounder_correlations.tiff'),
         'caption': (
             'Figure 2. Correlation between neuropathic pain prescribing and confounder '
-            'disease proxies across 47 prefectures. Each dot represents one prefecture. '
+            'disease proxies across 47 prefectures. Each marker shape represents a regional block. '
             'Diabetes drugs show the strongest correlation (r=0.87).'
         ),
     },
@@ -60,8 +60,8 @@ figure_sources = [
         'caption': (
             'Figure 4. Demand\u2013supply dissociation: CSLC symptom prevalence rate '
             '(per 1,000 population) vs acute analgesic prescribing per surgery '
-            'across 47 prefectures. Each dot represents one prefecture, coloured by '
-            'regional block. The near-zero correlation (r=0.03, P=0.85) indicates that '
+            'across 47 prefectures. Each marker shape represents a regional block. '
+            'The near-zero correlation (r=0.03, P=0.85) indicates that '
             'prescribing variation is dissociated from symptom burden.'
         ),
     },
