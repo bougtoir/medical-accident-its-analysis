@@ -115,7 +115,7 @@ ref_list = [
     'between Japanese and Euro-Americans. Eur J Pain. 2005;9:389\u201393.',
     # 15 Pfizer
     'ファイザー株式会社. 47都道府県 慢性疼痛に関する調査. '
-    'https://www.pfizer.co.jp/pfizer/company/press/2017. 2025年2月1日アクセス.',
+    'https://www.pfizer.co.jp/pfizer/company/press/2017. 2022年5月28日アクセス.',
     # 16 Raja IASP
     'Raja SN, Carr DB, Cohen M, et al. The revised IASP definition of pain. '
     'Pain. 2020;161:1976\u201382.',

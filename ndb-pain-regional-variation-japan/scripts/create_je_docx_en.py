@@ -150,7 +150,7 @@ ref_list = [
     'doi:10.1016/j.ejpain.2004.09.006',
     # 15 Pfizer Japan survey
     'Pfizer Japan Inc. 47-prefecture survey on chronic pain. '
-    'https://www.pfizer.co.jp/pfizer/company/press/2017. Accessed February 1, 2025.',
+    'https://www.pfizer.co.jp/pfizer/company/press/2017. Accessed May 28, 2022.',
     # 16 Raja IASP definition
     'Raja SN, Carr DB, Cohen M, et al. The revised International Association for the '
     'Study of Pain definition of pain: concepts, challenges, and compromises. '
