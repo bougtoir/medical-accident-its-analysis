@@ -149,8 +149,11 @@ ref_list = [
     'between Japanese and Euro-Americans. Eur J Pain. 2005;9:389\u201393. '
     'doi:10.1016/j.ejpain.2004.09.006',
     # 15 Pfizer Japan survey
-    'Pfizer Japan Inc. 47-prefecture survey on chronic pain. '
-    'https://www.pfizer.co.jp/pfizer/company/press/2017. Accessed May 28, 2022.',
+    'Pfizer Japan Inc. 47-prefecture survey on chronic pain (2012 vs 2017). '
+    'https://www.pfizer.co.jp/pfizer/company/press/2017/2017_08_23.html. '
+    'Accessed May 28, 2022. Archived at: '
+    'https://web.archive.org/web/20220528073616/'
+    'https://www.pfizer.co.jp/pfizer/company/press/2017/2017_08_23.html',
     # 16 Raja IASP definition
     'Raja SN, Carr DB, Cohen M, et al. The revised International Association for the '
     'Study of Pain definition of pain: concepts, challenges, and compromises. '
