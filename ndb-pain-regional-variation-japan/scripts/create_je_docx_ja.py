@@ -114,8 +114,11 @@ ref_list = [
     'Hobara M. Beliefs about appropriate pain behavior: cross-cultural and sex differences '
     'between Japanese and Euro-Americans. Eur J Pain. 2005;9:389\u201393.',
     # 15 Pfizer
-    'ファイザー株式会社. 47都道府県 慢性疼痛に関する調査. '
-    'https://www.pfizer.co.jp/pfizer/company/press/2017. 2025年2月1日アクセス.',
+    'ファイザー株式会社. 47都道府県 長く続く痛みに関する実態調査（2012年 vs 2017年比較）. '
+    'https://www.pfizer.co.jp/pfizer/company/press/2017/2017_08_23.html. '
+    '2022年5月28日アクセス. アーカイブ: '
+    'https://web.archive.org/web/20220528073616/'
+    'https://www.pfizer.co.jp/pfizer/company/press/2017/2017_08_23.html',
     # 16 Raja IASP
     'Raja SN, Carr DB, Cohen M, et al. The revised IASP definition of pain. '
     'Pain. 2020;161:1976\u201382.',
