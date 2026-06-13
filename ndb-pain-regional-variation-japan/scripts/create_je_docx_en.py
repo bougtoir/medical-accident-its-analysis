@@ -758,7 +758,7 @@ results_parts.append(r3)
 # === FIGURE 1 placeholder ===
 add_inline_figure(
     'Outpatient neuropathic pain drug prescribing per surgery by prefecture. '
-    'Bars indicate regional blocks (distinguished by shading and hatch pattern). '
+    'Bars indicate regional blocks (distinguished by colour and hatch pattern). '
     'Dashed line indicates the national mean.',
     1
 )
@@ -1173,11 +1173,11 @@ add_heading_text('Figure Legends', level=1)
 legends = [
     ('Figure 1.', 'Outpatient neuropathic pain drug prescribing per surgery by prefecture. '
      'Bars represent individual prefectures ordered by prescribing index. '
-     'Bars indicate regional blocks (distinguished by shading and hatch pattern). '
+     'Bars indicate regional blocks (distinguished by colour and hatch pattern). '
      'Dashed line indicates the national mean.'),
     ('Figure 2.', 'Correlation between neuropathic pain prescribing and confounder disease '
      'proxies across 47 prefectures. '
-     'Each marker shape represents a regional block. '
+     'Each marker represents a regional block (distinguished by colour and shape). '
      'Diabetes drugs show the strongest correlation (r=0.87).'),
     ('Figure 3.', 'Regional comparison of neuropathic pain prescribing: (a) unadjusted and '
      '(b) after adjustment for confounding disease proxies. '

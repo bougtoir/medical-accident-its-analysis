@@ -55,16 +55,11 @@ REGION_COLORS = {
     'Hokuriku-Koshinetsu': '#377eb8', 'Tokai': '#984ea3', 'Kinki': '#a65628',
     'Chugoku': '#f781bf', 'Shikoku': '#999999', 'Kyushu-Okinawa': '#e6ab02',
 }
-# Grayscale markers for print compatibility
+# Distinct markers for B&W print compatibility (colour preserved for screen)
 REGION_MARKERS = {
     'Hokkaido': 'o', 'Tohoku': 's', 'Kanto': '^',
     'Hokuriku-Koshinetsu': 'D', 'Tokai': 'v', 'Kinki': 'p',
     'Chugoku': 'h', 'Shikoku': 'X', 'Kyushu-Okinawa': '*',
-}
-REGION_GRAYS = {
-    'Hokkaido': '0.15', 'Tohoku': '0.30', 'Kanto': '0.45',
-    'Hokuriku-Koshinetsu': '0.60', 'Tokai': '0.00', 'Kinki': '0.75',
-    'Chugoku': '0.35', 'Shikoku': '0.55', 'Kyushu-Okinawa': '0.85',
 }
 
 PREF_EN = {
@@ -90,7 +85,7 @@ for reg_en in REGION_ORDER:
     mask = [REGION_EN.get(r['region'], '') == reg_en for r in rows]
     x = symptom[mask]
     y = acute[mask]
-    ax.scatter(x, y, marker=REGION_MARKERS[reg_en], c=REGION_GRAYS[reg_en],
+    ax.scatter(x, y, marker=REGION_MARKERS[reg_en], c=REGION_COLORS[reg_en],
                label=reg_en, s=70, edgecolors='black', linewidths=0.6, zorder=3)
 
 # Annotate selected outlier prefectures
@@ -120,7 +115,7 @@ ax.set_ylabel('Acute analgesic prescribing per surgery', fontsize=11)
 ax.set_title('Demand\u2013supply dissociation: symptom burden vs analgesic prescribing',
              fontsize=12, fontweight='bold')
 handles = [plt.Line2D([0], [0], marker=REGION_MARKERS[r], color='w',
-           markerfacecolor=REGION_GRAYS[r], markeredgecolor='black',
+           markerfacecolor=REGION_COLORS[r], markeredgecolor='black',
            markeredgewidth=0.6, markersize=8, label=r) for r in REGION_ORDER]
 ax.legend(handles=handles, loc='lower right', fontsize=8, ncol=2, framealpha=0.9)
 ax.grid(True, alpha=0.3)
@@ -158,7 +153,7 @@ for reg_en in REGION_ORDER:
     mask = [REGION_EN.get(r['region'], '') == reg_en for r in rows]
     x = symptom[mask]
     y = acute[mask]
-    ax.scatter(x, y, marker=REGION_MARKERS[reg_en], c=REGION_GRAYS[reg_en],
+    ax.scatter(x, y, marker=REGION_MARKERS[reg_en], c=REGION_COLORS[reg_en],
                label=REGION_JA[reg_en], s=70, edgecolors='black', linewidths=0.6, zorder=3)
 
 for r in rows:
@@ -177,7 +172,7 @@ ax.set_xlabel('国民生活基礎調査 有訴者率（人口千対）', fontsiz
 ax.set_ylabel('急性鎮痛薬処方数/手術件数', fontsize=11, fontproperties=ja_prop)
 ax.set_title('需要\u2013供給の乖離：症状有訴率と鎮痛薬処方', fontsize=12, fontweight='bold', fontproperties=ja_prop)
 handles = [plt.Line2D([0], [0], marker=REGION_MARKERS[r], color='w',
-           markerfacecolor=REGION_GRAYS[r], markeredgecolor='black',
+           markerfacecolor=REGION_COLORS[r], markeredgecolor='black',
            markeredgewidth=0.6, markersize=8, label=REGION_JA[r]) for r in REGION_ORDER]
 ax.legend(handles=handles, loc='lower right', fontsize=8, ncol=2, framealpha=0.9, prop=ja_prop)
 ax.grid(True, alpha=0.3)

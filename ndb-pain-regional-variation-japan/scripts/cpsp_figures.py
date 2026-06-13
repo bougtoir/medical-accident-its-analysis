@@ -47,17 +47,12 @@ REGION_COLORS = {
 REGION_ORDER = ['北海道','東北','関東','北陸・甲信越','東海','近畿','中国','四国','九州・沖縄']
 
 # ============================================================
-# Figure 1: Unadjusted neuropathic pain drugs per surgery by prefecture (B&W)
+# Figure 1: Unadjusted neuropathic pain drugs per surgery by prefecture
 # ============================================================
 REGION_HATCHES = {
     '北海道': '', '東北': '///', '関東': '\\\\\\',
     '北陸・甲信越': '+++', '東海': '---', '近畿': '...',
     '中国': 'xxx', '四国': 'ooo', '九州・沖縄': '***'
-}
-REGION_BAR_GRAYS = {
-    '北海道': '0.20', '東北': '0.35', '関東': '0.50',
-    '北陸・甲信越': '0.65', '東海': '0.10', '近畿': '0.80',
-    '中国': '0.40', '四国': '0.60', '九州・沖縄': '0.90'
 }
 
 fig, ax = plt.subplots(figsize=(16, 7))
@@ -68,7 +63,7 @@ names = [r['pref_name'] for r in sorted_rows]
 vals = [r['neuropathic_per_surgery'] for r in sorted_rows]
 
 bars = ax.bar(range(len(names)), vals,
-              color=[REGION_BAR_GRAYS[r['region']] for r in sorted_rows],
+              color=[REGION_COLORS[r['region']] for r in sorted_rows],
               edgecolor='black', linewidth=0.5)
 for bar, row in zip(bars, sorted_rows):
     bar.set_hatch(REGION_HATCHES[row['region']])
@@ -80,7 +75,7 @@ ax.set_ylabel('外来神経障害性疼痛薬処方量 / 手術件数', fontsize
 ax.set_title('Figure 1. 都道府県別 外来神経障害性疼痛薬処方量（手術あたり）：未調整', fontsize=13, fontweight='bold')
 
 # Legend
-handles = [mpatches.Patch(facecolor=REGION_BAR_GRAYS[r], edgecolor='black',
+handles = [mpatches.Patch(facecolor=REGION_COLORS[r], edgecolor='black',
            hatch=REGION_HATCHES[r], label=r) for r in REGION_ORDER]
 handles.append(plt.Line2D([0],[0], color='black', linestyle='--', label='全国平均'))
 ax.legend(handles=handles, loc='upper left', fontsize=8, ncol=2)
@@ -92,17 +87,12 @@ plt.close()
 print("Saved fig1_neuropathic_unadjusted.png")
 
 # ============================================================
-# Figure 2: Confounder correlation scatter panels (B&W)
+# Figure 2: Confounder correlation scatter panels
 # ============================================================
 REGION_MARKERS = {
     '北海道': 'o', '東北': 's', '関東': '^',
     '北陸・甲信越': 'D', '東海': 'v', '近畿': 'p',
     '中国': 'h', '四国': 'X', '九州・沖縄': '*'
-}
-REGION_GRAYS = {
-    '北海道': '0.15', '東北': '0.30', '関東': '0.45',
-    '北陸・甲信越': '0.60', '東海': '0.00', '近畿': '0.75',
-    '中国': '0.35', '四国': '0.55', '九州・沖縄': '0.85'
 }
 
 fig, axes = plt.subplots(2, 2, figsize=(14, 12))
@@ -124,7 +114,7 @@ for conf_key, conf_label, ax in confounders:
             continue
         xr = x[mask]
         yr = y[mask]
-        ax.scatter(xr, yr, marker=REGION_MARKERS[reg], c=REGION_GRAYS[reg],
+        ax.scatter(xr, yr, marker=REGION_MARKERS[reg], c=REGION_COLORS[reg],
                    s=50, alpha=0.9, zorder=3, edgecolors='black', linewidths=0.6,
                    label=reg)
 
@@ -140,7 +130,7 @@ for conf_key, conf_label, ax in confounders:
 
 fig.suptitle('Figure 2. 神経障害性疼痛薬処方量と交絡疾患プロキシの相関', fontsize=13, fontweight='bold', y=1.01)
 handles = [plt.Line2D([0], [0], marker=REGION_MARKERS[r], color='w',
-           markerfacecolor=REGION_GRAYS[r], markeredgecolor='black',
+           markerfacecolor=REGION_COLORS[r], markeredgecolor='black',
            markeredgewidth=0.6, markersize=8, label=r)
            for r in REGION_ORDER]
 fig.legend(handles=handles, loc='lower center', ncol=5, fontsize=8, bbox_to_anchor=(0.5, -0.02))
@@ -150,7 +140,7 @@ plt.close()
 print("Saved fig2_confounder_correlations.png")
 
 # ============================================================
-# Figure 3: Adjusted CPSP index by prefecture (B&W)
+# Figure 3: Adjusted CPSP index by prefecture
 # ============================================================
 fig, ax = plt.subplots(figsize=(16, 7))
 
@@ -159,7 +149,7 @@ names_adj = [r['pref_name'] for r in sorted_adj]
 vals_adj = [r['adjusted_cpsp_index'] for r in sorted_adj]
 
 bars = ax.bar(range(len(names_adj)), vals_adj,
-              color=[REGION_BAR_GRAYS[r['region']] for r in sorted_adj],
+              color=[REGION_COLORS[r['region']] for r in sorted_adj],
               edgecolor='black', linewidth=0.5)
 for bar, row in zip(bars, sorted_adj):
     bar.set_hatch(REGION_HATCHES[row['region']])
@@ -170,7 +160,7 @@ ax.set_xticklabels(names_adj, rotation=90, fontsize=7)
 ax.set_ylabel('調整済CPSP指標（残差）', fontsize=11)
 ax.set_title('Figure 3. 交絡疾患調整後の都道府県別CPSP指標\n（糖尿病薬・帯状疱疹薬・抗うつ薬・抗不安薬を調整）', fontsize=13, fontweight='bold')
 
-handles = [mpatches.Patch(facecolor=REGION_BAR_GRAYS[r], edgecolor='black',
+handles = [mpatches.Patch(facecolor=REGION_COLORS[r], edgecolor='black',
            hatch=REGION_HATCHES[r], label=r) for r in REGION_ORDER]
 ax.legend(handles=handles, loc='upper left', fontsize=8, ncol=2)
 ax.set_xlim(-0.5, len(names_adj)-0.5)
@@ -181,7 +171,7 @@ plt.close()
 print("Saved fig3_adjusted_cpsp_index.png")
 
 # ============================================================
-# Figure 4: Region comparison - unadjusted vs adjusted (paired bar, B&W)
+# Figure 4: Region comparison - unadjusted vs adjusted (paired bar)
 # ============================================================
 fig, axes = plt.subplots(1, 2, figsize=(16, 7))
 
@@ -200,7 +190,7 @@ x_pos = range(len(region_order_sorted))
 means = [np.mean(region_raw[r]) for r in region_order_sorted]
 sds = [np.std(region_raw[r]) for r in region_order_sorted]
 bars = ax.bar(x_pos, means, yerr=sds,
-              color=[REGION_BAR_GRAYS[r] for r in region_order_sorted],
+              color=[REGION_COLORS[r] for r in region_order_sorted],
               edgecolor='black', capsize=3)
 for bar, rname in zip(bars, region_order_sorted):
     bar.set_hatch(REGION_HATCHES[rname])
@@ -216,7 +206,7 @@ ax = axes[1]
 means_adj = [np.mean(region_adj[r]) for r in region_order_sorted]
 sds_adj = [np.std(region_adj[r]) for r in region_order_sorted]
 bars = ax.bar(x_pos, means_adj, yerr=sds_adj,
-              color=[REGION_BAR_GRAYS[r] for r in region_order_sorted],
+              color=[REGION_COLORS[r] for r in region_order_sorted],
               edgecolor='black', capsize=3)
 for bar, rname in zip(bars, region_order_sorted):
     bar.set_hatch(REGION_HATCHES[rname])
