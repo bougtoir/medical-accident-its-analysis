@@ -811,19 +811,23 @@ models = [
     ('Model 2 (all confounders)',
      f'R\u00b2={reg["model2_adjusted"]["R2"]:.3f}',
      f'R\u00b2adj={reg["model2_adjusted"]["R2_adj"]:.3f}',
-     'Regional indicators not significant'),
+     f'Regional \u03b2={reg["model2_adjusted"]["tohoku_coef"]:.1f}, '
+     f'P={reg["model2_adjusted"]["tohoku_p"]:.3f}'),
     ('Model 3 (core neuro)',
      f'R\u00b2={reg["model3_core_neuropathic"]["R2"]:.3f}',
      f'R\u00b2adj={reg["model3_core_neuropathic"]["R2_adj"]:.3f}',
-     'Regional indicators not significant'),
+     f'Regional \u03b2={reg["model3_core_neuropathic"]["tohoku_coef"]:.1f}, '
+     f'P={reg["model3_core_neuropathic"]["tohoku_p"]:.3f}'),
     ('Model 4 (nerve blocks)',
      f'R\u00b2={reg["model4_nerve_blocks"]["R2"]:.3f}',
      f'R\u00b2adj={reg["model4_nerve_blocks"]["R2_adj"]:.3f}',
-     'Regional indicators not significant'),
+     f'Regional \u03b2={reg["model4_nerve_blocks"]["tohoku_coef"]:.2f}, '
+     f'P={reg["model4_nerve_blocks"]["tohoku_p"]:.3f}'),
     ('Model 5 (integrated)',
      f'R\u00b2={reg["model5_integrated"]["R2"]:.3f}',
      f'Acute \u03b2={reg["model5_integrated"]["acute_pain_coef"]:.2f}, P={reg["model5_integrated"]["acute_pain_p"]:.3f}',
-     'Regional indicators not significant'),
+     f'Regional \u03b2={reg["model5_integrated"]["tohoku_coef"]:.1f}, '
+     f'P={reg["model5_integrated"]["tohoku_p"]:.3f}'),
 ]
 
 t2 = doc.add_table(rows=1 + len(models), cols=4, style='Table Grid')
