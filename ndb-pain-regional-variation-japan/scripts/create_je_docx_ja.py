@@ -84,10 +84,10 @@ ref_list = [
     'Wakaizumi K, Tanaka C, Shinohara Y, et al. Geographical variation in high-impact '
     'chronic pain and psychological associations at the regional level. '
     'Front Public Health. 2024;12:1482177.',
-    # 6 Matsuoka
-    'Matsuoka Y, Morishima T, Sato A, et al. Population-based claims study '
-    'of regional and hospital function differences in opioid prescribing for cancer patients. '
-    'Jpn J Clin Oncol. 2025;55:hyaf149.',
+    # 6 Takahashi
+    'Takahashi R, Miyashita M, Nakazawa Y, Wada S, Matsuoka Y. Population-based claims study '
+    'of regional and hospital function differences in opioid prescribing for cancer patients '
+    'who died in hospital in Japan. Jpn J Clin Oncol. 2025;55:1372\u20137.',
     # 7 CSLC
     '厚生労働省. 国民生活基礎調査（2022年）. '
     'https://www.mhlw.go.jp/toukei/saikin/hw/k-tyosa/k-tyosa22/. '
