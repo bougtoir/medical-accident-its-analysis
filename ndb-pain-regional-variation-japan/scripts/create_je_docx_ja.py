@@ -39,6 +39,9 @@ with open(os.path.join(OUTPUT_DIR, 'cpsp_regression_summary.json'), 'r') as f:
 with open(os.path.join(OUTPUT_DIR, 'scr_summary.json'), 'r') as f:
     scr = json.load(f)
 
+with open(os.path.join(OUTPUT_DIR, 'cslc_analysis.json'), 'r') as f:
+    cslc = json.load(f)
+
 rows = []
 with open(os.path.join(OUTPUT_DIR, 'cpsp_integrated_results.csv'), 'r', encoding='utf-8') as f:
     for r in csv.DictReader(f):
@@ -66,56 +69,56 @@ ref_list = [
     # 1 Wennberg
     'Wennberg JE. Tracking Medicine: A Researcher\'s Quest to Understand Health Care. '
     'New York, NY: Oxford University Press; 2010.',
-    # 2 Taira
-    'Taira K, Mori T, Ishimaru M, et al. Regional inequality in dental care utilisation '
-    'in Japan: an ecological study using the National Database of Health Insurance Claims. '
-    'Lancet Reg Health West Pac. 2021;12:100170.',
+    # 2 Corallo
+    'Corallo AN, Croxford R, Goodman DC, et al. A systematic review of medical practice '
+    'variation in OECD countries. Health Policy. 2014;114:5\u201314.',
     # 3 MHLW NDB
     '厚生労働省. NDBオープンデータ 第10回. '
     'https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/0000177221_00016.html. '
     '2025年1月15日アクセス.',
-    # 4 Wakaizumi
+    # 4 Taira
+    'Taira K, Mori T, Ishimaru M, et al. Regional inequality in dental care utilisation '
+    'in Japan: an ecological study using the National Database of Health Insurance Claims. '
+    'Lancet Reg Health West Pac. 2021;12:100170.',
+    # 5 Wakaizumi
     'Wakaizumi K, Tanaka C, Shinohara Y, et al. Geographical variation in high-impact '
     'chronic pain and psychological associations at the regional level. '
     'Front Public Health. 2024;12:1482177.',
-    # 5 Matsuoka
+    # 6 Matsuoka
     'Matsuoka Y, Morishima T, Sato A, et al. Population-based claims study '
     'of regional and hospital function differences in opioid prescribing for cancer patients. '
     'Jpn J Clin Oncol. 2025;55:hyaf149.',
-    # 6 von Elm STROBE
-    'von Elm E, Altman DG, Egger M, et al. The STROBE statement: guidelines for reporting '
-    'observational studies. Lancet. 2007;370:1453\u20137.',
-    # 7 Benchimol RECORD
-    'Benchimol EI, Smeeth L, Guttmann A, et al. The RECORD statement. '
-    'PLoS Med. 2015;12:e1001885.',
-    # 8 Kehlet
-    'Kehlet H, Jensen TS, Woolf CJ. Persistent postsurgical pain: risk factors and prevention. '
-    'Lancet. 2006;367:1618\u201325.',
-    # 9 Pfizer
-    'ファイザー株式会社. 47都道府県 慢性疼痛に関する調査. '
-    'https://www.pfizer.co.jp/pfizer/company/press/2017. 2025年2月1日アクセス.',
-    # 10 CSLC
+    # 7 CSLC
     '厚生労働省. 国民生活基礎調査（2022年）. '
     'https://www.mhlw.go.jp/toukei/saikin/hw/k-tyosa/k-tyosa22/. '
     '2025年3月1日アクセス.',
-    # 11 Callister
-    'Callister LC. Cultural influences on pain perceptions and behaviors. '
-    'Home Health Care Manag Pract. 2003;15:207\u201311.',
-    # 12 Hobara
-    'Hobara M. Beliefs about appropriate pain behavior: cross-cultural and sex differences '
-    'between Japanese and Euro-Americans. Eur J Pain. 2005;9:389\u201393.',
-    # 13 Anderson
+    # 8 von Elm STROBE
+    'von Elm E, Altman DG, Egger M, et al. The STROBE statement: guidelines for reporting '
+    'observational studies. Lancet. 2007;370:1453\u20137.',
+    # 9 Benchimol RECORD
+    'Benchimol EI, Smeeth L, Guttmann A, et al. The RECORD statement. '
+    'PLoS Med. 2015;12:e1001885.',
+    # 10 Kehlet
+    'Kehlet H, Jensen TS, Woolf CJ. Persistent postsurgical pain: risk factors and prevention. '
+    'Lancet. 2006;367:1618\u201325.',
+    # 11 Anderson
     'Anderson KO, Green CR, Payne R. Racial and ethnic disparities in pain. '
     'J Pain. 2009;10:1187\u2013204.',
-    # 14 Campbell
+    # 12 Campbell
     'Campbell CM, Edwards RR. Ethnic differences in pain and pain management. '
     'Pain Manag. 2012;2:219\u201330.',
-    # 15 Raja IASP
+    # 13 Callister
+    'Callister LC. Cultural influences on pain perceptions and behaviors. '
+    'Home Health Care Manag Pract. 2003;15:207\u201311.',
+    # 14 Hobara
+    'Hobara M. Beliefs about appropriate pain behavior: cross-cultural and sex differences '
+    'between Japanese and Euro-Americans. Eur J Pain. 2005;9:389\u201393.',
+    # 15 Pfizer
+    'ファイザー株式会社. 47都道府県 慢性疼痛に関する調査. '
+    'https://www.pfizer.co.jp/pfizer/company/press/2017. 2025年2月1日アクセス.',
+    # 16 Raja IASP
     'Raja SN, Carr DB, Cohen M, et al. The revised IASP definition of pain. '
     'Pain. 2020;161:1976\u201382.',
-    # 16 Corallo
-    'Corallo AN, Croxford R, Goodman DC, et al. A systematic review of medical practice '
-    'variation in OECD countries. Health Policy. 2014;114:5\u201314.',
     # 17 Onishi
     'Onishi T, Onishi Y. Normalized pulse volume as a superior predictor of respiration recovery. '
     'F1000Research. 2024;13:233.',
@@ -208,6 +211,7 @@ FIG_SOURCES = {
     1: os.path.join(FIG_DIR, 'fig1_neuropathic_unadjusted.png'),
     2: os.path.join(FIG_DIR, 'fig2_confounder_correlations.png'),
     3: os.path.join(FIG_DIR, 'fig4_region_unadj_vs_adj.png'),
+    4: os.path.join(FIG_DIR, 'fig_cslc_demand_supply_ja.png'),
 }
 
 
@@ -311,6 +315,8 @@ add_heading_text('抄録', level=1)
 abstract_bg = (
     '単一の国民皆保険制度内においても疼痛関連処方に地域差が存在する可能性があるが、'
     'その規模と決定因子は日本では十分に解明されていない。'
+    '処方差が症状負荷の差（warranted variation）を反映するのか、'
+    '診療パターンの差（unwarranted variation）なのかは未検討である。'
 )
 
 abstract_methods = (
@@ -329,11 +335,14 @@ abstract_results = (
     f'交絡疾患プロキシ（特に糖尿病薬、r=0.87）が都道府県間分散の'
     f'{reg["model2_adjusted"]["R2"]*100:.0f}%を説明した。'
     f'交絡調整後、見かけの地域間差は大幅に減弱し非有意となった。'
-    f'年齢・性別標準化SCRでも鎮痛薬処方に{scr_analgesic_ratio:.1f}倍の差が確認された。'
+    f'CSLC有訴者率は{cslc["symptom_rate_stats"]["range_ratio"]:.2f}倍の差に留まり、'
+    f'処方との相関は認められなかった'
+    f'（r={cslc["correlations"]["symptom_vs_acute"]["pearson_r"]:.2f}）。'
 )
 
 abstract_conclusions = (
-    '年齢・性別標準化後も約2倍の国内差が持続しており、供給感応的診療差異を示唆する。'
+    '年齢・性別標準化後も約2倍の国内差が持続し、症状負荷と乖離していた。'
+    'これはWennbergの不当な差異の基準を満たし、供給側要因が処方の不均一性を駆動していることを示唆する。'
     '神経障害性疼痛薬の生態学的研究では、糖尿病をはじめとする交絡疾患を考慮する必要がある。'
 )
 
@@ -356,7 +365,7 @@ intro1 = (
     f'医療の質に関する重要な課題として認識されてきた。{cite(1)}'
     f'処方率が疾病負荷や人口構成で説明できる範囲を超えて地域間で異なる場合、'
     f'そのような不当な差異（unwarranted variation）は過剰治療または過少治療の可能性を示唆し、'
-    f'体系的な調査が必要である。{cite(1,16)}'
+    f'体系的な調査が必要である。{cite(1,2)}'
 )
 p = doc.add_paragraph()
 add_ref_runs(p, intro1)
@@ -366,13 +375,24 @@ intro2 = (
     f'およびNDB（National Database of Health Insurance Claims）'
     f'—約1億2,500万人の被保険者の医療利用をほぼ全数捕捉する{cite(3)}—は、'
     f'診療差異を研究するための独特な環境を提供する。'
-    f'Tairaらは、NDB由来の標準化レセプト比を用いて歯科診療の地域格差を示した。{cite(2)}'
-    f'慢性疼痛有病率の1.6倍の地域差{cite(4)}や、がんオピオイド処方の4倍差{cite(5)}'
+    f'Tairaらは、NDB由来の標準化レセプト比を用いて歯科診療の地域格差を示した。{cite(4)}'
+    f'慢性疼痛有病率の1.6倍の地域差{cite(5)}や、がんオピオイド処方の4倍差{cite(6)}'
     f'も報告されているが、NDBを用いて47都道府県の疼痛関連処方差を包括的に'
     f'マッピングした研究はない。'
 )
 p = doc.add_paragraph()
 add_ref_runs(p, intro2)
+
+intro_cslc = (
+    f'Wennbergの枠組みは、疾病負荷の違いに起因する正当な差異（warranted variation）と、'
+    f'医師の診療スタイルや地域規範等の供給側要因に起因する不当な差異（unwarranted variation）を'
+    f'区別する。{cite(1,2)}'
+    f'この枠組みを適用するには、独立した需要側ベンチマークが必要である。'
+    f'国民生活基礎調査（CSLC）は、厚生労働省が実施する全国代表世帯調査であり、'
+    f'都道府県別の自覚症状有訴者率を提供している。{cite(7)}'
+)
+p = doc.add_paragraph()
+add_ref_runs(p, intro_cslc)
 
 intro3 = (
     '疼痛管理は生態学的分析に特に適している。鎮痛薬処方は疾病負荷と診療パターンの'
@@ -386,10 +406,11 @@ intro3 = (
 doc.add_paragraph(intro3)
 
 intro4 = (
-    '本研究の目的は3つである：(1)47都道府県における急性周術期鎮痛薬処方の地域差を'
+    '本研究の目的は4つである：(1)47都道府県における急性周術期鎮痛薬処方の地域差を'
     'マッピングすること、(2)交絡疾患を調整した上で、外来神経障害性疼痛薬処方を'
-    '慢性術後疼痛（CPSP）の代理指標として検討すること、'
-    '(3)見かけの地域パターンに対する交絡因子の寄与を定量化すること。'
+    '慢性疼痛の代理指標として検討すること、'
+    '(3)見かけの地域パターンに対する交絡因子の寄与を定量化すること、'
+    '(4)処方差異が症状負荷と乖離しているか（＝不当な差異の基準を満たすか）を評価すること。'
 )
 doc.add_paragraph(intro4)
 
@@ -401,7 +422,7 @@ add_heading_text('方法', level=1)
 add_heading_text('研究デザインと報告', level=2)
 m1 = (
     f'本研究は、NDBオープンデータの都道府県レベル集計データを分析した生態学的研究である。'
-    f'STROBE声明{cite(6)}およびRECORD拡張{cite(7)}に従って報告する。'
+    f'STROBE声明{cite(8)}およびRECORD拡張{cite(9)}に従って報告する。'
     f'公開されている集計データのみを使用したため、「人を対象とする生命科学・医学系研究に'
     f'関する倫理指針」に基づき倫理審査は不要であった。'
 )
@@ -456,6 +477,18 @@ doc.add_paragraph(
     '外来神経ブロック処置件数（73コード）も追加の独立プロキシとした。'
 )
 
+add_heading_text('需要側ベンチマーク：国民生活基礎調査', level=2)
+m_cslc = (
+    f'都道府県別の自覚症状有訴者率を国民生活基礎調査（CSLC）2022年版から取得した。{cite(7)}'
+    f'CSLCは約30万世帯を対象とする全国代表世帯調査であり、'
+    f'有訴者率（人口千対）が47都道府県について公表されている。'
+    f'自覚症状有訴者率は、全国的に筋骨格系疼痛（腰痛・肩こり）が最多であるため、'
+    f'疼痛関連需要の生態学的プロキシとして使用した。'
+    f'需要\u2013供給ミスマッチ指数は、z標準化した処方率とz標準化した有訴者率の差として算出した。'
+)
+p = doc.add_paragraph()
+add_ref_runs(p, m_cslc)
+
 add_heading_text('統計解析', level=2)
 doc.add_paragraph(
     '第1相の地域差はKruskal–Wallis検定で評価し、'
@@ -471,7 +504,7 @@ doc.add_paragraph(
 )
 
 m7b = (
-    f'標準化レセプト比（SCR）は、Tairaら{cite(2)}に従い間接年齢・性別標準化により算出した。'
+    f'標準化レセプト比（SCR）は、Tairaら{cite(4)}に従い間接年齢・性別標準化により算出した。'
     f'全国の年齢・性別別処方率（5歳階級18区分×2性別）を各都道府県の人口構成に適用した。'
     f'全解析にPython 3.11（NumPy 1.24、SciPy 1.11）を使用した。'
 )
@@ -646,6 +679,37 @@ add_inline_figure(
     3
 )
 
+add_heading_text('需要\u2013供給の乖離', level=2)
+r_cslc1 = (
+    f'CSLC有訴者率は{cslc["symptom_rate_stats"]["min"]:.1f}（{cslc["symptom_rate_stats"]["min_pref"]}）から'
+    f'{cslc["symptom_rate_stats"]["max"]:.1f}（{cslc["symptom_rate_stats"]["max_pref"]}）'
+    f'（人口千対）の範囲であり、{cslc["symptom_rate_stats"]["range_ratio"]:.2f}倍の差であった'
+    f'（平均{cslc["symptom_rate_stats"]["mean"]:.1f}、SD {cslc["symptom_rate_stats"]["sd"]:.1f}）。'
+    f'一方、急性鎮痛薬処方は1.97倍、年齢・性別標準化後の神経障害性疼痛薬処方は'
+    f'{scr_neuro_ratio:.1f}倍の差があり、処方の不均一性は症状負荷の差を大幅に上回っていた。'
+)
+doc.add_paragraph(r_cslc1)
+
+r_cslc2 = (
+    f'CSLC有訴者率は急性鎮痛薬処方と有意な相関を示さなかった'
+    f'（r={cslc["correlations"]["symptom_vs_acute"]["pearson_r"]:.3f}, '
+    f'P={cslc["correlations"]["symptom_vs_acute"]["pearson_p"]:.3f}; '
+    f'Spearman \u03c1={cslc["correlations"]["symptom_vs_acute"]["spearman_rho"]:.3f}, '
+    f'P={cslc["correlations"]["symptom_vs_acute"]["spearman_p"]:.3f}; 図4）。'
+    f'人口あたり神経障害性疼痛薬処方との相関も認められなかった'
+    f'（r={cslc["correlations"]["symptom_vs_neuro_percapita"]["pearson_r"]:.3f}, '
+    f'P={cslc["correlations"]["symptom_vs_neuro_percapita"]["pearson_p"]:.3f}）。'
+    f'相関の欠如は、処方差異が都道府県間の症状負荷の違いでは説明できないことを示す。'
+)
+doc.add_paragraph(r_cslc2)
+
+add_inline_figure(
+    '需要\u2013供給の乖離：CSLC有訴者率（人口千対）と急性鎮痛薬処方（手術あたり）。'
+    '各点は1都道府県を示し、地域ブロック別に色分け。'
+    '相関の欠如（r=0.03）は処方差異が症状負荷と乖離していることを示す。',
+    4
+)
+
 add_heading_text('急性・慢性処方の統合', level=2)
 doc.add_paragraph(
     f'急性周術期処方は未調整神経障害性疼痛薬処方と正の相関を示した'
@@ -674,13 +738,13 @@ add_heading_text('考察', level=1)
 doc.add_paragraph(
     '本研究は、NDBオープンデータを用いて、日本の47都道府県すべてにおける'
     '周術期および慢性疼痛関連処方をマッピングした初めての研究である。'
-    '3つの主要な知見が得られた。'
+    'NDBオープンデータを用いて、日本の47都道府県すべてにおける周術期および慢性疼痛関連処方をマッピングした初めての研究であり、独立した需要側指標との対照によりWennbergの不当な差異の基準を満たすか否かを正式に評価した初めての研究でもある。4つの主要な知見が得られた。'
 )
 
 add_heading_text('主要な知見', level=2)
 d1 = (
     f'第一に、急性周術期鎮痛薬処方は都道府県間で1.97倍の差を示した。'
-    f'これはTairaら{cite(2)}が報告した歯科診療利用の地域格差に匹敵し、'
+    f'これはTairaら{cite(4)}が報告した歯科診療利用の地域格差に匹敵し、'
     f'Wennberg{cite(1)}が記述した供給感応的差異パターンと一致する。'
     f'この差異は頑健であり、年齢・性別標準化後も持続し'
     f'（SCR範囲{scr_analgesic_range[0]:.0f}–{scr_analgesic_range[1]:.0f}）、'
@@ -699,14 +763,26 @@ d2 = (
 )
 doc.add_paragraph(d2)
 
+d_cslc = (
+    f'第三に、最も新規性の高い知見として、処方差異が症状負荷と乖離していた。'
+    f'CSLC有訴者率は{cslc["symptom_rate_stats"]["range_ratio"]:.2f}倍の差に留まり、'
+    f'鎮痛薬処方との相関は認められなかった（r=0.03, P=0.85）。'
+    f'この乖離はWennbergの枠組みにおける不当な差異の基準を正式に満たす：{cite(1)}'
+    f'供給側（処方）が需要側（症状負荷）と独立して変動しており、'
+    f'疾病負荷ではなく診療パターンが不均一性を駆動していることを示す。'
+    f'この知見はOECD諸国で報告されている供給感応的医療差異と一致する。{cite(2)}'
+)
+p = doc.add_paragraph()
+add_ref_runs(p, d_cslc)
+
 d3 = (
-    f'第三に、急性と交絡調整後慢性指数の正の相関（r=0.29, P=0.052）'
+    f'第四に、急性と交絡調整後慢性指数の正の相関（r=0.29, P=0.052）'
     f'およびモデル5における有意な急性疼痛予測因子'
     f'（β={reg["model5_integrated"]["acute_pain_coef"]:.2f}, '
     f'P={reg["model5_integrated"]["acute_pain_p"]:.3f}）は、'
     f'急性疼痛管理の地域パターンとその後の慢性疼痛関連処方との間に控えめな関連が'
     f'あることを示唆する。これは、急性術後疼痛強度がCPSPの危険因子であるという'
-    f'個体レベルのエビデンスと一致する。{cite(8)}'
+    f'個体レベルのエビデンスと一致する。{cite(10)}'
 )
 p = doc.add_paragraph()
 add_ref_runs(p, d3)
@@ -715,21 +791,25 @@ add_heading_text('臨床的示唆', level=2)
 d4 = (
     f'1.97倍の国内差は、記述疫学を超えた広範な示唆を持つ。'
     f'文化的ステレオタイプが疼痛評価と処方行動に影響することは国際的に示されており、'
-    f'Andersonら{cite(13)}は人種・民族による系統的格差を示し、'
-    f'CampbellとEdwards{cite(14)}は文化的疼痛行動に関する臨床家の期待が'
+    f'Andersonら{cite(11)}は人種・民族による系統的格差を示し、'
+    f'CampbellとEdwards{cite(12)}は文化的疼痛行動に関する臨床家の期待が'
     f'系統的な過少治療・過剰治療につながりうることを示した。'
-    f'日本は文化的均質性が高く患者は疼痛に我慢強いと特徴づけられることが多いが、{cite(11,12)}'
+    f'日本は文化的均質性が高く患者は疼痛に我慢強いと特徴づけられることが多いが、{cite(13,14)}'
     f'本データは、この均質とされる集団内でさえ処方パターンが約2倍異なることを示した。'
     f'ファイザー2017年調査でも、「治療せずに痛みを我慢している」慢性疼痛患者の'
-    f'割合は都道府県間で48.7%から81.6%まで異なっていた。{cite(9)}'
+    f'割合は都道府県間で48.7%（大阪）から81.6%（山梨）まで異なり、'
+    f'秋田県（東北地方）は痛みを「我慢すべき」と回答した割合が全国最低（60.2%）であり、'
+    f'文化的ステレオタイプとは矛盾する結果であった。{cite(15)}'
 )
 p = doc.add_paragraph()
 add_ref_runs(p, d4)
 
 d5 = (
-    f'改定IASP定義は疼痛を本質的に主観的なものと記述している。{cite(15)}'
+    f'改定IASP定義は疼痛を本質的に主観的なものと記述している。{cite(16)}'
     f'地域ラベルや文化的一般化は個別化疼痛評価の代替にはならない。'
     f'客観的侵害受容モニタリングが周術期評価の標準化に貢献しうる。{cite(17)}'
+    f'需要\u2013供給分析もこの点を補強する：同等の症状負荷を持つ都道府県でも'
+    f'処方が大きく異なり、患者の需要ではなく臨床家の要因が治療強度を決定していることを示す。'
 )
 p = doc.add_paragraph()
 add_ref_runs(p, d5)
@@ -737,8 +817,9 @@ add_ref_runs(p, d5)
 add_heading_text('長所と限界', level=2)
 doc.add_paragraph(
     '長所として、日本の全保険診療を網羅する全数データの使用、急性・慢性疼痛プロキシの'
-    '新規統合、透明な交絡調整手法、および医療アクセスを交絡因子として中和する'
-    '周術期デザインが挙げられる。'
+    '新規統合、透明な交絡調整手法、医療アクセスを交絡因子として中和する'
+    '周術期デザイン、およびNDB処方データと独立した世帯調査（CSLC）との'
+    '需要\u2013供給分析のトライアンギュレーションが挙げられる。'
 )
 
 doc.add_paragraph(
@@ -751,7 +832,9 @@ doc.add_paragraph(
 
 add_heading_text('結論', level=2)
 doc.add_paragraph(
-    '日本の47都道府県において、疼痛関連処方は年齢・性別標準化後も約2倍の差が持続する。'
+    '日本の47都道府県において、疼痛関連処方は年齢・性別標準化後も約2倍の差が持続し、'
+    '症状負荷と乖離していた。このパターンはWennbergの不当な差異の基準を満たし、'
+    '供給側要因が処方の不均一性を駆動していることを示唆する。'
     '交絡疾患—特に糖尿病—は神経障害性疼痛薬処方の見かけの地域パターンを実質的に変化させ、'
     '生態学的研究で考慮されなければならない。'
     '臨床家は地域的・文化的仮定ではなく、個別の評価に基づいて'

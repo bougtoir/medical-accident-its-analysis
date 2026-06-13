@@ -53,6 +53,18 @@ figure_sources = [
             'Error bars indicate SD.'
         ),
     },
+    {
+        'num': 4,
+        'png': os.path.join(OUTPUT_DIR, 'fig_cslc_demand_supply_en.png'),
+        'tiff_fallback': None,
+        'caption': (
+            'Figure 4. Demand\u2013supply dissociation: CSLC symptom prevalence rate '
+            '(per 1,000 population) vs acute analgesic prescribing per surgery '
+            'across 47 prefectures. Each dot represents one prefecture, coloured by '
+            'regional block. The near-zero correlation (r=0.03, P=0.85) indicates that '
+            'prescribing variation is dissociated from symptom burden.'
+        ),
+    },
 ]
 
 # ============================================================
@@ -63,10 +75,11 @@ for fig in figure_sources:
     num = fig['num']
     src = fig['png']
     if not os.path.exists(src):
-        src = fig['tiff_fallback']
-    if not os.path.exists(src):
-        print(f'  WARNING: No source found for Figure {num}')
-        continue
+        if fig['tiff_fallback'] and os.path.exists(fig['tiff_fallback']):
+            src = fig['tiff_fallback']
+        else:
+            print(f'  WARNING: No source found for Figure {num}')
+            continue
 
     tiff_out = os.path.join(JE_DIR, f'JE_figure{num}.tiff')
     img = Image.open(src)
@@ -91,9 +104,10 @@ for fig in figure_sources:
     num = fig['num']
     src = fig['png']
     if not os.path.exists(src):
-        src = fig['tiff_fallback']
-    if not os.path.exists(src):
-        continue
+        if fig['tiff_fallback'] and os.path.exists(fig['tiff_fallback']):
+            src = fig['tiff_fallback']
+        else:
+            continue
 
     slide = prs.slides.add_slide(prs.slide_layouts[6])  # blank
 
