@@ -61,6 +61,7 @@ export function CanvasPreview({ processedImage, textLayers, onBack }: CanvasPrev
   const [shirtColor, setShirtColor] = useState<ShirtColor>('#000000');
   const [printSize, setPrintSize] = useState(150);
   const [numLayers, setNumLayers] = useState(3);
+  const [mirrored, setMirrored] = useState(false);
   const canvasSize = 400;
 
   const renderCanvas = useCallback(() => {
@@ -74,12 +75,19 @@ export function CanvasPreview({ processedImage, textLayers, onBack }: CanvasPrev
     ctx.fillStyle = shirtColor;
     ctx.fillRect(0, 0, canvasSize, canvasSize);
 
+    if (mirrored) {
+      ctx.save();
+      ctx.translate(canvasSize, 0);
+      ctx.scale(-1, 1);
+    }
+
     const img = new Image();
     img.onload = () => {
       drawDesign(ctx, img, canvasSize, textLayers);
+      if (mirrored) ctx.restore();
     };
     img.src = processedImage;
-  }, [shirtColor, processedImage, textLayers]);
+  }, [shirtColor, processedImage, textLayers, mirrored]);
 
   useEffect(() => {
     renderCanvas();
@@ -92,6 +100,11 @@ export function CanvasPreview({ processedImage, textLayers, onBack }: CanvasPrev
     exportCanvas.height = exportSize;
     const exportCtx = exportCanvas.getContext('2d')!;
     exportCtx.clearRect(0, 0, exportSize, exportSize);
+
+    if (mirrored) {
+      exportCtx.translate(exportSize, 0);
+      exportCtx.scale(-1, 1);
+    }
 
     const img = new Image();
     img.onload = () => {
@@ -121,6 +134,11 @@ export function CanvasPreview({ processedImage, textLayers, onBack }: CanvasPrev
     ctx.fillStyle = shirtColor;
     ctx.fillRect(0, 0, canvasSize, canvasSize);
 
+    if (mirrored) {
+      ctx.translate(canvasSize, 0);
+      ctx.scale(-1, 1);
+    }
+
     const img = new Image();
     img.onload = () => {
       drawDesign(ctx, img, canvasSize, textLayers);
@@ -147,6 +165,21 @@ export function CanvasPreview({ processedImage, textLayers, onBack }: CanvasPrev
             title={c.label}
           />
         ))}
+      </div>
+
+      <div className="mirror-toggle">
+        <button
+          className={!mirrored ? 'btn-primary' : 'btn-secondary'}
+          onClick={() => setMirrored(false)}
+        >
+          ポジ（正像）
+        </button>
+        <button
+          className={mirrored ? 'btn-primary' : 'btn-secondary'}
+          onClick={() => setMirrored(true)}
+        >
+          ネガ（反転・転写用）
+        </button>
       </div>
 
       <div className="preview-area">
