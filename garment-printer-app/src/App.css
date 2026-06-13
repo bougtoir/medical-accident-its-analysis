@@ -1,0 +1,420 @@
+/* App styles - mobile-first for event use */
+
+.app {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: #0f0f0f;
+  color: #e0e0e0;
+}
+
+.app-header {
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #2a2a2a;
+  background: #1a1a1a;
+}
+
+.app-header h1 {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+  margin: 0;
+}
+
+.step-indicator {
+  display: flex;
+  gap: 8px;
+}
+
+.step-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  background: #2a2a2a;
+  color: #666;
+  transition: all 0.2s;
+}
+
+.step-dot.active {
+  background: #6c63ff;
+  color: #fff;
+  box-shadow: 0 0 12px rgba(108, 99, 255, 0.4);
+}
+
+.step-dot.done {
+  background: #2ecc71;
+  color: #fff;
+}
+
+.app-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.step-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 500px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.step-container h2 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #fff;
+  margin: 0;
+}
+
+.subtitle {
+  color: #888;
+  font-size: 14px;
+  margin: 0;
+}
+
+/* Upload */
+.file-drop {
+  display: flex;
+  cursor: pointer;
+  border: 2px dashed #3a3a3a;
+  border-radius: 16px;
+  padding: 48px 24px;
+  text-align: center;
+  transition: border-color 0.2s;
+}
+
+.file-drop:hover,
+.file-drop:focus-within {
+  border-color: #6c63ff;
+}
+
+.file-drop input {
+  display: none;
+}
+
+.drop-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.drop-icon {
+  font-size: 48px;
+}
+
+.drop-hint {
+  font-size: 12px;
+  color: #666;
+}
+
+/* Cropper */
+.cropper-wrapper {
+  position: relative;
+  width: 100%;
+  height: 300px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* Controls */
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.controls label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 14px;
+  color: #aaa;
+}
+
+.controls input[type="range"] {
+  width: 100%;
+  accent-color: #6c63ff;
+}
+
+.controls select {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #3a3a3a;
+  background: #1a1a1a;
+  color: #e0e0e0;
+  font-size: 14px;
+}
+
+/* Buttons */
+.button-row {
+  display: flex;
+  gap: 8px;
+  padding-top: 8px;
+}
+
+.btn-primary,
+.btn-secondary,
+.btn-accent,
+.btn-add,
+.btn-delete {
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background: #6c63ff;
+  color: #fff;
+  flex: 1;
+}
+
+.btn-primary:hover {
+  background: #5a52e0;
+}
+
+.btn-secondary {
+  background: #2a2a2a;
+  color: #aaa;
+}
+
+.btn-secondary:hover {
+  background: #3a3a3a;
+}
+
+.btn-accent {
+  background: #ff6b6b;
+  color: #fff;
+}
+
+.btn-accent:hover {
+  background: #e05555;
+}
+
+/* Mode selector */
+.mode-selector {
+  display: flex;
+  gap: 8px;
+}
+
+.mode-selector button {
+  flex: 1;
+}
+
+/* Preview */
+.preview-area {
+  display: flex;
+  justify-content: center;
+  padding: 16px 0;
+}
+
+.preview-canvas {
+  image-rendering: pixelated;
+  border: 1px solid #3a3a3a;
+  border-radius: 8px;
+  max-width: 100%;
+  max-height: 300px;
+  object-fit: contain;
+}
+
+.preview-canvas.final {
+  max-height: 400px;
+  width: 100%;
+  aspect-ratio: 1;
+}
+
+/* Text Editor */
+.text-layers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.text-layer-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.text-layer-item.selected {
+  border-color: #6c63ff;
+  background: #1a1a2e;
+}
+
+.text-layer-item span {
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.btn-add {
+  background: #1a1a1a;
+  border: 1px dashed #3a3a3a;
+  color: #6c63ff;
+  padding: 10px;
+}
+
+.btn-delete {
+  background: transparent;
+  color: #ff6b6b;
+  padding: 4px 8px;
+  font-size: 18px;
+}
+
+.text-editor-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+  background: #1a1a1a;
+  border-radius: 12px;
+}
+
+.text-editor-controls label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  color: #888;
+}
+
+.text-editor-controls input[type="text"] {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #3a3a3a;
+  background: #0f0f0f;
+  color: #e0e0e0;
+  font-size: 16px;
+}
+
+.text-editor-controls select {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #3a3a3a;
+  background: #0f0f0f;
+  color: #e0e0e0;
+  font-size: 14px;
+}
+
+.text-editor-controls input[type="range"] {
+  width: 100%;
+  accent-color: #6c63ff;
+}
+
+/* Color */
+.color-control {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.color-swatch {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 2px solid #3a3a3a;
+  cursor: pointer;
+}
+
+.color-picker-popover {
+  position: absolute;
+  z-index: 100;
+  margin-top: 8px;
+}
+
+/* Shirt color selector */
+.shirt-color-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.shirt-color-selector span {
+  font-size: 13px;
+  color: #888;
+}
+
+.color-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid #3a3a3a;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.color-btn.active {
+  border-color: #6c63ff;
+  box-shadow: 0 0 8px rgba(108, 99, 255, 0.4);
+  transform: scale(1.1);
+}
+
+.mirror-toggle {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.mirror-toggle button {
+  flex: 1;
+  font-size: 13px;
+  padding: 8px 12px;
+}
+
+/* Export info */
+.export-info {
+  padding: 8px 12px;
+  background: #1a1a2e;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #aaa;
+}
+
+.export-info p {
+  margin: 0;
+}
+
+/* Responsive */
+@media (min-width: 768px) {
+  .app-main {
+    padding: 24px;
+  }
+
+  .step-container {
+    max-width: 600px;
+  }
+
+  .cropper-wrapper {
+    height: 400px;
+  }
+
+  .preview-canvas.final {
+    max-height: 500px;
+    max-width: 500px;
+  }
+}
