@@ -37,7 +37,7 @@ def insert_para_after(doc, ref_para, text):
     """参照段落の直後に新しい段落を挿入（フォーマットをコピー）"""
     new_para = deepcopy(ref_para._element)
     for r in new_para.findall('.//' + qn('w:r')):
-        new_para.remove(r)
+        r.getparent().remove(r)
     ref_para._element.addnext(new_para)
     r_elem = etree.SubElement(new_para, qn('w:r'))
     if ref_para.runs:
