@@ -84,10 +84,10 @@ ref_list = [
     'Wakaizumi K, Tanaka C, Shinohara Y, et al. Geographical variation in high-impact '
     'chronic pain and psychological associations at the regional level. '
     'Front Public Health. 2024;12:1482177.',
-    # 6 Matsuoka
-    'Matsuoka Y, Morishima T, Sato A, et al. Population-based claims study '
-    'of regional and hospital function differences in opioid prescribing for cancer patients. '
-    'Jpn J Clin Oncol. 2025;55:hyaf149.',
+    # 6 Takahashi
+    'Takahashi R, Miyashita M, Nakazawa Y, Wada S, Matsuoka Y. Population-based claims study '
+    'of regional and hospital function differences in opioid prescribing for cancer patients '
+    'who died in hospital in Japan. Jpn J Clin Oncol. 2025;55:1372\u20137.',
     # 7 CSLC
     '厚生労働省. 国民生活基礎調査（2022年）. '
     'https://www.mhlw.go.jp/toukei/saikin/hw/k-tyosa/k-tyosa22/. '
@@ -737,8 +737,10 @@ add_heading_text('考察', level=1)
 
 doc.add_paragraph(
     '本研究は、NDBオープンデータを用いて、日本の47都道府県すべてにおける'
-    '周術期および慢性疼痛関連処方をマッピングした初めての研究である。'
-    'NDBオープンデータを用いて、日本の47都道府県すべてにおける周術期および慢性疼痛関連処方をマッピングした初めての研究であり、独立した需要側指標との対照によりWennbergの不当な差異の基準を満たすか否かを正式に評価した初めての研究でもある。4つの主要な知見が得られた。'
+    '周術期および慢性疼痛関連処方をマッピングした初めての研究であり、'
+    '独立した需要側指標との対照によりWennbergの不当な差異の基準を'
+    '満たすか否かを正式に評価した初めての研究でもある。'
+    '4つの主要な知見が得られた。'
 )
 
 add_heading_text('主要な知見', level=2)
@@ -828,6 +830,9 @@ doc.add_paragraph(
     'NDBオープンデータは診断コードを欠くため、神経障害性疼痛薬プロキシは'
     'CPSP以外の全適応を捕捉する。手術症例構成や医師密度などの'
     '未測定交絡因子が残存差異に寄与する可能性がある。'
+    'CSLCの有訴者率は疼痛に特異的ではなく自覚症状全般の指標であるが、'
+    '全国的に筋骨格系疼痛症状（腰痛・肩こり）が最多の訴えであり、'
+    '疼痛関連需要の合理的な生態学的プロキシとして機能する。'
 )
 
 add_heading_text('結論', level=2)

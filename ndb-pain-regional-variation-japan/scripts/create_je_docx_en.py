@@ -108,10 +108,11 @@ ref_list = [
     'chronic pain and psychological associations at the regional level: a multilevel analysis '
     'of a large-scale internet-based cross-sectional survey. Front Public Health. 2024;12:1482177. '
     'doi:10.3389/fpubh.2024.1482177',
-    # 6 Matsuoka (cancer opioid variation)
-    'Matsuoka Y, Morishima T, Sato A, et al. Population-based claims study '
+    # 6 Takahashi (cancer opioid variation)
+    'Takahashi R, Miyashita M, Nakazawa Y, Wada S, Matsuoka Y. Population-based claims study '
     'of regional and hospital function differences in opioid prescribing for cancer patients '
-    'who died in hospital in Japan. Jpn J Clin Oncol. 2025;55:hyaf149.',
+    'who died in hospital in Japan. Jpn J Clin Oncol. 2025;55:1372\u20137. '
+    'doi:10.1093/jjco/hyaf149',
     # 7 CSLC / Kokumin Seikatsu Kiso Chousa
     'Ministry of Health, Labour and Welfare. Comprehensive Survey of Living Conditions '
     '(Kokumin Seikatsu Kiso Chousa), 2022. '
@@ -134,7 +135,7 @@ ref_list = [
     # 11 Anderson (disparities — Discussion ref)
     'Anderson KO, Green CR, Payne R. Racial and ethnic disparities in pain: '
     'causes and consequences of unequal care. J Pain. 2009;10:1187\u2013204. '
-    'doi:10.1016/j.jpain.2009.06.010',
+    'doi:10.1016/j.jpain.2009.10.002',
     # 12 Campbell (ethnic differences — Discussion ref)
     'Campbell CM, Edwards RR. Ethnic differences in pain and pain management. '
     'Pain Manag. 2012;2:219\u201330. '
@@ -142,7 +143,7 @@ ref_list = [
     # 13 Callister (cultural influences — Discussion ref)
     'Callister LC. Cultural influences on pain perceptions and behaviors. '
     'Home Health Care Manag Pract. 2003;15:207\u201311. '
-    'doi:10.1177/1084822303015004003',
+    'doi:10.1177/1084822302250687',
     # 14 Hobara (Japan stoic — Discussion ref)
     'Hobara M. Beliefs about appropriate pain behavior: cross-cultural and sex differences '
     'between Japanese and Euro-Americans. Eur J Pain. 2005;9:389\u201393. '
@@ -159,7 +160,7 @@ ref_list = [
     'Onishi T, Onishi Y. Normalized pulse volume as a superior predictor of respiration recovery '
     'and quantification of nociception anti-nociception balance compared to opioid effect site '
     'concentration: a prospective, observational study. F1000Research. 2024;13:233. '
-    'doi:10.12688/f1000research.147085.2',
+    'doi:10.12688/f1000research.146215.1',
 ]
 
 
