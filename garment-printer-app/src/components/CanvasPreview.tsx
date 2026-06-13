@@ -95,28 +95,7 @@ export function CanvasPreview({ processedImage, textLayers, onBack }: CanvasPrev
 
     const img = new Image();
     img.onload = () => {
-      const scale = Math.min(
-        (exportSize * 0.9) / img.width,
-        (exportSize * 0.9) / img.height
-      );
-      const w = img.width * scale;
-      const h = img.height * scale;
-      const x = (exportSize - w) / 2;
-      const y = (exportSize - h) / 2;
-
-      exportCtx.imageSmoothingEnabled = false;
-      exportCtx.drawImage(img, x, y, w, h);
-
-      for (const layer of textLayers) {
-        const scaledSize = layer.size * (exportSize / canvasSize);
-        exportCtx.font = `${scaledSize}px ${FONT_MAP[layer.font] || 'sans-serif'}`;
-        exportCtx.fillStyle = layer.color;
-        exportCtx.textAlign = 'center';
-        exportCtx.textBaseline = 'middle';
-        const tx = (layer.x / 100) * exportSize;
-        const ty = (layer.y / 100) * exportSize;
-        exportCtx.fillText(layer.text, tx, ty);
-      }
+      drawDesign(exportCtx, img, exportSize, textLayers);
 
       const imageData = exportCtx.getImageData(0, 0, exportSize, exportSize);
       const options: StlOptions = {
@@ -138,6 +117,9 @@ export function CanvasPreview({ processedImage, textLayers, onBack }: CanvasPrev
     exportCanvas.width = canvasSize;
     exportCanvas.height = canvasSize;
     const ctx = exportCanvas.getContext('2d')!;
+
+    ctx.fillStyle = shirtColor;
+    ctx.fillRect(0, 0, canvasSize, canvasSize);
 
     const img = new Image();
     img.onload = () => {
