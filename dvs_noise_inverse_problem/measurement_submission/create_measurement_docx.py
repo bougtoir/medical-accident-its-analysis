@@ -73,6 +73,16 @@ def _sup(parent, base, sup):
     return el
 
 
+def _sup_builder(parent, base_builder, sup_text):
+    """Superscript where the base is built by a callable (e.g. delimited fraction)."""
+    el = etree.SubElement(parent, qn('m:sSup'))
+    e = etree.SubElement(el, qn('m:e'))
+    base_builder(e)
+    s = etree.SubElement(el, qn('m:sup'))
+    _mr(s, sup_text)
+    return el
+
+
 def _frac(parent, num_builder, den_builder):
     f = etree.SubElement(parent, qn('m:f'))
     num = etree.SubElement(f, qn('m:num'))
@@ -139,13 +149,13 @@ def eq_sr_snr(omath):
         _mr(e, '\u03c3')
     _delim(omath, _arg)
     _mr(omath, ' \u221d ')
-    _sup(omath, '', '2')
-    # Build fraction part
-    def _n(n):
-        _mr(n, 'A')
-    def _d(d):
-        _sup(d, '\u03c3', '2')
-    _frac(omath, _n, _d)
+    def _frac_delim(e):
+        def _n(n):
+            _mr(n, 'A')
+        def _d(d):
+            _sup(d, '\u03c3', '2')
+        _frac(e, _n, _d)
+    _sup_builder(omath, _frac_delim, '2')
     _mr(omath, ' ')
     _mr(omath, 'exp', italic=False)
     def _exp_arg(e):
@@ -194,12 +204,13 @@ def eq_snr_gain(omath):
         _delim(d, _arg)
     _frac(omath, _n, _d)
     _mr(omath, ' = ')
-    _sup(omath, '', '4')
-    def _n2(n):
-        _mr(n, '\u03c3')
-    def _d2(d):
-        _mr(d, '\u03b8')
-    _frac(omath, _n2, _d2)
+    def _frac_delim(e):
+        def _n2(n):
+            _mr(n, '\u03c3')
+        def _d2(d):
+            _mr(d, '\u03b8')
+        _frac(e, _n2, _d2)
+    _sup_builder(omath, _frac_delim, '4')
     _mr(omath, ' ')
     _mr(omath, 'exp', italic=False)
     def _exp_arg(e):
