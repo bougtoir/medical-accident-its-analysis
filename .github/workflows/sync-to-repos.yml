@@ -122,6 +122,9 @@ jobs:
           # ── DVS noise inverse problem (JATIS submission) ──
           BRANCH_MAP["devin/1779728490-dvs-jatis-submission"]="dvs-jatis-submission"
 
+          # ── DVS noise inverse problem (Measurement integrated) ──
+          BRANCH_MAP["devin/1781729486-measurement-integrated"]="dvs-noise-inverse-measurement"
+
           # ── Round1 × crime rate analysis ──
           BRANCH_MAP["devin/1779745617-round1-crime-analysis"]="round1-crime-analysis"
 
@@ -196,6 +199,7 @@ jobs:
           SUBDIR_MAP["devin/1776768797-gdp-tempo-paper"]="gdp_tempo_paper"
           SUBDIR_MAP["devin/1779720458-sr-ancova-signal-processing"]="sr_ancova_framework"
           SUBDIR_MAP["devin/1779728490-dvs-jatis-submission"]="dvs_noise_inverse_problem"
+          SUBDIR_MAP["devin/1781729486-measurement-integrated"]="dvs_noise_inverse_problem"
 
           # New project syncs
           SUBDIR_MAP["devin/1780790605-ep-submission-prep"]="beyond-gdp-national-power"
