@@ -122,6 +122,9 @@ jobs:
           # ── DVS noise inverse problem (JATIS submission) ──
           BRANCH_MAP["devin/1779728490-dvs-jatis-submission"]="dvs-jatis-submission"
 
+          # ── DVS noise inverse problem (Measurement integrated) ──
+          BRANCH_MAP["devin/1781729486-measurement-integrated"]="dvs-noise-inverse-measurement"
+
           # ── Round1 × crime rate analysis ──
           BRANCH_MAP["devin/1779745617-round1-crime-analysis"]="round1-crime-analysis"
 
@@ -196,6 +199,7 @@ jobs:
           SUBDIR_MAP["devin/1776768797-gdp-tempo-paper"]="gdp_tempo_paper"
           SUBDIR_MAP["devin/1779720458-sr-ancova-signal-processing"]="sr_ancova_framework"
           SUBDIR_MAP["devin/1779728490-dvs-jatis-submission"]="dvs_noise_inverse_problem"
+          SUBDIR_MAP["devin/1781729486-measurement-integrated"]="dvs_noise_inverse_problem"
 
           # New project syncs
           SUBDIR_MAP["devin/1780790605-ep-submission-prep"]="beyond-gdp-national-power"
@@ -216,6 +220,7 @@ jobs:
           # public repos while still syncing data, analysis code, and outputs.
           declare -A EXCLUDE_MAP
           EXCLUDE_MAP["devin/1777908700-canonical-curves-reexamination"]="scripts/generate_manuscript.py scripts/generate_manuscript_ja.py scripts/generate_manuscript_boer.py scripts/generate_cover_letter.py scripts/generate_cover_letter_boer.py scripts/generate_strobe_checklist.py cover_letter_ripr.docx cover_letter_jes.docx cover_letter_boer.docx title_page_jes.docx strobe_checklist.docx manuscript_canonical_curves_ja.docx 52_canonical_curves_overview.md"
+          EXCLUDE_MAP["devin/1781729486-measurement-integrated"]="measurement_submission/create_measurement_docx.py measurement_submission/create_measurement_pptx.py measurement_submission/create_title_page.py measurement_submission/create_cover_letter.py measurement_submission/cover_letter_measurement.docx measurement_submission/title_page.docx"
           EXCLUDE_MAP["devin/1780790605-ep-submission-prep"]="create_manuscript.py create_manuscript_latex.py create_cover_letter_and_checklist.py manuscript/generate_docx.py manuscript/generate_cover_letter_docx.py manuscript/generate_figures_pptx.py manuscript/manuscript.tex manuscript/references.bib manuscript/manuscript.docx manuscript/manuscript.pdf manuscript/cover_letter.docx manuscript/cover_letter.pdf manuscript/cover_letter.tex manuscript/figures_pptx.pptx manuscript/sn-basic.bst manuscript/sn-jnl.cls manuscript/strobe_checklist.docx manuscript/table_s1.docx manuscript/table_s1.pdf manuscript/table_s1.tex"
 
           OWNER="bougtoir"
