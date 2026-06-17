@@ -93,6 +93,7 @@ jobs:
           BRANCH_MAP["devin/1776763216-healthcare-sustainable"]="healthcare-sustainable"
           BRANCH_MAP["devin/1776765895-gdp-cwon-joint"]="gdp-cwon-joint"
           BRANCH_MAP["devin/1776768797-gdp-tempo-paper"]="gdp-tempo-paper"
+          BRANCH_MAP["devin/1781676665-jom-submission"]="gdp-tempo-paper"
 
           # ── Spectral causality ──
           BRANCH_MAP["devin/1777462980-spectral-causality-brainstorm"]="spectral-causality-brainstorm"
@@ -194,6 +195,7 @@ jobs:
           SUBDIR_MAP["devin/1777594554-khmer-inscription-analysis"]="khmer_inscription_analysis"
           SUBDIR_MAP["devin/1777547587-pwv-vitaldb-analysis"]="pwv_vitaldb_analysis"
           SUBDIR_MAP["devin/1776768797-gdp-tempo-paper"]="gdp_tempo_paper"
+          SUBDIR_MAP["devin/1781676665-jom-submission"]="gdp_tempo_paper"
           SUBDIR_MAP["devin/1779720458-sr-ancova-signal-processing"]="sr_ancova_framework"
           SUBDIR_MAP["devin/1779728490-dvs-jatis-submission"]="dvs_noise_inverse_problem"
 
