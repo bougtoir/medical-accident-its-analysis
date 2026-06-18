@@ -859,9 +859,9 @@ def build_manuscript():
 
     add_heading(doc, '4.1. Monte Carlo validation of SR theory', level=2)
     add_paragraph(doc, (
-        'We test the analytical predictions with Monte Carlo (MC) simulations. '
-        'The signal is s(t) = A sin(2\u03c0f\u2080t) with A/\u03b8 = 0.3, f\u2080 = 5 Hz, '
-        'dt = 1 ms, and N = 10{5} steps per trial.'
+        'We test the analytical predictions with Monte Carlo (MC) simulations '
+        '(Fig. 4). The signal is s(t) = A sin(2\u03c0f\u2080t) with A/\u03b8 = 0.3, '
+        'f\u2080 = 5 Hz, dt = 1 ms, and N = 10{5} steps per trial.'
     ))
 
     # Fig 4: SR curves (from Paper b)
@@ -939,6 +939,10 @@ def build_manuscript():
     ))
 
     add_heading(doc, '5.2. Results', level=2)
+    add_paragraph(doc, (
+        'Table 2 summarises the systematic evaluation results across all '
+        '20 recordings.'
+    ))
 
     add_table(doc,
               ['Method', 'NRR', 'SPR', 'F1', 'AUC'],
@@ -976,9 +980,12 @@ def build_manuscript():
         'DVS astronomical observations lie deep in the excess-noise regime '
         '(\u03c3 \u226b \u03b8): dark-current rates dominate signal rates by orders of magnitude. '
         'The A5 + Fano model achieves \u03c1 \u2248 0.7\u20130.9, which Fig. 2b predicts '
-        'should yield 5\u201310\u00d7 SNR improvement\u2014matching the measured 5.4\u00d7. That '
-        'noise is not eliminated entirely (NRR = 0.713) accords with the prediction '
-        'that over-removal past the SR optimum is counterproductive.'
+        'should yield 5\u201310\u00d7 SNR improvement\u2014matching the measured 5.4\u00d7. '
+        'Fig. 9 maps the experimental results onto the SR framework: the '
+        'Fano filter (covariate adjustment) achieves ROC-AUC = 0.866, far '
+        'exceeding temporal filtering, while preserving 93.9% of signal. '
+        'That noise is not eliminated entirely (NRR = 0.713) accords with '
+        'the prediction that over-removal past the SR optimum is counterproductive.'
     ))
 
     # Fig 9: DVS application in SR framework (from Paper b)
@@ -1204,35 +1211,39 @@ def build_manuscript():
         'D. Scaramuzza, Event-based vision: A survey, IEEE Trans. Pattern Anal. '
         'Mach. Intell. 44 (2022) 154\u2013180.',
 
-        # [6] DVS pixel (Delbruck 2021)
-        '[6] T. Delbruck, R. Gra\u00e7a, M. Paluch, Utility and feasibility of '
-        'a center surround event camera, preprint arXiv:2103.03415, 2021.',
+        # [6] DVS feedback control (Delbruck 2021)
+        '[6] T. Delbruck, R. Gra\u00e7a, M. Paluch, Feedback control of event '
+        'cameras, in: Proc. IEEE/CVF CVPR Workshops, 2021, pp. 1324\u20131332.',
 
         # [7] EBSSA (Afshar 2019)
         '[7] S. Afshar, A.P. Nicholson, A. van Schaik, G. Cohen, Event-based '
         'object detection and tracking for space situational awareness, '
         'preprint arXiv:1911.08730, 2019.',
 
-        # [8] FIESTA (Joubert 2022)
-        '[8] D. Joubert, N. Ralph, A. Jolley, et al., Event-driven space object '
-        'detection in real-time, Front. Neurosci. 16 (2022) 821157.',
+        # [8] FIESTA (Ralph 2022)
+        '[8] N. Ralph, D. Joubert, A. Jolley, S. Afshar, N. Tothill, '
+        'A. van Schaik, G. Cohen, Real-time event-based unsupervised feature '
+        'consolidation and tracking for space situational awareness, '
+        'Front. Neurosci. 16 (2022) 821157.',
 
-        # [9] Gedek 2019
-        '[9] M. G\u0119dek, D. Magiera, G. Kowalski, L. Gaffney, Neuromorphic '
-        'event-based space situational awareness, Proc. EESA, 2019.',
+        # [9] Kaminski 2019
+        '[9] K. Kami\u0144ski, G. Cohen, T. Delbruck, M. \u017bo\u0142nowski, '
+        'M. G\u0119dek, Observational evaluation of event cameras performance '
+        'in optical space surveillance, in: Proc. 1st NEO and Debris '
+        'Detection Conference, ESA, 2019.',
 
         # [10] Hoang 2023
         '[10] J. Hoang, Neuromorphic cameras for ground-based atmospheric '
         'Cherenkov telescopes, preprint arXiv:2310.16321, 2023.',
 
-        # [11] Graca 2023 shot noise
+        # [11] Graca 2021 shot noise
         '[11] R. Gra\u00e7a, T. Delbruck, Unraveling the paradox of intensity-'
-        'dependent DVS pixel noise, preprint arXiv:2304.04019, 2023.',
+        'dependent DVS pixel noise, preprint arXiv:2109.08640, 2021.',
 
         # [12] McReynolds polarity
-        '[12] B. McReynolds, R. Gra\u00e7a, T. Delbruck, Characterization of '
-        'event camera noise with a once-in-a-lifetime photon, preprint '
-        'arXiv:2304.03494, 2023.',
+        '[12] B. McReynolds, R. Gra\u00e7a, T. Delbruck, Exploiting alternating '
+        'DVS shot noise event pair statistics to reduce background activity, '
+        'preprint arXiv:2304.03494, 2023.',
 
         # [13] DeepClean (Vajente 2020)
         '[13] G. Vajente, Y. Huang, M. Isi, J.C. Driggers, J.S. Kissel, '
@@ -1259,12 +1270,14 @@ def build_manuscript():
         'Neuromorphic silicon neuron circuits, Front. Neurosci. 5 (2011) 73.',
 
         # [18] Graca 2025 A5 model
-        '[18] R. Gra\u00e7a, T. Delbruck, A large-signal theory for the '
-        'differential DVS pixel, preprint arXiv:2505.07386, 2025.',
+        '[18] R. Gra\u00e7a, T. Delbruck, Towards a physically realistic '
+        'computationally efficient DVS pixel model, preprint '
+        'arXiv:2505.07386, 2025.',
 
         # [19] Noise2Image
-        '[19] R. Cao, et al., Noise2Image: recovering static images from '
-        'event camera noise, Optica, 2024.',
+        '[19] R. Cao, D. Galor, A. Kohli, J.L. Yates, L. Waller, '
+        'Noise2Image: noise-enabled static scene recovery for event cameras, '
+        'Optica 12 (2025) 46\u201355.',
 
         # [20] Satellite constellation impacts
         '[20] J. McDowell, The low Earth orbit satellite population and impacts '
