@@ -3,23 +3,39 @@
     "n_countries": 39,
     "data_source": "World Bank WDI (SH.XPD.CHEX.PP.CD, SP.DYN.LE00.IN)",
     "period": "2000-2019",
+    "n_observations_per_country": 20,
     "models": {
       "M0_flow": {
         "description": "Naive flow-only regression",
+        "n_params": 2,
         "level_rmse_median": 0.51,
-        "change_rmse_median": 0.455
+        "change_rmse_median": 0.455,
+        "loocv_rmse_median": 0.538,
+        "aic_median": -8.2,
+        "bic_median": -5.9
       },
       "M1_constant_lag": {
         "description": "Constant lag mu_H (PIM)",
+        "n_params": 3,
         "level_rmse_median": 0.441,
         "change_rmse_median": 0.403,
+        "loocv_rmse_median": 0.472,
+        "aic_median": -13.6,
+        "bic_median": -10.4,
         "mu_const_median_yr": 4.0
       },
       "M2_tempo_lag": {
         "description": "Time-varying mu_H(t) = mu0 + mu1*(year-t0)",
+        "n_params": 5,
         "level_rmse_median": 0.434,
         "change_rmse_median": 0.405,
-        "mu_H1_median_yr_per_yr": 0.15
+        "loocv_rmse_median": 0.469,
+        "aic_median": -13.1,
+        "bic_median": -8.2,
+        "mu_H0_median_yr": 3.2,
+        "mu_H0_se": 0.8,
+        "mu_H1_median_yr_per_yr": 0.15,
+        "mu_H1_se": 0.04
       }
     },
     "key_findings": {
@@ -27,10 +43,13 @@
       "M2_beats_M0_level_pct": 77,
       "M2_beats_M0_change_pct": 87,
       "M2_beats_M1_pct": 95,
+      "M2_beats_M1_aic_pct": 62,
+      "M2_beats_M1_bic_pct": 41,
+      "M2_beats_M1_loocv_pct": 54,
       "M0_to_M1_rmse_reduction_pct": 14,
       "M0_to_M2_rmse_reduction_pct": 15
     },
-    "interpretation": "M2 beats M1 in 95% of countries, confirming that the spending-to-outcome lag is not constant but drifts over time. Median drift mu_H1 = +0.15 yr/yr means the lag lengthens by ~1.5 years per decade, consistent with the shift from acute to chronic disease management and longer R&D-to-outcome cycles."
+    "interpretation": "M1 substantially outperforms M0 across all criteria (level RMSE, LOOCV RMSE, AIC, BIC), confirming that a spending-to-outcome lag exists. M2 shows marginal improvement over M1 in level RMSE (0.434 vs 0.441) and LOOCV RMSE (0.469 vs 0.472), but the advantage is small and does not survive BIC penalization (M2 wins in only 41% of countries by BIC). The tempo drift mu_H1 = +0.15 yr/yr should therefore be interpreted as suggestive rather than definitive. The robust finding is the existence of a lag (M1 vs M0), not its time-variation (M2 vs M1)."
   },
   "three_layer_analogy": [
     {

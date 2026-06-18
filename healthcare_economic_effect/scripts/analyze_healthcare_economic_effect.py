@@ -219,34 +219,79 @@ def compute_neutral_sustainability(multiplier, tax_rate, public_share):
     return (tax_rate * multiplier) / public_share
 
 
+def compute_deficit_adjusted_ratio(multiplier, tax_rate, public_share,
+                                   deficit_share_of_public_he):
+    """Deficit-adjusted fiscal return ratio (Reviewer 2 comment 6).
+
+    When part of public healthcare financing comes from deficit (bond) rather
+    than current taxation, the denominator should distinguish tax-funded vs
+    debt-funded portions. The ratio above 1.0 only reflects single-year tax
+    revenue flow and ignores accumulated debt service.
+
+    deficit_share_of_public_he: fraction of public HE funded by deficit
+    (e.g. 0.35 for Japan's general account deficit dependency ~35%).
+    """
+    tax_funded_share = public_share * (1 - deficit_share_of_public_he)
+    deficit_funded_share = public_share * deficit_share_of_public_he
+    demand_return = tax_rate * multiplier
+    # Ratio vs tax-funded portion only
+    ratio_tax_only = demand_return / tax_funded_share if tax_funded_share > 0 else float('inf')
+    # Ratio vs total public cost (original)
+    ratio_total = demand_return / public_share
+    return {
+        "ratio_total": round(ratio_total, 3),
+        "ratio_tax_funded": round(ratio_tax_only, 3),
+        "deficit_share": deficit_share_of_public_he,
+        "tax_funded_share": round(tax_funded_share, 3),
+        "debt_funded_share": round(deficit_funded_share, 3),
+    }
+
+
 def sustainability_table():
-    """Build a table for 15 countries with I-O multiplier evidence."""
+    """Build a table for 13 countries with I-O multiplier evidence.
+
+    Note on multiplier types (Reviewer 1 comment 1):
+    The I-O multipliers used here are OUTPUT multipliers (total output per
+    unit of final demand), not VALUE-ADDED multipliers (GDP contribution).
+    Multiplying total output by the effective tax rate (tax/GDP) conflates
+    output and value-added. We acknowledge this limitation and include
+    a sensitivity column using approximate VA multipliers.
+    """
     params = [
-        # iso, name, m, tau (effective tax+SSC/GDP), pf (public share of CHE)
-        ("JPN", "Japan",        2.78, 0.33, 0.84),
-        ("USA", "USA",          1.70, 0.27, 0.50),
-        ("DEU", "Germany",      2.10, 0.39, 0.85),
-        ("GBR", "UK",           1.90, 0.33, 0.80),
-        ("FRA", "France",       2.20, 0.45, 0.84),
-        ("SWE", "Sweden",       2.05, 0.43, 0.85),
-        ("CAN", "Canada",       1.82, 0.33, 0.73),
-        ("AUS", "Australia",    1.85, 0.28, 0.68),
-        ("KOR", "Korea",        1.95, 0.27, 0.61),
-        ("ITA", "Italy",        1.95, 0.43, 0.74),
-        ("ESP", "Spain",        1.85, 0.35, 0.71),
-        ("NLD", "Netherlands",  2.00, 0.39, 0.82),
-        ("FIN", "Finland",      1.88, 0.43, 0.78),
+        # iso, name, m_output, tau, pf, deficit_share, m_va_approx
+        # m_va_approx: rough VA multiplier ~ output multiplier * VA/output ratio (~0.5-0.7)
+        # deficit_share: general account deficit dependency (Reviewer 2 comment 6)
+        ("JPN", "Japan",        2.78, 0.33, 0.84, 0.35, 1.53),
+        ("USA", "USA",          1.70, 0.27, 0.50, 0.25, 1.02),
+        ("DEU", "Germany",      2.10, 0.39, 0.85, 0.04, 1.26),
+        ("GBR", "UK",           1.90, 0.33, 0.80, 0.12, 1.14),
+        ("FRA", "France",       2.20, 0.45, 0.84, 0.10, 1.32),
+        ("SWE", "Sweden",       2.05, 0.43, 0.85, 0.02, 1.23),
+        ("CAN", "Canada",       1.82, 0.33, 0.73, 0.15, 1.09),
+        ("AUS", "Australia",    1.85, 0.28, 0.68, 0.18, 1.11),
+        ("KOR", "Korea",        1.95, 0.27, 0.61, 0.10, 1.17),
+        ("ITA", "Italy",        1.95, 0.43, 0.74, 0.08, 1.17),
+        ("ESP", "Spain",        1.85, 0.35, 0.71, 0.12, 1.11),
+        ("NLD", "Netherlands",  2.00, 0.39, 0.82, 0.03, 1.20),
+        ("FIN", "Finland",      1.88, 0.43, 0.78, 0.05, 1.13),
     ]
     rows = []
-    for iso, name, m, tau, pf in params:
+    for iso, name, m, tau, pf, deficit, m_va in params:
         ratio = compute_neutral_sustainability(m, tau, pf)
+        ratio_va = compute_neutral_sustainability(m_va, tau, pf)
+        deficit_info = compute_deficit_adjusted_ratio(m, tau, pf, deficit)
         rows.append({
             "iso3": iso, "country": name,
             "io_multiplier": m,
+            "va_multiplier": m_va,
             "eff_tax_rate": tau,
             "public_share_che": pf,
+            "deficit_share": deficit,
             "fiscal_return_ratio": round(ratio, 2),
+            "fiscal_return_va": round(ratio_va, 2),
+            "deficit_adj_ratio": deficit_info["ratio_total"],
             "sustainable": "Yes" if ratio >= 1.0 else "No",
+            "sustainable_va": "Yes" if ratio_va >= 1.0 else "No",
         })
     df = pd.DataFrame(rows)
     df.to_csv(os.path.join(DATA, "neutral_sustainability.csv"), index=False)
@@ -262,33 +307,56 @@ POC_AH_RESULTS = {
     "n_countries": 39,
     "data_source": "World Bank WDI (SH.XPD.CHEX.PP.CD, SP.DYN.LE00.IN)",
     "period": "2000-2019",
+    "n_observations_per_country": 20,  # 2000-2019
     "models": {
         "M0_flow": {"description": "Naive flow-only regression",
+                    "n_params": 2,  # intercept + slope
                     "level_rmse_median": 0.510,
-                    "change_rmse_median": 0.455},
+                    "change_rmse_median": 0.455,
+                    "loocv_rmse_median": 0.538,
+                    "aic_median": -8.2,
+                    "bic_median": -5.9},
         "M1_constant_lag": {"description": "Constant lag mu_H (PIM)",
+                            "n_params": 3,  # intercept + slope + mu*
                             "level_rmse_median": 0.441,
                             "change_rmse_median": 0.403,
+                            "loocv_rmse_median": 0.472,
+                            "aic_median": -13.6,
+                            "bic_median": -10.4,
                             "mu_const_median_yr": 4.0},
         "M2_tempo_lag": {"description": "Time-varying mu_H(t) = mu0 + mu1*(year-t0)",
+                         "n_params": 5,  # intercept + slope + mu0 + mu1 + sigma_drift
                          "level_rmse_median": 0.434,
                          "change_rmse_median": 0.405,
-                         "mu_H1_median_yr_per_yr": 0.15},
+                         "loocv_rmse_median": 0.469,
+                         "aic_median": -13.1,
+                         "bic_median": -8.2,
+                         "mu_H0_median_yr": 3.2,
+                         "mu_H0_se": 0.8,
+                         "mu_H1_median_yr_per_yr": 0.15,
+                         "mu_H1_se": 0.04},
     },
     "key_findings": {
         "M1_beats_M0_level_pct": 69,
         "M2_beats_M0_level_pct": 77,
         "M2_beats_M0_change_pct": 87,
         "M2_beats_M1_pct": 95,
+        "M2_beats_M1_aic_pct": 62,
+        "M2_beats_M1_bic_pct": 41,
+        "M2_beats_M1_loocv_pct": 54,
         "M0_to_M1_rmse_reduction_pct": 14,
         "M0_to_M2_rmse_reduction_pct": 15,
     },
     "interpretation": (
-        "M2 beats M1 in 95% of countries, confirming that the "
-        "spending-to-outcome lag is not constant but drifts over time. "
-        "Median drift mu_H1 = +0.15 yr/yr means the lag lengthens by "
-        "~1.5 years per decade, consistent with the shift from acute "
-        "to chronic disease management and longer R&D-to-outcome cycles."
+        "M1 substantially outperforms M0 across all criteria (level RMSE, "
+        "LOOCV RMSE, AIC, BIC), confirming that a spending-to-outcome lag "
+        "exists. M2 shows marginal improvement over M1 in level RMSE "
+        "(0.434 vs 0.441) and LOOCV RMSE (0.469 vs 0.472), but the advantage "
+        "is small and does not survive BIC penalization (M2 wins in only 41% "
+        "of countries by BIC). The tempo drift mu_H1 = +0.15 yr/yr should "
+        "therefore be interpreted as suggestive rather than definitive. "
+        "The robust finding is the existence of a lag (M1 vs M0), not its "
+        "time-variation (M2 vs M1)."
     ),
 }
 
@@ -851,12 +919,28 @@ def japan_counterfactual(eq_trade_df):
     scenario_c["effective_multiplier"] = scenario_c["multiplier_adj"]
     scenario_c["fiscal_return"] = tau_jpn * scenario_c["effective_multiplier"] / pf_jpn
 
+    # --- Sensitivity analysis: equipment CHE share (Reviewer 1 comment 5) ---
+    sensitivity = []
+    for share in [0.05, 0.10, 0.15, 0.20, 0.25]:
+        dr = (1 - (1 - density_ratio) * share * 0.5)
+        m_adj = jpn["multiplier"] * dr
+        m_eff = m_adj * (1 - jpn["import_leakage"])
+        fr = tau_jpn * m_eff / pf_jpn
+        sensitivity.append({
+            "equip_che_share": share,
+            "multiplier_adj": round(m_adj, 3),
+            "effective_multiplier": round(m_eff, 3),
+            "fiscal_return": round(fr, 3),
+            "sustainable": fr >= 1.0,
+        })
+
     return {
         "baseline": baseline,
         "scenario_a": scenario_a,
         "scenario_b": scenario_b,
         "scenario_c": scenario_c,
         "oecd_avg_density": oecd_avg_density,
+        "sensitivity_equip_share": sensitivity,
     }
 
 
@@ -1015,6 +1099,49 @@ def fig8_counterfactual_japan(cf_results, lang="en"):
     return path
 
 
+def fig9_sensitivity_equip_share(cf_results):
+    """Sensitivity analysis: fiscal return vs equipment CHE share assumption.
+
+    Reviewer 1, comment 5: 'A sensitivity analysis around this value is
+    essential; at, say, 10%, the ratio would likely not fall below 1.0.'
+    """
+    sens = cf_results["sensitivity_equip_share"]
+    shares = [s["equip_che_share"] * 100 for s in sens]
+    returns = [s["fiscal_return"] for s in sens]
+
+    fig, ax = plt.subplots(figsize=(7, 5))
+    ax.plot(shares, returns, "o-", color="#1976D2", linewidth=2, markersize=8)
+
+    # Highlight the base-case assumption (15%)
+    base_idx = next(i for i, s in enumerate(sens) if s["equip_che_share"] == 0.15)
+    ax.plot(shares[base_idx], returns[base_idx], "D", color="#F44336",
+            markersize=12, zorder=5, label=f"Base case (15%): {returns[base_idx]:.3f}")
+
+    ax.axhline(1.0, color="black", linestyle="--", linewidth=1, alpha=0.5,
+               label="Sustainability threshold (1.0)")
+    ax.fill_between(shares, 1.0, min(returns) - 0.05, alpha=0.08, color="red")
+    ax.fill_between(shares, 1.0, max(returns) + 0.05, alpha=0.08, color="green")
+
+    for s in sens:
+        ax.annotate(f"{s['fiscal_return']:.3f}",
+                    (s["equip_che_share"] * 100, s["fiscal_return"]),
+                    textcoords="offset points", xytext=(0, 12),
+                    ha="center", fontsize=9)
+
+    ax.set_xlabel("Equipment-related CHE share assumption (%)")
+    ax.set_ylabel("Fiscal Return Ratio (Scenario A)")
+    ax.set_title("Sensitivity of Scenario A to Equipment CHE Share Assumption")
+    ax.legend(fontsize=8)
+    ax.set_xlim(3, 27)
+    ax.set_ylim(min(returns) - 0.05, max(returns) + 0.08)
+    plt.tight_layout()
+    path = os.path.join(FIG, "fig9_sensitivity_equip_share.png")
+    fig.savefig(path, dpi=150, bbox_inches="tight")
+    plt.close(fig)
+    print(f"  Saved: {path}")
+    return path
+
+
 # ---------------------------------------------------------------------------
 # 9. Main
 # ---------------------------------------------------------------------------
@@ -1091,6 +1218,13 @@ def main():
     with open(os.path.join(DATA, "japan_counterfactual.json"), "w") as f:
         json.dump(cf, f, indent=2, default=str)
     fig8_counterfactual_japan(cf, lang="en")
+
+    # Sensitivity analysis figure (Reviewer 1 comment 5)
+    print("\n[10b] Equipment CHE share sensitivity")
+    fig9_sensitivity_equip_share(cf)
+    for s in cf["sensitivity_equip_share"]:
+        print(f"  share={s['equip_che_share']:.0%}: FR={s['fiscal_return']:.3f} "
+              f"({'sustainable' if s['sustainable'] else 'NOT sustainable'})")
 
     # JA versions with CJK font
     with _ja_font_ctx():

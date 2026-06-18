@@ -32,5 +32,42 @@
     "label": "C: Average equip + domestic mfg",
     "multiplier_adj": 2.630182562902282
   },
-  "oecd_avg_density": 48.099999999999994
+  "oecd_avg_density": 48.099999999999994,
+  "sensitivity_equip_share": [
+    {
+      "equip_che_share": 0.05,
+      "multiplier_adj": 2.73,
+      "effective_multiplier": 2.592,
+      "fiscal_return": 1.018,
+      "sustainable": "True"
+    },
+    {
+      "equip_che_share": 0.1,
+      "multiplier_adj": 2.68,
+      "effective_multiplier": 2.545,
+      "fiscal_return": 1.0,
+      "sustainable": "False"
+    },
+    {
+      "equip_che_share": 0.15,
+      "multiplier_adj": 2.63,
+      "effective_multiplier": 2.497,
+      "fiscal_return": 0.981,
+      "sustainable": "False"
+    },
+    {
+      "equip_che_share": 0.2,
+      "multiplier_adj": 2.58,
+      "effective_multiplier": 2.45,
+      "fiscal_return": 0.963,
+      "sustainable": "False"
+    },
+    {
+      "equip_che_share": 0.25,
+      "multiplier_adj": 2.53,
+      "effective_multiplier": 2.403,
+      "fiscal_return": 0.944,
+      "sustainable": "False"
+    }
+  ]
 }
