@@ -158,6 +158,9 @@ jobs:
           # ── Yago IONV analysis ──
           BRANCH_MAP["devin/1780052155-yago-ionv-analysis"]="yago-ionv-analysis"
 
+          # ── Stem cell seasonality ──
+          BRANCH_MAP["stem-cell-seasonality"]="stem-cell-seasonality"
+
           # ── TATSUKI electoral model sub-branches ──
           BRANCH_MAP["devin/1777844647-tatsuki-electoral-studies"]="tatsuki-electoral-studies"
           BRANCH_MAP["devin/1777989587-jcss-ssr-submission"]="jcss-ssr-submission"
@@ -212,6 +215,7 @@ jobs:
           SUBDIR_MAP["devin/1780039674-yago-cs-bleeding-analysis"]="yago_cs_bleeding"
           SUBDIR_MAP["devin/1780052155-yago-ionv-analysis"]="yago_ionv"
           SUBDIR_MAP["devin/1775637899-pmea-zero-calibration"]="zero_calibration_pmea"
+          SUBDIR_MAP["stem-cell-seasonality"]="stem_cell_seasonality"
 
           # ── File exclusion map ──
           # Space-separated list of file paths (relative to subdir root if
