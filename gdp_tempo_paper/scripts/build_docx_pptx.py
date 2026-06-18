@@ -1,16 +1,17 @@
 """Build final manuscript .docx (JA + EN) with inline figures/tables
 and a single editable .pptx (EN figures) for per-slide editing.
 
-Formatted for Journal of Economic Growth (Springer):
-  - 1.5× line spacing
-  - Times New Roman 12pt body text
+Formatted for Journal of Macroeconomics (Elsevier):
+  - Double-blind: title page with author info separated from manuscript body
+  - 1.5× line spacing, Times New Roman 12pt body text
   - APA 7 author-date references (alphabetical, with DOIs)
   - Decimal section numbering (1, 1.1, 1.2, …)
+  - Highlights (3-5 bullets, ≤85 chars each)
   - Figures inline in manuscript + separate files for submission
 
 Usage:  python build_docx_pptx.py
 Outputs into ../manuscript/ :
-  - manuscript_en.docx / .pdf  (PDF for Editorial Express submission)
+  - manuscript_en.docx / .pdf  (PDF for Editorial Manager submission)
   - manuscript_ja.docx / .pdf
   - figures_en.pptx
   - table1_correspondence.docx
@@ -18,6 +19,7 @@ Outputs into ../manuscript/ :
   - table3_rpim.docx
   - table4_extended_oos.docx
   - table5_tempo_artifact.docx
+  - cover_letter_en.docx / .pdf
 """
 from __future__ import annotations
 
@@ -49,17 +51,17 @@ os.makedirs(MS, exist_ok=True)
 
 FIG_LIST = [
     ("fig1", "Fig. 1", "図1",
-     "PIM stock K_tang+betaK_I versus CWON PCA (within-country demeaned log).",
-     "PIM資本ストックK_tang+βK_IとCWON PCAの軌跡比較（国内平均除去対数）。",
-     "fig3_trajectories_{lang}.png"),
-    ("fig2", "Fig. 2", "図2",
      "In-sample 1-year GDP growth RMSE across M0-M4 for 39 countries (lower is better).",
      "39カ国における単年GDP成長率RMSEの標本内比較（M0-M4、小さいほど良い）。",
      "fig1_m_ranking_{lang}.png"),
-    ("fig3", "Fig. 3", "図3",
+    ("fig2", "Fig. 2", "図2",
      "Out-of-sample MAPE on 2015-19 held-out window; M2 achieves 13% relative improvement vs M0.",
      "2015-19年のホールドアウト窓における標本外MAPE。M2はM0比で相対13%改善。",
      "fig2_oos_{lang}.png"),
+    ("fig3", "Fig. 3", "図3",
+     "PIM stock K_tang+betaK_I versus CWON PCA (within-country demeaned log).",
+     "PIM資本ストックK_tang+βK_IとCWON PCAの軌跡比較（国内平均除去対数）。",
+     "fig3_trajectories_{lang}.png"),
     ("fig4", "Fig. 4", "図4",
      "gamma_price sensitivity of PIM/CWON log-ratio; Japan gap closes around gamma=+0.02.",
      "PIM/CWON対数比のγ_price感度。日本の乖離はγ=+0.02で閉じる。",
@@ -397,7 +399,7 @@ def add_figure(doc, png_path, caption_prefix, caption_text):
 def add_dataframe_as_table(doc, df: pd.DataFrame, col_widths=None, font_size=10):
     tbl = doc.add_table(rows=1 + len(df), cols=len(df.columns))
     tbl.style = "Table Grid"
-    # Economica: no vertical rules in tables
+    # JoM/Elsevier style: no vertical rules in tables
     tbl_element = tbl._tbl
     tblPr = tbl_element.tblPr
     if tblPr is None:
@@ -502,6 +504,10 @@ def build_manuscript(lang: str):
         section.left_margin = Cm(2.5)
         section.right_margin = Cm(2.5)
 
+    # JoM double-blind: skip title-page block in the anonymized manuscript
+    # The manuscript .md contains [TITLE PAGE ...] ... [END TITLE PAGE] markers
+    in_title_page = False
+
     i = 0
     while i < len(lines):
         line = lines[i].rstrip("\n")
@@ -509,6 +515,25 @@ def build_manuscript(lang: str):
         if not stripped:
             i += 1
             continue
+
+        # Skip title-page section (author info goes to separate file)
+        if stripped.startswith("[TITLE PAGE") or stripped.startswith("[タイトルページ"):
+            in_title_page = True
+            i += 1
+            continue
+        if stripped.startswith("[END TITLE PAGE") or stripped.startswith("[タイトルページ終了"):
+            in_title_page = False
+            i += 1
+            continue
+        if in_title_page:
+            i += 1
+            continue
+
+        # Skip manuscript-body marker line
+        if stripped.startswith("[MANUSCRIPT") or stripped.startswith("[原稿"):
+            i += 1
+            continue
+
         # Headings
         if stripped.startswith("# "):
             add_heading(doc, stripped[2:], 1, lang)
@@ -585,8 +610,10 @@ def build_manuscript(lang: str):
                 # section separator
                 if text in ("Tables", "表", "References", "参考文献"):
                     add_heading(doc, text, 2, lang)
-                # Bullet list items: * text...
+                # Bullet list items: * text... or - text...
                 elif text.startswith("* "):
+                    add_rich_para(doc, "•  " + text[2:], lang, bullet=True)
+                elif text.startswith("- "):
                     add_rich_para(doc, "•  " + text[2:], lang, bullet=True)
                 else:
                     add_rich_para(doc, text, lang)
@@ -713,6 +740,57 @@ def convert_docx_to_pdf(docx_path: str):
         print(f"wrote {pdf_path}")
 
 
+def build_title_page():
+    """Build separate title page .docx with author info (for double-blind submission)."""
+    md_path = os.path.join(MS, "manuscript_en.md")
+    if not os.path.exists(md_path):
+        return
+    with open(md_path, encoding="utf-8") as fh:
+        lines = fh.readlines()
+
+    # Extract title-page content between markers
+    title_lines = []
+    in_tp = False
+    for raw_line in lines:
+        line = raw_line.rstrip("\n").strip()
+        if line.startswith("[TITLE PAGE"):
+            in_tp = True
+            continue
+        if line.startswith("[END TITLE PAGE"):
+            break
+        if in_tp:
+            title_lines.append(raw_line.rstrip("\n"))
+
+    if not title_lines:
+        print("no title page content found")
+        return
+
+    doc = Document()
+    for section in doc.sections:
+        section.top_margin = Cm(2.5)
+        section.bottom_margin = Cm(2.5)
+        section.left_margin = Cm(2.5)
+        section.right_margin = Cm(2.5)
+
+    for raw_line in title_lines:
+        stripped = raw_line.strip()
+        if not stripped:
+            spacer = doc.add_paragraph()
+            spacer.paragraph_format.space_after = Pt(0)
+            spacer.paragraph_format.space_before = Pt(0)
+            spacer.paragraph_format.line_spacing = 1.5
+            continue
+        if stripped.startswith("# "):
+            add_heading(doc, stripped[2:], 1, "en")
+        else:
+            add_rich_para(doc, stripped, "en")
+
+    out = os.path.join(MS, "title_page_en.docx")
+    doc.save(out)
+    print(f"wrote {out}")
+    convert_docx_to_pdf(out)
+
+
 def build_cover_letter():
     """Build cover letter docx from markdown source."""
     CL = os.path.join(ROOT, "cover_letter")
@@ -795,6 +873,7 @@ def main():
     build_manuscript("ja")
     build_standalone_tables()
     build_pptx()
+    build_title_page()
     build_cover_letter()
     # Convert manuscripts to PDF
     for lang in ("en", "ja"):

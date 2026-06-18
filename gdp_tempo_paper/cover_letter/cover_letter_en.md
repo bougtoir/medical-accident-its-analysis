@@ -6,18 +6,24 @@ Telephone: +81-749-27-1023
 E-mail: bougtoir@gmail.com
 ORCID: 0000-0001-7261-9062
 
-11 June 2026
+17 June 2026
 
 The Editor
-*Journal of Economic Growth*
+*Journal of Macroeconomics*
 
-Dear Professor Galor,
+Dear Editor,
 
-I am pleased to submit for your consideration the enclosed manuscript, **"What the Solow Residual Has Been Hiding: Tempo Drift and the Missing Intangible Share in National Capital Stocks"**, for publication in the *Journal of Economic Growth*.
+I am pleased to submit for your consideration the enclosed manuscript, **"What the Solow Residual Has Been Hiding: Tempo Drift and the Missing Intangible Share in National Capital Stocks"**, for publication in the *Journal of Macroeconomics*.
 
-The paper addresses a fundamental question in growth accounting: how much of what we call TFP is a genuine productivity residual, and how much is a book-keeping artefact of mis-timed capital stocks and omitted intangibles? I show that two parameters — a time-varying investment-to-output lag μ(t) and an intangible-capital share β — jointly account for a measurable share of measured TFP variation across 39 OECD and middle-income economies (Penn World Table 10.01, World Bank CWON, 1995–2019). Letting μ drift reduces out-of-sample GDP forecast error by 13 %, and a Solow-residual decomposition reveals that up to 30 % of TFP-growth variance can be re-attributed to tempo drift and missing intangibles rather than genuine innovation. When both corrections are applied, production-side (flow) and wealth-side (stock) national accounts agree to within 1–2 % for most countries — the first empirical success, to my knowledge, of the "unified national-wealth accounting" programme that Stiglitz, Sen, and Fitoussi (2009) called for.
+The paper addresses a fundamental question for macroeconomic measurement and policy: how much of what we call TFP is a genuine productivity residual, and how much is a book-keeping artefact of mis-timed capital stocks and omitted intangibles? Two parameters that conventional growth accounting imposes at zero — a time-varying investment-to-output lag μ(t) and an intangible-capital share β — jointly account for a measurable share of measured TFP variation across 39 OECD and middle-income economies (Penn World Table 10.01, World Bank CWON, 1995–2019). Letting μ drift reduces out-of-sample GDP forecast error by 13%, and a Solow-residual decomposition reveals that up to 30% of TFP-growth variance can be re-attributed to tempo drift and missing intangibles rather than genuine innovation. When both corrections are applied, production-side (flow) and wealth-side (stock) national accounts agree to within 1–2% for most countries.
 
-I believe this work is well suited to the *Journal of Economic Growth* for three reasons. First, it addresses the measurement foundations of long-run growth accounting — specifically, how the Solow residual confounds genuine productivity innovation with book-keeping artefacts arising from mis-timed capital stocks and omitted intangibles. This is a topic of central importance to the growth-accounting tradition that the *Journal* has advanced since its founding. Second, the identification strategy exploits a structural analogy with the demographic tempo literature (Bongaarts & Feeney, 1998; Goldstein, Lutz, & Scherbov, 2003), generating falsifiable predictions that are confirmed by the data: the joint flow–stock loss function collapses the (μ, β) parameter space from a broad ridge to a point for 28 of 39 countries, and the resulting parameter estimates move in the directions predicted by economic theory. The tempo adjustment was itself a neglected insight within demography — dormant from the 1970s until its 1998 revival — and to the best of my knowledge this paper is the first to transplant the framework to capital accounting and GDP measurement, a domain where the quantitative stakes are orders of magnitude larger. Third, the counterfactual wealth calculations have concrete implications for the Beyond-GDP debate, showing that official statistics systematically understate the productive capital base of innovation-intensive economies by 0.3–1.1 %.
+I believe this work falls squarely within the scope of the *Journal of Macroeconomics* for three reasons.
+
+First, the findings have direct implications for macroeconomic policy. Output-gap estimates that feed into fiscal rules (the EU's Stability and Growth Pact, the US CBO's potential-GDP series) are computed from production functions that assume μ = 0 and β = 0. If the capital stock is systematically mis-timed, the output gap is mis-measured and the fiscal stance calibrated to it is distorted. The paper also provides a structural interpretation for the lengthening of monetary-policy transmission lags: as investment shifts toward longer-gestation assets, the real-economy response to interest-rate changes is mechanically delayed.
+
+Second, the identification strategy is novel and disciplined. It exploits a structural analogy with the demographic tempo literature (Bongaarts & Feeney, 1998; Goldstein, Lutz, & Scherbov, 2003), yielding falsifiable predictions confirmed by the data: the joint flow–stock loss function collapses the (μ, β) parameter space from a broad ridge to a point for 28 of 39 countries. To the best of my knowledge, this paper is the first to transplant the demographic tempo framework to capital accounting and GDP measurement.
+
+Third, the paper speaks to the broader macroeconomic measurement agenda — the Beyond-GDP debate, international GDP comparability in PWT, and the SNA revision process — showing that flow and stock national accounts are reconcilable once two hidden parameters are made explicit.
 
 The manuscript is approximately 10,000 words of body text, with eleven figures and five tables.
 
