@@ -289,7 +289,7 @@ def sustainability_table():
             "deficit_share": deficit,
             "fiscal_return_ratio": round(ratio, 2),
             "fiscal_return_va": round(ratio_va, 2),
-            "deficit_adj_ratio": deficit_info["ratio_total"],
+            "deficit_adj_ratio": deficit_info["ratio_tax_funded"],
             "sustainable": "Yes" if ratio >= 1.0 else "No",
             "sustainable_va": "Yes" if ratio_va >= 1.0 else "No",
         })

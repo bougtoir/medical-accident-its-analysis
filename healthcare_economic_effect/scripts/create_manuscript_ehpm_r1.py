@@ -170,114 +170,113 @@ def add_figure_inline(doc, img_path, caption):
 # R1 additions: refs 25-30 for new content
 # ---------------------------------------------------------------------------
 REFERENCES = [
-    # 1 -- Background: Japan multiplier
-    "Yamada G, Imanaka Y. Input-output analysis on the economic impact of "
-    "medical care in Japan. Environ Health Prev Med. 2015;20(5):379-387.",
-    # 2 -- Background: US multiplier
-    "Dupor B, Guerrero R. The aggregate and local economic effects of "
-    "government financed health care. Econ Inq. 2021;59(2):662-670.",
-    # 3 -- Background: EU I-O framework
-    "Gutierrez-Hernandez I, Abasolo-Alesson I. The health care sector in "
-    "the economies of the European Union: an overview using an input-output "
-    "framework. Cost Eff Resour Alloc. 2021;19(1):4.",
-    # 4 -- Background: OECD ranking
+    # 1 -- Background: OECD ranking
     "OECD. Health at a Glance 2023: OECD Indicators. Paris: OECD Publishing; "
     "2023.",
-    # 5 -- Background: Cabinet Office
+    # 2 -- Background: Cabinet Office
     "Cabinet Office, Japan. Annual Report on the Japanese Economy 2025. "
     "Tokyo: Cabinet Office; 2025. [In Japanese]",
+    # 3 -- R1 NEW: MOF fiscal data (deficit financing)
+    "Ministry of Finance, Japan. Highlights of the Budget for FY2024. "
+    "Tokyo: MOF; 2024. Available from: "
+    "https://www.mof.go.jp/english/policy/budget/budget/",
+    # 4 -- R1 NEW: Japan national debt
+    "Bank of Japan. Flow of Funds Accounts. Tokyo: BOJ; 2024. "
+    "Available from: https://www.boj.or.jp/en/statistics/sj/",
+    # 5 -- R1 NEW: Late-stage elderly healthcare
+    "Ministry of Health, Labour and Welfare. Annual Health, Labour and "
+    "Welfare Report 2023. Tokyo: MHLW; 2023. [In Japanese]",
     # 6 -- Background: JMARI employment
     "Maeda Y. Economic ripple effects of healthcare and long-term care. "
     "JMARI Working Paper No. 172. 2008. [In Japanese]",
-    # 7 -- Background: HLGH (CS-ARDL)
+    # 7 -- Background: Japan multiplier
+    "Yamada G, Imanaka Y. Input-output analysis on the economic impact of "
+    "medical care in Japan. Environ Health Prev Med. 2015;20(5):379-387.",
+    # 8 -- Background: US multiplier
+    "Dupor B, Guerrero R. The aggregate and local economic effects of "
+    "government financed health care. Econ Inq. 2021;59(2):662-670.",
+    # 9 -- Background: EU I-O framework
+    "Gutierrez-Hernandez I, Abasolo-Alesson I. The health care sector in "
+    "the economies of the European Union: an overview using an input-output "
+    "framework. Cost Eff Resour Alloc. 2021;19(1):4.",
+    # 10 -- Methods: Germany I-O
+    "Henke KD, Ostwald DA. Health satellite account: the first step. "
+    "Int J Behav Healthc Res. 2012;3(2):91-105.",
+    # 11 -- Background: Health as investment
+    "Mushkin SJ. Health as an investment. J Polit Econ. 1962;70(5):129-157.",
+    # 12 -- Background: Health capital model
+    "Grossman M. On the concept of health capital and the demand for "
+    "health. J Polit Econ. 1972;80(2):223-255.",
+    # 13 -- Background: Health-TFP link
+    "Bloom DE, Canning D, Sevilla J. The effect of health on economic "
+    "growth: a production function approach. World Dev. "
+    "2004;32(1):1-13.",
+    # 14 -- Background: Life expectancy and GDP
+    "Barro RJ. Health and economic growth. Ann Econ Finance. "
+    "2013;14(2):305-342.",
+    # 15 -- Background: HLGH (CS-ARDL)
     "Ertugrul HM, Baycan O, Atilgan E, Ulucan H. Health-led growth "
     "hypothesis and health financing systems: an econometric synthesis "
     "for OECD countries. Front Public Health. 2024;12:1437304.",
-    # 8 -- Background: HLGH (Toda-Yamamoto)
+    # 16 -- Background: HLGH (Toda-Yamamoto)
     "Amiri A, Ventelou B. Granger causality between total expenditure on "
     "health and GDP in OECD: Evidence from the Toda-Yamamoto approach. "
     "Econ Lett. 2012;116(3):541-544.",
-    # 9 -- Background: HLGH (Driscoll-Kraay)
-    "Beylik U, Cetin M, Senol O, Cirakli U, Ecevit E. The relationship "
+    # 17 -- Background: HLGH (Driscoll-Kraay)
+    "Beylik U, Cirakli U, Cetin M, Ecevit E, Senol O. The relationship "
     "between health expenditure indicators and economic growth in OECD "
     "countries: A Driscoll-Kraay approach. Front Public Health. "
     "2022;10:1050550.",
-    # 10 -- Background: HLGH (Panel VECM)
+    # 18 -- Background: HLGH (Panel VECM)
     "Wang KM. Health care expenditure and economic growth: Quantile "
     "panel-type analysis. Econ Model. 2011;28(4):1536-1549.",
-    # 11 -- Background: HLGH developing countries
+    # 19 -- Background: HLGH developing countries
     "Piabuo SM, Tieguhong JC. Health expenditure and economic growth - "
     "a review of the literature and an analysis between the economic "
     "community for central African states (CEMAC) and selected African "
     "countries. Health Econ Rev. 2017;7(1):23.",
-    # 12 -- Background: Health as investment
-    "Mushkin SJ. Health as an investment. J Polit Econ. 1962;70(5):129-157.",
-    # 13 -- Background: Health capital model
-    "Grossman M. On the concept of health capital and the demand for "
-    "health. J Polit Econ. 1972;80(2):223-255.",
-    # 14 -- Background: Health-TFP link
-    "Bloom DE, Canning D, Sevilla J. The effect of health on economic "
-    "growth: a production function approach. World Dev. "
-    "2004;32(1):1-13.",
-    # 15 -- Background: Life expectancy and GDP
-    "Barro RJ. Health and economic growth. Ann Econ Finance. "
-    "2013;14(2):305-342.",
-    # 16 -- Background: Tempo effect origin
+    # 20 -- Background: Tempo effect origin
     "Bongaarts J, Feeney G. On the quantum and tempo of fertility. "
     "Popul Dev Rev. 1998;24(2):271-291.",
-    # 17 -- Background: Forgotten parameter sigma
+    # 21 -- Background: Forgotten parameter sigma
     "Goldstein JR, Lutz W, Scherbov S. Long-term population decline in "
     "Europe: the relative importance of tempo effects and generational "
     "length. Popul Dev Rev. 2003;29(4):699-707.",
-    # 18 -- Methods: GDP tempo companion
+    # 22 -- Methods: GDP tempo companion
     "Onishi T. The forgotten tempo effect in capital accounting: "
     "investment-to-output time-to-build, intangible capital, and the "
     "reconciliation of flow- and stock-based national wealth measures. "
     "Working Paper. 2026. Available from: "
     "https://github.com/bougtoir/gdp-tempo-paper",
-    # 19 -- Methods: Healthcare tempo PoC
+    # 23 -- Methods: Healthcare tempo PoC
     "Onishi T. Healthcare sustainable-spending composition via tempo + "
     "sigma framework: model specification A-H proof of concept. "
     "Working Paper. 2026. Available from: "
     "https://github.com/bougtoir/healthcare-sustainable",
-    # 20 -- Methods: Germany I-O
-    "Henke KD, Ostwald DA. Health satellite account: the first step. "
-    "In: Dged JM, ed. The Elgar Companion to Health Economics. 2nd ed. "
-    "Cheltenham: Edward Elgar; 2012. p. 327-337.",
-    # 21 -- Results: WDI data
-    "World Bank. World Development Indicators. Washington, DC: World Bank; "
-    "2024. Available from: https://databank.worldbank.org/",
-    # 22 -- Results: Preston Curve
-    "Preston SH. The changing relation between mortality and level of "
-    "economic development. Popul Stud. 1975;29(2):231-248.",
-    # 23 -- Results: OECD diagnostic technology
+    # 24 -- Results: OECD diagnostic technology
     "OECD. Health at a Glance 2023: OECD Indicators. Chapter 5.23: "
     "Diagnostic technologies. Paris: OECD Publishing; 2023.",
-    # 24 -- Results: MHLW trade statistics
+    # 25 -- Results: MHLW trade statistics
     "Ministry of Health, Labour and Welfare. Pharmaceutical and medical "
     "device production statistics annual report. "
     "Tokyo: MHLW; 2021. [In Japanese]",
-    # 25 -- R1 NEW: MOF fiscal data (deficit financing)
-    "Ministry of Finance, Japan. Highlights of the Budget for FY2024. "
-    "Tokyo: MOF; 2024. Available from: "
-    "https://www.mof.go.jp/english/policy/budget/budget/",
-    # 26 -- R1 NEW: Late-stage elderly healthcare
-    "Ministry of Health, Labour and Welfare. Annual Health, Labour and "
-    "Welfare Report 2023. Tokyo: MHLW; 2023. [In Japanese]",
-    # 27 -- R1 NEW: Physician density OECD
+    # 26 -- R1 NEW: Physician density OECD
     "OECD. Health at a Glance 2023: OECD Indicators. Chapter 8.1: "
     "Health workforce. Paris: OECD Publishing; 2023.",
-    # 28 -- R1 NEW: Work-style reform physicians
-    "Hamano J, Tokuda Y. Changes in the work environment of physicians "
-    "in Japan after implementation of work-style reform legislation. "
-    "JAMA Netw Open. 2023;6(9):e2334855.",
-    # 29 -- R1 NEW: Defensive medicine Japan
-    "Hiramatsu T, Sugiyama M, Kuwabara K. Defensive medicine in Japan: "
-    "a questionnaire survey of practicing physicians. "
-    "J Health Econ. 2019;66:251-264.",
-    # 30 -- R1 NEW: Japan national debt
-    "Bank of Japan. Flow of Funds Accounts. Tokyo: BOJ; 2024. "
-    "Available from: https://www.boj.or.jp/en/statistics/sj/",
+    # 27 -- R1 NEW: Work-style reform physicians
+    "Koike S, Wada H, Ohde S, Ide H, Taneda K, Tanigawa T. Working "
+    "hours of full-time hospital physicians in Japan: a cross-sectional "
+    "nationwide survey. BMC Public Health. 2024;24:164.",
+    # 28 -- Results: WDI data
+    "World Bank. World Development Indicators. Washington, DC: World Bank; "
+    "2024. Available from: https://databank.worldbank.org/",
+    # 29 -- Results: Preston Curve
+    "Preston SH. The changing relation between mortality and level of "
+    "economic development. Popul Stud. 1975;29(2):231-248.",
+    # 30 -- R1 NEW: Defensive medicine Japan
+    "Hiyama T, Yoshihara M, Tanaka S, Urabe Y, Ikegami Y, Fukuhara T, "
+    "et al. Defensive medicine practices among gastroenterologists in "
+    "Japan. World J Gastroenterol. 2006;12(47):7671-7675.",
 ]
 
 
@@ -441,19 +440,19 @@ def build_ehpm_manuscript_r1():
         "moderate the growth of national medical care expenditure. Japan's "
         "current health expenditure (CHE) reached 11.0% of GDP in 2019, "
         "ranking fifth among 38 Organisation for Economic Co-operation and "
-        "Development (OECD) countries{4}. With rapid population aging -- "
+        "Development (OECD) countries{1}. With rapid population aging -- "
         "the proportion of the population aged 65 and over exceeded 28% "
         "in 2019, the highest among OECD nations -- the 'sustainability' of "
-        "healthcare spending has become a central policy concern{5}."
+        "healthcare spending has become a central policy concern{2}."
     )
     # R2-3 & R2-5: Super-aged society context + national debt
     add_para(doc,
         "Japan faces a uniquely challenging fiscal context: its general "
         "account deficit dependency ratio has exceeded 30% in recent years, "
         "meaning that roughly one-third of government expenditures are "
-        "financed by bond issuance rather than current tax revenue{25}. "
+        "financed by bond issuance rather than current tax revenue{3}. "
         "The national debt-to-GDP ratio exceeds 250%, the highest among "
-        "advanced economies{30}. Healthcare expenditure, which constitutes "
+        "advanced economies{4}. Healthcare expenditure, which constitutes "
         "approximately 12% of general account expenditures, is thus "
         "partially financed by deficit spending. Moreover, Japan's "
         "super-aged society -- characterized by a growing elderly demographic "
@@ -465,7 +464,7 @@ def build_ehpm_manuscript_r1():
     add_para(doc,
         "A distinctive feature of Japan's system is the Late-Stage Elderly "
         "Healthcare System (Kouki Koreisha Iryo Seido), which provides "
-        "a separate insurance framework for individuals aged 75 and over{26}. "
+        "a separate insurance framework for individuals aged 75 and over{5}. "
         "Unlike many European countries where the institutional framework "
         "remains unified, with the elderly protected through subsidized "
         "premiums or exemptions, Japan changes the actual insurance "
@@ -495,14 +494,14 @@ def build_ehpm_manuscript_r1():
         "final demand in one sector induces production across the entire "
         "economy through direct, indirect, and induced effects. "
         "Yamada and Imanaka reported a healthcare I-O output multiplier of "
-        "2.78 (95% confidence interval [CI]: 2.74-2.90) for Japan{1}, "
+        "2.78 (95% confidence interval [CI]: 2.74-2.90) for Japan{7}, "
         "meaning that each unit of healthcare spending generates 2.78 units "
         "of total economic output. Output multipliers ranging from 1.7 to "
-        "2.9 have been estimated across OECD countries{2,3,20}. "
+        "2.9 have been estimated across OECD countries{8-10}. "
         "It is important to note that these are output multipliers -- they "
         "measure total output induced, not value added (GDP contribution). "
         "Value-added multipliers, which exclude intermediate consumption, "
-        "are typically 40-60% smaller{3}. This distinction is critical "
+        "are typically 40-60% smaller{9}. This distinction is critical "
         "when relating multiplier effects to tax revenues, which are "
         "levied on value added and income rather than gross output."
     )
@@ -510,55 +509,55 @@ def build_ehpm_manuscript_r1():
         "On the supply side, health has long been recognized as a component "
         "of human capital that generates long-term economic returns. "
         "Mushkin conceptualized health as an investment with returns "
-        "analogous to education{12}, and Grossman's health-capital model "
+        "analogous to education{11}, and Grossman's health-capital model "
         "formally describes individual health stock as accumulated through "
-        "investment and depreciated by aging and disease{13}. At the macro "
+        "investment and depreciated by aging and disease{12}. At the macro "
         "level, Bloom, Canning, and Sevilla demonstrated that improved "
-        "population health raises total factor productivity{14}. Barro "
+        "population health raises total factor productivity{13}. Barro "
         "estimated that a one-year increase in life expectancy at birth "
-        "raises GDP growth by approximately 0.04 percentage points{15}."
+        "raises GDP growth by approximately 0.04 percentage points{14}."
     )
     add_para(doc,
         "The Health-Led Growth Hypothesis (HLGH) synthesizes these supply-side "
         "effects, positing bidirectional Granger causality between health "
         "expenditure and GDP growth. Multiple studies have confirmed this "
         "relationship across OECD and developing countries using diverse "
-        "econometric specifications{7-11}."
+        "econometric specifications{15-19}."
     )
     add_para(doc,
         "A further analytical dimension comes from the Bongaarts-Feeney "
         "tempo framework. Bongaarts and Feeney demonstrated that rising "
         "mean age at childbearing mechanically depresses the period total "
-        "fertility rate even when cohort fertility is unchanged{16}. "
+        "fertility rate even when cohort fertility is unchanged{20}. "
         "Goldstein, Lutz, and Scherbov introduced the parity-specific "
-        "variance sigma, substantially improving tempo adjustment{17}. "
+        "variance sigma, substantially improving tempo adjustment{21}. "
         "Onishi ported this quantum-tempo decomposition to capital "
         "accounting, introducing the investment-to-output time-to-build "
-        "lag as an analogous 'forgotten parameter' in GDP accounting{18}. "
-        "Extension to healthcare (termed 'Candidate A-H'){19} models the "
+        "lag as an analogous 'forgotten parameter' in GDP accounting{22}. "
+        "Extension to healthcare (termed 'Candidate A-H'){23} models the "
         "spending-to-outcome lag and revealed a tempo drift of "
         "+0.15 yr/yr across 39 countries (2000-2019)."
     )
     add_para(doc,
         "Japan is also known for its extremely high diagnostic imaging "
-        "equipment density{4,23}. Japan has 115.7 computed tomography (CT) "
+        "equipment density{1,24}. Japan has 115.7 computed tomography (CT) "
         "scanners per million population, approximately 4.3 times the OECD "
         "median, and 55.2 magnetic resonance imaging (MRI) units per million, "
         "approximately 2.9 times the OECD median. This high density is "
         "frequently cited as evidence of 'excess' in the Japanese healthcare "
         "system. Simultaneously, Japan is a net importer of medical devices "
         "and pharmaceuticals, with import leakage representing approximately "
-        "5.0% of CHE{24}."
+        "5.0% of CHE{25}."
     )
     # R2-3: Physician density context
     add_para(doc,
         "An important structural context is Japan's physician density: at "
         "2.5 physicians per 1,000 population, Japan ranks among the lowest "
-        "in the OECD (average 3.7){27}. This low physician density, "
+        "in the OECD (average 3.7){26}. This low physician density, "
         "combined with free access to specialists and the world's highest "
         "diagnostic equipment density, raises questions about the "
         "sustainability of current service levels, particularly as "
-        "work-style reform legislation limits physician overtime{28}."
+        "work-style reform legislation limits physician overtime{27}."
     )
     add_para(doc,
         "The aim of this study was to (1) evaluate the sustainability of "
@@ -568,7 +567,8 @@ def build_ehpm_manuscript_r1():
         "effects, (2) quantify the role of diagnostic equipment stock and "
         "import leakage, (3) construct counterfactual scenarios with "
         "sensitivity analysis, and (4) benchmark Japan against 12 additional "
-        "OECD countries."
+        "OECD countries. The conceptual framework is illustrated in "
+        "Figure 1."
     )
 
     # ======================================================================
@@ -579,12 +579,12 @@ def build_ehpm_manuscript_r1():
     add_heading(doc, "Study design and data sources", level=2)
     add_para(doc,
         "This study is a cross-country ecological analysis using publicly "
-        "available data from OECD Health at a Glance 2023{4,23}, the World "
-        "Bank World Development Indicators{21}, published I-O studies of "
-        "healthcare sectors{1-3,6,20}, Health-Led Growth Hypothesis panel "
-        "studies{7-11}, pharmaceutical/device trade statistics{24}, and "
-        "Japanese fiscal data from the Ministry of Finance{25} and "
-        "Bank of Japan{30}. As an analysis of publicly available aggregate "
+        "available data from OECD Health at a Glance 2023{1,24}, the World "
+        "Bank World Development Indicators{28}, published I-O studies of "
+        "healthcare sectors{6-10}, Health-Led Growth Hypothesis panel "
+        "studies{15-19}, pharmaceutical/device trade statistics{25}, and "
+        "Japanese fiscal data from the Ministry of Finance{3} and "
+        "Bank of Japan{4}. As an analysis of publicly available aggregate "
         "data, no ethical approval was required."
     )
 
@@ -595,7 +595,7 @@ def build_ehpm_manuscript_r1():
         "Australia, Korea, Italy, France, UK, Canada, Sweden, Spain, "
         "Netherlands, and Finland. All countries had either a direct I-O "
         "study published in a peer-reviewed journal or backward-linkage "
-        "coefficients from the EU-28 framework study{3}."
+        "coefficients from the EU-28 framework study{9}."
     )
 
     # R1-1: Explicit output vs VA multiplier distinction
@@ -629,7 +629,7 @@ def build_ehpm_manuscript_r1():
         "present results using both output multipliers (as an upper bound) "
         "and approximate VA multipliers (output multiplier times the "
         "sector-specific VA/output ratio, approximately 0.55-0.60 for "
-        "healthcare in OECD countries{3}) as a more conservative estimate. "
+        "healthcare in OECD countries{9}) as a more conservative estimate. "
         "Neither estimate accounts for opportunity costs: in an economy "
         "near full employment, resources employed in healthcare would "
         "generate alternative output and tax revenue elsewhere, reducing "
@@ -642,7 +642,7 @@ def build_ehpm_manuscript_r1():
         "issuance rather than current taxation, a ratio above 1.0 reflects "
         "only a temporary flow of single-year tax revenue and does not "
         "account for the long-term cost of servicing the accumulated "
-        "debt{25,30}. For Japan, the general account deficit dependency "
+        "debt{3,4}. For Japan, the general account deficit dependency "
         "ratio was approximately 35% in recent fiscal years. We report "
         "results both with and without this adjustment."
     )
@@ -651,7 +651,7 @@ def build_ehpm_manuscript_r1():
     add_heading(doc, "Tempo model specification", level=2)
     add_para(doc,
         "The tempo model, fully specified in the companion proof-of-concept "
-        "(publicly available at ref 19), captures supply-side health-capital "
+        "(publicly available at ref 23), captures supply-side health-capital "
         "accumulation. The model treats health expenditure as a stock-building "
         "flow with a time-varying spending-to-outcome lag:"
     )
@@ -683,7 +683,7 @@ def build_ehpm_manuscript_r1():
         "Key M2 point estimates: \u03bc_H0 = 3.2 years (SE = 0.8), "
         "\u03bc_H1 = +0.15 yr/yr (SE = 0.04), where \u03bc_H0 is the "
         "initial spending-to-outcome lag and \u03bc_H1 is the annual "
-        "drift in this lag{19}."
+        "drift in this lag{23}."
     )
 
     # R1-4: Model selection criteria
@@ -696,15 +696,15 @@ def build_ehpm_manuscript_r1():
         "RMSE, (d) Akaike Information Criterion (AIC), and (e) Bayesian "
         "Information Criterion (BIC). AIC and BIC penalize model complexity, "
         "with BIC imposing a heavier penalty for additional parameters. "
-        "All criteria are reported in Table 3."
+        "All criteria are reported in the Results section."
     )
 
     add_heading(doc, "Equipment stock and import leakage model", level=2)
     add_para(doc,
         "Diagnostic imaging equipment density was defined as the sum of "
-        "CT scanners and MRI units per million population{23}. Medical "
+        "CT scanners and MRI units per million population{24}. Medical "
         "import leakage was calculated as the net imports of pharmaceuticals "
-        "(HS30) and medical devices (HS9018-22) divided by CHE{24}. "
+        "(HS30) and medical devices (HS9018-22) divided by CHE{25}. "
         "The effective I-O multiplier was defined as:"
     )
     p = doc.add_paragraph()
@@ -735,13 +735,13 @@ def build_ehpm_manuscript_r1():
         "leakage); Scenario C combined both adjustments. "
         "Because the equipment-related CHE share (15%) is an approximation, "
         "we conducted sensitivity analysis varying this parameter from "
-        "5% to 25% in 5-percentage-point increments (Table 5, Figure 9)."
+        "5% to 25% in 5-percentage-point increments (see Results)."
     )
 
     add_heading(doc, "Preston Curve overfit test", level=2)
     add_para(doc,
         "The relationship between CHE (as a percentage of GDP) and life "
-        "expectancy was analyzed using nested-model F-tests{22}. "
+        "expectancy was analyzed using nested-model F-tests{29}. "
         "Models were fit with and without the US, and compared using "
         "F-statistics, AIC, BIC, and LOOCV RMSE."
     )
@@ -756,8 +756,8 @@ def build_ehpm_manuscript_r1():
     add_para(doc,
         "Table 1 presents the healthcare sector I-O output multipliers for "
         "the 13 selected countries. Japan had the highest multiplier at 2.78 "
-        "(95% CI: 2.74-2.90){1}, followed by France (2.20), Germany (2.10), "
-        "and Sweden (2.05). The US had the lowest multiplier at 1.70{2}; "
+        "(95% CI: 2.74-2.90){7}, followed by France (2.20), Germany (2.10), "
+        "and Sweden (2.05). The US had the lowest multiplier at 1.70{8}; "
         "however, the US estimate is based on Medicare spending only, which "
         "is not directly comparable to whole-sector multipliers for other "
         "countries. The multiplier estimates also differ in estimation year "
@@ -830,7 +830,7 @@ def build_ehpm_manuscript_r1():
         "statistically distinguishable from zero but its practical "
         "significance is uncertain. We interpret the tempo drift as "
         "suggestive evidence that the spending-to-outcome pipeline is "
-        "lengthening, rather than a firmly established finding{19}. "
+        "lengthening, rather than a firmly established finding{23}. "
         "Figure 4 shows the three-layer tempo comparison."
     )
 
@@ -867,7 +867,7 @@ def build_ehpm_manuscript_r1():
     add_para(doc,
         "Japan exhibited the highest diagnostic imaging density: 115.7 CT "
         "scanners and 55.2 MRI units per million (combined 170.9), "
-        "approximately four times the OECD median of 46{23} (Figure 6)."
+        "approximately four times the OECD median of 46{24} (Figure 6)."
     )
 
     add_heading(doc, "Import leakage and effective multipliers", level=2)
@@ -1002,7 +1002,7 @@ def build_ehpm_manuscript_r1():
         "activity, and may facilitate early detection. On the negative "
         "side, the combination of free specialist access and high "
         "equipment density may incentivize defensive medicine, "
-        "over-testing, and unnecessary imaging{29}, artificially inflating "
+        "over-testing, and unnecessary imaging{30}, artificially inflating "
         "apparent economic returns. The current analysis cannot distinguish "
         "between value-generating diagnostic activity and wasteful "
         "over-utilization; this distinction requires micro-level data "
@@ -1020,7 +1020,7 @@ def build_ehpm_manuscript_r1():
         "defensive medicine and over-testing rather than genuine health "
         "improvement. Hiramatsu et al. documented that approximately 98% "
         "of Japanese physicians report engaging in some form of defensive "
-        "medicine{29}. If a substantial fraction of the equipment-related "
+        "medicine{30}. If a substantial fraction of the equipment-related "
         "economic activity reflects low-value utilization, the fiscal return "
         "ratio overstates the true sustainability benefit."
     )
@@ -1028,9 +1028,9 @@ def build_ehpm_manuscript_r1():
         "Moreover, the current service level has been maintained through "
         "excessive, often uncompensated physician overtime. Japan's "
         "physician density (2.5 per 1,000) is among the lowest in the "
-        "OECD{27}, yet Japanese patients enjoy the fastest access to "
+        "OECD{26}, yet Japanese patients enjoy the fastest access to "
         "specialist care globally. With the enforcement of work-style "
-        "reform legislation capping physician overtime{28}, maintaining "
+        "reform legislation capping physician overtime{27}, maintaining "
         "current service levels may be practically impossible without "
         "either increasing physician numbers (which would raise labor "
         "costs and reduce the multiplier-based fiscal return) or reducing "
@@ -1044,7 +1044,7 @@ def build_ehpm_manuscript_r1():
                 level=2)
     add_para(doc,
         "Japan's Late-Stage Elderly Healthcare System creates a structural "
-        "discontinuity that complicates sustainability analysis{26}. "
+        "discontinuity that complicates sustainability analysis{5}. "
         "Per-capita healthcare expenditure for enrollees aged 75+ is "
         "approximately four times that of the working-age population, "
         "and this system is cross-subsidized by working-age insurance "
@@ -1064,8 +1064,8 @@ def build_ehpm_manuscript_r1():
         "Japan's fiscal return ratio of 1.09 (output multiplier basis) "
         "must be interpreted in the context of chronic deficit financing. "
         "Approximately 35% of Japan's general government expenditure is "
-        "financed by bond issuance{25}, and the accumulated public debt "
-        "exceeds 250% of GDP{30}. If this deficit dependency is applied "
+        "financed by bond issuance{3}, and the accumulated public debt "
+        "exceeds 250% of GDP{4}. If this deficit dependency is applied "
         "proportionally to healthcare, the demand-side fiscal return "
         "covers only the tax-funded portion of public healthcare costs; "
         "the deficit-funded portion (approximately 29% of public CHE) "
@@ -1099,7 +1099,7 @@ def build_ehpm_manuscript_r1():
         "comparability: high-salary countries (US, Switzerland) have "
         "different cost structures from moderate-compensation countries "
         "(Japan, France) and low-compensation countries (Finland, Sweden), "
-        "affecting both the multiplier and the fiscal return{27}."
+        "affecting both the multiplier and the fiscal return{26}."
     )
 
     add_heading(doc, "Additional limitations", level=2)
@@ -1709,7 +1709,7 @@ def build_cover_letter_r1():
         "standard errors (Reviewer 1, Comment 3)",
         "AIC/BIC/LOOCV RMSE added to Table 3 with honest M2 vs M1 "
         "assessment (Reviewer 1, Comment 4)",
-        "New sensitivity analysis (Table 5, Figure 9) for equipment-CHE "
+        "New sensitivity analysis (see Results) for equipment-CHE "
         "share assumption (Reviewer 1, Comment 5)",
         "Deficit financing and national debt discussion (Reviewer 2, "
         "Comments 6-7, 11-12)",
