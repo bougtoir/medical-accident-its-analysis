@@ -397,12 +397,13 @@ diff_paras = [
      'different subsets of introgressed segments, reflecting different post-admixture '
      'drift histories.'),
 
-    ('Petr et al.{9} tracked Neanderthal ancestry in 300+ ancient individuals across '
-     '50,000 years, identifying temporal patterns of introgression loss. Their '
-     'time-series approach is powerful but requires well-preserved ancient DNA samples, '
-     'which are scarce for tropical and southern-hemisphere populations. Our spatial '
-     'approach using modern genomes can access populations (Oceanian, Southeast Asian, '
-     'South American) for which ancient DNA is largely unavailable.'),
+    ('Petr et al.{9} analyzed Neanderthal ancestry patterns in ancient European '
+     'genomes, evaluating whether introgression levels have declined over time. '
+     'Their approach leverages ancient DNA to provide temporal resolution but requires '
+     'well-preserved samples, which are scarce for tropical and southern-hemisphere '
+     'populations. Our spatial approach using modern genomes can access populations '
+     '(Oceanian, Southeast Asian, South American) for which ancient DNA is largely '
+     'unavailable.'),
 
     ('Mao et al.{10} traced Denisovan segments in European populations to indirect '
      'gene flow via South Asian intermediaries. Our analysis recapitulates and extends '
@@ -577,21 +578,21 @@ references = [
     '6. Vernot B, Akey JM. Resurrecting surviving Neandertal lineages from modern '
     'human genomes. Science. 2014;343(6174):1017-1021.',
 
-    '7. Quilodran CS, Tsoupas A, Currat M. The spatial signature of introgression '
-    'after a biological invasion with hybridization. Sci Adv. 2023;9(37):eadh0487.',
+    '7. Quilodr\u00e1n CS, Rio J, Tsoupas A, Currat M. Past human expansions shaped '
+    'the spatial pattern of Neanderthal ancestry. Sci Adv. 2023;9(42):eadg9817.',
 
-    '8. Skov L, Hajdinjak M, Vernot B, et al. Detecting archaic introgression using '
-    'an unadmixed outgroup. PLoS Genet. 2022;18(6):e1010170.',
+    '8. Skov L, Hui R, Shchur V, et al. Detecting archaic introgression using '
+    'an unadmixed outgroup. PLoS Genet. 2018;14(9):e1007641.',
 
-    '9. Petr M, Hajdinjak M, Fu Q, Essel E, et al. The evolutionary history of '
-    'Neandertal and Denisovan Y chromosomes. Science. 2020;369(6511):1653-1656.',
+    '9. Petr M, P\u00e4\u00e4bo S, Kelso J, Vernot B. Limits of long-term selection '
+    'against Neandertal introgression. Proc Natl Acad Sci U S A. 2019;116(5):1639-1644.',
 
     '10. Mao X, Zhang H, Qiao S, et al. The deep population history of northern '
     'East Asia from the Late Pleistocene to the Holocene. Cell. 2021;184(12):3256-3266.',
 
-    '11. Terao C, Momozawa Y, Ishigaki K, et al. Decoding triancestral origins, '
+    '11. Liu X, Koyama S, Tomizuka K, et al. Decoding triancestral origins, '
     'archaic introgression, and natural selection in the Japanese population by '
-    'whole-genome sequencing. Sci Adv. 2024;10(15):eadi8813.',
+    'whole-genome sequencing. Sci Adv. 2024;10(16):eadi8419.',
 
     '12. Skoglund P, Mallick S, Bortolini MC, et al. Genetic evidence for two '
     'founding populations of the Americas. Nature. 2015;525(7567):104-108.',
