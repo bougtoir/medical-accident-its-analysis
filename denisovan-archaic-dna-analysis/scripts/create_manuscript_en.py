@@ -416,7 +416,7 @@ add_text_with_refs(doc,
 add_text_with_refs(doc,
     'By analyzing 517 hmmix segments overlapping the ABO extended region '
     '(chr9:133.0\u2013133.5 Mb) across all 66 populations, we found dramatic '
-    'regional differences in Neanderthal sub-lineage composition (Figure 5). '
+    'regional differences in Neanderthal sub-lineage composition (Figure 4). '
     'East Asian populations (n = 45 segments) showed predominantly Altai (58%) and '
     'Chagyrskaya (40%) types with minimal Vindija representation (2%). Oceanian '
     'populations (n = 25 segments) showed exclusively Altai (48%) and Chagyrskaya '
@@ -429,8 +429,8 @@ add_text_with_refs(doc,
     '(chr9:133,294,000\u2013133,502,000; 208 kb) lay in the immediate downstream '
     'region.')
 
-# Figure 5 (ABO sub-lineage composition, inline)
-add_figure_with_legend(doc, 'figures/fig5_abo_sublineage.png', 5,
+# Figure 4 (ABO sub-lineage composition, inline)
+add_figure_with_legend(doc, 'figures/fig5_abo_sublineage.png', 4,
     'Neanderthal sub-lineage composition at the ABO locus. '
     'Proportion of Altai-, Chagyrskaya-, and Vindija-type Neanderthal segments '
     'by geographic region. Indigenous Americans carry exclusively Vindija-type '
@@ -443,7 +443,7 @@ add_figure_with_legend(doc, 'figures/fig5_abo_sublineage.png', 5,
 # --- ABO para 3: O2 allele paradox ---
 add_text_with_refs(doc,
     'The Neanderthal-derived O2 allele (rs41302905) showed an unexpected geographic '
-    'distribution (Figure 6). Solomon Islands populations exhibited the highest '
+    'distribution (Figure 5). Solomon Islands populations exhibited the highest '
     'frequencies (5\u201316%),{13} followed by European populations (0.5\u20135%), '
     'while East Asian populations showed near-zero frequencies. This pattern '
     'inversely correlates with overall Neanderthal introgression frequency at the '
@@ -454,8 +454,8 @@ add_text_with_refs(doc,
     'been introduced through a distinct introgression event or maintained by '
     'balancing selection independently of sub-lineage identity.')
 
-# Figure 6 (O2 allele and introgression, inline)
-add_figure_with_legend(doc, 'figures/fig6_o2_introgression.png', 6,
+# Figure 5 (O2 allele and introgression, inline)
+add_figure_with_legend(doc, 'figures/fig6_o2_introgression.png', 5,
     'O2 allele frequency and Neanderthal introgression patterns at the ABO locus. '
     '(A) Frequency of the Neanderthal-derived O2 allele (rs41302905) across '
     'populations. Solomon Islands populations show the highest frequencies '
@@ -474,10 +474,10 @@ add_text_with_refs(doc,
     'Eurasian lineages now carry predominantly Vindija-type at ABO (57%), the ANE '
     'component likely introduced Vindija-type segments that subsequently drifted to '
     'fixation during the Beringian bottleneck (~25\u201315 kya), when the founding '
-    'population comprised an estimated 250\u20132,000 individuals (Figure 7).{15}')
+    'population comprised an estimated 250\u20132,000 individuals (Figure 6).{15}')
 
-# Figure 7 (ANE dual ancestry model, inline)
-add_figure_with_legend(doc, 'figures/fig7_ane_model.png', 7,
+# Figure 6 (ANE dual ancestry model, inline)
+add_figure_with_legend(doc, 'figures/fig7_ane_model.png', 6,
     'Revised ANE dual ancestry model incorporating ancient DNA evidence. Yellow '
     'shading indicates the ANE lineage; blue indicates the East Asian lineage. '
     'Ancient DNA results from Petr et al. 2024 are annotated at respective time '
@@ -488,7 +488,7 @@ add_figure_with_legend(doc, 'figures/fig7_ane_model.png', 7,
 # --- ABO para 5: Ancient DNA temporal shift ---
 add_text_with_refs(doc,
     'Direct examination of ancient genomes from Petr et al.{16} revealed a striking '
-    'temporal shift at the ABO locus (Figure 8). All classifiable ancient segments '
+    'temporal shift at the ABO locus (Figure 7). All classifiable ancient segments '
     '(>8 kya) from West Eurasian individuals were Altai-type (50%) or '
     'Chagyrskaya-type (50%), with zero Vindija representation (n = 10). In contrast, '
     'present-day West Eurasians showed 57.1% Vindija-type (n = 14; Fisher exact '
@@ -500,8 +500,8 @@ add_text_with_refs(doc,
     'by Petr et al. that Neanderthal ancestry composition changed over time in '
     'European populations.')
 
-# Figure 8 (temporal dynamics, inline)
-add_figure_with_legend(doc, 'figures/fig8_temporal_dynamics.png', 8,
+# Figure 7 (temporal dynamics, inline)
+add_figure_with_legend(doc, 'figures/fig8_temporal_dynamics.png', 7,
     'Temporal dynamics of Neanderthal sub-lineage at the ABO locus. '
     '(A) Individual ancient genomes plotted by age, with color and shape indicating '
     'closest sub-lineage reference (Altai, Chagyrskaya, or Vindija). '
@@ -619,16 +619,16 @@ pred_paras = [
 for para_text in pred_paras:
     add_text_with_refs(doc, para_text)
 
-# Figure 4 (inline — after Testable Predictions, before Limitations)
+# Figure 8 (inline — after Testable Predictions, before Limitations)
 add_text_with_refs(doc,
     'The global distribution of archaic DNA — with Neanderthal ancestry broadly '
     'distributed across non-African populations and Denisovan ancestry sharply '
-    'concentrated in Oceania — is summarized in Figure 4. This bivariate '
+    'concentrated in Oceania — is summarized in Figure 8. This bivariate '
     'representation captures the complementary geographic signatures that '
     'underpin our hypothesis: the "common-mode" Neanderthal signal '
     '(circle size) vs. the "differential-mode" Denisovan signal (color intensity).')
 
-add_figure_with_legend(doc, 'figures/fig4_bivariate_world_map.png', 4,
+add_figure_with_legend(doc, 'figures/fig4_bivariate_world_map.png', 8,
     'Global distribution of archaic human DNA: bivariate world map. Circle size '
     'represents Neanderthal DNA proportion (0.08-1.8%). Color intensity represents '
     'Denisovan DNA proportion (0.02-3.5%). The sharp transition from low '
@@ -674,20 +674,23 @@ for para_text in limit_paras:
 add_heading(doc, 'Conclusions and Outlook', level=1)
 
 conclusion_paras = [
-    ('We have proposed that pairwise archaic introgression sharing \u2014 the '
-     'correlation of introgression frequency profiles between populations \u2014 '
-     'can serve as an independent tracer of ancient human migration. Using publicly '
-     'available data, we demonstrated that archaic introgression patterns encode '
-     'meaningful geographic signals at both single-locus and genome-wide scales. '
-     'At the ABO locus, sub-lineage analysis revealed a geographic paradox \u2014 '
-     'exclusive Vindija-type in Indigenous Americans versus Altai/Chagyrskaya in '
-     'East Asia \u2014 consistent with ANE ancestry, supported by a temporal shift '
-     'from Altai/Chagyrskaya to Vindija dominance over 30,000 years (p = 0.003), '
-     'and potentially driven by density-dependent pathogen selection that '
-     '\u2018froze\u2019 the ancestral composition in low-density Americas. At the '
-     'genome-wide level, the Denisovan Wallace Line boundary, Neanderthal-mediated '
-     'Beringian connections, and confounding effects of post-Columbian admixture '
-     'all emerge as interpretable signals.'),
+    ('This study began with the observation of near-fixation of blood group O in '
+     'Native American populations. Focal investigation of archaic introgression at '
+     'the ABO locus revealed region-specific distributions of Vindija-type '
+     'Neanderthal segments, a temporal sub-lineage turnover from ancient to modern '
+     'populations, and evidence that density-dependent selection preserved ancestral '
+     'patterns in the Americas. These locus-specific findings motivated the '
+     'extension to genome-wide analysis.'),
+
+    ('At the genome-wide level, we proposed that pairwise archaic introgression '
+     'sharing can serve as an independent tracer of ancient human migration. '
+     'Using publicly available data, we demonstrated that this metric captures '
+     'biologically meaningful signals: the Denisovan Wallace Line boundary, '
+     'Neanderthal-mediated Beringian connections, and confounding effects of '
+     'post-Columbian admixture. These signals persist after correcting for '
+     'confounders, though statistical power is reduced, indicating that larger '
+     'datasets and more refined analytical methods are needed to fully exploit '
+     'this approach.'),
 
     ('The key advantage of our bivariate framework \u2014 jointly using Neanderthal '
      'and Denisovan signatures \u2014 is its ability to distinguish migration routes '
