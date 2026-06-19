@@ -6,7 +6,7 @@ BioEssays format:
 - Hypotheses article type (~3000-5000 words body)
 - Free-form structure (not IMRaD)
 - Vancouver citation style (numbered in order of appearance)
-- Up to ~5-6 figures
+- 8 figures (4 genome-wide + 4 ABO locus)
 - Abstract ~100-150 words
 """
 
@@ -145,7 +145,8 @@ run = kw.add_run('Keywords: ')
 run.bold = True
 run2 = kw.add_run(
     'archaic introgression, Denisovan, Neanderthal, human migration, '
-    'population genetics, introgression sharing, Wallace Line, admixture'
+    'population genetics, introgression sharing, Wallace Line, admixture, '
+    'ABO blood group, O allele, Neanderthal sub-lineage, Ancient North Eurasian'
 )
 
 doc.add_page_break()
@@ -154,21 +155,26 @@ doc.add_page_break()
 add_heading(doc, 'Abstract', level=1)
 
 abstract_text = (
-    'Archaic human DNA — inherited from Neanderthals and Denisovans — persists in '
-    'modern human genomes in population-specific patterns shaped by ancient migration '
-    'routes. We hypothesize that pairwise correlations of archaic introgression '
-    'frequency profiles between populations can serve as an independent tracer of '
-    'past long-distance human movement, complementing conventional approaches based on '
-    'genome-wide ancestry proportions. '
-    'Using publicly available hmmix introgression segments from 3,134 individuals '
-    'across 66 populations (1000 Genomes + HGDP), we demonstrate that a multiple '
-    'regression model incorporating geographic distance, recent admixture proportions, '
-    'and continental grouping explains 51% of the variance in Neanderthal sharing '
-    'correlations (R{2} = 0.510) and 50% for Denisovan (R{2} = 0.495). Crucially, '
-    'Denisovan introgression creates a sharp biogeographic boundary coinciding with '
-    'the Wallace Line, while Neanderthal sharing residuals highlight trans-Pacific '
-    'connections consistent with Beringian migration. We propose specific testable '
-    'predictions for validation with forthcoming ancient genome data.'
+    'Archaic human DNA \u2014 inherited from Neanderthals and Denisovans \u2014 persists '
+    'in modern human genomes in population-specific patterns shaped by ancient migration '
+    'routes. Motivated by the observation that Native American populations show '
+    'near-fixation of blood group O \u2014 whose O2 sub-allele is Neanderthal-derived \u2014 '
+    'we examined archaic introgression at the ABO locus across 66 populations. Analysis '
+    'of 517 introgressed segments revealed that Indigenous Americans carry exclusively '
+    'Vindija-type Neanderthal DNA at ABO, while East Asian and Oceanian populations '
+    'carry Altai/Chagyrskaya types. Ancient genome data further showed a temporal shift '
+    'from Altai/Chagyrskaya dominance (>8 kya) to Vindija predominance (57%) in '
+    'present-day West Eurasians (p = 0.003). We attribute the Vindija-type in '
+    'Indigenous Americans to Ancient North Eurasian (ANE) ancestry and propose that '
+    'density-dependent pathogen selection drove sub-lineage turnover in the Old World '
+    'while preserving the ancestral composition in low-density Americas. These '
+    'locus-specific patterns motivated a genome-wide extension: pairwise correlations '
+    'of archaic introgression profiles across ~6,000 genomic windows serve as an '
+    'independent tracer of past human migration, explaining 51% (Neanderthal, '
+    'R{2} = 0.510) and 50% (Denisovan, R{2} = 0.495) of sharing variance after '
+    'confounding correction. Denisovan introgression creates a sharp boundary '
+    'coinciding with the Wallace Line, while Neanderthal residuals highlight '
+    'trans-Pacific connections consistent with Beringian migration.'
 )
 add_text_with_refs(doc, abstract_text)
 
@@ -189,14 +195,28 @@ intro_paras = [
      'lineages), whereas major Denisovan admixture occurred in Southeast Asia, '
      'primarily benefiting ancestors of Oceanian populations.{5}'),
 
+    ('Our investigation originated from a seemingly simple observation: Native '
+     'American populations exhibit a near-fixation of blood group O, with frequencies '
+     'reaching 95-100% in isolated groups such as the Surui and Karitiana. The O '
+     'allele of the ABO blood group gene (chr9:133.2-133.3 Mb) includes the O2 '
+     'sub-allele, which carries a frameshift deletion (261delG, rs8176719) that has '
+     'been identified as Neanderthal-derived.{6} This prompted us to ask: does the '
+     'ABO locus retain an imprint of the archaic interbreeding events that accompanied '
+     'the peopling of the Americas? To address this question, we first examined '
+     'archaic introgression patterns at the ABO locus across 66 populations, which '
+     'revealed dramatic regional differences in both frequency and Neanderthal '
+     'sub-lineage composition. These locus-specific findings motivated a genome-wide '
+     'extension of the analysis — from a single gene to all ~6,000 genomic windows — '
+     'forming the basis of the hypothesis presented here.'),
+
     ('The spatial distribution of archaic DNA has been used to infer properties of '
      'the admixture events themselves — their timing, number, and geographic '
-     'location.{4,6} However, the downstream redistribution of archaic segments '
+     'location.{4,7} However, the downstream redistribution of archaic segments '
      'through subsequent human migration has received less systematic attention. '
      'Quilodran et al. demonstrated that spatial gradients of Neanderthal ancestry '
      'across Eurasia could be decomposed into three historically meaningful migration '
      'waves: the initial Out-of-Africa dispersal, the Neolithic farming expansion, '
-     'and the Steppe pastoralist migration.{7} Their approach, however, focused '
+     'and the Steppe pastoralist migration.{8} Their approach, however, focused '
      'exclusively on Neanderthal DNA and modeled aggregate ancestry proportions rather '
      'than the fine-grained sharing of specific introgressed segments.'),
 
@@ -248,7 +268,7 @@ add_heading(doc, 'Data and analytical framework', level=2)
 
 evidence_paras = [
     ('To evaluate this hypothesis, we reanalyzed archaic introgression segments '
-     'detected by hmmix{8} in 3,134 individuals from 66 populations (1000 Genomes '
+     'detected by hmmix{9} in 3,134 individuals from 66 populations (1000 Genomes '
      'Project + Human Genome Diversity Project), publicly available via '
      'Zenodo (record 14136628). We binned the genome into 500 kb windows, computed '
      'the frequency of archaic (Neanderthal or Denisovan) introgression in each bin '
@@ -379,6 +399,146 @@ trans_pacific = [
 for para_text in trans_pacific:
     add_text_with_refs(doc, para_text)
 
+add_heading(doc, 'From the ABO locus to the genome-wide hypothesis', level=2)
+
+# --- ABO para 1: Opening ---
+add_text_with_refs(doc,
+    'The genome-wide analysis presented above grew out of a focal investigation of '
+    'archaic introgression at the ABO blood group gene (chr9:133,233,278\u2013'
+    '133,276,024; GRCh38). The ABO locus is under balancing selection related to '
+    'pathogen resistance{6,10} and was chosen as an initial target because of the '
+    'striking near-fixation of blood group O in Native American populations \u2014 '
+    'with frequencies reaching 95\u2013100% in isolated groups, established prior to '
+    'European contact{11} \u2014 and the Neanderthal origin of the O2 sub-allele, '
+    'defined by the frameshift deletion 261delG (rs8176719).{12}')
+
+# --- ABO para 2: Sub-lineage geographic structure ---
+add_text_with_refs(doc,
+    'By analyzing 517 hmmix segments overlapping the ABO extended region '
+    '(chr9:133.0\u2013133.5 Mb) across all 66 populations, we found dramatic '
+    'regional differences in Neanderthal sub-lineage composition (Figure 5). '
+    'East Asian populations (n = 45 segments) showed predominantly Altai (58%) and '
+    'Chagyrskaya (40%) types with minimal Vindija representation (2%). Oceanian '
+    'populations (n = 25 segments) showed exclusively Altai (48%) and Chagyrskaya '
+    '(52%) with zero Vindija. European populations showed a more balanced '
+    'distribution: Vindija 36%, Altai 33%, Chagyrskaya 31% (n = 304 segments). '
+    'Most remarkably, the only segments from pure Indigenous American individuals '
+    '\u2014 Pima (HGDP01058) and Maya (HGDP00877) \u2014 were classified as 100% '
+    'Vindija-type (n = 2). The Pima segment (chr9:133,254,000\u2013133,513,000; '
+    '259 kb) directly overlapped the ABO gene, while the Maya segment '
+    '(chr9:133,294,000\u2013133,502,000; 208 kb) lay in the immediate downstream '
+    'region.')
+
+# Figure 5 (ABO sub-lineage composition, inline)
+add_figure_with_legend(doc, 'figures/fig5_abo_sublineage.png', 5,
+    'Neanderthal sub-lineage composition at the ABO locus. '
+    'Proportion of Altai-, Chagyrskaya-, and Vindija-type Neanderthal segments '
+    'by geographic region. Indigenous Americans carry exclusively Vindija-type '
+    '(100%), in sharp contrast to East Asian (Altai 58%, Chagyrskaya 40%) and '
+    'Oceanian (Altai 48%, Chagyrskaya 52%) populations. European populations show '
+    'a balanced distribution (Vindija 36%, Altai 33%, Chagyrskaya 31%). '
+    'Data: hmmix introgression segments, 517 segments in ABO extended region '
+    '(chr9:133.0\u2013133.5 Mb), 66 populations.')
+
+# --- ABO para 3: O2 allele paradox ---
+add_text_with_refs(doc,
+    'The Neanderthal-derived O2 allele (rs41302905) showed an unexpected geographic '
+    'distribution (Figure 6). Solomon Islands populations exhibited the highest '
+    'frequencies (5\u201316%),{13} followed by European populations (0.5\u20135%), '
+    'while East Asian populations showed near-zero frequencies. This pattern '
+    'inversely correlates with overall Neanderthal introgression frequency at the '
+    'ABO locus, where Oceanian populations (Papuan Sepik 87.5%, Papuan Highlands '
+    '66.7%) greatly exceeded East Asian (~1.5%) and European (~6.6%) populations. '
+    'The paradox of high O2 frequency in Oceanian populations despite zero '
+    'Vindija-type Neanderthal segments at ABO suggests that the O2 allele may have '
+    'been introduced through a distinct introgression event or maintained by '
+    'balancing selection independently of sub-lineage identity.')
+
+# Figure 6 (O2 allele and introgression, inline)
+add_figure_with_legend(doc, 'figures/fig6_o2_introgression.png', 6,
+    'O2 allele frequency and Neanderthal introgression patterns at the ABO locus. '
+    '(A) Frequency of the Neanderthal-derived O2 allele (rs41302905) across '
+    'populations. Solomon Islands populations show the highest frequencies '
+    '(5\u201316%), followed by European populations, while East Asian populations '
+    'show near-zero frequencies. (B) Proportion of individuals carrying '
+    'Neanderthal introgression near the ABO locus by population.')
+
+# --- ABO para 4: ANE hypothesis ---
+add_text_with_refs(doc,
+    'The exclusive Vindija-type at ABO in Indigenous Americans, despite their '
+    'predominantly East Asian ancestry (which carries Altai/Chagyrskaya type), is '
+    'consistent with the Ancient North Eurasian (ANE) component of First American '
+    'ancestry. Native Americans derive approximately 35% of their ancestry from ANE '
+    'populations \u2014 represented by individuals such as Malta (MA-1, ~24 kya) '
+    '\u2014 and 65% from East Asian\u2013related populations.{14} Since western '
+    'Eurasian lineages now carry predominantly Vindija-type at ABO (57%), the ANE '
+    'component likely introduced Vindija-type segments that subsequently drifted to '
+    'fixation during the Beringian bottleneck (~25\u201315 kya), when the founding '
+    'population comprised an estimated 250\u20132,000 individuals (Figure 7).{15}')
+
+# Figure 7 (ANE dual ancestry model, inline)
+add_figure_with_legend(doc, 'figures/fig7_ane_model.png', 7,
+    'Revised ANE dual ancestry model incorporating ancient DNA evidence. Yellow '
+    'shading indicates the ANE lineage; blue indicates the East Asian lineage. '
+    'Ancient DNA results from Petr et al. 2024 are annotated at respective time '
+    'points. The model accounts for the exclusive Vindija-type Neanderthal DNA '
+    'at ABO in Indigenous Americans through the ANE ancestry component (~35%), '
+    'which carried Vindija-type segments from western Eurasia into the Americas.')
+
+# --- ABO para 5: Ancient DNA temporal shift ---
+add_text_with_refs(doc,
+    'Direct examination of ancient genomes from Petr et al.{16} revealed a striking '
+    'temporal shift at the ABO locus (Figure 8). All classifiable ancient segments '
+    '(>8 kya) from West Eurasian individuals were Altai-type (50%) or '
+    'Chagyrskaya-type (50%), with zero Vindija representation (n = 10). In contrast, '
+    'present-day West Eurasians showed 57.1% Vindija-type (n = 14; Fisher exact '
+    'test, p = 0.003). The ANE-lineage individual Yana2 (31.6 kya) carried a '
+    'Chagyrskaya-type segment upstream of ABO, while Malta (24 kya, ANE) and '
+    'Anzick (12.6 kya, Clovis) lacked introgression at this locus entirely. This '
+    'temporal shift \u2014 from Altai/Chagyrskaya dominance in the Upper Paleolithic '
+    'to Vindija dominance in the present \u2014 parallels the genome-wide observation '
+    'by Petr et al. that Neanderthal ancestry composition changed over time in '
+    'European populations.')
+
+# Figure 8 (temporal dynamics, inline)
+add_figure_with_legend(doc, 'figures/fig8_temporal_dynamics.png', 8,
+    'Temporal dynamics of Neanderthal sub-lineage at the ABO locus. '
+    '(A) Individual ancient genomes plotted by age, with color and shape indicating '
+    'closest sub-lineage reference (Altai, Chagyrskaya, or Vindija). '
+    '(B) Stacked bar comparison of sub-lineage composition between ancient '
+    '(>8 kya; all Altai/Chagyrskaya) and present-day (57.1% Vindija) West Eurasian '
+    'populations. Fisher exact test p = 0.003.')
+
+# --- ABO para 6: Density-dependent selection ---
+add_text_with_refs(doc,
+    'We further hypothesize that density-dependent pathogen selection explains why '
+    'Indigenous Americans retained their ancestral sub-lineage composition while the '
+    'Old World underwent progressive turnover toward Vindija-type. The Neolithic '
+    'Demographic Transition in Eurasia \u2014 characterized by sedentism, animal '
+    'domestication, and novel zoonotic diseases{17} \u2014 created selective '
+    'pressures at immune-related loci including ABO,{10} driving sub-lineage '
+    'turnover over ~10,000 years. Pre-contact American populations, with lower '
+    'average population densities and fewer domesticated animal species, experienced '
+    'weaker pathogen-driven selection, effectively \u2018freezing\u2019 the '
+    'sub-lineage composition at the state present during initial colonization '
+    '(~15 kya). This framework predicts a gradient: high-density post-Neolithic '
+    'Eurasia shows rapid turnover (Vindija now 36\u201357%); East Asia retains '
+    'Altai/Chagyrskaya (98%); and low-density Americas preserve 100% Vindija from '
+    'the ANE component.')
+
+# --- ABO para 7: Summary connecting to genome-wide ---
+add_text_with_refs(doc,
+    'These locus-specific findings \u2014 sub-lineage paradoxes reflecting ANE '
+    'ancestry, temporal dynamics driven by pathogen selection, founder effects '
+    'at ABO mirroring Beringian bottleneck signatures, and Denisovan segments '
+    'found exclusively in South Asian populations (ITU: 10.3%, GIH: 9.7%) '
+    'tracing indirect gene flow \u2014 demonstrated that archaic introgression '
+    'patterns at even a single gene could encode rich migration history. This '
+    'motivated the genome-wide extension: if one locus captures such detailed '
+    'geographic and temporal signals, then the correlation of introgression '
+    'patterns across ~6,000 genomic windows should provide a powerful tracer of '
+    'population movements.')
+
 # ===== DIFFERENTIATION FROM PRIOR WORK =====
 add_heading(doc, 'Relationship to Prior Approaches', level=1)
 
@@ -386,7 +546,7 @@ diff_paras = [
     ('Our hypothesis builds on, but differs fundamentally from, several prior '
      'approaches to using archaic DNA for demographic inference:'),
 
-    ('Quilodran et al.{7} analyzed spatial gradients of aggregate Neanderthal ancestry '
+    ('Quilodran et al.{8} analyzed spatial gradients of aggregate Neanderthal ancestry '
      'proportions across Eurasian populations and recovered three migration waves. '
      'Their approach operates on mean ancestry fractions, treating Neanderthal DNA '
      'as a scalar value per population. Our approach instead compares the full '
@@ -397,7 +557,7 @@ diff_paras = [
      'different subsets of introgressed segments, reflecting different post-admixture '
      'drift histories.'),
 
-    ('Petr et al.{9} analyzed Neanderthal ancestry patterns in ancient European '
+    ('Petr et al.{18} analyzed Neanderthal ancestry patterns in ancient European '
      'genomes, evaluating whether introgression levels have declined over time. '
      'Their approach leverages ancient DNA to provide temporal resolution but requires '
      'well-preserved samples, which are scarce for tropical and southern-hemisphere '
@@ -405,7 +565,7 @@ diff_paras = [
      '(Oceanian, Southeast Asian, South American) for which ancient DNA is largely '
      'unavailable.'),
 
-    ('Mao et al.{10} traced Denisovan segments in European populations to indirect '
+    ('Mao et al.{19} traced Denisovan segments in European populations to indirect '
      'gene flow via South Asian intermediaries. Our analysis recapitulates and extends '
      'this finding: the Denisovan sharing heatmap (Figure 2, right panel) shows '
      'non-trivial sharing between Central/South Asian and European populations, '
@@ -434,12 +594,12 @@ pred_paras = [
      'identified by Jacobs et al.{5} can be classified at the segment level, '
      'the Oceanian-type segments should be completely absent in Japanese and Korean '
      'populations (consistent with the JEWEL study finding of only 1.47 Mb Denisovan '
-     'DNA in Japanese genomes{11}), while the East Asian-type segments should show a '
+     'DNA in Japanese genomes{20}), while the East Asian-type segments should show a '
      'north-south gradient within East Asia consistent with a Southeast Asian admixture '
      'source.'),
 
     ('Prediction 3: Population Y signal. Skoglund et al. identified ~2% '
-     'Australasian-like ancestry in Amazonian populations (Surui, Karitiana).{12} '
+     'Australasian-like ancestry in Amazonian populations (Surui, Karitiana).{21} '
      'If this ancestry derives from a population with Oceanian-type Denisovan DNA, '
      'then the Denisovan sharing correlation between Surui/Karitiana and '
      'Papuan populations should be detectably higher than between other Native '
@@ -514,30 +674,36 @@ for para_text in limit_paras:
 add_heading(doc, 'Conclusions and Outlook', level=1)
 
 conclusion_paras = [
-    ('We have proposed that pairwise archaic introgression sharing — the correlation '
-     'of introgression frequency profiles between populations — can serve as an '
-     'independent tracer of ancient human migration. Using publicly available data, '
-     'we demonstrated that this metric captures biologically meaningful signals: '
-     'the Denisovan Wallace Line boundary, the Neanderthal-mediated Beringian '
-     'connection, and the confounding effect of post-Columbian admixture. After '
-     'correcting for these confounders, the signal persists but at reduced statistical '
-     'power, indicating that larger datasets and more sophisticated analytical methods '
-     'are needed to fully exploit this approach.'),
+    ('We have proposed that pairwise archaic introgression sharing \u2014 the '
+     'correlation of introgression frequency profiles between populations \u2014 '
+     'can serve as an independent tracer of ancient human migration. Using publicly '
+     'available data, we demonstrated that archaic introgression patterns encode '
+     'meaningful geographic signals at both single-locus and genome-wide scales. '
+     'At the ABO locus, sub-lineage analysis revealed a geographic paradox \u2014 '
+     'exclusive Vindija-type in Indigenous Americans versus Altai/Chagyrskaya in '
+     'East Asia \u2014 consistent with ANE ancestry, supported by a temporal shift '
+     'from Altai/Chagyrskaya to Vindija dominance over 30,000 years (p = 0.003), '
+     'and potentially driven by density-dependent pathogen selection that '
+     '\u2018froze\u2019 the ancestral composition in low-density Americas. At the '
+     'genome-wide level, the Denisovan Wallace Line boundary, Neanderthal-mediated '
+     'Beringian connections, and confounding effects of post-Columbian admixture '
+     'all emerge as interpretable signals.'),
 
-    ('The key advantage of our bivariate framework — jointly using Neanderthal and '
-     'Denisovan signatures — is its ability to distinguish migration routes that are '
-     'degenerate when viewed through a single archaic lens. A population with 1.4% '
-     'Neanderthal and 0.06% Denisovan DNA (Japanese) has a fundamentally different '
-     'migration history from one with 1.8% Neanderthal and 3.5% Denisovan (Papuan), '
-     'even though both carry substantial archaic ancestry. As ancient genome sequencing '
-     'extends to underrepresented regions — particularly Beringia, island Southeast '
-     'Asia, and the Pacific — the testable predictions outlined here will become '
-     'addressable, potentially resolving longstanding questions about the routes and '
-     'timing of human dispersal across the planet.'),
+    ('The key advantage of our bivariate framework \u2014 jointly using Neanderthal '
+     'and Denisovan signatures \u2014 is its ability to distinguish migration routes '
+     'that are degenerate when viewed through a single archaic lens. A population '
+     'with 1.4% Neanderthal and 0.06% Denisovan DNA (Japanese) has a fundamentally '
+     'different migration history from one with 1.8% Neanderthal and 3.5% Denisovan '
+     '(Papuan), even though both carry substantial archaic ancestry. As ancient '
+     'genome sequencing extends to underrepresented regions \u2014 particularly '
+     'Beringia, island Southeast Asia, and the Pacific \u2014 the testable '
+     'predictions outlined here will become addressable, potentially resolving '
+     'longstanding questions about the routes and timing of human dispersal across '
+     'the planet.'),
 ]
 
 for para_text in conclusion_paras:
-    add_text_with_refs(doc, conclusion_paras[0] if para_text == conclusion_paras[0] else para_text)
+    add_text_with_refs(doc, para_text)
 
 # ===== DATA AVAILABILITY =====
 add_heading(doc, 'Data Availability', level=1)
@@ -575,26 +741,56 @@ references = [
     '5. Jacobs GS, Hudjashov G, Saag L, et al. Multiple deeply divergent Denisovan '
     'ancestries in Papuans. Cell. 2019;177(4):1010-1021.',
 
-    '6. Vernot B, Akey JM. Resurrecting surviving Neandertal lineages from modern '
+    '6. Calafell F, Roubinet F, Ramirez-Soriano A, et al. Evolutionary dynamics of '
+    'the human ABO gene. Hum Genet. 2008;124(2):123-135.',
+
+    '7. Vernot B, Akey JM. Resurrecting surviving Neandertal lineages from modern '
     'human genomes. Science. 2014;343(6174):1017-1021.',
 
-    '7. Quilodr\u00e1n CS, Rio J, Tsoupas A, Currat M. Past human expansions shaped '
+    '8. Quilodr\u00e1n CS, Rio J, Tsoupas A, Currat M. Past human expansions shaped '
     'the spatial pattern of Neanderthal ancestry. Sci Adv. 2023;9(42):eadg9817.',
 
-    '8. Skov L, Hui R, Shchur V, et al. Detecting archaic introgression using '
+    '9. Skov L, Hui R, Shchur V, et al. Detecting archaic introgression using '
     'an unadmixed outgroup. PLoS Genet. 2018;14(9):e1007641.',
 
-    '9. Petr M, P\u00e4\u00e4bo S, Kelso J, Vernot B. Limits of long-term selection '
+    '10. S\u00e9gurel L, Thompson EE, Flutre T, et al. The ABO blood group is a '
+    'trans-species polymorphism in primates. Proc Natl Acad Sci U S A. '
+    '2012;109(45):18493-18498.',
+
+    '11. Halverson MS. ABO genotyping of pre-contact era Midwestern North American '
+    'populations. PhD thesis, Ohio State University. 2008.',
+
+    '12. Condemi S, Mazierez A, Faux P, et al. Blood groups of Neandertals and '
+    'Denisova decrypted. PLoS One. 2021;16(7):e0254175.',
+
+    '13. Irshaid NM, Henry SM, Ashhab Y, et al. Prevalence of the new blood group '
+    'O2 allele within the ABO blood group system among blood donors in the Solomon '
+    'Islands. Vox Sang. 2006;91(3):261-265.',
+
+    '14. Raghavan M, Skoglund P, Graf KE, et al. Upper Palaeolithic Siberian genome '
+    'reveals dual ancestry of Native Americans. Nature. 2014;505(7481):87-91.',
+
+    '15. Hey J. On the number of New World founders: a population genetic portrait '
+    'of the peopling of the Americas. PLoS Biol. 2005;3(6):e193.',
+
+    '16. Petr M, Hajdinjak M, Grote S, et al. Neandertal ancestry through time: '
+    'insights from genomes of ancient and present-day humans. Science. '
+    '2024;386(6726):eadi1768.',
+
+    '17. Wolfe ND, Dunavan CP, Diamond J. Origins of major human infectious '
+    'diseases. Nature. 2007;447(7142):279-283.',
+
+    '18. Petr M, P\u00e4\u00e4bo S, Kelso J, Vernot B. Limits of long-term selection '
     'against Neandertal introgression. Proc Natl Acad Sci U S A. 2019;116(5):1639-1644.',
 
-    '10. Mao X, Zhang H, Qiao S, et al. The deep population history of northern '
+    '19. Mao X, Zhang H, Qiao S, et al. The deep population history of northern '
     'East Asia from the Late Pleistocene to the Holocene. Cell. 2021;184(12):3256-3266.',
 
-    '11. Liu X, Koyama S, Tomizuka K, et al. Decoding triancestral origins, '
+    '20. Liu X, Koyama S, Tomizuka K, et al. Decoding triancestral origins, '
     'archaic introgression, and natural selection in the Japanese population by '
     'whole-genome sequencing. Sci Adv. 2024;10(16):eadi8419.',
 
-    '12. Skoglund P, Mallick S, Bortolini MC, et al. Genetic evidence for two '
+    '21. Skoglund P, Mallick S, Bortolini MC, et al. Genetic evidence for two '
     'founding populations of the Americas. Nature. 2015;525(7567):104-108.',
 ]
 
@@ -608,4 +804,4 @@ for ref in references:
 outpath = Path('docs/manuscript_bioessays_en.docx')
 doc.save(str(outpath))
 print(f"Manuscript saved to {outpath}")
-print(f"Word count (approximate): ~4000 words")
+print(f"Word count (approximate): ~5000 words")
