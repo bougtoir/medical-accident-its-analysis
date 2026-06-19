@@ -368,14 +368,35 @@ print("\n" + "=" * 60)
 print("Mantel test: geographic distance matrix ~ sharing matrix")
 print("=" * 60)
 
-def mantel_test(dist_vec, corr_vec, n_perm=9999):
-    """Simple Mantel test between two distance/similarity vectors."""
+def mantel_test(df, pop1_col, pop2_col, dist_col, corr_col, n_perm=9999):
+    """Mantel test: permute population labels (rows/columns of matrix)."""
+    # Build population list
+    pops = sorted(set(df[pop1_col].tolist() + df[pop2_col].tolist()))
+    pop_idx = {p: i for i, p in enumerate(pops)}
+    n_pops = len(pops)
+
+    # Build symmetric matrices
+    dist_mat = np.zeros((n_pops, n_pops))
+    corr_mat = np.zeros((n_pops, n_pops))
+    for _, row in df.iterrows():
+        i, j = pop_idx[row[pop1_col]], pop_idx[row[pop2_col]]
+        dist_mat[i, j] = dist_mat[j, i] = row[dist_col]
+        corr_mat[i, j] = corr_mat[j, i] = row[corr_col]
+
+    # Extract upper triangle as vectors
+    tri_idx = np.triu_indices(n_pops, k=1)
+    dist_vec = dist_mat[tri_idx]
+    corr_vec = corr_mat[tri_idx]
+
     obs_r, _ = stats.pearsonr(dist_vec, corr_vec)
+
+    # Permutation: shuffle population labels (rows/columns together)
     count = 0
-    n = len(dist_vec)
     for _ in range(n_perm):
-        perm_idx = np.random.permutation(n)
-        perm_r, _ = stats.pearsonr(dist_vec, corr_vec[perm_idx])
+        perm = np.random.permutation(n_pops)
+        perm_corr = corr_mat[np.ix_(perm, perm)]
+        perm_vec = perm_corr[tri_idx]
+        perm_r, _ = stats.pearsonr(dist_vec, perm_vec)
         if abs(perm_r) >= abs(obs_r):
             count += 1
     p_val = (count + 1) / (n_perm + 1)
@@ -384,16 +405,14 @@ def mantel_test(dist_vec, corr_vec, n_perm=9999):
 # Use non-admixed pairs only
 nean_for_mantel = valid_n[valid_n['any_admixed'] == 0]
 r_mantel_n, p_mantel_n = mantel_test(
-    nean_for_mantel['geo_dist_km'].values,
-    nean_for_mantel['nean_corr'].values,
+    nean_for_mantel, 'pop1', 'pop2', 'geo_dist_km', 'nean_corr',
     n_perm=9999
 )
 print(f"Neanderthal (non-admixed): Mantel r = {r_mantel_n:.4f}, p = {p_mantel_n:.4f}")
 
 deni_for_mantel = valid_d[valid_d['any_admixed'] == 0]
 r_mantel_d, p_mantel_d = mantel_test(
-    deni_for_mantel['geo_dist_km'].values,
-    deni_for_mantel['deni_corr'].values,
+    deni_for_mantel, 'pop1', 'pop2', 'geo_dist_km', 'deni_corr',
     n_perm=9999
 )
 print(f"Denisovan (non-admixed):   Mantel r = {r_mantel_d:.4f}, p = {p_mantel_d:.4f}")

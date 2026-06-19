@@ -32,7 +32,7 @@ Dep. Variable:              nean_corr   R-squared:                       0.510
 Model:                            OLS   Adj. R-squared:                  0.509
 Method:                 Least Squares   F-statistic:                     742.8
 Date:                Fri, 19 Jun 2026   Prob (F-statistic):               0.00
-Time:                        18:31:20   Log-Likelihood:                 761.89
+Time:                        18:52:29   Log-Likelihood:                 761.89
 No. Observations:                2145   AIC:                            -1516.
 Df Residuals:                    2141   BIC:                            -1493.
 Df Model:                           3                                         
@@ -61,7 +61,7 @@ Dep. Variable:              deni_corr   R-squared:                       0.495
 Model:                            OLS   Adj. R-squared:                  0.495
 Method:                 Least Squares   F-statistic:                     700.4
 Date:                Fri, 19 Jun 2026   Prob (F-statistic):          3.27e-317
-Time:                        18:31:20   Log-Likelihood:                 460.95
+Time:                        18:52:29   Log-Likelihood:                 460.95
 No. Observations:                2145   AIC:                            -913.9
 Df Residuals:                    2141   BIC:                            -891.2
 Df Model:                           3                                         
