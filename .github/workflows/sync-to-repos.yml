@@ -167,6 +167,9 @@ jobs:
           BRANCH_MAP["devin/1777989587-jcss-ssr-submission"]="jcss-ssr-submission"
           BRANCH_MAP["devin/1777989710-tatsuki-3journal-submission"]="tatsuki-3journal-submission"
 
+          # ── Denisovan / archaic DNA analysis ──
+          BRANCH_MAP["devin/denisovan-archaic-dna-analysis"]="denisovan-archaic-dna-analysis"
+
           # ── Subdirectory filter map ──
           # When a branch contains multiple project folders (e.g. branched from
           # master), SUBDIR_MAP tells the sync to extract ONLY the specified
@@ -218,6 +221,7 @@ jobs:
           SUBDIR_MAP["devin/1780052155-yago-ionv-analysis"]="yago_ionv"
           SUBDIR_MAP["devin/1775637899-pmea-zero-calibration"]="zero_calibration_pmea"
           SUBDIR_MAP["stem-cell-seasonality"]="stem_cell_seasonality"
+          SUBDIR_MAP["devin/denisovan-archaic-dna-analysis"]="denisovan-archaic-dna-analysis"
 
           # ── File exclusion map ──
           # Space-separated list of file paths (relative to subdir root if
