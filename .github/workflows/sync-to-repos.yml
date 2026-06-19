@@ -166,6 +166,7 @@ jobs:
           BRANCH_MAP["devin/1777844647-tatsuki-electoral-studies"]="tatsuki-electoral-studies"
           BRANCH_MAP["devin/1777989587-jcss-ssr-submission"]="jcss-ssr-submission"
           BRANCH_MAP["devin/1777989710-tatsuki-3journal-submission"]="tatsuki-3journal-submission"
+          BRANCH_MAP["devin/1781893388-confounding-corrections"]="denisovan-archaic-dna-analysis"
 
           # ── Subdirectory filter map ──
           # When a branch contains multiple project folders (e.g. branched from
@@ -193,6 +194,7 @@ jobs:
           SUBDIR_MAP["devin/1776763216-healthcare-sustainable"]="healthcare_tempo_poc"
           SUBDIR_MAP["devin/1777844647-tatsuki-electoral-studies"]="tasuki-electoral-model"
           SUBDIR_MAP["devin/1777989587-jcss-ssr-submission"]="tasuki-electoral-model"
+          SUBDIR_MAP["devin/1781893388-confounding-corrections"]="denisovan-archaic-dna-analysis"
           SUBDIR_MAP["devin/1777989710-tatsuki-3journal-submission"]="tasuki-electoral-model"
           SUBDIR_MAP["devin/1777545460-medical-sapir-whorf-paper"]="medical_sapir_whorf"
           SUBDIR_MAP["devin/1777545531-medical-sapir-whorf-formalization"]="medical_sapir_whorf"
