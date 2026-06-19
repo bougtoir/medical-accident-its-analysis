@@ -1,0 +1,84 @@
+CONFOUNDING CORRECTION STATISTICS
+============================================================
+
+1. Model comparison (Neanderthal)
+   Uncorrected R²: 0.2350
+   Corrected R²:   0.5100
+   Improvement:    0.2750
+
+2. Model comparison (Denisovan)
+   Uncorrected R²: 0.2167
+   Corrected R²:   0.4953
+   Improvement:    0.2786
+
+3. Partial correlations (sharing ~ distance | confounders)
+   Neanderthal: raw r=-0.4847, partial r=-0.3105
+   Denisovan:   raw r=-0.4656, partial r=-0.3001
+
+4. Mantel test (non-admixed pairs only)
+   Neanderthal: r=-0.6157, p=0.0001
+   Denisovan:   r=-0.5809, p=0.0001
+
+5. Significant outlier counts (FDR q<0.10, non-admixed)
+   Neanderthal: 0 pairs
+   Denisovan:   0 pairs
+   Neanderthal nominal p<0.05: 5 pairs
+   Denisovan nominal p<0.05:   6 pairs
+
+6. Regression coefficients (Neanderthal)
+                            OLS Regression Results                            
+==============================================================================
+Dep. Variable:              nean_corr   R-squared:                       0.510
+Model:                            OLS   Adj. R-squared:                  0.509
+Method:                 Least Squares   F-statistic:                     742.8
+Date:                Fri, 19 Jun 2026   Prob (F-statistic):               0.00
+Time:                        18:52:29   Log-Likelihood:                 761.89
+No. Observations:                2145   AIC:                            -1516.
+Df Residuals:                    2141   BIC:                            -1493.
+Df Model:                           3                                         
+Covariance Type:            nonrobust                                         
+==================================================================================
+                     coef    std err          t      P>|t|      [0.025      0.975]
+----------------------------------------------------------------------------------
+const              0.5440      0.009     58.899      0.000       0.526       0.562
+geo_dist_km       -0.0155      0.001    -15.113      0.000      -0.018      -0.014
+max_admix_eur      0.4208      0.024     17.399      0.000       0.373       0.468
+same_continent     0.2971      0.011     27.347      0.000       0.276       0.318
+==============================================================================
+Omnibus:                      198.604   Durbin-Watson:                   1.884
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):               60.883
+Skew:                          -0.036   Prob(JB):                     6.02e-14
+Kurtosis:                       2.178   Cond. No.                         56.4
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
+
+7. Regression coefficients (Denisovan)
+                            OLS Regression Results                            
+==============================================================================
+Dep. Variable:              deni_corr   R-squared:                       0.495
+Model:                            OLS   Adj. R-squared:                  0.495
+Method:                 Least Squares   F-statistic:                     700.4
+Date:                Fri, 19 Jun 2026   Prob (F-statistic):          3.27e-317
+Time:                        18:52:29   Log-Likelihood:                 460.95
+No. Observations:                2145   AIC:                            -913.9
+Df Residuals:                    2141   BIC:                            -891.2
+Df Model:                           3                                         
+Covariance Type:            nonrobust                                         
+==================================================================================
+                     coef    std err          t      P>|t|      [0.025      0.975]
+----------------------------------------------------------------------------------
+const              0.3283      0.011     30.889      0.000       0.307       0.349
+geo_dist_km       -0.0172      0.001    -14.558      0.000      -0.020      -0.015
+max_admix_eur      0.5085      0.028     18.273      0.000       0.454       0.563
+same_continent     0.3296      0.012     26.369      0.000       0.305       0.354
+==============================================================================
+Omnibus:                       37.151   Durbin-Watson:                   1.561
+Prob(Omnibus):                  0.000   Jarque-Bera (JB):               22.639
+Skew:                           0.086   Prob(JB):                     1.21e-05
+Kurtosis:                       2.527   Cond. No.                         56.4
+==============================================================================
+
+Notes:
+[1] Standard Errors assume that the covariance matrix of the errors is correctly specified.
