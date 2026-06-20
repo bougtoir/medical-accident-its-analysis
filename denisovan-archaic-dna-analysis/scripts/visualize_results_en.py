@@ -371,10 +371,12 @@ if HAS_CARTOPY:
         ('Native American (N. America)', 45.0, -100.0, 1.12, 0.03),
         ('Native American (Mexico)', 19.0, -99.0, 1.08, 0.04),
         ('Native American (Colombia)', 4.0, -73.0, 1.05, 0.04),
+        ('Peruvian (PEL)', -12.0, -77.0, 1.10, 0.04),
+        ('Karitiana / Surui', -10.0, -63.0, 1.15, 0.03),
     ]
 
     fig = plt.figure(figsize=(18, 10))
-    ax = fig.add_subplot(1, 1, 1, projection=ccrs.Robinson())
+    ax = fig.add_subplot(1, 1, 1, projection=ccrs.Robinson(central_longitude=180))
     ax.set_global()
     ax.add_feature(cfeature.LAND, facecolor='#f0f0f0', edgecolor='#cccccc', linewidth=0.5)
     ax.add_feature(cfeature.OCEAN, facecolor='#e8f0fe')
