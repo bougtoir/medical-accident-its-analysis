@@ -421,14 +421,16 @@ add_text_with_refs(doc,
 
 # Figure 3 (inline — immediately after first citation)
 add_figure_with_legend(doc, 'figures/fig3_minard_migration.png', 3,
-    'Minard-style flow visualization of Homo sapiens Out-of-Africa migration '
-    'with archaic admixture events. Band width represents relative population size '
-    '(reflecting decreasing genetic diversity with distance from Africa). Stars mark '
-    'admixture events: Neanderthal admixture ~47,000 years ago (affecting all '
-    'non-African lineages), Denisovan admixture 1 ~45,000 years ago (Oceanian '
-    'lineage, 3-5%), and Denisovan admixture 2 ~30,000 years ago (East Asian '
-    'lineage, ~0.06%). Yellow and pink shaded regions indicate Neanderthal and '
-    'Denisovan geographic ranges, respectively.')
+    'Minard-style flow diagram of human migration and archaic introgression. '
+    'Band width represents relative effective population size (schematic). '
+    'Star markers indicate admixture events with Neanderthals (~47 kya) and '
+    'Denisovans (three events). ABO sub-lineage compositions are annotated '
+    'at key branch points. The Wallace Line (red dashed) marks the Denisovan '
+    'sharing discontinuity. Time axis at bottom. '
+    'The sub-lineage paradox is highlighted: East Asian populations carry 100% Chagyrskaya-type '
+    'Neanderthal ABO segments, whereas Americas populations show a mixed composition '
+    '(Chag 52% / Alt 24% / Vin 24%), explained by ANE admixture at Beringia. '
+    'Data: hmmix (Zenodo:14136628), 1000 Genomes, HGDP.')
 
 add_heading(doc, 'Neanderthal outliers highlight trans-Pacific connections', level=2)
 
