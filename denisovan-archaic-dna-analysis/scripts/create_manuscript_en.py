@@ -238,9 +238,7 @@ intro_paras = [
 for para_text in intro_paras:
     add_text_with_refs(doc, para_text)
 
-# ===== THE HYPOTHESIS =====
-add_heading(doc, 'The Hypothesis', level=1)
-
+# ===== THE HYPOTHESIS (narrative, no separate heading — integrated into Introduction) =====
 hyp_paras = [
     ('We hypothesize that the pairwise correlation of archaic introgression frequency '
      'profiles between human populations — after correction for geographic distance, '
@@ -264,10 +262,8 @@ hyp_paras = [
 for para_text in hyp_paras:
     add_text_with_refs(doc, para_text)
 
-# ===== SUPPORTING EVIDENCE =====
-add_heading(doc, 'Supporting Evidence from Publicly Available Data', level=1)
-
-add_heading(doc, 'Data and analytical framework', level=2)
+# ===== DATA AND ANALYTICAL FRAMEWORK =====
+add_heading(doc, 'Introgression sharing as a pairwise metric', level=1)
 
 evidence_paras = [
     ('To evaluate this hypothesis, we reanalyzed archaic introgression segments '
@@ -290,7 +286,7 @@ evidence_paras = [
 for para_text in evidence_paras:
     add_text_with_refs(doc, para_text)
 
-add_heading(doc, 'Confounding correction and outlier detection', level=2)
+add_heading(doc, 'Sharing decays with distance, but outliers persist', level=1)
 
 correction_paras = [
     ('Across 2,145 population pairs, Neanderthal segment sharing correlated negatively '
@@ -381,7 +377,7 @@ for row_idx, data in enumerate(outlier_data):
             for run in par.runs:
                 run.font.size = Pt(9)
 
-add_heading(doc, 'Denisovan DNA delineates the Wallace Line boundary', level=2)
+add_heading(doc, 'The Wallace Line as a Denisovan boundary', level=1)
 
 # Wallace para 1 — cites Figure 2
 add_text_with_refs(doc,
@@ -432,7 +428,7 @@ add_figure_with_legend(doc, 'figures/fig3_minard_migration.png', 3,
     '(Chag 52% / Alt 24% / Vin 24%), explained by ANE admixture at Beringia. '
     'Data: hmmix (Zenodo:14136628), 1000 Genomes, HGDP.')
 
-add_heading(doc, 'Neanderthal outliers highlight trans-Pacific connections', level=2)
+add_heading(doc, 'Trans-Pacific connections through Neanderthal sharing', level=1)
 
 trans_pacific = [
     ('The four pairwise outliers (Table 1) present a coherent geographic picture. '
@@ -465,7 +461,7 @@ add_figure_with_legend(doc, 'figures/fig4_sensitivity_admixed.png', 4,
     'populations (CLM, PUR, MXL, PEL, GIH) confirms that recent post-Columbian '
     'admixture inflates cross-continental sharing and must be controlled for.')
 
-add_heading(doc, 'From the ABO locus to the genome-wide hypothesis', level=2)
+add_heading(doc, 'From ABO to genome-wide: the locus that started it all', level=1)
 
 # --- ABO para 1: Opening ---
 add_text_with_refs(doc,
@@ -647,7 +643,7 @@ add_text_with_refs(doc,
     'population movements.')
 
 # ===== DIFFERENTIATION FROM PRIOR WORK =====
-add_heading(doc, 'Relationship to Prior Approaches', level=1)
+add_heading(doc, 'Relationship to prior approaches', level=1)
 
 diff_paras = [
     ('Our hypothesis builds on, but differs fundamentally from, several prior '
@@ -685,7 +681,7 @@ for para_text in diff_paras:
     add_text_with_refs(doc, para_text)
 
 # ===== TESTABLE PREDICTIONS =====
-add_heading(doc, 'Testable Predictions', level=1)
+add_heading(doc, 'Testable predictions', level=1)
 
 pred_paras = [
     ('Our hypothesis generates six specific, falsifiable predictions:'),
@@ -783,7 +779,7 @@ add_figure_with_legend(doc, 'figures/fig4_bivariate_world_map.png', 9,
     'East Asian populations.')
 
 # ===== LIMITATIONS =====
-add_heading(doc, 'Limitations and Caveats', level=1)
+add_heading(doc, 'Limitations', level=1)
 
 limit_paras = [
     ('Several limitations of the current analysis should be acknowledged. First, '
@@ -814,7 +810,7 @@ for para_text in limit_paras:
     add_text_with_refs(doc, para_text)
 
 # ===== CONCLUSION =====
-add_heading(doc, 'Conclusions and Outlook', level=1)
+add_heading(doc, 'Conclusions and outlook', level=1)
 
 conclusion_paras = [
     ('This study began with the observation of near-fixation of blood group O in '
@@ -852,7 +848,7 @@ for para_text in conclusion_paras:
     add_text_with_refs(doc, para_text)
 
 # ===== DATA AVAILABILITY =====
-add_heading(doc, 'Data Availability', level=1)
+add_heading(doc, 'Data availability', level=1)
 da = doc.add_paragraph(
     'All analysis scripts, derived data, and figures are available at '
     'https://github.com/bougtoir/denisovan-archaic-dna-analysis. '
@@ -864,7 +860,7 @@ add_heading(doc, 'Acknowledgments', level=1)
 doc.add_paragraph('[To be added]')
 
 # ===== CONFLICT OF INTEREST =====
-add_heading(doc, 'Conflict of Interest', level=1)
+add_heading(doc, 'Conflict of interest', level=1)
 doc.add_paragraph('The author declares no conflict of interest.')
 
 # ===== REFERENCES =====
