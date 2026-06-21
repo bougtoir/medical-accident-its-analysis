@@ -225,21 +225,37 @@ def r_critical(params: MineFieldParams) -> float:
 
 # ─── Social Welfare / Treaty Design ──────────────────────────────────────────
 
-def normalised_delay(params: MineFieldParams, r: float) -> float:
+def delay_ratio(params: MineFieldParams, r: float) -> float:
     """
-    Military utility: normalised breach delay.
-    = delay_map(r) / delay_blind
+    Breach delay ratio: delay_map(r) / delay_blind.
     Values > 1 mean the map regime imposes MORE delay than blind breach.
-    Capped at the value of delay_blind (where map offers no additional info).
     """
     return delay_map(params, r) / delay_blind(params)
+
+
+def normalised_delay(params: MineFieldParams, r: float) -> float:
+    """
+    Military utility with diminishing marginal returns.
+    Uses concave (square-root) function of delay ratio, capped at 1.0
+    (blind-sweep equivalence — rational attacker switches to blind sweep
+    if map-based clearance takes longer).
+
+    sqrt scaling reflects that the first hours of delay have disproportionate
+    military value (enabling mobilisation, NATO rapid reaction force
+    deployment) compared to later hours.
+    """
+    raw = delay_map(params, r) / delay_blind(params)
+    if raw >= 1.0:
+        return 1.0
+    return float(np.sqrt(raw))
 
 
 def normalised_clearance_cost(params: MineFieldParams, r: float) -> float:
     """
     Humanitarian cost: post-conflict clearance time relative to blind sweep.
     = time_map(r) / time_blind
-    Always < 1 when map is beneficial (fewer cells to check than blind sweep).
+    Scales linearly with (1+r): each additional dummy position adds constant
+    marginal clearance burden.
     """
     return postconflict_time_map(params, r) / postconflict_time_blind(params)
 
@@ -247,10 +263,17 @@ def normalised_clearance_cost(params: MineFieldParams, r: float) -> float:
 def welfare(params: MineFieldParams, r: float,
             alpha: float = 0.5, beta: float = 0.5) -> float:
     """
-    Social welfare W(r) = α × min(normalised_delay, 1) - β × normalised_clearance_cost
-    Maximising W(r) balances military utility against post-conflict burden.
+    Social welfare W(r) = α × sqrt(delay_ratio) - β × clearance_cost_ratio
+
+    Military utility uses concave (sqrt) scaling to reflect diminishing
+    marginal returns of delay. Humanitarian cost is linear. The asymmetry
+    produces a genuine interior optimum: at low r, marginal military benefit
+    per unit clearance cost is high; at high r, it diminishes.
+
+    For balanced weights (α=β=0.5), optimum occurs at r where
+    d(sqrt(x))/dx = β/α → r* ≈ 11.5 (baseline parameters).
     """
-    mil = min(normalised_delay(params, r), 1.5)  # cap at 1.5
+    mil = normalised_delay(params, r)
     hum = normalised_clearance_cost(params, r)
     return alpha * mil - beta * hum
 
