@@ -1,22 +1,32 @@
 {
-  "total": {
+  "total_raw": {
     "n": 3479,
     "n_s": 3113,
     "n_t": 366
+  },
+  "out_of_period": {
+    "n": 72,
+    "n_s": 70,
+    "n_t": 2
+  },
+  "total": {
+    "n": 3407,
+    "n_s": 3043,
+    "n_t": 364
   },
   "exclusion_steps": [
     {
       "reason": "General anesthesia",
       "reason_ja": "全身麻酔",
-      "n": 6,
-      "n_s": 4,
-      "n_t": 2
+      "n": 142,
+      "n_s": 136,
+      "n_t": 6
     },
     {
       "reason": "SBP < 90 mmHg at admission",
       "reason_ja": "入室時SBP 90 mmHg未満",
-      "n": 4,
-      "n_s": 3,
+      "n": 12,
+      "n_s": 11,
       "n_t": 1
     },
     {
@@ -41,29 +51,36 @@
       "n_t": 0
     },
     {
-      "reason": "Other exclusion criteria",
-      "reason_ja": "その他の除外基準",
-      "n": 147,
-      "n_s": 143,
-      "n_t": 4
+      "reason": "Non-cesarean delivery",
+      "reason_ja": "帝王切開以外の分娩",
+      "n": 2,
+      "n_s": 2,
+      "n_t": 0
+    },
+    {
+      "reason": "Cardiac arrest",
+      "reason_ja": "心肺停止",
+      "n": 1,
+      "n_s": 1,
+      "n_t": 0
     },
     {
       "reason": "Missing anesthesia data",
       "reason_ja": "麻酔データ欠損",
-      "n": 58,
-      "n_s": 57,
+      "n": 10,
+      "n_s": 9,
       "n_t": 1
     }
   ],
   "total_excluded": {
-    "n": 236,
-    "n_s": 216,
+    "n": 188,
+    "n_s": 168,
     "n_t": 20
   },
   "eligible": {
-    "n": 3243,
-    "n_s": 2897,
-    "n_t": 346
+    "n": 3219,
+    "n_s": 2875,
+    "n_t": 344
   },
   "preop_antiemetic": {
     "n": 55,
@@ -71,40 +88,40 @@
     "n_t": 4
   },
   "primary_analysis": {
-    "n": 3188,
-    "n_s": 2846,
-    "n_t": 342
+    "n": 3164,
+    "n_s": 2824,
+    "n_t": 340
   },
   "exclusion_sensitivity": {
     "Emergency CS": {
-      "n": 1452,
-      "n_s": 1331,
+      "n": 1441,
+      "n_s": 1320,
       "n_t": 121
     },
     "Prior CS": {
-      "n": 1320,
-      "n_s": 1280,
+      "n": 1312,
+      "n_s": 1272,
       "n_t": 40
     },
     "HDP": {
-      "n": 317,
-      "n_s": 284,
+      "n": 312,
+      "n_s": 279,
       "n_t": 33
     },
     "Preoperative steroid": {
-      "n": 232,
-      "n_s": 207,
+      "n": 229,
+      "n_s": 204,
       "n_t": 25
     }
   },
   "exclusion_sensitivity_total": {
-    "n": 2525,
-    "n_s": 2367,
+    "n": 2506,
+    "n_s": 2348,
     "n_t": 158
   },
   "subgroup_analysis": {
-    "n": 663,
-    "n_s": 479,
-    "n_t": 184
+    "n": 658,
+    "n_s": 476,
+    "n_t": 182
   }
 }

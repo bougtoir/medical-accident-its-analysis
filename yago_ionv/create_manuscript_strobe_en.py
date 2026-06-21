@@ -259,6 +259,8 @@ excl_reasons_en = {
     "Intrauterine fetal death (IUFD)": "intrauterine fetal death",
     "Vanishing twin": "vanishing twin",
     "Triplet pregnancy": "triplet pregnancy",
+    "Non-cesarean delivery": "non-cesarean delivery",
+    "Cardiac arrest": "cardiac arrest",
     "Other exclusion criteria": "other exclusion criteria",
     "Missing anesthesia data": "missing anesthesia data",
 }
@@ -385,16 +387,28 @@ add_heading(doc, "Results")
 
 # --- Participants (STROBE 14) ---
 add_heading(doc, "Participant Selection (STROBE Item 14)", level=2)
+# Build exclusion breakdown dynamically
+excl_en_parts = []
+for step in F["exclusion_steps"]:
+    en_reason = excl_reasons_en.get(step["reason"], step["reason"])
+    excl_en_parts.append(f"{en_reason} (n = {step['n']})")
+excl_en_detail = ", ".join(excl_en_parts[:-1]) + ", and " + excl_en_parts[-1] if len(excl_en_parts) > 1 else excl_en_parts[0]
+
+# Include date filter in participant flow
+date_filter_en = ""
+if F.get("out_of_period", {}).get("n", 0) > 0:
+    date_filter_en = (
+        f"Of {F['total_raw']['n']:,} cesarean deliveries in the database, "
+        f"{F['out_of_period']['n']} cases outside the study period "
+        f"(before April 2014; singleton {F['out_of_period']['n_s']}, twin {F['out_of_period']['n_t']}) "
+        f"were excluded, leaving {F['total']['n']:,} cases for eligibility assessment. "
+    )
+
 add_paragraph(doc,
+    date_filter_en +
     f"Of the {F['total']['n']:,} cesarean deliveries during the study period, "
     f"{F['total_excluded']['n']} cases were excluded: "
-    f"general anesthesia (n = {F['exclusion_steps'][0]['n']}), "
-    f"systolic blood pressure <90 mmHg at admission (n = {F['exclusion_steps'][1]['n']}), "
-    f"intrauterine fetal death (n = {F['exclusion_steps'][2]['n']}), "
-    f"vanishing twin (n = {F['exclusion_steps'][3]['n']}), "
-    f"triplet pregnancy (n = {F['exclusion_steps'][4]['n']}), "
-    f"other criteria (n = {F['exclusion_steps'][5]['n']}), and "
-    f"missing anesthesia data (n = {F['exclusion_steps'][6]['n']}). "
+    f"{excl_en_detail}. "
     f"An additional {F['preop_antiemetic']['n']} cases with preoperative antiemetic use "
     f"were excluded, yielding a final analytical cohort of {F['primary_analysis']['n']:,} cases "
     f"(singleton {F['primary_analysis']['n_s']:,}; twin {F['primary_analysis']['n_t']:,}) (Fig. 1).")
@@ -902,7 +916,7 @@ add_p_with_refs(doc,
     "stimulation{2,12}, and twin pregnancy amplifies all of these through greater "
     "circulating blood volume, enhanced aortocaval compression, and reduced cardiac "
     "reserve{13}. "
-    "The present cohort of 3,188 cases including 342 twins represents the largest "
+    f"The present cohort of {F['primary_analysis']['n']:,} cases including {F['primary_analysis']['n_t']:,} twins represents the largest "
     "study to directly examine IONV in twin pregnancies, and these findings may contribute "
     "to elucidating the mechanisms of IONV. "
     "The observation that differences emerged only under the narrow (5-HT3 antagonist) "
@@ -937,7 +951,7 @@ add_heading(doc, "Generalizability (STROBE Item 22)", level=2)
 add_p_with_refs(doc,
     "This study was based on 10 years of data from a regional referral hospital, "
     "reflecting typical cesarean delivery management in Japan. "
-    "The present cohort including 342 twin cases provides the largest dataset "
+    f"The present cohort including {F['primary_analysis']['n_t']:,} twin cases provides the largest dataset "
     "to directly examine IONV in twin pregnancies, in contrast to prior studies "
     "that systematically excluded twins{9-11}. "
     "However, antiemetic prescribing patterns may vary across institutions and eras, "

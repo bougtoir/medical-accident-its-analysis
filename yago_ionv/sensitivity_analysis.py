@@ -253,18 +253,27 @@ for col in numeric_cols:
     if col in df_all.columns:
         df_all[col] = pd.to_numeric(df_all[col], errors="coerce")
 
-# Exclusions
-ga_mask = df_all["全身麻酔"] == 1
-sbp_mask = df_all["exclusion_note"].str.contains("SBP90", na=False) | \
-           df_all["exclusion_note"].str.contains("入室時SBP", na=False)
-iufd_mask = df_all["exclusion_note"].str.contains("胎児死亡|死亡", na=False) & \
-            ~df_all["exclusion_note"].str.contains("全身麻酔", na=False)
-vt_mask = df_all["exclusion_note"].str.contains("vanishing", case=False, na=False)
-triplet_mask = df_all["exclusion_note"].str.contains("品胎", na=False)
-generic_exclude_mask = df_all["exclusion_note"].str.contains("除外", na=False)
-all_exclude = generic_exclude_mask | ga_mask | sbp_mask | iufd_mask | vt_mask | triplet_mask
-no_data_mask = df_all["antiemetic_any"].isna() & ~all_exclude
-all_exclude = all_exclude | no_data_mask
+# Study period filter (2014-04-01 to 2024-10-24)
+df_all["手術日_dt"] = pd.to_datetime(df_all["手術日"], errors="coerce")
+STUDY_START = pd.Timestamp("2014-04-01")
+df_all = df_all[~(df_all["手術日_dt"] < STUDY_START)].copy()
+print(f"After date filter (>={STUDY_START.date()}): {len(df_all)}")
+
+# Exclusions (updated: GA from column OR note)
+note = df_all["exclusion_note"].fillna("")
+ga_mask = (df_all["全身麻酔"] == 1) | note.str.contains("全身麻酔", na=False) | \
+          note.str.contains("全脊髄くも膜下麻酔疑い", na=False)
+sbp_mask = note.str.contains(r"SBP\s*90|入室時SBP|入室時.*血圧.*90|入室時.*収縮期.*90|入室児.*収縮期.*90|入室児.*血圧.*90", na=False, regex=True)
+iufd_mask = note.str.contains("胎児死亡|子宮内胎児死亡|1児.*死亡|児死亡|死戦期帝王切開", na=False) & \
+            ~note.str.contains("全身麻酔", na=False)
+vt_mask = note.str.contains("vanishing", case=False, na=False)
+triplet_mask = note.str.contains("品胎", na=False)
+non_cs_mask = note.str.contains("経膣分娩|鉗子分娩", na=False)
+cardiac_mask = note.str.contains("心肺停止|心停止", na=False)
+generic_exclude_mask = note.str.contains("除外", na=False)
+no_data_mask = df_all["antiemetic_any"].isna()
+all_exclude = ga_mask | sbp_mask | iufd_mask | vt_mask | triplet_mask | \
+              non_cs_mask | cardiac_mask | no_data_mask | generic_exclude_mask
 df = df_all[~all_exclude].copy()
 
 df["ionv_primary"] = (df["ae_to_delivery"] == 1).astype(int)

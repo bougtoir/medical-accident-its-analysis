@@ -1,0 +1,942 @@
+[
+  {
+    "twin": 0,
+    "reason": "Missing antiemetic data",
+    "note": ""
+  },
+  {
+    "twin": 0,
+    "reason": "Missing antiemetic data",
+    "note": ""
+  },
+  {
+    "twin": 0,
+    "reason": "Missing antiemetic data",
+    "note": ""
+  },
+  {
+    "twin": 0,
+    "reason": "Missing antiemetic data",
+    "note": ""
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia",
+    "note": "術中マスキュラックス投与→全身麻酔の形跡なし→入力ミスの可能性あり"
+  },
+  {
+    "twin": 0,
+    "reason": "Missing antiemetic data",
+    "note": ""
+  },
+  {
+    "twin": 0,
+    "reason": "Missing antiemetic data",
+    "note": ""
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": ""
+  },
+  {
+    "twin": 0,
+    "reason": "Missing antiemetic data",
+    "note": ""
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔に移行→除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔→除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔→除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "SBP < 90 mmHg at admission; Missing antiemetic data",
+    "note": "入室時の血圧が90mmHg未満のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "SBP < 90 mmHg at admission; Missing antiemetic data",
+    "note": "入室時の血圧が90mmHg未満のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "Non-cesarean delivery; Missing antiemetic data",
+    "note": "経膣分娩のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "Triplet pregnancy; Missing antiemetic data",
+    "note": "品胎のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "SBP < 90 mmHg at admission; Missing antiemetic data",
+    "note": "入室時SBP90mmHg未満のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "SBP < 90 mmHg at admission; Missing antiemetic data",
+    "note": "入室時SBP90mmHg未満のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "Non-cesarean delivery; Missing antiemetic data",
+    "note": "鉗子分娩となったため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "ID:04576682、全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "ID:04386746、全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "Missing anesthesia data (note); Missing antiemetic data",
+    "note": "麻酔記録にバイタル情報の記載ないため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "Triplet pregnancy; Missing antiemetic data",
+    "note": "品胎のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "SBP < 90 mmHg at admission; Missing antiemetic data",
+    "note": "入室時、収縮期血圧90mmHg未満のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "SBP < 90 mmHg at admission; Missing antiemetic data",
+    "note": "入室時、収縮期血圧90mmHg未満のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "Missing antiemetic data",
+    "note": "麻酔記録が電子チャートでの取り込みなし"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "Intrauterine fetal death; Missing antiemetic data",
+    "note": "子宮内胎児死亡のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "SBP < 90 mmHg at admission; Missing antiemetic data",
+    "note": "入室時、収縮期血圧90mmHg未満のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "Intrauterine fetal death; Missing antiemetic data",
+    "note": "死戦期帝王切開→死亡の除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "SBP < 90 mmHg at admission; Missing antiemetic data",
+    "note": "入室時SBP90mmHg未満のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "Triplet pregnancy; Missing antiemetic data",
+    "note": "品胎のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "SBP < 90 mmHg at admission; Missing antiemetic data",
+    "note": "入室児収縮期血圧が90mmHg未満のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "SBP < 90 mmHg at admission; Missing antiemetic data",
+    "note": "入室児収縮期血圧が90mmHg未満のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "Intrauterine fetal death; Missing antiemetic data",
+    "note": "子宮内胎児死亡のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "SBP < 90 mmHg at admission; Missing antiemetic data",
+    "note": "入室時収縮期血圧90未満のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全脊髄くも膜下麻酔疑い→陽圧換気を実施→全身麻酔移行のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "Intrauterine fetal death; Missing antiemetic data",
+    "note": "子宮内胎児死亡のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "Triplet pregnancy; Missing antiemetic data",
+    "note": "品胎のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "Triplet pregnancy; Missing antiemetic data",
+    "note": "品胎のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "Cardiac arrest; Missing antiemetic data",
+    "note": "麻酔後に心肺停止となったため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 0,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 1,
+    "reason": "SBP < 90 mmHg at admission; Missing antiemetic data",
+    "note": "入室時SBP90mmHg未満のため除外"
+  },
+  {
+    "twin": 1,
+    "reason": "Intrauterine fetal death; Missing antiemetic data",
+    "note": "1児子宮内胎児死亡のため除外"
+  },
+  {
+    "twin": 1,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": ""
+  },
+  {
+    "twin": 1,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "児娩出後、全身麻酔へ移行、全身麻酔のため除外"
+  },
+  {
+    "twin": 1,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": ""
+  },
+  {
+    "twin": 1,
+    "reason": "Missing antiemetic data",
+    "note": ""
+  },
+  {
+    "twin": 1,
+    "reason": "Intrauterine fetal death; Missing antiemetic data",
+    "note": "1児子宮内胎児死亡のため除外"
+  },
+  {
+    "twin": 1,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 1,
+    "reason": "Intrauterine fetal death; Missing antiemetic data",
+    "note": "子宮内胎児死亡のため除外"
+  },
+  {
+    "twin": 1,
+    "reason": "Intrauterine fetal death; Missing antiemetic data",
+    "note": "1児死亡のため除外"
+  },
+  {
+    "twin": 1,
+    "reason": "Vanishing twin; Missing antiemetic data",
+    "note": "vanishing twinのため除外"
+  },
+  {
+    "twin": 1,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 1,
+    "reason": "Vanishing twin; Missing antiemetic data",
+    "note": "vanishing twinのため除外"
+  },
+  {
+    "twin": 1,
+    "reason": "Intrauterine fetal death; Missing antiemetic data",
+    "note": "1児子宮内死亡のため除外"
+  },
+  {
+    "twin": 1,
+    "reason": "Intrauterine fetal death; Missing antiemetic data",
+    "note": "1児子宮内死亡のため除外"
+  },
+  {
+    "twin": 1,
+    "reason": "Intrauterine fetal death; Missing antiemetic data",
+    "note": "1児子宮内死亡のため除外"
+  },
+  {
+    "twin": 1,
+    "reason": "Vanishing twin; Missing antiemetic data",
+    "note": "vanishing twinのため除外"
+  },
+  {
+    "twin": 1,
+    "reason": "Intrauterine fetal death; Missing antiemetic data",
+    "note": "1児子宮内胎児死亡のため除外"
+  },
+  {
+    "twin": 1,
+    "reason": "General anesthesia; Missing antiemetic data",
+    "note": "全身麻酔のため除外"
+  },
+  {
+    "twin": 1,
+    "reason": "Intrauterine fetal death; Missing antiemetic data",
+    "note": "1児子宮内胎児死亡のため除外"
+  }
+]

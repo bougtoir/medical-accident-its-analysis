@@ -85,7 +85,7 @@ for df in [single, twin]:
     df["ae_pre_anesthesia"] = pd.to_numeric(df["ae_pre_anesthesia"], errors="coerce")
     df["全身麻酔"] = pd.to_numeric(df.get("全身麻酔", 0), errors="coerce")
 
-merge_cols = ["仮ID", "twin", "antiemetic_any", "ae_pre_anesthesia",
+merge_cols = ["仮ID", "手術日", "twin", "antiemetic_any", "ae_pre_anesthesia",
               "exclusion_note", "全身麻酔", "emergency", "prior_cs",
               "preop_steroid", "高血圧合併妊娠", "妊娠高血圧症候群"]
 s_cols = [c for c in merge_cols if c in single.columns]
@@ -93,12 +93,25 @@ t_cols = [c for c in merge_cols if c in twin.columns]
 df_all = pd.concat([single[s_cols], twin[t_cols]], ignore_index=True)
 
 for col in merge_cols:
-    if col in df_all.columns and col not in ["exclusion_note", "仮ID"]:
+    if col in df_all.columns and col not in ["exclusion_note", "仮ID", "手術日"]:
         df_all[col] = pd.to_numeric(df_all[col], errors="coerce")
 
 # ============================================================
 # 2. EXCLUSION FLOW (step-by-step, mutually exclusive)
 # ============================================================
+n_total_raw = len(df_all)
+n_single_raw = int((df_all["twin"] == 0).sum())
+n_twin_raw = int((df_all["twin"] == 1).sum())
+
+# --- Step 0: Study period filter (2014-04-01 to 2024-10-24) ---
+df_all["手術日_dt"] = pd.to_datetime(df_all.get("手術日", pd.NaT), errors="coerce")
+STUDY_START = pd.Timestamp("2014-04-01")
+out_mask = df_all["手術日_dt"] < STUDY_START
+n_out = int(out_mask.sum())
+n_out_s = int((out_mask & (df_all["twin"] == 0)).sum())
+n_out_t = int((out_mask & (df_all["twin"] == 1)).sum())
+df_all = df_all[~out_mask].copy()
+
 n_total = len(df_all)
 n_single_total = int((df_all["twin"] == 0).sum())
 n_twin_total = int((df_all["twin"] == 1).sum())
@@ -106,11 +119,13 @@ n_twin_total = int((df_all["twin"] == 1).sum())
 # Step-by-step exclusions applied sequentially
 remaining = df_all.copy()
 remaining["included"] = True
+note = remaining["exclusion_note"].fillna("")
 
 exclusion_steps = []
 
-# 1. General anesthesia
-mask = remaining["全身麻酔"] == 1
+# 1. General anesthesia (column-based OR note-based)
+mask = (remaining["全身麻酔"] == 1) | note.str.contains("全身麻酔", na=False) | \
+       note.str.contains("全脊髄くも膜下麻酔疑い", na=False)
 n_excl = mask.sum()
 n_s = (mask & (remaining["twin"] == 0)).sum()
 n_t = (mask & (remaining["twin"] == 1)).sum()
@@ -120,7 +135,8 @@ remaining.loc[mask, "included"] = False
 
 # 2. SBP < 90 at admission
 r = remaining[remaining["included"]]
-mask_sbp = r["exclusion_note"].str.contains("SBP90|入室時SBP", na=False)
+r_note = r["exclusion_note"].fillna("")
+mask_sbp = r_note.str.contains(r"SBP\s*90|入室時SBP|入室時.*血圧.*90|入室時.*収縮期.*90|入室児.*収縮期.*90|入室児.*血圧.*90", na=False, regex=True)
 idx_sbp = r[mask_sbp].index
 n_excl = len(idx_sbp)
 n_s = int((remaining.loc[idx_sbp, "twin"] == 0).sum())
@@ -131,7 +147,9 @@ remaining.loc[idx_sbp, "included"] = False
 
 # 3. IUFD
 r = remaining[remaining["included"]]
-mask_iufd = r["exclusion_note"].str.contains("胎児死亡|死亡", na=False) & ~r["exclusion_note"].str.contains("全身麻酔", na=False)
+r_note = r["exclusion_note"].fillna("")
+mask_iufd = r_note.str.contains("胎児死亡|子宮内胎児死亡|1児.*死亡|児死亡|死戦期帝王切開", na=False) & \
+            ~r_note.str.contains("全身麻酔", na=False)
 idx_iufd = r[mask_iufd].index
 n_excl = len(idx_iufd)
 n_s = int((remaining.loc[idx_iufd, "twin"] == 0).sum())
@@ -162,19 +180,31 @@ exclusion_steps.append({"reason": "Triplet pregnancy", "reason_ja": "品胎",
                         "n": int(n_excl), "n_s": n_s, "n_t": n_t})
 remaining.loc[idx_trip, "included"] = False
 
-# 6. Other exclusion (generic)
+# 6. Non-cesarean delivery
 r = remaining[remaining["included"]]
-mask_gen = r["exclusion_note"].str.contains("除外", na=False)
-idx_gen = r[mask_gen].index
-n_excl = len(idx_gen)
-n_s = int((remaining.loc[idx_gen, "twin"] == 0).sum())
-n_t = int((remaining.loc[idx_gen, "twin"] == 1).sum())
+mask_ncs = r["exclusion_note"].str.contains("経膣分娩|鉗子分娩", na=False)
+idx_ncs = r[mask_ncs].index
+n_excl = len(idx_ncs)
 if n_excl > 0:
-    exclusion_steps.append({"reason": "Other exclusion criteria", "reason_ja": "その他の除外基準",
+    n_s = int((remaining.loc[idx_ncs, "twin"] == 0).sum())
+    n_t = int((remaining.loc[idx_ncs, "twin"] == 1).sum())
+    exclusion_steps.append({"reason": "Non-cesarean delivery", "reason_ja": "帝王切開以外の分娩",
                             "n": int(n_excl), "n_s": n_s, "n_t": n_t})
-    remaining.loc[idx_gen, "included"] = False
+    remaining.loc[idx_ncs, "included"] = False
 
-# 7. Missing anesthesia data
+# 7. Cardiac arrest
+r = remaining[remaining["included"]]
+mask_ca = r["exclusion_note"].str.contains("心肺停止|心停止", na=False)
+idx_ca = r[mask_ca].index
+n_excl = len(idx_ca)
+if n_excl > 0:
+    n_s = int((remaining.loc[idx_ca, "twin"] == 0).sum())
+    n_t = int((remaining.loc[idx_ca, "twin"] == 1).sum())
+    exclusion_steps.append({"reason": "Cardiac arrest", "reason_ja": "心肺停止",
+                            "n": int(n_excl), "n_s": n_s, "n_t": n_t})
+    remaining.loc[idx_ca, "included"] = False
+
+# 8. Missing anesthesia data
 r = remaining[remaining["included"]]
 mask_nodata = r["antiemetic_any"].isna()
 idx_nodata = r[mask_nodata].index
@@ -234,6 +264,8 @@ n_std_excl_t = sum(s["n_t"] for s in exclusion_steps)
 
 # Save all counts
 flow = {
+    "total_raw": {"n": n_total_raw, "n_s": n_single_raw, "n_t": n_twin_raw},
+    "out_of_period": {"n": n_out, "n_s": n_out_s, "n_t": n_out_t},
     "total": {"n": n_total, "n_s": n_single_total, "n_t": n_twin_total},
     "exclusion_steps": exclusion_steps,
     "total_excluded": {"n": n_std_excl, "n_s": n_std_excl_s, "n_t": n_std_excl_t},
@@ -252,7 +284,9 @@ with open(BASE / "flowchart_counts.json", "w") as f:
 print("=" * 60)
 print("PARTICIPANT FLOW")
 print("=" * 60)
-print(f"Total: {n_total} (S={n_single_total}, T={n_twin_total})")
+print(f"Total raw: {n_total_raw} (S={n_single_raw}, T={n_twin_raw})")
+print(f"  Outside study period (<2014-04-01): {n_out} (S={n_out_s}, T={n_out_t})")
+print(f"Within study period: {n_total} (S={n_single_total}, T={n_twin_total})")
 for step in exclusion_steps:
     print(f"  Excluded - {step['reason']}: {step['n']} (S={step['n_s']}, T={step['n_t']})")
 print(f"Eligible: {n_eligible} (S={n_eligible_s}, T={n_eligible_t})")
@@ -268,7 +302,7 @@ print(f"Subgroup analysis: {n_subgroup} (S={n_subgroup_s}, T={n_subgroup_t})")
 # ============================================================
 print("\nGenerating flowchart...")
 
-fig, ax = plt.subplots(1, 1, figsize=(16, 22))
+fig, ax = plt.subplots(1, 1, figsize=(16, 26))
 ax.set_xlim(0, 100)
 ax.set_ylim(0, 100)
 ax.axis("off")
@@ -304,17 +338,38 @@ def draw_arrow(ax, x1, y1, x2, y2, color="black"):
 cx = 42
 ex = 80
 
-# --- Row 1: Total assessed ---
-y1 = 95
-draw_box(ax, cx, y1, 40, 4.5,
-         f"Cesarean deliveries assessed for eligibility\n"
+# --- Row 0: Total records in database ---
+y0 = 97
+draw_box(ax, cx, y0, 40, 3.5,
+         f"Cesarean deliveries in database\n"
+         f"(Jan 2014 – Oct 2024)\n"
+         f"N = {n_total_raw:,}  (Singleton {n_single_raw:,}  /  Twin {n_twin_raw:,})",
+         BOX_MAIN, EDGE_MAIN, fontsize=9, bold_first=True)
+
+# Arrow down + date filter exclusion (right)
+y_branch0 = y0 - 3.5
+draw_arrow(ax, cx, y0 - 1.75, cx, y_branch0)
+
+y_date_excl = y_branch0 - 1.5
+draw_box(ax, ex, y_date_excl, 36, 3,
+         f"Outside study period\n"
+         f"(before Apr 2014): n = {n_out}\n"
+         f"(S {n_out_s}, T {n_out_t})",
+         BOX_EXCL, EDGE_EXCL, fontsize=7.5)
+draw_arrow(ax, cx + 20, y_branch0, ex - 18, y_date_excl, color=EDGE_EXCL)
+
+# --- Row 1: Within study period ---
+y1 = y_branch0 - 5
+draw_arrow(ax, cx, y_branch0, cx, y1 + 1.75)
+draw_box(ax, cx, y1, 40, 3.5,
+         f"Within study period\n"
          f"(Apr 2014 – Oct 2024)\n"
          f"N = {n_total:,}  (Singleton {n_single_total:,}  /  Twin {n_twin_total:,})",
          BOX_MAIN, EDGE_MAIN, fontsize=9, bold_first=True)
 
 # Arrow down to exclusion branch point
-y_branch1 = y1 - 5
-draw_arrow(ax, cx, y1 - 2.25, cx, y_branch1)
+y_branch1 = y1 - 3.5
+draw_arrow(ax, cx, y1 - 1.75, cx, y_branch1)
 
 # Exclusion box (right)
 excl_lines = []
