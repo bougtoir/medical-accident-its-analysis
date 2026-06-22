@@ -1866,6 +1866,50 @@ def create_manuscript():
 
     p = doc.add_paragraph()
     p.add_run(
+        'A fourth property deserves particular emphasis: '
+    )
+    p.add_run('unilateral benefit without reciprocity. ').bold = True
+    p.add_run(
+        'As demonstrated in Section 9.1, a state operating at r = 49 '
+        'achieves exactly the same breach delay as a completely undisclosed '
+        'minefield. This means that even in conflict with a non-signatory '
+        'adversary\u2014whether a state that has not ratified the framework or '
+        'a non-state armed group\u2014the defending state sacrifices '
+    )
+    p.add_run('nothing').italic = True
+    p.add_run(
+        ' in military terms by publishing its map. Yet the post-conflict '
+        'dividend is transformative: upon cessation of hostilities, every '
+        'position on the published map is systematically cleared, yielding '
+        'a deterministic guarantee of zero residual mines in the state\u2019s '
+        'own defensive zones. Reconstruction, refugee return, and '
+        'agricultural resumption can commence immediately in cleared areas '
+        'without the years-long uncertainty characteristic of unmapped '
+        'minefields.'
+    )
+
+    p = doc.add_paragraph()
+    p.add_run(
+        'This unilateral benefit structure has profound implications for '
+        'treaty adoption dynamics. Classical arms control faces a '
+        'prisoner\u2019s dilemma: each state benefits from others\u2019 compliance '
+        'but is tempted to defect. The transparent map framework inverts '
+        'this logic. A state benefits from its '
+    )
+    p.add_run('own').italic = True
+    p.add_run(
+        ' compliance regardless of others\u2019 behaviour\u2014the zero-residual '
+        'property depends solely on the defender\u2019s map accuracy, not the '
+        'adversary\u2019s participation. Ratification is therefore a dominant '
+        'strategy: it improves post-conflict outcomes for the ratifying '
+        'state under all scenarios (adversary ratifies, adversary does not '
+        'ratify, adversary is a non-state actor). This eliminates the '
+        'principal barrier to multilateral adoption and makes unilateral '
+        'or small-coalition implementation viable as a first step.'
+    )
+
+    p = doc.add_paragraph()
+    p.add_run(
         'For the Baltic states and Finland, this framework provides an '
         'operationally credible middle path at a critical juncture. Rather '
         'than returning to unrestricted mine use (accepting humanitarian '
