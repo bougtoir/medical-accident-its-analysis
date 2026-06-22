@@ -1,0 +1,98 @@
+# Star-Spangled Banner — 跳躍と自由 — 料理レンダリング
+# 米国国歌「星条旗」をSITS9で記述。
+大きなFWD(n)値（最大8）、広い音域、
+大胆なCROSS角度（±40°）がダイナミックな旋律を反映。
+
+============================================================
+  SITS9 料理レシピ
+============================================================
+
+調理時間合計: 約90分
+
+   1. 味見をして塩梅を整える（ANCHOR: 味の固定点）
+      [Oh say can you see]
+
+   2. 火加減を弱火 (low)に調整
+      [Oh say can you see]
+
+   3. 火加減を弱火 (low)に調整
+      [by the dawn's]
+
+   4. 焼く (grill)で弱火 (low)、12分
+      [by the dawn's]
+
+   5. → 煮る (simmer)に切り替える
+      [by the dawn's]
+
+   6. 火加減をとろ火 (lowest)に調整
+      [early light]
+
+   7. 火を止めて8分休ませる（余熱で馴染ませる）
+      [early light]
+
+   8. → 蒸す (steam)に切り替える
+      [early light]
+
+   9. 火加減を中火 (medium)に調整
+      [What so proudly]
+
+  10. 蒸す (steam)で中火 (medium)、10分
+      [What so proudly]
+
+  11. → 焼く (grill)に切り替える
+      [What so proudly]
+
+  12. 火加減を中火 (medium)に調整
+      [we hailed]
+
+  13. 焼く (grill)で中火 (medium)、6分
+      [we hailed]
+
+  14. → 煮る (simmer)に切り替える
+      [we hailed]
+
+  15. 火加減を強火 (high)に調整
+      [the rockets']
+
+  16. 煮る (simmer)で強火 (high)、14分
+      [the rockets']
+
+  17. → 蒸す (steam)に切り替える
+      [the rockets']
+
+  18. 火加減を中火 (medium)に調整
+      [red glare]
+
+  19. 火を止めて10分休ませる（余熱で馴染ませる）
+      [red glare]
+
+  20. → 焼く (grill)に切り替える
+      [red glare]
+
+  21. 火加減を強火 (high)に調整
+      [land of the free]
+
+  22. 焼く (grill)で強火 (high)、16分
+      [land of the free]
+
+  23. → 煮る (simmer)に切り替える
+      [land of the free]
+
+  24. 火加減をとろ火 (lowest)に調整
+      [home of the brave]
+
+  25. 火を止めて12分休ませる（余熱で馴染ませる）
+      [home of the brave]
+
+  26. → 蒸す (steam)に切り替える
+      [home of the brave]
+
+  27. 味見をして塩梅を整える（ANCHOR: 味の固定点）
+      [(ending)]
+
+  28. 火加減をとろ火 (lowest)に調整
+      [(ending)]
+
+============================================================
+※ このレシピは音楽・手芸と同一のSITS9カードデッキから
+  自動生成されています。

@@ -1,0 +1,98 @@
+# Hino Nacional Brasileiro — シンコペーションの流れ — 料理レンダリング
+# ブラジル国歌をSITS9で記述。
+不規則なFWD間隔、中程度のCROSS角度（±25°）、
+長いカード列がシンコペーションと流麗な旋律を反映。
+
+============================================================
+  SITS9 料理レシピ
+============================================================
+
+調理時間合計: 約54分
+
+   1. 味見をして塩梅を整える（ANCHOR: 味の固定点）
+      [Ouviram do Ipiranga]
+
+   2. 火加減を弱火 (low)に調整
+      [Ouviram do Ipiranga]
+
+   3. 火加減を弱火 (low)に調整
+      [as margens placidas]
+
+   4. 焼く (grill)で弱火 (low)、8分
+      [as margens placidas]
+
+   5. → 煮る (simmer)に切り替える
+      [as margens placidas]
+
+   6. 火加減を中火 (medium)に調整
+      [de um povo heroico]
+
+   7. 煮る (simmer)で中火 (medium)、6分
+      [de um povo heroico]
+
+   8. → 蒸す (steam)に切り替える
+      [de um povo heroico]
+
+   9. 火加減を弱火 (low)に調整
+      [o brado retumbante]
+
+  10. 火を止めて4分休ませる（余熱で馴染ませる）
+      [o brado retumbante]
+
+  11. → 焼く (grill)に切り替える
+      [o brado retumbante]
+
+  12. 火加減を中火 (medium)に調整
+      [e o sol da liberdade]
+
+  13. 焼く (grill)で中火 (medium)、10分
+      [e o sol da liberdade]
+
+  14. → 煮る (simmer)に切り替える
+      [e o sol da liberdade]
+
+  15. 火加減を中火 (medium)に調整
+      [em raios fulgidos]
+
+  16. 煮る (simmer)で中火 (medium)、4分
+      [em raios fulgidos]
+
+  17. → 蒸す (steam)に切り替える
+      [em raios fulgidos]
+
+  18. 火加減を弱火 (low)に調整
+      [brilhou no ceu]
+
+  19. 火を止めて8分休ませる（余熱で馴染ませる）
+      [brilhou no ceu]
+
+  20. → 焼く (grill)に切り替える
+      [brilhou no ceu]
+
+  21. 火加減を中火 (medium)に調整
+      [da Patria nesse]
+
+  22. 焼く (grill)で中火 (medium)、6分
+      [da Patria nesse]
+
+  23. → 煮る (simmer)に切り替える
+      [da Patria nesse]
+
+  24. 火加減をとろ火 (lowest)に調整
+      [instante]
+
+  25. 火を止めて6分休ませる（余熱で馴染ませる）
+      [instante]
+
+  26. → 蒸す (steam)に切り替える
+      [instante]
+
+  27. 味見をして塩梅を整える（ANCHOR: 味の固定点）
+      [(ending)]
+
+  28. 火加減をとろ火 (lowest)に調整
+      [(ending)]
+
+============================================================
+※ このレシピは音楽・手芸と同一のSITS9カードデッキから
+  自動生成されています。

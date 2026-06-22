@@ -1,0 +1,243 @@
+{
+  "title": "Kimigayo (君が代) — 五音音階の静謐",
+  "description": "日本国歌「君が代」をSITS9で記述。\nペンタトニック制約（FWD n∈{1,2,3}）、低TENSION、\n穏やかなCROSS角度（±15°）が和の美意識を反映。",
+  "bpm": 54,
+  "key_root": 62,
+  "stitch_unit_mm": 5.0,
+  "cards": [
+    {
+      "name": "君が代は",
+      "instructions": [
+        {
+          "op": "ANCHOR"
+        },
+        {
+          "op": "TENSION",
+          "value": 0.15
+        }
+      ],
+      "repeat": 1,
+      "loom_hint": "玉結び — 静かな始まり",
+      "tone_hint": "I: 悠然としたトニック",
+      "chord_label": "D",
+      "scale_degree": "I",
+      "root_midi": 62,
+      "chord_notes_midi": [
+        62,
+        66,
+        69
+      ],
+      "stitch_type": "running"
+    },
+    {
+      "name": "千代に",
+      "instructions": [
+        {
+          "op": "TENSION",
+          "value": 0.25
+        },
+        {
+          "op": "FWD",
+          "n": 2
+        },
+        {
+          "op": "CROSS",
+          "angle": 15.0,
+          "depth": 1.0,
+          "wrap": false
+        }
+      ],
+      "repeat": 1,
+      "loom_hint": "2目前進 — 緩やかな上昇",
+      "tone_hint": "ii: 一歩上昇、控えめ",
+      "chord_label": "Em",
+      "scale_degree": "ii",
+      "root_midi": 64,
+      "chord_notes_midi": [
+        64,
+        67,
+        71
+      ],
+      "stitch_type": "running"
+    },
+    {
+      "name": "八千代に",
+      "instructions": [
+        {
+          "op": "TENSION",
+          "value": 0.35
+        },
+        {
+          "op": "FWD",
+          "n": 3
+        },
+        {
+          "op": "CROSS",
+          "angle": -15.0,
+          "depth": 1.0,
+          "wrap": false
+        }
+      ],
+      "repeat": 1,
+      "loom_hint": "3目前進 — 詠嘆の広がり",
+      "tone_hint": "iii: ペンタトニック上昇",
+      "chord_label": "F#m",
+      "scale_degree": "iii",
+      "root_midi": 66,
+      "chord_notes_midi": [
+        66,
+        69,
+        73
+      ],
+      "stitch_type": "running"
+    },
+    {
+      "name": "さざれ石の",
+      "instructions": [
+        {
+          "op": "TENSION",
+          "value": 0.2
+        },
+        {
+          "op": "RET",
+          "n": 2
+        },
+        {
+          "op": "CROSS",
+          "angle": 15.0,
+          "depth": 1.0,
+          "wrap": false
+        }
+      ],
+      "repeat": 1,
+      "loom_hint": "2目回帰 — 静かな帰還",
+      "tone_hint": "I: トニック回帰、内省",
+      "chord_label": "D",
+      "scale_degree": "I",
+      "root_midi": 62,
+      "chord_notes_midi": [
+        62,
+        66,
+        69
+      ],
+      "stitch_type": "back_stitch"
+    },
+    {
+      "name": "巌となりて",
+      "instructions": [
+        {
+          "op": "TENSION",
+          "value": 0.45
+        },
+        {
+          "op": "FWD",
+          "n": 3
+        },
+        {
+          "op": "CROSS",
+          "angle": -15.0,
+          "depth": 1.0,
+          "wrap": false
+        }
+      ],
+      "repeat": 1,
+      "loom_hint": "3目前進 — クライマックスへ",
+      "tone_hint": "V: 穏やかな頂点",
+      "chord_label": "A",
+      "scale_degree": "V",
+      "root_midi": 69,
+      "chord_notes_midi": [
+        69,
+        73,
+        64
+      ],
+      "stitch_type": "running"
+    },
+    {
+      "name": "苔の",
+      "instructions": [
+        {
+          "op": "TENSION",
+          "value": 0.3
+        },
+        {
+          "op": "RET",
+          "n": 2
+        },
+        {
+          "op": "CROSS",
+          "angle": 15.0,
+          "depth": 1.0,
+          "wrap": false
+        }
+      ],
+      "repeat": 1,
+      "loom_hint": "2目回帰 — 下降開始",
+      "tone_hint": "vi: 平行短調、余韻",
+      "chord_label": "Bm",
+      "scale_degree": "vi",
+      "root_midi": 71,
+      "chord_notes_midi": [
+        71,
+        62,
+        66
+      ],
+      "stitch_type": "back_stitch"
+    },
+    {
+      "name": "むすまで",
+      "instructions": [
+        {
+          "op": "TENSION",
+          "value": 0.15
+        },
+        {
+          "op": "RET",
+          "n": 3
+        },
+        {
+          "op": "CROSS",
+          "angle": -15.0,
+          "depth": 1.0,
+          "wrap": false
+        }
+      ],
+      "repeat": 1,
+      "loom_hint": "3目回帰 — 静寂への着地",
+      "tone_hint": "I: 最終解決、玉留め",
+      "chord_label": "D",
+      "scale_degree": "I",
+      "root_midi": 62,
+      "chord_notes_midi": [
+        62,
+        66,
+        69
+      ],
+      "stitch_type": "back_stitch"
+    },
+    {
+      "name": "(ending)",
+      "instructions": [
+        {
+          "op": "ANCHOR"
+        },
+        {
+          "op": "TENSION",
+          "value": 0.1
+        }
+      ],
+      "repeat": 1,
+      "loom_hint": "玉留め — 永遠の余韻",
+      "tone_hint": "I: 消え入るように終止",
+      "chord_label": "D",
+      "scale_degree": "I",
+      "root_midi": 62,
+      "chord_notes_midi": [
+        62,
+        66,
+        69
+      ],
+      "stitch_type": "running"
+    }
+  ]
+}
