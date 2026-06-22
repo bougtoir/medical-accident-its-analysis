@@ -1,13 +1,24 @@
-# 色ベース調理タイミング判定システム — コンセプトレポート
+# TONGE / TONGINT — 色ベース調理タイミング判定システム コンセプトレポート
+
+**TONGE**: **T**racking **O**f **N**uanced **G**astro-chromatic **E**volution（ハードウェア）
+**TONGINT**: **T**racking **O**f **N**uanced **G**astro-chromatic **INT**elligence（ソフトウェア/プラットフォーム）
 
 **作成日**: 2026-06-22
-**ステータス**: 初期コンセプト調査
+**更新日**: 2026-06-22
+**ステータス**: コンセプト調査 + プロトタイプ設計
 
 ---
 
 ## 1. エグゼクティブサマリー
 
-料理における「飴色」「きつね色」「ハシバミ色」等の色表現は、調理の出来栄えを示す重要な指標であるにもかかわらず、現行の調理機器は温度・時間のみでタイミングを制御している。本レポートでは、**食品の表面色をリアルタイムに計測し、目標色に到達した時点で通知する調理補助システム**の技術的実現可能性、特許状況、市場環境、および差別化ポイントを調査・整理する。
+料理における「飴色」「きつね色」「ハシバミ色」等の色表現は、調理の出来栄えを示す重要な指標であるにもかかわらず、現行の調理機器は温度・時間のみでタイミングを制御している。本レポートでは、**食品の表面色をリアルタイムに計測し、目標色に到達した時点で通知する調理補助システム TONGE / TONGINT** の技術的実現可能性、特許状況、市場環境、差別化ポイント、プロトタイプ設計、および論文化の方向性を調査・整理する。
+
+### ブランド構造
+
+| 名称 | 読み | 役割 | 由来 |
+|------|------|------|------|
+| **TONGE** | トング | クリップオン型センサーデバイス | tinge（色味）+ tongue（舌/味覚）。トング（調理器具）の形状を連想 |
+| **TONGINT** | トンジント | ソフトウェア/クラウドプラットフォーム | TONGE + intelligence。SIGINT/HUMINT風の「色彩インテリジェンス」 |
 
 ---
 
@@ -30,7 +41,7 @@
 - つまり「何分加熱」「何度で加熱」では一律に制御できない
 - **色変化こそがメイラード反応の直接的な観測量**であり、最も信頼性の高い指標
 
-メイラード反応のモニタリングに関する学術研究（J-STAGE, ScienceDirect）では、RGB色空間やCIE L\*a\*b\*色空間での定量化が確立されている。特にL\*a\*b\*空間での色差（ΔE）が、反応進行度の指標として有用であることが示されている。
+メイラード反応のモニタリングに関する学術研究では、RGB色空間やCIE L\*a\*b\*色空間での定量化が確立されている。特にL\*a\*b\*空間での色差（ΔE）が、反応進行度の指標として有用であることが示されている [1, 2]。
 
 ---
 
@@ -122,8 +133,8 @@
                     汎用性（対応調理の幅）
                     ↑
                     |
-    [理想的な        |         
-     ポジション] ★   |  (産業用色彩計)
+    [TONGE/TONGINT  |         
+     理想位置] ★    |  (産業用色彩計)
                     |
                     |
         ────────────+──────────────→ 価格の手頃さ
@@ -182,7 +193,7 @@
 - **a\*** = 赤↔緑
 - **b\*** = 黄↔青
 - 人間の知覚に近い均等色空間であり、色差ΔEが知覚差に対応
-- 食品科学で標準的に使用されている
+- 食品科学で標準的に使用されている [2]
 
 #### 目標色判定アルゴリズム
 
@@ -218,28 +229,31 @@
 
 | 論文 | 内容 |
 |------|------|
-| 「Recognition of Heat-Induced Food State Changes by Time-Series Use of Vision-Language Model」(2023) | CLIP（Vision-Language Model）を時系列利用し、加熱による食品状態変化を認識。ロボット調理向け |
-| 「Real-Time Cooked Food Image Synthesis and Visual Cooking Progress Monitoring on Edge Devices」(2025) | エッジデバイスで調理済み食品画像をリアルタイム合成し、調理進行度を監視。CIS（Culinary Image Similarity）メトリック提案 |
-| 「Quantitative Evaluation of Changes in Color during Maillard Reaction」(J-STAGE, 2018) | メイラード反応の色変化をRGB空間で定量評価。シグモイド関数でモデル化（R² > 0.99） |
-| 「Comparison of Colour Measurement Methods in the Food Industry」(MDPI, 2025) | 食品産業の色測定手法を比較。L\*a\*b\*空間の有用性を確認 |
+| 「Recognition of Heat-Induced Food State Changes by Time-Series Use of Vision-Language Model」(2023) [3] | CLIP（Vision-Language Model）を時系列利用し、加熱による食品状態変化を認識。ロボット調理向け |
+| 「Real-Time Cooked Food Image Synthesis and Visual Cooking Progress Monitoring on Edge Devices」(2025) [4] | エッジデバイスで調理済み食品画像をリアルタイム合成し、調理進行度を監視。CIS（Culinary Image Similarity）メトリック提案 |
+| 「Quantitative Evaluation of Changes in Color during Maillard Reaction」(J-STAGE, 2018) [1] | メイラード反応の色変化をRGB空間で定量評価。シグモイド関数でモデル化（R² > 0.99） |
+| 「Comparison of Colour Measurement Methods in the Food Industry」(MDPI, 2025) [2] | 食品産業の色測定手法を比較。L\*a\*b\*空間の有用性を確認 |
+| 「A Study of Automatic Judgment of Food Color and Cooking Conditions with AI Technology」(MDPI, 2021) [5] | スマートIHヒーター + カメラで食品色を自動判定。HSV空間で前景分離→調理状態分類。誤差率3% |
+| 「Development of a low-cost food color monitoring system」(Color Res. Appl., 2021) [6] | 低コスト食品色モニタリングシステムの開発。RGB/L\*a\*b\*/HSI色空間でリアルタイム計測。マルチノード星型ネットワーク構成 |
 
 ---
 
 ## 6. 提案コンセプト
 
-### 6.1 製品コンセプト：「IroAi（色合い）」
+### 6.1 製品コンセプト
 
-> **食品の「色」を見て、最適なタイミングを教えてくれる調理アシスタント**
+> **TONGE（トング） — 食品の「色」を見て、最適なタイミングを教えてくれる調理アシスタント**
 
-名前の由来：「色合い」（日本語で色の調和・具合を表す語）をそのまま製品名に。
+- **TONGE**（ハードウェア）：トング型クリップオンセンサーで食品色をリアルタイム計測
+- **TONGINT**（ソフトウェア）：色プリセット辞書・AI判定・クラウド連携プラットフォーム
 
 ### 6.2 3つの実装形態（段階的展開）
 
-#### Phase 1：スマートフォンアプリ（MVP — 最小限の実現可能製品）
+#### Phase 1：スマートフォンアプリ「TONGINT」（MVP）
 
 ```
 ┌─────────────────────────────────┐
-│  スマホアプリ「IroAi」           │
+│  スマホアプリ「TONGINT」         │
 │                                 │
 │  ┌───────────┐  ┌────────────┐ │
 │  │ カメラ     │  │ 目標色     │ │
@@ -264,10 +278,11 @@
 
 **技術スタック**: Python/Swift/Kotlin, OpenCV, CIE L\*a\*b\* 変換
 
-#### Phase 2：専用クリップオンデバイス
+#### Phase 2：専用クリップオンデバイス「TONGE」
 
 ```
 ┌────────────────────┐
+│  TONGE              │
 │  クリップオン       │
 │  センサーユニット   │
 │                    │
@@ -280,24 +295,24 @@
 │  ┌──┐              │
 │  │🔊│ ブザー       │
 │  └──┘              │
-│  [Bluetooth] → スマホ連携
+│  [Bluetooth] → TONGINT連携
 │  [クリップ] → 鍋の縁に固定
 └────────────────────┘
 ```
 
-- **レンジフード or 鍋の縁に固定**するクリップオン式
+- **レンジフード or 鍋の縁に固定**するクリップオン式（トング形状）
 - **AS7341分光センサー** + **小型カメラ**のハイブリッド
 - 白色LED照明内蔵で照明条件を統一
-- Bluetooth経由でスマホアプリと連携
+- Bluetooth経由でTONGINTアプリと連携
 - **スタンドアロンモード**：ブザーのみでの通知も可能
 - 想定価格：¥8,000〜15,000
 
 **技術スタック**: ESP32/Raspberry Pi Pico W, AS7341, OV2640カメラモジュール
 
-#### Phase 3：既存調理機器への組込み
+#### Phase 3：TONGINT プラットフォーム化
 
 - 家電メーカーへのライセンス供与
-- API/SDKとして色判定エンジンを提供
+- API/SDKとしてTONGINT色判定エンジンを提供
 - フライパン・鍋・グリル等の調理面に埋め込むセンサーモジュール
 
 ### 6.3 目標色プリセット辞書（コアIP）
@@ -364,15 +379,15 @@ color_presets:
 ### 6.4 ユーザーシナリオ
 
 **シナリオ1：玉ねぎの飴色炒め**
-1. ユーザーが「飴色」プリセットを選択
-2. スマホをスタンドに立て、フライパンを映す
-3. 炒め始めると、アプリが玉ねぎの色変化を連続的に追跡
+1. ユーザーがTONGINTアプリで「飴色」プリセットを選択
+2. TONGEをフライパンの縁にクリップ、または スマホをスタンドに立てて映す
+3. 炒め始めると、TONGINTが玉ねぎの色変化を連続的に追跡
 4. 画面に ΔE のプログレスバーが表示される
 5. 飴色に到達 → アラーム「飴色に仕上がりました！」
-6. （オプション）色変化の時系列グラフを表示し、次回の参考に
+6. 色変化の時系列グラフを表示し、次回の参考に
 
 **シナリオ2：天ぷらの揚げ色管理**
-1. 「きつね色」プリセットを選択
+1. TONGINTで「きつね色」プリセットを選択
 2. 揚げ油の表面に浮かぶ天ぷらを撮影
 3. 衣の色がきつね色のΔE範囲に入った瞬間に通知
 4. 揚げすぎ防止
@@ -389,8 +404,8 @@ color_presets:
 
 ### 7.1 既存製品との比較
 
-| 項目 | June Oven | ReadyCooked | xade roast | IroAi（提案） |
-|------|-----------|-------------|------------|--------------|
+| 項目 | June Oven | ReadyCooked | xade roast | TONGE/TONGINT（提案） |
+|------|-----------|-------------|------------|----------------------|
 | **色で通知** | △（温度依存） | △（単発判定） | ○（焙煎度） | ◎（汎用色判定） |
 | **リアルタイム** | ○ | ✕ | ○ | ○ |
 | **汎用性** | ✕（オーブン限定） | △ | ✕（コーヒー限定） | ◎ |
@@ -423,11 +438,11 @@ color_presets:
 
 ## 9. M5Stackによるプロトタイプ構成案
 
-M5Stackエコシステムは、ディスプレイ・カメラ・I2Cセンサーが統合された開発プラットフォームで、本コンセプトのプロトタイプに最適である。
+M5Stackエコシステムは、ディスプレイ・カメラ・I2Cセンサーが統合された開発プラットフォームで、TONGEプロトタイプに最適である。
 
 ### 9.1 構成パターン比較
 
-#### パターンA：CoreS3 + Unit Color（最小構成）
+#### パターンA：CoreS3 + Unit Color（推奨・最小構成）
 
 ```
 ┌─────────────────────────┐
@@ -454,46 +469,17 @@ M5Stackエコシステムは、ディスプレイ・カメラ・I2Cセンサー�
 
 #### パターンB：CoreS3 単体（カメラのみ）
 
-```
-┌─────────────────────────┐
-│  M5Stack CoreS3          │ ¥10,868
-│  ┌───────┐ ┌──────────┐ │
-│  │ 2"LCD │ │ GC0308   │ │
-│  │タッチ │ │ カメラ   │ │
-│  │色の   │ │ 食品を   │ │
-│  │進捗   │ │ 撮影     │ │
-│  └───────┘ └──────────┘ │
-│  RGB→L*a*b* 変換はESP32-S3で │
-│  画像処理 on device      │
-└─────────────────────────┘
-```
-
 - **合計コスト**: 約 **¥11,000**
 - **長所**: 追加部品なし。カメラで広角撮影→画像処理で色抽出
 - **短所**: 0.3MP (VGA) で解像度が低い。照明補正をソフトウェアで行う必要あり。ESP32-S3での画像処理は重い
 
 #### パターンC：M5Atom + Unit Color（最安構成）
 
-```
-┌─────────────┐
-│  AtomS3 Lite │ ¥1,300程度
-│  ESP32-S3    │
-│  [ボタン]    │
-│    │ GPIO     │
-└────┼─────────┘
-     │
-┌────┴──────────────┐
-│  Unit Color       │ ¥1,000程度
-│  TCS3472 + LED    │
-└───────────────────┘
-    + ブザーモジュール ¥500程度
-```
-
 - **合計コスト**: 約 **¥3,000**
 - **長所**: 最安。色の近接計測に特化。Bluetooth経由でスマホに通知可能
 - **短所**: 画面なし（スマホ連携前提）。食品に近づける必要がある
 
-#### パターンD：UnitV2（AI認識フル活用）
+#### パターンD：UnitV2 M12（AI認識フル活用）
 
 ```
 ┌─────────────────────────┐
@@ -512,20 +498,65 @@ M5Stackエコシステムは、ディスプレイ・カメラ・I2Cセンサー�
 - **長所**: **LAB色空間でのColor Tracker機能が標準搭載**。Linux上でOpenCV使用可能。1080Pの高解像度。ROI指定してLAB閾値で色追跡を直接実行可能
 - **短所**: 高価。消費電力が高い
 
-### 9.2 推奨構成
+### 9.2 UnitV2 M12 の差別化要素
+
+UnitV2 M12はパターンDの構成であり、他の構成と比較して以下の点で決定的に異なる。
+
+#### M12レンズマウント — レンズ交換可能
+
+| 構成 | レンズ | 交換 |
+|------|--------|------|
+| CoreS3 | GC0308 (0.3MP) 固定レンズ | 不可 |
+| **UnitV2 M12** | GC2053 (2MP) + **M12マウント** | **自由に交換可** |
+
+標準レンズ(FOV:85°)と魚眼レンズ(FOV:150°)が同梱。M12規格のレンズは数百円〜で大量に流通しており、広角（フライパン全体を近距離から）、マクロ（カラメル表面を拡大）、IRカット付き（色精度向上）等を用途に応じて換装できる。
+
+#### LAB Color Tracker — ファームウェアレベルで標準搭載
+
+```json
+// LAB閾値を直接指定して色追跡
+{
+  "config": "Color Tracker",
+  "l_min": 60,  "l_max": 80,
+  "a_min": 125, "a_max": 145,
+  "b_min": 155, "b_max": 185
+}
+```
+
+CoreS3/Atomでは自前でRGB→L\*a\*b\*変換を実装する必要があるが、UnitV2ではJSON一行送るだけでLAB色追跡が動作する。
+
+#### Linux環境 — 拡張性の桁違い
+
+| 項目 | CoreS3 (ESP32-S3) | UnitV2 M12 (SSD202D) |
+|------|-------------------|---------------------|
+| **OS** | ベアメタル / RTOS | **Linux** |
+| **CPU** | Xtensa LX7 240MHz | **Cortex-A7 Dual 1.2GHz** |
+| **RAM** | 512KB + 8MB PSRAM | **128MB DDR3** |
+| **OpenCV** | 使用不可 | **プリインストール** |
+| **Python** | MicroPython（制限大） | **フルPython3** |
+| **SSH** | 不可 | **可能** |
+| **カメラ解像度** | QVGA (320×240) | **1080p (1920×1080)** |
+
+OpenCVで食品領域セグメンテーション、色ヒストグラム分析（均一性判定）、時系列データCSV蓄積が可能。SSHで直接Pythonスクリプトを編集・実行でき、開発イテレーションが圧倒的に速い。
+
+#### V-Training — カスタムAIモデル
+
+M5StackのV-Trainingサービスで「きつね色の天ぷら」「飴色の玉ねぎ」「焦げすぎ」等のラベルで画像学習→UnitV2にデプロイ可能。LAB閾値だけでは捉えきれないテクスチャ・ムラ・泡立ち等の視覚的特徴も判定できる。
+
+### 9.3 推奨構成
 
 | 目的 | 推奨パターン | 理由 |
 |------|-------------|------|
 | **最速プロトタイプ** | **A (CoreS3 + Unit Color)** | カメラ+色センサー+画面+スピーカーが一式揃い、¥12,000で実現 |
 | **最安で原理検証** | C (Atom + Unit Color) | ¥3,000で色計測→ブザー通知の最小ループを検証 |
-| **高精度・画像処理重視** | D (UnitV2) | LAB Color Tracker標準搭載。ROI指定で食品領域の色追跡が即座に可能 |
+| **高精度・論文品質** | D (UnitV2 M12) | LAB Color Tracker標準搭載。レンズ交換可。OpenCVフル活用。製品化・論文に近い品質 |
 
-### 9.3 推奨構成A（CoreS3 + Unit Color）のファームウェア構成
+### 9.4 推奨構成A（CoreS3 + Unit Color）のファームウェア構成
 
 ```
 ファームウェア構成（Arduino IDE）:
 
-main.cpp
+tonge_cores3.ino
 ├── カメラモジュール (GC0308)
 │   ├── 定期撮影 → RGB565 フレーム取得
 │   ├── ROI（関心領域）の色を抽出
@@ -536,7 +567,7 @@ main.cpp
 │   ├── ホワイトバランス補正（内蔵LED基準）
 │   └── RGB → CIE L*a*b* 変換
 │
-├── 色判定エンジン
+├── TONGINT色判定エンジン
 │   ├── 目標色プリセット辞書（SPIFFS/LittleFS格納）
 │   ├── ΔE 計算（現在色 vs 目標色）
 │   ├── トレンド追跡（ΔE の時系列）
@@ -562,7 +593,7 @@ main.cpp
     └── Wi-Fi設定
 ```
 
-### 9.4 RGB → CIE L\*a\*b\* 変換（ESP32実装用）
+### 9.5 RGB → CIE L\*a\*b\* 変換（ESP32実装用）
 
 ```cpp
 // TCS3472のRGBC値をCIE L*a*b*に変換する簡易実装
@@ -602,7 +633,7 @@ float delta_e(Lab c1, Lab c2) {
 }
 ```
 
-### 9.5 部品リスト（パターンA）
+### 9.6 部品リスト（パターンA）
 
 | 部品 | 型番 | 入手先 | 価格（税込） |
 |------|------|--------|-------------|
@@ -613,6 +644,7 @@ float delta_e(Lab c1, Lab c2) {
 | **合計** | | | **約¥12,000** |
 
 オプション：
+
 | 部品 | 用途 | 価格 |
 |------|------|------|
 | フレキシブルアーム/クリップ | CoreS3を鍋の上に固定 | ¥1,000〜2,000 |
@@ -624,27 +656,27 @@ float delta_e(Lab c1, Lab c2) {
 ## 10. 実現ロードマップ
 
 ```
-Phase 0: M5Stackプロトタイプ           (1-2週間)
+Phase 0: M5Stackプロトタイプ (TONGE v0)    (1-2週間)
 ├── CoreS3 + Unit Color で原理検証
 ├── TCS3472 → L*a*b* 変換の実装
 ├── 「きつね色」「飴色」の閾値を実際の調理で計測
 ├── ΔE プログレスバー + ブザー通知
 └── 概念実証デモ動画撮影
 
-Phase 1: スマホ連携                    (1-3ヶ月)
+Phase 1: TONGINT スマホ連携                 (1-3ヶ月)
 ├── M5Stackからスマホへ通知（LINE Notify / BLE）
 ├── 色プリセット辞書 v1（6色）
 ├── カメラ画像のWi-Fiストリーミング
-├── スマホアプリ（Flutter等）でリモート監視
+├── TONGINTスマホアプリ（Flutter等）でリモート監視
 └── テスト：玉ねぎ飴色、トースト、天ぷら
 
-Phase 2: 製品化検討                    (3-6ヶ月)
-├── 専用筐体設計（3Dプリンタ）
+Phase 2: 製品化検討                         (3-6ヶ月)
+├── TONGE専用筐体設計（3Dプリンタ、トング形状）
 ├── 防曇・耐蒸気設計
 ├── クラウドファンディング準備
 └── 色プリセット辞書の実測値蓄積
 
-Phase 3: プラットフォーム化            (6-12ヶ月)
+Phase 3: TONGINTプラットフォーム化           (6-12ヶ月)
 ├── API/SDK公開
 ├── 色プリセット辞書のクラウドソーシング
 ├── 家電メーカーとの協業
@@ -653,30 +685,142 @@ Phase 3: プラットフォーム化            (6-12ヶ月)
 
 ---
 
-## 11. 次のステップ
+## 11. 論文化の方向性
+
+### 11.1 論文にするために必要なこと
+
+TONGEを学術論文として発表するには、現在のコンセプトに加えて以下の作業が必要となる。
+
+#### 必須要素（Must）
+
+| 要素 | 内容 | 推定工数 |
+|------|------|---------|
+| **動作するプロトタイプ** | M5Stack CoreS3 + Unit Color、またはUnitV2 M12で実際に色計測→通知が動くデモ | 1-2週間 |
+| **色プリセットの実測キャリブレーション** | 実際の調理（玉ねぎ飴色炒め、天ぷら揚げ、トースト焼き等）を行い、目標色のL\*a\*b\*値を分光器 or TCS3472で実測。現在の値は文献推定値 | 1-2週間 |
+| **定量的な精度評価** | ΔE判定の正解率。人間の目視判定と比較してどれだけ一致するか。最低3種の調理タスク × 各10回以上の試行 | 2-3週間 |
+| **照明条件ロバスト性の検証** | 蛍光灯、LED昼白色、LED電球色、自然光の4条件以上でΔE精度を比較 | 1週間 |
+| **ユーザースタディ** | 最低8-12名の参加者。色通知あり vs 時間タイマーのみ vs 目視のみ の3条件比較。調理完成品の出来栄え評価（官能評価 or 写真評価） | 3-4週間 |
+
+#### あると強い要素（Should）
+
+| 要素 | 内容 |
+|------|------|
+| **多食品での検証** | 3種以上が最低ライン。5種以上あると汎用性を主張できる |
+| **既存手法との比較** | 時間タイマー、温度プローブ、目視との定量比較 |
+| **官能評価** | 参加者が「美味しそう」「焦げすぎ」等を5段階評価 → 色判定の妥当性を裏付け |
+| **オープンソース公開** | ファームウェア + プリセット辞書をGitHubで公開 → 再現性と引用を担保 |
+
+#### 推定所要期間
+
+```
+プロトタイプ完成 ─────── 2週間
+色プリセット実測 ─────── 2週間（並行可）
+精度評価実験 ─────────── 3週間
+ユーザースタディ ─────── 4週間（IRB/倫理審査に時間がかかる場合あり）
+論文執筆 ─────────────── 3-4週間
+────────────────────────────────────
+合計: 約 3-4ヶ月（並行作業込み）
+```
+
+### 11.2 投稿先候補
+
+#### Tier 1：HCI / Ubiquitous Computing（最もフィットする分野）
+
+| ジャーナル/会議 | IF/採択率 | フィットする理由 | 形態 |
+|----------------|-----------|-----------------|------|
+| **ACM CHI** | 採択率 ~25% | スマートキッチンのHCI論文が毎年採択されている。AROMA (UIST'25), OSCAR (CHI EA'25), CookingWithAgents (CHI'24) 等の先行研究あり。色ベースUIは新規性が高い | 会議（年1回、締切9月頃） |
+| **ACM IMWUT / UbiComp** | IF 3.6 | センサーベースの調理支援研究（CookTab, Ambient Kitchen等）の伝統がある。TONGEのセンサー+判定+通知アーキテクチャはUbiComp的 | ジャーナル（ローリング、年4回締切） |
+| **ACM DIS** | 採択率 ~23% | デザイン重視。「色名をインターフェースにする」という文化的デザイン面が評価される可能性 | 会議（年1回） |
+
+→ **推奨: IMWUT**（ローリング査読で締切の柔軟性が高い）
+
+#### Tier 2：センサー / 食品工学
+
+| ジャーナル/会議 | IF | フィットする理由 | 形態 |
+|----------------|-----|-----------------|------|
+| **MDPI Sensors** | 3.4 | IoTセンサーデバイスの食品応用論文を多数掲載。低コスト食品色計測システムの先行研究 [5, 6] が本誌に掲載 | OAジャーナル（APC ~CHF 2,600） |
+| **IEEE Sensors Journal** | 4.3 | 食品品質色計測デバイス論文の実績あり。果実熟度判定の低コストマルチスペクトルデバイス (2025) 等 | ジャーナル |
+| **Color Research & Application (Wiley)** | 1.2 | 食品色モニタリングシステムの論文 [6] が掲載された実績あり。色科学に特化 | ジャーナル |
+| **Journal of Food Engineering** | 5.3 | 食品加工における色計測は主要テーマ。メイラード反応の色定量化研究が多い | ジャーナル |
+
+→ **推奨: Sensors**（OAで速い。デバイス記述論文に適切）
+
+#### Tier 3：オープンハードウェア
+
+| ジャーナル | IF | フィットする理由 | 形態 |
+|-----------|-----|-----------------|------|
+| **HardwareX (Elsevier)** | 2.0 | オープンソースハードウェア専門誌。設計・製作・バリデーションの構造化された論文を受け付ける。TONGE + ファームウェアをオープンハードウェアライセンスで公開すれば投稿可能 | OAジャーナル（APC無料） |
+
+→ **推奨: HardwareX**（APC無料。プロトタイプのみで投稿可能。ユーザースタディ不要）
+
+#### Tier 4：日本国内
+
+| 学会 | フィットする理由 | 形態 |
+|------|-----------------|------|
+| **情報処理学会（IPSJ）** | HCI研究会、UBI研究会で国内発表。日本語で発表可能 | 研究会・全国大会 |
+| **電子情報通信学会（IEICE）** | パターン認識・センシング系の研究会 | 研究会 |
+| **日本食品工学会** | 食品計測技術としてのアプローチ | 学会誌・大会 |
+
+→ **推奨: 情報処理学会 UBI研究会**（日本語で発表可、速報性が高い）
+
+### 11.3 推奨投稿戦略
+
+```
+Step 1: HardwareX に投稿 (プロトタイプ完成後すぐ)
+        └── APC無料、ユーザースタディ不要
+        └── オープンハードウェア + ファームウェア + 精度評価データ
+        └── 所要: プロトタイプ完成から 1ヶ月
+
+Step 2: 情報処理学会 UBI研究会 で日本語ショートペーパー
+        └── 国内での認知度確保
+        └── ユーザースタディの予備結果を含める
+        └── 所要: Step 1 から 1-2ヶ月
+
+Step 3: IMWUT (UbiComp) にフルペーパー投稿
+        └── ユーザースタディ完了後
+        └── HardwareX とは異なる貢献（HCI/インタラクション面）
+        └── 所要: Step 2 から 2-3ヶ月
+```
+
+### 11.4 想定論文タイトル
+
+- **HardwareX**: *"TONGE: An Open-Source Color-Based Cooking Timer Using CIE L\*a\*b\* Color Space and Low-Cost Spectral Sensing"*
+- **IMWUT**: *"TONGE/TONGINT: Tracking Nuanced Gastro-chromatic Evolution for Color-Guided Cooking Assistance"*
+- **Sensors**: *"Low-Cost Real-Time Food Color Monitoring System Based on TCS3472 Sensor and CIE L\*a\*b\* Color Difference for Cooking State Determination"*
+
+---
+
+## 12. 次のステップ
 
 1. **M5Stack CoreS3 + Unit Colorを入手**：スイッチサイエンスで発注（合計約¥12,000）
-2. **ファームウェア開発**：Arduino IDEでTCS3472読取→L\*a\*b\*変換→ΔE判定→ブザーの最小ループを実装
+2. **TONGEファームウェア開発**：Arduino IDEでTCS3472読取→L\*a\*b\*変換→ΔE判定→ブザーの最小ループを実装（ドラフトコードは `firmware/tonge_cores3/` に配置済み）
 3. **実際の調理で色プリセットを実測**：玉ねぎの飴色炒め、トースト等で目標色のL\*a\*b\*値を取得
-4. **特許出願の検討**：色名プリセット辞書 + 相対色変化追跡の組み合わせで出願可能性を調査
+4. **HardwareXへの投稿準備**：プロトタイプ + 精度評価データでオープンハードウェア論文を執筆
 5. **デモ動画の撮影と公開**
 
 ---
 
 ## 参考文献
 
-1. BSH Hausgeräte GmbH, "Establishing a degree of browning of food to be cooked," US 12,331,938 B2 (2017/2025).
-2. Samsung Electronics, "Cooking apparatus and controlling method therefor," EP 4,563,897 (2023/2024).
-3. "Generative food doneness prediction," US 12,050,662 B2 (2021).
-4. "Method and an apparatus for processing foodstuff," US 10,165,896 B2.
-5. "Cooking appliance with browning assistance monitor," US 2025/0362029 A1 (2025).
-6. ams-OSRAM, "AS7341 – 11-Channel Spectral Color Sensor," Product datasheet.
-7. Quantitative Evaluation of Changes in Color during Maillard Reaction, Food Science and Technology Research, 24(2), 283-291 (2018).
-8. Comparison of Colour Measurement Methods in the Food Industry, Processes, 13(5), 1268 (2025).
-9. Recognition of Heat-Induced Food State Changes by Time-Series Use of Vision-Language Model for Cooking Robot, arXiv:2309.01528 (2023).
-10. Real-Time Cooked Food Image Synthesis and Visual Cooking Progress Monitoring on Edge Devices, arXiv:2511.16965 (2025).
-11. 入江株式会社, "インライン2次元色彩計 PPLB-600."
-12. June Oven Technology, https://juneoven.com/pages/technology
-13. Brava, https://www.bravaelectric.com/
-14. ReadyCooked, https://readycookedapp.com/
-15. xade roast, https://www.xade.tech/roast/
+1. Quantitative Evaluation of Changes in Color during Maillard Reaction, Food Science and Technology Research, 24(2), 283-291 (2018).
+2. Comparison of Colour Measurement Methods in the Food Industry, Processes, 13(5), 1268 (2025).
+3. Recognition of Heat-Induced Food State Changes by Time-Series Use of Vision-Language Model for Cooking Robot, arXiv:2309.01528 (2023).
+4. Real-Time Cooked Food Image Synthesis and Visual Cooking Progress Monitoring on Edge Devices, arXiv:2511.16965 (2025).
+5. A Study of Automatic Judgment of Food Color and Cooking Conditions with Artificial Intelligence Technology, Processes, 9(7), 1128 (2021).
+6. Jain, A. K. and Pal, K. Development of a low-cost food color monitoring system, Color Research & Application, 46(2), 430-445 (2021).
+7. BSH Hausgeräte GmbH, "Establishing a degree of browning of food to be cooked," US 12,331,938 B2 (2017/2025).
+8. Samsung Electronics, "Cooking apparatus and controlling method therefor," EP 4,563,897 (2023/2024).
+9. "Generative food doneness prediction," US 12,050,662 B2 (2021).
+10. "Method and an apparatus for processing foodstuff," US 10,165,896 B2.
+11. "Cooking appliance with browning assistance monitor," US 2025/0362029 A1 (2025).
+12. ams-OSRAM, "AS7341 – 11-Channel Spectral Color Sensor," Product datasheet.
+13. 入江株式会社, "インライン2次元色彩計 PPLB-600."
+14. June Oven Technology, https://juneoven.com/pages/technology
+15. Brava, https://www.bravaelectric.com/
+16. ReadyCooked, https://readycookedapp.com/
+17. xade roast, https://www.xade.tech/roast/
+18. M5Stack, "UnitV2-M12," https://docs.m5stack.com/en/unit/unitv2_m12
+19. AROMA: Mixed-Initiative AI Assistance for Non-Visual Cooking, UIST '25.
+20. OSCAR: Object Status and Contextual Awareness for Recipes, CHI EA '25.
+21. Cooking With Agents: Designing Context-aware Voice Interaction, CHI '24.
+22. HardwareX — An open access scientific hardware journal, Elsevier.
