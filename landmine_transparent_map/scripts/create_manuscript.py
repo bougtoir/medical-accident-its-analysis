@@ -1640,6 +1640,175 @@ def create_manuscript():
         'create incentives for compliance that other mechanisms lack.'
     )
 
+    doc.add_heading('9.1 Asymmetry in non-international armed conflict', level=2)
+    p = doc.add_paragraph()
+    p.add_run(
+        'A critical question arises in non-international armed conflicts: '
+        'if only the state actor publishes a transparent map while the '
+        'non-state adversary operates at r = \u221e (no disclosure), does '
+        'this create an exploitable asymmetry? The concern is that the '
+        'government\u2019s maps reveal information about defensive dispositions '
+        'while rebel forces retain full uncertainty.'
+    )
+
+    p = doc.add_paragraph()
+    p.add_run(
+        'The model provides a precise answer. Setting delay_map(r) equal '
+        'to delay_blind and solving for the equivalence point:'
+    )
+
+    p = doc.add_paragraph()
+    p.add_run(
+        'N\u2009\u00d7\u2009(1 + r)\u2009\u00d7\u2009t'
+    )
+    run = p.add_run('clear')
+    run.font.subscript = True
+    p.add_run('\u2009/\u2009W = D\u2009\u00d7\u2009t')
+    run = p.add_run('probe')
+    run.font.subscript = True
+    p.add_run('\u2009/\u2009\u03b4\u00b2')
+
+    p = doc.add_paragraph()
+    p.add_run('Solving for r:')
+
+    p = doc.add_paragraph()
+    p.add_run(
+        'r* = (W \u00d7 D \u00d7 t'
+    )
+    run = p.add_run('probe')
+    run.font.subscript = True
+    p.add_run(')\u2009/\u2009(N \u00d7 t')
+    run = p.add_run('clear')
+    run.font.subscript = True
+    p.add_run(' \u00d7 \u03b4\u00b2) \u2212 1')
+
+    p = doc.add_paragraph()
+    p.add_run(
+        'Substituting baseline parameters: r* = (5000 \u00d7 300 \u00d7 5)'
+        '\u2009/\u2009(200 \u00d7 30 \u00d7 25) \u2212 1 = 50 \u2212 1 = 49. '
+        'At r = 49, the transparent map regime imposes '
+    )
+    p.add_run('exactly the same delay').bold = True
+    p.add_run(
+        ' on the attacker as a completely undisclosed minefield. '
+        'The attacker gains no advantage from the published map because '
+        'at this ratio, clearing all marked positions takes precisely as '
+        'long as blind sweeping the entire breach lane. However, the '
+        'post-conflict outcomes are starkly different: the map regime '
+        'guarantees zero residual mines, whereas the undisclosed minefield '
+        'leaves an expected 10 residual mines after clearance (at '
+        'p_detect = 0.95).'
+    )
+
+    p = doc.add_paragraph()
+    p.add_run(
+        'This yields a crucial insight for non-international armed '
+        'conflicts: a state operating at r = 49 concedes '
+    )
+    p.add_run('nothing').italic = True
+    p.add_run(
+        ' in military terms relative to a non-state adversary using '
+        'undisclosed mines, while securing complete post-conflict safety '
+        'for its own population. For lower values of r preferred on '
+        'policy grounds (r = 5\u201320), the military asymmetry exists but '
+        'is partially offset by two factors. First, state forces possess '
+        'complementary capabilities\u2014surveillance, artillery, air '
+        'power\u2014that amplify minefield effectiveness through force '
+        'multiplication (Section 4.3). Second, state forces typically '
+        'have intelligence capabilities (aerial reconnaissance, signals '
+        'intelligence, informant networks) that partially reveal non-state '
+        'actor mine locations, reducing the effective adversary r below '
+        'infinity. The information asymmetry is therefore bidirectional, '
+        'not unilateral.'
+    )
+
+    p = doc.add_paragraph()
+    p.add_run(
+        'Moreover, the zero-residual property depends '
+    )
+    p.add_run('only on the defender\u2019s own compliance').italic = True
+    p.add_run(
+        ', not the adversary\u2019s. Even if a non-state actor uses undisclosed '
+        'mines, the state\u2019s own published map ensures that all '
+    )
+    p.add_run('state-emplaced').italic = True
+    p.add_run(
+        ' mines are fully cleared after conflict. This unilateral benefit '
+        'requires no reciprocity\u2014a significant advantage over treaty '
+        'mechanisms that depend on mutual compliance.'
+    )
+
+    doc.add_heading('9.2 Non-state actors and collective response', level=2)
+    p = doc.add_paragraph()
+    p.add_run(
+        'The proposed framework applies exclusively to state actors '
+        'operating within the law of armed conflict. Non-state armed '
+        'groups (NSAGs) and terrorist organisations remain outside the '
+        'scope of treaty-based regulation\u2014a limitation shared with all '
+        'existing instruments including the Ottawa Convention and CCW '
+        'Amended Protocol II. However, this shared limitation does not '
+        'preclude complementary mechanisms specifically addressing '
+        'non-state mine use.'
+    )
+
+    p = doc.add_paragraph()
+    p.add_run(
+        'We propose a Collective Response Mechanism (CRM) as an '
+        'institutional complement to the transparent map framework. '
+        'The CRM would operate on three principles:'
+    )
+
+    p = doc.add_paragraph()
+    p.add_run('First, automatic assistance: ').bold = True
+    p.add_run(
+        'when NSAG mine use is confirmed in a signatory state\u2019s '
+        'territory, treaty parties assume a collective obligation to '
+        'provide humanitarian mine clearance funding and technical '
+        'assistance. This socialises the clearance burden created by '
+        'actors beyond treaty control and provides immediate benefit '
+        'to affected civilian populations.'
+    )
+
+    p = doc.add_paragraph()
+    p.add_run('Second, state responsibility for proxies: ').bold = True
+    p.add_run(
+        'states that supply mines to non-state actors or provide '
+        'material support for NSAG mining operations incur liability '
+        'under the framework. NSAG mine use serves as an automatic '
+        'trigger for sanctions review against identified state sponsors. '
+        'This creates upstream incentives to restrict mine transfers to '
+        'non-state actors, complementing existing arms embargo mechanisms '
+        'under UN Security Council resolutions.'
+    )
+
+    p = doc.add_paragraph()
+    p.add_run('Third, differentiated legitimacy: ').bold = True
+    p.add_run(
+        'the framework establishes a clear legal and normative '
+        'distinction between \u201cresponsible use\u201d (states publishing '
+        'transparent maps within the regulated r parameter) and '
+        '\u201cirresponsible use\u201d (any mine deployment without position '
+        'disclosure). This binary classification strengthens the '
+        'normative case against NSAG mine use by providing a concrete, '
+        'verifiable standard of responsible behaviour that NSAGs '
+        'manifestly fail to meet. It also provides legal clarity for '
+        'states re-introducing mines: compliance with the transparent '
+        'map protocol demonstrates good faith commitment to humanitarian '
+        'norms, insulating compliant states from the stigma associated '
+        'with indiscriminate mine use.'
+    )
+
+    p = doc.add_paragraph()
+    p.add_run(
+        'Precedent for such mechanisms exists. The Geneva Call initiative '
+        'has secured \u201cDeeds of Commitment\u201d from over 60 non-state armed '
+        'groups pledging mine non-use\u2014demonstrating that normative '
+        'pressure can reach beyond treaty law. The transparent map '
+        'framework strengthens this norm by making the distinction '
+        'between responsible and irresponsible use operationally concrete '
+        'and externally verifiable.'
+    )
+
     p = doc.add_paragraph()
     p.add_run(
         'Finally, the political feasibility of gaining acceptance for any '
