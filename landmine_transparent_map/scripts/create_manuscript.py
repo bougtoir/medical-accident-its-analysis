@@ -1809,6 +1809,93 @@ def create_manuscript():
         'and externally verifiable.'
     )
 
+    doc.add_heading('9.3 Border changes and map continuity', level=2)
+    p = doc.add_paragraph()
+    p.add_run(
+        'Conflicts that alter territorial boundaries raise a distinct '
+        'challenge: minefields emplaced as border defences may end up in '
+        'territory controlled by the former adversary. Under CCW Amended '
+        'Protocol II Article 9, parties are obligated to transfer minefield '
+        'records to the opposing party and to the UN Secretary-General upon '
+        'cessation of hostilities. However, this obligation relies on '
+        'post-conflict cooperation\u2014precisely the condition least likely to '
+        'obtain after territorial conquest.'
+    )
+
+    p = doc.add_paragraph()
+    p.add_run(
+        'The transparent map framework resolves this problem by design. '
+        'Because maps are '
+    )
+    p.add_run('published before or during conflict').italic = True
+    p.add_run(
+        ', the information is already in the public domain regardless of '
+        'subsequent territorial changes. Four scenarios illustrate this:'
+    )
+
+    p = doc.add_paragraph()
+    p.add_run('Defence succeeds (borders maintained): ').bold = True
+    p.add_run(
+        'Standard case. The defending state clears its own published '
+        'positions using the map. Zero residual guaranteed.'
+    )
+
+    p = doc.add_paragraph()
+    p.add_run('Territory lost (occupation): ').bold = True
+    p.add_run(
+        'The occupying power has full access to the published map and can '
+        'clear all marked positions in the occupied territory. Unlike the '
+        'CCW regime, no bilateral negotiation for record transfer is needed. '
+        'The map\u2019s pre-publication eliminates dependence on defeated state '
+        'cooperation.'
+    )
+
+    p = doc.add_paragraph()
+    p.add_run('Territory recaptured: ').bold = True
+    p.add_run(
+        'If the adversary also operated under the transparent map regime, '
+        'their published positions enable systematic clearance of enemy-'
+        'emplaced mines in recaptured territory. If the adversary did not '
+        'publish (non-signatory or non-state actor), the recapturing state '
+        'faces the same blind-sweep problem as under the status quo\u2014but '
+        'its own mines remain fully mapped and clearable.'
+    )
+
+    p = doc.add_paragraph()
+    p.add_run('Negotiated border adjustment: ').bold = True
+    p.add_run(
+        'In cases of agreed territorial exchange (e.g., post-conflict '
+        'peace treaty adjusting borders), the published map provides '
+        'complete information to the receiving state without requiring '
+        'additional diplomatic arrangements. This facilitates rapid '
+        'civilian resettlement in transferred territories.'
+    )
+
+    p = doc.add_paragraph()
+    p.add_run(
+        'The permanence of published information is further strengthened by '
+        'the proposed registry architecture (Section 7.3). An append-only '
+        'international registry\u2014whether maintained by the UN, a dedicated '
+        'treaty organisation, or implemented as a distributed ledger\u2014'
+        'ensures that map data persists independently of the emplacing '
+        'state\u2019s continued existence or cooperation. Even in scenarios of '
+        'state collapse (as occurred in Yugoslavia or the Soviet Union), '
+        'the registry preserves mine location data for successor states, '
+        'international organisations, or humanitarian clearance agencies.'
+    )
+
+    p = doc.add_paragraph()
+    p.add_run(
+        'This property is particularly relevant for refugee return. '
+        'Displaced populations can consult the published map to identify '
+        'safe corridors and cleared zones, enabling phased return aligned '
+        'with clearance operations. The deterministic endpoint\u2014once all '
+        'published positions are cleared, the area is certifiably safe\u2014'
+        'provides a level of assurance that probabilistic clearance methods '
+        'cannot match, accelerating the political and practical conditions '
+        'for post-conflict reconstruction.'
+    )
+
     p = doc.add_paragraph()
     p.add_run(
         'Finally, the political feasibility of gaining acceptance for any '
