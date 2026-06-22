@@ -519,13 +519,61 @@ def build_manuscript() -> Document:
           "in the stitch pattern.")
 
     _para(doc,
+          "Figure 2 shows the harmonic tension profile of the Deck: "
+          "each chord is represented as a coloured bar (blue = ANCHOR, "
+          "red = FWD, green = RET) whose height encodes its TENSION value. "
+          "The dashed connecting line reveals the 'tension arc' of the "
+          "progression -- rising sharply to the dominant (V), descending "
+          "through the return sequence (vi -> iii -> IV -> I), and "
+          "re-ascending for the loop.")
+
+    # Figure 2: Score schema
+    score_png = OUT_DIR / "pachelbel_score_schema.png"
+    if score_png.exists():
+        doc.add_paragraph()
+        doc.add_picture(str(score_png), width=Inches(5.5))
+        cap = doc.add_paragraph()
+        cap.paragraph_format.space_before = Pt(14)
+        cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        run = cap.add_run(
+            "Figure 2. Harmonic tension profile of Pachelbel's Canon "
+            "encoded as SITS9 instructions. Bar colour indicates instruction "
+            "type: blue = ANCHOR, red = FWD, green = RET. Bar height = "
+            "TENSION value. Dashed line traces the tension arc."
+        )
+        run.font.size = Pt(10)
+        run.font.italic = True
+
+    _para(doc,
           "The same Deck was passed to all three renderers:")
     _para(doc,
           "(a) The LoomRenderer produced an SVG sashiko pattern (Figure 1) "
           "in which surface stitches (red solid lines) and back stitches "
           "(grey dashed lines) form a zigzag that visually encodes the "
           "harmonic tension profile. Anchor points (filled circles) mark "
-          "the tonic.")
+          "the tonic. Figure 3 shows the textile schema: the needle path "
+          "alternates between the surface (orange band) and back (blue band) "
+          "of the fabric, with each CROSS instruction representing a "
+          "penetration of the needle through the cloth.")
+
+    # Figure 3: Textile schema
+    textile_png = OUT_DIR / "pachelbel_textile_schema.png"
+    if textile_png.exists():
+        doc.add_paragraph()
+        doc.add_picture(str(textile_png), width=Inches(5.5))
+        cap = doc.add_paragraph()
+        cap.paragraph_format.space_before = Pt(14)
+        cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        run = cap.add_run(
+            "Figure 3. Textile schema (back-stitch pattern) for Pachelbel's "
+            "Canon. The needle path alternates between surface (orange) and "
+            "back (blue) of the fabric. Red lines = FWD stitches on surface; "
+            "orange diagonal lines = CROSS (needle penetration); black dot = "
+            "ANCHOR (knot)."
+        )
+        run.font.size = Pt(10)
+        run.font.italic = True
+
     _para(doc,
           "(b) The ToneRenderer produced a MIDI file with two tracks "
           "(piano melody on channel 0, strings bass on channel 1). "
@@ -536,13 +584,38 @@ def build_manuscript() -> Document:
           "(c) The KitchenRenderer produced a text recipe in which FWD "
           "maps to heating time, RET to resting/cooling, CROSS to "
           "switching cooking method (grill -> simmer -> steam), TENSION "
-          "to heat level, and ANCHOR to tasting and seasoning.")
+          "to heat level, and ANCHOR to tasting and seasoning. Figure 4 "
+          "shows the cooking schema: the heat level (TENSION) traces the "
+          "same arc as the harmonic tension, while background colour zones "
+          "indicate cooking method transitions triggered by CROSS.")
+
+    # Figure 4: Cooking schema
+    cooking_png = OUT_DIR / "pachelbel_cooking_schema.png"
+    if cooking_png.exists():
+        doc.add_paragraph()
+        doc.add_picture(str(cooking_png), width=Inches(5.5))
+        cap = doc.add_paragraph()
+        cap.paragraph_format.space_before = Pt(14)
+        cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        run = cap.add_run(
+            "Figure 4. Cooking schema for Pachelbel's Canon. The heat curve "
+            "(TENSION) follows the same profile as the harmonic tension in "
+            "Figure 2. Background zones indicate cooking method: red = grill, "
+            "blue = simmer, green = steam. Dashed vertical lines = CROSS "
+            "(method switch)."
+        )
+        run.font.size = Pt(10)
+        run.font.italic = True
 
     _para(doc,
           "All three outputs are generated from the identical JSON-serialised "
           "Deck, confirming that a single 'program' produces coherent "
-          "output across three sensory domains. The source code and all "
-          "generated artefacts are available in the supplementary repository.")
+          "output across three sensory domains. The visual similarity "
+          "between the tension arc in Figure 2, the zigzag trajectory in "
+          "Figure 3, and the heat curve in Figure 4 is not a coincidence "
+          "but a direct consequence of the shared instruction sequence. "
+          "The source code and all generated artefacts are available in "
+          "the supplementary repository.")
 
     _para(doc,
           "It is worth noting why Pachelbel's Canon is a particularly "
@@ -1082,6 +1155,54 @@ def build_figure_pptx() -> None:
     )
     run2.font.size = PPt(14)
     run2.font.italic = True
+
+    # ── Slide 2: Score schema ──
+    extra_figs = [
+        ("Figure 2", OUT_DIR / "pachelbel_score_schema.png",
+         "Figure 2. Harmonic tension profile of Pachelbel's Canon "
+         "encoded as SITS9 instructions. Bar colour = instruction type "
+         "(blue = ANCHOR, red = FWD, green = RET). Bar height = TENSION. "
+         "Dashed line traces the tension arc."),
+        ("Figure 3", OUT_DIR / "pachelbel_textile_schema.png",
+         "Figure 3. Textile schema (back-stitch pattern) for Pachelbel's "
+         "Canon. Needle path alternates between surface (orange) and back "
+         "(blue). Red = FWD on surface; orange diagonals = CROSS; "
+         "black dot = ANCHOR (knot)."),
+        ("Figure 4", OUT_DIR / "pachelbel_cooking_schema.png",
+         "Figure 4. Cooking schema for Pachelbel's Canon. Heat curve "
+         "(TENSION) follows the harmonic tension profile. Background zones: "
+         "red = grill, blue = simmer, green = steam. Dashed vertical = "
+         "CROSS (method switch)."),
+    ]
+
+    for fig_title, fig_path, fig_caption in extra_figs:
+        if not fig_path.exists():
+            continue
+        slide = prs.slides.add_slide(slide_layout)
+
+        txBox = slide.shapes.add_textbox(
+            PInches(0.5), PInches(0.2), PInches(12), PInches(0.6))
+        tf = txBox.text_frame
+        tf.word_wrap = True
+        p = tf.paragraphs[0]
+        run = p.add_run()
+        run.text = fig_title
+        run.font.size = PPt(24)
+        run.font.bold = True
+
+        slide.shapes.add_picture(
+            str(fig_path),
+            PInches(1.0), PInches(1.0), PInches(11), PInches(4.5))
+
+        txBox2 = slide.shapes.add_textbox(
+            PInches(0.5), PInches(5.8), PInches(12), PInches(1.5))
+        tf2 = txBox2.text_frame
+        tf2.word_wrap = True
+        p2 = tf2.paragraphs[0]
+        run2 = p2.add_run()
+        run2.text = fig_caption
+        run2.font.size = PPt(14)
+        run2.font.italic = True
 
     pptx_path = OUT_DIR / "sits9_figures.pptx"
     prs.save(str(pptx_path))
