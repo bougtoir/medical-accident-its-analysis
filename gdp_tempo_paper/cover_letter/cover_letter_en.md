@@ -6,26 +6,26 @@ Telephone: +81-749-27-1023
 E-mail: bougtoir@gmail.com
 ORCID: 0000-0001-7261-9062
 
-17 June 2026
+22 June 2026
 
-The Editor
-*Journal of Macroeconomics*
+The Coordinating Editor
+*Empirical Economics*
 
 Dear Editor,
 
-I am pleased to submit for your consideration the enclosed manuscript, **"What the Solow Residual Has Been Hiding: Tempo Drift and the Missing Intangible Share in National Capital Stocks"**, for publication in the *Journal of Macroeconomics*.
+I am pleased to submit for your consideration the enclosed manuscript, **"What the Solow Residual Has Been Hiding: Tempo Drift and the Missing Intangible Share in National Capital Stocks"**, for publication in *Empirical Economics*.
 
-The paper addresses a fundamental question for macroeconomic measurement and policy: how much of what we call TFP is a genuine productivity residual, and how much is a book-keeping artefact of mis-timed capital stocks and omitted intangibles? Two parameters that conventional growth accounting imposes at zero — a time-varying investment-to-output lag μ(t) and an intangible-capital share β — jointly account for a measurable share of measured TFP variation across 39 OECD and middle-income economies (Penn World Table 10.01, World Bank CWON, 1995–2019). Letting μ drift reduces out-of-sample GDP forecast error by 13%, and a Solow-residual decomposition reveals that up to 30% of TFP-growth variance can be re-attributed to tempo drift and missing intangibles rather than genuine innovation. When both corrections are applied, production-side (flow) and wealth-side (stock) national accounts agree to within 1–2% for most countries.
+The paper asks whether the standard perpetual inventory method (PIM) capital stock — built with an implicit zero gestation lag — systematically mismeasures national capital, and whether the resulting errors propagate to the growth-accounting quantities that macroeconomists rely on. The answer is affirmative, and the magnitudes are economically meaningful. An observable, parameter-free tempo proxy M_obs — constructed from OECD GFCF asset composition by weighting asset-specific gestation lags (dwellings 2.0 y, machinery 2.0 y, software 0.5 y, ICT 0.3 y, R&D 3.0 y) by their time-varying investment shares — shows that accounting for investment gestation lags changes measured capital by a median 4.3 % across 35 OECD and middle-income economies (Penn World Table 10.01, World Bank CWON, 1950-2019). This capital-level change shifts measured TFP by 1.7 percentage points and the implied labour share by 1.7 percentage points. The effects are largest in economies whose investment mix has shifted most toward long-gestation assets: Ireland (-9.2 %), Republic of Korea (-7.1 %), Israel (-6.4 %). These are measurement consequences, not forecasting results: they propagate to every macroeconomic quantity built on the national capital stock.
 
-I believe this work falls squarely within the scope of the *Journal of Macroeconomics* for three reasons.
+I believe this work is well-suited to *Empirical Economics* for three reasons.
 
-First, the findings have direct implications for macroeconomic policy. Output-gap estimates that feed into fiscal rules (the EU's Stability and Growth Pact, the US CBO's potential-GDP series) are computed from production functions that assume μ = 0 and β = 0. If the capital stock is systematically mis-timed, the output gap is mis-measured and the fiscal stance calibrated to it is distorted. The paper also provides a structural interpretation for the lengthening of monetary-policy transmission lags: as investment shifts toward longer-gestation assets, the real-economy response to interest-rate changes is mechanically delayed.
+First, the paper combines advanced empirical methods — grid search over a non-convex joint loss function, residual block bootstrap, and simultaneous flow-stock minimisation — with a large cross-country panel to discipline structural parameters that conventional growth accounting imposes at zero. The identification strategy exploits a structural analogy with the demographic tempo literature (Bongaarts & Feeney, 1998; Goldstein, Lutz, & Scherbov, 2003), and the joint flow-stock constraint collapses the (mu, beta) parameter space from a broad ridge to a point for 28 of 35 countries.
 
-Second, the identification strategy is novel and disciplined. It exploits a structural analogy with the demographic tempo literature (Bongaarts & Feeney, 1998; Goldstein, Lutz, & Scherbov, 2003), yielding falsifiable predictions confirmed by the data: the joint flow–stock loss function collapses the (μ, β) parameter space from a broad ridge to a point for 28 of 39 countries. To the best of my knowledge, this paper is the first to transplant the demographic tempo framework to capital accounting and GDP measurement.
+Second, the K-level measurement consequences are directly relevant to active empirical debates. The median 1.7 pp upward shift in the implied labour share contributes to the declining-labour-share literature (Karabarbounis & Neiman, 2014) by showing that a non-trivial portion of the measured decline may be a measurement artefact of ignoring investment gestation lags. The Solow-residual decomposition reveals that up to 30 % of TFP-growth variance is attributable to tempo drift alone.
 
-Third, the paper speaks to the broader macroeconomic measurement agenda — the Beyond-GDP debate, international GDP comparability in PWT, and the SNA revision process — showing that flow and stock national accounts are reconcilable once two hidden parameters are made explicit.
+Third, the framework requires no structural assumptions beyond the standard production function and PIM, making it reproducible across different data vintages and samples. The parameter-free M_obs proxy confirms that the results are not driven by statistical fitting but by observable investment-composition shifts.
 
-The manuscript is approximately 10,000 words of body text, with eleven figures and five tables.
+The manuscript is approximately 12,000 words of body text, with fourteen figures and six tables.
 
 I confirm the following:
 
