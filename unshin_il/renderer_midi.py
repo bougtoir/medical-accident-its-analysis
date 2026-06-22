@@ -147,10 +147,8 @@ class MidiRenderer:
 
                 elif isinstance(inst, Return):
                     dur = int(inst.n * self.ticks_per_beat * 0.5)
-                    if on_surface:
-                        melody_time += dur
-                    else:
-                        bass_time += dur
+                    melody_time += dur
+                    bass_time += dur
                     position -= inst.n
 
                 elif isinstance(inst, Cross):
