@@ -171,6 +171,9 @@ jobs:
           # ── Denisovan / archaic DNA analysis ──
           BRANCH_MAP["devin/denisovan-archaic-dna-analysis"]="denisovan-archaic-dna-analysis"
 
+          # ── Landmine transparent map (JoBS submission) ──
+          BRANCH_MAP["devin/1782083347-landmine-transparent-map"]="landmine-transparent-map"
+
           # ── Subdirectory filter map ──
           # When a branch contains multiple project folders (e.g. branched from
           # master), SUBDIR_MAP tells the sync to extract ONLY the specified
@@ -224,6 +227,7 @@ jobs:
           SUBDIR_MAP["devin/1775637899-pmea-zero-calibration"]="zero_calibration_pmea"
           SUBDIR_MAP["stem-cell-seasonality"]="stem_cell_seasonality"
           SUBDIR_MAP["devin/denisovan-archaic-dna-analysis"]="denisovan-archaic-dna-analysis"
+          SUBDIR_MAP["devin/1782083347-landmine-transparent-map"]="landmine_transparent_map"
 
           # ── File exclusion map ──
           # Space-separated list of file paths (relative to subdir root if
