@@ -1,0 +1,16 @@
+metric,value
+nean_dist_r,-0.4847318601131018
+nean_dist_p,8.217734673636888e-127
+nean_partial_r,-0.1889892265819205
+nean_partial_p,1.071037722697643e-18
+nean_noadmix_r,-0.6151982700223815
+nean_noadmix_p,5.087911721532153e-191
+nean_slope,-2.53452916654418e-05
+nean_slope_ci_lo,-2.739032759401347e-05
+nean_slope_ci_hi,-2.333543642878474e-05
+deni_dist_r,-0.46555268859963655
+deni_dist_p,7.732444858307538e-116
+n_nean_pairs,2145.0
+n_deni_pairs,2145.0
+n_nean_outliers_z2,4.0
+n_deni_outliers_z2,10.0
