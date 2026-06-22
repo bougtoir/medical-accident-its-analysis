@@ -14,9 +14,9 @@ Key identity:
 Produces:
   - k_level_diff.csv: per country-year K-level gap, TFP shift, labor-share shift
   - k_level_summary.json: cross-country summary
-  - fig_k_divergence_{en,ja}.png: K-level divergence time series
-  - fig_tfp_consequence_{en,ja}.png: ΔK → ΔTFP scatter
-  - fig_labor_share_{en,ja}.png: implied labor-share correction bar chart
+  - fig10_k_divergence_{en,ja}.png: K-level divergence time series
+  - fig11_tfp_consequence_{en,ja}.png: ΔK → ΔTFP scatter
+  - fig12_labor_share_{en,ja}.png: implied labor-share correction bar chart
 """
 from __future__ import annotations
 
@@ -153,7 +153,7 @@ def make_fig_k_divergence(kdf: pd.DataFrame, lang: str = "en"):
         ax.set_xlabel(labels["xlabel"])
     fig.suptitle(labels["title"], y=0.99, fontsize=12)
     plt.tight_layout(rect=[0, 0, 1, 0.97])
-    out = os.path.join(FIG, f"fig_k_divergence_{lang}.png")
+    out = os.path.join(FIG, f"fig10_k_divergence_{lang}.png")
     plt.savefig(out, dpi=180, bbox_inches="tight")
     plt.close()
     print("wrote", out)
@@ -187,13 +187,26 @@ def make_fig_tfp_consequence(kdf: pd.DataFrame, lang: str = "en"):
 
     ax.axhline(0, color="gray", ls=":", lw=0.8)
     ax.axvline(0, color="gray", ls=":", lw=0.8)
-    ax.set_xlabel("$\\Delta K$ = ($K_{obs}/K_{M0}$ \u2212 1) \u00d7 100  [%]")
-    ax.set_ylabel("$\\Delta$ TFP (M0 \u2212 obs)  [percentage points]")
-    ax.set_title("Measurement consequence: capital-level change \u2192 TFP shift\n"
-                 "(country means, 2010\u20132019)")
+    labels = {
+        "en": {
+            "xlabel": "$\\Delta K$ = ($K_{obs}/K_{M0}$ \u2212 1) \u00d7 100  [%]",
+            "ylabel": "$\\Delta$ TFP (M0 \u2212 obs)  [percentage points]",
+            "title": "Measurement consequence: capital-level change \u2192 TFP shift\n"
+                     "(country means, 2010\u20132019)",
+        },
+        "ja": {
+            "xlabel": "$\\Delta K$ = ($K_{obs}/K_{M0}$ \u2212 1) \u00d7 100  [%]",
+            "ylabel": "$\\Delta$ TFP (M0 \u2212 obs)  [\u30d1\u30fc\u30bb\u30f3\u30c6\u30fc\u30b8\u30fb\u30dd\u30a4\u30f3\u30c8]",
+            "title": "\u8a08\u6e2c\u5e30\u7d50: \u8cc7\u672c\u6c34\u6e96\u5909\u5316 \u2192 TFP\u30b7\u30d5\u30c8\n"
+                     "(\u56fd\u5225\u5e73\u5747\u30012010\u20132019)",
+        },
+    }[lang]
+    ax.set_xlabel(labels["xlabel"])
+    ax.set_ylabel(labels["ylabel"])
+    ax.set_title(labels["title"])
     ax.grid(alpha=0.3)
     plt.tight_layout()
-    out = os.path.join(FIG, f"fig_tfp_consequence_{lang}.png")
+    out = os.path.join(FIG, f"fig11_tfp_consequence_{lang}.png")
     plt.savefig(out, dpi=180, bbox_inches="tight")
     plt.close()
     print("wrote", out)
@@ -212,12 +225,23 @@ def make_fig_labor_share(kdf: pd.DataFrame, lang: str = "en"):
     ax.set_xticks(range(len(by_c)))
     ax.set_xticklabels(by_c["iso3"], fontsize=7, rotation=45, ha="right")
     ax.axhline(0, color="black", lw=0.8)
-    ax.set_ylabel("Implied labor-share shift (pp)")
-    ax.set_title("Implied labor-share correction from tempo-adjusted capital\n"
-                 "(country means, 2010\u20132019)")
+    labels = {
+        "en": {
+            "ylabel": "Implied labor-share shift (pp)",
+            "title": "Implied labor-share correction from tempo-adjusted capital\n"
+                     "(country means, 2010\u20132019)",
+        },
+        "ja": {
+            "ylabel": "\u542b\u610f\u52b4\u50cd\u5206\u914d\u7387\u30b7\u30d5\u30c8 (pp)",
+            "title": "\u30c6\u30f3\u30dd\u8abf\u6574\u8cc7\u672c\u304b\u3089\u306e\u52b4\u50cd\u5206\u914d\u7387\u88dc\u6b63\n"
+                     "(\u56fd\u5225\u5e73\u5747\u30012010\u20132019)",
+        },
+    }[lang]
+    ax.set_ylabel(labels["ylabel"])
+    ax.set_title(labels["title"])
     ax.grid(axis="y", alpha=0.3)
     plt.tight_layout()
-    out = os.path.join(FIG, f"fig_labor_share_{lang}.png")
+    out = os.path.join(FIG, f"fig12_labor_share_{lang}.png")
     plt.savefig(out, dpi=180, bbox_inches="tight")
     plt.close()
     print("wrote", out)
