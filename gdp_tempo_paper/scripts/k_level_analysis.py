@@ -1,8 +1,8 @@
 """K-level measurement consequences analysis.
 
-Addresses Inklaar's core critique: "The way to make [tempo] a measurement
-contribution is to show that the correction changes measured capital, and the
-growth-accounting quantities built on it, in ways that matter."
+Shows that the tempo correction changes measured capital, and the
+growth-accounting quantities built on it, in ways that matter for
+macroeconomic measurement.
 
 Uses pre-computed full_solow.csv (TFP under M0/M2/Mobs) and observable_mu.csv
 to derive K-level differences without requiring raw PWT/OECD data files.
@@ -94,9 +94,9 @@ def summarise_k_levels(kdf: pd.DataFrame) -> dict:
         ].round(2).to_dict("records"),
     }
 
-    # Growth-rate variance decomposition (already in TFP terms)
+    # Growth-rate variance decomposition (2010-2019 period, consistent with above)
     var_rows = []
-    for iso3, grp in kdf.groupby("iso3"):
+    for iso3, grp in recent.groupby("iso3"):
         grp = grp.sort_values("year")
         dtfp_M0 = np.diff(grp["tfp_M0"].values)
         dtfp_obs = np.diff(grp["tfp_Mobs"].values)

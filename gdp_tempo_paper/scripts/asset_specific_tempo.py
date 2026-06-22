@@ -1,10 +1,9 @@
 """
 Asset-specific tempo analysis — observable μ(t) from OECD GFCF composition.
 
-Responds directly to Inklaar's RIW rejection critique:
-  "The PIM is treated throughout as if its only parameter of interest were a
-   single aggregate mean lag, without engagement with asset-specific service
-   lives, age-efficiency profiles, or vintage corrections."
+Constructs μ(t) from asset-specific service lives and age-efficiency profiles
+rather than treating the PIM as if its only parameter of interest were a single
+aggregate mean lag.
 
 Instead of estimating μ as a free parameter (M1/M2), we CONSTRUCT it from
 observable investment composition:

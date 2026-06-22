@@ -102,9 +102,9 @@
     }
   ],
   "TFP_variance_reduction": {
-    "median_pct": -2.4,
-    "mean_pct": -1.7,
-    "positive_count": 12,
+    "median_pct": -2.3,
+    "mean_pct": -5.9,
+    "positive_count": 16,
     "total_count": 35
   }
 }
