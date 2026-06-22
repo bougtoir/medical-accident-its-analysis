@@ -1,0 +1,250 @@
+{
+  "title": "Pachelbel Canon — 返し縫いの進行",
+  "description": "パッヘルベルのカノン（I-V-vi-iii-IV-I-IV-V）を\nSITS9 で記述。同一のカードデッキから\n刺し子パターン（SVG）と音楽（MIDI）を同時生成する。",
+  "bpm": 72,
+  "key_root": 62,
+  "stitch_unit_mm": 4.0,
+  "cards": [
+    {
+      "name": "D (I)",
+      "instructions": [
+        {
+          "op": "ANCHOR"
+        },
+        {
+          "op": "TENSION",
+          "value": 0.2
+        }
+      ],
+      "repeat": 1,
+      "loom_hint": "玉結び — 糸を布に固定",
+      "tone_hint": "I: トニック確立",
+      "chord_label": "D",
+      "scale_degree": "I",
+      "root_midi": 62,
+      "chord_notes_midi": [
+        62,
+        66,
+        69
+      ],
+      "stitch_type": "running"
+    },
+    {
+      "name": "A (V)",
+      "instructions": [
+        {
+          "op": "TENSION",
+          "value": 0.8
+        },
+        {
+          "op": "FWD",
+          "n": 5
+        },
+        {
+          "op": "CROSS",
+          "angle": 30.0,
+          "depth": 1.0,
+          "wrap": false
+        }
+      ],
+      "repeat": 1,
+      "loom_hint": "5目前進、裏へ — 離脱",
+      "tone_hint": "V: ドミナント、上方への跳躍",
+      "chord_label": "A",
+      "scale_degree": "V",
+      "root_midi": 69,
+      "chord_notes_midi": [
+        69,
+        73,
+        64
+      ],
+      "stitch_type": "running"
+    },
+    {
+      "name": "Bm (vi)",
+      "instructions": [
+        {
+          "op": "TENSION",
+          "value": 0.5
+        },
+        {
+          "op": "FWD",
+          "n": 2
+        },
+        {
+          "op": "CROSS",
+          "angle": -30.0,
+          "depth": 1.0,
+          "wrap": false
+        }
+      ],
+      "repeat": 1,
+      "loom_hint": "2目前進、表へ — 頂点",
+      "tone_hint": "vi: 平行短調、最遠点",
+      "chord_label": "Bm",
+      "scale_degree": "vi",
+      "root_midi": 71,
+      "chord_notes_midi": [
+        71,
+        62,
+        66
+      ],
+      "stitch_type": "running"
+    },
+    {
+      "name": "F#m (iii)",
+      "instructions": [
+        {
+          "op": "TENSION",
+          "value": 0.4
+        },
+        {
+          "op": "RET",
+          "n": 5
+        },
+        {
+          "op": "CROSS",
+          "angle": 30.0,
+          "depth": 1.0,
+          "wrap": false
+        }
+      ],
+      "repeat": 1,
+      "loom_hint": "5目回帰、裏へ — 返し縫い開始",
+      "tone_hint": "iii: 回帰開始、下行",
+      "chord_label": "F#m",
+      "scale_degree": "iii",
+      "root_midi": 66,
+      "chord_notes_midi": [
+        66,
+        69,
+        73
+      ],
+      "stitch_type": "back_stitch"
+    },
+    {
+      "name": "G (IV)",
+      "instructions": [
+        {
+          "op": "TENSION",
+          "value": 0.3
+        },
+        {
+          "op": "FWD",
+          "n": 1
+        },
+        {
+          "op": "CROSS",
+          "angle": -30.0,
+          "depth": 1.0,
+          "wrap": false
+        }
+      ],
+      "repeat": 1,
+      "loom_hint": "1目前進、表へ — 半返し",
+      "tone_hint": "IV: サブドミナント、一時停止",
+      "chord_label": "G",
+      "scale_degree": "IV",
+      "root_midi": 67,
+      "chord_notes_midi": [
+        67,
+        71,
+        62
+      ],
+      "stitch_type": "running"
+    },
+    {
+      "name": "D (I)",
+      "instructions": [
+        {
+          "op": "TENSION",
+          "value": 0.2
+        },
+        {
+          "op": "RET",
+          "n": 5
+        },
+        {
+          "op": "CROSS",
+          "angle": 30.0,
+          "depth": 1.0,
+          "wrap": false
+        }
+      ],
+      "repeat": 1,
+      "loom_hint": "5目回帰 — 元の針穴に重ねる",
+      "tone_hint": "I: トニック帰還、重なり",
+      "chord_label": "D",
+      "scale_degree": "I",
+      "root_midi": 62,
+      "chord_notes_midi": [
+        62,
+        66,
+        69
+      ],
+      "stitch_type": "back_stitch"
+    },
+    {
+      "name": "G (IV)",
+      "instructions": [
+        {
+          "op": "TENSION",
+          "value": 0.3
+        },
+        {
+          "op": "FWD",
+          "n": 3
+        },
+        {
+          "op": "CROSS",
+          "angle": -30.0,
+          "depth": 1.0,
+          "wrap": false
+        }
+      ],
+      "repeat": 1,
+      "loom_hint": "3目前進、裏へ — 再出発",
+      "tone_hint": "IV: 再びサブドミナント",
+      "chord_label": "G",
+      "scale_degree": "IV",
+      "root_midi": 67,
+      "chord_notes_midi": [
+        67,
+        71,
+        62
+      ],
+      "stitch_type": "running"
+    },
+    {
+      "name": "A (V)",
+      "instructions": [
+        {
+          "op": "TENSION",
+          "value": 0.8
+        },
+        {
+          "op": "FWD",
+          "n": 2
+        },
+        {
+          "op": "CROSS",
+          "angle": 30.0,
+          "depth": 1.0,
+          "wrap": false
+        }
+      ],
+      "repeat": 1,
+      "loom_hint": "2目前進、表へ — ループ準備",
+      "tone_hint": "V: ドミナント、ループ頭へ",
+      "chord_label": "A",
+      "scale_degree": "V",
+      "root_midi": 69,
+      "chord_notes_midi": [
+        69,
+        73,
+        64
+      ],
+      "stitch_type": "running"
+    }
+  ]
+}
