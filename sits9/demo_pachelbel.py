@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Demo: Pachelbel Canon chord progression → UNSHIN-IL → SVG + MIDI + Recipe.
+Demo: Pachelbel Canon chord progression → SITS9 → SVG + MIDI + Recipe.
 
 Pachelbel's Canon uses the progression:
   D – A – Bm – F#m – G – D – G – A
@@ -10,7 +10,7 @@ This is the archetypical "返し縫い" (back-stitch) progression:
 forward motion (I→V) followed by stepwise return (vi→iii→IV→I),
 then a re-advance (IV→V) that overlaps with the starting territory.
 
-We encode each chord as an UNSHIN-IL Card with:
+We encode each chord as an SITS9 Card with:
   - FWD/RET reflecting the root-motion direction
   - CROSS at each chord boundary (needle passes through fabric)
   - TENSION reflecting harmonic tension (V=high, I=low)
@@ -19,7 +19,7 @@ We encode each chord as an UNSHIN-IL Card with:
 
 from pathlib import Path
 
-from unshin_il.core import (
+from sits9.core import (
     Anchor,
     Card,
     Cross,
@@ -28,9 +28,9 @@ from unshin_il.core import (
     Return,
     Tension,
 )
-from unshin_il.renderer_cooking import CookingRenderer
-from unshin_il.renderer_midi import MidiRenderer
-from unshin_il.renderer_svg import SvgRenderer
+from sits9.renderer_cooking import CookingRenderer
+from sits9.renderer_midi import MidiRenderer
+from sits9.renderer_svg import SvgRenderer
 
 # D major: D=62, E=64, F#=66, G=67, A=69, B=71, C#=73
 # Chord voicings (MIDI note numbers)
@@ -42,7 +42,7 @@ CHORDS = {
     "G":   {"root": 67, "notes": [67, 71, 62],       "degree": "IV",  "tension": 0.3},
 }
 
-# Pachelbel progression with UNSHIN-IL instruction logic
+# Pachelbel progression with SITS9 instruction logic
 PROGRESSION = [
     # (chord_name, direction, distance, stitch_description, music_description)
     ("D",   "anchor",  0, "玉結び — 糸を布に固定",           "I: トニック確立"),
@@ -98,7 +98,7 @@ def build_deck() -> Deck:
         title="Pachelbel Canon — 返し縫いの進行",
         description=(
             "パッヘルベルのカノン（I-V-vi-iii-IV-I-IV-V）を\n"
-            "UNSHIN-IL で記述。同一のカードデッキから\n"
+            "SITS9 で記述。同一のカードデッキから\n"
             "刺し子パターン（SVG）と音楽（MIDI）を同時生成する。"
         ),
         cards=cards,

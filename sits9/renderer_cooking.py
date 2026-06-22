@@ -1,7 +1,7 @@
 """
 Cooking Renderer (Kitchen Renderer).
 
-Interprets an UNSHIN-IL Deck as a cooking procedure / recipe.
+Interprets an SITS9 Deck as a cooking procedure / recipe.
 
 Mapping:
   FWD(n)      → Heat/cook for n time-units
@@ -17,7 +17,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import List
 
-from unshin_il.core import (
+from sits9.core import (
     Anchor,
     Card,
     Cross,
@@ -56,7 +56,7 @@ class RecipeStep:
 
 
 class CookingRenderer:
-    """Render an UNSHIN-IL Deck to a cooking recipe (plain text + structured)."""
+    """Render an SITS9 Deck to a cooking recipe (plain text + structured)."""
 
     def __init__(self, time_unit_minutes: float = 2.0):
         self.time_unit_minutes = time_unit_minutes
@@ -132,7 +132,7 @@ class CookingRenderer:
             f"# {deck.description}",
             "",
             "=" * 60,
-            "  UNSHIN-IL 料理レシピ",
+            "  SITS9 料理レシピ",
             "=" * 60,
             "",
         ]
@@ -147,6 +147,6 @@ class CookingRenderer:
             lines.append("")
 
         lines.append("=" * 60)
-        lines.append("※ このレシピは音楽・手芸と同一のUNSHIN-ILカードデッキから")
+        lines.append("※ このレシピは音楽・手芸と同一のSITS9カードデッキから")
         lines.append("  自動生成されています。")
         return "\n".join(lines)

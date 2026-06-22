@@ -1,5 +1,5 @@
 """
-UNSHIN-IL core data model.
+SITS9 core data model.
 
 Five primitive instructions, combined into Cards, assembled into a Deck.
 The same Deck can be rendered as a sewing pattern (SVG) or as music (MIDI).

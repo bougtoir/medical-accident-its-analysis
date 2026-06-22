@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Generate the UNSHIN-IL concept essay as a .docx file.
+Generate the SITS9 concept essay as a .docx file.
 
-「運針中間言語 (UNSHIN-IL)：音楽・手芸・料理を統一する操作的相同性」
+「SITS9 (A Stitch in Time Saves Nine)：音楽・手芸・料理を統一する操作的相同性」
 """
 
 from pathlib import Path
@@ -66,8 +66,9 @@ def build_essay() -> Document:
     title = doc.add_paragraph()
     title.alignment = WD_ALIGN_PARAGRAPH.CENTER
     run = title.add_run(
-        "運針中間言語 (UNSHIN-IL)\n"
-        "── 音楽・手芸・料理を統一する操作的相同性 ──"
+        "SITS9\n"
+        "── A Stitch in Time Saves Nine ──\n"
+        "音楽・手芸・料理を統一する操作的相同性"
     )
     run.bold = True
     run.font.size = Pt(16)
@@ -76,7 +77,7 @@ def build_essay() -> Document:
     subtitle = doc.add_paragraph()
     subtitle.alignment = WD_ALIGN_PARAGRAPH.CENTER
     run = subtitle.add_run(
-        "UNSHIN-IL: An Intermediate Language Unifying Music, Textile, and Cuisine\n"
+        "SITS9: A Stitch-in-Time Language Unifying Music, Textile, and Cuisine\n"
         "through Operational Homology"
     )
     run.font.size = Pt(11)
@@ -87,13 +88,13 @@ def build_essay() -> Document:
     # -- Abstract ------------------------------------------------------------
     _add_heading(doc, "Abstract", 1)
     _add_para(doc, (
-        "We propose UNSHIN-IL (運針中間言語, Stitching Intermediate Language), "
+        "We propose SITS9 (A Stitch in Time Saves Nine), "
         "a minimal domain-specific language consisting of five primitive "
         "instructions — FWD, RET, CROSS, TENSION, and ANCHOR — that can "
         "simultaneously describe musical chord progressions, sewing/embroidery "
         "patterns, and cooking procedures. By defining domain-specific "
         "renderers (a 'loom renderer' for textile, a 'tone renderer' for "
-        "music, and a 'kitchen renderer' for cuisine), a single UNSHIN-IL "
+        "music, and a 'kitchen renderer' for cuisine), a single SITS9 "
         "program (called a 'Deck') produces valid, aesthetically coherent "
         "output in all three domains. We demonstrate the system using "
         "Pachelbel's Canon (I–V–vi–iii–IV–I–IV–V) as a test case, argue that "
@@ -123,8 +124,8 @@ def build_essay() -> Document:
         "ブイヨンからデミグラスソースを作る工程は文字通りの「返し縫い」である。"
     ))
     _add_para(doc, (
-        "本稿では、この三者に通底する操作的構造を形式化し、「運針中間言語 "
-        "(UNSHIN-IL)」として定義する。同一のプログラム（カードデッキ）から"
+        "本稿では、この三者に通底する操作的構造を形式化し、「SITS9 "
+        "(SITS9)」として定義する。同一のプログラム（カードデッキ）から"
         "刺し子パターン・音楽・料理レシピを同時生成できることを実証し、"
         "その歴史的・認知的・暗号論的含意を論じる。"
     ))
@@ -177,16 +178,16 @@ def build_essay() -> Document:
         "繊維構造（テキスタイル）を同時にエンコードしていた。"
         "キープは会計システムであり、叙事詩であり、テキスタイルであった "
         "── 同一の物理的オブジェクトが複数ドメインを同時にエンコードする、"
-        "UNSHIN-ILの先史的先行者である。"
+        "SITS9の先史的先行者である。"
     ))
     _add_para(doc, (
         "歴史的系譜を整理すると：結縄文字（キープ）→ ジャカード織機パンチカード（1804）"
         "→ 自動演奏機（同一メディア）→ バベッジ解析機関（1837）→ コンピュータ "
-        "→ MIDI + デジタル刺繍 → UNSHIN-IL（統合への回帰）。"
+        "→ MIDI + デジタル刺繍 → SITS9（統合への回帰）。"
     ))
 
-    # -- 3. UNSHIN-IL specification ------------------------------------------
-    _add_heading(doc, "3. UNSHIN-IL 形式仕様", 1)
+    # -- 3. SITS9 specification ------------------------------------------
+    _add_heading(doc, "3. SITS9 形式仕様", 1)
 
     _add_heading(doc, "3.1 プリミティブ命令", 2)
     _add_table(doc,
@@ -233,7 +234,7 @@ def build_essay() -> Document:
     _add_heading(doc, "3.3 レンダラーアーキテクチャ", 2)
     _add_code_block(doc, (
         "                ┌─→ LoomRenderer (SVG)    → 刺し子パターン\n"
-        "UNSHIN-IL Deck ─┼─→ ToneRenderer (MIDI)   → 音楽\n"
+        "SITS9 Deck ─┼─→ ToneRenderer (MIDI)   → 音楽\n"
         "                └─→ KitchenRenderer (text) → 料理レシピ\n"
     ))
     _add_para(doc, (
@@ -251,7 +252,7 @@ def build_essay() -> Document:
         cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
         run = cap.add_run(
             "Figure 1. パッヘルベルのカノン（I-V-vi-iii-IV-I-IV-V × 2 loops）の"
-            "UNSHIN-IL Loom Renderer出力。赤実線=表（surface）、灰破線=裏（back）、"
+            "SITS9 Loom Renderer出力。赤実線=表（surface）、灰破線=裏（back）、"
             "黒丸=玉結び（ANCHOR）。返し縫い的な前進・回帰パターンが可視化されている。"
         )
         run.font.size = Pt(9)
@@ -267,7 +268,7 @@ def build_essay() -> Document:
         "「進行」にならない。回帰を含む反復こそが「進行」の本質である。"
     ))
     _add_table(doc,
-        ["縫い方", "UNSHIN-IL パターン", "対応するコード進行", "料理での対応"],
+        ["縫い方", "SITS9 パターン", "対応するコード進行", "料理での対応"],
         [
             ["並縫い（Running）", "loop { FWD(n), CROSS }",
              "ペダルポイント（同一コード持続）", "一定温度での加熱持続"],
@@ -315,7 +316,7 @@ def build_essay() -> Document:
     )
     doc.add_paragraph()
     _add_para(doc, (
-        "UNSHIN-ILでは、FWD(n) の n が取れる値の離散集合としてパレット制約を表現できる："
+        "SITS9では、FWD(n) の n が取れる値の離散集合としてパレット制約を表現できる："
     ))
     _add_code_block(doc, (
         "5音音階:   n ∈ {1, 2, 3, 5, 6}    （4と7を跳ぶ）\n"
@@ -330,7 +331,7 @@ def build_essay() -> Document:
     ))
 
     # -- 6. Textile cipher ---------------------------------------------------
-    _add_heading(doc, "6. 手芸暗号：ステガノグラフィとしてのUNSHIN-IL", 1)
+    _add_heading(doc, "6. 手芸暗号：ステガノグラフィとしてのSITS9", 1)
     _add_para(doc, (
         "手芸が暗号媒体として使われた歴史的実例は複数存在する。"
     ))
@@ -353,11 +354,11 @@ def build_essay() -> Document:
     )
     doc.add_paragraph()
     _add_para(doc, (
-        "UNSHIN-ILの文脈では、同一のカードデッキが「美しい刺し子」「心地よい音楽」"
+        "SITS9の文脈では、同一のカードデッキが「美しい刺し子」「心地よい音楽」"
         "「料理レシピ」に見えるが、第四のレンダラー（復号器）がなければ"
         "平文メッセージを読み取ることはできない。"
         "最強の暗号メディアは「誰もそれがメディアだと思っていないもの」であり、"
-        "UNSHIN-ILはこの原理を構造的に体現する。"
+        "SITS9はこの原理を構造的に体現する。"
     ))
     _add_code_block(doc, (
         "検閲可能性 ∝ メディアとしての認知度\n"
@@ -367,8 +368,8 @@ def build_essay() -> Document:
     # -- 7. Workshop ---------------------------------------------------------
     _add_heading(doc, "7. 応用：3感覚同時体験ワークショップ", 1)
     _add_para(doc, (
-        "UNSHIN-ILの実用的応用として、「1つのカードデッキから3つの体験を"
-        "同時生成する」ワークショップを提案する。参加者は同一のUNSHIN-ILデッキから"
+        "SITS9の実用的応用として、「1つのカードデッキから3つの体験を"
+        "同時生成する」ワークショップを提案する。参加者は同一のSITS9デッキから"
         "生成された料理を作り、刺し子を縫い、自分の縫い目から音楽を生成して聴く。"
         "3つの成果物が「同じ情報」から出てきていることを体験的に理解することで、"
         "ドメイン間の操作的相同性を身体的に把握できる。"
@@ -388,11 +389,11 @@ def build_essay() -> Document:
     ))
     _add_para(doc, (
         "国歌の音楽的特徴はその国の文化的パレットを直接反映しており、"
-        "UNSHIN-ILを通じて手芸パターンと料理手順に変換すると、"
+        "SITS9を通じて手芸パターンと料理手順に変換すると、"
         "文化的シグネチャがドメインを超えて保存されることを体験できる。"
     ))
     _add_table(doc,
-        ["国歌", "音楽的特徴", "UNSHIN-ILでの特性", "予測される手芸/料理"],
+        ["国歌", "音楽的特徴", "SITS9での特性", "予測される手芸/料理"],
         [
             ["君が代（日本）",
              "5音音階、緩やかなテンポ、狭い音域",
@@ -417,7 +418,7 @@ def build_essay() -> Document:
     _add_heading(doc, "7.2 国歌ワークショップの進行案", 2)
     _add_para(doc, (
         "Phase 1（導入・15分）：参加者が自分のルーツの国歌を選ぶ。"
-        "UNSHIN-ILへの変換をファシリテーターが実演し、"
+        "SITS9への変換をファシリテーターが実演し、"
         "同一のカードデッキから3つの出力が生成されることを示す。"
     ))
     _add_para(doc, (
@@ -457,14 +458,14 @@ def build_essay() -> Document:
         "糸×時間的操作→布。音×時間的操作→音楽。食材×時間的操作→料理。"
         "操作の複雑化パターンが同一であるのは、人間の認知構造 "
         "── 「反復→交差→回帰」を理解・記憶できる順序 ── "
-        "が共通しているためである。UNSHIN-ILが3ドメインを統一できるのは"
+        "が共通しているためである。SITS9が3ドメインを統一できるのは"
         "偶然ではなく、人間の操作的認知の普遍構造を反映している可能性がある。"
     ))
 
     # -- 9. Future: implant steganography ------------------------------------
     _add_heading(doc, "9. 将来展望：物質への刻印によるステガノグラフィ", 1)
     _add_para(doc, (
-        "手芸暗号（§6）の議論を拡張すると、UNSHIN-ILの命令列を符号化する"
+        "手芸暗号（§6）の議論を拡張すると、SITS9の命令列を符号化する"
         "物理的基盤は布や糸に限定されない。「メディアとしての認知度がゼロ」"
         "な物質に情報を刻印できれば、究極のステガノグラフィが実現する。"
     ))
@@ -477,7 +478,7 @@ def build_essay() -> Document:
         "外見上区別がつかない。"
     ))
     _add_para(doc, (
-        "UNSHIN-ILの命令列を3次元座標の点群にエンコードし、"
+        "SITS9の命令列を3次元座標の点群にエンコードし、"
         "レンズ内部にフェムト秒レーザーで刻印すれば、"
         "第四のレンダラー（ImplantRenderer）を通じて"
         "音楽・刺し子・料理と同一のデッキから生成された情報を物理的に持ち歩ける。"
@@ -485,7 +486,7 @@ def build_essay() -> Document:
     ))
     _add_code_block(doc, (
         "                ┌─→ LoomRenderer    → 刺し子パターン\n"
-        "UNSHIN-IL Deck ─┼─→ ToneRenderer    → 音楽\n"
+        "SITS9 Deck ─┼─→ ToneRenderer    → 音楽\n"
         "                ├─→ KitchenRenderer → 料理レシピ\n"
         "                └─→ ImplantRenderer → 3D点群（レーザー刻印用）\n"
     ))
@@ -528,7 +529,7 @@ def build_essay() -> Document:
         "冷戦時代のCIAが歯の充填物にマイクロフィルムを隠す技術を開発していた事実と"
         "比較すると、3Dレーザー刻印は能動的信号を発さない（RFIDと異なりスキャン不能）"
         "という点で格段に優れた秘匿性を持つ。"
-        "UNSHIN-ILの符号化体系と組み合わせることで、物理的オブジェクトが"
+        "SITS9の符号化体系と組み合わせることで、物理的オブジェクトが"
         "音楽であり、手芸パターンであり、料理レシピであり、"
         "そして暗号文でもあるという多重符号化が実現する。"
     ))
@@ -536,7 +537,7 @@ def build_essay() -> Document:
     # -- 10. Conclusion -------------------------------------------------------
     _add_heading(doc, "10. 結論", 1)
     _add_para(doc, (
-        "UNSHIN-IL（運針中間言語）は、5つのプリミティブ命令 "
+        "SITS9（SITS9）は、5つのプリミティブ命令 "
         "── FWD, RET, CROSS, TENSION, ANCHOR ── のみで構成される"
         "ミニマルな形式言語であり、同一の命令列（Deck）から音楽・手芸・料理の"
         "三者を同時に生成できることを実装と実証により示した。"
@@ -547,7 +548,7 @@ def build_essay() -> Document:
         "キープ（結縄文字）にまで遡る分野横断的符号化の伝統の延長線上にある。"
     ))
     _add_para(doc, (
-        "UNSHIN-ILは、ドメイン間の表層的類似性（アナロジー）を超えて、"
+        "SITS9は、ドメイン間の表層的類似性（アナロジー）を超えて、"
         "「AとBは同一の命令セットの異なるレンダリングである」という"
         "構造的等価性を主張するための道具であり、"
         "その応用は暗号論的ステガノグラフィからワークショップ設計、"
@@ -580,7 +581,7 @@ def build_essay() -> Document:
 def main() -> None:
     OUT_DIR.mkdir(exist_ok=True)
     doc = build_essay()
-    out_path = OUT_DIR / "unshin_il_essay.docx"
+    out_path = OUT_DIR / "sits9_essay.docx"
     doc.save(str(out_path))
     print(f"Essay saved → {out_path}")
 

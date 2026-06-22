@@ -1,7 +1,7 @@
 """
 MIDI Tone Renderer (Music-Box Renderer).
 
-Interprets an UNSHIN-IL Deck as a MIDI file.
+Interprets an SITS9 Deck as a MIDI file.
 
 Mapping logic
 ─────────────
@@ -28,7 +28,7 @@ from pathlib import Path
 
 import mido
 
-from unshin_il.core import (
+from sits9.core import (
     Anchor,
     Card,
     Cross,
@@ -41,7 +41,7 @@ from unshin_il.core import (
 
 
 class MidiRenderer:
-    """Render an UNSHIN-IL Deck to a Standard MIDI file."""
+    """Render an SITS9 Deck to a Standard MIDI file."""
 
     def __init__(
         self,

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Generate UNSHIN-IL manuscript formatted for Leonardo (MIT Press) General Article.
+Generate SITS9 manuscript formatted for Leonardo (MIT Press) General Article.
 
 Formatting rules
 ────────────────
@@ -133,7 +133,7 @@ def build_manuscript() -> Document:
 
     # ── title page ──────────────────────────────────────────────────────────
     _para(doc,
-          "UNSHIN-IL: A Stitching Intermediate Language Unifying Music, "
+          "SITS9: A Stitch-in-Time Language Unifying Music, "
           "Textile, and Cuisine through Operational Homology",
           bold=True, align=WD_ALIGN_PARAGRAPH.CENTER)
     doc.add_paragraph()
@@ -151,13 +151,13 @@ def build_manuscript() -> Document:
     # ── abstract ────────────────────────────────────────────────────────────
     _heading(doc, "Abstract", 1)
     _para(doc,
-          "We propose UNSHIN-IL (Stitching Intermediate Language), a minimal "
+          "We propose SITS9 (A Stitch in Time Saves Nine), a minimal "
           "domain-specific language consisting of five primitive instructions "
           "-- FWD, RET, CROSS, TENSION, and ANCHOR -- that can simultaneously "
           "describe musical chord progressions, sewing/embroidery patterns, and "
           "cooking procedures. By defining domain-specific renderers (a 'loom "
           "renderer' for textile SVG, a 'tone renderer' for MIDI music, and a "
-          "'kitchen renderer' for text-based recipes), a single UNSHIN-IL "
+          "'kitchen renderer' for text-based recipes), a single SITS9 "
           "program (called a Deck) produces valid, aesthetically coherent output "
           "in all three domains. We demonstrate the system using Pachelbel's "
           "Canon (I-V-vi-iii-IV-I-IV-V) as a test case and argue that the "
@@ -172,7 +172,7 @@ def build_manuscript() -> Document:
           "handicraft, and music as parallel experiences.")
 
     _para(doc,
-          "Keywords: domain-specific language; operational homology; Jacquard "
+          "Keywords: SITS9; domain-specific language; operational homology; Jacquard "
           "loom; quipu; steganography; cross-modal workshop; chord progression; "
           "sashiko; computational craft",
           italic=True)
@@ -211,9 +211,10 @@ def build_manuscript() -> Document:
 
     _para(doc,
           "This paper formalises the shared operational structure underlying "
-          "these three domains as UNSHIN-IL (a portmanteau of unshin, the "
-          "Japanese term for the motion of the needle, and IL for "
-          "Intermediate Language). We define a minimal instruction set, "
+          "these three domains as SITS9 -- named after the proverb "
+          "'A stitch in time saves nine', reflecting the principle that a "
+          "single well-placed instruction eliminates redundancy across "
+          "domains. We define a minimal instruction set, "
           "implement three domain-specific renderers, demonstrate the "
           "system with Pachelbel's Canon as a test case, and discuss "
           "historical precedents, cryptographic implications, and "
@@ -300,14 +301,14 @@ def build_manuscript() -> Document:
           "The historical lineage can thus be traced as: quipu (Inca) -> "
           "Jacquard loom punch card (1804) -> barrel organ / player piano "
           "(same medium) -> Babbage Analytical Engine (1837) -> computer -> "
-          "MIDI + digital embroidery -> UNSHIN-IL (return to unification).")
+          "MIDI + digital embroidery -> SITS9 (return to unification).")
 
-    # ── 3. UNSHIN-IL Formal Specification ───────────────────────────────────
-    _heading(doc, "3. UNSHIN-IL Formal Specification", 1)
+    # ── 3. SITS9 Formal Specification ───────────────────────────────────
+    _heading(doc, "3. SITS9 Formal Specification", 1)
 
     _heading(doc, "3.1 Primitive Instructions", 2)
     _para(doc,
-          "UNSHIN-IL defines exactly five primitive instructions (Table 2). "
+          "SITS9 defines exactly five primitive instructions (Table 2). "
           "The design goal was the smallest instruction set that can "
           "express the forward-return-cross-tension-anchor patterns "
           "observed in all three domains.")
@@ -336,7 +337,7 @@ def build_manuscript() -> Document:
                 "Tonic resolution",
                 "Taste and season (fix flavour)"],
            ],
-           caption="Table 2. The five UNSHIN-IL primitive instructions and their domain-specific interpretations.")
+           caption="Table 2. The five SITS9 primitive instructions and their domain-specific interpretations.")
     doc.add_paragraph()
 
     _heading(doc, "3.2 Card and Deck", 2)
@@ -371,7 +372,7 @@ def build_manuscript() -> Document:
 
     _code(doc,
           "                 +-> LoomRenderer (SVG)     -> sashiko pattern\n"
-          "UNSHIN-IL Deck --+-> ToneRenderer (MIDI)    -> music\n"
+          "SITS9 Deck --+-> ToneRenderer (MIDI)    -> music\n"
           "                 +-> KitchenRenderer (text)  -> recipe\n")
 
     # Inline figure (user requirement: figures must be embedded in manuscript)
@@ -383,7 +384,7 @@ def build_manuscript() -> Document:
         cap.paragraph_format.space_before = Pt(14)
         cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
         run = cap.add_run(
-            "Figure 1. UNSHIN-IL Loom Renderer output for Pachelbel's Canon "
+            "Figure 1. SITS9 Loom Renderer output for Pachelbel's Canon "
             "(I-V-vi-iii-IV-I-IV-V, 2 loops). Red solid lines = surface "
             "stitches; grey dashed lines = back stitches; filled black "
             "circles = anchor points (knots)."
@@ -405,11 +406,11 @@ def build_manuscript() -> Document:
           "that constitutes progression in both domains.")
 
     _para(doc,
-          "Table 3 maps stitch types to their UNSHIN-IL instruction "
+          "Table 3 maps stitch types to their SITS9 instruction "
           "patterns, corresponding harmonic idioms, and culinary analogues.")
 
     _table(doc,
-           ["Stitch type", "UNSHIN-IL pattern", "Harmonic analogue", "Culinary analogue"],
+           ["Stitch type", "SITS9 pattern", "Harmonic analogue", "Culinary analogue"],
            [
                ["Running stitch",
                 "loop { FWD(n), CROSS }",
@@ -436,7 +437,7 @@ def build_manuscript() -> Document:
                 "Ostinato (repeating pattern)",
                 "Continuous stirring (risotto)"],
            ],
-           caption="Table 3. Mapping of stitch types to UNSHIN-IL patterns, harmonic idioms, and culinary processes.")
+           caption="Table 3. Mapping of stitch types to SITS9 patterns, harmonic idioms, and culinary processes.")
     doc.add_paragraph()
 
     # ── 5. Demonstration: Pachelbel's Canon ─────────────────────────────────
@@ -445,7 +446,7 @@ def build_manuscript() -> Document:
     _para(doc,
           "To validate the system, we encoded the harmonic progression of "
           "Pachelbel's Canon in D (I-V-vi-iii-IV-I-IV-V) as an eight-Card "
-          "UNSHIN-IL Deck. Each Card's TENSION value reflects the harmonic "
+          "SITS9 Deck. Each Card's TENSION value reflects the harmonic "
           "tension of the chord degree (I = 0.2, V = 0.8, vi = 0.5, "
           "iii = 0.4, IV = 0.3). The FWD/RET directions and distances "
           "were chosen to produce a back-stitch-like forward-and-return "
@@ -507,7 +508,7 @@ def build_manuscript() -> Document:
     doc.add_paragraph()
 
     _para(doc,
-          "In UNSHIN-IL, palette constraint is expressed as the discrete "
+          "In SITS9, palette constraint is expressed as the discrete "
           "set of values that FWD(n) can take:")
     _code(doc,
           "Pentatonic:   n in {1, 2, 3, 5, 6}      (skip 4 and 7)\n"
@@ -523,7 +524,7 @@ def build_manuscript() -> Document:
           "signal.{5}")
 
     # ── 7. Textile Ciphers and Steganography ────────────────────────────────
-    _heading(doc, "7. Textile Ciphers: UNSHIN-IL as Steganography", 1)
+    _heading(doc, "7. Textile Ciphers: SITS9 as Steganography", 1)
 
     _para(doc,
           "The use of textile as a covert information channel has multiple "
@@ -553,7 +554,7 @@ def build_manuscript() -> Document:
     doc.add_paragraph()
 
     _para(doc,
-          "In the UNSHIN-IL framework, a single Deck appears as "
+          "In the SITS9 framework, a single Deck appears as "
           "'a beautiful sashiko pattern', 'a pleasant piece of music', "
           "and 'a cooking recipe' -- but a fourth renderer (a cipher "
           "decryptor) could extract a plaintext message that none of the "
@@ -578,7 +579,7 @@ def build_manuscript() -> Document:
           "transparent substrates at micrometre scale. Applied to an "
           "eyeglass lens, the resulting micro-patterns are visually "
           "indistinguishable from ordinary halation (light scatter and "
-          "reflection artefacts). An UNSHIN-IL Deck encoded as a 3D point "
+          "reflection artefacts). An SITS9 Deck encoded as a 3D point "
           "cloud and inscribed inside a lens via femtosecond laser becomes "
           "a fourth renderer output -- an ImplantRenderer -- that is "
           "physically portable and appears to the naked eye as nothing "
@@ -586,7 +587,7 @@ def build_manuscript() -> Document:
 
     _code(doc,
           "                 +-> LoomRenderer     -> sashiko pattern\n"
-          "UNSHIN-IL Deck --+-> ToneRenderer     -> music\n"
+          "SITS9 Deck --+-> ToneRenderer     -> music\n"
           "                 +-> KitchenRenderer   -> recipe\n"
           "                 +-> ImplantRenderer   -> 3D point cloud (laser inscription)\n")
 
@@ -636,7 +637,7 @@ def build_manuscript() -> Document:
 
     _para(doc,
           "As a practical application, we propose workshops in which "
-          "participants experience all three UNSHIN-IL renderings of a "
+          "participants experience all three SITS9 renderings of a "
           "single Deck. Each participant leaves with: (a) a hand-stitched "
           "sashiko coaster, (b) a MIDI playback of the music generated "
           "from their stitch pattern, and (c) a dish prepared from the "
@@ -652,11 +653,11 @@ def build_manuscript() -> Document:
           "restrictions, and each participant can select 'their own "
           "country's song' as a personally meaningful starting point. "
           "Because the musical characteristics of an anthem directly "
-          "reflect its culture's palette, the UNSHIN-IL renderings "
+          "reflect its culture's palette, the SITS9 renderings "
           "preserve the cultural signature across domains (Table 7).")
 
     _table(doc,
-           ["Anthem", "Musical features", "UNSHIN-IL profile", "Predicted textile / cuisine"],
+           ["Anthem", "Musical features", "SITS9 profile", "Predicted textile / cuisine"],
            [
                ["Kimigayo (Japan)",
                 "Pentatonic, slow tempo, narrow range",
@@ -675,14 +676,14 @@ def build_manuscript() -> Document:
                 "Irregular FWD intervals, long Cards",
                 "Rhythmic uneven-spaced stitches / staggered cooking steps"],
            ],
-           caption="Table 7. National anthems as UNSHIN-IL input: predicted cross-domain renderings.")
+           caption="Table 7. National anthems as SITS9 input: predicted cross-domain renderings.")
     doc.add_paragraph()
 
     _heading(doc, "9.2 Workshop Procedure", 2)
     _para(doc,
           "Phase 1 (Introduction, 15 min): Participants select the anthem "
           "of their cultural heritage. The facilitator demonstrates the "
-          "UNSHIN-IL conversion and shows that three outputs emerge from "
+          "SITS9 conversion and shows that three outputs emerge from "
           "a single Deck.")
     _para(doc,
           "Phase 2 (Cuisine, 30 min): Each participant follows the recipe "
@@ -722,13 +723,13 @@ def build_manuscript() -> Document:
           "shared because the human cognitive architecture -- the order "
           "in which we can understand and memorise sequences of "
           "'repetition -> crossing -> return' -- is universal. "
-          "UNSHIN-IL's ability to unify three domains is not a coincidence "
+          "SITS9's ability to unify three domains is not a coincidence "
           "but a reflection of the universal structure of human "
           "procedural cognition.{8}")
 
     _para(doc,
           "A limitation of the current work is that the mappings between "
-          "UNSHIN-IL instructions and domain-specific actions are manually "
+          "SITS9 instructions and domain-specific actions are manually "
           "designed rather than empirically derived. Future work could "
           "involve perceptual experiments to determine whether listeners, "
           "stitchers, and cooks independently converge on similar tension "
@@ -740,7 +741,7 @@ def build_manuscript() -> Document:
     _heading(doc, "11. Conclusion", 1)
 
     _para(doc,
-          "UNSHIN-IL (Stitching Intermediate Language) is a minimal "
+          "SITS9 (Stitching Intermediate Language) is a minimal "
           "formal language consisting of five primitive instructions "
           "-- FWD, RET, CROSS, TENSION, ANCHOR -- from which music, "
           "textile pattern, and cooking recipe can be simultaneously "
@@ -753,7 +754,7 @@ def build_manuscript() -> Document:
           "the historical fact that the Jacquard loom and the music box "
           "were driven by the same punch card, and that the Inca quipu "
           "encoded accounting, narrative, and textile structure in a "
-          "single knotted-cord medium. UNSHIN-IL moves beyond surface "
+          "single knotted-cord medium. SITS9 moves beyond surface "
           "analogy ('A resembles B') to structural equivalence ('A and B "
           "are different renderings of the same instruction set C'), "
           "with applications ranging from cryptographic steganography "
@@ -841,7 +842,7 @@ def build_figure_pptx() -> None:
     p2 = tf2.paragraphs[0]
     run2 = p2.add_run()
     run2.text = (
-        "Figure 1. UNSHIN-IL Loom Renderer output for Pachelbel's Canon "
+        "Figure 1. SITS9 Loom Renderer output for Pachelbel's Canon "
         "(I-V-vi-iii-IV-I-IV-V, 2 loops). Red solid lines = surface "
         "stitches; grey dashed lines = back stitches; filled black "
         "circles = anchor points (knots)."
@@ -849,7 +850,7 @@ def build_figure_pptx() -> None:
     run2.font.size = PPt(14)
     run2.font.italic = True
 
-    pptx_path = OUT_DIR / "unshin_il_figures.pptx"
+    pptx_path = OUT_DIR / "sits9_figures.pptx"
     prs.save(str(pptx_path))
     print(f"Figure PPTX saved -> {pptx_path}")
 
@@ -859,7 +860,7 @@ def build_figure_pptx() -> None:
 def main() -> None:
     OUT_DIR.mkdir(exist_ok=True)
     doc = build_manuscript()
-    out_path = OUT_DIR / "unshin_il_leonardo.docx"
+    out_path = OUT_DIR / "sits9_leonardo.docx"
     doc.save(str(out_path))
     print(f"Leonardo manuscript saved -> {out_path}")
     build_figure_pptx()

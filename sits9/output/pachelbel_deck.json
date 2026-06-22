@@ -1,6 +1,6 @@
 {
   "title": "Pachelbel Canon — 返し縫いの進行",
-  "description": "パッヘルベルのカノン（I-V-vi-iii-IV-I-IV-V）を\nUNSHIN-IL で記述。同一のカードデッキから\n刺し子パターン（SVG）と音楽（MIDI）を同時生成する。",
+  "description": "パッヘルベルのカノン（I-V-vi-iii-IV-I-IV-V）を\nSITS9 で記述。同一のカードデッキから\n刺し子パターン（SVG）と音楽（MIDI）を同時生成する。",
   "bpm": 72,
   "key_root": 62,
   "stitch_unit_mm": 4.0,

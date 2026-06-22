@@ -1,7 +1,7 @@
 """
 SVG Stitch-Pattern Renderer (Loom Renderer).
 
-Interprets an UNSHIN-IL Deck as a sewing/embroidery pattern.
+Interprets an SITS9 Deck as a sewing/embroidery pattern.
 
 Coordinate system:
   x = progress along the fabric (time / stitch sequence)
@@ -20,7 +20,7 @@ from typing import List, Tuple
 
 import svgwrite
 
-from unshin_il.core import (
+from sits9.core import (
     Anchor,
     Card,
     Cross,
@@ -56,7 +56,7 @@ class _NeedleState:
 # ---------------------------------------------------------------------------
 
 class SvgRenderer:
-    """Render an UNSHIN-IL Deck to an SVG sewing pattern."""
+    """Render an SITS9 Deck to an SVG sewing pattern."""
 
     def __init__(
         self,
