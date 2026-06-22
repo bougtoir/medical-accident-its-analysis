@@ -27,10 +27,10 @@ FIGURE_CAPTIONS = {
     1: ('Figure 1. ', 'Conceptual comparison of three information regimes. '
         '(a) No map (status quo): mine positions unknown, entire area uncertain. '
         '(b) Full intelligence: all real positions known to attacker. '
-        '(c) Proposed regime: map published with real + dummy positions; '
+        '(c) MINE regime: map published with real + dummy positions; '
         'identity (real vs dummy) unknown to attacker.'),
     2: ('Figure 2. ', 'Attacker breach delay as a function of dummy ratio r '
-        '(baseline scenario). Solid blue: proposed regime, scaling linearly '
+        '(baseline scenario). Solid blue: MINE regime, scaling linearly '
         'with (1+r). Red dashed: blind sweep (no map, 600 min). '
         'Green dotted: full intelligence (12 min).'),
     3: ('Figure 3. ', 'Post-conflict clearance comparison. '
@@ -39,12 +39,12 @@ FIGURE_CAPTIONS = {
         '(b) Residual mines: map regime guarantees zero residual regardless '
         'of r; blind sweep leaves expected 10 mines.'),
     4: ('Figure 4. ', 'Positional entropy (Shannon information) representing '
-        'attacker uncertainty. Purple: transparent map regime. Red dashed: '
+        'attacker uncertainty. Purple: MINE regime. Red dashed: '
         'no-map maximum (1,934 bits). The regime provides controlled '
         'uncertainty between 0 and 50% of maximum at policy-relevant r values.'),
     5: ('Figure 5. ', 'Policy trade-off space: military utility (normalised '
         'breach delay, y-axis) vs post-conflict clearance cost (normalised, '
-        'x-axis). Colour: dummy ratio r. The proposed regime traces a curve '
+        'x-axis). Colour: dummy ratio r. The MINE regime traces a curve '
         'from full information (origin) toward the status quo (upper right), '
         'with each r value representing a specific policy choice.'),
 }
@@ -85,9 +85,9 @@ def create_manuscript():
     title_para = doc.add_paragraph()
     title_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
     title_run = title_para.add_run(
-        'Transparent Minefield Mapping with Dummy Positions: '
-        'A Game-Theoretic Framework for Reconciling '
-        'Military Utility and Post-Conflict Safety'
+        'The MINE Framework (Mapping Is Not Exposure): '
+        'Transparent Minefield Maps with Dummy Positions '
+        'for Reconciling Military Utility and Post-Conflict Safety'
     )
     title_run.bold = True
     title_run.font.size = Pt(16)
@@ -107,27 +107,27 @@ def create_manuscript():
     doc.add_heading('Abstract', level=1)
     p = doc.add_paragraph()
     p.add_run(
-        'This paper proposes a novel regulatory framework for anti-personnel '
-        'mines wherein defending states publish position maps containing both '
-        'real mine locations and indistinguishable dummy positions. The '
-        'dummy-to-real ratio r serves as a treaty-tuneable parameter '
-        'balancing military effectiveness against humanitarian cost. '
-        'Game-theoretic analysis demonstrates that rational attackers will '
-        'clear all marked positions for any policy-relevant r, preserving '
-        'full breach delay. The zero-residual property guarantees complete '
-        'post-conflict clearance without reliance on detection technology. '
-        'Numerical simulations calibrated to Baltic frontier scenarios '
-        'illustrate practical application for NATO states now withdrawing '
-        'from the Ottawa Convention.'
+        'This paper proposes the MINE framework (Mapping Is Not Exposure): '
+        'a regulatory regime for anti-personnel mines wherein defending states '
+        'publish position maps containing both real mine locations and '
+        'indistinguishable dummy positions. The dummy-to-real ratio r serves '
+        'as a treaty-tuneable parameter balancing military effectiveness '
+        'against humanitarian cost. Game-theoretic analysis demonstrates '
+        'that rational attackers will clear all marked positions for any '
+        'policy-relevant r, preserving full breach delay. The zero-residual '
+        'property guarantees complete post-conflict clearance without reliance '
+        'on detection technology. Numerical simulations calibrated to Baltic '
+        'frontier scenarios illustrate practical application for NATO states '
+        'now withdrawing from the Ottawa Convention.'
     )
 
     doc.add_paragraph()
     kw_para = doc.add_paragraph()
     kw_para.add_run('Keywords: ').bold = True
     kw_para.add_run(
-        'anti-personnel mines; Ottawa Convention; game theory; area denial; '
-        'post-conflict clearance; Baltic security; information asymmetry; '
-        'treaty design; NATO; deterrence'
+        'anti-personnel mines; MINE framework; Ottawa Convention; game theory; '
+        'area denial; post-conflict clearance; Baltic security; information '
+        'asymmetry; treaty design; NATO; deterrence'
     )
 
     doc.add_page_break()
@@ -165,11 +165,14 @@ def create_manuscript():
 
     p = doc.add_paragraph()
     p.add_run(
-        'This paper fills that gap. We propose a novel regulatory framework\u2014'
+        'This paper fills that gap. We propose a novel regulatory framework '
+        'that we term '
     )
-    p.add_run('transparent minefield mapping with controlled dummy positions').bold = True
+    p.add_run('MINE (Mapping Is Not Exposure)').bold = True
     p.add_run(
-        '\u2014that gives concrete operational meaning to \u201cresponsible use.\u201d '
+        '\u2014reflecting the core insight that publishing minefield positions '
+        'with dummy entries does not constitute military exposure. The MINE '
+        'framework gives concrete operational meaning to \u201cresponsible use.\u201d '
         'Under this framework, a defending state must publish a map showing '
         'all mine positions before or during deployment. Crucially, the map '
         'may include dummy (decoy) positions: locations marked as potentially '
@@ -223,7 +226,7 @@ def create_manuscript():
         'agreed operational standards, each withdrawing state will develop '
         'its own practices\u2014potentially divergent, potentially opaque, and '
         'potentially contributing to the very humanitarian outcomes the '
-        'Ottawa Convention sought to prevent. The transparent map framework '
+        'Ottawa Convention sought to prevent. The MINE framework '
         'offers a ready-made standard that could be adopted immediately.'
     )
 
@@ -232,7 +235,7 @@ def create_manuscript():
         'The remainder of this paper is structured as follows. Section 2 '
         'reviews existing regulatory frameworks and their limitations. '
         'Section 3 presents the formal model. Section 4 analyses military '
-        'effectiveness under the transparent map regime. Section 5 examines '
+        'effectiveness under the MINE regime. Section 5 examines '
         'post-conflict safety guarantees. Section 6 develops game-theoretic '
         'and information-theoretic properties. Section 7 discusses treaty '
         'design implications, including verification mechanisms and '
@@ -312,7 +315,7 @@ def create_manuscript():
     p = doc.add_paragraph()
     p.add_run(
         'However, the Protocol has three significant limitations that the '
-        'transparent map framework addresses:'
+        'MINE framework addresses:'
     )
 
     p = doc.add_paragraph()
@@ -326,7 +329,7 @@ def create_manuscript():
         'laboratory specifications. The CCW Protocol itself permits a 10% '
         'failure rate. In a field of 1,000 mines, this leaves 100 active '
         'mines\u2014each capable of killing or maiming for decades. The '
-        'transparent map framework does not depend on mechanical reliability; '
+        'MINE framework does not depend on mechanical reliability; '
         'its safety guarantee is deterministic.'
     )
 
@@ -346,7 +349,7 @@ def create_manuscript():
         'The Protocol\u2019s recording requirement (Article 7) applies only after '
         'cessation of hostilities. During conflict, mine positions may be lost '
         'due to destroyed records, personnel casualties, or deliberate '
-        'concealment. The transparent map framework requires publication '
+        'concealment. The MINE framework requires publication '
         'during or before deployment, creating an irrevocable record.'
     )
 
@@ -455,8 +458,8 @@ def create_manuscript():
         'Consider a defending state that emplaces a minefield along a front '
         'of width W (metres) to a depth D (metres), with total area '
         'A = W \u00d7 D. The minefield contains N real anti-personnel mines '
-        'distributed across this area. Under the proposed regime, the defender '
-        'publishes a map to an international registry showing M = N(1 + r) '
+        'distributed across this area. Under the MINE regime, the defender '
+        'publishes a map to the MINE Registry showing M = N(1 + r) '
         'marked positions, where r \u2265 0 is the dummy ratio. Of these, '
         'exactly N contain real mines and Nr are dummies.'
     )
@@ -544,7 +547,7 @@ def create_manuscript():
     )
 
     p = doc.add_paragraph()
-    p.add_run('Regime C \u2013 Transparent map with dummies (proposed, 0 < r < \u221e): ').bold = True
+    p.add_run('Regime C \u2013 MINE regime (0 < r < \u221e): ').bold = True
     p.add_run(
         'The attacker has the published map showing M = N(1+r) positions. '
         'They know N mines exist among the M positions but cannot distinguish '
@@ -611,7 +614,7 @@ def create_manuscript():
     )
 
     p = doc.add_paragraph()
-    p.add_run('Map-based clearance (proposed regime): ').bold = True
+    p.add_run('Map-based clearance (MINE regime): ').bold = True
     p.add_run(
         'Clear all M = N(1+r) positions. Time = M \u00d7 t_c / k hours. '
         'Residual mines after completion = 0 (deterministic guarantee).'
@@ -789,7 +792,7 @@ def create_manuscript():
     p.add_run(
         'Under the no-map regime, an attacker who chooses to accept casualties '
         'faces an unknown risk distributed over an unknown area. Under the '
-        'transparent map regime, the same attacker faces '
+        'MINE regime, the same attacker faces '
     )
     p.add_run('concentrated, known-location risk').italic = True
     p.add_run(
@@ -809,7 +812,7 @@ def create_manuscript():
     doc.add_heading('5.1 The zero-residual property', level=2)
     p = doc.add_paragraph()
     p.add_run(
-        'The most significant humanitarian advantage of the transparent map '
+        'The most significant humanitarian advantage of the MINE '
         'regime is what we term the '
     )
     p.add_run('zero-residual property').italic = True
@@ -920,7 +923,7 @@ def create_manuscript():
     doc.add_heading('5.4 Comparison with self-destruct mechanisms', level=2)
     p = doc.add_paragraph()
     p.add_run(
-        'Table 4 compares the transparent map regime with self-destruct '
+        'Table 4 compares the MINE regime with self-destruct '
         'mechanisms across key safety dimensions.'
     )
 
@@ -929,7 +932,7 @@ def create_manuscript():
     hdr = table4.rows[0].cells
     hdr[0].text = 'Dimension'
     hdr[1].text = 'Self-destruct (CCW Protocol II)'
-    hdr[2].text = 'Transparent map (proposed)'
+    hdr[2].text = 'MINE framework (proposed)'
     comp_data = [
         ('Residual risk', 'N \u00d7 failure_rate (2\u201310%)', 'Zero (deterministic)'),
         ('Depends on reliability', 'Yes (mechanical)', 'No (informational)'),
@@ -1053,7 +1056,7 @@ def create_manuscript():
     p = doc.add_paragraph()
     p.add_run(
         'where H_b(p) = \u2212p log\u2082(p) \u2212 (1\u2212p) log\u2082(1\u2212p). '
-        'Under Regime C (transparent map), uncertainty is confined to which '
+        'Under Regime C (MINE regime), uncertainty is confined to which '
         'N of M positions are real:'
     )
 
@@ -1065,7 +1068,7 @@ def create_manuscript():
     p.add_run(
         'For the baseline scenario: H_A \u2248 1,934 bits (no map); '
         'H_C(5) \u2248 780 bits (40% of maximum); H_C(10) \u2248 967 bits (50%). '
-        'The transparent map regime thus allows the defender to retain '
+        'The MINE regime thus allows the defender to retain '
         '20\u201350% of maximum positional uncertainty at policy-relevant dummy '
         'ratios, whilst guaranteeing post-conflict clearance.'
     )
@@ -1191,7 +1194,7 @@ def create_manuscript():
     doc.add_heading('7.2 Verification and compliance mechanisms', level=2)
     p = doc.add_paragraph()
     p.add_run(
-        'The transparent map regime is inherently more verifiable than '
+        'The MINE regime is inherently more verifiable than '
         'existing arrangements. Three mechanisms enable compliance monitoring:'
     )
 
@@ -1225,12 +1228,12 @@ def create_manuscript():
         'Practical implementation requires three institutional components. '
         'First, a '
     )
-    p.add_run('registry').italic = True
+    p.add_run('MINE Registry').italic = True
     p.add_run(
         '\u2014a secure, append-only database maintained by a trusted third party '
         '(NATO Communications and Information Agency, ICRC, or a dedicated '
         'international body) to which deploying states submit position maps. '
-        'The registry must accept map submissions (new minefield declarations) '
+        'The MINE Registry must accept map submissions (new minefield declarations) '
         'and supplements (additional positions added during conflict) but '
         'must not permit deletions or modifications of previously submitted '
         'entries. This append-only property preserves the completeness '
@@ -1242,7 +1245,7 @@ def create_manuscript():
     p.add_run(
         'Second, a '
     )
-    p.add_run('verification protocol').italic = True
+    p.add_run('MINE verification protocol').italic = True
     p.add_run(
         '\u2014procedures for confirming compliance both during and after conflict. '
         'During conflict, satellite imagery can verify that marked positions '
@@ -1269,12 +1272,12 @@ def create_manuscript():
     doc.add_heading('7.4 Compatibility with existing frameworks', level=2)
     p = doc.add_paragraph()
     p.add_run(
-        'The proposed framework is designed to complement CCW Amended '
+        'The MINE framework is designed to complement CCW Amended '
         'Protocol II. It extends the Protocol\u2019s Article 7 recording '
         'requirements by: (a) mandating publication during deployment '
         'rather than only post-conflict; and (b) formalising the dummy '
         'position concept with a regulated ratio. States remaining within '
-        'the CCW framework could adopt the transparent map as an additional '
+        'the CCW framework could adopt the MINE Protocol as an additional '
         'protocol or as a NATO-internal standard.'
     )
 
@@ -1345,7 +1348,7 @@ def create_manuscript():
     p = doc.add_paragraph()
     p.add_run(
         'The Baltic states face a specific threat model that makes the '
-        'transparent map framework particularly appropriate. Estonia, Latvia, '
+        'MINE framework particularly appropriate. Estonia, Latvia, '
         'and Lithuania share borders with Russia (and Belarus); face a '
         'significant conventional force imbalance; rely on delay and area '
         'denial to enable NATO reinforcement (which may require 10\u201330 days); '
@@ -1370,8 +1373,8 @@ def create_manuscript():
         'evidence directly relevant to the Baltic scenario. Three observations '
         'are pertinent. First, Russia has deployed mines extensively without '
         'recording or marking, creating a humanitarian crisis that will '
-        'persist for decades\u2014exactly the outcome the transparent map '
-        'framework prevents. Second, Ukrainian breach operations against '
+        'persist for decades\u2014exactly the outcome the MINE framework '
+        'prevents. Second, Ukrainian breach operations against '
         'Russian minefields confirm that clearance under fire imposes '
         'delays of 1\u20134 hours per corridor even with modern equipment, '
         'validating our model\u2019s delay estimates. Third, the scale of '
@@ -1418,7 +1421,7 @@ def create_manuscript():
     doc.add_heading('8.4 Escalation and deterrence considerations', level=2)
     p = doc.add_paragraph()
     p.add_run(
-        'The transparent map regime has an additional deterrence property: '
+        'The MINE regime has an additional deterrence property: '
         'the published map itself serves as a credible signal of defensive '
         'preparation. Unlike hidden minefields (which the adversary may doubt '
         'exist) or announced but unverified deployments (which may be bluffs), '
@@ -1451,7 +1454,7 @@ def create_manuscript():
         'particularly the Narva corridor in the northeast. With a population '
         'of 1.3 million and limited strategic depth (Tallinn is 200 km from '
         'the Russian border), every hour of delay at the border is '
-        'operationally decisive. The transparent map framework at r = 7\u201310 '
+        'operationally decisive. The MINE framework at r = 7\u201310 '
         'would provide 1.5\u20132.2 hours of delay per corridor whilst maintaining '
         'Estonia\u2019s commitment to humanitarian mine use\u2014a commitment explicitly '
         'stated during the 2024 National Defence Committee deliberations.'
@@ -1479,7 +1482,7 @@ def create_manuscript():
         '(road crossings, defiles, bridges) is the likely operational concept. '
         'Finland\u2019s extensive Cold War experience with landmines (over 1 million '
         'destroyed after Ottawa ratification) provides institutional knowledge '
-        'for implementing the transparent map framework. The Finnish Defence '
+        'for implementing the MINE framework. The Finnish Defence '
         'Forces\u2019 doctrine of territorial defence, which emphasises delay and '
         'attrition over decisive engagement, aligns naturally with a framework '
         'designed to maximise delay per mine deployed.'
@@ -1519,7 +1522,7 @@ def create_manuscript():
     p.add_run('\u2022 Conventional obstacles ').bold = True
     p.add_run(
         '(wire, ditches, concrete barriers) are visible, predictable, and '
-        'can be planned around. The transparent map framework preserves the '
+        'can be planned around. The MINE framework preserves the '
         'key advantage of mines: uncertainty about which specific positions '
         'are lethal, forcing the attacker to treat all as dangerous.'
     )
@@ -1530,7 +1533,7 @@ def create_manuscript():
         'The Ottawa Convention requires twelve months between notification '
         'and effective withdrawal. This creates an implementation window '
         'during which withdrawing states can develop operational procedures '
-        'for the transparent map framework. A realistic timeline would be:'
+        'for the MINE framework. A realistic timeline would be:'
     )
 
     p = doc.add_paragraph()
@@ -1567,7 +1570,7 @@ def create_manuscript():
     doc.add_heading('8.8 NATO standardisation potential', level=2)
     p = doc.add_paragraph()
     p.add_run(
-        'The transparent map framework is well-suited for adoption as a '
+        'The MINE framework is well-suited for adoption as a '
         'NATO standard (STANAG). Its advantages for alliance-wide implementation '
         'include: (a) interoperability\u2014allied forces can access the published '
         'map for safe passage; (b) burden-sharing\u2014post-conflict clearance '
@@ -1644,7 +1647,7 @@ def create_manuscript():
     p = doc.add_paragraph()
     p.add_run(
         'A critical question arises in non-international armed conflicts: '
-        'if only the state actor publishes a transparent map while the '
+        'if only the state actor publishes under the MINE regime while the '
         'non-state adversary operates at r = \u221e (no disclosure), does '
         'this create an exploitable asymmetry? The concern is that the '
         'government\u2019s maps reveal information about defensive dispositions '
@@ -1686,7 +1689,7 @@ def create_manuscript():
     p.add_run(
         'Substituting baseline parameters: r* = (5000 \u00d7 300 \u00d7 5)'
         '\u2009/\u2009(200 \u00d7 30 \u00d7 25) \u2212 1 = 50 \u2212 1 = 49. '
-        'At r = 49, the transparent map regime imposes '
+        'At r = 49, the MINE regime imposes '
     )
     p.add_run('exactly the same delay').bold = True
     p.add_run(
@@ -1741,7 +1744,7 @@ def create_manuscript():
     doc.add_heading('9.2 Non-state actors and collective response', level=2)
     p = doc.add_paragraph()
     p.add_run(
-        'The proposed framework applies exclusively to state actors '
+        'The MINE framework applies exclusively to state actors '
         'operating within the law of armed conflict. Non-state armed '
         'groups (NSAGs) and terrorist organisations remain outside the '
         'scope of treaty-based regulation\u2014a limitation shared with all '
@@ -1754,7 +1757,7 @@ def create_manuscript():
     p = doc.add_paragraph()
     p.add_run(
         'We propose a Collective Response Mechanism (CRM) as an '
-        'institutional complement to the transparent map framework. '
+        'institutional complement to the MINE framework. '
         'The CRM would operate on three principles:'
     )
 
@@ -1792,8 +1795,8 @@ def create_manuscript():
         'normative case against NSAG mine use by providing a concrete, '
         'verifiable standard of responsible behaviour that NSAGs '
         'manifestly fail to meet. It also provides legal clarity for '
-        'states re-introducing mines: compliance with the transparent '
-        'map protocol demonstrates good faith commitment to humanitarian '
+        'states re-introducing mines: compliance with the MINE '
+        'Protocol demonstrates good faith commitment to humanitarian '
         'norms, insulating compliant states from the stigma associated '
         'with indiscriminate mine use.'
     )
@@ -1803,8 +1806,8 @@ def create_manuscript():
         'Precedent for such mechanisms exists. The Geneva Call initiative '
         'has secured \u201cDeeds of Commitment\u201d from over 60 non-state armed '
         'groups pledging mine non-use\u2014demonstrating that normative '
-        'pressure can reach beyond treaty law. The transparent map '
-        'framework strengthens this norm by making the distinction '
+        'pressure can reach beyond treaty law. The MINE framework '
+        'strengthens this norm by making the distinction '
         'between responsible and irresponsible use operationally concrete '
         'and externally verifiable.'
     )
@@ -1824,7 +1827,7 @@ def create_manuscript():
 
     p = doc.add_paragraph()
     p.add_run(
-        'The transparent map framework resolves this problem by design. '
+        'The MINE framework resolves this problem by design. '
         'Because maps are '
     )
     p.add_run('published before or during conflict').italic = True
@@ -1853,7 +1856,7 @@ def create_manuscript():
     p = doc.add_paragraph()
     p.add_run('Territory recaptured: ').bold = True
     p.add_run(
-        'If the adversary also operated under the transparent map regime, '
+        'If the adversary also operated under the MINE regime, '
         'their published positions enable systematic clearance of enemy-'
         'emplaced mines in recaptured territory. If the adversary did not '
         'publish (non-signatory or non-state actor), the recapturing state '
@@ -1903,7 +1906,7 @@ def create_manuscript():
         'not be underestimated. The Ottawa Convention\u2019s norm-setting '
         'achievement has created strong institutional resistance to any '
         'proposal perceived as weakening the prohibition. We argue that '
-        'the transparent map framework should be positioned not as a '
+        'the MINE framework should be positioned not as a '
         'weakening but as a strengthening of post-conflict humanitarian '
         'outcomes: it provides a safety guarantee (zero residual) that '
         'even full Ottawa compliance cannot offer for states that '
@@ -1915,10 +1918,10 @@ def create_manuscript():
 
     p = doc.add_paragraph()
     p.add_run(
-        'This paper has presented a novel regulatory framework for '
-        'anti-personnel mines that reconciles military utility with '
+        'This paper has presented the MINE framework (Mapping Is Not '
+        'Exposure) for anti-personnel mines, reconciling military utility with '
         'humanitarian guarantees through a single, tuneable parameter: '
-        'the dummy ratio r. The framework transforms the binary choice '
+        'the dummy ratio r. The MINE framework transforms the binary choice '
         'between total prohibition (Ottawa Convention) and unrestricted '
         'use into a continuum of policy options that can be tailored to '
         'specific security contexts and negotiated through treaty mechanisms.'
@@ -1980,7 +1983,7 @@ def create_manuscript():
         'This unilateral benefit structure has profound implications for '
         'treaty adoption dynamics. Classical arms control faces a '
         'prisoner\u2019s dilemma: each state benefits from others\u2019 compliance '
-        'but is tempted to defect. The transparent map framework inverts '
+        'but is tempted to defect. The MINE framework inverts '
         'this logic. A state benefits from its '
     )
     p.add_run('own').italic = True
@@ -2002,7 +2005,7 @@ def create_manuscript():
         'than returning to unrestricted mine use (accepting humanitarian '
         'costs) or remaining within a prohibition that sacrifices military '
         'utility (accepting security costs), these states could adopt the '
-        'transparent map regime as a NATO-wide standard. In doing so, they '
+        'MINE regime as a NATO-wide standard. In doing so, they '
         'would demonstrate that responsible deterrence and humanitarian norms '
         'are not merely compatible but complementary\u2014that publishing a '
         'minefield map is simultaneously an act of military preparation '
@@ -2015,7 +2018,7 @@ def create_manuscript():
         'states in various stages of Ottawa Convention withdrawal, the next '
         '12\u201324 months will determine whether these states develop individual, '
         'potentially divergent mine employment practices or converge on a '
-        'common standard. The transparent map framework offers an immediate, '
+        'common standard. The MINE framework offers an immediate, '
         'implementable standard requiring no new technology, no novel legal '
         'instruments beyond existing CCW mechanisms, and no compromise of '
         'either military utility or humanitarian principles.'
@@ -2039,7 +2042,7 @@ def create_manuscript():
 
     p = doc.add_paragraph()
     p.add_run(
-        'We note that the framework is immediately implementable using '
+        'We note that the MINE framework is immediately implementable using '
         'existing technology and legal mechanisms. No novel mine designs, '
         'no new sensors, and no untested verification technologies are '
         'required. The only innovation is informational: the commitment to '
@@ -2051,7 +2054,7 @@ def create_manuscript():
 
     p = doc.add_paragraph()
     p.add_run(
-        'The transparent minefield is, ultimately, an information-theoretic '
+        'The MINE framework is, ultimately, an information-theoretic '
         'innovation applied to a humanitarian problem. It recognises that '
         'the harm caused by landmines is not only physical but informational: '
         'it is the '
@@ -2061,8 +2064,8 @@ def create_manuscript():
         ' about mine locations that makes post-conflict land unusable and '
         'clearance so expensive. By structuring that uncertainty as a '
         'controlled parameter\u2014published, bounded, and treaty-regulated\u2014'
-        'the framework converts an intractable post-conflict problem into '
-        'a finite, plannable task with a guaranteed end state.'
+        'the MINE framework converts an intractable post-conflict problem '
+        'into a finite, plannable task with a guaranteed end state.'
     )
 
     # ─── References ───────────────────────────────────────────────────────────
