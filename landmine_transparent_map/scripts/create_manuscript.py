@@ -458,7 +458,7 @@ def create_manuscript():
         'Consider a defending state that emplaces a minefield along a front '
         'of width W (metres) to a depth D (metres), with total area '
         'A = W \u00d7 D. The minefield contains N real anti-personnel mines '
-        'distributed across this area. Under the proposed regime, the defender '
+        'distributed across this area. Under the MINE regime, the defender '
         'publishes a map to the MINE Registry showing M = N(1 + r) '
         'marked positions, where r \u2265 0 is the dummy ratio. Of these, '
         'exactly N contain real mines and Nr are dummies.'
@@ -547,7 +547,7 @@ def create_manuscript():
     )
 
     p = doc.add_paragraph()
-    p.add_run('Regime C \u2013 Transparent map with dummies (proposed, 0 < r < \u221e): ').bold = True
+    p.add_run('Regime C \u2013 MINE regime (0 < r < \u221e): ').bold = True
     p.add_run(
         'The attacker has the published map showing M = N(1+r) positions. '
         'They know N mines exist among the M positions but cannot distinguish '
@@ -614,7 +614,7 @@ def create_manuscript():
     )
 
     p = doc.add_paragraph()
-    p.add_run('Map-based clearance (proposed regime): ').bold = True
+    p.add_run('Map-based clearance (MINE regime): ').bold = True
     p.add_run(
         'Clear all M = N(1+r) positions. Time = M \u00d7 t_c / k hours. '
         'Residual mines after completion = 0 (deterministic guarantee).'
@@ -932,7 +932,7 @@ def create_manuscript():
     hdr = table4.rows[0].cells
     hdr[0].text = 'Dimension'
     hdr[1].text = 'Self-destruct (CCW Protocol II)'
-    hdr[2].text = 'Transparent map (proposed)'
+    hdr[2].text = 'MINE framework (proposed)'
     comp_data = [
         ('Residual risk', 'N \u00d7 failure_rate (2\u201310%)', 'Zero (deterministic)'),
         ('Depends on reliability', 'Yes (mechanical)', 'No (informational)'),
@@ -1056,7 +1056,7 @@ def create_manuscript():
     p = doc.add_paragraph()
     p.add_run(
         'where H_b(p) = \u2212p log\u2082(p) \u2212 (1\u2212p) log\u2082(1\u2212p). '
-        'Under Regime C (transparent map), uncertainty is confined to which '
+        'Under Regime C (MINE regime), uncertainty is confined to which '
         'N of M positions are real:'
     )
 
@@ -1228,7 +1228,7 @@ def create_manuscript():
         'Practical implementation requires three institutional components. '
         'First, a '
     )
-    p.add_run('the MINE Registry').italic = True
+    p.add_run('MINE Registry').italic = True
     p.add_run(
         '\u2014a secure, append-only database maintained by a trusted third party '
         '(NATO Communications and Information Agency, ICRC, or a dedicated '
@@ -1245,7 +1245,7 @@ def create_manuscript():
     p.add_run(
         'Second, a '
     )
-    p.add_run('the MINE verification protocol').italic = True
+    p.add_run('MINE verification protocol').italic = True
     p.add_run(
         '\u2014procedures for confirming compliance both during and after conflict. '
         'During conflict, satellite imagery can verify that marked positions '
@@ -1272,7 +1272,7 @@ def create_manuscript():
     doc.add_heading('7.4 Compatibility with existing frameworks', level=2)
     p = doc.add_paragraph()
     p.add_run(
-        'The proposed framework is designed to complement CCW Amended '
+        'The MINE framework is designed to complement CCW Amended '
         'Protocol II. It extends the Protocol\u2019s Article 7 recording '
         'requirements by: (a) mandating publication during deployment '
         'rather than only post-conflict; and (b) formalising the dummy '
