@@ -97,6 +97,7 @@ def summarise_k_levels(kdf: pd.DataFrame) -> dict:
     # Growth-rate variance decomposition (already in TFP terms)
     var_rows = []
     for iso3, grp in kdf.groupby("iso3"):
+        grp = grp.sort_values("year")
         dtfp_M0 = np.diff(grp["tfp_M0"].values)
         dtfp_obs = np.diff(grp["tfp_Mobs"].values)
         var_M0 = float(np.var(dtfp_M0))

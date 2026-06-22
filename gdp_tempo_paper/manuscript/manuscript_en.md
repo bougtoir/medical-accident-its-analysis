@@ -263,9 +263,9 @@ The preceding analyses establish that the tempo correction improves forecast acc
 
 From the growth-accounting identity TFP = log Y − α log K − (1−α) log LH, any change in measured capital changes measured TFP mechanically: Δ log K = (TFP_M0 − TFP_obs) / α. Figure 10 plots the K-level divergence — K_obs/K_M0 − 1 in percent — over the full sample period for six representative countries (Japan, United States, Germany, Republic of Korea, United Kingdom, Sweden). In every country the tempo-corrected stock K_obs lies below the standard PIM stock K_M0, and the gap widens over time as investment composition shifts toward longer-gestation assets. This is the direct measurement consequence that Inklaar's critique emphasised: the PIM counts investment as productive before it has completed gestation, overstating the capital stock. The direction is unambiguous: all 35 countries show K_obs < K_M0.
 
-**[Table 6 here]**
+**[Table 5 here]**
 
-Table 6 and the right panel of Figure 10 quantify the cross-country distribution. Over 2010–2019, the median K-level gap is −4.3 % (IQR: −5.3 % to −3.8 %). The five most affected economies — Ireland (−9.2 %), Costa Rica (−7.3 %), Republic of Korea (−7.1 %), Slovakia (−6.7 %), Israel (−6.4 %) — are precisely those with the largest recent shifts toward intellectual-property and ICT investment. The five least affected — Greece (−0.6 %), Japan (−1.2 %), Germany (−1.9 %), Italy (−2.1 %), Portugal (−2.6 %) — are those with more stable investment mixes.
+Table 5 and the right panel of Figure 10 quantify the cross-country distribution. Over 2010–2019, the median K-level gap is −4.3 % (IQR: −5.3 % to −3.8 %). The five most affected economies — Ireland (−9.2 %), Costa Rica (−7.3 %), Republic of Korea (−7.1 %), Slovakia (−6.7 %), Israel (−6.4 %) — are precisely those with the largest recent shifts toward intellectual-property and ICT investment. The five least affected — Greece (−0.6 %), Japan (−1.2 %), Germany (−1.9 %), Italy (−2.1 %), Portugal (−2.6 %) — are those with more stable investment mixes.
 
 **[Figure 11 here]**
 
@@ -279,7 +279,7 @@ Table 6 and the right panel of Figure 10 quantify the cross-country distribution
 
 ### 5.11 Solow-residual historical decomposition
 
-**[Table 5 here]**
+**[Table 6 here]**
 
 **[Figure 13 here]**
 
@@ -377,11 +377,11 @@ Three practical recommendations follow from the results. First, any revision of 
 
 **[Insert table 4 here]**
 
-**Table 5.** Tempo-artifact share of TFP-growth variance by country: the percentage reduction in Var(Δ log TFP) when moving from M0 to M2 (tempo drift only) and from M0 to M4 (joint tempo + intangible).
+**Table 5.** Capital-level measurement consequences of observable tempo correction (M_obs vs M0), 2010–2019 country means: K-level percentage difference, TFP shift (percentage points), and implied labour-share shift (percentage points).
 
 **[Insert table 5 here]**
 
-**Table 6.** Capital-level measurement consequences of observable tempo correction (M_obs vs M0), 2010–2019 country means: K-level percentage difference, TFP shift (percentage points), and implied labour-share shift (percentage points).
+**Table 6.** Tempo-artifact share of TFP-growth variance by country: the percentage reduction in Var(Δ log TFP) when moving from M0 to M2 (tempo drift only) and from M0 to M4 (joint tempo + intangible).
 
 **[Insert table 6 here]**
 

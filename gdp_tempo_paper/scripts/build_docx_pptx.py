@@ -17,8 +17,8 @@ Outputs into ../manuscript/ :
   - table2_model_metrics.docx
   - table3_rpim.docx
   - table4_extended_oos.docx
-  - table5_tempo_artifact.docx
-  - table6_k_level.docx
+  - table5_k_level.docx
+  - table6_tempo_artifact.docx
   - cover_letter_en.docx / .pdf
 """
 from __future__ import annotations
@@ -484,9 +484,9 @@ def build_manuscript(lang: str):
     t3 = pd.read_csv(t3_path) if os.path.exists(t3_path) else None
     t4_path = os.path.join(TAB, "table4_extended_oos.csv")
     t4 = pd.read_csv(t4_path) if os.path.exists(t4_path) else None
-    t5_path = os.path.join(TAB, "table5_tempo_artifact.csv")
+    t5_path = os.path.join(TAB, "table5_k_level.csv")
     t5 = pd.read_csv(t5_path) if os.path.exists(t5_path) else None
-    t6_path = os.path.join(TAB, "table6_k_level.csv")
+    t6_path = os.path.join(TAB, "table6_tempo_artifact.csv")
     t6 = pd.read_csv(t6_path) if os.path.exists(t6_path) else None
 
     # Figure caption lookup by index
@@ -507,10 +507,10 @@ def build_manuscript(lang: str):
     t3_cap_ja = "関係型PIM診断: M0, M1, M2, M4におけるρ̂₂の要約。"
     t4_cap_en = "Extended OOS metrics: direction accuracy and CWON trajectory RMSE."
     t4_cap_ja = "拡張標本外指標: 方向精度およびCWON軌跡RMSE。"
-    t5_cap_en = "Tempo-artifact share of TFP-growth variance: percentage reduction in Var(d log TFP) from M0 to M2 (tempo) and M0 to M4 (joint)."
-    t5_cap_ja = "テンポ・アーティファクトのTFP成長率分散シェア: M0→M2（テンポ）およびM0→M4（統合）。"
-    t6_cap_en = "K-level measurement consequences: K gap, TFP shift, and implied labour-share shift (2010-2019 country means)."
-    t6_cap_ja = "K水準の計測帰結: K乖離、TFPシフト、労働分配率シフト（2010-2019年国別平均）。"
+    t5_cap_en = "K-level measurement consequences: K gap, TFP shift, and implied labour-share shift (2010-2019 country means)."
+    t5_cap_ja = "K水準の計測帰結: K乖離、TFPシフト、労働分配率シフト（2010-2019年国別平均）。"
+    t6_cap_en = "Tempo-artifact share of TFP-growth variance: percentage reduction in Var(d log TFP) from M0 to M2 (tempo) and M0 to M4 (joint)."
+    t6_cap_ja = "テンポ・アーティファクトのTFP成長率分散シェア: M0→M2（テンポ）およびM0→M4（統合）。"
 
     doc = Document()
     # Use sensible page margins
@@ -675,19 +675,19 @@ def build_standalone_tables():
             ("table4_extended_oos.docx", t4,
              "Table 4. Extended OOS metrics: direction accuracy and CWON trajectory RMSE.",
              None))
-    t5_path = os.path.join(TAB, "table5_tempo_artifact.csv")
+    t5_path = os.path.join(TAB, "table5_k_level.csv")
     t5 = pd.read_csv(t5_path) if os.path.exists(t5_path) else None
     if t5 is not None:
         table_list.append(
-            ("table5_tempo_artifact.docx", t5,
-             "Table 5. Tempo-artifact share of TFP-growth variance.",
+            ("table5_k_level.docx", t5,
+             "Table 5. K-level measurement consequences (2010-2019 country means).",
              None))
-    t6_path = os.path.join(TAB, "table6_k_level.csv")
+    t6_path = os.path.join(TAB, "table6_tempo_artifact.csv")
     t6 = pd.read_csv(t6_path) if os.path.exists(t6_path) else None
     if t6 is not None:
         table_list.append(
-            ("table6_k_level.docx", t6,
-             "Table 6. K-level measurement consequences (2010-2019 country means).",
+            ("table6_tempo_artifact.docx", t6,
+             "Table 6. Tempo-artifact share of TFP-growth variance.",
              None))
     for name, df, cap, widths in table_list:
         d = Document()
