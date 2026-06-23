@@ -839,8 +839,8 @@ def main():
     print("\n--- 3. Solow residual decomposition ---", flush=True)
     solow = run_solow(countries)
     solow.to_csv(os.path.join(DATA, "full_solow.csv"), index=False)
-    table5 = summarise_tempo_artifact(solow)
-    table5.to_csv(os.path.join(TAB, "table5_tempo_artifact_mobs.csv"), index=False)
+    table6 = summarise_tempo_artifact(solow)
+    table6.to_csv(os.path.join(TAB, "table6_tempo_artifact_mobs.csv"), index=False)
 
     # ── 4. Bootstrap CI on OOS improvement ────────────────────────────────
     print("\n--- 4. Bootstrap CI on M0 − M_obs OOS ---", flush=True)
