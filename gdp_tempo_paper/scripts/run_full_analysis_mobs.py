@@ -908,8 +908,8 @@ def main():
                   f"R²={rpim_summary[name]['R2_median']:.3f}")
 
     print(f"\n┌── Solow tempo artifact (median share of TFP variance) ───┐")
-    m2_shares = table5["M2 tempo share %"].replace("", np.nan).astype(float).dropna()
-    mobs_shares = table5["Mobs tempo share %"].replace("", np.nan).astype(float).dropna()
+    m2_shares = table6["M2 tempo share %"].replace("", np.nan).astype(float).dropna()
+    mobs_shares = table6["Mobs tempo share %"].replace("", np.nan).astype(float).dropna()
     print(f"  M2:   {m2_shares.median():.1f}%")
     print(f"  Mobs: {mobs_shares.median():.1f}%")
 
