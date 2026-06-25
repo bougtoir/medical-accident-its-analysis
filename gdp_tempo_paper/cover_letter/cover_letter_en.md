@@ -25,6 +25,8 @@ Second, the K-level measurement consequences are directly relevant to active emp
 
 Third, the framework requires no structural assumptions beyond the standard production function and PIM, making it reproducible across different data vintages and samples. The parameter-free M_obs proxy confirms that the results are not driven by statistical fitting but by observable investment-composition shifts.
 
+I wish to note that the observable proxy M_obs, which is central to the paper, was developed specifically to address a concern raised in the capital-measurement literature: that time-varying lag parameters may act as fitting parameters whose values are selected to improve statistical fit rather than recovered from data. M_obs eliminates this concern entirely. It is constructed directly from OECD Gross Fixed Capital Formation asset-composition data by weighting published asset-specific gestation lags by their observed investment shares — no parameters are estimated, no loss function is minimised, and no output data enter the construction. Yet M_obs reproduces the core results of the estimated models: the median capital-level difference, the TFP shift, and the labour-share adjustment are all quantitatively consistent across the parameter-free and estimated specifications. This addresses both the identification concern (the results do not depend on a fitting procedure) and the scope concern (the paper's contribution is not an accounting exercise but an empirically documented measurement bias with quantifiable macroeconomic consequences for TFP, labour shares, and national wealth).
+
 The manuscript is approximately 12,000 words of body text, with fourteen figures and six tables.
 
 I confirm the following:
