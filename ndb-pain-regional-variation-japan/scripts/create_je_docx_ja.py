@@ -584,7 +584,7 @@ doc.add_paragraph(r3_text)
 
 add_inline_figure(
     '都道府県別の外来神経障害性疼痛薬処方（手術あたり）。'
-    '棒は地域ブロック別に色分け。'
+    '棒は地域ブロック別に色とハッチングで区別。'
     '破線は全国平均を示す。',
     1
 )
@@ -631,19 +631,23 @@ models = [
     ('モデル2（全交絡因子）',
      f'R\u00b2={reg["model2_adjusted"]["R2"]:.3f}',
      f'R\u00b2adj={reg["model2_adjusted"]["R2_adj"]:.3f}',
-     '地域指標NS'),
+     f'地域β={reg["model2_adjusted"]["tohoku_coef"]:.1f}, '
+     f'P={reg["model2_adjusted"]["tohoku_p"]:.3f}'),
     ('モデル3（コア神経障害薬）',
      f'R\u00b2={reg["model3_core_neuropathic"]["R2"]:.3f}',
      f'R\u00b2adj={reg["model3_core_neuropathic"]["R2_adj"]:.3f}',
-     '地域指標NS'),
+     f'地域β={reg["model3_core_neuropathic"]["tohoku_coef"]:.1f}, '
+     f'P={reg["model3_core_neuropathic"]["tohoku_p"]:.3f}'),
     ('モデル4（神経ブロック）',
      f'R\u00b2={reg["model4_nerve_blocks"]["R2"]:.3f}',
      f'R\u00b2adj={reg["model4_nerve_blocks"]["R2_adj"]:.3f}',
-     '地域指標NS'),
+     f'地域β={reg["model4_nerve_blocks"]["tohoku_coef"]:.2f}, '
+     f'P={reg["model4_nerve_blocks"]["tohoku_p"]:.3f}'),
     ('モデル5（統合）',
      f'R\u00b2={reg["model5_integrated"]["R2"]:.3f}',
      f'急性β={reg["model5_integrated"]["acute_pain_coef"]:.2f}, P={reg["model5_integrated"]["acute_pain_p"]:.3f}',
-     '地域指標NS'),
+     f'地域β={reg["model5_integrated"]["tohoku_coef"]:.1f}, '
+     f'P={reg["model5_integrated"]["tohoku_p"]:.3f}'),
 ]
 
 t2 = doc.add_table(rows=1 + len(models), cols=4, style='Table Grid')
@@ -708,7 +712,7 @@ doc.add_paragraph(r_cslc2)
 
 add_inline_figure(
     '需要\u2013供給の乖離：CSLC有訴者率（人口千対）と急性鎮痛薬処方（手術あたり）。'
-    '各点は1都道府県を示し、地域ブロック別に色分け。'
+    '各点は1都道府県を示し、マーカー形状で地域ブロックを区別。'
     '相関の欠如（r=0.03）は処方差異が症状負荷と乖離していることを示す。',
     4
 )

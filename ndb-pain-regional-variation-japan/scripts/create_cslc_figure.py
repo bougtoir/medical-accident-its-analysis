@@ -55,6 +55,12 @@ REGION_COLORS = {
     'Hokuriku-Koshinetsu': '#377eb8', 'Tokai': '#984ea3', 'Kinki': '#a65628',
     'Chugoku': '#f781bf', 'Shikoku': '#999999', 'Kyushu-Okinawa': '#e6ab02',
 }
+# Distinct markers for B&W print compatibility (colour preserved for screen)
+REGION_MARKERS = {
+    'Hokkaido': 'o', 'Tohoku': 's', 'Kanto': '^',
+    'Hokuriku-Koshinetsu': 'D', 'Tokai': 'v', 'Kinki': 'p',
+    'Chugoku': 'h', 'Shikoku': 'X', 'Kyushu-Okinawa': '*',
+}
 
 PREF_EN = {
     1: 'Hokkaido', 2: 'Aomori', 3: 'Iwate', 4: 'Miyagi', 5: 'Akita',
@@ -74,13 +80,13 @@ acute = np.array([r['acute_analgesic_per_surgery'] for r in rows])
 
 fig, ax = plt.subplots(1, 1, figsize=(10, 7))
 
-# Plot each region
+# Plot each region with grayscale markers
 for reg_en in REGION_ORDER:
     mask = [REGION_EN.get(r['region'], '') == reg_en for r in rows]
     x = symptom[mask]
     y = acute[mask]
-    ax.scatter(x, y, c=REGION_COLORS[reg_en], label=reg_en,
-               s=60, edgecolors='white', linewidths=0.5, zorder=3)
+    ax.scatter(x, y, marker=REGION_MARKERS[reg_en], c=REGION_COLORS[reg_en],
+               label=reg_en, s=70, edgecolors='black', linewidths=0.6, zorder=3)
 
 # Annotate selected outlier prefectures
 outlier_prefs = [1, 13, 46, 21, 43, 28]  # Hokkaido, Tokyo, Kagoshima, Gifu, Kumamoto, Hyogo
@@ -95,7 +101,7 @@ for r in rows:
 slope, intercept, r_val, p_val, se = stats.linregress(symptom, acute)
 x_line = np.linspace(symptom.min() - 5, symptom.max() + 5, 100)
 y_line = slope * x_line + intercept
-ax.plot(x_line, y_line, '--', color='gray', linewidth=1, alpha=0.7)
+ax.plot(x_line, y_line, '--', color='black', linewidth=1, alpha=0.5)
 
 # Correlation annotation
 corr_r = cslc['correlations']['symptom_vs_acute']['pearson_r']
@@ -108,7 +114,10 @@ ax.set_xlabel('CSLC symptom prevalence rate (per 1,000 population)', fontsize=11
 ax.set_ylabel('Acute analgesic prescribing per surgery', fontsize=11)
 ax.set_title('Demand\u2013supply dissociation: symptom burden vs analgesic prescribing',
              fontsize=12, fontweight='bold')
-ax.legend(loc='lower right', fontsize=8, ncol=2, framealpha=0.9)
+handles = [plt.Line2D([0], [0], marker=REGION_MARKERS[r], color='w',
+           markerfacecolor=REGION_COLORS[r], markeredgecolor='black',
+           markeredgewidth=0.6, markersize=8, label=r) for r in REGION_ORDER]
+ax.legend(handles=handles, loc='lower right', fontsize=8, ncol=2, framealpha=0.9)
 ax.grid(True, alpha=0.3)
 
 plt.tight_layout()
@@ -144,8 +153,8 @@ for reg_en in REGION_ORDER:
     mask = [REGION_EN.get(r['region'], '') == reg_en for r in rows]
     x = symptom[mask]
     y = acute[mask]
-    ax.scatter(x, y, c=REGION_COLORS[reg_en], label=REGION_JA[reg_en],
-               s=60, edgecolors='white', linewidths=0.5, zorder=3)
+    ax.scatter(x, y, marker=REGION_MARKERS[reg_en], c=REGION_COLORS[reg_en],
+               label=REGION_JA[reg_en], s=70, edgecolors='black', linewidths=0.6, zorder=3)
 
 for r in rows:
     if r['pref_code'] in outlier_prefs:
@@ -155,14 +164,17 @@ for r in rows:
                     xytext=(4, 4), textcoords='offset points',
                     fontproperties=ja_prop)
 
-ax.plot(x_line, y_line, '--', color='gray', linewidth=1, alpha=0.7)
+ax.plot(x_line, y_line, '--', color='black', linewidth=1, alpha=0.5)
 ax.text(0.03, 0.97, f'r = {corr_r:.3f}, P = {corr_p:.3f}',
         transform=ax.transAxes, fontsize=10, verticalalignment='top',
         bbox=dict(boxstyle='round,pad=0.3', facecolor='white', edgecolor='gray', alpha=0.8))
 ax.set_xlabel('国民生活基礎調査 有訴者率（人口千対）', fontsize=11, fontproperties=ja_prop)
 ax.set_ylabel('急性鎮痛薬処方数/手術件数', fontsize=11, fontproperties=ja_prop)
 ax.set_title('需要\u2013供給の乖離：症状有訴率と鎮痛薬処方', fontsize=12, fontweight='bold', fontproperties=ja_prop)
-ax.legend(loc='lower right', fontsize=8, ncol=2, framealpha=0.9, prop=ja_prop)
+handles = [plt.Line2D([0], [0], marker=REGION_MARKERS[r], color='w',
+           markerfacecolor=REGION_COLORS[r], markeredgecolor='black',
+           markeredgewidth=0.6, markersize=8, label=REGION_JA[r]) for r in REGION_ORDER]
+ax.legend(handles=handles, loc='lower right', fontsize=8, ncol=2, framealpha=0.9, prop=ja_prop)
 ax.grid(True, alpha=0.3)
 plt.tight_layout()
 out_path_ja = os.path.join(OUTPUT_DIR, 'fig_cslc_demand_supply_ja.png')

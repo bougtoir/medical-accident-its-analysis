@@ -758,7 +758,7 @@ results_parts.append(r3)
 # === FIGURE 1 placeholder ===
 add_inline_figure(
     'Outpatient neuropathic pain drug prescribing per surgery by prefecture. '
-    'Bars are coloured by regional block. '
+    'Bars indicate regional blocks (distinguished by colour and hatch pattern). '
     'Dashed line indicates the national mean.',
     1
 )
@@ -811,19 +811,23 @@ models = [
     ('Model 2 (all confounders)',
      f'R\u00b2={reg["model2_adjusted"]["R2"]:.3f}',
      f'R\u00b2adj={reg["model2_adjusted"]["R2_adj"]:.3f}',
-     'Regional indicators NS'),
+     f'Regional \u03b2={reg["model2_adjusted"]["tohoku_coef"]:.1f}, '
+     f'P={reg["model2_adjusted"]["tohoku_p"]:.3f}'),
     ('Model 3 (core neuro)',
      f'R\u00b2={reg["model3_core_neuropathic"]["R2"]:.3f}',
      f'R\u00b2adj={reg["model3_core_neuropathic"]["R2_adj"]:.3f}',
-     'Regional indicators NS'),
+     f'Regional \u03b2={reg["model3_core_neuropathic"]["tohoku_coef"]:.1f}, '
+     f'P={reg["model3_core_neuropathic"]["tohoku_p"]:.3f}'),
     ('Model 4 (nerve blocks)',
      f'R\u00b2={reg["model4_nerve_blocks"]["R2"]:.3f}',
      f'R\u00b2adj={reg["model4_nerve_blocks"]["R2_adj"]:.3f}',
-     'Regional indicators NS'),
+     f'Regional \u03b2={reg["model4_nerve_blocks"]["tohoku_coef"]:.2f}, '
+     f'P={reg["model4_nerve_blocks"]["tohoku_p"]:.3f}'),
     ('Model 5 (integrated)',
      f'R\u00b2={reg["model5_integrated"]["R2"]:.3f}',
      f'Acute \u03b2={reg["model5_integrated"]["acute_pain_coef"]:.2f}, P={reg["model5_integrated"]["acute_pain_p"]:.3f}',
-     'Regional indicators NS'),
+     f'Regional \u03b2={reg["model5_integrated"]["tohoku_coef"]:.1f}, '
+     f'P={reg["model5_integrated"]["tohoku_p"]:.3f}'),
 ]
 
 t2 = doc.add_table(rows=1 + len(models), cols=4, style='Table Grid')
@@ -901,8 +905,8 @@ results_parts.append(r_cslc2)
 add_inline_figure(
     'Demand\u2013supply dissociation: CSLC symptom prevalence rate '
     '(per 1,000 population) vs acute analgesic prescribing per surgery '
-    'across 47 prefectures. Each dot represents one prefecture, coloured by '
-    'regional block. The near-zero correlation (r=0.03) indicates that '
+    'across 47 prefectures. Each marker shape represents a regional block. '
+    'The near-zero correlation (r=0.03) indicates that '
     'prescribing variation is dissociated from symptom burden.',
     4
 )
@@ -1169,19 +1173,19 @@ add_heading_text('Figure Legends', level=1)
 legends = [
     ('Figure 1.', 'Outpatient neuropathic pain drug prescribing per surgery by prefecture. '
      'Bars represent individual prefectures ordered by prescribing index. '
-     'Bars are coloured by regional block. '
+     'Bars indicate regional blocks (distinguished by colour and hatch pattern). '
      'Dashed line indicates the national mean.'),
     ('Figure 2.', 'Correlation between neuropathic pain prescribing and confounder disease '
      'proxies across 47 prefectures. '
-     'Each dot represents one prefecture. '
+     'Each marker represents a regional block (distinguished by colour and shape). '
      'Diabetes drugs show the strongest correlation (r=0.87).'),
     ('Figure 3.', 'Regional comparison of neuropathic pain prescribing: (a) unadjusted and '
      '(b) after adjustment for confounding disease proxies. '
      'Error bars indicate SD.'),
     ('Figure 4.', 'Demand\u2013supply dissociation: CSLC symptom prevalence rate '
      '(per 1,000 population) vs acute analgesic prescribing per surgery '
-     'across 47 prefectures. Each dot represents one prefecture, coloured by '
-     'regional block. The near-zero correlation (r=0.03, P=0.85) indicates that '
+     'across 47 prefectures. Each marker shape represents a regional block. '
+     'The near-zero correlation (r=0.03, P=0.85) indicates that '
      'prescribing variation is dissociated from symptom burden.'),
 ]
 
