@@ -6,19 +6,23 @@
 
 Data Science and AI Innovation Research Promotion Center, Shiga University
 
-1-1-1, Bamba, Hikone, Shiga, 522-8522 Japan
-
-Telephone: +81-749-27-1023. E-mail: bougtoir@gmail.com. ORCID: 0000-0001-7261-9062.
+1-1-1, Bamba, Hikone, Shiga, 522-8522 Japan, Telephone: +81-749-27-1023, E-mail: bougtoir@gmail.com, ORCID: 0000-0001-7261-9062
 
 **Statements and Declarations**
 
 *Competing interests.* The author declares no competing interests.
 
-*Funding.* No external funding was received for this research.
+*Consent to participate.* Not applicable.
+
+*Consent to publish.* Not applicable.
 
 *Data and code availability.* Penn World Table 10.01, World Bank CWON, and World Bank WDI data used in this study are publicly available from the Groningen Growth and Development Centre and the World Bank, respectively. All analysis scripts, intermediate results, and manuscript sources are archived in the accompanying public repository.
 
 *Declaration of generative AI use.* The author used generative AI to assist with formatting the text, choosing words that suited the tone, and writing analysis code. The author reviewed and edited the content as needed and takes full responsibility for the content of the published article.
+
+*Ethics approval.* This research uses publicly available, aggregate macroeconomic data (Penn World Table 10.01, World Bank CWON, World Bank WDI, OECD GFCF). No human subjects, animals, or personally identifiable data were involved. Ethical approval was therefore not required.
+
+*Funding.* No external funding was received for this research.
 
 [END TITLE PAGE]
 
