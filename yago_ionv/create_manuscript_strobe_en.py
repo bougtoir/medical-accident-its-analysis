@@ -24,6 +24,12 @@ with open(BASE / "flowchart_counts.json") as f:
     F = json.load(f)  # Flow counts
 with open(BASE / "bootstrap_results.json") as f:
     B = json.load(f)  # Bootstrap results
+with open(BASE / "summary_stats.json") as f:
+    S = json.load(f)  # Summary stats (includes hypotension secondary outcome)
+
+# --- Detachable structure flag ---
+# Set to False to produce a main-analysis-only manuscript (no sensitivity sections)
+INCLUDE_SENSITIVITY = True
 
 doc = Document()
 
@@ -161,14 +167,18 @@ add_paragraph(doc,
     f"{mr['E-Primary']['twin_CI_upper']:.2f}, "
     f"{format_p(mr['E-Primary']['twin_P'])}). "
     "This finding was robust across covariate sensitivity analyses, "
-    "emergency subgroup stratification, and 10,000-replicate stratified bootstrap validation.")
+    "emergency subgroup stratification, and 10,000-replicate stratified bootstrap validation. "
+    f"Intraoperative hypotension (SBP <90 mmHg), a secondary outcome, was less frequent "
+    f"in the twin group ({S['hypo_twin_pct']:.1f}%) than in the singleton group "
+    f"({S['hypo_single_pct']:.1f}%; {format_p(S['hypo_chi_p'])}).")
 
 add_paragraph(doc, "Conclusions", bold=True)
 add_paragraph(doc,
     "Although the overall antiemetic use was similar between singleton and twin pregnancies, "
     "the use of 5-HT3 receptor antagonists, which have high pharmacological specificity for "
     "nausea and vomiting, was significantly higher in the twin group. "
-    "This suggests that more severe IONV may occur in twin pregnancies during cesarean delivery.")
+    "Conversely, intraoperative hypotension was less frequent in the twin group, "
+    "suggesting that non-hypotensive pathways may contribute to IONV in twin pregnancies.")
 
 doc.add_page_break()
 
@@ -249,6 +259,8 @@ excl_reasons_en = {
     "Intrauterine fetal death (IUFD)": "intrauterine fetal death",
     "Vanishing twin": "vanishing twin",
     "Triplet pregnancy": "triplet pregnancy",
+    "Non-cesarean delivery": "non-cesarean delivery",
+    "Cardiac arrest": "cardiac arrest",
     "Other exclusion criteria": "other exclusion criteria",
     "Missing anesthesia data": "missing anesthesia data",
 }
@@ -281,11 +293,11 @@ add_paragraph(doc,
 add_paragraph(doc, "Broad-definition antiemetics", bold=True)
 add_paragraph(doc,
     "Primary outcome: IONV was defined as the administration of any antiemetic "
-    "from anesthesia induction to delivery or from delivery to leaving the operating room. "
+    "from anesthesia induction to fetal delivery. "
     "The following seven agents were included: metoclopramide, droperidol, ondansetron, "
     "granisetron, novamin (prochlorperazine), hydroxyzine (Atarax-P), and dexamethasone.\n"
     "Secondary outcome: IONV was defined as antiemetic administration from "
-    "anesthesia induction to delivery only.")
+    "anesthesia induction to leaving the operating room.")
 
 add_paragraph(doc, "Narrow-definition antiemetics: 5-HT3 receptor antagonists", bold=True)
 add_paragraph(doc,
@@ -295,6 +307,14 @@ add_paragraph(doc,
     "Metoclopramide (prokinetic), droperidol (sedation), prochlorperazine (antipsychotic), "
     "hydroxyzine (anxiolytic/antipruritic), and dexamethasone (prophylactic/anti-inflammatory) "
     "were excluded owing to their use for indications other than antiemesis.")
+
+add_paragraph(doc, "Secondary outcome: intraoperative hypotension", bold=True)
+add_paragraph(doc,
+    "As a secondary outcome, the frequency of intraoperative hypotension was assessed. "
+    "Hypotension was defined as systolic blood pressure <90 mmHg, "
+    "and the number of recorded episodes during surgery was used. "
+    "Because hypotension was also used as a covariate in the IONV analysis, "
+    "only descriptive statistics were used for between-group comparison.")
 
 add_heading(doc, "Covariates (STROBE Item 8)", level=2)
 add_paragraph(doc,
@@ -324,37 +344,35 @@ add_paragraph(doc,
     "IONV and twin pregnancy. Results were reported as adjusted odds ratios (aOR) "
     "with 95% confidence intervals (CI).")
 
-add_paragraph(doc,
-    "To assess the robustness of the twin effect estimate for the narrow-definition "
-    "primary outcome, a covariate sensitivity analysis was performed. This comprised: "
-    "(1) crude OR (twin only), (2) twin plus each individual covariate (9 models), "
-    "(3) full model minus each individual covariate (9 models), and "
-    "(4) the reduced model (6 covariates), yielding a total of 20 models.")
-
-add_heading(doc, "Sensitivity Analysis (STROBE Item 13)", level=2)
-add_paragraph(doc,
-    "To mitigate confounding by obstetric complications and surgical factors "
-    "that may independently influence IONV, a sensitivity subgroup analysis was performed "
-    "after further excluding cases with emergency cesarean delivery, prior cesarean delivery, "
-    "HDP, or preoperative steroid use.")
-
-add_paragraph(doc,
-    "Furthermore, to examine whether emergency cesarean delivery acts as an effect modifier, "
-    "subgroup analyses restricted to elective cases only and emergency cases only were conducted. "
-    "An interaction analysis including an emergency \u00d7 twin interaction term in the model "
-    "was also performed.")
-
-add_heading(doc, "Bootstrap Validation (STROBE Item 13)", level=2)
-add_paragraph(doc,
-    "Given the approximately 8:1 imbalance in sample size between singleton and twin groups, "
-    "a stratified bootstrap procedure was performed to validate the robustness of the "
-    "logistic regression confidence intervals. "
-    "In each of 10,000 resamples, singleton and twin cases were resampled separately "
-    "with replacement to maintain group proportions (stratified resampling). "
-    "Percentile and bias-corrected and accelerated (BCa) 95% confidence intervals "
-    "were calculated. The BCa bias-correction factor z0 was estimated from the "
-    "bootstrap distribution median, and the acceleration factor a was estimated "
-    "using the jackknife method.")
+if INCLUDE_SENSITIVITY:
+    add_paragraph(doc,
+        "To assess the robustness of the twin effect estimate for the narrow-definition "
+        "primary outcome, a covariate sensitivity analysis was performed. This comprised: "
+        "(1) crude OR (twin only), (2) twin plus each individual covariate (9 models), "
+        "(3) full model minus each individual covariate (9 models), and "
+        "(4) the reduced model (6 covariates), yielding a total of 20 models.")
+    add_heading(doc, "Sensitivity Analysis (STROBE Item 13)", level=2)
+    add_paragraph(doc,
+        "To mitigate confounding by obstetric complications and surgical factors "
+        "that may independently influence IONV, a sensitivity subgroup analysis was performed "
+        "after further excluding cases with emergency cesarean delivery, prior cesarean delivery, "
+        "HDP, or preoperative steroid use.")
+    add_paragraph(doc,
+        "Furthermore, to examine whether emergency cesarean delivery acts as an effect modifier, "
+        "subgroup analyses restricted to elective cases only and emergency cases only were conducted. "
+        "An interaction analysis including an emergency \u00d7 twin interaction term in the model "
+        "was also performed.")
+    add_heading(doc, "Bootstrap Validation (STROBE Item 13)", level=2)
+    add_paragraph(doc,
+        "Given the approximately 8:1 imbalance in sample size between singleton and twin groups, "
+        "a stratified bootstrap procedure was performed to validate the robustness of the "
+        "logistic regression confidence intervals. "
+        "In each of 10,000 resamples, singleton and twin cases were resampled separately "
+        "with replacement to maintain group proportions (stratified resampling). "
+        "Percentile and bias-corrected and accelerated (BCa) 95% confidence intervals "
+        "were calculated. The BCa bias-correction factor z0 was estimated from the "
+        "bootstrap distribution median, and the acceleration factor a was estimated "
+        "using the jackknife method.")
 
 add_paragraph(doc,
     "Statistical analyses were performed using Python 3.12 (scipy 1.14, statsmodels 0.14). "
@@ -369,16 +387,28 @@ add_heading(doc, "Results")
 
 # --- Participants (STROBE 14) ---
 add_heading(doc, "Participant Selection (STROBE Item 14)", level=2)
+# Build exclusion breakdown dynamically
+excl_en_parts = []
+for step in F["exclusion_steps"]:
+    en_reason = excl_reasons_en.get(step["reason"], step["reason"])
+    excl_en_parts.append(f"{en_reason} (n = {step['n']})")
+excl_en_detail = ", ".join(excl_en_parts[:-1]) + ", and " + excl_en_parts[-1] if len(excl_en_parts) > 1 else excl_en_parts[0]
+
+# Include date filter in participant flow
+date_filter_en = ""
+if F.get("out_of_period", {}).get("n", 0) > 0:
+    date_filter_en = (
+        f"Of {F['total_raw']['n']:,} cesarean deliveries in the database, "
+        f"{F['out_of_period']['n']} cases outside the study period "
+        f"(before April 2014; singleton {F['out_of_period']['n_s']}, twin {F['out_of_period']['n_t']}) "
+        f"were excluded, leaving {F['total']['n']:,} cases for eligibility assessment. "
+    )
+
 add_paragraph(doc,
+    date_filter_en +
     f"Of the {F['total']['n']:,} cesarean deliveries during the study period, "
     f"{F['total_excluded']['n']} cases were excluded: "
-    f"general anesthesia (n = {F['exclusion_steps'][0]['n']}), "
-    f"systolic blood pressure <90 mmHg at admission (n = {F['exclusion_steps'][1]['n']}), "
-    f"intrauterine fetal death (n = {F['exclusion_steps'][2]['n']}), "
-    f"vanishing twin (n = {F['exclusion_steps'][3]['n']}), "
-    f"triplet pregnancy (n = {F['exclusion_steps'][4]['n']}), "
-    f"other criteria (n = {F['exclusion_steps'][5]['n']}), and "
-    f"missing anesthesia data (n = {F['exclusion_steps'][6]['n']}). "
+    f"{excl_en_detail}. "
     f"An additional {F['preop_antiemetic']['n']} cases with preoperative antiemetic use "
     f"were excluded, yielding a final analytical cohort of {F['primary_analysis']['n']:,} cases "
     f"(singleton {F['primary_analysis']['n_s']:,}; twin {F['primary_analysis']['n_t']:,}) (Fig. 1).")
@@ -527,243 +557,256 @@ add_figure(doc, BASE / "figures_e" / "fig2_forest_E_primary.png",
 add_figure(doc, BASE / "figures_e" / "fig4_protocol_vs_defE.png",
            "Fig. 4  Twin Effect on IONV: Broad vs Narrow Antiemetic Definition")
 
-# --- Other analyses (STROBE 18) ---
-add_heading(doc, "Covariate Sensitivity Analysis (STROBE Item 18)", level=2)
+# --- Secondary outcome: Hypotension ---
+add_heading(doc, "Secondary Outcome: Intraoperative Hypotension (STROBE Item 17)", level=2)
+add_paragraph(doc,
+    f"Intraoperative hypotension (SBP <90 mmHg) occurred in "
+    f"{S['hypo_single_n']:,}/{S['n_single']:,} singleton cases ({S['hypo_single_pct']:.1f}%) and "
+    f"{S['hypo_twin_n']}/{S['n_twin']:,} twin cases ({S['hypo_twin_pct']:.1f}%), "
+    f"with a significantly lower rate in the twin group (P = {S['hypo_chi_p']:.3f}). "
+    f"The median number of hypotensive episodes [interquartile range] was "
+    f"{S['hypo_count_single_median']:.0f} [{S['hypo_count_single_q1']:.0f}\u2013"
+    f"{S['hypo_count_single_q3']:.0f}] in singletons and "
+    f"{S['hypo_count_twin_median']:.0f} [{S['hypo_count_twin_q1']:.0f}\u2013"
+    f"{S['hypo_count_twin_q3']:.0f}] in twins (P = {S['hypo_count_p']:.3f}).")
+
+# Note: hypotension is also used as a covariate in IONV analysis,
+# so only descriptive statistics are reported here (no regression).
+
+# ============================================================
+# SENSITIVITY ANALYSES (detachable block)
+# ============================================================
 
 cov_df = pd.read_csv(BASE / "tables_e" / "covariate_sensitivity.csv")
-n_sig_main = int((cov_df["P"] < 0.05).sum())
-add_paragraph(doc,
-    f"To assess the robustness of the twin effect estimate for the narrow-definition "
-    f"primary outcome, a covariate sensitivity analysis was performed (Table 3, Fig. 5). "
-    f"Across all {len(cov_df)} models, the aOR for twin pregnancy ranged from "
-    f"{cov_df['aOR'].min():.2f} to {cov_df['aOR'].max():.2f}, "
-    f"and {n_sig_main}/{len(cov_df)} models were statistically significant (P < 0.05).")
 
-# Table 3: Covariate sensitivity
-add_paragraph(doc,
-    "Table 3. Covariate Sensitivity Analysis (Narrow-Definition Primary Outcome, "
-    "Full Cohort)", bold=True)
-tbl3 = doc.add_table(rows=len(cov_df) + 1, cols=4)
-tbl3.alignment = WD_TABLE_ALIGNMENT.CENTER
-tbl3.style = "Light Shading Accent 1"
-for j, h in enumerate(["Model", "aOR", "95% CI", "P value"]):
-    tbl3.rows[0].cells[j].text = h
-    for par in tbl3.rows[0].cells[j].paragraphs:
-        par.runs[0].bold = True
-        par.runs[0].font.size = Pt(9)
-for i, (_, row) in enumerate(cov_df.iterrows()):
-    vals = [row["Model"], f"{row['aOR']:.2f}",
-            f"{row['CI_lower']:.2f}\u2013{row['CI_upper']:.2f}",
-            "< 0.001" if row["P"] < 0.001 else f"{row['P']:.3f}"]
-    for j, v in enumerate(vals):
-        tbl3.rows[i + 1].cells[j].text = v
-        for par in tbl3.rows[i + 1].cells[j].paragraphs:
-            for r in par.runs:
-                r.font.size = Pt(9)
-doc.add_paragraph()
+if INCLUDE_SENSITIVITY:
+    n_sig_main = int((cov_df["P"] < 0.05).sum())
+    add_heading(doc, "Covariate Sensitivity Analysis (STROBE Item 18)", level=2)
+    add_paragraph(doc,
+        f"To assess the robustness of the twin effect estimate for the narrow-definition "
+        f"primary outcome, a covariate sensitivity analysis was performed (Table 3, Fig. 5). "
+        f"Across all {len(cov_df)} models, the aOR for twin pregnancy ranged from "
+        f"{cov_df['aOR'].min():.2f} to {cov_df['aOR'].max():.2f}, "
+        f"and {n_sig_main}/{len(cov_df)} models were statistically significant (P < 0.05).")
 
-# Fig 5: Covariate sensitivity forest
-add_figure(doc, BASE / "figures_e" / "fig3_covariate_sensitivity.png",
-           "Fig. 5  Covariate Sensitivity Analysis: Twin Effect on "
-           "Narrow-Definition Antiemetic Use")
+    # Table 3: Covariate sensitivity
+    add_paragraph(doc,
+        "Table 3. Covariate Sensitivity Analysis (Narrow-Definition Primary Outcome, "
+        "Full Cohort)", bold=True)
+    tbl3 = doc.add_table(rows=len(cov_df) + 1, cols=4)
+    tbl3.alignment = WD_TABLE_ALIGNMENT.CENTER
+    tbl3.style = "Light Shading Accent 1"
+    for j, h in enumerate(["Model", "aOR", "95% CI", "P value"]):
+        tbl3.rows[0].cells[j].text = h
+        for par in tbl3.rows[0].cells[j].paragraphs:
+            par.runs[0].bold = True
+            par.runs[0].font.size = Pt(9)
+    for i, (_, row) in enumerate(cov_df.iterrows()):
+        vals = [row["Model"], f"{row['aOR']:.2f}",
+                f"{row['CI_lower']:.2f}\u2013{row['CI_upper']:.2f}",
+                "< 0.001" if row["P"] < 0.001 else f"{row['P']:.3f}"]
+        for j, v in enumerate(vals):
+            tbl3.rows[i + 1].cells[j].text = v
+            for par in tbl3.rows[i + 1].cells[j].paragraphs:
+                for r in par.runs:
+                    r.font.size = Pt(9)
+    doc.add_paragraph()
 
-# --- Exclusion sensitivity analysis ---
-add_heading(doc, "Exclusion Sensitivity Analysis (STROBE Item 18)", level=2)
+    # Fig 5: Covariate sensitivity forest
+    add_figure(doc, BASE / "figures_e" / "fig3_covariate_sensitivity.png",
+               "Fig. 5  Covariate Sensitivity Analysis: Twin Effect on "
+               "Narrow-Definition Antiemetic Use")
 
-add_paragraph(doc,
-    f"After further exclusion of emergency cesarean delivery "
-    f"(n = {E['exclusion_counts']['Emergency CS']:,}), "
-    f"prior cesarean delivery (n = {E['exclusion_counts']['Prior CS']:,}), "
-    f"HDP (n = {E['exclusion_counts']['HDP']}), and "
-    f"preoperative steroid use (n = {E['exclusion_counts']['Preoperative steroid']}), "
-    f"the elective, low-risk sensitivity subgroup comprised {E['n_analysis']:,} cases "
-    f"(singleton {E['n_single']:,}; twin {E['n_twin']:,}) (with overlap; Fig. 1).")
+    # --- Exclusion sensitivity analysis ---
+    add_heading(doc, "Exclusion Sensitivity Analysis (STROBE Item 18)", level=2)
+    add_paragraph(doc,
+        f"After further exclusion of emergency cesarean delivery "
+        f"(n = {E['exclusion_counts']['Emergency CS']:,}), "
+        f"prior cesarean delivery (n = {E['exclusion_counts']['Prior CS']:,}), "
+        f"HDP (n = {E['exclusion_counts']['HDP']}), and "
+        f"preoperative steroid use (n = {E['exclusion_counts']['Preoperative steroid']}), "
+        f"the elective, low-risk sensitivity subgroup comprised {E['n_analysis']:,} cases "
+        f"(singleton {E['n_single']:,}; twin {E['n_twin']:,}) (with overlap; Fig. 1).")
+    add_paragraph(doc,
+        f"Under the broad definition, IONV rates did not differ significantly "
+        f"(singleton {eo['A-Primary']['singleton_pct']:.1f}% vs "
+        f"twin {eo['A-Primary']['twin_pct']:.1f}%; "
+        f"aOR {er['A-Primary']['twin_OR']:.2f}, "
+        f"{format_p(er['A-Primary']['twin_P'])}). "
+        f"Under the narrow definition, IONV remained significantly higher in the twin group "
+        f"(singleton {eo['E-Primary']['singleton_pct']:.1f}% vs "
+        f"twin {eo['E-Primary']['twin_pct']:.1f}%; "
+        f"aOR {er['E-Primary']['twin_OR']:.2f}, "
+        f"95% CI {er['E-Primary']['twin_CI_lower']:.2f}\u2013"
+        f"{er['E-Primary']['twin_CI_upper']:.2f}, "
+        f"{format_p(er['E-Primary']['twin_P'])}) (Table 4).")
 
-add_paragraph(doc,
-    f"Under the broad definition, IONV rates did not differ significantly "
-    f"(singleton {eo['A-Primary']['singleton_pct']:.1f}% vs "
-    f"twin {eo['A-Primary']['twin_pct']:.1f}%; "
-    f"aOR {er['A-Primary']['twin_OR']:.2f}, "
-    f"{format_p(er['A-Primary']['twin_P'])}). "
-    f"Under the narrow definition, IONV remained significantly higher in the twin group "
-    f"(singleton {eo['E-Primary']['singleton_pct']:.1f}% vs "
-    f"twin {eo['E-Primary']['twin_pct']:.1f}%; "
-    f"aOR {er['E-Primary']['twin_OR']:.2f}, "
-    f"95% CI {er['E-Primary']['twin_CI_lower']:.2f}\u2013"
-    f"{er['E-Primary']['twin_CI_upper']:.2f}, "
-    f"{format_p(er['E-Primary']['twin_P'])}) (Table 4).")
+    # Table 4: Exclusion sensitivity results
+    add_paragraph(doc,
+        "Table 4. Exclusion Sensitivity Analysis Results "
+        "(Elective, Low-Risk Subgroup)", bold=True)
+    tbl4 = doc.add_table(rows=5, cols=7)
+    tbl4.alignment = WD_TABLE_ALIGNMENT.CENTER
+    tbl4.style = "Light Shading Accent 1"
+    for j, h in enumerate(["Outcome", "Singleton n (%)", "Twin n (%)",
+                            "Model", "aOR", "95% CI", "P value"]):
+        tbl4.rows[0].cells[j].text = h
+        for par in tbl4.rows[0].cells[j].paragraphs:
+            par.runs[0].bold = True
+            par.runs[0].font.size = Pt(8)
+    for i, key in enumerate(["A-Primary", "A-Secondary", "E-Primary", "E-Secondary"]):
+        rr = er[key]
+        oo = eo[key]
+        labels_en = {
+            "A-Primary": "Broad, Primary",
+            "A-Secondary": "Broad, Secondary",
+            "E-Primary": "Narrow, Primary",
+            "E-Secondary": "Narrow, Secondary",
+        }
+        vals = [
+            labels_en[key],
+            f"{oo['singleton_n']} ({oo['singleton_pct']:.1f}%)",
+            f"{oo['twin_n']} ({oo['twin_pct']:.1f}%)",
+            rr["model_type"],
+            f"{rr['twin_OR']:.2f}",
+            f"{rr['twin_CI_lower']:.2f}\u2013{rr['twin_CI_upper']:.2f}",
+            "< 0.001" if rr["twin_P"] < 0.001 else f"{rr['twin_P']:.3f}",
+        ]
+        for j, v in enumerate(vals):
+            tbl4.rows[i + 1].cells[j].text = v
+            for par in tbl4.rows[i + 1].cells[j].paragraphs:
+                for r in par.runs:
+                    r.font.size = Pt(8)
+    doc.add_paragraph()
 
-# Table 4: Exclusion sensitivity results
-add_paragraph(doc,
-    "Table 4. Exclusion Sensitivity Analysis Results "
-    "(Elective, Low-Risk Subgroup)", bold=True)
-tbl4 = doc.add_table(rows=5, cols=7)
-tbl4.alignment = WD_TABLE_ALIGNMENT.CENTER
-tbl4.style = "Light Shading Accent 1"
-for j, h in enumerate(["Outcome", "Singleton n (%)", "Twin n (%)",
-                        "Model", "aOR", "95% CI", "P value"]):
-    tbl4.rows[0].cells[j].text = h
-    for par in tbl4.rows[0].cells[j].paragraphs:
-        par.runs[0].bold = True
-        par.runs[0].font.size = Pt(8)
-for i, key in enumerate(["A-Primary", "A-Secondary", "E-Primary", "E-Secondary"]):
-    rr = er[key]
-    oo = eo[key]
-    labels_en = {
-        "A-Primary": "Broad, Primary",
-        "A-Secondary": "Broad, Secondary",
-        "E-Primary": "Narrow, Primary",
-        "E-Secondary": "Narrow, Secondary",
-    }
-    vals = [
-        labels_en[key],
-        f"{oo['singleton_n']} ({oo['singleton_pct']:.1f}%)",
-        f"{oo['twin_n']} ({oo['twin_pct']:.1f}%)",
-        rr["model_type"],
-        f"{rr['twin_OR']:.2f}",
-        f"{rr['twin_CI_lower']:.2f}\u2013{rr['twin_CI_upper']:.2f}",
-        "< 0.001" if rr["twin_P"] < 0.001 else f"{rr['twin_P']:.3f}",
+    # Fig 6: Exclusion sensitivity rates
+    add_figure(doc, BASE / "figures_excl" / "fig1_rates_comparison.png",
+               "Fig. 6  IONV Rates in the Elective, Low-Risk Sensitivity Subgroup")
+
+    # Fig 7: Exclusion sensitivity forest
+    add_figure(doc, BASE / "figures_excl" / "fig4_broad_vs_narrow.png",
+               "Fig. 7  Twin Effect on IONV: Broad vs Narrow Definition "
+               "(Elective, Low-Risk Subgroup)")
+
+    # --- Emergency sensitivity analysis ---
+    add_heading(doc, "Emergency Cesarean Delivery Sensitivity Analysis (STROBE Item 18)", level=2)
+    add_paragraph(doc,
+        "To examine whether emergency cesarean delivery modifies the twin effect on IONV, "
+        "separate analyses were performed for elective cases only "
+        "(n = 1,736; singleton 1,515; twin 221) and emergency cases only "
+        "(n = 1,452; singleton 1,331; twin 121) (Table 5).")
+    add_paragraph(doc,
+        "In the elective subgroup, the narrow-definition primary outcome showed "
+        "a substantially larger effect size (aOR 8.39, 95% CI 1.21\u201358.18, P = 0.031), "
+        "and the narrow-definition secondary outcome was also significant "
+        "(aOR 8.99, 95% CI 2.50\u201332.29, P < 0.001). "
+        "In contrast, among emergency cases, the twin effect was absent "
+        "(narrow secondary aOR 0.95, P = 0.958; narrow primary had insufficient events).")
+    add_paragraph(doc,
+        "Notably, under the broad definition in elective cases, the twin group showed "
+        "significantly lower IONV in the secondary outcome (18.5% vs 14.0%; aOR 0.64, P = 0.047). "
+        "Interaction analysis revealed a significant emergency \u00d7 twin interaction "
+        "for the broad secondary outcome (interaction OR 2.05, P = 0.023).")
+
+    # Table 5: Emergency sensitivity
+    add_paragraph(doc, "Table 5. Emergency Cesarean Delivery Sensitivity Analysis", bold=True)
+    tbl5 = doc.add_table(rows=9, cols=7)
+    tbl5.alignment = WD_TABLE_ALIGNMENT.CENTER
+    tbl5.style = "Light Shading Accent 1"
+    for j, h in enumerate(["Subgroup", "Outcome", "Singleton", "Twin", "aOR", "95% CI", "P value"]):
+        tbl5.rows[0].cells[j].text = h
+        for par in tbl5.rows[0].cells[j].paragraphs:
+            par.runs[0].bold = True
+            par.runs[0].font.size = Pt(8)
+    emg_data = [
+        ["Elective only", "Broad, Primary", "2.4%", "1.8%", "0.83", "0.28\u20132.47", "0.735"],
+        ["", "Broad, Secondary", "18.5%", "14.0%", "0.64", "0.41\u20130.99", "0.047"],
+        ["", "Narrow, Primary", "0.3%", "1.4%", "8.39", "1.21\u201358.18", "0.031"],
+        ["", "Narrow, Secondary", "0.8%", "3.2%", "8.99", "2.50\u201332.29", "< 0.001"],
+        ["Emergency only", "Broad, Primary", "1.4%", "0.8%", "0.61", "0.08\u20134.68", "0.637"],
+        ["", "Broad, Secondary", "16.8%", "22.3%", "1.44", "0.91\u20132.29", "0.119"],
+        ["", "Narrow, Primary", "0.1%", "0.0%", "\u2014", "\u2014", "\u2014"],
+        ["", "Narrow, Secondary", "1.0%", "0.8%", "0.95", "0.12\u20137.44", "0.958"],
     ]
-    for j, v in enumerate(vals):
-        tbl4.rows[i + 1].cells[j].text = v
-        for par in tbl4.rows[i + 1].cells[j].paragraphs:
-            for r in par.runs:
-                r.font.size = Pt(8)
-doc.add_paragraph()
+    for i, row_data in enumerate(emg_data):
+        for j, v in enumerate(row_data):
+            tbl5.rows[i + 1].cells[j].text = v
+            for par in tbl5.rows[i + 1].cells[j].paragraphs:
+                for r in par.runs:
+                    r.font.size = Pt(8)
+    doc.add_paragraph()
 
-# Fig 6: Exclusion sensitivity rates
-add_figure(doc, BASE / "figures_excl" / "fig1_rates_comparison.png",
-           "Fig. 6  IONV Rates in the Elective, Low-Risk Sensitivity Subgroup")
+    # --- Bootstrap validation ---
+    bm = B["main_cohort"]
+    bs = B["subgroup"]
+    add_heading(doc, "Bootstrap Validation (STROBE Item 18)", level=2)
+    add_paragraph(doc,
+        "Results of the stratified bootstrap validation for the full cohort "
+        "are presented in Table 6 and Fig. 8.")
+    add_paragraph(doc,
+        f"For the narrow-definition primary outcome in the full cohort, "
+        f"the BCa 95% CI was [{bm['E-Primary']['bca_CI_lower']:.2f}\u2013"
+        f"{bm['E-Primary']['bca_CI_upper']:.2f}], closely matching the "
+        f"Wald 95% CI [{bm['E-Primary']['wald_CI_lower']:.2f}\u2013"
+        f"{bm['E-Primary']['wald_CI_upper']:.2f}]. "
+        f"The bootstrap CI also excluded 1, confirming that the significant twin effect "
+        f"(aOR {bm['E-Primary']['point_aOR']:.2f}) was robust "
+        f"(convergence rate {bm['E-Primary']['convergence_pct']}%).")
+    add_paragraph(doc,
+        f"In the low-risk subgroup, event counts for the narrow definition were extremely small "
+        f"(primary: {bs['E-Primary']['events']}; secondary: {bs['E-Secondary']['events']}), "
+        "resulting in unstable bootstrap CIs. "
+        "This reflects the inherent sample size constraint and warrants "
+        "cautious interpretation of subgroup results.")
 
-# Fig 7: Exclusion sensitivity forest
-add_figure(doc, BASE / "figures_excl" / "fig4_broad_vs_narrow.png",
-           "Fig. 7  Twin Effect on IONV: Broad vs Narrow Definition "
-           "(Elective, Low-Risk Subgroup)")
+    # Table 6: Bootstrap results
+    add_paragraph(doc, "Table 6. Stratified Bootstrap Validation (10,000 Resamples)", bold=True)
+    tbl6 = doc.add_table(rows=9, cols=6)
+    tbl6.alignment = WD_TABLE_ALIGNMENT.CENTER
+    tbl6.style = "Light Shading Accent 1"
+    for j, h in enumerate(["Cohort", "Outcome", "aOR", "Wald 95% CI", "BCa 95% CI", "Convergence"]):
+        tbl6.rows[0].cells[j].text = h
+        for par in tbl6.rows[0].cells[j].paragraphs:
+            par.runs[0].bold = True
+            par.runs[0].font.size = Pt(8)
 
-# --- Emergency sensitivity analysis ---
-add_heading(doc, "Emergency Cesarean Delivery Sensitivity Analysis (STROBE Item 18)", level=2)
+    def fmt_bca(r):
+        lo = r.get("bca_CI_lower")
+        hi = r.get("bca_CI_upper")
+        if lo is not None and hi is not None and hi < 1e6:
+            return f"{lo:.2f}\u2013{hi:.2f}"
+        return "Unstable"
 
-add_paragraph(doc,
-    "To examine whether emergency cesarean delivery modifies the twin effect on IONV, "
-    "separate analyses were performed for elective cases only "
-    "(n = 1,736; singleton 1,515; twin 221) and emergency cases only "
-    "(n = 1,452; singleton 1,331; twin 121) (Table 5).")
-
-add_paragraph(doc,
-    "In the elective subgroup, the narrow-definition primary outcome showed "
-    "a substantially larger effect size (aOR 8.99, 95% CI 2.50\u201332.29, P < 0.001), "
-    "and the narrow-definition secondary outcome also reached significance "
-    "(aOR 8.39, 95% CI 1.21\u201358.18, P = 0.031). "
-    "In contrast, among emergency cases, the twin effect was entirely absent "
-    "(narrow primary aOR 0.95, P = 0.958).")
-
-add_paragraph(doc,
-    "Notably, under the broad definition in elective cases, the twin group showed "
-    "significantly lower IONV (18.5% vs 14.0%; aOR 0.64, P = 0.047). "
-    "Interaction analysis revealed a significant emergency \u00d7 twin interaction "
-    "for the broad primary outcome (interaction OR 2.05, P = 0.023).")
-
-# Table 5: Emergency sensitivity
-add_paragraph(doc, "Table 5. Emergency Cesarean Delivery Sensitivity Analysis", bold=True)
-tbl5 = doc.add_table(rows=9, cols=7)
-tbl5.alignment = WD_TABLE_ALIGNMENT.CENTER
-tbl5.style = "Light Shading Accent 1"
-for j, h in enumerate(["Subgroup", "Outcome", "Singleton", "Twin", "aOR", "95% CI", "P value"]):
-    tbl5.rows[0].cells[j].text = h
-    for par in tbl5.rows[0].cells[j].paragraphs:
-        par.runs[0].bold = True
-        par.runs[0].font.size = Pt(8)
-
-emg_data = [
-    ["Elective only", "Broad, Primary", "18.5%", "14.0%", "0.64", "0.41\u20130.99", "0.047"],
-    ["", "Broad, Secondary", "2.4%", "1.8%", "0.83", "0.28\u20132.47", "0.735"],
-    ["", "Narrow, Primary", "0.8%", "3.2%", "8.99", "2.50\u201332.29", "< 0.001"],
-    ["", "Narrow, Secondary", "0.3%", "1.4%", "8.39", "1.21\u201358.18", "0.031"],
-    ["Emergency only", "Broad, Primary", "16.8%", "22.3%", "1.44", "0.91\u20132.29", "0.119"],
-    ["", "Broad, Secondary", "1.4%", "0.8%", "0.61", "0.08\u20134.68", "0.637"],
-    ["", "Narrow, Primary", "1.0%", "0.8%", "0.95", "0.12\u20137.44", "0.958"],
-    ["", "Narrow, Secondary", "0.1%", "0.0%", "\u2014", "\u2014", "\u2014"],
-]
-for i, row_data in enumerate(emg_data):
-    for j, v in enumerate(row_data):
-        tbl5.rows[i + 1].cells[j].text = v
-        for par in tbl5.rows[i + 1].cells[j].paragraphs:
-            for r in par.runs:
-                r.font.size = Pt(8)
-doc.add_paragraph()
-
-# --- Bootstrap validation ---
-add_heading(doc, "Bootstrap Validation (STROBE Item 18)", level=2)
-
-bm = B["main_cohort"]
-bs = B["subgroup"]
-add_paragraph(doc,
-    "Results of the stratified bootstrap validation for the full cohort "
-    "are presented in Table 6 and Fig. 8.")
-
-add_paragraph(doc,
-    f"For the narrow-definition primary outcome in the full cohort, "
-    f"the BCa 95% CI was [{bm['E-Primary']['bca_CI_lower']:.2f}\u2013"
-    f"{bm['E-Primary']['bca_CI_upper']:.2f}], closely matching the "
-    f"Wald 95% CI [{bm['E-Primary']['wald_CI_lower']:.2f}\u2013"
-    f"{bm['E-Primary']['wald_CI_upper']:.2f}]. "
-    f"The bootstrap CI also excluded 1, confirming that the significant twin effect "
-    f"(aOR {bm['E-Primary']['point_aOR']:.2f}) was robust "
-    f"(convergence rate {bm['E-Primary']['convergence_pct']}%).")
-
-add_paragraph(doc,
-    f"In the low-risk subgroup, event counts for the narrow definition were extremely small "
-    f"(primary: {bs['E-Primary']['events']}; secondary: {bs['E-Secondary']['events']}), "
-    "resulting in unstable bootstrap CIs. "
-    "This reflects the inherent sample size constraint and warrants "
-    "cautious interpretation of subgroup results.")
-
-# Table 6: Bootstrap results
-add_paragraph(doc, "Table 6. Stratified Bootstrap Validation (10,000 Resamples)", bold=True)
-tbl6 = doc.add_table(rows=9, cols=6)
-tbl6.alignment = WD_TABLE_ALIGNMENT.CENTER
-tbl6.style = "Light Shading Accent 1"
-for j, h in enumerate(["Cohort", "Outcome", "aOR", "Wald 95% CI", "BCa 95% CI", "Convergence"]):
-    tbl6.rows[0].cells[j].text = h
-    for par in tbl6.rows[0].cells[j].paragraphs:
-        par.runs[0].bold = True
-        par.runs[0].font.size = Pt(8)
-
-def fmt_bca(r):
-    lo = r.get("bca_CI_lower")
-    hi = r.get("bca_CI_upper")
-    if lo is not None and hi is not None and hi < 1e6:
-        return f"{lo:.2f}\u2013{hi:.2f}"
-    return "Unstable"
-
-boot_rows = [
-    ["Full cohort", "Broad, Primary", bm["A-Primary"]],
-    ["", "Broad, Secondary", bm["A-Secondary"]],
-    ["", "Narrow, Primary", bm["E-Primary"]],
-    ["", "Narrow, Secondary", bm["E-Secondary"]],
-    ["Low-risk", "Broad, Primary", bs["A-Primary"]],
-    ["", "Broad, Secondary", bs["A-Secondary"]],
-    ["", "Narrow, Primary", bs["E-Primary"]],
-    ["", "Narrow, Secondary", bs["E-Secondary"]],
-]
-for i, (cohort, outcome, r) in enumerate(boot_rows):
-    vals = [
-        cohort, outcome,
-        f"{r['point_aOR']:.2f}",
-        f"{r['wald_CI_lower']:.2f}\u2013{r['wald_CI_upper']:.2f}",
-        fmt_bca(r),
-        f"{r['convergence_pct']}%",
+    boot_rows = [
+        ["Full cohort", "Broad, Primary", bm["A-Primary"]],
+        ["", "Broad, Secondary", bm["A-Secondary"]],
+        ["", "Narrow, Primary", bm["E-Primary"]],
+        ["", "Narrow, Secondary", bm["E-Secondary"]],
+        ["Low-risk", "Broad, Primary", bs["A-Primary"]],
+        ["", "Broad, Secondary", bs["A-Secondary"]],
+        ["", "Narrow, Primary", bs["E-Primary"]],
+        ["", "Narrow, Secondary", bs["E-Secondary"]],
     ]
-    for j, v in enumerate(vals):
-        tbl6.rows[i + 1].cells[j].text = v
-        for par in tbl6.rows[i + 1].cells[j].paragraphs:
-            for r2 in par.runs:
-                r2.font.size = Pt(8)
-doc.add_paragraph()
+    for i, (cohort, outcome, r) in enumerate(boot_rows):
+        vals = [
+            cohort, outcome,
+            f"{r['point_aOR']:.2f}",
+            f"{r['wald_CI_lower']:.2f}\u2013{r['wald_CI_upper']:.2f}",
+            fmt_bca(r),
+            f"{r['convergence_pct']}%",
+        ]
+        for j, v in enumerate(vals):
+            tbl6.rows[i + 1].cells[j].text = v
+            for par in tbl6.rows[i + 1].cells[j].paragraphs:
+                for r2 in par.runs:
+                    r2.font.size = Pt(8)
+    doc.add_paragraph()
 
-# Fig 8: Bootstrap comparison
-add_figure(doc, BASE / "figures_bootstrap" / "fig_bootstrap_comparison.png",
-           "Fig. 8  Wald vs Bootstrap Confidence Interval Comparison")
+    # Fig 8: Bootstrap comparison
+    add_figure(doc, BASE / "figures_bootstrap" / "fig_bootstrap_comparison.png",
+               "Fig. 8  Wald vs Bootstrap Confidence Interval Comparison")
+
+# --- end sensitivity block ---
 
 doc.add_page_break()
 
@@ -773,16 +816,26 @@ doc.add_page_break()
 add_heading(doc, "Discussion")
 
 add_heading(doc, "Key Findings (STROBE Item 19)", level=2)
-add_paragraph(doc,
+_key_finding_base_en = (
     "This study compared the incidence of IONV between singleton and twin pregnancies "
     "during cesarean delivery under spinal anesthesia. "
     "Under the broad antiemetic definition, no significant difference was observed between "
     "the two groups. However, when the analysis was restricted to 5-HT3 receptor antagonists "
     "\u2014 agents with high pharmacological specificity for nausea and vomiting \u2014 "
-    "the twin group showed a significantly higher rate of use. "
-    "This finding was robustly reproduced across covariate sensitivity analyses, "
-    "exclusion sensitivity analyses, emergency subgroup stratification, "
-    "and 10,000-replicate stratified bootstrap validation.")
+    "the twin group showed a significantly higher rate of use.")
+if INCLUDE_SENSITIVITY:
+    _key_finding_base_en += (
+        " This finding was robustly reproduced across covariate sensitivity analyses, "
+        "exclusion sensitivity analyses, emergency subgroup stratification, "
+        "and 10,000-replicate stratified bootstrap validation.")
+add_paragraph(doc, _key_finding_base_en)
+
+add_paragraph(doc,
+    f"As a secondary outcome, intraoperative hypotension (SBP <90 mmHg) was less frequent "
+    f"in the twin group ({S['hypo_twin_pct']:.1f}%) than in the singleton group "
+    f"({S['hypo_single_pct']:.1f}%; {format_p(S['hypo_chi_p'])}). "
+    "This finding, combined with the higher 5-HT3 antagonist use in twins, "
+    "suggests involvement of non-hypotensive IONV pathways in twin pregnancies.")
 
 add_heading(doc, "Limitations (STROBE Item 20)", level=2)
 add_p_with_refs(doc,
@@ -804,23 +857,41 @@ add_p_with_refs(doc,
     "outcome of IONV, supporting the relevance of antiemetic use as an IONV-related "
     "endpoint.")
 
-add_paragraph(doc,
-    f"Second, the number of events for the narrow definition was small "
-    f"(primary analysis: {mr['E-Primary']['events']}; "
-    f"subgroup analysis: {er['E-Primary']['events']}), "
-    "resulting in wide confidence intervals. "
-    "Bootstrap validation confirmed the robustness of the full-cohort aOR 3.18 "
-    "but the subgroup bootstrap CIs (8 events) were unstable. "
-    f"In particular, the subgroup analysis involved a substantial reduction in sample size "
-    f"({M['n_analysis']:,} \u2192 {E['n_analysis']}), "
-    "limiting external validity.")
+if INCLUDE_SENSITIVITY:
+    add_paragraph(doc,
+        f"Second, the number of events for the narrow definition was small "
+        f"(primary analysis: {mr['E-Primary']['events']}; "
+        f"subgroup analysis: {er['E-Primary']['events']}), "
+        "resulting in wide confidence intervals. "
+        "Bootstrap validation confirmed the robustness of the full-cohort aOR 3.18 "
+        "but the subgroup bootstrap CIs (8 events) were unstable. "
+        f"In particular, the subgroup analysis involved a substantial reduction in sample size "
+        f"({M['n_analysis']:,} \u2192 {E['n_analysis']}), "
+        "limiting external validity.")
+else:
+    add_paragraph(doc,
+        f"Second, the number of events for the narrow definition was small "
+        f"(primary analysis: {mr['E-Primary']['events']}), "
+        "resulting in wide confidence intervals.")
 
 add_paragraph(doc,
-    "Third, this was a single-center study, and multicenter studies are needed to "
+    "Third, exclusion of patients with baseline SBP <90 mmHg at admission "
+    "precluded full assessment of the effect of twin pregnancy on baseline "
+    "hemodynamic status. Twin pregnancies have competing circulatory characteristics "
+    "— greater circulating blood volume versus more pronounced aortocaval compression "
+    "— and the distribution of admission blood pressure may differ between singleton "
+    "and twin pregnancies. Although the number of excluded cases was small "
+    f"({F['exclusion_steps'][1]['n']} patients: "
+    f"{F['exclusion_steps'][1]['n_s']} singleton, {F['exclusion_steps'][1]['n_t']} twin), "
+    "this selection bias may have influenced the between-group comparison of "
+    "intraoperative hypotension.")
+
+add_paragraph(doc,
+    "Fourth, this was a single-center study, and multicenter studies are needed to "
     "confirm generalizability.")
 
 add_p_with_refs(doc,
-    "Fourth, the inability to assess the severity of IONV is a limitation. "
+    "Fifth, the inability to assess the severity of IONV is a limitation. "
     "Some prior studies reported intraoperative nausea and vomiting as separate "
     "outcomes{5}, but this distinction is not possible with our antiemetic-based "
     "definition. While the hypothesis that 5-HT3 antagonist use reflects more severe "
@@ -845,7 +916,7 @@ add_p_with_refs(doc,
     "stimulation{2,12}, and twin pregnancy amplifies all of these through greater "
     "circulating blood volume, enhanced aortocaval compression, and reduced cardiac "
     "reserve{13}. "
-    "The present cohort of 3,188 cases including 342 twins represents the largest "
+    f"The present cohort of {F['primary_analysis']['n']:,} cases including {F['primary_analysis']['n_t']:,} twins represents the largest "
     "study to directly examine IONV in twin pregnancies, and these findings may contribute "
     "to elucidating the mechanisms of IONV. "
     "The observation that differences emerged only under the narrow (5-HT3 antagonist) "
@@ -856,32 +927,31 @@ add_p_with_refs(doc,
     "suggests involvement of pathways beyond hypotension, such as serotonin release "
     "from gut hypoperfusion or enhanced visceral stimulation.")
 
-add_paragraph(doc,
-    "The observation that the effect size increased in the subgroup analysis after "
-    "excluding confounders (emergency surgery, prior cesarean delivery, HDP, steroids) "
-    "suggests that these factors may have elevated IONV risk in the singleton group, "
-    "thereby diluting the twin effect in the full cohort.")
-
-add_paragraph(doc,
-    "The emergency sensitivity analysis revealed that the twin effect was confined to "
-    "elective cases, where the narrow-definition aOR increased substantially to 8.99 "
-    "and the secondary outcome also reached significance. "
-    "In contrast, among emergency cases the twin effect was completely absent. "
-    "A significant emergency \u00d7 twin interaction for the broad primary outcome "
-    "(P = 0.023) further supports emergency delivery status as an effect modifier.")
-
-add_paragraph(doc,
-    "The stratified bootstrap validation confirmed that the BCa confidence interval "
-    "for the full-cohort narrow-definition primary outcome excluded 1, "
-    "corroborating the Wald-based inference. This demonstrates that despite the "
-    "approximately 8:1 imbalance in group sizes, the logistic regression estimates "
-    "are stable and the key finding is robust.")
+if INCLUDE_SENSITIVITY:
+    add_paragraph(doc,
+        "The observation that the effect size increased in the subgroup analysis after "
+        "excluding confounders (emergency surgery, prior cesarean delivery, HDP, steroids) "
+        "suggests that these factors may have elevated IONV risk in the singleton group, "
+        "thereby diluting the twin effect in the full cohort.")
+    add_paragraph(doc,
+        "The emergency sensitivity analysis revealed that the twin effect was confined to "
+        "elective cases, where the narrow-definition primary aOR was 8.39 "
+        "and the secondary aOR was 8.99, both significant. "
+        "In contrast, among emergency cases the twin effect was completely absent. "
+        "A significant emergency \u00d7 twin interaction for the broad secondary outcome "
+        "(P = 0.023) further supports emergency delivery status as an effect modifier.")
+    add_paragraph(doc,
+        "The stratified bootstrap validation confirmed that the BCa confidence interval "
+        "for the full-cohort narrow-definition primary outcome excluded 1, "
+        "corroborating the Wald-based inference. This demonstrates that despite the "
+        "approximately 8:1 imbalance in group sizes, the logistic regression estimates "
+        "are stable and the key finding is robust.")
 
 add_heading(doc, "Generalizability (STROBE Item 22)", level=2)
 add_p_with_refs(doc,
     "This study was based on 10 years of data from a regional referral hospital, "
     "reflecting typical cesarean delivery management in Japan. "
-    "The present cohort including 342 twin cases provides the largest dataset "
+    f"The present cohort including {F['primary_analysis']['n_t']:,} twin cases provides the largest dataset "
     "to directly examine IONV in twin pregnancies, in contrast to prior studies "
     "that systematically excluded twins{9-11}. "
     "However, antiemetic prescribing patterns may vary across institutions and eras, "
@@ -1019,7 +1089,9 @@ strobe_items = [
      "Report category boundaries when continuous variables were categorized"),
     ("Main results", "16(c)", "Not applicable",
      "If relevant, consider translating estimates of relative risk into absolute risk"),
-    ("Other analyses", "17", "Results: Covariate Sensitivity Analysis, Exclusion Sensitivity Analysis",
+    ("Other analyses", "17",
+     "Results: Covariate Sensitivity Analysis, Exclusion Sensitivity Analysis"
+     if INCLUDE_SENSITIVITY else "Not applicable (main analysis only)",
      "Report other analyses done\u2014e.g., analyses of subgroups and interactions, and sensitivity analyses"),
     ("", "", "", ""),
     ("DISCUSSION", "", "", ""),
@@ -1094,20 +1166,23 @@ legends = [
      "Comparison of adjusted odds ratios for twin pregnancy across broad and narrow "
      "antiemetic definitions (primary and secondary outcomes). "
      "Only the narrow-definition primary outcome showed a significant association."),
-    ("Fig. 5",
-     "Covariate sensitivity analysis for the narrow-definition primary outcome. "
-     f"All {len(cov_df)} models yielded aOR in the range "
-     f"{cov_df['aOR'].min():.2f}\u2013{cov_df['aOR'].max():.2f}, "
-     "all P < 0.05, demonstrating robustness of the twin effect."),
-    ("Fig. 6",
-     "IONV rates in the elective, low-risk sensitivity subgroup "
-     f"(N = {F['subgroup_analysis']['n']:,}) after excluding emergency cesarean delivery, "
-     "prior cesarean delivery, HDP, and preoperative steroid use."),
-    ("Fig. 7",
-     "Comparison of adjusted odds ratios in the elective, low-risk sensitivity subgroup. "
-     f"The narrow-definition effect size increased from aOR {mr['E-Primary']['twin_OR']:.2f} "
-     f"(full cohort) to aOR {er['E-Primary']['twin_OR']:.2f} (subgroup)."),
 ]
+if INCLUDE_SENSITIVITY:
+    legends += [
+        ("Fig. 5",
+         "Covariate sensitivity analysis for the narrow-definition primary outcome. "
+         f"All {len(cov_df)} models yielded aOR in the range "
+         f"{cov_df['aOR'].min():.2f}\u2013{cov_df['aOR'].max():.2f}, "
+         "all P < 0.05, demonstrating robustness of the twin effect."),
+        ("Fig. 6",
+         "IONV rates in the elective, low-risk sensitivity subgroup "
+         f"(N = {F['subgroup_analysis']['n']:,}) after excluding emergency cesarean delivery, "
+         "prior cesarean delivery, HDP, and preoperative steroid use."),
+        ("Fig. 7",
+         "Comparison of adjusted odds ratios in the elective, low-risk sensitivity subgroup. "
+         f"The narrow-definition effect size increased from aOR {mr['E-Primary']['twin_OR']:.2f} "
+         f"(full cohort) to aOR {er['E-Primary']['twin_OR']:.2f} (subgroup)."),
+    ]
 
 for fig_label, legend_text in legends:
     p = doc.add_paragraph()

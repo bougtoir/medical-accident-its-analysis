@@ -195,16 +195,27 @@ for col in merge_cols:
     if col in df_all.columns and col not in ["exclusion_note", "仮ID", "手術日"]:
         df_all[col] = pd.to_numeric(df_all[col], errors="coerce")
 
-# Exclusions
-ga_mask = df_all["全身麻酔"] == 1
-sbp_mask = df_all["exclusion_note"].str.contains("SBP90", na=False) | df_all["exclusion_note"].str.contains("入室時SBP", na=False)
-iufd_mask = df_all["exclusion_note"].str.contains("胎児死亡|死亡", na=False) & ~df_all["exclusion_note"].str.contains("全身麻酔", na=False)
-vt_mask = df_all["exclusion_note"].str.contains("vanishing", case=False, na=False)
-triplet_mask = df_all["exclusion_note"].str.contains("品胎", na=False)
-generic_mask = df_all["exclusion_note"].str.contains("除外", na=False)
-all_exclude = generic_mask | ga_mask | sbp_mask | iufd_mask | vt_mask | triplet_mask
-no_data = df_all["antiemetic_any"].isna() & ~all_exclude
-all_exclude = all_exclude | no_data
+# Study period filter (2014-04-01 to 2024-10-24)
+df_all["手術日_dt"] = pd.to_datetime(df_all["手術日"], errors="coerce")
+STUDY_START = pd.Timestamp("2014-04-01")
+df_all = df_all[~(df_all["手術日_dt"] < STUDY_START)].copy()
+print(f"After date filter (>={STUDY_START.date()}): {len(df_all)}")
+
+# Exclusions (updated: GA from column OR note)
+note = df_all["exclusion_note"].fillna("")
+ga_mask = (df_all["全身麻酔"] == 1) | note.str.contains("全身麻酔", na=False) | \
+          note.str.contains("全脊髄くも膜下麻酔疑い", na=False)
+sbp_mask = note.str.contains(r"SBP\s*90|入室時SBP|入室時.*血圧.*90|入室時.*収縮期.*90|入室児.*収縮期.*90|入室児.*血圧.*90", na=False, regex=True)
+iufd_mask = note.str.contains("胎児死亡|子宮内胎児死亡|1児.*死亡|児死亡|死戦期帝王切開", na=False) & \
+            ~note.str.contains("全身麻酔", na=False)
+vt_mask = note.str.contains("vanishing", case=False, na=False)
+triplet_mask = note.str.contains("品胎", na=False)
+non_cs_mask = note.str.contains("経膣分娩|鉗子分娩", na=False)
+cardiac_mask = note.str.contains("心肺停止|心停止", na=False)
+generic_mask = note.str.contains("除外", na=False)
+no_data = df_all["antiemetic_any"].isna()
+all_exclude = ga_mask | sbp_mask | iufd_mask | vt_mask | triplet_mask | \
+              non_cs_mask | cardiac_mask | no_data | generic_mask
 
 n_total = len(df_all)
 df = df_all[~all_exclude].copy()
@@ -230,31 +241,33 @@ print("\n" + "=" * 60)
 print("2. DEFINITION E OUTCOMES")
 print("=" * 60)
 
-# Primary E: 5-HT3 antagonist at any time
-df_analysis["ionv_E_primary"] = (
+# 5-HT3 antagonist flag (any phase)
+_5ht3_any = (
     (df_analysis["ondansetron_mg"].fillna(0) > 0) |
     (df_analysis["granisetron_mg"].fillna(0) > 0)
 ).astype(int)
 
-# Secondary E: 5-HT3 antagonist AND antiemetic before delivery
-# (patient received antiemetic in ae_to_delivery phase AND had 5-HT3)
-df_analysis["ionv_E_secondary"] = (
-    (df_analysis["ionv_E_primary"] == 1) &
+# Primary E: 5-HT3 antagonist before delivery
+df_analysis["ionv_E_primary"] = (
+    (_5ht3_any == 1) &
     (df_analysis["ae_to_delivery"] == 1)
 ).astype(int)
 
-# Also define original protocol outcomes for comparison
-df_analysis["ionv_A_primary"] = ((df_analysis["ae_to_delivery"] == 1) | (df_analysis["ae_post_delivery"] == 1)).astype(int)
-df_analysis["ionv_A_secondary"] = (df_analysis["ae_to_delivery"] == 1).astype(int)
+# Secondary E: 5-HT3 antagonist at any time (anesthesia→exit)
+df_analysis["ionv_E_secondary"] = _5ht3_any
+
+# Broad-definition outcomes
+df_analysis["ionv_A_primary"] = (df_analysis["ae_to_delivery"] == 1).astype(int)
+df_analysis["ionv_A_secondary"] = ((df_analysis["ae_to_delivery"] == 1) | (df_analysis["ae_post_delivery"] == 1)).astype(int)
 
 s = df_analysis[df_analysis["twin"] == 0]
 t = df_analysis[df_analysis["twin"] == 1]
 
 outcomes = OrderedDict([
-    ("A-Primary", ("ionv_A_primary", "Protocol: any antiemetic (any phase)")),
-    ("A-Secondary", ("ionv_A_secondary", "Protocol: antiemetic before delivery")),
-    ("E-Primary", ("ionv_E_primary", "Def E: 5-HT3 antagonist (any phase)")),
-    ("E-Secondary", ("ionv_E_secondary", "Def E: 5-HT3 + before delivery phase")),
+    ("A-Primary", ("ionv_A_primary", "Broad: antiemetic before delivery")),
+    ("A-Secondary", ("ionv_A_secondary", "Broad: any antiemetic (anesthesia→exit)")),
+    ("E-Primary", ("ionv_E_primary", "Narrow: 5-HT3 before delivery")),
+    ("E-Secondary", ("ionv_E_secondary", "Narrow: 5-HT3 any phase (anesthesia→exit)")),
 ])
 
 print(f"\n{'Outcome':<15} {'Label':<40} {'Single n/N (%)':<22} {'Twin n/N (%)':<22} {'P':>8}")

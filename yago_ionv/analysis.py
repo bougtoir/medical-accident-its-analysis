@@ -279,51 +279,157 @@ print("\n" + "=" * 60)
 print("3. APPLYING EXCLUSION CRITERIA")
 print("=" * 60)
 
+# Parse surgery date
+df_all["手術日_dt"] = pd.to_datetime(df_all["手術日"], errors="coerce")
+
+n_total_raw = len(df_all)
+
+# --- 3.0 Study period filter (2014-04-01 to 2024-10-24) ---
+STUDY_START = pd.Timestamp("2014-04-01")
+STUDY_END = pd.Timestamp("2024-10-24")  # inclusive
+out_of_period_mask = (df_all["手術日_dt"] < STUDY_START) | (df_all["手術日_dt"] > STUDY_END)
+n_out_of_period = out_of_period_mask.sum()
+n_out_of_period_s = (out_of_period_mask & (df_all["twin"] == 0)).sum()
+n_out_of_period_t = (out_of_period_mask & (df_all["twin"] == 1)).sum()
+print(f"Total raw records: {n_total_raw} (S={int((df_all['twin']==0).sum())}, T={int((df_all['twin']==1).sum())})")
+print(f"Outside study period (<{STUDY_START.date()}): {n_out_of_period} (S={n_out_of_period_s}, T={n_out_of_period_t})")
+
+df_all = df_all[~out_of_period_mask].copy()
 n_total = len(df_all)
+print(f"Within study period: {n_total} (S={int((df_all['twin']==0).sum())}, T={int((df_all['twin']==1).sum())})")
 
-# Exclusion list
-exclusions = []
+# --- 3.1-3.7 Exclusion reasons (multiple per case, non-sequential) ---
+note = df_all["exclusion_note"].fillna("")
 
-# 3a. General anesthesia
-ga_mask = df_all["全身麻酔"] == 1
-exclusions.append(("General anesthesia", ga_mask.sum()))
+# Define exclusion reason masks
+# GA: column-based OR note-based (many GA cases have column=0 but "全身麻酔" in note)
+ga_mask = (df_all["全身麻酔"] == 1) | note.str.contains("全身麻酔", na=False) | \
+          note.str.contains("全脊髄くも膜下麻酔疑い", na=False)
 
-# 3b. Pre-anesthesia SBP < 90 mmHg (from exclusion notes)
-sbp_mask = df_all["exclusion_note"].str.contains("SBP90", na=False) | \
-           df_all["exclusion_note"].str.contains("入室時SBP", na=False)
-exclusions.append(("Pre-anesthesia SBP < 90 mmHg", sbp_mask.sum()))
+# SBP < 90: multiple text variations
+sbp_mask = note.str.contains(r"SBP\s*90|入室時SBP|入室時.*血圧.*90|入室時.*収縮期.*90|入室児.*収縮期.*90|入室児.*血圧.*90", na=False, regex=True)
 
-# 3c. Intrauterine fetal death
-iufd_mask = df_all["exclusion_note"].str.contains("胎児死亡|死亡", na=False) & \
-            ~df_all["exclusion_note"].str.contains("全身麻酔", na=False)
-exclusions.append(("Intrauterine fetal death", iufd_mask.sum()))
+# IUFD (exclude notes that also mention GA to avoid double-counting)
+iufd_mask = note.str.contains("胎児死亡|子宮内胎児死亡|1児.*死亡|児死亡|死戦期帝王切開", na=False) & \
+            ~note.str.contains("全身麻酔", na=False)
 
-# 3d. Vanishing twin
-vt_mask = df_all["exclusion_note"].str.contains("vanishing", case=False, na=False)
-exclusions.append(("Vanishing twin", vt_mask.sum()))
+# Vanishing twin
+vt_mask = note.str.contains("vanishing", case=False, na=False)
 
-# 3e. Triplet (品胎)
-triplet_mask = df_all["exclusion_note"].str.contains("品胎", na=False)
-exclusions.append(("Triplet pregnancy", triplet_mask.sum()))
+# Triplet
+triplet_mask = note.str.contains("品胎", na=False)
 
-# Combined exclusion mask (any marked for exclusion in note)
-# Also include any generic "除外" in exclusion note
-generic_exclude_mask = df_all["exclusion_note"].str.contains("除外", na=False)
-all_exclude = generic_exclude_mask | ga_mask | sbp_mask | iufd_mask | vt_mask | triplet_mask
+# Non-cesarean delivery (vaginal, forceps)
+non_cs_mask = note.str.contains("経膣分娩|鉗子分娩", na=False)
 
-# Additionally exclude rows with NaN in key IONV columns (no anesthesia data available)
-no_data_mask = df_all["antiemetic_any"].isna() & ~all_exclude
-exclusions.append(("No anesthesia data available", no_data_mask.sum()))
+# Cardiac arrest
+cardiac_mask = note.str.contains("心肺停止|心停止", na=False)
 
-all_exclude = all_exclude | no_data_mask
+# Missing anesthesia data (note-based)
+missing_note_mask = note.str.contains("バイタル情報.*記載ない.*除外|バイタル情報の記載ない.*除外|麻酔記録.*記載ない.*除外", na=False, regex=True)
 
-print(f"Total before exclusion: {n_total}")
-for reason, n in exclusions:
-    print(f"  {reason}: {n}")
+# Missing antiemetic data (column-based)
+no_data_mask = df_all["antiemetic_any"].isna()
+
+# Any "除外" in note that isn't caught by above
+generic_exclude_mask = note.str.contains("除外", na=False)
+
+# Combined
+all_exclude = ga_mask | sbp_mask | iufd_mask | vt_mask | triplet_mask | \
+              non_cs_mask | cardiac_mask | missing_note_mask | no_data_mask | generic_exclude_mask
+
+# --- Per-case exclusion reason tracking (multiple per case) ---
+df_all["excl_reason"] = ""
+reason_masks = [
+    ("General anesthesia", ga_mask),
+    ("SBP < 90 mmHg at admission", sbp_mask),
+    ("Intrauterine fetal death", iufd_mask),
+    ("Vanishing twin", vt_mask),
+    ("Triplet pregnancy", triplet_mask),
+    ("Non-cesarean delivery", non_cs_mask),
+    ("Cardiac arrest", cardiac_mask),
+    ("Missing anesthesia data (note)", missing_note_mask),
+    ("Missing antiemetic data", no_data_mask),
+]
+
+# Assign reasons (multiple allowed)
+for reason, mask in reason_masks:
+    df_all.loc[mask, "excl_reason"] = df_all.loc[mask, "excl_reason"].apply(
+        lambda x: f"{x}; {reason}" if x else reason
+    )
+
+# Catch remaining "除外" cases not categorized
+uncategorized_mask = generic_exclude_mask & ~ga_mask & ~sbp_mask & ~iufd_mask & \
+                     ~vt_mask & ~triplet_mask & ~non_cs_mask & ~cardiac_mask & ~missing_note_mask
+df_all.loc[uncategorized_mask, "excl_reason"] = df_all.loc[uncategorized_mask, "excl_reason"].apply(
+    lambda x: f"{x}; Other (see note)" if x else "Other (see note)"
+)
+
+# Sequential exclusion for flowchart
+exclusion_steps = []
+remaining_mask = pd.Series(True, index=df_all.index)
+
+for reason, reason_ja, mask in [
+    ("General anesthesia", "全身麻酔", ga_mask),
+    ("SBP < 90 mmHg at admission", "入室時SBP 90 mmHg未満", sbp_mask),
+    ("Intrauterine fetal death (IUFD)", "子宮内胎児死亡（IUFD）", iufd_mask),
+    ("Vanishing twin", "Vanishing twin", vt_mask),
+    ("Triplet pregnancy", "品胎", triplet_mask),
+    ("Non-cesarean delivery", "非帝王切開分娩（経膣・鉗子）", non_cs_mask),
+    ("Cardiac arrest post-anesthesia", "麻酔後心肺停止", cardiac_mask),
+    ("Missing anesthesia data", "麻酔データ欠損", no_data_mask | missing_note_mask),
+]:
+    step_mask = mask & remaining_mask
+    n_step = step_mask.sum()
+    n_s = (step_mask & (df_all["twin"] == 0)).sum()
+    n_t = (step_mask & (df_all["twin"] == 1)).sum()
+    exclusion_steps.append({
+        "reason": reason, "reason_ja": reason_ja,
+        "n": int(n_step), "n_s": int(n_s), "n_t": int(n_t),
+    })
+    remaining_mask = remaining_mask & ~mask
+
+print(f"\nTotal within study period: {n_total}")
+print(f"Sequential exclusion:")
+total_excl = 0
+for step in exclusion_steps:
+    print(f"  {step['reason']}: {step['n']} (S={step['n_s']}, T={step['n_t']})")
+    total_excl += step['n']
+print(f"  Total excluded: {total_excl}")
 
 # Apply exclusions
+df_excluded = df_all[all_exclude].copy()
 df = df_all[~all_exclude].copy()
-print(f"\nAfter exclusion: {len(df)} ({(df['twin']==0).sum()} single + {(df['twin']==1).sum()} twin)")
+n_after_excl = len(df)
+print(f"\nAfter exclusion: {n_after_excl} (S={int((df['twin']==0).sum())}, T={int((df['twin']==1).sum())})")
+
+# --- 3.8 Excluded cases: descriptive table ---
+print("\n--- Excluded cases: reason breakdown (multiple per case) ---")
+for reason, mask in reason_masks:
+    n = (mask & all_exclude).sum()
+    n_s = (mask & all_exclude & (df_all["twin"] == 0)).sum()
+    n_t = (mask & all_exclude & (df_all["twin"] == 1)).sum()
+    if n > 0:
+        print(f"  {reason}: {n} (S={n_s}, T={n_t})")
+
+# --- 3.9 Table S1: Excluded vs Included comparison ---
+print("\n--- Table S1: Excluded vs Included ---")
+df_all["included"] = ~all_exclude
+
+# Save excluded case info
+excluded_reasons = []
+for _, row in df_excluded.iterrows():
+    excluded_reasons.append({
+        "twin": int(row["twin"]),
+        "reason": row["excl_reason"],
+        "note": str(row["exclusion_note"]) if pd.notna(row["exclusion_note"]) else "",
+    })
+
+import json
+with open(BASE / "excluded_cases.json", "w", encoding="utf-8") as f:
+    json.dump(excluded_reasons, f, indent=2, ensure_ascii=False, default=str)
+
+print(f"Excluded case details saved to excluded_cases.json ({len(excluded_reasons)} cases)")
 
 # ============================================================
 # 4. DEFINE OUTCOMES
@@ -836,11 +942,14 @@ print("10. SAVING SUMMARY FOR MANUSCRIPT")
 print("=" * 60)
 
 summary = {
-    "n_total_before_exclusion": n_total,
-    "n_single_raw": int((df_all["twin"] == 0).sum()),
-    "n_twin_raw": int((df_all["twin"] == 1).sum()),
-    "n_excluded": n_total - len(df),
-    "n_after_exclusion": len(df),
+    "n_total_raw": n_total_raw,
+    "n_single_raw": int(n_total_raw - (df_all["twin"] == 1).sum() - n_out_of_period_s + n_out_of_period_s),
+    "n_out_of_period": n_out_of_period,
+    "n_out_of_period_s": int(n_out_of_period_s),
+    "n_out_of_period_t": int(n_out_of_period_t),
+    "n_total_within_period": n_total,
+    "n_excluded": int(all_exclude.sum()),
+    "n_after_exclusion": n_after_excl,
     "n_pre_anesthesia_antiemetic_excluded": int(pre_ae_count),
     "n_analysis": len(df_analysis),
     "n_single": int((df_analysis["twin"] == 0).sum()),
@@ -855,10 +964,12 @@ summary = {
     "ionv_secondary_twin_pct": float(100 * t["ionv_secondary"].mean()),
 }
 
-# Add exclusion details
-for reason, n in exclusions:
-    key = reason.lower().replace(" ", "_").replace("(", "").replace(")", "").replace("<", "lt").replace("≥", "ge")
-    summary[f"excl_{key}"] = int(n)
+# Add exclusion step details
+for step in exclusion_steps:
+    key = step["reason"].lower().replace(" ", "_").replace("(", "").replace(")", "").replace("<", "lt").replace("≥", "ge")
+    summary[f"excl_{key}"] = step["n"]
+    summary[f"excl_{key}_s"] = step["n_s"]
+    summary[f"excl_{key}_t"] = step["n_t"]
 
 # Add regression results
 if logit_primary is not None:
@@ -882,12 +993,207 @@ if logit_secondary is not None:
     summary["secondary_model_n"] = len(df_model_s)
     summary["secondary_model_events"] = int(df_model_s["ionv_secondary"].sum())
 
-import json
-with open(BASE / "summary_stats.json", "w") as f:
-    json.dump(summary, f, indent=2, ensure_ascii=False)
+# Add hypotension secondary outcome (descriptive only)
+_hypo_s = s["hypotension"].dropna()
+_hypo_t = t["hypotension"].dropna()
+_hypo_s_n = int(_hypo_s.sum())
+_hypo_t_n = int(_hypo_t.sum())
+_hypo_s_pct = 100 * _hypo_s_n / len(_hypo_s) if len(_hypo_s) > 0 else 0
+_hypo_t_pct = 100 * _hypo_t_n / len(_hypo_t) if len(_hypo_t) > 0 else 0
+_hypo_tbl = np.array([[_hypo_s_n, len(_hypo_s) - _hypo_s_n], [_hypo_t_n, len(_hypo_t) - _hypo_t_n]])
+_, _hypo_chi_p, _, _ = stats.chi2_contingency(_hypo_tbl, correction=False)
+_hc_s = s["hypotension_count"].dropna()
+_hc_t = t["hypotension_count"].dropna()
+_, _hypo_count_p = stats.mannwhitneyu(_hc_s, _hc_t, alternative="two-sided")
 
-print("Summary stats saved.")
-print(json.dumps(summary, indent=2, ensure_ascii=False))
+summary["hypo_single_n"] = _hypo_s_n
+summary["hypo_single_pct"] = float(_hypo_s_pct)
+summary["hypo_twin_n"] = _hypo_t_n
+summary["hypo_twin_pct"] = float(_hypo_t_pct)
+summary["hypo_chi_p"] = float(_hypo_chi_p)
+summary["hypo_count_single_median"] = float(_hc_s.median())
+summary["hypo_count_single_q1"] = float(_hc_s.quantile(0.25))
+summary["hypo_count_single_q3"] = float(_hc_s.quantile(0.75))
+summary["hypo_count_twin_median"] = float(_hc_t.median())
+summary["hypo_count_twin_q1"] = float(_hc_t.quantile(0.25))
+summary["hypo_count_twin_q3"] = float(_hc_t.quantile(0.75))
+summary["hypo_count_p"] = float(_hypo_count_p)
+
+import json
+
+class NpEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, (np.integer,)):
+            return int(obj)
+        if isinstance(obj, (np.floating,)):
+            return float(obj)
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return super().default(obj)
+
+with open(BASE / "summary_stats.json", "w") as f:
+    json.dump(summary, f, indent=2, ensure_ascii=False, cls=NpEncoder)
+
+# Save flowchart counts (updated with date filter + refined exclusion)
+flowchart = {
+    "total_raw": {
+        "n": n_total_raw,
+        "n_s": n_total_raw - int((df_all["twin"] == 1).sum()) - n_out_of_period + int(n_out_of_period_s),
+        "n_t": int((df_all["twin"] == 1).sum()) + int(n_out_of_period_t),
+    },
+    "out_of_study_period": {
+        "n": int(n_out_of_period),
+        "n_s": int(n_out_of_period_s),
+        "n_t": int(n_out_of_period_t),
+    },
+    "total": {
+        "n": n_total,
+        "n_s": int((df_all["twin"] == 0).sum()),
+        "n_t": int((df_all["twin"] == 1).sum()),
+    },
+    "exclusion_steps": exclusion_steps,
+    "total_excluded": {
+        "n": int(all_exclude.sum()),
+        "n_s": int((all_exclude & (df_all["twin"] == 0)).sum()),
+        "n_t": int((all_exclude & (df_all["twin"] == 1)).sum()),
+    },
+    "eligible": {
+        "n": n_after_excl,
+        "n_s": int((df["twin"] == 0).sum()),
+        "n_t": int((df["twin"] == 1).sum()),
+    },
+    "preop_antiemetic": {
+        "n": int(pre_ae_count),
+        "n_s": int((df[df["ae_pre_anesthesia"] == 1]["twin"] == 0).sum()),
+        "n_t": int((df[df["ae_pre_anesthesia"] == 1]["twin"] == 1).sum()),
+    },
+    "primary_analysis": {
+        "n": len(df_analysis),
+        "n_s": int((df_analysis["twin"] == 0).sum()),
+        "n_t": int((df_analysis["twin"] == 1).sum()),
+    },
+}
+
+# Sensitivity exclusion counts
+for label, col_check in [
+    ("Emergency CS", "emergency"),
+    ("Prior CS", "prior_cs"),
+    ("HDP", "HDP"),
+    ("Preoperative steroid", "preop_steroid"),
+]:
+    if col_check in df_analysis.columns:
+        mask_sens = df_analysis[col_check] == 1
+        flowchart[f"exclusion_sensitivity"] = flowchart.get("exclusion_sensitivity", {})
+        flowchart["exclusion_sensitivity"][label] = {
+            "n": int(mask_sens.sum()),
+            "n_s": int((mask_sens & (df_analysis["twin"] == 0)).sum()),
+            "n_t": int((mask_sens & (df_analysis["twin"] == 1)).sum()),
+        }
+
+# Subgroup
+sub_mask = (df_analysis["emergency"] != 1) & (df_analysis["prior_cs"] != 1) & \
+           (df_analysis["HDP"] != 1) & (df_analysis["preop_steroid"] != 1)
+sub = df_analysis[sub_mask]
+flowchart["subgroup_analysis"] = {
+    "n": len(sub),
+    "n_s": int((sub["twin"] == 0).sum()),
+    "n_t": int((sub["twin"] == 1).sum()),
+}
+
+# Total sensitivity exclusion
+sens_mask = (df_analysis["emergency"] == 1) | (df_analysis["prior_cs"] == 1) | \
+            (df_analysis["HDP"] == 1) | (df_analysis["preop_steroid"] == 1)
+flowchart["exclusion_sensitivity_total"] = {
+    "n": int(sens_mask.sum()),
+    "n_s": int((sens_mask & (df_analysis["twin"] == 0)).sum()),
+    "n_t": int((sens_mask & (df_analysis["twin"] == 1)).sum()),
+}
+
+with open(BASE / "flowchart_counts.json", "w") as f:
+    json.dump(flowchart, f, indent=2, ensure_ascii=False, cls=NpEncoder)
+
+print("Summary stats and flowchart counts saved.")
+print(json.dumps(summary, indent=2, ensure_ascii=False, cls=NpEncoder))
+
+# ============================================================
+# 11. TABLE S1: EXCLUDED vs INCLUDED COMPARISON
+# ============================================================
+print("\n" + "=" * 60)
+print("11. TABLE S1: EXCLUDED vs INCLUDED")
+print("=" * 60)
+
+# For excluded cases, compute Table 1-style stats
+# Need to compute BMI, GA_weeks etc. for excluded cases too
+df_all["BMI_calc"] = pd.to_numeric(df_all.get("体重(kg)", pd.Series(dtype=float)), errors="coerce") / \
+                     (pd.to_numeric(df_all.get("身長(cm)", pd.Series(dtype=float)), errors="coerce") / 100) ** 2
+
+incl = df_all[~all_exclude]
+excl = df_all[all_exclude]
+
+table_s1_rows = []
+for var, label, vtype in [
+    ("年齢(歳)", "Age (years)", "cont"),
+    ("BMI_calc", "BMI (kg/m²)", "cont"),
+    ("GA_weeks", "Gestational age (weeks)", "cont"),
+    ("emergency", "Emergency CS", "cat"),
+    ("twin", "Twin pregnancy", "cat"),
+]:
+    if var in df_all.columns or var == "BMI_calc":
+        if vtype == "cont":
+            i_vals = pd.to_numeric(incl[var], errors="coerce").dropna()
+            e_vals = pd.to_numeric(excl[var], errors="coerce").dropna()
+            if len(i_vals) > 0 and len(e_vals) > 0:
+                _, p = stats.mannwhitneyu(i_vals, e_vals, alternative="two-sided")
+            else:
+                p = np.nan
+            table_s1_rows.append({
+                "Variable": label,
+                "Included (n={})".format(len(incl)): f"{i_vals.median():.1f} [{i_vals.quantile(0.25):.1f}-{i_vals.quantile(0.75):.1f}]" if len(i_vals) > 0 else "N/A",
+                "Excluded (n={})".format(len(excl)): f"{e_vals.median():.1f} [{e_vals.quantile(0.25):.1f}-{e_vals.quantile(0.75):.1f}]" if len(e_vals) > 0 else "N/A",
+                "P-value": p,
+            })
+        else:
+            i_vals = pd.to_numeric(incl[var], errors="coerce").dropna()
+            e_vals = pd.to_numeric(excl[var], errors="coerce").dropna()
+            i_n = int(i_vals.sum())
+            e_n = int(e_vals.sum())
+            i_pct = 100 * i_n / len(i_vals) if len(i_vals) > 0 else 0
+            e_pct = 100 * e_n / len(e_vals) if len(e_vals) > 0 else 0
+            tbl = np.array([[i_n, len(i_vals) - i_n], [e_n, len(e_vals) - e_n]])
+            exp = np.outer(tbl.sum(axis=1), tbl.sum(axis=0)) / tbl.sum()
+            if exp.min() < 5:
+                _, p = stats.fisher_exact(tbl)
+            else:
+                _, p, _, _ = stats.chi2_contingency(tbl, correction=False)
+            table_s1_rows.append({
+                "Variable": label,
+                "Included (n={})".format(len(incl)): f"{i_n}/{len(i_vals)} ({i_pct:.1f}%)",
+                "Excluded (n={})".format(len(excl)): f"{e_n}/{len(e_vals)} ({e_pct:.1f}%)",
+                "P-value": p,
+            })
+
+table_s1 = pd.DataFrame(table_s1_rows)
+table_s1.to_csv(TAB / "table_s1_excluded_vs_included.csv", index=False)
+print(table_s1.to_string(index=False))
+
+# Exclusion reason breakdown table
+print("\n--- Exclusion reason breakdown ---")
+reason_breakdown = []
+for reason, mask in reason_masks:
+    n_total_r = mask.sum()
+    n_s_r = (mask & (df_all["twin"] == 0)).sum()
+    n_t_r = (mask & (df_all["twin"] == 1)).sum()
+    if n_total_r > 0:
+        reason_breakdown.append({
+            "Exclusion reason": reason,
+            "Total": int(n_total_r),
+            "Singleton": int(n_s_r),
+            "Twin": int(n_t_r),
+        })
+
+reason_df = pd.DataFrame(reason_breakdown)
+reason_df.to_csv(TAB / "table_exclusion_reasons.csv", index=False)
+print(reason_df.to_string(index=False))
 
 print("\n" + "=" * 60)
 print("Done! All tables in tables/, all figures in figures/")
