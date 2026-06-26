@@ -1,0 +1,305 @@
+{
+  "title": "Hino Nacional Brasileiro — シンコペーションの流れ",
+  "description": "ブラジル国歌をSITS9で記述。\n不規則なFWD間隔、中程度のCROSS角度（±25°）、\n長いカード列がシンコペーションと流麗な旋律を反映。",
+  "bpm": 100,
+  "key_root": 58,
+  "stitch_unit_mm": 4.0,
+  "cards": [
+    {
+      "name": "Ouviram do Ipiranga",
+      "instructions": [
+        {
+          "op": "ANCHOR"
+        },
+        {
+          "op": "TENSION",
+          "value": 0.5
+        }
+      ],
+      "repeat": 1,
+      "loom_hint": "玉結び — 宣言の開始",
+      "tone_hint": "I: 堂々とした開始",
+      "chord_label": "Bb",
+      "scale_degree": "I",
+      "root_midi": 58,
+      "chord_notes_midi": [
+        58,
+        62,
+        65
+      ],
+      "stitch_type": "running"
+    },
+    {
+      "name": "as margens placidas",
+      "instructions": [
+        {
+          "op": "TENSION",
+          "value": 0.45
+        },
+        {
+          "op": "FWD",
+          "n": 4
+        },
+        {
+          "op": "CROSS",
+          "angle": 25.0,
+          "depth": 1.0,
+          "wrap": false
+        }
+      ],
+      "repeat": 1,
+      "loom_hint": "4目前進 — 流れるような上昇",
+      "tone_hint": "IV: シンコペーションの波",
+      "chord_label": "Eb",
+      "scale_degree": "IV",
+      "root_midi": 63,
+      "chord_notes_midi": [
+        63,
+        67,
+        58
+      ],
+      "stitch_type": "running"
+    },
+    {
+      "name": "de um povo heroico",
+      "instructions": [
+        {
+          "op": "TENSION",
+          "value": 0.65
+        },
+        {
+          "op": "FWD",
+          "n": 3
+        },
+        {
+          "op": "CROSS",
+          "angle": -25.0,
+          "depth": 1.0,
+          "wrap": false
+        }
+      ],
+      "repeat": 1,
+      "loom_hint": "3目前進 — 英雄的な前進",
+      "tone_hint": "V: ドミナントへの到達",
+      "chord_label": "F",
+      "scale_degree": "V",
+      "root_midi": 65,
+      "chord_notes_midi": [
+        65,
+        69,
+        60
+      ],
+      "stitch_type": "running"
+    },
+    {
+      "name": "o brado retumbante",
+      "instructions": [
+        {
+          "op": "TENSION",
+          "value": 0.55
+        },
+        {
+          "op": "RET",
+          "n": 2
+        },
+        {
+          "op": "CROSS",
+          "angle": 25.0,
+          "depth": 1.0,
+          "wrap": false
+        }
+      ],
+      "repeat": 1,
+      "loom_hint": "2目回帰 — シンコペーション",
+      "tone_hint": "vi: リズムのずれ、短調",
+      "chord_label": "Gm",
+      "scale_degree": "vi",
+      "root_midi": 67,
+      "chord_notes_midi": [
+        67,
+        58,
+        62
+      ],
+      "stitch_type": "back_stitch"
+    },
+    {
+      "name": "e o sol da liberdade",
+      "instructions": [
+        {
+          "op": "TENSION",
+          "value": 0.75
+        },
+        {
+          "op": "FWD",
+          "n": 5
+        },
+        {
+          "op": "CROSS",
+          "angle": -25.0,
+          "depth": 1.0,
+          "wrap": false
+        }
+      ],
+      "repeat": 1,
+      "loom_hint": "5目前進 — 自由の太陽",
+      "tone_hint": "IV: 長いメロディライン",
+      "chord_label": "Eb",
+      "scale_degree": "IV",
+      "root_midi": 63,
+      "chord_notes_midi": [
+        63,
+        67,
+        58
+      ],
+      "stitch_type": "running"
+    },
+    {
+      "name": "em raios fulgidos",
+      "instructions": [
+        {
+          "op": "TENSION",
+          "value": 0.7
+        },
+        {
+          "op": "FWD",
+          "n": 2
+        },
+        {
+          "op": "CROSS",
+          "angle": 25.0,
+          "depth": 1.0,
+          "wrap": false
+        }
+      ],
+      "repeat": 1,
+      "loom_hint": "2目前進 — 光線の煌めき",
+      "tone_hint": "ii: 不規則な間隔",
+      "chord_label": "Cm",
+      "scale_degree": "ii",
+      "root_midi": 60,
+      "chord_notes_midi": [
+        60,
+        63,
+        67
+      ],
+      "stitch_type": "running"
+    },
+    {
+      "name": "brilhou no ceu",
+      "instructions": [
+        {
+          "op": "TENSION",
+          "value": 0.4
+        },
+        {
+          "op": "RET",
+          "n": 4
+        },
+        {
+          "op": "CROSS",
+          "angle": -25.0,
+          "depth": 1.0,
+          "wrap": false
+        }
+      ],
+      "repeat": 1,
+      "loom_hint": "4目回帰 — 空への回帰",
+      "tone_hint": "V: 降下、まだ流動的",
+      "chord_label": "F",
+      "scale_degree": "V",
+      "root_midi": 65,
+      "chord_notes_midi": [
+        65,
+        69,
+        60
+      ],
+      "stitch_type": "back_stitch"
+    },
+    {
+      "name": "da Patria nesse",
+      "instructions": [
+        {
+          "op": "TENSION",
+          "value": 0.6
+        },
+        {
+          "op": "FWD",
+          "n": 3
+        },
+        {
+          "op": "CROSS",
+          "angle": 25.0,
+          "depth": 1.0,
+          "wrap": false
+        }
+      ],
+      "repeat": 1,
+      "loom_hint": "3目前進 — 祖国の呼びかけ",
+      "tone_hint": "I: トニック回帰",
+      "chord_label": "Bb",
+      "scale_degree": "I",
+      "root_midi": 58,
+      "chord_notes_midi": [
+        58,
+        62,
+        65
+      ],
+      "stitch_type": "running"
+    },
+    {
+      "name": "instante",
+      "instructions": [
+        {
+          "op": "TENSION",
+          "value": 0.35
+        },
+        {
+          "op": "RET",
+          "n": 3
+        },
+        {
+          "op": "CROSS",
+          "angle": -25.0,
+          "depth": 1.0,
+          "wrap": false
+        }
+      ],
+      "repeat": 1,
+      "loom_hint": "3目回帰 — 瞬間の固定",
+      "tone_hint": "I: 最終解決",
+      "chord_label": "Bb",
+      "scale_degree": "I",
+      "root_midi": 58,
+      "chord_notes_midi": [
+        58,
+        62,
+        65
+      ],
+      "stitch_type": "back_stitch"
+    },
+    {
+      "name": "(ending)",
+      "instructions": [
+        {
+          "op": "ANCHOR"
+        },
+        {
+          "op": "TENSION",
+          "value": 0.3
+        }
+      ],
+      "repeat": 1,
+      "loom_hint": "玉留め — 悠然とした終止",
+      "tone_hint": "I: リタルダンド",
+      "chord_label": "Bb",
+      "scale_degree": "I",
+      "root_midi": 58,
+      "chord_notes_midi": [
+        58,
+        62,
+        65
+      ],
+      "stitch_type": "running"
+    }
+  ]
+}

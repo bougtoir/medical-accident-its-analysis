@@ -1,0 +1,305 @@
+{
+  "title": "Star-Spangled Banner — 跳躍と自由",
+  "description": "米国国歌「星条旗」をSITS9で記述。\n大きなFWD(n)値（最大8）、広い音域、\n大胆なCROSS角度（±40°）がダイナミックな旋律を反映。",
+  "bpm": 84,
+  "key_root": 58,
+  "stitch_unit_mm": 3.5,
+  "cards": [
+    {
+      "name": "Oh say can you see",
+      "instructions": [
+        {
+          "op": "ANCHOR"
+        },
+        {
+          "op": "TENSION",
+          "value": 0.4
+        }
+      ],
+      "repeat": 1,
+      "loom_hint": "玉結び — 問いかけの開始",
+      "tone_hint": "I: 穏やかな問い",
+      "chord_label": "Bb",
+      "scale_degree": "I",
+      "root_midi": 58,
+      "chord_notes_midi": [
+        58,
+        62,
+        65
+      ],
+      "stitch_type": "running"
+    },
+    {
+      "name": "by the dawn's",
+      "instructions": [
+        {
+          "op": "TENSION",
+          "value": 0.55
+        },
+        {
+          "op": "FWD",
+          "n": 6
+        },
+        {
+          "op": "CROSS",
+          "angle": 40.0,
+          "depth": 1.0,
+          "wrap": false
+        }
+      ],
+      "repeat": 1,
+      "loom_hint": "6目前進 — 大きな跳躍",
+      "tone_hint": "IV: 6度上昇",
+      "chord_label": "Eb",
+      "scale_degree": "IV",
+      "root_midi": 63,
+      "chord_notes_midi": [
+        63,
+        67,
+        58
+      ],
+      "stitch_type": "running"
+    },
+    {
+      "name": "early light",
+      "instructions": [
+        {
+          "op": "TENSION",
+          "value": 0.35
+        },
+        {
+          "op": "RET",
+          "n": 4
+        },
+        {
+          "op": "CROSS",
+          "angle": -40.0,
+          "depth": 1.0,
+          "wrap": false
+        }
+      ],
+      "repeat": 1,
+      "loom_hint": "4目回帰 — 着地",
+      "tone_hint": "I: 降下して安定",
+      "chord_label": "Bb",
+      "scale_degree": "I",
+      "root_midi": 58,
+      "chord_notes_midi": [
+        58,
+        62,
+        65
+      ],
+      "stitch_type": "back_stitch"
+    },
+    {
+      "name": "What so proudly",
+      "instructions": [
+        {
+          "op": "TENSION",
+          "value": 0.6
+        },
+        {
+          "op": "FWD",
+          "n": 5
+        },
+        {
+          "op": "CROSS",
+          "angle": 40.0,
+          "depth": 1.0,
+          "wrap": false
+        }
+      ],
+      "repeat": 1,
+      "loom_hint": "5目前進 — 誇り",
+      "tone_hint": "V: ドミナント上昇",
+      "chord_label": "F",
+      "scale_degree": "V",
+      "root_midi": 65,
+      "chord_notes_midi": [
+        65,
+        69,
+        60
+      ],
+      "stitch_type": "running"
+    },
+    {
+      "name": "we hailed",
+      "instructions": [
+        {
+          "op": "TENSION",
+          "value": 0.7
+        },
+        {
+          "op": "FWD",
+          "n": 3
+        },
+        {
+          "op": "CROSS",
+          "angle": -40.0,
+          "depth": 1.0,
+          "wrap": false
+        }
+      ],
+      "repeat": 1,
+      "loom_hint": "3目前進 — さらに上昇",
+      "tone_hint": "vi: 短調の色彩",
+      "chord_label": "Gm",
+      "scale_degree": "vi",
+      "root_midi": 67,
+      "chord_notes_midi": [
+        67,
+        58,
+        62
+      ],
+      "stitch_type": "running"
+    },
+    {
+      "name": "the rockets'",
+      "instructions": [
+        {
+          "op": "TENSION",
+          "value": 0.9
+        },
+        {
+          "op": "FWD",
+          "n": 7
+        },
+        {
+          "op": "CROSS",
+          "angle": 40.0,
+          "depth": 1.0,
+          "wrap": false
+        }
+      ],
+      "repeat": 1,
+      "loom_hint": "7目前進 — 最大跳躍、ロケット",
+      "tone_hint": "IV: オクターブ跳躍、クライマックス",
+      "chord_label": "Eb",
+      "scale_degree": "IV",
+      "root_midi": 63,
+      "chord_notes_midi": [
+        63,
+        67,
+        58
+      ],
+      "stitch_type": "running"
+    },
+    {
+      "name": "red glare",
+      "instructions": [
+        {
+          "op": "TENSION",
+          "value": 0.75
+        },
+        {
+          "op": "RET",
+          "n": 5
+        },
+        {
+          "op": "CROSS",
+          "angle": -40.0,
+          "depth": 1.0,
+          "wrap": false
+        }
+      ],
+      "repeat": 1,
+      "loom_hint": "5目回帰 — 赤の残光",
+      "tone_hint": "I: 降下、まだ緊張",
+      "chord_label": "Bb",
+      "scale_degree": "I",
+      "root_midi": 58,
+      "chord_notes_midi": [
+        58,
+        62,
+        65
+      ],
+      "stitch_type": "back_stitch"
+    },
+    {
+      "name": "land of the free",
+      "instructions": [
+        {
+          "op": "TENSION",
+          "value": 0.95
+        },
+        {
+          "op": "FWD",
+          "n": 8
+        },
+        {
+          "op": "CROSS",
+          "angle": 40.0,
+          "depth": 1.0,
+          "wrap": false
+        }
+      ],
+      "repeat": 1,
+      "loom_hint": "8目前進 — 最高音への到達",
+      "tone_hint": "V: 最高音F5、自由の頂点",
+      "chord_label": "F",
+      "scale_degree": "V",
+      "root_midi": 65,
+      "chord_notes_midi": [
+        65,
+        69,
+        60
+      ],
+      "stitch_type": "running"
+    },
+    {
+      "name": "home of the brave",
+      "instructions": [
+        {
+          "op": "TENSION",
+          "value": 0.3
+        },
+        {
+          "op": "RET",
+          "n": 6
+        },
+        {
+          "op": "CROSS",
+          "angle": -40.0,
+          "depth": 1.0,
+          "wrap": false
+        }
+      ],
+      "repeat": 1,
+      "loom_hint": "6目回帰 — 壮大な着地",
+      "tone_hint": "I: 最終解決、着地",
+      "chord_label": "Bb",
+      "scale_degree": "I",
+      "root_midi": 58,
+      "chord_notes_midi": [
+        58,
+        62,
+        65
+      ],
+      "stitch_type": "back_stitch"
+    },
+    {
+      "name": "(ending)",
+      "instructions": [
+        {
+          "op": "ANCHOR"
+        },
+        {
+          "op": "TENSION",
+          "value": 0.2
+        }
+      ],
+      "repeat": 1,
+      "loom_hint": "玉留め — 余韻",
+      "tone_hint": "I: 終止",
+      "chord_label": "Bb",
+      "scale_degree": "I",
+      "root_midi": 58,
+      "chord_notes_midi": [
+        58,
+        62,
+        65
+      ],
+      "stitch_type": "running"
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+# La Marseillaise — 行進曲の激情 — 料理レンダリング
+# フランス国歌「ラ・マルセイエーズ」をSITS9で記述。
+大きなFWD/RET振幅、高TENSION、急角度CROSS（±45°）が
+行進曲の劇的ダイナミクスを反映。
+
+============================================================
+  SITS9 料理レシピ
+============================================================
+
+調理時間合計: 約66分
+
+   1. 味見をして塩梅を整える（ANCHOR: 味の固定点）
+      [Allons enfants]
+
+   2. 火加減を中火 (medium)に調整
+      [Allons enfants]
+
+   3. 火加減を中火 (medium)に調整
+      [de la Patrie]
+
+   4. 焼く (grill)で中火 (medium)、10分
+      [de la Patrie]
+
+   5. → 煮る (simmer)に切り替える
+      [de la Patrie]
+
+   6. 火加減を強火 (high)に調整
+      [Le jour de gloire]
+
+   7. 煮る (simmer)で強火 (high)、8分
+      [Le jour de gloire]
+
+   8. → 蒸す (steam)に切り替える
+      [Le jour de gloire]
+
+   9. 火加減を弱火 (low)に調整
+      [est arrive!]
+
+  10. 火を止めて14分休ませる（余熱で馴染ませる）
+      [est arrive!]
+
+  11. → 焼く (grill)に切り替える
+      [est arrive!]
+
+  12. 火加減を強火 (high)に調整
+      [Contre nous]
+
+  13. 焼く (grill)で強火 (high)、12分
+      [Contre nous]
+
+  14. → 煮る (simmer)に切り替える
+      [Contre nous]
+
+  15. 火加減を中火 (medium)に調整
+      [de la tyrannie]
+
+  16. 火を止めて6分休ませる（余熱で馴染ませる）
+      [de la tyrannie]
+
+  17. → 蒸す (steam)に切り替える
+      [de la tyrannie]
+
+  18. 火加減を強火 (high)に調整
+      [Aux armes!]
+
+  19. 蒸す (steam)で強火 (high)、14分
+      [Aux armes!]
+
+  20. → 焼く (grill)に切り替える
+      [Aux armes!]
+
+  21. 味見をして塩梅を整える（ANCHOR: 味の固定点）
+      [Marchons!]
+
+  22. 火加減を強火 (high)に調整
+      [Marchons!]
+
+============================================================
+※ このレシピは音楽・手芸と同一のSITS9カードデッキから
+  自動生成されています。
