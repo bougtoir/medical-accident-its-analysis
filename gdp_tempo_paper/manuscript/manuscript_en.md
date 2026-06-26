@@ -4,7 +4,7 @@
 
 **Onishi Tatsuki**
 
-Data Science AI Innovation Research Promotion Center, Shiga University
+Data Science and AI Innovation Research Promotion Center, Shiga University
 
 1-1-1, Bamba, Hikone, Shiga, 522-8522 Japan
 
