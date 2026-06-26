@@ -839,8 +839,8 @@ def main():
     print("\n--- 3. Solow residual decomposition ---", flush=True)
     solow = run_solow(countries)
     solow.to_csv(os.path.join(DATA, "full_solow.csv"), index=False)
-    table5 = summarise_tempo_artifact(solow)
-    table5.to_csv(os.path.join(TAB, "table5_tempo_artifact_mobs.csv"), index=False)
+    table6 = summarise_tempo_artifact(solow)
+    table6.to_csv(os.path.join(TAB, "table6_tempo_artifact_mobs.csv"), index=False)
 
     # ── 4. Bootstrap CI on OOS improvement ────────────────────────────────
     print("\n--- 4. Bootstrap CI on M0 − M_obs OOS ---", flush=True)
@@ -908,8 +908,8 @@ def main():
                   f"R²={rpim_summary[name]['R2_median']:.3f}")
 
     print(f"\n┌── Solow tempo artifact (median share of TFP variance) ───┐")
-    m2_shares = table5["M2 tempo share %"].replace("", np.nan).astype(float).dropna()
-    mobs_shares = table5["Mobs tempo share %"].replace("", np.nan).astype(float).dropna()
+    m2_shares = table6["M2 tempo share %"].replace("", np.nan).astype(float).dropna()
+    mobs_shares = table6["Mobs tempo share %"].replace("", np.nan).astype(float).dropna()
     print(f"  M2:   {m2_shares.median():.1f}%")
     print(f"  Mobs: {mobs_shares.median():.1f}%")
 

@@ -1,15 +1,15 @@
 """Solow-residual historical decomposition and counterfactual wealth simulation.
 
 Produces:
-  - Fig 10: TFP decomposition — M0 raw Solow residual vs post-tempo residual
+  - Fig 13: TFP decomposition — M0 raw Solow residual vs post-tempo residual
             for 6 representative countries (time-series panel).
-  - Fig 11: Counterfactual national wealth — CWON official vs β-adjusted
+  - Fig 14: Counterfactual national wealth — CWON official vs β-adjusted
             for 12 countries (bar chart).
-  - Table 5: Summary of tempo-artifact share of TFP (all 39 countries).
+  - Table 6: Summary of tempo-artifact share of TFP (all 39 countries).
   - solow_decomposition.csv  — per-country per-year TFP under M0 vs M2/M4.
   - counterfactual_wealth.csv — per-country CWON vs β-adjusted wealth.
 
-These analyses answer Economica's "so what?" question:
+These analyses answer the "so what?" question:
   (a) What fraction of measured TFP is a timing artefact?
   (b) How much does official wealth understate true productive capital?
 """
@@ -241,13 +241,13 @@ def run_counterfactual_wealth(countries: list[Country],
     return pd.DataFrame(rows).sort_values("pca_gap_pct", ascending=False)
 
 
-def make_fig10(solow_df: pd.DataFrame, lang: str = "en"):
+def make_fig13(solow_df: pd.DataFrame, lang: str = "en"):
     """Solow residual decomposition for 6 representative countries."""
     highlight = ["Japan", "United States", "Germany",
                  "Republic of Korea", "United Kingdom", "France"]
     labels = {
         "en": {
-            "title": "Fig. 10. Solow-residual decomposition: M0 vs tempo-adjusted (M2) vs joint (M4)",
+            "title": "Fig. 13. Solow-residual decomposition: M0 vs tempo-adjusted (M2) vs joint (M4)",
             "ylabel": "TFP (log level)",
             "M0": "M0 (Solow baseline)",
             "M2": "M2 (tempo-adjusted)",
@@ -255,7 +255,7 @@ def make_fig10(solow_df: pd.DataFrame, lang: str = "en"):
             "xlabel": "Year",
         },
         "ja": {
-            "title": "図10. ソロー残差の分解: M0 vs テンポ調整(M2) vs 統合(M4)",
+            "title": "図13. ソロー残差の分解: M0 vs テンポ調整(M2) vs 統合(M4)",
             "ylabel": "TFP（対数水準）",
             "M0": "M0（ソロー基準）",
             "M2": "M2（テンポ調整）",
@@ -298,28 +298,28 @@ def make_fig10(solow_df: pd.DataFrame, lang: str = "en"):
                bbox_to_anchor=(0.5, -0.02), fontsize=10)
     fig.suptitle(labels["title"], y=0.99, fontsize=12)
     plt.tight_layout(rect=[0, 0.04, 1, 0.97])
-    out = os.path.join(FIG, f"fig10_solow_decomp_{lang}.png")
+    out = os.path.join(FIG, f"fig13_solow_decomp_{lang}.png")
     plt.savefig(out, dpi=180, bbox_inches="tight")
     plt.close()
     print("wrote", out)
 
 
-def make_fig11(cf_df: pd.DataFrame, lang: str = "en"):
+def make_fig14(cf_df: pd.DataFrame, lang: str = "en"):
     """Counterfactual wealth: CWON official vs beta-adjusted (bar chart)."""
     if cf_df.empty:
-        print("skipping fig11: no counterfactual data")
+        print("skipping fig14: no counterfactual data")
         return
     top12 = cf_df.head(12)
     labels = {
         "en": {
-            "title": "Fig. 11. National wealth: CWON official vs intangible-adjusted",
+            "title": "Fig. 14. National wealth: CWON official vs intangible-adjusted",
             "ylabel": "Produced capital (2019, USD trillion)",
             "official": "CWON official",
             "adjusted": r"+ $\beta \cdot K_I$ adjustment",
             "xlabel": "",
         },
         "ja": {
-            "title": "図11. 国富: CWON公式値 vs 無形資本調整後",
+            "title": "図14. 国富: CWON公式値 vs 無形資本調整後",
             "ylabel": "生産資本（2019年、兆USD）",
             "official": "CWON公式値",
             "adjusted": r"$+\beta \cdot K_I$ 調整分",
@@ -346,7 +346,7 @@ def make_fig11(cf_df: pd.DataFrame, lang: str = "en"):
     ax.legend(loc="upper right")
     ax.grid(axis="y", alpha=0.3)
     plt.tight_layout()
-    out = os.path.join(FIG, f"fig11_counterfactual_wealth_{lang}.png")
+    out = os.path.join(FIG, f"fig14_counterfactual_wealth_{lang}.png")
     plt.savefig(out, dpi=180, bbox_inches="tight")
     plt.close()
     print("wrote", out)
@@ -365,10 +365,10 @@ def main():
     solow.to_csv(os.path.join(DATA, "solow_decomposition.csv"), index=False)
     print(f"  {len(solow)} rows written", flush=True)
 
-    print("\n--- Tempo artifact summary (Table 5) ---", flush=True)
-    table5 = summarise_tempo_artifact(solow)
-    table5.to_csv(os.path.join(TAB, "table5_tempo_artifact.csv"), index=False)
-    print(table5[["Country", "mu1", "beta_j", "Tempo share %",
+    print("\n--- Tempo artifact summary (Table 6) ---", flush=True)
+    table6 = summarise_tempo_artifact(solow)
+    table6.to_csv(os.path.join(TAB, "table6_tempo_artifact.csv"), index=False)
+    print(table6[["Country", "mu1", "beta_j", "Tempo share %",
                    "Joint share %"]].to_string(index=False))
 
     print("\n--- Counterfactual wealth ---", flush=True)
@@ -381,8 +381,8 @@ def main():
 
     print("\n--- Figures ---", flush=True)
     for lang in ("en", "ja"):
-        make_fig10(solow, lang)
-        make_fig11(cf, lang)
+        make_fig13(solow, lang)
+        make_fig14(cf, lang)
 
     print("\nDone.", flush=True)
 

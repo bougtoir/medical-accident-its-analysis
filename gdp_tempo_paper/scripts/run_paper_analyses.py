@@ -733,7 +733,7 @@ def run_delta_sensitivity(countries: list[Country],
                          ) -> pd.DataFrame:
     """For each country, re-fit mu (M1 constant lag) under adjusted delta.
 
-    Addresses Inklaar's critique: if delta drifts, some of what is attributed
+    Tests depreciation sensitivity: if delta drifts, some of what is attributed
     to mu(t) may instead belong to delta(t). Reports mu_hat for each
     delta_factor."""
     rows = []

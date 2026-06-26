@@ -1,12 +1,11 @@
 """Build final manuscript .docx (JA + EN) with inline figures/tables
 and a single editable .pptx (EN figures) for per-slide editing.
 
-Formatted for Journal of Macroeconomics (Elsevier):
+Formatted for Empirical Economics (Springer):
   - Double-blind: title page with author info separated from manuscript body
   - 1.5× line spacing, Times New Roman 12pt body text
-  - APA 7 author-date references (alphabetical, with DOIs)
+  - Harvard (name-year) references (alphabetical, with DOIs)
   - Decimal section numbering (1, 1.1, 1.2, …)
-  - Highlights (3-5 bullets, ≤85 chars each)
   - Figures inline in manuscript + separate files for submission
 
 Usage:  python build_docx_pptx.py
@@ -18,7 +17,8 @@ Outputs into ../manuscript/ :
   - table2_model_metrics.docx
   - table3_rpim.docx
   - table4_extended_oos.docx
-  - table5_tempo_artifact.docx
+  - table5_k_level.docx
+  - table6_tempo_artifact.docx
   - cover_letter_en.docx / .pdf
 """
 from __future__ import annotations
@@ -87,13 +87,25 @@ FIG_LIST = [
      "ρ̂₂のR&D強度に対するクロスセクション回帰。",
      "fig9_rho2_regression_{lang}.png"),
     ("fig10", "Fig. 10", "図10",
+     "Capital-stock divergence: K_obs vs K_M0 over time for six representative countries.",
+     "資本ストック乖離: 6カ国におけるK_obsとK_M0の推移。",
+     "fig10_k_divergence_{lang}.png"),
+    ("fig11", "Fig. 11", "図11",
+     "Measurement consequence: K-level change vs TFP shift (country means, 2010-2019).",
+     "計測帰結: K水準変化とTFPシフト（国別平均、2010-2019）。",
+     "fig11_tfp_consequence_{lang}.png"),
+    ("fig12", "Fig. 12", "図12",
+     "Implied labour-share correction from tempo-adjusted capital (country means, 2010-2019).",
+     "テンポ調整資本からの労働分配率補正（国別平均、2010-2019）。",
+     "fig12_labor_share_{lang}.png"),
+    ("fig13", "Fig. 13", "図13",
      "Solow-residual decomposition: M0 vs tempo-adjusted (M2) vs joint (M4) for six representative countries.",
      "ソロー残差の分解: M0 vs テンポ調整(M2) vs 統合(M4)、代表6カ国。",
-     "fig10_solow_decomp_{lang}.png"),
-    ("fig11", "Fig. 11", "図11",
+     "fig13_solow_decomp_{lang}.png"),
+    ("fig14", "Fig. 14", "図14",
      "National wealth: CWON official vs intangible-adjusted produced capital (2019).",
      "国富: CWON公式値 vs 無形資本調整後の生産資本（2019年）。",
-     "fig11_counterfactual_wealth_{lang}.png"),
+     "fig14_counterfactual_wealth_{lang}.png"),
 ]
 
 
@@ -472,8 +484,10 @@ def build_manuscript(lang: str):
     t3 = pd.read_csv(t3_path) if os.path.exists(t3_path) else None
     t4_path = os.path.join(TAB, "table4_extended_oos.csv")
     t4 = pd.read_csv(t4_path) if os.path.exists(t4_path) else None
-    t5_path = os.path.join(TAB, "table5_tempo_artifact.csv")
+    t5_path = os.path.join(TAB, "table5_k_level.csv")
     t5 = pd.read_csv(t5_path) if os.path.exists(t5_path) else None
+    t6_path = os.path.join(TAB, "table6_tempo_artifact.csv")
+    t6 = pd.read_csv(t6_path) if os.path.exists(t6_path) else None
 
     # Figure caption lookup by index
     fig_cap = {}
@@ -493,8 +507,10 @@ def build_manuscript(lang: str):
     t3_cap_ja = "関係型PIM診断: M0, M1, M2, M4におけるρ̂₂の要約。"
     t4_cap_en = "Extended OOS metrics: direction accuracy and CWON trajectory RMSE."
     t4_cap_ja = "拡張標本外指標: 方向精度およびCWON軌跡RMSE。"
-    t5_cap_en = "Tempo-artifact share of TFP-growth variance: percentage reduction in Var(d log TFP) from M0 to M2 (tempo) and M0 to M4 (joint)."
-    t5_cap_ja = "テンポ・アーティファクトのTFP成長率分散シェア: M0→M2（テンポ）およびM0→M4（統合）。"
+    t5_cap_en = "K-level measurement consequences: K gap, TFP shift, and implied labour-share shift (2010-2019 country means)."
+    t5_cap_ja = "K水準の計測帰結: K乖離、TFPシフト、労働分配率シフト（2010-2019年国別平均）。"
+    t6_cap_en = "Tempo-artifact share of TFP-growth variance: percentage reduction in Var(d log TFP) from M0 to M2 (tempo) and M0 to M4 (joint)."
+    t6_cap_ja = "テンポ・アーティファクトのTFP成長率分散シェア: M0→M2（テンポ）およびM0→M4（統合）。"
 
     doc = Document()
     # Use sensible page margins
@@ -504,9 +520,9 @@ def build_manuscript(lang: str):
         section.left_margin = Cm(2.5)
         section.right_margin = Cm(2.5)
 
-    # JoM double-blind: skip title-page block in the anonymized manuscript
-    # The manuscript .md contains [TITLE PAGE ...] ... [END TITLE PAGE] markers
-    in_title_page = False
+    # Empirical Economics: include title-page block (author info, funding,
+    # COI) on the first page of the manuscript file itself.
+    # Only skip the marker lines ([TITLE PAGE], [END TITLE PAGE], [MANUSCRIPT]).
 
     i = 0
     while i < len(lines):
@@ -516,16 +532,13 @@ def build_manuscript(lang: str):
             i += 1
             continue
 
-        # Skip title-page section (author info goes to separate file)
+        # Skip marker lines only (not the content between them)
         if stripped.startswith("[TITLE PAGE") or stripped.startswith("[タイトルページ"):
-            in_title_page = True
             i += 1
             continue
         if stripped.startswith("[END TITLE PAGE") or stripped.startswith("[タイトルページ終了"):
-            in_title_page = False
-            i += 1
-            continue
-        if in_title_page:
+            # Insert a page break after the title page section
+            doc.add_page_break()
             i += 1
             continue
 
@@ -598,6 +611,13 @@ def build_manuscript(lang: str):
                         t5,
                         t5_cap_en if lang == "en" else t5_cap_ja,
                     )
+                elif idx == 6 and t6 is not None:
+                    add_table_block(
+                        doc,
+                        "Table 6." if lang == "en" else "表6.",
+                        t6,
+                        t6_cap_en if lang == "en" else t6_cap_ja,
+                    )
             else:
                 # Displayed equation: 4-space indent with label (M0), (1), etc.
                 m_eq = EQUATION_RE.match(line)
@@ -652,12 +672,19 @@ def build_standalone_tables():
             ("table4_extended_oos.docx", t4,
              "Table 4. Extended OOS metrics: direction accuracy and CWON trajectory RMSE.",
              None))
-    t5_path = os.path.join(TAB, "table5_tempo_artifact.csv")
+    t5_path = os.path.join(TAB, "table5_k_level.csv")
     t5 = pd.read_csv(t5_path) if os.path.exists(t5_path) else None
     if t5 is not None:
         table_list.append(
-            ("table5_tempo_artifact.docx", t5,
-             "Table 5. Tempo-artifact share of TFP-growth variance.",
+            ("table5_k_level.docx", t5,
+             "Table 5. K-level measurement consequences (2010-2019 country means).",
+             None))
+    t6_path = os.path.join(TAB, "table6_tempo_artifact.csv")
+    t6 = pd.read_csv(t6_path) if os.path.exists(t6_path) else None
+    if t6 is not None:
+        table_list.append(
+            ("table6_tempo_artifact.docx", t6,
+             "Table 6. Tempo-artifact share of TFP-growth variance.",
              None))
     for name, df, cap, widths in table_list:
         d = Document()
