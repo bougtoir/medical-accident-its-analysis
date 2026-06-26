@@ -149,6 +149,12 @@ def fmt_p(p):
     return f'{p:.3f}'
 
 
+def fmt_stat(val):
+    if np.isnan(val):
+        return 'N/A'
+    return f'{val:.3f}'
+
+
 # ==========================================
 # Effect size comparison
 # ==========================================
@@ -646,7 +652,7 @@ def write_jatm_paper():
             (fmt_p(tr['spearman_p']), WD_ALIGN_PARAGRAPH.CENTER),
             (f'{tr["kendall_tau"]:.3f}', WD_ALIGN_PARAGRAPH.CENTER),
             (fmt_p(tr['kendall_p']), WD_ALIGN_PARAGRAPH.CENTER),
-            (f'{tr["quarterly_rho"]:.3f}', WD_ALIGN_PARAGRAPH.CENTER),
+            (fmt_stat(tr['quarterly_rho']), WD_ALIGN_PARAGRAPH.CENTER),
             (fmt_p(tr['quarterly_p']), WD_ALIGN_PARAGRAPH.CENTER),
         ]
         add_table_data_row(t1, data)
