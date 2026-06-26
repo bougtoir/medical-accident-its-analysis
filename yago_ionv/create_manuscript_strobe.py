@@ -277,8 +277,8 @@ add_paragraph(doc,
     "または硬膜外麻酔併用脊髄くも膜下麻酔を施行された症例とした。")
 
 excl_text = "除外基準は、"
-for step in F["exclusion_steps"]:
-    excl_text += f"（1）{step['reason_ja']}、"
+for i, step in enumerate(F["exclusion_steps"], 1):
+    excl_text += f"（{i}）{step['reason_ja']}、"
 excl_text = excl_text[:-1] + "とした。"
 excl_text += (
     f"さらに、麻酔開始前に制吐薬が投与された{F['preop_antiemetic']['n']}例は"
@@ -391,16 +391,27 @@ add_heading(doc, "結果")
 
 # --- Participants (STROBE 14) ---
 add_heading(doc, "対象者の選択（STROBE項目14）", level=2)
+# Build exclusion breakdown dynamically
+excl_parts = []
+for step in F["exclusion_steps"]:
+    excl_parts.append(f"{step['reason_ja']}{step['n']}例")
+excl_detail = "、".join(excl_parts)
+
+# Include date filter in participant flow
+date_filter_text = ""
+if F.get("out_of_period", {}).get("n", 0) > 0:
+    date_filter_text = (
+        f"データベース上の全帝王切開症例{F['total_raw']['n']:,}例のうち、"
+        f"研究期間外（2014年4月1日以前）の{F['out_of_period']['n']}例"
+        f"（単胎{F['out_of_period']['n_s']}例、双胎{F['out_of_period']['n_t']}例）を除外し、"
+        f"研究期間内の{F['total']['n']:,}例を適格性評価の対象とした。"
+    )
+
 add_paragraph(doc,
+    date_filter_text +
     f"研究期間中に帝王切開術を受けた{F['total']['n']:,}例のうち、"
     f"除外基準に該当した{F['total_excluded']['n']}例"
-    f"（全身麻酔{F['exclusion_steps'][0]['n']}例、"
-    f"入室時SBP 90 mmHg未満{F['exclusion_steps'][1]['n']}例、"
-    f"子宮内胎児死亡{F['exclusion_steps'][2]['n']}例、"
-    f"vanishing twin {F['exclusion_steps'][3]['n']}例、"
-    f"品胎{F['exclusion_steps'][4]['n']}例、"
-    f"その他{F['exclusion_steps'][5]['n']}例、"
-    f"麻酔データ欠損{F['exclusion_steps'][6]['n']}例）を除外した。"
+    f"（{excl_detail}）を除外した。"
     f"さらに術前制吐薬投与{F['preop_antiemetic']['n']}例を除外し、"
     f"最終解析対象は{F['primary_analysis']['n']:,}例"
     f"（単胎{F['primary_analysis']['n_s']:,}例、"
@@ -887,7 +898,7 @@ add_p_with_refs(doc,
 add_p_with_refs(doc,
     "IONVの主要な機序は低血圧、迷走神経活動、内臓刺激であるが{2,12}、"
     "双胎妊娠はこれらすべてを増幅しうる生理学的特徴を有する{13}。"
-    "本研究の双胎342例を含む3,188例のコホートは、"
+    f"本研究の双胎{F['primary_analysis']['n_t']:,}例を含む{F['primary_analysis']['n']:,}例のコホートは、"
     "双胎におけるIONVを正面から検討した最大規模の研究であり、"
     "この知見はIONVのメカニズム解明に寄与しうる。"
     "広義（制吐薬全般）では差がないにもかかわらず狭義（5-HT3拮抗薬）で有意差が出るという結果は、"
@@ -917,7 +928,7 @@ add_heading(doc, "一般化可能性（STROBE項目22）", level=2)
 add_p_with_refs(doc,
     "本研究は地域中核病院の10年間のデータに基づいており、"
     "日本における一般的な帝王切開管理を反映している。"
-    "双胎342例を含む本コホートは、"
+    f"双胎{F['primary_analysis']['n_t']:,}例を含む本コホートは、"
     "双胎を系統的に除外してきた先行研究{9-11}とは異なり、"
     "双胎におけるIONVを直接検証した最大規模のデータである。"
     "ただし、制吐薬の処方パターンは施設や時代によって異なる可能性があり、"
