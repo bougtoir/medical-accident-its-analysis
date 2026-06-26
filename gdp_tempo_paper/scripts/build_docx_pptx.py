@@ -520,9 +520,9 @@ def build_manuscript(lang: str):
         section.left_margin = Cm(2.5)
         section.right_margin = Cm(2.5)
 
-    # JoM double-blind: skip title-page block in the anonymized manuscript
-    # The manuscript .md contains [TITLE PAGE ...] ... [END TITLE PAGE] markers
-    in_title_page = False
+    # Empirical Economics: include title-page block (author info, funding,
+    # COI) on the first page of the manuscript file itself.
+    # Only skip the marker lines ([TITLE PAGE], [END TITLE PAGE], [MANUSCRIPT]).
 
     i = 0
     while i < len(lines):
@@ -532,16 +532,13 @@ def build_manuscript(lang: str):
             i += 1
             continue
 
-        # Skip title-page section (author info goes to separate file)
+        # Skip marker lines only (not the content between them)
         if stripped.startswith("[TITLE PAGE") or stripped.startswith("[タイトルページ"):
-            in_title_page = True
             i += 1
             continue
         if stripped.startswith("[END TITLE PAGE") or stripped.startswith("[タイトルページ終了"):
-            in_title_page = False
-            i += 1
-            continue
-        if in_title_page:
+            # Insert a page break after the title page section
+            doc.add_page_break()
             i += 1
             continue
 
