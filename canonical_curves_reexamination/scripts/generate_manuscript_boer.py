@@ -327,8 +327,8 @@ def create_manuscript():
          "question of whether similar fragilities lurk beneath other canonical curves. "
          "The Environmental Kuznets Curve for CO\u2082 emissions has been repeatedly "
          "challenged (Grossman and Krueger, 1991; Stern, 2004), and the Dunning-Kruger "
-         "effect has been argued to be a statistical artefact of regression to the mean "
-         "(Krueger and Mueller, 2002)."),
+         "effect (Dunning and Kruger, 1999) has been argued to be a statistical artefact "
+         "of regression to the mean (Krueger and Mueller, 2002)."),
 
         ("Despite individual critiques, no systematic cross-disciplinary audit has been "
          "conducted. The present study fills this gap by applying a uniform methodological "
@@ -503,10 +503,11 @@ def create_manuscript():
         f"Of 12 curves, {econ_v.get('NOT_SIGNIFICANT', 0)} were non-significant, "
         f"{econ_v.get('OUTLIER_DEPENDENT', 0)} were outlier-dependent, and "
         f"{econ_v.get('ROBUST_NONLINEAR', 0)} demonstrated robust nonlinearity. "
-        f"The Phillips Curve (Phillips, 1958) showed no significant quadratic term "
-        f"(p = {fmt_p(phillips['f_test']['p_value'])}). "
-        f"The Kuznets Curve's inverted-U (Kuznets, 1955) was not significant with "
-        f"{kuznets['n']} countries (p = {fmt_p(kuznets['f_test']['p_value'])}). "
+        f"The Phillips Curve (Phillips, 1958; Blanchard and Katz, 1997) showed no "
+        f"significant quadratic term (p = {fmt_p(phillips['f_test']['p_value'])}). "
+        f"The Kuznets Curve's inverted-U (Kuznets, 1955; Piketty and Saez, 2003) was "
+        f"not significant with {kuznets['n']} countries "
+        f"(p = {fmt_p(kuznets['f_test']['p_value'])}). "
         "The Environmental Kuznets Curve (CO\u2082), Laffer Curve, and Great Gatsby Curve "
         "were all outlier-dependent."
     )
@@ -575,7 +576,9 @@ def create_manuscript():
     add_bold(p, 'Psychology. ')
     add_text(p,
         f"Psychology showed high robustness: {psych_v.get('ROBUST_NONLINEAR', 0)}/5 "
-        f"curves were robust (Yerkes-Dodson, Ebbinghaus, Dunning-Kruger, Happiness U-Curve). "
+        f"curves were robust (Yerkes-Dodson (Yerkes and Dodson, 1908), Ebbinghaus "
+        f"forgetting curve (Ebbinghaus, 1885), Dunning-Kruger (Dunning and Kruger, 1999), "
+        f"and the Happiness U-Curve (Easterlin, 1974)). "
         f"Only the Weber-Fechner Law was non-significant."
     )
 
