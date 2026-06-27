@@ -353,11 +353,13 @@ add_text_with_refs(doc,
     'and has been identified as a discontinuity in Denisovan introgression, with '
     'one Denisovan lineage introgressing predominantly east of this line.{11} '
     'It also approximately separates Austronesian from Papuan language families. '
-    'In our data, populations east of the Wallace Line (n = 9) were '
-    'overwhelmingly agglutinative (8/9) and showed lower mean Denisovan pairwise '
-    'sharing (0.181 \u00b1 0.220) compared to western populations (0.327 \u00b1 0.078), '
-    'though this difference was not statistically significant in our sample '
-    '(Mann\u2013Whitney p = 0.97, one-tailed east > west).'
+    'In our dataset, restricting to Island Southeast Asia (latitude \u00b115\u00b0, '
+    'longitude \u226595\u00b0E), only 3 populations fall east of the Wallace Line '
+    '(Bougainville, Papuan Highlands, Papuan Sepik\u2014all Papuan-family languages) '
+    'and 1 west (Cambodian). The eastern populations show negative mean Denisovan '
+    'pairwise sharing (\u22120.102 \u00b1 0.021), reflecting their unique Denisovan '
+    'lineages that correlate poorly with other populations\u2019 patterns despite '
+    'having the highest absolute Denisovan proportion globally (~3\u20135%).'
 )
 
 add_text_with_refs(doc,

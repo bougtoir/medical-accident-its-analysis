@@ -314,9 +314,12 @@ print("=" * 60)
 # Restrict to ISEA/Oceania latitude band (-15° to 15°) to avoid misclassifying
 # NE Asian populations (Japan, Yakut, etc.) as "east of Wallace Line"
 WALLACE_LONG = 120.0
+ISEA_LON_MIN = 95.0
 ISEA_LAT_MIN = -15.0
 ISEA_LAT_MAX = 15.0
-isea_mask = (lang_data['latitude'] >= ISEA_LAT_MIN) & (lang_data['latitude'] <= ISEA_LAT_MAX)
+isea_mask = ((lang_data['latitude'] >= ISEA_LAT_MIN) &
+             (lang_data['latitude'] <= ISEA_LAT_MAX) &
+             (lang_data['longitude'] >= ISEA_LON_MIN))
 lang_data['east_wallace'] = (lang_data['longitude'] > WALLACE_LONG) & isea_mask
 lang_data['west_wallace_isea'] = (lang_data['longitude'] <= WALLACE_LONG) & isea_mask
 
