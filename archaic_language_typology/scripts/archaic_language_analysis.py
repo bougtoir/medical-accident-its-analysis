@@ -29,6 +29,8 @@ import os
 
 warnings.filterwarnings('ignore')
 
+np.random.seed(42)
+
 # Paths
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(BASE_DIR, 'data')
@@ -271,7 +273,8 @@ def partial_mantel(D1, D2, D_control, n_perms=9999):
         perm = np.random.permutation(D1.shape[0])
         D1_perm = D1[np.ix_(perm, perm)]
         x_perm = D1_perm[idx]
-        res_x_perm = x_perm - (slope_xz.slope * z + slope_xz.intercept)
+        slope_xz_perm = stats.linregress(z, x_perm)
+        res_x_perm = x_perm - (slope_xz_perm.slope * z + slope_xz_perm.intercept)
         r_perm = np.corrcoef(res_x_perm, res_y)[0, 1]
         if r_perm >= r_obs:
             count += 1
@@ -308,11 +311,17 @@ print("8. WALLACE LINE DISCONTINUITY TEST")
 print("=" * 60)
 
 # Populations east vs west of Wallace Line (approx 117°E - 120°E)
+# Restrict to ISEA/Oceania latitude band (-15° to 15°) to avoid misclassifying
+# NE Asian populations (Japan, Yakut, etc.) as "east of Wallace Line"
 WALLACE_LONG = 120.0
-lang_data['east_wallace'] = lang_data['longitude'] > WALLACE_LONG
+ISEA_LAT_MIN = -15.0
+ISEA_LAT_MAX = 15.0
+isea_mask = (lang_data['latitude'] >= ISEA_LAT_MIN) & (lang_data['latitude'] <= ISEA_LAT_MAX)
+lang_data['east_wallace'] = (lang_data['longitude'] > WALLACE_LONG) & isea_mask
+lang_data['west_wallace_isea'] = (lang_data['longitude'] <= WALLACE_LONG) & isea_mask
 
 east = lang_data[lang_data['east_wallace'] == True]
-west = lang_data[lang_data['east_wallace'] == False]
+west = lang_data[lang_data['west_wallace_isea'] == True]
 
 print(f"\nWest of Wallace Line: n={len(west)}")
 print(f"  Deni mean: {west['deni_mean'].mean():.4f} (±{west['deni_mean'].std():.4f})")
