@@ -1,6 +1,6 @@
 """
 Generate Trends in Food Science & Technology Commentary:
-"From factory to cup: Montmorillonite-based portable sachets as a
+"From batch to bag: Montmorillonite-based portable sachets as a
 consumer-side decaffeination paradigm"
 
 Format: Commentary (Trends in Food Science & Technology / Elsevier)
@@ -31,7 +31,7 @@ OUTPUT_DIR = Path(__file__).parent
 # ─────────────────────────────────────────────
 
 TITLE = (
-    "From factory to cup: Montmorillonite-based portable sachets "
+    "From batch to bag: Montmorillonite-based portable sachets "
     "as a consumer-side decaffeination paradigm"
 )
 
