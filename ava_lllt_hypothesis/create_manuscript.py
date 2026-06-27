@@ -108,24 +108,24 @@ INTRODUCTION = [
         "spontaneous AVA blood flow oscillations correlate inversely with "
         "MAP fluctuations (r = \u22120.3 to \u22120.8), with peak-to-trough MAP "
         "variations of 15 mmHg coinciding with AVA opening and closing "
-        "cycles.{8} Furthermore, surgically created central arteriovenous "
+        "cycles.{5} Furthermore, surgically created central arteriovenous "
         "fistulae (the ROX Coupler) reduce office systolic blood pressure "
         "by 26.9 mmHg (p < 0.0001) in patients with resistant "
         "hypertension, providing definitive proof that adding parallel "
-        "low-resistance vascular pathways lowers blood pressure.{9}"
+        "low-resistance vascular pathways lowers blood pressure.{8}"
     ),
     (
         "Photobiomodulation (PBM), formerly termed low-level laser therapy "
         "(LLLT), employs non-ionizing light at 600\u20131000 nm to modulate "
-        "cellular function.{10} A well-characterized mechanism of PBM is "
+        "cellular function.{9} A well-characterized mechanism of PBM is "
         "the release of nitric oxide (NO) from intracellular stores "
         "including cytochrome c oxidase (Complex IV) and "
-        "S-nitrosothiols.{11} NO is a potent vasodilator that activates "
+        "S-nitrosothiols.{10} NO is a potent vasodilator that activates "
         "soluble guanylate cyclase, elevates cyclic GMP, and relaxes "
-        "vascular smooth muscle.{12} Recent studies demonstrate that PBM "
+        "vascular smooth muscle.{11} Recent studies demonstrate that PBM "
         "at 660 nm produces NO-dependent hypotensive effects in "
         "hypertensive animal models, with the effect abolished by NOS "
-        "inhibition and restored by NO donors.{13}"
+        "inhibition and restored by NO donors.{12}"
     ),
     (
         "We propose that these two established phenomena\u2014AVA-mediated TPR "
@@ -147,22 +147,24 @@ HYPOTHESIS = [
     (
         "The proposed mechanism operates through the following causal "
         "chain (Fig. 1): PBM irradiation (20\u2013100 mW/cm\u00b2) penetrates the "
-        "dermis to a depth of 14\u201326 mm,{14} reaching AVAs located at "
+        "dermis to a depth of 14\u201326 mm,{13} reaching AVAs located at "
         "1\u20133 mm depth in glabrous skin.{5} Photon absorption by "
         "cytochrome c oxidase and hemoglobin-bound nitrosyl groups "
         "releases NO into the vascular smooth muscle layer "
-        "surrounding AVAs.{11,13} NO activates the sGC/cGMP/PKG pathway, "
-        "causing smooth muscle relaxation and AVA dilation.{12} The "
+        "surrounding AVAs.{10,12} NO activates the sGC/cGMP/PKG pathway, "
+        "causing smooth muscle relaxation and AVA dilation.{11} The "
         "resulting increase in AVA conductance adds parallel low-resistance "
-        "pathways to the systemic circulation, reducing TPR.{8} With "
+        "pathways to the systemic circulation, reducing TPR.{5} With "
         "MAP = CO \u00d7 TPR, a 5\u201310% reduction in TPR yields a 4.5\u20139 mmHg "
         "reduction in MAP (assuming baseline MAP of 90 mmHg), which exceeds "
-        "the threshold for clinical significance.{15}"
+        "the threshold for clinical significance.{14}"
     ),
     (
         "This mechanism is fundamentally distinct from the thermal "
         "vasodilation employed by existing devices (e.g., AVACEN, which "
-        "uses conductive heating plus negative pressure).{16} PBM offers "
+        "uses conductive heating plus negative pressure,{15} and the "
+        "selective thermal stimulation system of Diller et al., which "
+        "targets spinal thermoregulatory centers during sleep).{29} PBM offers "
         "a photochemical pathway to vasodilation that does not require "
         "tissue heating, operates at milliwatt-level power consumption "
         "suitable for battery-powered wearables, and avoids the "
@@ -183,9 +185,9 @@ EVALUATION = [
         "iliac arteriovenous coupler reduced office systolic blood "
         "pressure by 26.9 mmHg versus 3.7 mmHg in controls (p < 0.0001), "
         "with 24-hour ambulatory reductions of 13.5 mmHg sustained at "
-        "12 months.{9,17} Similarly, Faul et al. showed that iliac "
+        "12 months.{8,16} Similarly, Faul et al. showed that iliac "
         "arteriovenous shunts in hypertensive COPD patients reduced "
-        "systolic blood pressure by 13 mmHg at 12 months (p < 0.0001).{18} "
+        "systolic blood pressure by 13 mmHg at 12 months (p < 0.0001).{17} "
         "These trials confirm that TPR reduction via parallel "
         "low-resistance pathways is an effective antihypertensive strategy."
     ),
@@ -194,29 +196,29 @@ EVALUATION = [
         "have been demonstrated experimentally. Ribeiro et al. showed "
         "that 660 nm laser irradiation reduced MAP in hypertensive rats, "
         "and that this effect was abolished by the NOS inhibitor L-NAME, "
-        "confirming NO-dependence.{13} A 2025 systematic review and "
+        "confirming NO-dependence.{12} A 2025 systematic review and "
         "meta-analysis confirmed that PBM reduces systolic blood pressure, "
         "diastolic blood pressure, and MAP while increasing NO levels, "
         "though with very low certainty of evidence requiring further "
-        "high-quality trials.{19} Importantly, PBM at clinically relevant "
+        "high-quality trials.{18} Importantly, PBM at clinically relevant "
         "power densities (50\u2013100 mW/cm\u00b2) increases dermal blood flow by "
-        "25\u201330% as measured by laser Doppler flowmetry.{20}"
+        "25\u201330% as measured by laser Doppler flowmetry.{19}"
     ),
     (
         "Third, the physiological link between AVA blood flow and blood "
         "pressure is well-established. Wall\u00f8e's comprehensive review "
         "documented inverse correlations between AVA blood flow and MAP "
         "(r = \u22120.3 to \u22120.8) during thermoneutral-zone oscillations, "
-        "with MAP fluctuations of approximately 15 mmHg.{8} Kr\u00e4uchi et al. "
+        "with MAP fluctuations of approximately 15 mmHg.{5} Kr\u00e4uchi et al. "
         "demonstrated in 51 subjects that the distal-to-proximal skin "
         "temperature gradient (a surrogate for AVA blood flow) predicts "
         "blood pressure dipping status (r = \u22120.436, p = 0.0014), with "
         "78.6% concordance between wrist skin temperature rhythms and "
-        "blood pressure dipping patterns.{21,22} Furthermore, Gani et al. "
+        "blood pressure dipping patterns.{20,21} Furthermore, Gani et al. "
         "showed that local passive heat application (40\u201342\u00b0C), which "
         "activates AVA vasodilation, reduced systolic blood pressure by "
         "19 mmHg acutely and 28 mmHg overnight in patients with autonomic "
-        "failure (p < 0.001 versus sham).{23}"
+        "failure (p < 0.001 versus sham).{22}"
     ),
     (
         "A potential counterargument is baroreflex compensation: acute "
@@ -226,14 +228,14 @@ EVALUATION = [
         "concern. The Vanderbilt heat study demonstrated sustained "
         "overnight blood pressure reductions of 28 mmHg, suggesting that "
         "baroreflex compensation is incomplete during prolonged "
-        "stimulation.{23} Additionally, PBM has been reported to enhance "
-        "parasympathetic tone,{24} which may blunt the sympathetic "
+        "stimulation.{22} Additionally, PBM has been reported to enhance "
+        "parasympathetic tone,{23} which may blunt the sympathetic "
         "reflex. Gradual-onset stimulation (ramping PBM intensity over "
         "minutes rather than seconds) could further minimize baroreflex "
         "triggering. Finally, elderly patients with resistant "
         "hypertension\u2014the primary target population\u2014typically exhibit "
         "reduced baroreflex sensitivity, making sustained TPR-mediated "
-        "blood pressure reduction more achievable.{25}"
+        "blood pressure reduction more achievable.{24}"
     ),
 ]
 
@@ -283,9 +285,9 @@ CONSEQUENCES = [
     ),
     (
         "Second, the device concept uniquely addresses the problem of "
-        "cold-induced hypertension.{26} In temperate climates, blood "
+        "cold-induced hypertension.{25} In temperate climates, blood "
         "pressure rises by 5\u201310 mmHg in winter due to sympathetically "
-        "mediated AVA closure and resultant TPR elevation.{27} A wearable "
+        "mediated AVA closure and resultant TPR elevation.{26} A wearable "
         "PBM device that maintains AVA patency could simultaneously "
         "prevent seasonal blood pressure elevation and provide peripheral "
         "warming\u2014transforming an antihypertensive device into one that "
@@ -305,11 +307,11 @@ CONSEQUENCES = [
         "phenomenon, a condition characterized by episodic AVA closure "
         "in digits, with clear endpoints (attack frequency, duration) and "
         "smaller required sample sizes\u2014offering a pragmatic initial "
-        "regulatory pathway.{28}"
+        "regulatory pathway.{27}"
     ),
     (
         "Limitations of the proposed approach include inter-individual "
-        "variability in PBM response (responders vs. non-responders),{20} "
+        "variability in PBM response (responders vs. non-responders),{19} "
         "potential NO store depletion during prolonged use, and the "
         "possibility that baroreflex compensation may attenuate chronic "
         "blood pressure reduction in some patient populations. These "
@@ -344,21 +346,21 @@ TABLE1_DATA = [
         "Surgically created\nfixed AV shunt",
         "\u221226.9",
         "Invasive\n(catheter)",
-        "RCT (n=83){9}",
+        "RCT (n=83){8}",
     ],
     [
         "AVACEN 100\n(palm heating +\nneg. pressure)",
         "Conductive heat +\nvacuum \u2192 AVA dilation",
         "Under\ninvestigation",
         "Non-invasive\n(stationary)",
-        "Pilot studies{16}",
+        "Pilot studies{15}",
     ],
     [
         "Selective thermal\nstimulation\n(Diller, 2022)",
         "Spinal heating \u2192\nhypothalamic reflex\n\u2192 AVA dilation",
         "Not yet\nreported",
         "Non-invasive\n(bed-integrated)",
-        "POC (n=10){29}",
+        "POC (n=10){28}",
     ],
     [
         "PBM-AVA device\n(proposed)",
@@ -377,7 +379,6 @@ REFERENCES = [
     "Walløe L. Arterio-venous anastomoses in the human skin and their role in temperature control. Temperature (Austin). 2016;3(1):92-103.",
     "Midttun M, Sejrsen P, Paaske WP. Blood flow rate in arteriovenous anastomoses from the finger in control subjects and in patients with Raynaud's phenomenon. Clin Physiol. 1996;16(3):275-284.",
     "Johnson JM, Minson CT, Kellogg DL Jr. Cutaneous vasodilator and vasoconstrictor mechanisms in temperature regulation. Compr Physiol. 2014;4(1):33-89.",
-    "Walløe L. Arterio-venous anastomoses in the human skin and their role in temperature control. Temperature (Austin). 2016;3(1):92-103.",
     "Lobo MD, Sobotka PA, Stanton A, et al. Central arteriovenous anastomosis for the treatment of patients with uncontrolled hypertension (the ROX CONTROL HTN study): a randomised controlled trial. Lancet. 2015;385(9978):1634-1641.",
     "Anders JJ, Lanzafame RJ, Arany PR. Low-level light/laser therapy versus photobiomodulation therapy. Photomed Laser Surg. 2015;33(4):183-184.",
     "Karu TI, Pyatibrat LV, Afanasyeva NI. Cellular effects of low power laser therapy can be mediated by nitric oxide. Lasers Surg Med. 2005;36(4):307-314.",
@@ -400,7 +401,6 @@ REFERENCES = [
     "Flavahan NA. A vascular mechanistic approach to understanding Raynaud phenomenon. Nat Rev Rheumatol. 2015;11(3):146-158.",
     "Haghayegh S, Khoshnevis S, Smolensky MH, et al. Novel temperature-controlled sleep system to improve sleep: a proof-of-concept study. J Sleep Res. 2022;31(5):e13662.",
     "Diller KR, Khoshnevis S, Hemmen L. Thermoregulatory manipulation of systemic blood pressure. US Patent 11,229,548 B2. 2022.",
-    "Eriksen M, Walløe L. Thermoregulatory fluctuations in heart rate and blood pressure in humans: effect of cooling and parasympathetic blockade. J Auton Nerv Syst. 1994;47(3):245-254.",
 ]
 
 
