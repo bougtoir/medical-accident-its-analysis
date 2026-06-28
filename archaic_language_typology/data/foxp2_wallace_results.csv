@@ -1,0 +1,13 @@
+metric,value
+foxp2_desert_size_mb,20.0
+language_gene_enrichment_fold,2.6315789473684212
+language_gene_enrichment_p,0.044081403242355544
+wallace_kw_H,14.857943073816909
+wallace_kw_p,0.0005937978971953175
+wallace_spearman_rho,0.9348195178457935
+wallace_spearman_p,1.3335605469418523e-08
+austronesian_vs_papuan_U,71.5
+austronesian_vs_papuan_p,0.0016071726697716553
+austronesian_vs_papuan_r_rb,-0.8571428571428572
+longitude_deni_rho,0.8909561913288131
+longitude_deni_p,7.102695980946416e-07

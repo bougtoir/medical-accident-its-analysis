@@ -1,0 +1,65 @@
+population,language,language_family,morphological_type,word_order,tone,phoneme_count,latitude,longitude,notes
+Adygei,Adyghe,Northwest Caucasian,agglutinative,SOV,no,56,44.0,40.0,Circassian
+BEB,Bengali,Indo-European,fusional,SOV,no,49,23.7,90.4,Bangladesh
+Balochi,Balochi,Indo-European,fusional,SOV,no,32,28.0,66.0,Pakistan
+Basque,Basque,Isolate,agglutinative,SOV,no,24,43.0,-2.0,Language isolate
+Bedouin,Arabic,Afro-Asiatic,fusional,VSO,no,28,31.0,35.0,Levant
+BergamoItalian,Italian,Indo-European,fusional,SVO,no,30,45.7,9.7,Northern Italy
+Bougainville,Rotokas,East Papuan,isolating,SOV,no,11,-6.2,155.2,Papuan; minimal phonemes
+Brahui,Brahui,Dravidian,agglutinative,SOV,no,36,28.5,66.5,Pakistan Dravidian isolate
+Burusho,Burushaski,Isolate,agglutinative,SOV,no,38,36.5,74.5,Pakistan language isolate
+CDX,Zhuang,Tai-Kadai,isolating,SVO,yes,54,23.0,108.0,China Dai minority
+CEU,English,Indo-European,fusional,SVO,no,44,52.0,-1.0,Utah European ancestry
+CHB,Mandarin,Sino-Tibetan,isolating,SVO,yes,35,39.9,116.4,Beijing Han
+CHS,Mandarin,Sino-Tibetan,isolating,SVO,yes,35,23.1,113.3,Southern Han
+CLM,Spanish,Indo-European,fusional,SVO,no,24,4.6,-74.1,Colombia admixed
+Cambodian,Khmer,Austroasiatic,isolating,SVO,no,33,11.5,104.9,Cambodia
+Colombian,Spanish,Indo-European,fusional,SVO,no,24,4.6,-74.1,Colombia
+Dai,Tai,Tai-Kadai,isolating,SVO,yes,56,21.0,100.0,Yunnan China
+Daur,Daur,Mongolic,agglutinative,SOV,no,29,48.5,124.0,Inner Mongolia
+Druze,Arabic,Afro-Asiatic,fusional,VSO,no,28,32.8,35.4,Israel/Lebanon
+FIN,Finnish,Uralic,agglutinative,SVO,no,25,61.0,25.0,Finland
+French,French,Indo-European,fusional,SVO,no,36,46.0,2.0,France
+GBR,English,Indo-European,fusional,SVO,no,44,53.0,-1.0,Great Britain
+GIH,Gujarati,Indo-European,fusional,SOV,no,44,23.0,72.6,Gujarat India (admixed flag)
+Han,Mandarin,Sino-Tibetan,isolating,SVO,yes,35,35.0,110.0,Generic Han
+Hazara,Hazaragi,Indo-European,fusional,SOV,no,33,34.8,67.0,Afghanistan (Mongol descent)
+Hezhen,Nanai,Tungusic,agglutinative,SOV,no,29,47.7,133.5,Northeast China
+IBS,Spanish,Indo-European,fusional,SVO,no,24,40.0,-3.5,Iberian Spain
+ITU,Telugu,Dravidian,agglutinative,SOV,no,41,17.4,78.5,India Telugu
+JPT,Japanese,Japonic,agglutinative,SOV,yes,22,35.7,139.7,Tokyo Japan (pitch accent)
+KHV,Vietnamese,Austroasiatic,isolating,SVO,yes,37,21.0,105.8,Vietnam
+Kalash,Kalasha,Indo-European,fusional,SOV,no,45,35.7,71.5,Pakistan Hindu-Kush
+Karitiana,Karitiana,Tupi,agglutinative,SOV,no,17,-10.0,-63.0,Brazil Amazonian
+Lahu,Lahu,Sino-Tibetan,isolating,SOV,yes,37,21.0,100.5,Yunnan China Tibeto-Burman
+MXL,Spanish,Indo-European,fusional,SVO,no,24,23.6,-102.5,Mexico admixed
+Makrani,Balochi,Indo-European,fusional,SOV,no,32,25.5,63.0,Pakistan coast
+Maya,Yucatec,Mayan,agglutinative,VOS,yes,27,20.0,-89.0,Mexico Maya
+Miao,Hmong,Hmong-Mien,isolating,SVO,yes,60,26.5,109.0,China Hmong-Mien
+Mongolian,Mongolian,Mongolic,agglutinative,SOV,no,29,47.9,106.9,Mongolia
+Mozabite,Tamazight,Afro-Asiatic,fusional,VSO,no,33,32.5,3.5,Algeria Berber
+Naxi,Naxi,Sino-Tibetan,isolating,SOV,yes,42,27.0,100.2,Yunnan China
+NorthernHan,Mandarin,Sino-Tibetan,isolating,SVO,yes,35,40.0,116.0,North China
+Orcadian,English,Indo-European,fusional,SVO,no,44,59.0,-3.0,Orkney Islands
+Oroqen,Evenki,Tungusic,agglutinative,SOV,no,25,50.5,126.0,Northeast China
+PEL,Spanish/Quechua,Indo-European,fusional,SVO,no,24,-12.0,-77.0,Peru admixed
+PJL,Punjabi,Indo-European,fusional,SOV,no,40,31.5,74.3,Pakistan Punjab
+PUR,Spanish,Indo-European,fusional,SVO,no,24,18.2,-66.5,Puerto Rico admixed
+Palestinian,Arabic,Afro-Asiatic,fusional,VSO,no,28,31.9,35.2,Palestine
+PapuanHighlands,Enga,Trans-New-Guinea,agglutinative,SOV,no,20,-5.5,143.5,PNG Highlands
+PapuanSepik,Ndu,Sepik,agglutinative,SVO,no,22,-3.5,143.0,PNG Sepik
+Pathan,Pashto,Indo-European,fusional,SOV,no,41,34.0,71.5,Afghanistan/Pakistan
+Pima,O'odham,Uto-Aztecan,agglutinative,free,no,22,32.0,-112.0,Arizona USA
+Russian,Russian,Indo-European,fusional,SVO,no,42,55.0,37.6,Russia
+STU,Tamil,Dravidian,agglutinative,SOV,no,40,13.0,80.2,Sri Lanka Tamil
+Sardinian,Sardinian,Indo-European,fusional,SVO,no,17,40.0,9.0,Sardinia Italy
+She,She,Hmong-Mien,isolating,SVO,yes,43,26.0,119.0,Fujian China
+Sindhi,Sindhi,Indo-European,fusional,SOV,no,46,25.4,68.4,Pakistan Sindh
+Surui,Surui,Tupi,agglutinative,SOV,no,15,-11.0,-61.0,Brazil Amazonian
+TSI,Italian,Indo-European,fusional,SVO,no,30,43.0,11.0,Tuscany Italy
+Tu,Tu/Monguor,Mongolic,agglutinative,SOV,no,32,36.5,102.0,China Qinghai
+Tujia,Tujia,Sino-Tibetan,isolating,SVO,yes,35,29.0,109.0,China Hunan
+Tuscan,Italian,Indo-European,fusional,SVO,no,30,43.5,11.0,Tuscany
+Uygur,Uyghur,Turkic,agglutinative,SOV,no,32,43.0,87.0,Xinjiang China
+Xibo,Xibe,Tungusic,agglutinative,SOV,no,28,43.9,81.3,Xinjiang China (Manchu-related)
+Yakut,Yakut/Sakha,Turkic,agglutinative,SOV,no,24,62.0,129.7,Siberia Russia
