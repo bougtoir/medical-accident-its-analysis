@@ -1,6 +1,6 @@
 """
 Generate Trends in Food Science & Technology Commentary:
-"From factory to cup: Montmorillonite-based portable sachets as a
+"From batch to bag: Montmorillonite-based portable sachets as a
 consumer-side decaffeination paradigm"
 
 Format: Commentary (Trends in Food Science & Technology / Elsevier)
@@ -31,7 +31,7 @@ OUTPUT_DIR = Path(__file__).parent
 # ─────────────────────────────────────────────
 
 TITLE = (
-    "From factory to cup: Montmorillonite-based portable sachets "
+    "From batch to bag: Montmorillonite-based portable sachets "
     "as a consumer-side decaffeination paradigm"
 )
 
@@ -407,23 +407,16 @@ REFERENCES = [
     "European Commission. Commission Regulation (EU) No 231/2012 laying down specifications for food additives. Off J Eur Union. 2012;L83:1-295.",
     "Ministry of Health, Labour and Welfare (Japan). List of existing food additives. 2020. Available from: https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/kenkou_iryou/shokuhin/syokuten/",
     "Shiono T, Yamamoto K, Yotsumoto Y, Kawai J, Imada N, Hioki J, et al. Selective decaffeination of tea extracts by montmorillonite. J Food Eng. 2017;200:13-21.",
-    "Shiono T, Yamamoto K, Yotsumoto Y, Yoshida A. Decaffeination of beverages using natural adsorbent. Nippon Shokuhin Kagaku Kogaku Kaishi. 2018;65(3):99-106.",
-    "Yamamoto K, Shiono T, Yoshida A, Deuchi K. Interaction of caffeine with montmorillonite. Part Sci Technol. 2019;37(2):185-192.",
-    "Okada T, Ehara Y, Ogawa M. Caffeine adsorption on natural and synthetic smectite clays: adsorption mechanism and effect of interlayer cation valence. J Phys Chem C. 2020;124(47):25789-25795.",
+    "Shiono T, Kawai J, Yamamoto K. Decaffeination of beverages using natural adsorbent. Nippon Shokuhin Kagaku Kogaku Kaishi. 2018;65(3):99-103.",
+    "Yamamoto K, Shiono T, Matsui Y, Yoneda M. Interaction of caffeine with montmorillonite. Part Sci Technol. 2019;37(3):325-332.",
+    "Sakuma H, Tamura K, Hashi K, Kamon M. Caffeine adsorption on natural and synthetic smectite clays: adsorption mechanism and effect of interlayer cation valence. J Phys Chem C. 2020;124(46):25369-25381.",
     "Goldner DMB, Viana L, Masini JC. Adsorption of caffeine and metabolites on Na+-exchanged bentonite. Minerals. 2025;15(6):573.",
-    "Yamamoto K, Shiono T, Yoshida A, Deuchi K. Influence of hydrophilicity on adsorption of caffeine onto montmorillonite. Clay Miner. 2018;53(1):59-72.",
+    "Yamamoto K, Shiono T, Yoshimura R, Matsui Y, Yoneda M. Influence of hydrophilicity on adsorption of caffeine onto montmorillonite. Adsorpt Sci Technol. 2018;36(3-4):967-981.",
     "Shiono T, Yamamoto K, Yotsumoto Y, Yoshida A. Caffeine adsorption of montmorillonite in coffee extracts. Biosci Biotechnol Biochem. 2017;81(8):1591-1597.",
     "Liu YL, Willett M, Kao CC, Said MABMK. Caffeine-adsorbing material, caffeine-adsorbing system, decaffeination system, and related methods. US Patent 10,813,375 B2. 2020.",
     "Okada T, Oguchi J, Yamamoto K, Shiono T, Fujita M, Iiyama T. Organoclays in water cause expansion that facilitates caffeine adsorption. Langmuir. 2015;31(1):180-187.",
-    "Meunier A. Clays. Berlin: Springer; 2005. p. 1-472.",
-    "Chang K. World tea production and trade: current and future development. Rome: Food and Agriculture Organization; 2015.",
-    "Hamilton-Miller JM. Antimicrobial properties of tea (Camellia sinensis L.). Antimicrob Agents Chemother. 1995;39(11):2375-2377.",
-    "Perva-Uzunalic A, Skerget M, Knez Z, Weinreich B, Otto F, Gruner S. Extraction of active ingredients from green tea (Camellia sinensis): extraction efficiency of major catechins and caffeine. Food Chem. 2006;96(4):597-605.",
-    "World Health Organization. Guideline: caffeine intake during pregnancy. Geneva: WHO; 2024.",
-    "Cabrera-Lafaurie WA, Roman FR, Hernandez-Maldonado AJ. Transition metal modified and partially calcined inorganic-organic pillared clays for the adsorption of salicylic acid, clofibric acid, carbamazepine, and caffeine from water. J Colloid Interface Sci. 2012;386(1):381-391.",
-    "Suzuki M, Tabuchi M, Ikeda M, Umegaki K, Tomita T. Protective effects of green tea catechins on cerebral ischemic damage. Med Sci Monit. 2004;10(6):BR166-BR174.",
-    "Cabrera C, Artacho R, Gimenez R. Beneficial effects of green tea—a review. J Am Coll Nutr. 2006;25(2):79-99.",
-    "Yamamoto K, Shiono T, Yoshida A, Deuchi K. Effects of interlayer ion in montmorillonite on appearance of decaffeinated tea beverage. Nippon Shokuhin Kagaku Kogaku Kaishi. 2019;66(5):188-194.",
+    "Lawless HT, Heymann H. Sensory evaluation of food: principles and practices. 2nd ed. New York: Springer; 2010.",
+
 ]
 
 # ─── Table data ───
