@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate TiFS Commentary manuscript for MMT oil restoration filter."""
+"""Generate TiFS Commentary manuscript for MMT oil restoration sachet."""
 
 import re
 from pathlib import Path
@@ -38,7 +38,6 @@ def set_cell_text(cell, text, bold=False, size=9):
 
 def add_table(doc, headers, rows, caption_text, caption_num):
     """Add a table with caption to the document."""
-    # Caption above table
     cap = doc.add_paragraph()
     cap.paragraph_format.space_before = Pt(18)
     run = cap.add_run(f"Table {caption_num}. ")
@@ -58,20 +57,21 @@ def add_table(doc, headers, rows, caption_text, caption_num):
         for c_idx, val in enumerate(row):
             set_cell_text(table.rows[r_idx + 1].cells[c_idx], str(val))
 
-    doc.add_paragraph()  # spacing
+    doc.add_paragraph()
 
 
 TITLE = (
-    "From plant to pot: Acid-activated montmorillonite cartridge filters "
+    "From plant to pot: Acid-activated montmorillonite sachets "
     "as a consumer-side cooking oil restoration paradigm"
 )
 
+# Each highlight must be <=85 characters
 HIGHLIGHTS = [
-    "Bleaching earth (acid-activated montmorillonite) is the industrial standard for edible oil refining",
-    "Consumer oil pots use only physical filters with no chemical purification capability",
-    "MMT cartridge filters selectively adsorb polar degradation products while retaining triglycerides",
-    "Projected acid value reduction of 30-50% and polar compound reduction of 20-40% per pass",
-    "Existing oil pot infrastructure enables immediate consumer adoption without new equipment",
+    "Bleaching earth is the industrial standard for edible oil refining",          # 66
+    "Consumer oil pots lack chemical purification capability",                      # 56
+    "MMT sachets selectively adsorb polar degradation products",                    # 58
+    "Projected acid value reduction of 30-50% per immersion",                       # 55
+    "Existing sachet manufacturing enables immediate adoption",                     # 57
 ]
 
 KEYWORDS = [
@@ -79,7 +79,7 @@ KEYWORDS = [
     "Bleaching earth",
     "Cooking oil restoration",
     "Acid-activated clay",
-    "Oil pot filter",
+    "Sachet",
     "Selective adsorption",
 ]
 
@@ -92,16 +92,16 @@ ABSTRACT = (
     "translated to the consumer setting. Current household oil pots employ paper or "
     "activated carbon filters that provide only physical filtration of particulates, "
     "with negligible chemical purification. This Commentary proposes a paradigm shift: "
-    "cartridge-format filters containing granulated acid-activated montmorillonite, "
-    "compatible with existing oil pots, that selectively adsorb polar degradation products "
+    "sachets (tea-bag format) containing granulated acid-activated montmorillonite that "
+    "are immersed in used cooking oil to selectively adsorb polar degradation products "
     "while retaining triglycerides. Drawing on industrial bleaching earth performance data "
     "and the established food-safety profile of bentonite (FDA GRAS 21 CFR 184.1155; "
     "EU E558), we project acid value reductions of 30-50% and total polar compound "
-    "reductions of 20-40% per filtration pass at recommended temperatures (50-100 C). "
+    "reductions of 20-40% per 20-minute immersion at recommended temperatures (50-80 C). "
     "This approach could extend cooking oil lifespan 2-3 fold, reducing household food "
     "waste and oil purchasing costs. Manufacturing infrastructure already exists in both "
-    "the bleaching earth and oil pot filter industries, making near-term commercialization "
-    "feasible."
+    "the bleaching earth and tea-bag/filter sachet industries, making near-term "
+    "commercialization feasible."
 )
 
 SECTIONS = [
@@ -220,22 +220,23 @@ SECTIONS = [
         [
             (
                 "We propose that acid-activated montmorillonite can be formatted as "
-                "replaceable cartridge filters compatible with existing oil pots, "
-                "enabling consumer-side chemical restoration of used cooking oil. This "
-                "represents a shift from physical filtration (particle removal) to "
-                "chemical restoration (selective adsorption of polar degradation "
-                "products) (Fig. 1)."
+                "immersion sachets -- analogous to tea bags -- that are placed "
+                "directly into used cooking oil to selectively adsorb polar degradation "
+                "products. This represents a shift from physical filtration (particle "
+                "removal) to chemical restoration (selective adsorption) (Fig. 1)."
             ),
             "FIGURE_1",
             (
                 "The key technical adaptations required for this translation are: "
-                "(i) granulation of bleaching earth to 0.8-1.5 mm particles (vs. "
-                "industrial powder <0.1 mm) to enable gravity-flow filtration without "
-                "particle shedding; (ii) heat-resistant cartridge construction "
-                "(stainless steel mesh + heat-resistant nonwoven) compatible with oil "
-                "temperatures up to 180 C; (iii) cartridge geometry matching standard "
-                "oil pot dimensions (70-120 mm diameter); and (iv) consumer-friendly "
-                "quality indicators for cartridge replacement timing."
+                "(i) granulation of bleaching earth to 0.3-0.5 mm particles (vs. "
+                "industrial powder <0.1 mm) to prevent particle shedding through the "
+                "sachet membrane while maintaining adequate surface area; "
+                "(ii) heat-resistant sachet construction (PP or PTFE nonwoven, "
+                "heat-sealed) tolerant of oil temperatures up to 180 C; "
+                "(iii) extended immersion time (15-30 min vs. beverage sachets' 3-5 min) "
+                "to compensate for the high viscosity of cooking oil (40-80x water); "
+                "and (iv) consumer-friendly quality indicators for assessing oil "
+                "improvement."
             ),
             (
                 "The polarity-based selectivity of bleaching earth is ideally suited "
@@ -246,6 +247,14 @@ SECTIONS = [
                 "Industrial data consistently show oil retention rates >96% during "
                 "bleaching, indicating minimal triglyceride loss.{8,19}"
             ),
+            (
+                "Notably, the sachet format mirrors our parallel proposal for "
+                "montmorillonite-based portable decaffeination sachets, where the same "
+                "mineral's selective adsorption properties are exploited to remove "
+                "caffeine from beverages while retaining polyphenols. The oil "
+                "restoration sachet extends this consumer-side paradigm to a second "
+                "major food processing application."
+            ),
         ],
     ),
     (
@@ -253,22 +262,21 @@ SECTIONS = [
         [
             (
                 "Based on industrial bleaching earth performance data and bench-scale "
-                "column adsorption studies,{20,21} we project the following performance "
-                "for a 30 g acid-activated montmorillonite cartridge processing 500 mL "
-                "of used cooking oil at 80 C (Table 2)."
+                "adsorption studies,{20,21} we project the following performance "
+                "for a 25 g acid-activated montmorillonite sachet immersed in 500 mL "
+                "of used cooking oil at 80 C for 20 minutes (Table 2)."
             ),
             "TABLE_2",
             (
                 "Several parameters merit discussion. First, the granulated format "
-                "(0.8-1.5 mm) necessarily sacrifices some adsorption kinetics compared "
-                "to industrial powder (<0.1 mm), but the 2-5 minute gravity flow "
-                "contact time is sufficient for meaningful AV and TPC reduction.{20} "
-                "Second, the recommended filtration temperature of 50-100 C balances "
-                "oil viscosity (affecting flow rate) with adsorption thermodynamics "
-                "(lower temperatures favor adsorption but increase viscosity).{22} "
-                "Third, cartridge longevity of 3-5 uses is projected based on "
-                "industrial bleaching earth capacity data scaled to the consumer "
-                "oil volume range.{8}"
+                "(0.3-0.5 mm) necessarily sacrifices some adsorption kinetics compared "
+                "to industrial powder (<0.1 mm), but the 15-30 minute immersion time "
+                "compensates for the diffusion-limited mass transfer through the sachet "
+                "membrane.{20} Second, the recommended immersion temperature of "
+                "50-80 C balances oil viscosity (affecting diffusion rate) with "
+                "practical safety considerations.{22} Third, sachet reuse for 2-3 "
+                "sessions is projected based on industrial bleaching earth capacity "
+                "data scaled to the consumer oil volume range.{8}"
             ),
             (
                 "The practical significance of these projections is considerable. "
@@ -283,7 +291,7 @@ SECTIONS = [
         "6. Regulatory and safety considerations",
         [
             (
-                "The regulatory pathway for montmorillonite-based oil pot filters is "
+                "The regulatory pathway for montmorillonite-based oil sachets is "
                 "straightforward, as bentonite is already approved as a food-contact "
                 "material and processing aid across major jurisdictions.{14} In Japan, "
                 "bentonite is listed in the existing food additives registry and is "
@@ -295,18 +303,18 @@ SECTIONS = [
             (
                 "A key safety consideration is the potential for residual acid (from "
                 "the activation process) or trace metals (inherent to the clay mineral) "
-                "to leach into the oil during filtration. Industrial practice addresses "
+                "to leach into the oil during immersion. Industrial practice addresses "
                 "this through thorough post-activation washing until the rinse water "
                 "reaches neutral pH, followed by drying and quality testing (heavy metal "
                 "content, acid residue).{8,12} The same quality controls would apply to "
-                "consumer-format cartridges, with the additional advantage that the "
-                "larger particle size (0.8-1.5 mm vs. <0.1 mm powder) reduces the "
-                "risk of particle shedding into the filtered oil."
+                "consumer sachets, with the additional advantage that the granulated "
+                "format (0.3-0.5 mm) is retained within the sachet membrane, preventing "
+                "direct particle contact with the end product."
             ),
             (
-                "From a product classification standpoint, the cartridge would likely "
+                "From a product classification standpoint, the sachet would likely "
                 "be classified as a food-contact article (kitchenware) rather than a "
-                "food additive, as the montmorillonite remains within the cartridge and "
+                "food additive, as the montmorillonite remains within the sachet and "
                 "does not become a component of the food.{23} This classification "
                 "simplifies the regulatory approval pathway."
             ),
@@ -320,27 +328,28 @@ SECTIONS = [
                 "manufacturing infrastructure already exists on both sides of the "
                 "value chain. Bleaching earth production is a mature industry with "
                 "established suppliers (Mizusawa Chemical Industries, Clariant, BASF, "
-                "Oil-Dri) offering food-grade products.{10,13} Oil pot filter cartridge "
+                "Oil-Dri) offering food-grade products.{10,13} Sachet and tea-bag "
                 "manufacturing is similarly well-established, with existing production "
-                "lines for activated carbon and paper cartridges that could be adapted "
-                "for montmorillonite filling with minimal retooling.{15}"
+                "lines for heat-resistant nonwoven sachets that could be adapted for "
+                "montmorillonite filling with minimal retooling. Oil pot filter "
+                "manufacturers already produce heat-resistant nonwoven components "
+                "that provide the necessary membrane technology.{15}"
             ),
             (
                 "The economic proposition is favorable from both manufacturer and "
-                "consumer perspectives. Montmorillonite raw material costs are low "
-                "(approximately 100-300 JPY/kg for food-grade acid-activated "
-                "product),{10} translating to a material cost of 3-9 JPY per cartridge "
-                "(30 g fill). Including packaging, assembly, and distribution, a "
-                "consumer price of 200-400 JPY per cartridge (3-5 uses each) would "
+                "consumer perspectives. Montmorillonite raw material costs are "
+                "approximately 300-500 JPY/kg for food-grade acid-activated "
+                "product,{10} translating to a material cost of 8-13 JPY per sachet "
+                "(25 g fill). Including packaging, assembly, and distribution, a "
+                "consumer price of 100-200 JPY per sachet (2-3 uses each) would "
                 "yield margins comparable to existing oil pot filter products while "
                 "offering substantially greater functionality."
             ),
             (
-                "Consumer adoption may be facilitated by the familiarity of the oil "
-                "pot format in Japanese households, where the practice of filtering and "
-                "reusing cooking oil is culturally embedded.{15} The cartridge design -- "
-                "a drop-in replacement for existing filter elements -- minimizes the "
-                "behavioral change required for adoption."
+                "Consumer adoption may be facilitated by the familiarity of the "
+                "tea-bag format and the deeply embedded practice of oil reuse in "
+                "Japanese households.{15} The sachet's simplicity -- immerse, wait, "
+                "remove -- requires no new equipment and minimal behavioral change."
             ),
         ],
     ),
@@ -351,25 +360,26 @@ SECTIONS = [
                 "Several research directions could advance this concept toward "
                 "commercialization. First, systematic bench-scale studies are needed "
                 "to optimize acid activation conditions specifically for the granulated "
-                "format (balancing surface area, mechanical strength, and particle "
-                "integrity during oil flow). Second, consumer-oriented quality "
+                "sachet format (balancing surface area, mechanical strength, and particle "
+                "integrity during oil immersion). Second, consumer-oriented quality "
                 "indicators -- such as colorimetric test strips for acid value or "
                 "polar compound content -- would enhance the user experience and "
                 "ensure safe oil reuse practices.{24} Third, life-cycle assessment "
                 "comparing the environmental footprint of extended oil reuse (with "
-                "cartridge waste) versus more frequent oil replacement would quantify "
+                "sachet waste) versus more frequent oil replacement would quantify "
                 "the sustainability benefits."
             ),
             (
                 "In conclusion, the translation of bleaching earth technology from "
-                "industrial oil refining to consumer oil pots represents a compelling "
-                "opportunity. The science is established, the safety profile is "
-                "documented, the manufacturing infrastructure exists, and the consumer "
-                "need is clear. What remains is the engineering challenge of "
-                "reformatting a century-old industrial technology into a cartridge that "
-                "fits into the kitchen counter -- a challenge that, given the "
-                "precedents in water filtration (activated carbon) and tea preparation "
-                "(tea bags), appears eminently solvable."
+                "industrial oil refining to consumer-format sachets represents a "
+                "compelling opportunity. The science is established, the safety "
+                "profile is documented, the manufacturing infrastructure exists, "
+                "and the consumer need is clear. What remains is the engineering "
+                "challenge of reformatting a century-old industrial technology into "
+                "a sachet that fits into the kitchen counter -- a challenge that, "
+                "given the precedents in water filtration (activated carbon), tea "
+                "preparation (tea bags), and our parallel proposal for decaffeination "
+                "sachets, appears eminently solvable."
             ),
         ],
     ),
@@ -465,9 +475,9 @@ def build_docx():
                         ["Paper filter", "Particle filtration", "Negligible", "Negligible", ">99%"],
                         ["Activated carbon", "Non-selective adsorption", "~20%", "~15%", "~88%"],
                         ["Metal mesh", "Coarse filtration", "None", "None", ">99%"],
-                        ["MMT cartridge (proposed)", "Polar-selective adsorption", "30-50%", "20-40%", ">96%"],
+                        ["MMT sachet (proposed)", "Polar-selective adsorption", "30-50%", "20-40%", ">95%"],
                     ],
-                    "Comparison of consumer oil pot filter technologies.",
+                    "Comparison of consumer oil treatment technologies.",
                     1,
                 )
             elif para_text == "TABLE_2":
@@ -475,18 +485,18 @@ def build_docx():
                     doc,
                     ["Parameter", "Projected value"],
                     [
-                        ["Cartridge fill", "30 g acid-activated MMT (0.8-1.5 mm)"],
-                        ["Oil volume per pass", "500 mL"],
-                        ["Filtration temperature", "50-100 C (recommended 80 C)"],
-                        ["Flow time", "2-5 min (gravity)"],
-                        ["AV reduction", "30-50% per pass"],
-                        ["TPC reduction", "20-40% per pass"],
-                        ["PV reduction", "40-70% per pass"],
-                        ["Oil recovery", ">96%"],
-                        ["Cartridge lifetime", "3-5 uses"],
-                        ["Cost per cartridge", "200-400 JPY"],
+                        ["Sachet fill", "25 g acid-activated MMT (0.3-0.5 mm)"],
+                        ["Oil volume", "500 mL"],
+                        ["Immersion temperature", "50-80 C (recommended 80 C)"],
+                        ["Immersion time", "15-30 min"],
+                        ["AV reduction", "30-50% per immersion"],
+                        ["TPC reduction", "20-40% per immersion"],
+                        ["PV reduction", "40-70% per immersion"],
+                        ["Oil recovery", ">95%"],
+                        ["Sachet lifetime", "2-3 uses"],
+                        ["Cost per sachet", "100-200 JPY"],
                     ],
-                    "Projected performance specifications for a montmorillonite oil restoration cartridge.",
+                    "Projected performance specifications for a montmorillonite oil restoration sachet.",
                     2,
                 )
             elif para_text == "FIGURE_1":
@@ -498,9 +508,10 @@ def build_docx():
                 run = fig_cap.add_run(
                     "Schematic comparison of industrial bleaching earth process "
                     "(left: powder slurry, mechanical agitation, centrifugal separation) "
-                    "and proposed consumer cartridge format (right: granulated MMT, "
-                    "gravity flow-through, drop-in oil pot cartridge). The polarity-based "
-                    "selectivity mechanism is conserved across both formats."
+                    "and proposed consumer sachet format (right: granulated MMT in "
+                    "tea-bag sachet, immersed in used oil, removed after treatment). "
+                    "The polarity-based selectivity mechanism is conserved across both "
+                    "formats."
                 )
                 run.font.size = Pt(10)
                 run.font.italic = True
@@ -533,10 +544,12 @@ def build_pptx():
     prs.slide_height = PptxInches(7.5)
 
     # Slide 1: Table 1
-    slide = prs.slides.add_slide(prs.slide_layouts[6])  # blank
-    txBox = slide.shapes.add_textbox(PptxInches(0.5), PptxInches(0.3), PptxInches(12), PptxInches(0.8))
+    slide = prs.slides.add_slide(prs.slide_layouts[6])
+    txBox = slide.shapes.add_textbox(
+        PptxInches(0.5), PptxInches(0.3), PptxInches(12), PptxInches(0.8)
+    )
     tf = txBox.text_frame
-    tf.text = "Table 1. Comparison of consumer oil pot filter technologies"
+    tf.text = "Table 1. Comparison of consumer oil treatment technologies"
     tf.paragraphs[0].font.size = PptxPt(18)
     tf.paragraphs[0].font.bold = True
 
@@ -545,9 +558,12 @@ def build_pptx():
         ["Paper filter", "Particle filtration", "Negligible", "Negligible", ">99%"],
         ["Activated carbon", "Non-selective adsorption", "~20%", "~15%", "~88%"],
         ["Metal mesh", "Coarse filtration", "None", "None", ">99%"],
-        ["MMT cartridge (proposed)", "Polar-selective adsorption", "30-50%", "20-40%", ">96%"],
+        ["MMT sachet (proposed)", "Polar-selective adsorption", "30-50%", "20-40%", ">95%"],
     ]
-    tbl = slide.shapes.add_table(len(rows_data) + 1, len(headers), PptxInches(0.5), PptxInches(1.5), PptxInches(12), PptxInches(3)).table
+    tbl = slide.shapes.add_table(
+        len(rows_data) + 1, len(headers),
+        PptxInches(0.5), PptxInches(1.5), PptxInches(12), PptxInches(3)
+    ).table
     for i, h in enumerate(headers):
         tbl.cell(0, i).text = h
     for r, row in enumerate(rows_data):
@@ -556,26 +572,31 @@ def build_pptx():
 
     # Slide 2: Table 2
     slide = prs.slides.add_slide(prs.slide_layouts[6])
-    txBox = slide.shapes.add_textbox(PptxInches(0.5), PptxInches(0.3), PptxInches(12), PptxInches(0.8))
+    txBox = slide.shapes.add_textbox(
+        PptxInches(0.5), PptxInches(0.3), PptxInches(12), PptxInches(0.8)
+    )
     tf = txBox.text_frame
-    tf.text = "Table 2. Projected performance specifications for MMT oil restoration cartridge"
+    tf.text = "Table 2. Projected performance for MMT oil restoration sachet"
     tf.paragraphs[0].font.size = PptxPt(18)
     tf.paragraphs[0].font.bold = True
 
     headers2 = ["Parameter", "Projected value"]
     rows2 = [
-        ["Cartridge fill", "30 g acid-activated MMT (0.8-1.5 mm)"],
-        ["Oil volume per pass", "500 mL"],
-        ["Filtration temperature", "50-100 C (recommended 80 C)"],
-        ["Flow time", "2-5 min (gravity)"],
-        ["AV reduction", "30-50% per pass"],
-        ["TPC reduction", "20-40% per pass"],
-        ["PV reduction", "40-70% per pass"],
-        ["Oil recovery", ">96%"],
-        ["Cartridge lifetime", "3-5 uses"],
-        ["Cost per cartridge", "200-400 JPY"],
+        ["Sachet fill", "25 g acid-activated MMT (0.3-0.5 mm)"],
+        ["Oil volume", "500 mL"],
+        ["Immersion temperature", "50-80 C (recommended 80 C)"],
+        ["Immersion time", "15-30 min"],
+        ["AV reduction", "30-50% per immersion"],
+        ["TPC reduction", "20-40% per immersion"],
+        ["PV reduction", "40-70% per immersion"],
+        ["Oil recovery", ">95%"],
+        ["Sachet lifetime", "2-3 uses"],
+        ["Cost per sachet", "100-200 JPY"],
     ]
-    tbl2 = slide.shapes.add_table(len(rows2) + 1, len(headers2), PptxInches(0.5), PptxInches(1.5), PptxInches(12), PptxInches(5)).table
+    tbl2 = slide.shapes.add_table(
+        len(rows2) + 1, len(headers2),
+        PptxInches(0.5), PptxInches(1.5), PptxInches(12), PptxInches(5)
+    ).table
     for i, h in enumerate(headers2):
         tbl2.cell(0, i).text = h
     for r, row in enumerate(rows2):
@@ -584,26 +605,37 @@ def build_pptx():
 
     # Slide 3: Fig 1 placeholder
     slide = prs.slides.add_slide(prs.slide_layouts[6])
-    txBox = slide.shapes.add_textbox(PptxInches(0.5), PptxInches(0.3), PptxInches(12), PptxInches(0.8))
+    txBox = slide.shapes.add_textbox(
+        PptxInches(0.5), PptxInches(0.3), PptxInches(12), PptxInches(0.8)
+    )
     tf = txBox.text_frame
-    tf.text = "Fig. 1. Industrial bleaching earth process vs. consumer cartridge format"
+    tf.text = "Fig. 1. Industrial bleaching earth process vs. consumer sachet format"
     tf.paragraphs[0].font.size = PptxPt(18)
     tf.paragraphs[0].font.bold = True
 
-    txBox2 = slide.shapes.add_textbox(PptxInches(1), PptxInches(2), PptxInches(11), PptxInches(4))
-    tf2 = txBox2.text_frame
-    tf2.text = (
-        "[Figure placeholder]\n\n"
-        "Left panel: Industrial process\n"
-        "- Powdered bleaching earth (<0.1 mm) dispersed in oil\n"
-        "- Mechanical agitation 20-60 min\n"
-        "- Centrifugal separation\n\n"
-        "Right panel: Consumer cartridge\n"
-        "- Granulated MMT (0.8-1.5 mm) in cartridge\n"
-        "- Gravity flow-through 2-5 min\n"
-        "- Drop-in oil pot compatible"
+    txBox2 = slide.shapes.add_textbox(
+        PptxInches(1), PptxInches(2), PptxInches(11), PptxInches(4)
     )
-    tf2.paragraphs[0].font.size = PptxPt(14)
+    tf2 = txBox2.text_frame
+    lines = [
+        "[Figure placeholder]",
+        "",
+        "Left panel: Industrial process",
+        "- Powdered bleaching earth (<0.1 mm) dispersed in oil",
+        "- Mechanical agitation 20-60 min",
+        "- Centrifugal separation",
+        "",
+        "Right panel: Consumer sachet",
+        "- Granulated MMT (0.3-0.5 mm) in tea-bag sachet",
+        "- Immersed in used oil 15-30 min",
+        "- Pull out and discard",
+    ]
+    tf2.text = lines[0]
+    for line in lines[1:]:
+        p = tf2.add_paragraph()
+        p.text = line
+    for p in tf2.paragraphs:
+        p.font.size = PptxPt(14)
 
     out = OUT_DIR / "figures_tables.pptx"
     prs.save(str(out))
