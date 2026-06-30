@@ -297,7 +297,7 @@ def render_chart_erga(
         ),
     ]
     for lane in drug_rows:
-        bands.append(BandSpec(0.24, lambda ax, lane=lane: _render_drug_lane(ax, lane, master, main_window)))
+        bands.append(BandSpec(0.16, lambda ax, lane=lane: _render_drug_lane(ax, lane, master, main_window)))
     if fluids is not None:
         bands.append(BandSpec(0.7, lambda ax: _render_fluids(ax, fluids), sharex=False))
     if ce_results:
