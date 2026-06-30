@@ -364,7 +364,7 @@ def render_chart_erga(
         ce_ax = axes[-1]
         _apply_tick_interval(ce_ax, tick_interval_min)
 
-    fig.tight_layout(h_pad=0.12)
+    fig.tight_layout(h_pad=0.0)
     fig.savefig(out_path, dpi=150)
     plt.close(fig)
     return out_path
