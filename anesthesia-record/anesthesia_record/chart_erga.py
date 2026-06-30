@@ -1031,7 +1031,7 @@ def _render_drug_lane(
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     ax.spines["left"].set_visible(False)
-    ax.text(0.0, 1.2, lane.label, ha="left", va="bottom", fontsize=6.5, transform=ax.transAxes, clip_on=False)
+    ax.text(0.0, 1.5, lane.label, ha="left", va="bottom", fontsize=6.5, transform=ax.transAxes, clip_on=False)
     ax.axhline(0.0, color="#cccccc", lw=0.4, zorder=0)
 
     drug = master.get(lane.drug_id)
