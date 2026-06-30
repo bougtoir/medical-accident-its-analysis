@@ -4,6 +4,7 @@ import pytest
 
 from anesthesia_record.events import (
     ClinicalEvent,
+    DEFAULT_EVENT_ICONS,
     EventLog,
     STANDARD_EVENT_TYPES,
     load_event_log,
@@ -27,7 +28,9 @@ def test_display_label_falls_back_to_standard_then_raw():
     raw = ClinicalEvent(datetime(2026, 6, 30, 9, 0, 0), "custom_event")
 
     assert std.display_label == STANDARD_EVENT_TYPES["incision"]
+    assert std.display_icon == DEFAULT_EVENT_ICONS["incision"]
     assert raw.display_label == "custom_event"
+    assert raw.display_icon == "◆"
 
 
 def test_save_and_load_round_trip(tmp_path):
@@ -36,6 +39,7 @@ def test_save_and_load_round_trip(tmp_path):
     log.add(
         datetime(2026, 6, 30, 9, 15, 0),
         "custom_event",
+        icon="★",
         label="独自ラベル",
         note="メモ",
     )
@@ -48,6 +52,7 @@ def test_save_and_load_round_trip(tmp_path):
         "anesthesia_start",
         "custom_event",
     ]
+    assert loaded.sorted()[1].icon == "★"
     assert loaded.sorted()[1].label == "独自ラベル"
     assert loaded.sorted()[1].note == "メモ"
 

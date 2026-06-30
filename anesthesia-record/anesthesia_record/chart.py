@@ -14,27 +14,8 @@ import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.dates as mdates  # noqa: E402
-import matplotlib.font_manager as fm  # noqa: E402
 import matplotlib.pyplot as plt  # noqa: E402
-
-# 日本語フォントを可能なら設定（無ければ既定のまま）
-_JP_FONT_CANDIDATES = [
-    "Noto Sans CJK JP",
-    "IPAGothic",
-    "IPAPGothic",
-    "TakaoGothic",
-    "VL Gothic",
-    "WenQuanYi Zen Hei",
-]
-
-
-def _configure_japanese_font() -> None:
-    available = {f.name for f in fm.fontManager.ttflist}
-    for name in _JP_FONT_CANDIDATES:
-        if name in available:
-            plt.rcParams["font.family"] = name
-            break
-    plt.rcParams["axes.unicode_minus"] = False
+from .chart_common import _configure_japanese_font
 
 
 _configure_japanese_font()

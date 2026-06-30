@@ -20,6 +20,7 @@ from anesthesia_record.events import EventLog
 from anesthesia_record import pkpd
 from anesthesia_record.vitals import VitalsTable, VitalSeries
 from anesthesia_record.chart import render_chart
+from anesthesia_record.chart_erga import render_chart_erga
 
 DATA = os.path.join(os.path.dirname(__file__), "data", "drug_master.yaml")
 
@@ -27,6 +28,9 @@ DATA = os.path.join(os.path.dirname(__file__), "data", "drug_master.yaml")
 def _synthetic_vitals(t0: datetime, minutes: int) -> VitalsTable:
     hr = VitalSeries("HR")
     sbp = VitalSeries("SBP")
+    dbp = VitalSeries("DBP")
+    spo2 = VitalSeries("SpO2")
+    temp = VitalSeries("Temp")
     for i in range(minutes * 6):  # 10秒間隔
         t = t0 + timedelta(seconds=10 * i)
         m = i / 6.0
@@ -34,7 +38,24 @@ def _synthetic_vitals(t0: datetime, minutes: int) -> VitalsTable:
         hr.values.append(72 + 8 * math.sin(m / 5.0))
         sbp.times.append(t)
         sbp.values.append(120 + 15 * math.sin(m / 8.0 + 1))
-    return VitalsTable(parameters={"HR": hr, "SBP": sbp}, time_column="Time")
+        if i < minutes * 4:
+            dbp.times.append(t)
+            dbp.values.append(70 + 8 * math.sin(m / 7.0 + 0.4))
+        else:
+            dbp.times.append(t)
+            dbp.values.append(None)
+        if i < minutes * 5:
+            spo2.times.append(t)
+            spo2.values.append(99 - 0.2 * math.sin(m / 5.0))
+        else:
+            spo2.times.append(t)
+            spo2.values.append(None)
+        temp.times.append(t)
+        temp.values.append(36.5 + 0.1 * math.sin(m / 8.0))
+    return VitalsTable(
+        parameters={"HR": hr, "SBP": sbp, "DBP": dbp, "SpO2": spo2, "Temp": temp},
+        time_column="Time",
+    )
 
 
 def main() -> None:
@@ -42,11 +63,11 @@ def main() -> None:
     patient = Patient(age_years=45, sex=Sex.MALE, weight_kg=65, height_cm=172, asa_ps=2)
     t0 = datetime(2026, 6, 30, 9, 0, 0)
     clinical_log = EventLog()
-    clinical_log.add(t0, "anesthesia_start")
+    clinical_log.add(t0, "anesthesia_start", icon="▲")
     clinical_log.add(t0 + timedelta(minutes=3), "intubation")
     clinical_log.add(t0 + timedelta(minutes=12), "incision")
     clinical_log.add(t0 + timedelta(minutes=28), "surgery_end")
-    clinical_log.add(t0 + timedelta(minutes=32), "anesthesia_end")
+    clinical_log.add(t0 + timedelta(minutes=32), "anesthesia_end", icon="▼")
 
     events = [
         MedEvent("fentanyl_0_1mg", t0, Delivery.BOLUS, dose=100, dose_unit="ug", note="導入"),
@@ -92,6 +113,15 @@ def main() -> None:
         clinical_events=clinical_log.sorted(),
     )
     print(f"\nチャート出力: {out}")
+
+    out_erga = render_chart_erga(
+        vitals, events, master, "demo_chart_erga.png",
+        patient=patient, clinical_events=clinical_log.sorted(),
+        cost_report=rep, ce_results=ce_results, ce_t0=t0,
+        show_floating_latest=True, latest_panel_loc="upper right",
+        title="麻酔記録(院内様式)",
+    )
+    print(f"院内様式チャート出力: {out_erga}")
 
 
 if __name__ == "__main__":

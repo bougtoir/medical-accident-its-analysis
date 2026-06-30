@@ -32,6 +32,23 @@ STANDARD_EVENT_TYPES: dict[str, str] = {
     "note": "メモ",
 }
 
+DEFAULT_EVENT_ICONS: dict[str, str] = {
+    "anesthesia_start": "▲",
+    "anesthesia_end": "▼",
+    "surgery_start": "◆",
+    "surgery_end": "◇",
+    "induction": "●",
+    "intubation": "▲",
+    "extubation": "▼",
+    "incision": "◆",
+    "closure": "◇",
+    "position_change": "↔",
+    "tourniquet_on": "●",
+    "tourniquet_off": "○",
+    "block": "■",
+    "note": "•",
+}
+
 _TIME_FMT = "%Y-%m-%dT%H:%M:%S"
 
 
@@ -43,12 +60,19 @@ class ClinicalEvent:
     type: str
     label: Optional[str] = None
     note: Optional[str] = None
+    icon: Optional[str] = None
 
     @property
     def display_label(self) -> str:
         if self.label:
             return self.label
         return STANDARD_EVENT_TYPES.get(self.type, self.type)
+
+    @property
+    def display_icon(self) -> str:
+        if self.icon:
+            return self.icon
+        return DEFAULT_EVENT_ICONS.get(self.type, "◆")
 
 
 @dataclass
@@ -63,8 +87,9 @@ class EventLog:
         type: str,
         label: Optional[str] = None,
         note: Optional[str] = None,
+        icon: Optional[str] = None,
     ) -> ClinicalEvent:
-        ev = ClinicalEvent(time=time, type=type, label=label, note=note)
+        ev = ClinicalEvent(time=time, type=type, icon=icon, label=label, note=note)
         self.events.append(ev)
         return ev
 
@@ -80,6 +105,7 @@ class EventLog:
                 {
                     "time": e.time.strftime(_TIME_FMT),
                     "type": e.type,
+                    **({"icon": e.icon} if e.icon else {}),
                     **({"label": e.label} if e.label else {}),
                     **({"note": e.note} if e.note else {}),
                 }
@@ -110,6 +136,7 @@ def load_event_log(path: str) -> EventLog:
         log.add(
             time=_parse_time(raw["time"]),
             type=str(raw["type"]),
+            icon=raw.get("icon"),
             label=raw.get("label"),
             note=raw.get("note"),
         )
