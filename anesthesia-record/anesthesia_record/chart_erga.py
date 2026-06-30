@@ -247,6 +247,7 @@ def render_chart_erga(
     ecg_snapshot_times: Optional[Sequence[datetime]] = None,
     ecg_snapshot_window_sec: float = 10.0,
     output_events: Optional[Sequence["OutputEvent"]] = None,
+    postop_orders: Optional[Sequence[str]] = None,
     title: str = "麻酔記録",
 ) -> str:
     """院内様式の印刷チャートを描画して保存する."""
@@ -312,17 +313,19 @@ def render_chart_erga(
                 sharex=False,
             )
         )
-    if cost_report is not None:
-        cost_height = max(0.8, 0.22 * (len(cost_report.items) + 2))
-        bands.append(BandSpec(cost_height, lambda ax: _render_cost(ax, cost_report), sharex=False))
-    if clinical_sorted:
-        bands.append(
-            BandSpec(
-                0.92,
-                lambda ax: _render_summary(ax, clinical_sorted, duration_spec_list),
-                sharex=False,
-            )
-        )
+    # コスト・イベント・時間・術後指示を4ペイン構成で1バンドに
+    _has_info_pane = cost_report is not None or clinical_sorted or postop_orders
+    if _has_info_pane:
+        info_height = max(1.2, 0.22 * max(
+            (len(cost_report.items) + 2) if cost_report else 0,
+            (len(clinical_sorted) + 1) if clinical_sorted else 0,
+            4,
+        ))
+        bands.append(BandSpec(
+            info_height,
+            lambda ax: _render_info_4pane(ax, cost_report, clinical_sorted, duration_spec_list, postop_orders),
+            sharex=False,
+        ))
     if ecg_waveform is not None:
         snapshot_times = _resolve_ecg_snapshot_times(clinical_sorted, ecg_snapshot_times)
         if snapshot_times:
@@ -1039,13 +1042,14 @@ def _render_drug_lane(
 
     infusion_events = [ev for ev in lane.events if ev.delivery is Delivery.INFUSION]
     infusion_starts = [ev.start_time for ev in infusion_events]
+    line_color = drug.color or "#222222"
 
     # 右端に積算量(繰上げ単位量)を表示
     if not is_fluid:
         _render_lane_cumulative(ax, lane, drug, patient)
 
     if is_fluid:
-        _render_fluid_lane_events(ax, infusion_events, drug, bounds)
+        _render_fluid_lane_events(ax, infusion_events, drug, bounds, line_color)
     else:
         for ev in lane.events:
             if ev.delivery is Delivery.BOLUS:
@@ -1063,10 +1067,10 @@ def _render_drug_lane(
                     bbox={"facecolor": "white", "edgecolor": "none", "alpha": 0.9, "pad": 0},
                     zorder=3,
                 )
-                ax.axvline(ev.start_time, ymin=0.15, ymax=0.75, color="#222222", lw=0.5, alpha=0.45, zorder=1)
+                ax.axvline(ev.start_time, ymin=0.15, ymax=0.75, color=line_color, lw=0.5, alpha=0.45, zorder=1)
             else:
                 next_change = next((t for t in infusion_starts if t > ev.start_time), ev.end_time or bounds[1])
-                ax.hlines(0.5, ev.start_time, next_change, color="#222222", lw=1.2, alpha=0.75, zorder=2)
+                ax.hlines(0.5, ev.start_time, next_change, color=line_color, lw=1.2, alpha=0.75, zorder=2)
                 label = _format_rate_event(ev, master)
                 if label:
                     ax.text(
@@ -1120,11 +1124,11 @@ def _render_lane_cumulative(ax, lane: DrugLane, drug, patient: Optional[Patient]
     )
 
 
-def _render_fluid_lane_events(ax, infusion_events: list, drug, bounds: tuple[datetime, datetime]) -> None:
+def _render_fluid_lane_events(ax, infusion_events: list, drug, bounds: tuple[datetime, datetime], line_color: str = "#222222") -> None:
     """輸液レーン: 開始時残量と終了時残量を表示."""
     for ev in infusion_events:
         end_t = ev.end_time or bounds[1]
-        ax.hlines(0.5, ev.start_time, end_t, color="#222222", lw=1.2, alpha=0.75, zorder=2)
+        ax.hlines(0.5, ev.start_time, end_t, color=line_color, lw=1.2, alpha=0.75, zorder=2)
         # 開始時残量
         start_ml = ev.remaining_ml_start
         if start_ml is not None:
@@ -1210,6 +1214,11 @@ def _render_output_bowling(
             # 小さい縦線マーカー
             ax.axvline(ev.time, ymin=y_bot, ymax=y_top - row_height * 0.3,
                        color=color, lw=0.4, alpha=0.4, zorder=1)
+        # 右端に総量表示
+        if cumulative > 0:
+            ax.text(0.99, y_mid, f"{cumulative:g}",
+                    ha="right", va="center", fontsize=6.5, fontweight="bold",
+                    color=color, transform=ax.transAxes, clip_on=False)
 
 
 def _format_dose_event(ev: MedEvent) -> str:
@@ -1236,32 +1245,52 @@ def _render_fluids(ax, fluids: FluidBalanceSummary) -> None:
     ax.text(0.01, 0.9, "\n".join(lines), ha="left", va="top", fontsize=8, transform=ax.transAxes)
 
 
-def _render_cost(ax, cost_report: CostReport) -> None:
-    ax.axis("off")
-    lines = ["コスト"]
-    for item in cost_report.items:
-        price = "N/A" if item.cost is None else f"{item.cost:.0f} 円"
-        lines.append(f"{item.generic_name}: {price}")
-    lines.append(f"Total: {cost_report.total:.0f} 円")
-    ax.text(0.01, 0.9, "\n".join(lines), ha="left", va="top", fontsize=8, transform=ax.transAxes)
-
-
-def _render_summary(
+def _render_info_4pane(
     ax,
+    cost_report: Optional[CostReport],
     clinical_events: Sequence[ClinicalEvent],
     duration_specs: Sequence[DurationSpec],
+    postop_orders: Optional[Sequence[str]],
 ) -> None:
+    """コスト・イベント・時間・術後指示を横4ペイン構成で描画."""
     ax.axis("off")
-    if not clinical_events:
-        return
-    event_lines = [f"{ev.time.strftime('%H:%M')} {ev.display_label}" for ev in clinical_events]
-    duration_lines = []
-    for label, minutes in _compute_durations(clinical_events, duration_specs):
-        duration_lines.append(f"{label}: {minutes}分" if minutes is not None else f"{label}: —")
-    left = ["イベント"] + event_lines
-    right = ["時間"] + duration_lines
-    ax.text(0.01, 0.92, "\n".join(left), ha="left", va="top", fontsize=8, transform=ax.transAxes)
-    ax.text(0.53, 0.92, "\n".join(right), ha="left", va="top", fontsize=8, transform=ax.transAxes)
+    y_top = 0.95
+
+    # ペイン1: コスト (x=0.0〜0.25)
+    if cost_report is not None:
+        lines = ["コスト"]
+        for item in cost_report.items:
+            price = "N/A" if item.cost is None else f"{item.cost:.0f} 円"
+            lines.append(f"  {item.generic_name}: {price}")
+        lines.append(f"  合計: {cost_report.total:.0f} 円")
+        ax.text(0.0, y_top, "\n".join(lines), ha="left", va="top", fontsize=7, transform=ax.transAxes)
+
+    # ペイン2: イベント (x=0.26〜0.50)
+    if clinical_events:
+        event_lines = ["イベント"]
+        for ev in clinical_events:
+            event_lines.append(f"  {ev.time.strftime('%H:%M')} {ev.display_label}")
+        ax.text(0.26, y_top, "\n".join(event_lines), ha="left", va="top", fontsize=7, transform=ax.transAxes)
+
+    # ペイン3: 時間 (x=0.52〜0.74)
+    if clinical_events:
+        duration_lines = ["時間"]
+        for label, minutes in _compute_durations(clinical_events, duration_specs):
+            duration_lines.append(f"  {label}: {minutes}分" if minutes is not None else f"  {label}: —")
+        ax.text(0.52, y_top, "\n".join(duration_lines), ha="left", va="top", fontsize=7, transform=ax.transAxes)
+
+    # ペイン4: 術後指示 (x=0.76〜1.0)
+    orders = postop_orders or []
+    order_lines = ["術後指示"]
+    for o in orders:
+        order_lines.append(f"  {o}")
+    if not orders:
+        order_lines.append("  (記載なし)")
+    ax.text(0.76, y_top, "\n".join(order_lines), ha="left", va="top", fontsize=7, transform=ax.transAxes)
+
+    # ペイン区切り線
+    for x in [0.25, 0.51, 0.75]:
+        ax.plot([x, x], [0, 1], color="#cccccc", lw=0.5, transform=ax.transAxes, clip_on=False)
 
 
 def _compute_durations(

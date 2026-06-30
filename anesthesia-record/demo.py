@@ -146,6 +146,13 @@ def main() -> None:
         OutputEvent(OutputCategory.URINE, t0 + timedelta(minutes=30), 80),
     ]
 
+    postop = [
+        "アセトアミノフェン 1000mg IV 6h毎",
+        "フルルビプロフェン 50mg IV 疼痛時",
+        "メトクロプラミド 10mg IV 嘔気時",
+        "飲水: 覚醒2h後から可",
+    ]
+
     out_erga = render_chart_erga(
         vitals, events, master, "demo_chart_erga.png",
         patient=patient, clinical_events=clinical_log.sorted(),
@@ -154,6 +161,7 @@ def main() -> None:
         ce_horizon_min=60, ecg_waveform=ecg_waveform,
         ecg_snapshot_times=[t0 + timedelta(minutes=10), t0 + timedelta(minutes=20), t0 + timedelta(minutes=25)],
         output_events=output_evts,
+        postop_orders=postop,
         title="麻酔記録(院内様式)",
     )
     print(f"院内様式チャート出力: {out_erga}")

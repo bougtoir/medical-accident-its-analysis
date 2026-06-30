@@ -28,6 +28,18 @@ from .vitals import (
     load_vital_file,
 )
 from .chart_erga import DurationSpec
+from .anesthesia_fee import (
+    AnesthesiaEvent,
+    AnesthesiaFeeConfig,
+    AnesthesiaFeeResult,
+    AnesthesiaMethod,
+    FeeLineItem,
+    PositionEvent,
+    PositionSurcharge,
+    SeveritySurcharge,
+    compute_anesthesia_fee,
+    load_anesthesia_fee,
+)
 
 __all__ = [
     "Patient",
@@ -52,4 +64,14 @@ __all__ = [
     "load_vitals",
     "load_vitals_csv",
     "load_vital_file",
+    "AnesthesiaEvent",
+    "AnesthesiaFeeConfig",
+    "AnesthesiaFeeResult",
+    "AnesthesiaMethod",
+    "FeeLineItem",
+    "PositionEvent",
+    "PositionSurcharge",
+    "SeveritySurcharge",
+    "compute_anesthesia_fee",
+    "load_anesthesia_fee",
 ]
