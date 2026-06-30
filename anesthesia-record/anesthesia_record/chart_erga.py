@@ -19,7 +19,7 @@ from .chart_common import _configure_japanese_font  # noqa: E402
 from .cost import CostReport  # noqa: E402
 from .drug_master import DrugMasterFile  # noqa: E402
 from .events import ClinicalEvent, DEFAULT_EVENT_ICONS  # noqa: E402
-from .models import Delivery, MedEvent, Patient  # noqa: E402
+from .models import Delivery, MedEvent, OutputCategory, OutputEvent, Patient  # noqa: E402
 from .pkpd import CeResult  # noqa: E402
 from .vitals import VitalsTable, Waveform  # noqa: E402
 
@@ -245,6 +245,7 @@ def render_chart_erga(
     ecg_waveform: Optional[Waveform] = None,
     ecg_snapshot_times: Optional[Sequence[datetime]] = None,
     ecg_snapshot_window_sec: float = 10.0,
+    output_events: Optional[Sequence["OutputEvent"]] = None,
     title: str = "麻酔記録",
 ) -> str:
     """院内様式の印刷チャートを描画して保存する."""
@@ -298,6 +299,8 @@ def render_chart_erga(
     ]
     for lane in drug_rows:
         bands.append(BandSpec(0.12, lambda ax, lane=lane: _render_drug_lane(ax, lane, master, main_window)))
+    if output_events:
+        bands.append(BandSpec(0.45, lambda ax: _render_output_bowling(ax, output_events, main_window)))
     if fluids is not None:
         bands.append(BandSpec(0.7, lambda ax: _render_fluids(ax, fluids), sharex=False))
     if ce_results:
@@ -1026,44 +1029,89 @@ def _render_drug_lane(
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     ax.spines["left"].set_visible(False)
-    ax.text(0.0, 0.0, lane.label, ha="left", va="bottom", fontsize=6.5, transform=ax.transAxes, clip_on=False)
+    ax.text(0.0, 0.92, lane.label, ha="left", va="top", fontsize=6.5, transform=ax.transAxes, clip_on=False)
     ax.axhline(0.0, color="#cccccc", lw=0.4, zorder=0)
+
+    drug = master.get(lane.drug_id)
+    is_fluid = drug.category == "fluid"
+
     infusion_events = [ev for ev in lane.events if ev.delivery is Delivery.INFUSION]
     infusion_starts = [ev.start_time for ev in infusion_events]
-    for ev in lane.events:
-        if ev.delivery is Delivery.BOLUS:
-            label = _format_dose_event(ev)
-            if not label:
-                continue
-            ax.annotate(
-                label,
-                xy=(ev.start_time, 0.95),
-                xycoords=("data", "axes fraction"),
-                ha="center",
-                va="top",
-                fontsize=6.5,
-                color="#222222",
-                bbox={"facecolor": "white", "edgecolor": "none", "alpha": 0.9, "pad": 0},
-                zorder=3,
-            )
-            ax.axvline(ev.start_time, ymin=0.05, ymax=0.7, color="#222222", lw=0.5, alpha=0.45, zorder=1)
-        else:
-            next_change = next((t for t in infusion_starts if t > ev.start_time), ev.end_time or bounds[1])
-            ax.hlines(0.35, ev.start_time, next_change, color="#222222", lw=1.2, alpha=0.75, zorder=2)
-            label = _format_rate_event(ev, master)
-            if label:
-                ax.text(
-                    ev.start_time,
-                    0.95,
+
+    if is_fluid:
+        _render_fluid_lane_events(ax, infusion_events, drug, bounds)
+    else:
+        for ev in lane.events:
+            if ev.delivery is Delivery.BOLUS:
+                label = _format_dose_event(ev)
+                if not label:
+                    continue
+                ax.annotate(
                     label,
-                    ha="left",
-                    va="top",
+                    xy=(ev.start_time, 0.08),
+                    xycoords=("data", "axes fraction"),
+                    ha="center",
+                    va="bottom",
                     fontsize=6.5,
                     color="#222222",
                     bbox={"facecolor": "white", "edgecolor": "none", "alpha": 0.9, "pad": 0},
                     zorder=3,
                 )
-    # 最終持続イベントの終了地点に // マーカーを描画
+                ax.axvline(ev.start_time, ymin=0.15, ymax=0.75, color="#222222", lw=0.5, alpha=0.45, zorder=1)
+            else:
+                next_change = next((t for t in infusion_starts if t > ev.start_time), ev.end_time or bounds[1])
+                ax.hlines(0.5, ev.start_time, next_change, color="#222222", lw=1.2, alpha=0.75, zorder=2)
+                label = _format_rate_event(ev, master)
+                if label:
+                    ax.text(
+                        ev.start_time,
+                        0.08,
+                        label,
+                        ha="left",
+                        va="bottom",
+                        fontsize=6.5,
+                        color="#222222",
+                        bbox={"facecolor": "white", "edgecolor": "none", "alpha": 0.9, "pad": 0},
+                        zorder=3,
+                    )
+        # 最終持続イベントの終了地点に // マーカーを描画
+        if infusion_events:
+            last_inf = infusion_events[-1]
+            end_t = last_inf.end_time
+            if end_t is not None and end_t <= bounds[1]:
+                ax.text(
+                    end_t, 0.5, "//",
+                    ha="center", va="center", fontsize=9, fontweight="bold",
+                    color="#222222", zorder=4,
+                )
+    ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
+
+
+def _render_fluid_lane_events(ax, infusion_events: list, drug, bounds: tuple[datetime, datetime]) -> None:
+    """輸液レーン: 開始時残量と終了時残量を表示."""
+    container_ml = drug.container_volume_ml
+    remaining = container_ml
+    for ev in infusion_events:
+        end_t = ev.end_time or bounds[1]
+        ax.hlines(0.5, ev.start_time, end_t, color="#222222", lw=1.2, alpha=0.75, zorder=2)
+        # 開始時残量
+        ax.text(
+            ev.start_time, 0.08, f"{remaining:g}",
+            ha="left", va="bottom", fontsize=6.5, color="#222222",
+            bbox={"facecolor": "white", "edgecolor": "none", "alpha": 0.9, "pad": 0}, zorder=3,
+        )
+        # 消費量計算
+        if ev.rate is not None and ev.end_time is not None:
+            duration_h = (ev.end_time - ev.start_time).total_seconds() / 3600.0
+            consumed = ev.rate * duration_h
+            remaining = max(0, remaining - consumed)
+        # 終了時残量
+        ax.text(
+            end_t, 0.08, f"{remaining:.0f}",
+            ha="right", va="bottom", fontsize=6.5, color="#222222",
+            bbox={"facecolor": "white", "edgecolor": "none", "alpha": 0.9, "pad": 0}, zorder=3,
+        )
+    # 終了マーカー
     if infusion_events:
         last_inf = infusion_events[-1]
         end_t = last_inf.end_time
@@ -1073,7 +1121,65 @@ def _render_drug_lane(
                 ha="center", va="center", fontsize=9, fontweight="bold",
                 color="#222222", zorder=4,
             )
+
+
+def _render_output_bowling(
+    ax,
+    output_events: Sequence[OutputEvent],
+    bounds: tuple[datetime, datetime],
+) -> None:
+    """出血(ガーゼg/吸引cc)・尿量をボーリングスコア形式で描画.
+
+    各カテゴリを行に分け、差分(上段)と積算(下段)を時系列で表示する。
+    """
+    ax.set_xlim(bounds[0], bounds[1])
+    ax.set_ylim(0, 1)
+    ax.set_yticks([])
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.spines["left"].set_visible(False)
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
+
+    categories = [
+        (OutputCategory.GAUZE, "出血(ガーゼ g)", "#D32F2F"),
+        (OutputCategory.SUCTION, "出血(吸引 cc)", "#C62828"),
+        (OutputCategory.URINE, "尿量 (cc)", "#F9A825"),
+    ]
+    # 実際に存在するカテゴリのみ描画
+    present = {ev.category for ev in output_events}
+    rows = [(cat, lbl, clr) for cat, lbl, clr in categories if cat in present]
+    if not rows:
+        ax.axis("off")
+        return
+    row_height = 1.0 / len(rows)
+
+    for row_idx, (cat, label, color) in enumerate(rows):
+        y_top = 1.0 - row_idx * row_height
+        y_mid = y_top - row_height * 0.5
+        y_bot = y_top - row_height
+        # 行区切り線
+        ax.axhline(y_bot, color="#cccccc", lw=0.4, zorder=0)
+        # ラベル
+        ax.text(0.0, y_top - 0.02, label, ha="left", va="top", fontsize=6,
+                transform=ax.transAxes, color=color)
+        # カテゴリのイベントを時刻順に並べて差分＋積算を描画
+        cat_events = sorted([ev for ev in output_events if ev.category == cat], key=lambda e: e.time)
+        cumulative = 0.0
+        for ev in cat_events:
+            cumulative += ev.amount
+            # 差分（上）
+            ax.text(
+                ev.time, y_mid + row_height * 0.15, f"+{ev.amount:g}",
+                ha="center", va="bottom", fontsize=6, color="#222222", zorder=3,
+            )
+            # 積算（下）
+            ax.text(
+                ev.time, y_mid - row_height * 0.15, f"{cumulative:g}",
+                ha="center", va="top", fontsize=6.5, fontweight="bold", color=color, zorder=3,
+            )
+            # 小さい縦線マーカー
+            ax.axvline(ev.time, ymin=y_bot, ymax=y_top - row_height * 0.3,
+                       color=color, lw=0.4, alpha=0.4, zorder=1)
 
 
 def _format_dose_event(ev: MedEvent) -> str:

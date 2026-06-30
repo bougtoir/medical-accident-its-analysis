@@ -13,7 +13,7 @@ import os
 from datetime import datetime, timedelta
 
 from anesthesia_record.drug_master import load_drug_master
-from anesthesia_record.models import MedEvent, Patient, Sex, Delivery
+from anesthesia_record.models import MedEvent, Patient, Sex, Delivery, OutputEvent, OutputCategory
 from anesthesia_record.cost import compute_cost
 from anesthesia_record.local_anesthetic import assess_local_anesthetics
 from anesthesia_record.events import EventLog
@@ -135,6 +135,16 @@ def main() -> None:
     )
     print(f"\nチャート出力: {out}")
 
+    # 出血・尿量デモデータ
+    output_evts = [
+        OutputEvent(OutputCategory.GAUZE, t0 + timedelta(minutes=14), 30),
+        OutputEvent(OutputCategory.GAUZE, t0 + timedelta(minutes=22), 50),
+        OutputEvent(OutputCategory.SUCTION, t0 + timedelta(minutes=16), 20),
+        OutputEvent(OutputCategory.SUCTION, t0 + timedelta(minutes=26), 35),
+        OutputEvent(OutputCategory.URINE, t0 + timedelta(minutes=20), 50),
+        OutputEvent(OutputCategory.URINE, t0 + timedelta(minutes=30), 80),
+    ]
+
     out_erga = render_chart_erga(
         vitals, events, master, "demo_chart_erga.png",
         patient=patient, clinical_events=clinical_log.sorted(),
@@ -142,6 +152,7 @@ def main() -> None:
         show_floating_latest=True, latest_panel_loc="upper right",
         ce_horizon_min=60, ecg_waveform=ecg_waveform,
         ecg_snapshot_times=[t0 + timedelta(minutes=10), t0 + timedelta(minutes=20), t0 + timedelta(minutes=25)],
+        output_events=output_evts,
         title="麻酔記録(院内様式)",
     )
     print(f"院内様式チャート出力: {out_erga}")

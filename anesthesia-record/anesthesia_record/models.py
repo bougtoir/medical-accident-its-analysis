@@ -134,3 +134,23 @@ class MedEvent:
         if self.end_time is None:
             return None
         return (self.end_time - self.start_time).total_seconds() / 60.0
+
+
+class OutputCategory(str, Enum):
+    """出血・排液のカテゴリ."""
+    GAUZE = "gauze"          # ガーゼ（重さ g）
+    SUCTION = "suction"      # 吸引（量 cc）
+    URINE = "urine"          # 尿量（cc）
+
+
+@dataclass
+class OutputEvent:
+    """出血・尿量など出力イベント1件（差分値を記録）.
+
+    差分を入力し、チャート上で差分＋積算をボーリングスコア形式で表示する。
+    """
+
+    category: OutputCategory
+    time: datetime
+    amount: float  # 差分量（ガーゼ: g, 吸引/尿: cc）
+    note: Optional[str] = None

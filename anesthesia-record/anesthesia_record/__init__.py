@@ -9,7 +9,7 @@ GE CARESCAPE B650 等から取得したバイタルと、投薬イベント・�
 - 帳票レイアウトは様式テンプレートとして差し替え可能（JSA様式 / 院内様式 等）。
 """
 
-from .models import Patient, DrugMaster, MedEvent, Sex, Delivery
+from .models import Patient, DrugMaster, MedEvent, Sex, Delivery, OutputEvent, OutputCategory
 from .drug_master import DrugMasterFile, load_drug_master
 from .events import (
     ClinicalEvent,
@@ -35,6 +35,8 @@ __all__ = [
     "MedEvent",
     "Sex",
     "Delivery",
+    "OutputEvent",
+    "OutputCategory",
     "DrugMasterFile",
     "load_drug_master",
     "ClinicalEvent",
