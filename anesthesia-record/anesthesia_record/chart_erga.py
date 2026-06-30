@@ -297,7 +297,7 @@ def render_chart_erga(
         ),
     ]
     for lane in drug_rows:
-        bands.append(BandSpec(0.22, lambda ax, lane=lane: _render_drug_lane(ax, lane, master, main_window)))
+        bands.append(BandSpec(0.34, lambda ax, lane=lane: _render_drug_lane(ax, lane, master, main_window)))
     if fluids is not None:
         bands.append(BandSpec(0.7, lambda ax: _render_fluids(ax, fluids), sharex=False))
     if ce_results:
@@ -364,7 +364,7 @@ def render_chart_erga(
         ce_ax = axes[-1]
         _apply_tick_interval(ce_ax, tick_interval_min)
 
-    fig.tight_layout(h_pad=0.35)
+    fig.tight_layout(h_pad=0.12)
     fig.savefig(out_path, dpi=150)
     plt.close(fig)
     return out_path
@@ -383,6 +383,17 @@ class DrugLane:
     events: list[MedEvent]
     has_infusion: bool
     first_time: datetime
+
+
+_CATEGORY_ORDER: dict[str, int] = {
+    "iv_anesthetic": 0,
+    "opioid": 1,
+    "muscle_relaxant": 2,
+    "antagonist": 3,
+    "vasopressor": 4,
+    "local_anesthetic": 5,
+    "fluid": 90,
+}
 
 
 def _drug_rows(events: Sequence[MedEvent], master: DrugMasterFile) -> list[DrugLane]:
@@ -405,8 +416,16 @@ def _drug_rows(events: Sequence[MedEvent], master: DrugMasterFile) -> list[DrugL
                 first_time=min(ev.start_time for ev in evs),
             )
         )
-    rows.sort(key=lambda lane: (not lane.has_infusion, lane.first_time, lane.label))
+    rows.sort(key=lambda lane: _lane_sort_key(lane, master))
     return rows
+
+
+def _lane_sort_key(lane: DrugLane, master: DrugMasterFile) -> tuple:
+    """カテゴリ優先度 → display_order → 名前順."""
+    drug = master.get(lane.drug_id)
+    cat_order = _CATEGORY_ORDER.get(drug.category, 50)
+    disp_order = drug.display_order if drug.display_order is not None else 999
+    return (cat_order, disp_order, lane.label)
 
 
 def _lane_units(drug, events: Sequence[MedEvent]) -> list[str]:
@@ -550,7 +569,8 @@ def _render_vitals(
     display_modes: Mapping[str, str],
 ) -> None:
     ax.set_xlim(bounds[0], bounds[1])
-    ax.grid(True, ls=":", alpha=0.45)
+    ax.grid(True, axis="y", ls=":", alpha=0.45)
+    _render_time_gridlines(ax, bounds)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     ax.spines["left"].set_visible(True)
@@ -709,6 +729,22 @@ def _decimate(
     return xs, ys
 
 
+def _render_time_gridlines(ax, bounds: tuple[datetime, datetime]) -> None:
+    """15分おき細線 + 毎正時(1時間おき)太線の縦グリッドを描画."""
+    start, end = bounds
+    # 最初の15分刻みの時刻を算出
+    base = start.replace(second=0, microsecond=0)
+    if base.minute % 15 != 0:
+        base = base.replace(minute=(base.minute // 15) * 15) + timedelta(minutes=15)
+    t = base
+    while t <= end:
+        if t.minute == 0:
+            ax.axvline(t, color="#555555", lw=0.9, alpha=0.7, zorder=0)
+        else:
+            ax.axvline(t, color="#aaaaaa", lw=0.4, alpha=0.5, zorder=0)
+        t += timedelta(minutes=15)
+
+
 def _render_event_icons(
     ax,
     events: Sequence[ClinicalEvent],
@@ -814,8 +850,8 @@ def _render_latest_panel(
             "alpha": 1.0,
         },
     )
-    panel.set_zorder(40)
-    panel.patch.set_zorder(40)
+    panel.set_zorder(999)
+    panel.patch.set_zorder(999)
     ax.add_artist(panel)
     if draggable_latest:
         drag = panel.draggable(use_blit=False)
@@ -984,7 +1020,7 @@ def _render_drug_lane(
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     ax.spines["left"].set_visible(False)
-    ax.text(0.01, 0.5, lane.label, ha="left", va="center", fontsize=7, transform=ax.transAxes)
+    ax.text(0.01, 0.5, lane.label, ha="left", va="center", fontsize=8, transform=ax.transAxes)
     ax.hlines(0.5, bounds[0], bounds[1], color="#d3d3d3", lw=0.8, zorder=0)
     infusion_events = [ev for ev in lane.events if ev.delivery is Delivery.INFUSION]
     infusion_starts = [ev.start_time for ev in infusion_events]
@@ -995,16 +1031,16 @@ def _render_drug_lane(
                 continue
             ax.annotate(
                 label,
-                xy=(ev.start_time, 0.62),
+                xy=(ev.start_time, 0.70),
                 xycoords=("data", "axes fraction"),
                 ha="center",
                 va="bottom",
-                fontsize=7,
+                fontsize=8,
                 color="#222222",
-                bbox={"facecolor": "white", "edgecolor": "none", "alpha": 0.9, "pad": 0.08},
+                bbox={"facecolor": "white", "edgecolor": "none", "alpha": 0.9, "pad": 0.12},
                 zorder=3,
             )
-            ax.axvline(ev.start_time, ymin=0.18, ymax=0.82, color="#222222", lw=0.6, alpha=0.45, zorder=1)
+            ax.axvline(ev.start_time, ymin=0.16, ymax=0.86, color="#222222", lw=0.6, alpha=0.45, zorder=1)
         else:
             next_change = next((t for t in infusion_starts if t > ev.start_time), ev.end_time or bounds[1])
             ax.hlines(0.5, ev.start_time, next_change, color="#222222", lw=1.4, alpha=0.75, zorder=2)
@@ -1012,15 +1048,25 @@ def _render_drug_lane(
             if label:
                 ax.text(
                     ev.start_time,
-                    0.62,
+                    0.67,
                     label,
                     ha="left",
                     va="bottom",
-                    fontsize=7,
+                    fontsize=7.5,
                     color="#222222",
-                    bbox={"facecolor": "white", "edgecolor": "none", "alpha": 0.9, "pad": 0.08},
+                    bbox={"facecolor": "white", "edgecolor": "none", "alpha": 0.9, "pad": 0.12},
                     zorder=3,
                 )
+    # 最終持続イベントの終了地点に // マーカーを描画
+    if infusion_events:
+        last_inf = infusion_events[-1]
+        end_t = last_inf.end_time
+        if end_t is not None and end_t <= bounds[1]:
+            ax.text(
+                end_t, 0.5, "//",
+                ha="center", va="center", fontsize=9, fontweight="bold",
+                color="#222222", zorder=4,
+            )
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
 
 

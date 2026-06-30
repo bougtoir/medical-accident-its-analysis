@@ -95,6 +95,8 @@ class DrugMaster:
     # 輸液関連
     fluid_type: Optional[str] = None
     is_output: bool = False
+    # 表示順序（小さいほど上に表示。未設定時はカテゴリ既定＋名前順）
+    display_order: Optional[int] = None
 
     @property
     def mass_per_container(self) -> float:

@@ -98,6 +98,9 @@ def main() -> None:
                  rate=6, rate_unit="mg/kg/h", end_time=t0 + timedelta(minutes=30)),
         MedEvent("ropivacaine_0_75pct", t0 + timedelta(minutes=5), Delivery.BOLUS,
                  dose=15, dose_unit="ml", note="末梢神経ブロック"),
+        # 輸液
+        MedEvent("acetated_ringer_500", t0, Delivery.INFUSION,
+                 rate=200, rate_unit="ml/h", end_time=t0 + timedelta(minutes=32)),
     ]
 
     print("=== コスト算定 ===")
@@ -138,7 +141,7 @@ def main() -> None:
         cost_report=rep, ce_results=ce_results, ce_t0=t0,
         show_floating_latest=True, latest_panel_loc="upper right",
         ce_horizon_min=60, ecg_waveform=ecg_waveform,
-        ecg_snapshot_times=[t0 + timedelta(minutes=15)],
+        ecg_snapshot_times=[t0 + timedelta(minutes=10), t0 + timedelta(minutes=20), t0 + timedelta(minutes=25)],
         title="麻酔記録(院内様式)",
     )
     print(f"院内様式チャート出力: {out_erga}")

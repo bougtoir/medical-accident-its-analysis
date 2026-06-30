@@ -45,6 +45,7 @@ def _parse_drug(raw: dict) -> DrugMaster:
         "max_dose_mg_per_kg_with_epi",
         "fluid_type",
         "is_output",
+        "display_order",
     }
     unknown = set(raw) - known
     if unknown:
