@@ -301,7 +301,7 @@ def render_chart_erga(
     for lane in drug_rows:
         bands.append(BandSpec(0.12, lambda ax, lane=lane: _render_drug_lane(ax, lane, master, main_window, patient)))
     if output_events:
-        bands.append(BandSpec(0.45, lambda ax: _render_output_bowling(ax, output_events, main_window)))
+        bands.append(BandSpec(1.0, lambda ax: _render_output_bowling(ax, output_events, main_window)))
     if fluids is not None:
         bands.append(BandSpec(0.7, lambda ax: _render_fluids(ax, fluids), sharex=False))
     if ce_results:
@@ -1031,7 +1031,7 @@ def _render_drug_lane(
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     ax.spines["left"].set_visible(False)
-    ax.text(0.0, 0.92, lane.label, ha="left", va="top", fontsize=6.5, transform=ax.transAxes, clip_on=False)
+    ax.text(0.0, 1.2, lane.label, ha="left", va="bottom", fontsize=6.5, transform=ax.transAxes, clip_on=False)
     ax.axhline(0.0, color="#cccccc", lw=0.4, zorder=0)
 
     drug = master.get(lane.drug_id)
