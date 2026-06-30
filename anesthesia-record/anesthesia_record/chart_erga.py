@@ -23,6 +23,7 @@ from .models import Delivery, MedEvent, OutputCategory, OutputEvent, Patient  # 
 from .pkpd import CeResult  # noqa: E402
 from .units import consumed_amounts  # noqa: E402
 from .vitals import VitalsTable, Waveform  # noqa: E402
+from .anesthesia_fee import AnesthesiaFeeResult  # noqa: E402
 
 
 _configure_japanese_font()
@@ -248,6 +249,7 @@ def render_chart_erga(
     ecg_snapshot_window_sec: float = 10.0,
     output_events: Optional[Sequence["OutputEvent"]] = None,
     postop_orders: Optional[Sequence[str]] = None,
+    anesthesia_fee_result: Optional["AnesthesiaFeeResult"] = None,
     title: str = "麻酔記録",
 ) -> str:
     """院内様式の印刷チャートを描画して保存する."""
@@ -314,16 +316,19 @@ def render_chart_erga(
             )
         )
     # コスト・イベント・時間・術後指示を4ペイン構成で1バンドに
-    _has_info_pane = cost_report is not None or clinical_sorted or postop_orders
+    _has_info_pane = cost_report is not None or clinical_sorted or postop_orders or anesthesia_fee_result is not None
     if _has_info_pane:
+        cost_lines = (len(cost_report.items) + 2) if cost_report else 0
+        if anesthesia_fee_result is not None:
+            cost_lines += len(anesthesia_fee_result.items) + 2
         info_height = max(1.2, 0.22 * max(
-            (len(cost_report.items) + 2) if cost_report else 0,
+            cost_lines,
             (len(clinical_sorted) + 1) if clinical_sorted else 0,
             4,
         ))
         bands.append(BandSpec(
             info_height,
-            lambda ax: _render_info_4pane(ax, cost_report, clinical_sorted, duration_spec_list, postop_orders),
+            lambda ax: _render_info_4pane(ax, cost_report, clinical_sorted, duration_spec_list, postop_orders, anesthesia_fee_result),
             sharex=False,
         ))
     if ecg_waveform is not None:
@@ -1251,18 +1256,28 @@ def _render_info_4pane(
     clinical_events: Sequence[ClinicalEvent],
     duration_specs: Sequence[DurationSpec],
     postop_orders: Optional[Sequence[str]],
+    anesthesia_fee_result: Optional["AnesthesiaFeeResult"] = None,
 ) -> None:
     """コスト・イベント・時間・術後指示を横4ペイン構成で描画."""
     ax.axis("off")
     y_top = 0.95
 
     # ペイン1: コスト (x=0.0〜0.25)
+    lines: list[str] = []
     if cost_report is not None:
-        lines = ["コスト"]
+        lines.append("コスト(薬剤)")
         for item in cost_report.items:
             price = "N/A" if item.cost is None else f"{item.cost:.0f} 円"
             lines.append(f"  {item.generic_name}: {price}")
-        lines.append(f"  合計: {cost_report.total:.0f} 円")
+        lines.append(f"  小計: {cost_report.total:.0f} 円")
+    if anesthesia_fee_result is not None:
+        if lines:
+            lines.append("")
+        lines.append("コスト(麻酔料)")
+        for item in anesthesia_fee_result.items:
+            lines.append(f"  {item.name}: {item.points}点")
+        lines.append(f"  小計: {anesthesia_fee_result.total_points}点")
+    if lines:
         ax.text(0.0, y_top, "\n".join(lines), ha="left", va="top", fontsize=7, transform=ax.transAxes)
 
     # ペイン2: イベント (x=0.26〜0.50)

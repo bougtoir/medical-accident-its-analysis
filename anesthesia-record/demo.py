@@ -21,8 +21,15 @@ from anesthesia_record import pkpd
 from anesthesia_record.vitals import VitalsTable, VitalSeries, Waveform
 from anesthesia_record.chart import render_chart
 from anesthesia_record.chart_erga import render_chart_erga
+from anesthesia_record.anesthesia_fee import (
+    AnesthesiaEvent,
+    PositionEvent,
+    compute_anesthesia_fee,
+    load_anesthesia_fee,
+)
 
 DATA = os.path.join(os.path.dirname(__file__), "data", "drug_master.yaml")
+FEE_DATA = os.path.join(os.path.dirname(__file__), "data", "anesthesia_fee.yaml")
 
 
 def _synthetic_vitals(t0: datetime, minutes: int) -> VitalsTable:
@@ -146,6 +153,24 @@ def main() -> None:
         OutputEvent(OutputCategory.URINE, t0 + timedelta(minutes=30), 80),
     ]
 
+    # --- 麻酔料算定 ---
+    fee_config = load_anesthesia_fee(FEE_DATA)
+    anes_events = [
+        AnesthesiaEvent("general_anesthesia", t0, t0 + timedelta(minutes=32)),
+    ]
+    pos_events = [
+        PositionEvent("lateral", t0 + timedelta(minutes=5), t0 + timedelta(minutes=25)),
+    ]
+    fee_result = compute_anesthesia_fee(anes_events, pos_events, ["critical"], fee_config)
+    print("\n=== 麻酔料算定 ===")
+    for item in fee_result.items:
+        print(f"  {item.name}: {item.points}点 ({item.detail})")
+    print(f"  合計: {fee_result.total_points}点")
+
+    # 臨床イベントに特殊体位を追加
+    clinical_log.add(t0 + timedelta(minutes=5), "position_lateral")
+    clinical_log.add(t0 + timedelta(minutes=25), "position_supine")
+
     postop = [
         "アセトアミノフェン 1000mg IV 6h毎",
         "フルルビプロフェン 50mg IV 疼痛時",
@@ -162,6 +187,7 @@ def main() -> None:
         ecg_snapshot_times=[t0 + timedelta(minutes=10), t0 + timedelta(minutes=20), t0 + timedelta(minutes=25)],
         output_events=output_evts,
         postop_orders=postop,
+        anesthesia_fee_result=fee_result,
         title="麻酔記録(院内様式)",
     )
     print(f"院内様式チャート出力: {out_erga}")

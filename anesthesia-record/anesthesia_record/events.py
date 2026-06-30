@@ -26,9 +26,15 @@ STANDARD_EVENT_TYPES: dict[str, str] = {
     "incision": "執刀(切皮)",
     "closure": "閉創",
     "position_change": "体位変換",
+    "position_supine": "仰臥位",
+    "position_lateral": "側臥位",
+    "position_prone": "腹臥位",
+    "position_lithotomy": "砕石位",
+    "position_sitting": "坐位",
     "tourniquet_on": "駆血開始",
     "tourniquet_off": "駆血解除",
     "block": "神経ブロック",
+    "severity_start": "重症加算開始",
     "note": "メモ",
 }
 
@@ -43,9 +49,15 @@ DEFAULT_EVENT_ICONS: dict[str, str] = {
     "incision": "◆",
     "closure": "◇",
     "position_change": "↔",
+    "position_supine": "○",
+    "position_lateral": "▷",
+    "position_prone": "▽",
+    "position_lithotomy": "△",
+    "position_sitting": "□",
     "tourniquet_on": "●",
     "tourniquet_off": "○",
     "block": "■",
+    "severity_start": "★",
     "note": "•",
 }
 
