@@ -21,6 +21,7 @@ from .drug_master import DrugMasterFile  # noqa: E402
 from .events import ClinicalEvent, DEFAULT_EVENT_ICONS  # noqa: E402
 from .models import Delivery, MedEvent, OutputCategory, OutputEvent, Patient  # noqa: E402
 from .pkpd import CeResult  # noqa: E402
+from .units import consumed_amounts  # noqa: E402
 from .vitals import VitalsTable, Waveform  # noqa: E402
 
 
@@ -298,7 +299,7 @@ def render_chart_erga(
         ),
     ]
     for lane in drug_rows:
-        bands.append(BandSpec(0.12, lambda ax, lane=lane: _render_drug_lane(ax, lane, master, main_window)))
+        bands.append(BandSpec(0.12, lambda ax, lane=lane: _render_drug_lane(ax, lane, master, main_window, patient)))
     if output_events:
         bands.append(BandSpec(0.45, lambda ax: _render_output_bowling(ax, output_events, main_window)))
     if fluids is not None:
@@ -1021,6 +1022,7 @@ def _render_drug_lane(
     lane: DrugLane,
     master: DrugMasterFile,
     bounds: tuple[datetime, datetime],
+    patient: Optional[Patient] = None,
 ) -> None:
     ax.set_xlim(bounds[0], bounds[1])
     ax.set_ylim(0, 1)
@@ -1037,6 +1039,10 @@ def _render_drug_lane(
 
     infusion_events = [ev for ev in lane.events if ev.delivery is Delivery.INFUSION]
     infusion_starts = [ev.start_time for ev in infusion_events]
+
+    # 右端に積算量(繰上げ単位量)を表示
+    if not is_fluid:
+        _render_lane_cumulative(ax, lane, drug, patient)
 
     if is_fluid:
         _render_fluid_lane_events(ax, infusion_events, drug, bounds)
@@ -1087,30 +1093,54 @@ def _render_drug_lane(
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
 
 
+def _render_lane_cumulative(ax, lane: DrugLane, drug, patient: Optional[Patient] = None) -> None:
+    """薬剤行の右端に「積算量(繰上げ単位量)」を表示."""
+    import math as _math
+    total_mg = 0.0
+    for ev in lane.events:
+        try:
+            mass_mg, _ = consumed_amounts(drug, ev, patient)
+            total_mg += mass_mg
+        except (ValueError, TypeError):
+            continue
+    if total_mg <= 0:
+        return
+    # 繰上げ容器量 = ceil(total / mass_per_container) * mass_per_container
+    mass_per = drug.mass_per_container
+    if mass_per > 0:
+        containers = _math.ceil(total_mg / mass_per)
+        rounded = containers * mass_per
+        label = f"{total_mg:.4g}({rounded:.4g})"
+    else:
+        label = f"{total_mg:.4g}"
+    ax.text(
+        0.99, 0.5, label,
+        ha="right", va="center", fontsize=6, color="#555555",
+        transform=ax.transAxes, clip_on=False,
+    )
+
+
 def _render_fluid_lane_events(ax, infusion_events: list, drug, bounds: tuple[datetime, datetime]) -> None:
     """輸液レーン: 開始時残量と終了時残量を表示."""
-    container_ml = drug.container_volume_ml
-    remaining = container_ml
     for ev in infusion_events:
         end_t = ev.end_time or bounds[1]
         ax.hlines(0.5, ev.start_time, end_t, color="#222222", lw=1.2, alpha=0.75, zorder=2)
         # 開始時残量
-        ax.text(
-            ev.start_time, 0.08, f"{remaining:g}",
-            ha="left", va="bottom", fontsize=6.5, color="#222222",
-            bbox={"facecolor": "white", "edgecolor": "none", "alpha": 0.9, "pad": 0}, zorder=3,
-        )
-        # 消費量計算
-        if ev.rate is not None and ev.end_time is not None:
-            duration_h = (ev.end_time - ev.start_time).total_seconds() / 3600.0
-            consumed = ev.rate * duration_h
-            remaining = max(0, remaining - consumed)
+        start_ml = ev.remaining_ml_start
+        if start_ml is not None:
+            ax.text(
+                ev.start_time, 0.08, f"{start_ml:g}",
+                ha="left", va="bottom", fontsize=6.5, color="#222222",
+                bbox={"facecolor": "white", "edgecolor": "none", "alpha": 0.9, "pad": 0}, zorder=3,
+            )
         # 終了時残量
-        ax.text(
-            end_t, 0.08, f"{remaining:.0f}",
-            ha="right", va="bottom", fontsize=6.5, color="#222222",
-            bbox={"facecolor": "white", "edgecolor": "none", "alpha": 0.9, "pad": 0}, zorder=3,
-        )
+        end_ml = ev.remaining_ml_end
+        if end_ml is not None:
+            ax.text(
+                end_t, 0.08, f"{end_ml:g}",
+                ha="right", va="bottom", fontsize=6.5, color="#222222",
+                bbox={"facecolor": "white", "edgecolor": "none", "alpha": 0.9, "pad": 0}, zorder=3,
+            )
     # 終了マーカー
     if infusion_events:
         last_inf = infusion_events[-1]

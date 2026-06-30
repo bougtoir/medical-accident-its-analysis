@@ -98,9 +98,10 @@ def main() -> None:
                  rate=6, rate_unit="mg/kg/h", end_time=t0 + timedelta(minutes=30)),
         MedEvent("ropivacaine_0_75pct", t0 + timedelta(minutes=5), Delivery.BOLUS,
                  dose=15, dose_unit="ml", note="末梢神経ブロック"),
-        # 輸液
+        # 輸液（残量入力方式）
         MedEvent("acetated_ringer_500", t0, Delivery.INFUSION,
-                 rate=200, rate_unit="ml/h", end_time=t0 + timedelta(minutes=32)),
+                 end_time=t0 + timedelta(minutes=32),
+                 remaining_ml_start=500, remaining_ml_end=393),
     ]
 
     print("=== コスト算定 ===")

@@ -129,6 +129,9 @@ class MedEvent:
     rate_unit: Optional[str] = None
     end_time: Optional[datetime] = None
     note: Optional[str] = None
+    # 輸液用: 開始時残量(ml)と終了時残量(ml)を直接入力
+    remaining_ml_start: Optional[float] = None
+    remaining_ml_end: Optional[float] = None
 
     def duration_min(self) -> Optional[float]:
         if self.end_time is None:

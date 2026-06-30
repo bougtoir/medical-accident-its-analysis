@@ -46,6 +46,12 @@ def consumed_amounts(
         return _amount_from_value(drug, patient, value, unit, conc, minutes=None)
 
     # infusion
+    # 輸液残量入力方式: remaining_ml_start/end から消費量を直接算出
+    if event.remaining_ml_start is not None and event.remaining_ml_end is not None:
+        consumed_ml = event.remaining_ml_start - event.remaining_ml_end
+        mass_mg = consumed_ml * conc  # conc = mg/ml (輸液は1 ml/ml)
+        return mass_mg, consumed_ml
+
     minutes = event.duration_min()
     if event.rate is None or event.rate_unit is None:
         raise ValueError(f"infusion には rate/rate_unit が必要: {drug.id}")
