@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
+import warnings
 from typing import Optional
 
 
@@ -42,8 +43,16 @@ class Patient:
         """James式の除脂肪体重(LBM, kg). Marsh/Minto等の共変量に使用."""
         w, h = self.weight_kg, self.height_cm
         if self.sex is Sex.MALE:
-            return 1.1 * w - 128.0 * (w / h) ** 2
-        return 1.07 * w - 148.0 * (w / h) ** 2
+            value = 1.1 * w - 128.0 * (w / h) ** 2
+        else:
+            value = 1.07 * w - 148.0 * (w / h) ** 2
+        if value <= 0:
+            warnings.warn(
+                "James式LBMが非正値です。高BMIではPK推定が非生理的になる可能性があります。",
+                RuntimeWarning,
+                stacklevel=2,
+            )
+        return value
 
     @property
     def ibw_devine(self) -> float:

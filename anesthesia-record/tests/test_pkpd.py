@@ -53,3 +53,15 @@ def test_non_pkpd_drug_raises(master, patient):
     t0 = datetime(2026, 6, 30, 9, 0, 0)
     with pytest.raises(ValueError):
         pkpd.simulate(drug, patient, [], t0, duration_min=5)
+
+
+def test_open_ended_remifentanil_infusion_contributes_ce(master, patient):
+    drug = master.get("remifentanil_2mg")
+    t0 = datetime(2026, 6, 30, 9, 0, 0)
+    ev = MedEvent(
+        "remifentanil_2mg", t0, Delivery.INFUSION,
+        rate=0.2, rate_unit="ug/kg/min", end_time=None,
+    )
+    res = pkpd.simulate(drug, patient, [ev], t0, duration_min=20, dt_s=1.0)
+    assert res.ce_max > 0
+    assert res.ce[-1] > res.ce[len(res.ce) // 4]

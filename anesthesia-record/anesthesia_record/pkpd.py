@@ -150,13 +150,11 @@ def _mass_mg_bolus(drug: DrugMaster, ev: MedEvent, patient: Patient) -> float:
 
 
 def _rate_mg_per_min(drug: DrugMaster, ev: MedEvent, patient: Patient) -> float:
-    from .units import consumed_amounts
+    from .units import rate_mg_per_min
 
-    minutes = ev.duration_min()
-    if minutes is None or minutes <= 0:
+    if ev.rate is None or ev.rate_unit is None:
         return 0.0
-    mass_mg, _ = consumed_amounts(drug, ev, patient)
-    return mass_mg / minutes
+    return rate_mg_per_min(drug, ev.rate, ev.rate_unit, patient)
 
 
 def simulate(

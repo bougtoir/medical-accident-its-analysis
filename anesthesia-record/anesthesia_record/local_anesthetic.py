@@ -72,9 +72,14 @@ def assess_local_anesthetics(
             per_kg = drug.max_dose_mg_per_kg_with_epi
         max_mg = None if per_kg is None else per_kg * patient.weight_kg
         fraction = None if max_mg in (None, 0) else total_mg / max_mg
-        level = _level(fraction)
-        if fraction is not None and caution_threshold <= fraction < 1.0:
+        if fraction is None:
+            level = "unknown"
+        elif fraction >= 1.0:
+            level = "over"
+        elif fraction >= caution_threshold:
             level = "caution"
+        else:
+            level = "ok"
         out.append(
             LocalAnestheticStatus(
                 drug_id=drug_id,

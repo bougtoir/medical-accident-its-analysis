@@ -16,6 +16,7 @@ from anesthesia_record.drug_master import load_drug_master
 from anesthesia_record.models import MedEvent, Patient, Sex, Delivery
 from anesthesia_record.cost import compute_cost
 from anesthesia_record.local_anesthetic import assess_local_anesthetics
+from anesthesia_record.events import EventLog
 from anesthesia_record import pkpd
 from anesthesia_record.vitals import VitalsTable, VitalSeries
 from anesthesia_record.chart import render_chart
@@ -40,6 +41,12 @@ def main() -> None:
     master = load_drug_master(DATA)
     patient = Patient(age_years=45, sex=Sex.MALE, weight_kg=65, height_cm=172, asa_ps=2)
     t0 = datetime(2026, 6, 30, 9, 0, 0)
+    clinical_log = EventLog()
+    clinical_log.add(t0, "anesthesia_start")
+    clinical_log.add(t0 + timedelta(minutes=3), "intubation")
+    clinical_log.add(t0 + timedelta(minutes=12), "incision")
+    clinical_log.add(t0 + timedelta(minutes=28), "surgery_end")
+    clinical_log.add(t0 + timedelta(minutes=32), "anesthesia_end")
 
     events = [
         MedEvent("fentanyl_0_1mg", t0, Delivery.BOLUS, dose=100, dose_unit="ug", note="導入"),
@@ -82,6 +89,7 @@ def main() -> None:
     out = render_chart(
         vitals, events, master, "demo_chart.png",
         ce_results=ce_results, ce_t0=t0, title="麻酔記録(デモ)",
+        clinical_events=clinical_log.sorted(),
     )
     print(f"\nチャート出力: {out}")
 

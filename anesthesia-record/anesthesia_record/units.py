@@ -56,6 +56,28 @@ def consumed_amounts(
     )
 
 
+def rate_mg_per_min(
+    drug: DrugMaster, value: float, unit: str, patient: Optional[Patient] = None
+) -> float:
+    """レート指定を mg/min に換算する.
+
+    infusion のみを想定し、時間成分のない単位（mg/kg や ml）は不正とする。
+    """
+    conc = drug.concentration
+    if conc <= 0:
+        raise ValueError(f"concentration が不正: {drug.id}")
+    if unit == "ml":
+        raise ValueError("ml は infusion rate としては不正です")
+    parts = unit.split("/")
+    if len(parts) == 1 and unit not in {"mg/h", "ug/h", "ng/h", "mcg/h"}:
+        raise ValueError(f"時間成分のない単位は infusion rate として不正です: {unit}")
+    if "h" not in parts[1:] and "min" not in parts[1:]:
+        raise ValueError(f"時間成分のない単位は infusion rate として不正です: {unit}")
+    if unit == "ml/h":
+        return value / 60.0 * conc
+    return _amount_from_value(drug, patient, value, unit, conc, minutes=1.0)[0]
+
+
 def _amount_from_value(
     drug: DrugMaster,
     patient: Optional[Patient],

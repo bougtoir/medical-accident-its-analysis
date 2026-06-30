@@ -46,3 +46,13 @@ def test_with_epi_raises_limit():
     # 60kg * 7.0 = 420mg 上限 -> 300mg は ok
     assert st.max_mg == pytest.approx(420.0)
     assert st.level == "ok"
+
+
+def test_caution_threshold_can_raise_ok_level():
+    m = load_drug_master(DATA)
+    p = Patient(age_years=50, sex=Sex.MALE, weight_kg=60, height_cm=170)
+    t = datetime(2026, 6, 30, 9, 0, 0)
+    ev = MedEvent("lidocaine_1pct", t, Delivery.BOLUS, dose=230, dose_unit="mg")
+    st = assess_local_anesthetics([ev], m, p, caution_threshold=0.9)[0]
+    assert st.fraction == pytest.approx(0.852, rel=1e-3)
+    assert st.level == "ok"

@@ -54,6 +54,8 @@ def _parse_drug(raw: dict) -> DrugMaster:
     data.setdefault("routes", [])
     data.setdefault("pkpd_enabled", False)
     data.setdefault("is_output", False)
+    if data.get("nhi_price_date") is not None:
+        data["nhi_price_date"] = str(data["nhi_price_date"])
     return DrugMaster(**data)
 
 

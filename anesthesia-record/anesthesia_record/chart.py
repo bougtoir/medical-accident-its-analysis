@@ -40,6 +40,7 @@ def _configure_japanese_font() -> None:
 _configure_japanese_font()
 
 from .drug_master import DrugMasterFile  # noqa: E402
+from .events import ClinicalEvent  # noqa: E402
 from .models import MedEvent, Delivery  # noqa: E402
 from .pkpd import CeResult  # noqa: E402
 from .vitals import VitalsTable  # noqa: E402
@@ -53,9 +54,13 @@ def render_chart(
     vital_params: Optional[Sequence[str]] = None,
     ce_results: Optional[dict[str, CeResult]] = None,
     ce_t0: Optional[datetime] = None,
+    clinical_events: Optional[Sequence[ClinicalEvent]] = None,
     title: str = "麻酔記録",
 ) -> str:
-    """トレンド + 投薬イベント + Ce を1枚に描画し out_path に保存."""
+    """トレンド + 投薬/臨床イベント + Ce を1枚に描画し out_path に保存.
+
+    バイタルは取得値をそのまま線で結ぶ（スムージング/補間は行わない）。
+    """
     params = list(vital_params or vitals.parameter_names())
     has_ce = bool(ce_results)
     nrows = 2 if has_ce else 1
@@ -72,9 +77,11 @@ def render_chart(
         xs = [t for t, v in zip(s.times, s.values) if v is not None]
         ys = [v for v in s.values if v is not None]
         if xs:
+            # 生値をそのまま描画（drawstyle 既定=直線結線、スムージングなし）
             ax_v.plot(xs, ys, marker=".", ms=3, lw=0.8, label=name)
 
     _annotate_events(ax_v, events, master)
+    _annotate_clinical(ax_v, clinical_events or [])
 
     ax_v.set_ylabel("バイタル")
     ax_v.legend(loc="upper right", fontsize=8, ncol=2)
@@ -120,5 +127,22 @@ def _annotate_events(ax, events: Sequence[MedEvent], master: DrugMasterFile) -> 
             fontsize=7,
             color=color,
             va="top",
+            ha="center",
+        )
+
+
+def _annotate_clinical(ax, events: Sequence[ClinicalEvent]) -> None:
+    ymin, ymax = ax.get_ylim()
+    for ev in events:
+        ax.axvline(ev.time, color="#222222", ls="-", lw=0.7, alpha=0.7)
+        ax.annotate(
+            ev.display_label,
+            xy=(ev.time, ymin),
+            xytext=(0, 4),
+            textcoords="offset points",
+            rotation=90,
+            fontsize=7,
+            color="#222222",
+            va="bottom",
             ha="center",
         )
