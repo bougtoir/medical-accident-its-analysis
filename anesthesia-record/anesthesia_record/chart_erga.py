@@ -297,7 +297,7 @@ def render_chart_erga(
         ),
     ]
     for lane in drug_rows:
-        bands.append(BandSpec(0.16, lambda ax, lane=lane: _render_drug_lane(ax, lane, master, main_window)))
+        bands.append(BandSpec(0.12, lambda ax, lane=lane: _render_drug_lane(ax, lane, master, main_window)))
     if fluids is not None:
         bands.append(BandSpec(0.7, lambda ax: _render_fluids(ax, fluids), sharex=False))
     if ce_results:
@@ -1026,8 +1026,8 @@ def _render_drug_lane(
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     ax.spines["left"].set_visible(False)
-    ax.text(0.01, 0.5, lane.label, ha="left", va="center", fontsize=8, transform=ax.transAxes)
-    ax.hlines(0.5, bounds[0], bounds[1], color="#d3d3d3", lw=0.8, zorder=0)
+    ax.text(0.0, 0.0, lane.label, ha="left", va="bottom", fontsize=6.5, transform=ax.transAxes, clip_on=False)
+    ax.axhline(0.0, color="#cccccc", lw=0.4, zorder=0)
     infusion_events = [ev for ev in lane.events if ev.delivery is Delivery.INFUSION]
     infusion_starts = [ev.start_time for ev in infusion_events]
     for ev in lane.events:
@@ -1037,30 +1037,30 @@ def _render_drug_lane(
                 continue
             ax.annotate(
                 label,
-                xy=(ev.start_time, 0.70),
+                xy=(ev.start_time, 0.95),
                 xycoords=("data", "axes fraction"),
                 ha="center",
-                va="bottom",
-                fontsize=8,
+                va="top",
+                fontsize=6.5,
                 color="#222222",
-                bbox={"facecolor": "white", "edgecolor": "none", "alpha": 0.9, "pad": 0.12},
+                bbox={"facecolor": "white", "edgecolor": "none", "alpha": 0.9, "pad": 0},
                 zorder=3,
             )
-            ax.axvline(ev.start_time, ymin=0.16, ymax=0.86, color="#222222", lw=0.6, alpha=0.45, zorder=1)
+            ax.axvline(ev.start_time, ymin=0.05, ymax=0.7, color="#222222", lw=0.5, alpha=0.45, zorder=1)
         else:
             next_change = next((t for t in infusion_starts if t > ev.start_time), ev.end_time or bounds[1])
-            ax.hlines(0.5, ev.start_time, next_change, color="#222222", lw=1.4, alpha=0.75, zorder=2)
+            ax.hlines(0.35, ev.start_time, next_change, color="#222222", lw=1.2, alpha=0.75, zorder=2)
             label = _format_rate_event(ev, master)
             if label:
                 ax.text(
                     ev.start_time,
-                    0.67,
+                    0.95,
                     label,
                     ha="left",
-                    va="bottom",
-                    fontsize=7.5,
+                    va="top",
+                    fontsize=6.5,
                     color="#222222",
-                    bbox={"facecolor": "white", "edgecolor": "none", "alpha": 0.9, "pad": 0.12},
+                    bbox={"facecolor": "white", "edgecolor": "none", "alpha": 0.9, "pad": 0},
                     zorder=3,
                 )
     # 最終持続イベントの終了地点に // マーカーを描画
