@@ -78,6 +78,8 @@ class DrugMaster:
     package_unit: str
     delivery: list[Delivery]
     dose_units: list[str]
+    unit_bolus: Optional[str] = None
+    unit_rate: Optional[str] = None
     brand_name: Optional[str] = None
     formulation: Optional[str] = None
     nhi_price: Optional[float] = None        # 円/容器（要施設検証）

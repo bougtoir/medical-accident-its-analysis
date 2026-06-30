@@ -18,7 +18,7 @@ from anesthesia_record.cost import compute_cost
 from anesthesia_record.local_anesthetic import assess_local_anesthetics
 from anesthesia_record.events import EventLog
 from anesthesia_record import pkpd
-from anesthesia_record.vitals import VitalsTable, VitalSeries
+from anesthesia_record.vitals import VitalsTable, VitalSeries, Waveform
 from anesthesia_record.chart import render_chart
 from anesthesia_record.chart_erga import render_chart_erga
 
@@ -36,18 +36,10 @@ def _synthetic_vitals(t0: datetime, minutes: int) -> VitalsTable:
         m = i / 6.0
         hr.times.append(t)
         hr.values.append(72 + 8 * math.sin(m / 5.0))
-        if i % (5 * 6) == 0:
-            sbp.times.append(t)
-            sbp.values.append(120 + 15 * math.sin(m / 8.0 + 1))
-        else:
-            sbp.times.append(t)
-            sbp.values.append(None)
-        if i % (5 * 6) == 0:
-            dbp.times.append(t)
-            dbp.values.append(70 + 8 * math.sin(m / 7.0 + 0.4))
-        else:
-            dbp.times.append(t)
-            dbp.values.append(None)
+        sbp.times.append(t)
+        sbp.values.append(120 + 15 * math.sin(m / 8.0 + 1))
+        dbp.times.append(t)
+        dbp.values.append(70 + 8 * math.sin(m / 7.0 + 0.4))
         if i < minutes * 5:
             spo2.times.append(t)
             spo2.values.append(99 - 0.2 * math.sin(m / 5.0))
@@ -60,6 +52,27 @@ def _synthetic_vitals(t0: datetime, minutes: int) -> VitalsTable:
         parameters={"HR": hr, "SBP": sbp, "DBP": dbp, "SpO2": spo2, "Temp": temp},
         time_column="Time",
     )
+
+
+def _synthetic_ecg_waveform(t0: datetime, minutes: int) -> Waveform:
+    sample_rate_hz = 300.0
+    duration_sec = minutes * 60
+    samples = int(duration_sec * sample_rate_hz)
+    values: list[float] = []
+    beat_period = 60.0 / 72.0
+    for i in range(samples):
+        sec = i / sample_rate_hz
+        phase = sec % beat_period
+        x = phase / beat_period
+        value = 0.0
+        value += 0.08 * math.exp(-((x - 0.16) / 0.03) ** 2)
+        value += -0.12 * math.exp(-((x - 0.32) / 0.012) ** 2)
+        value += 1.1 * math.exp(-((x - 0.35) / 0.01) ** 2)
+        value += -0.18 * math.exp(-((x - 0.38) / 0.015) ** 2)
+        value += 0.22 * math.exp(-((x - 0.58) / 0.06) ** 2)
+        value += 0.02 * math.sin(sec * 2.0 * math.pi / 8.0)
+        values.append(value)
+    return Waveform(name="ECG", sample_rate_hz=sample_rate_hz, start_time=t0, values=values)
 
 
 def main() -> None:
@@ -111,6 +124,7 @@ def main() -> None:
               f"{res.conc_unit}{approx}")
 
     vitals = _synthetic_vitals(t0, 30)
+    ecg_waveform = _synthetic_ecg_waveform(t0, 35)
     out = render_chart(
         vitals, events, master, "demo_chart.png",
         ce_results=ce_results, ce_t0=t0, title="麻酔記録(デモ)",
@@ -123,7 +137,9 @@ def main() -> None:
         patient=patient, clinical_events=clinical_log.sorted(),
         cost_report=rep, ce_results=ce_results, ce_t0=t0,
         show_floating_latest=True, latest_panel_loc="upper right",
-        ce_horizon_min=60, title="麻酔記録(院内様式)",
+        ce_horizon_min=60, ecg_waveform=ecg_waveform,
+        ecg_snapshot_times=[t0 + timedelta(minutes=15)],
+        title="麻酔記録(院内様式)",
     )
     print(f"院内様式チャート出力: {out_erga}")
 

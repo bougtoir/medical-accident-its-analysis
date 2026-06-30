@@ -22,10 +22,12 @@ from .vitals import (
     VitalsConfig,
     VitalsTable,
     VitalSeries,
+    Waveform,
     load_vitals,
     load_vitals_csv,
     load_vital_file,
 )
+from .chart_erga import DurationSpec
 
 __all__ = [
     "Patient",
@@ -43,6 +45,8 @@ __all__ = [
     "VitalsConfig",
     "VitalsTable",
     "VitalSeries",
+    "Waveform",
+    "DurationSpec",
     "load_vitals",
     "load_vitals_csv",
     "load_vital_file",

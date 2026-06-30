@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from pathlib import Path
-from anesthesia_record.chart_erga import render_chart_erga
+from anesthesia_record.chart_erga import DurationSpec, _compute_durations, _decimate, render_chart_erga
 from anesthesia_record.cost import compute_cost
 from anesthesia_record.drug_master import load_drug_master
 from anesthesia_record.events import EventLog
@@ -84,3 +84,21 @@ def test_render_chart_erga_creates_png(tmp_path):
     path = tmp_path / "erga.png"
     assert path.exists()
     assert path.stat().st_size > 0
+
+
+def test_compute_durations_and_decimate():
+    t0 = datetime(2026, 6, 30, 9, 0, 0)
+    clinical = [
+        type("E", (), {"time": t0, "type": "anesthesia_start"})(),
+        type("E", (), {"time": t0.replace(minute=32), "type": "anesthesia_end"})(),
+        type("E", (), {"time": t0.replace(minute=5), "type": "incision"})(),
+        type("E", (), {"time": t0.replace(minute=25), "type": "closure"})(),
+    ]
+    specs = [DurationSpec("麻酔時間", ("anesthesia_start",), ("anesthesia_end",)), DurationSpec("手術時間", ("incision",), ("closure",))]
+    assert _compute_durations(clinical, specs) == [("麻酔時間", 32), ("手術時間", 20)]
+
+    times = [t0 + timedelta(seconds=s) for s in (0, 60, 120, 301, 359, 600)]
+    values = [1.0, 2.0, None, 3.0, 4.0, 5.0]
+    xs, ys = _decimate(times, values, 300.0)
+    assert [x for x in xs] == [times[0], times[3], times[5]]
+    assert ys == [1.0, 3.0, 5.0]

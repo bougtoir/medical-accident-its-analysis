@@ -30,7 +30,7 @@ def test_display_label_falls_back_to_standard_then_raw():
     assert std.display_label == STANDARD_EVENT_TYPES["incision"]
     assert std.display_icon == DEFAULT_EVENT_ICONS["incision"]
     assert raw.display_label == "custom_event"
-    assert raw.display_icon == "◆"
+    assert raw.display_icon == "#"
 
 
 def test_save_and_load_round_trip(tmp_path):

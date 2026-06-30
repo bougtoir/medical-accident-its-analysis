@@ -64,9 +64,20 @@ class VitalSeries:
 
 
 @dataclass
+class Waveform:
+    """連続波形."""
+
+    name: str
+    sample_rate_hz: float
+    start_time: datetime
+    values: list[Optional[float]] = field(default_factory=list)
+
+
+@dataclass
 class VitalsTable:
     parameters: dict[str, VitalSeries]
     time_column: str
+    waveforms: dict[str, Waveform] = field(default_factory=dict)
 
     def series(self, name: str) -> VitalSeries:
         return self.parameters[name]

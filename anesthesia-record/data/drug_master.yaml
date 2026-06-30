@@ -26,6 +26,8 @@ drugs:
     routes: [iv]
     delivery: [bolus, infusion]
     dose_units: [mg, mg/kg, mg/kg/h, ug/kg/min, ml/h]
+    unit_bolus: mg
+    unit_rate: mg/kg/h
     pkpd_enabled: true
     pk_model: marsh            # marsh / schnider / eleveld
     color: "#F4C20D"
@@ -64,6 +66,7 @@ drugs:
     routes: [iv]
     delivery: [infusion, bolus]
     dose_units: [ug/kg/min, ug/kg, ng/ml_target, ml/h]
+    unit_rate: ug/kg/min
     pkpd_enabled: true
     pk_model: minto            # minto / eleveld
     color: "#1E88E5"
@@ -83,6 +86,7 @@ drugs:
     routes: [iv]
     delivery: [bolus, infusion]
     dose_units: [ug, ug/kg, ml]
+    unit_bolus: ug
     pkpd_enabled: true
     pk_model: shafer
     color: "#3949AB"
@@ -103,6 +107,7 @@ drugs:
     routes: [iv]
     delivery: [bolus, infusion]
     dose_units: [mg, mg/kg, ug/kg/min]
+    unit_bolus: mg
     pkpd_enabled: false
     color: "#43A047"
 
@@ -199,6 +204,7 @@ drugs:
     routes: [epidural, nerve_block, infiltration]
     delivery: [bolus, infusion]
     dose_units: [mg, ml, mg/h]
+    unit_bolus: ml
     pkpd_enabled: false
     max_dose_mg_per_kg: 3.0        # 目安(要施設基準で確認)
     color: "#5D4037"

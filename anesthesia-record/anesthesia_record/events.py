@@ -72,7 +72,7 @@ class ClinicalEvent:
     def display_icon(self) -> str:
         if self.icon:
             return self.icon
-        return DEFAULT_EVENT_ICONS.get(self.type, "◆")
+        return DEFAULT_EVENT_ICONS.get(self.type, "#")
 
 
 @dataclass

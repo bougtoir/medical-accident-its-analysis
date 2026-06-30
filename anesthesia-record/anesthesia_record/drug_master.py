@@ -36,6 +36,8 @@ def _parse_drug(raw: dict) -> DrugMaster:
         "routes",
         "delivery",
         "dose_units",
+        "unit_bolus",
+        "unit_rate",
         "pkpd_enabled",
         "pk_model",
         "color",
