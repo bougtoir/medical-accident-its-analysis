@@ -297,7 +297,7 @@ def render_chart_erga(
         ),
     ]
     for lane in drug_rows:
-        bands.append(BandSpec(0.34, lambda ax, lane=lane: _render_drug_lane(ax, lane, master, main_window)))
+        bands.append(BandSpec(0.24, lambda ax, lane=lane: _render_drug_lane(ax, lane, master, main_window)))
     if fluids is not None:
         bands.append(BandSpec(0.7, lambda ax: _render_fluids(ax, fluids), sharex=False))
     if ce_results:
@@ -579,9 +579,11 @@ def _render_vitals(
 
     series_groups = _group_series_by_axis(vitals, axis_specs)
     right_keys = [spec.key for spec in axis_specs if spec.side == "right" and spec.key in series_groups]
+    twins: list[object] = []
     for offset, key in enumerate(right_keys, start=1):
         spec = axis_spec_map[key]
         twin = ax.twinx()
+        twins.append(twin)
         twin.spines["right"].set_position(("outward", 48 * offset))
         _apply_axis_style(twin, spec, main=False)
         _plot_axis_group(twin, key, series_groups[key], style_map, display_intervals, display_modes)
@@ -595,6 +597,10 @@ def _render_vitals(
 
     _render_event_icons(ax, clinical_events, icon_map)
     if show_floating_latest:
+        # main axes を twin より上に描画し、フローティングパネルを最前面にする
+        for twin in twins:
+            twin.set_zorder(ax.get_zorder() - 1)
+        ax.patch.set_visible(False)
         _render_latest_panel(
             ax,
             vitals,
