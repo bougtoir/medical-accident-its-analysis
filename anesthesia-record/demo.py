@@ -36,9 +36,13 @@ def _synthetic_vitals(t0: datetime, minutes: int) -> VitalsTable:
         m = i / 6.0
         hr.times.append(t)
         hr.values.append(72 + 8 * math.sin(m / 5.0))
-        sbp.times.append(t)
-        sbp.values.append(120 + 15 * math.sin(m / 8.0 + 1))
-        if i < minutes * 4:
+        if i % (5 * 6) == 0:
+            sbp.times.append(t)
+            sbp.values.append(120 + 15 * math.sin(m / 8.0 + 1))
+        else:
+            sbp.times.append(t)
+            sbp.values.append(None)
+        if i % (5 * 6) == 0:
             dbp.times.append(t)
             dbp.values.append(70 + 8 * math.sin(m / 7.0 + 0.4))
         else:
@@ -100,7 +104,7 @@ def main() -> None:
     ce_results = {}
     for drug_id in ("propofol_1pct", "remifentanil_2mg", "fentanyl_0_1mg"):
         drug = master.get(drug_id)
-        res = pkpd.simulate(drug, patient, events, t0, duration_min=30, dt_s=1.0)
+        res = pkpd.simulate(drug, patient, events, t0, duration_min=90, dt_s=1.0)
         ce_results[drug_id] = res
         approx = " (近似/要検証)" if res.approximate else ""
         print(f"  {drug.generic_name}[{res.model}]: Ce_max={res.ce_max:.2f} "
@@ -119,7 +123,7 @@ def main() -> None:
         patient=patient, clinical_events=clinical_log.sorted(),
         cost_report=rep, ce_results=ce_results, ce_t0=t0,
         show_floating_latest=True, latest_panel_loc="upper right",
-        title="麻酔記録(院内様式)",
+        ce_horizon_min=60, title="麻酔記録(院内様式)",
     )
     print(f"院内様式チャート出力: {out_erga}")
 

@@ -22,10 +22,16 @@ def _synthetic_vitals(t0: datetime, minutes: int) -> VitalsTable:
         m = i / 6.0
         hr.times.append(t)
         hr.values.append(72 + 6 * __import__("math").sin(m / 4.5))
-        sbp.times.append(t)
-        sbp.values.append(120 + 10 * __import__("math").sin(m / 6.5 + 0.4))
-        dbp.times.append(t)
-        dbp.values.append(70 + 8 * __import__("math").sin(m / 7.0 + 0.8))
+        if i % (5 * 6) == 0:
+            sbp.times.append(t)
+            sbp.values.append(120 + 10 * __import__("math").sin(m / 6.5 + 0.4))
+            dbp.times.append(t)
+            dbp.values.append(70 + 8 * __import__("math").sin(m / 7.0 + 0.8))
+        else:
+            sbp.times.append(t)
+            sbp.values.append(None)
+            dbp.times.append(t)
+            dbp.values.append(None)
         spo2.times.append(t)
         spo2.values.append(99 - 0.2 * __import__("math").sin(m / 5.0))
         temp.times.append(t)
@@ -56,7 +62,7 @@ def test_render_chart_erga_creates_png(tmp_path):
     ce_results = {}
     for drug_id in ("propofol_1pct", "remifentanil_2mg"):
         drug = master.get(drug_id)
-        ce_results[drug_id] = pkpd.simulate(drug, patient, events, t0, duration_min=15, dt_s=5.0)
+        ce_results[drug_id] = pkpd.simulate(drug, patient, events, t0, duration_min=90, dt_s=5.0)
 
     out = render_chart_erga(
         _synthetic_vitals(t0, 30),
@@ -70,6 +76,7 @@ def test_render_chart_erga_creates_png(tmp_path):
         ce_t0=t0,
         show_floating_latest=True,
         latest_panel_loc="upper left",
+        ce_horizon_min=60,
         event_icon_map={"incision": "◆"},
     )
 

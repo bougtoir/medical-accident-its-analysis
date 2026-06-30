@@ -18,6 +18,14 @@ from .events import (
     STANDARD_EVENT_TYPES,
     load_event_log,
 )
+from .vitals import (
+    VitalsConfig,
+    VitalsTable,
+    VitalSeries,
+    load_vitals,
+    load_vitals_csv,
+    load_vital_file,
+)
 
 __all__ = [
     "Patient",
@@ -32,4 +40,10 @@ __all__ = [
     "EventLog",
     "load_event_log",
     "STANDARD_EVENT_TYPES",
+    "VitalsConfig",
+    "VitalsTable",
+    "VitalSeries",
+    "load_vitals",
+    "load_vitals_csv",
+    "load_vital_file",
 ]
