@@ -1031,7 +1031,7 @@ def _render_drug_lane(
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     ax.spines["left"].set_visible(False)
-    ax.text(0.0, 1.5, lane.label, ha="left", va="bottom", fontsize=6.5, transform=ax.transAxes, clip_on=False)
+    ax.text(0.0, 1.7, lane.label, ha="left", va="bottom", fontsize=6.5, transform=ax.transAxes, clip_on=False)
     ax.axhline(0.0, color="#cccccc", lw=0.4, zorder=0)
 
     drug = master.get(lane.drug_id)
@@ -1238,7 +1238,7 @@ def _render_fluids(ax, fluids: FluidBalanceSummary) -> None:
 
 def _render_cost(ax, cost_report: CostReport) -> None:
     ax.axis("off")
-    lines = ["COST"]
+    lines = ["コスト"]
     for item in cost_report.items:
         price = "N/A" if item.cost is None else f"{item.cost:.0f} 円"
         lines.append(f"{item.generic_name}: {price}")
