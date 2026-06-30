@@ -1,0 +1,90 @@
+"""デモ: 薬剤マスタ読込→コスト算定→局所麻酔極量→Ce推定→チャート出力.
+
+実行:
+    python demo.py
+出力:
+    demo_chart.png （バイタル + 投薬注記 + Ce）
+"""
+
+from __future__ import annotations
+
+import math
+import os
+from datetime import datetime, timedelta
+
+from anesthesia_record.drug_master import load_drug_master
+from anesthesia_record.models import MedEvent, Patient, Sex, Delivery
+from anesthesia_record.cost import compute_cost
+from anesthesia_record.local_anesthetic import assess_local_anesthetics
+from anesthesia_record import pkpd
+from anesthesia_record.vitals import VitalsTable, VitalSeries
+from anesthesia_record.chart import render_chart
+
+DATA = os.path.join(os.path.dirname(__file__), "data", "drug_master.yaml")
+
+
+def _synthetic_vitals(t0: datetime, minutes: int) -> VitalsTable:
+    hr = VitalSeries("HR")
+    sbp = VitalSeries("SBP")
+    for i in range(minutes * 6):  # 10秒間隔
+        t = t0 + timedelta(seconds=10 * i)
+        m = i / 6.0
+        hr.times.append(t)
+        hr.values.append(72 + 8 * math.sin(m / 5.0))
+        sbp.times.append(t)
+        sbp.values.append(120 + 15 * math.sin(m / 8.0 + 1))
+    return VitalsTable(parameters={"HR": hr, "SBP": sbp}, time_column="Time")
+
+
+def main() -> None:
+    master = load_drug_master(DATA)
+    patient = Patient(age_years=45, sex=Sex.MALE, weight_kg=65, height_cm=172, asa_ps=2)
+    t0 = datetime(2026, 6, 30, 9, 0, 0)
+
+    events = [
+        MedEvent("fentanyl_0_1mg", t0, Delivery.BOLUS, dose=100, dose_unit="ug", note="導入"),
+        MedEvent("propofol_1pct", t0 + timedelta(seconds=30), Delivery.BOLUS,
+                 dose=130, dose_unit="mg", note="導入"),
+        MedEvent("rocuronium_50mg", t0 + timedelta(minutes=1), Delivery.BOLUS,
+                 dose=50, dose_unit="mg"),
+        MedEvent("remifentanil_2mg", t0 + timedelta(minutes=2), Delivery.INFUSION,
+                 rate=0.2, rate_unit="ug/kg/min", end_time=t0 + timedelta(minutes=30)),
+        MedEvent("propofol_1pct", t0 + timedelta(minutes=2), Delivery.INFUSION,
+                 rate=6, rate_unit="mg/kg/h", end_time=t0 + timedelta(minutes=30)),
+        MedEvent("ropivacaine_0_75pct", t0 + timedelta(minutes=5), Delivery.BOLUS,
+                 dose=15, dose_unit="ml", note="末梢神経ブロック"),
+    ]
+
+    print("=== コスト算定 ===")
+    rep = compute_cost(events, master, patient)
+    for it in rep.items:
+        price = "薬価未設定" if it.cost is None else f"{it.cost:.0f}円"
+        print(f"  {it.generic_name:12s} {it.total_mass_mg:8.2f}mg "
+              f"-> {it.containers_charged}容器 {price} ({it.billing_rule})")
+    print(f"  合計: {rep.total:.0f}円 (薬剤/輸液費のみ・サンプル薬価)")
+
+    print("\n=== 局所麻酔薬 極量 ===")
+    for st in assess_local_anesthetics(events, master, patient):
+        print(f"  {st.generic_name}: {st.cumulative_mg}mg / 上限{st.max_mg}mg "
+              f"({st.fraction}) -> {st.level}")
+
+    print("\n=== 効果部位濃度(Ce) ===")
+    ce_results = {}
+    for drug_id in ("propofol_1pct", "remifentanil_2mg", "fentanyl_0_1mg"):
+        drug = master.get(drug_id)
+        res = pkpd.simulate(drug, patient, events, t0, duration_min=30, dt_s=1.0)
+        ce_results[drug_id] = res
+        approx = " (近似/要検証)" if res.approximate else ""
+        print(f"  {drug.generic_name}[{res.model}]: Ce_max={res.ce_max:.2f} "
+              f"{res.conc_unit}{approx}")
+
+    vitals = _synthetic_vitals(t0, 30)
+    out = render_chart(
+        vitals, events, master, "demo_chart.png",
+        ce_results=ce_results, ce_t0=t0, title="麻酔記録(デモ)",
+    )
+    print(f"\nチャート出力: {out}")
+
+
+if __name__ == "__main__":
+    main()

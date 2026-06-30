@@ -1,0 +1,4 @@
+PyYAML>=6.0
+matplotlib>=3.7
+# 任意: VitalRecorder の .vital 読み込み用
+# vitaldb>=1.4

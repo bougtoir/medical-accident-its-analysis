@@ -177,6 +177,9 @@ jobs:
           # ── SITS9 (A Stitch in Time Saves Nine) ──
           BRANCH_MAP["sits9-sync"]="sits9"
 
+          # ── Anesthesia record (B650 vitals → 麻酔記録) ──
+          BRANCH_MAP["devin/1782828801-anesthesia-record"]="anesthesia-record"
+
           # ── Subdirectory filter map ──
           # When a branch contains multiple project folders (e.g. branched from
           # master), SUBDIR_MAP tells the sync to extract ONLY the specified
@@ -232,6 +235,7 @@ jobs:
           SUBDIR_MAP["devin/denisovan-archaic-dna-analysis"]="denisovan-archaic-dna-analysis"
           SUBDIR_MAP["devin/1782083347-landmine-transparent-map"]="landmine_transparent_map"
           SUBDIR_MAP["sits9-sync"]="sits9"
+          SUBDIR_MAP["devin/1782828801-anesthesia-record"]="anesthesia-record"
 
           # ── File exclusion map ──
           # Space-separated list of file paths (relative to subdir root if
