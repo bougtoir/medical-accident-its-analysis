@@ -28,18 +28,18 @@ echo --------------------------------------------------------
 echo   バイタルデータの取込方法を選択してください
 echo --------------------------------------------------------
 echo.
-echo   [1] VSCapture （推奨: GE/Philips モニター直結）
+echo   [1] VSCapture - GE/Philips モニター直結
 echo.
 echo       対応モニター:
 echo         - GE CARESCAPE B650 / B850 / B450
 echo         - GE Solar 8000M / 8000i
 echo         - Philips IntelliVue MX800 / MX700 / MP70 / MP60
 echo         - Philips IntelliVue X3
-echo       出力形式: CSV（リアルタイム記録）
+echo       出力形式: CSV
 echo       特徴: モニターにLAN接続し直接バイタルを記録
-echo              HL7/GE Solar プロトコル対応
+echo              HL7/GE Solar protocol
 echo.
-echo   [2] VitalRecorder （多機種対応・.vital形式）
+echo   [2] VitalRecorder - 多機種対応
 echo.
 echo       対応モニター:
 echo         - GE CARESCAPE 全シリーズ
@@ -50,10 +50,10 @@ echo         - Drager Infinity / Perseus
 echo         - Masimo Root / Radical-7
 echo         - Medtronic BIS / NicoletOne
 echo         - その他 HL7 対応モニター全般
-echo       出力形式: .vital / CSV（高精度波形含む）
+echo       出力形式: .vital / CSV
 echo       特徴: vitaldb.net 提供の汎用レコーダ
-echo              高サンプリングレート波形(ECG/ART等)対応
-echo              vitaldb パッケージで .vital 読込
+echo              高サンプリングレート波形対応
+echo              vitaldb package for .vital
 echo.
 echo --------------------------------------------------------
 echo.
@@ -83,7 +83,7 @@ echo   依存ライブラリをインストール中...
 echo --------------------------------------------------------
 echo.
 
-pip install "PyYAML>=6.0" "matplotlib>=3.7" numpy scipy
+python -m pip install "PyYAML>=6.0" "matplotlib>=3.7" numpy scipy
 if %errorlevel% neq 0 (
     echo [エラー] 基本ライブラリのインストールに失敗しました。
     pause
@@ -93,7 +93,7 @@ if %errorlevel% neq 0 (
 if "%SOURCE%"=="vitalrecorder" (
     echo.
     echo vitaldb パッケージをインストール中...
-    pip install "vitaldb>=1.4"
+    python -m pip install "vitaldb>=1.4"
     if %errorlevel% neq 0 (
         echo [警告] vitaldb のインストールに失敗しました。
         echo .vital ファイルの読込は利用できませんが、CSV は使用可能です。
@@ -145,7 +145,7 @@ set /p BUILD="実行ファイル(.exe)をビルドする？ (y/n): "
 if /i "%BUILD%"=="y" (
     echo.
     echo PyInstaller をインストール中...
-    pip install pyinstaller
+    python -m pip install pyinstaller
     echo.
     echo ビルド中... （数分かかります）
     pyinstaller --onefile --add-data "data;data" --name anesthesia_demo demo.py
