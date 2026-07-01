@@ -523,8 +523,27 @@ class AnesthesiaApp:
         )
         if path:
             self.session.load_from_yaml(path, self.drug_master)
+            self._sync_ui_from_session()
             self.status_var.set(f"読み込み完了: {Path(path).name}")
             self._refresh_chart()
+
+    def _sync_ui_from_session(self) -> None:
+        """セッションデータをUIフォームに反映."""
+        if self.session.patient:
+            p = self.session.patient
+            self.var_patient_id.set(p.patient_id or "")
+            self.var_age.set(str(int(p.age_years)))
+            self.var_sex.set(p.sex.value)
+            self.var_weight.set(str(p.weight_kg))
+            self.var_height.set(str(p.height_cm))
+            self.var_asa.set(str(p.asa_ps or 2))
+        # ボタン状態同期
+        if self.session.anesthesia_start:
+            self.btn_start.config(state=tk.DISABLED)
+            self.btn_end.config(state=tk.NORMAL if not self.session.anesthesia_end else tk.DISABLED)
+        else:
+            self.btn_start.config(state=tk.NORMAL)
+            self.btn_end.config(state=tk.DISABLED)
 
     def _save_case(self) -> None:
         path = filedialog.asksaveasfilename(

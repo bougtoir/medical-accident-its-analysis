@@ -62,7 +62,7 @@ def render_live_chart(
 
     # レイアウト: ヘッダ / バイタル / 薬剤行 / 出血尿量 / コスト・イベント
     drug_rows = _get_drug_rows(session.med_events, drug_master)
-    n_drug_rows = max(len(drug_rows), 1)
+    n_drug_rows = len(drug_rows)
     has_outputs = len(session.output_events) > 0
 
     # GridSpec 高さ比率
