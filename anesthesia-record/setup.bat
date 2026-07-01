@@ -1,0 +1,184 @@
+@echo off
+chcp 65001 >nul
+setlocal enabledelayedexpansion
+
+echo.
+echo ========================================================
+echo   anesthesia-record v0.1 セットアップ
+echo ========================================================
+echo.
+
+REM --- Python チェック ---
+where python >nul 2>&1
+if %errorlevel% neq 0 (
+    echo [エラー] Python が見つかりません。
+    echo https://www.python.org/downloads/ からインストールしてください。
+    echo インストール時に「Add Python to PATH」にチェックを入れてください。
+    pause
+    exit /b 1
+)
+
+for /f "tokens=*" %%i in ('python --version 2^>^&1') do set PYVER=%%i
+echo Python: %PYVER%
+echo.
+
+REM --- バイタルデータ取込ソフト選択 ---
+echo --------------------------------------------------------
+echo   バイタルデータの取込方法を選択してください
+echo --------------------------------------------------------
+echo.
+echo   [1] VSCapture （推奨: GE/Philips モニター直結）
+echo.
+echo       対応モニター:
+echo         - GE CARESCAPE B650 / B850 / B450
+echo         - GE Solar 8000M / 8000i
+echo         - Philips IntelliVue MX800 / MX700 / MP70 / MP60
+echo         - Philips IntelliVue X3
+echo       出力形式: CSV（リアルタイム記録）
+echo       特徴: モニターにLAN接続し直接バイタルを記録
+echo              HL7/GE Solar プロトコル対応
+echo.
+echo   [2] VitalRecorder （多機種対応・.vital形式）
+echo.
+echo       対応モニター:
+echo         - GE CARESCAPE 全シリーズ
+echo         - Philips IntelliVue 全シリーズ
+echo         - Nihon Kohden BSM / CSM シリーズ
+echo         - Mindray BeneVision N シリーズ
+echo         - Drager Infinity / Perseus
+echo         - Masimo Root / Radical-7
+echo         - Medtronic BIS / NicoletOne
+echo         - その他 HL7 対応モニター全般
+echo       出力形式: .vital / CSV（高精度波形含む）
+echo       特徴: vitaldb.net 提供の汎用レコーダ
+echo              高サンプリングレート波形(ECG/ART等)対応
+echo              vitaldb パッケージで .vital 読込
+echo.
+echo --------------------------------------------------------
+echo.
+
+set /p CHOICE="選択 (1 または 2): "
+
+if "%CHOICE%"=="1" (
+    set SOURCE=vscapture
+    set SOURCE_LABEL=VSCapture
+    echo.
+    echo VSCapture を選択しました。
+) else if "%CHOICE%"=="2" (
+    set SOURCE=vitalrecorder
+    set SOURCE_LABEL=VitalRecorder
+    echo.
+    echo VitalRecorder を選択しました。
+) else (
+    echo.
+    echo [エラー] 1 または 2 を入力してください。
+    pause
+    exit /b 1
+)
+
+echo.
+echo --------------------------------------------------------
+echo   依存ライブラリをインストール中...
+echo --------------------------------------------------------
+echo.
+
+pip install PyYAML>=6.0 matplotlib>=3.7 numpy scipy
+if %errorlevel% neq 0 (
+    echo [エラー] 基本ライブラリのインストールに失敗しました。
+    pause
+    exit /b 1
+)
+
+if "%SOURCE%"=="vitalrecorder" (
+    echo.
+    echo vitaldb パッケージをインストール中...
+    pip install vitaldb>=1.4
+    if %errorlevel% neq 0 (
+        echo [警告] vitaldb のインストールに失敗しました。
+        echo .vital ファイルの読込は利用できませんが、CSV は使用可能です。
+    )
+)
+
+echo.
+echo --------------------------------------------------------
+echo   デフォルト設定を生成中...
+echo --------------------------------------------------------
+echo.
+
+REM --- config.yaml 生成 ---
+(
+echo # anesthesia-record デフォルト設定
+echo # セットアップ時に自動生成。手動で編集可能です。
+echo.
+echo # バイタルデータ取込ソース
+echo # "vscapture_csv": VSCapture の CSV
+echo # "vitalrecorder_csv": VitalRecorder の CSV
+echo # "auto": ファイルの列名から自動判定
+echo vitals:
+if "%SOURCE%"=="vscapture" (
+echo   source: vscapture_csv
+) else (
+echo   source: vitalrecorder_csv
+)
+echo   clock_offset_sec: 0.0    # モニター時計とPC時計のズレ補正（秒）
+echo   interval_sec: 1.0        # .vital 読込時のサンプリング間隔（秒）
+echo.
+echo # チャート設定
+echo chart:
+echo   title: "麻酔記録（院内様式）"
+echo   show_floating_latest: true
+echo   latest_panel_loc: "upper right"
+echo   ce_horizon_min: 60
+echo.
+echo # 出力
+echo output:
+echo   format: png
+echo   dpi: 150
+) > config.yaml
+
+echo 設定ファイルを生成しました: config.yaml
+echo   バイタルソース: %SOURCE_LABEL%
+echo.
+
+REM --- PyInstaller ビルド ---
+echo --------------------------------------------------------
+echo   実行ファイルをビルドしますか？
+echo --------------------------------------------------------
+echo.
+set /p BUILD="実行ファイル(.exe)をビルドする？ (y/n): "
+
+if /i "%BUILD%"=="y" (
+    echo.
+    echo PyInstaller をインストール中...
+    pip install pyinstaller
+    echo.
+    echo ビルド中... （数分かかります）
+    pyinstaller --onefile --add-data "data;data" --name anesthesia_demo demo.py
+    if %errorlevel% neq 0 (
+        echo [エラー] ビルドに失敗しました。
+        pause
+        exit /b 1
+    )
+    echo.
+    echo dist\anesthesia_demo.exe が生成されました。
+)
+
+echo.
+echo ========================================================
+echo   セットアップ完了！
+echo ========================================================
+echo.
+echo   選択ソース: %SOURCE_LABEL%
+echo   設定ファイル: config.yaml
+echo.
+echo   使い方:
+echo     python demo.py              デモを実行
+echo     python -m pytest -q         テストを実行
+if /i "%BUILD%"=="y" (
+echo     dist\anesthesia_demo.exe    実行ファイルで実行
+)
+echo.
+echo   詳細は docs\manual.md を参照してください。
+echo ========================================================
+echo.
+pause
