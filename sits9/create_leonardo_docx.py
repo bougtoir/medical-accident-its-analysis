@@ -98,11 +98,20 @@ def _table(doc: Document, headers: list[str], rows: list[list[str]],
     for row_data in rows:
         row = tbl.add_row()
         for i, val in enumerate(row_data):
-            row.cells[i].text = val
-            for par in row.cells[i].paragraphs:
-                for r in par.runs:
-                    r.font.size = Pt(10)
-                    r.font.name = "Times New Roman"
+            cell = row.cells[i]
+            cell.text = ""
+            p = cell.paragraphs[0]
+            parts = re.split(r'(\{[^}]+\})', val)
+            for part in parts:
+                if part.startswith('{') and part.endswith('}'):
+                    run = p.add_run(part[1:-1])
+                    run.font.superscript = True
+                    run.font.size = Pt(8)
+                    run.font.name = "Times New Roman"
+                else:
+                    run = p.add_run(part)
+                    run.font.size = Pt(10)
+                    run.font.name = "Times New Roman"
 
 
 def _code(doc: Document, code: str) -> None:
@@ -330,7 +339,7 @@ def build_manuscript() -> Document:
 
     _para(doc,
           "A further historical note: the McLuhan dictum 'the medium is "
-          "the message' is literally embodied in both quipu and SITS9.{8} "
+          "the message' is literally embodied in both quipu and SITS9.{5} "
           "In a quipu, the medium (knotted cord) and the message (the "
           "information encoded in the knots) are physically inseparable. "
           "In SITS9, the stitch pattern IS the music IS the recipe -- "
@@ -644,8 +653,9 @@ def build_manuscript() -> Document:
           "encoding.")
 
     _para(doc,
-          "The results confirmed the predictions summarised in Table 7 "
-          "(Section 9). Kimigayo, with its pentatonic scale, slow tempo "
+          "The results confirmed the predictions based on each anthem's "
+          "musical characteristics (see Section 9.1 for the full "
+          "comparison table). Kimigayo, with its pentatonic scale, slow tempo "
           "(BPM 54), and narrow melodic range, produced a SITS9 Deck "
           "with small FWD values (2-3), low TENSION (0.15-0.45), and "
           "gentle CROSS angles (15 degrees). The resulting SVG shows a "
@@ -716,7 +726,7 @@ def build_manuscript() -> Document:
           "is immediately identified as Japanese; dashi-and-soy flavour "
           "profiles are immediately identified as washoku. By reducing "
           "information entropy, palette constraints amplify cultural "
-          "signal.{5}")
+          "signal.{6}")
 
     _para(doc,
           "This relationship can be expressed informally as: cultural "
@@ -753,7 +763,7 @@ def build_manuscript() -> Document:
                ["WWI",
                 "Belgian knitting spies",
                 "Knit=0, purl=1: binary encoding of railway movements. "
-                "MI5 banned knitting near the front lines.{6}"],
+                "MI5 banned knitting near the front lines.{7}"],
                ["French Revolution",
                 "Tricoteuses (knitting women)",
                 "Dickens' Madame Defarge encodes execution lists in "
@@ -765,7 +775,7 @@ def build_manuscript() -> Document:
                ["Antebellum US",
                 "Underground Railroad quilt code (disputed)",
                 "Quilt patterns as route-guiding ciphers. "
-                "(Contested: no confirmed primary sources.){7}"],
+                "(Contested: no confirmed primary sources.){8}"],
            ],
            caption="Table 5. Historical examples of textile-based cryptographic and steganographic communication.")
     doc.add_paragraph()
@@ -790,7 +800,11 @@ def build_manuscript() -> Document:
           "recipe) are not merely wrappers -- they are genuine, "
           "aesthetically functional artefacts in their own right. "
           "The strongest steganographic medium is one that nobody "
-          "recognises as a medium at all:")
+          "recognises as a medium at all. A contemporary art-practice "
+          "example is Alyce Santoro's Sonic Fabric, a textile woven "
+          "from recycled audio cassette tape that can be 'played back' "
+          "by running a modified tape head across the cloth -- a literal "
+          "textile-as-music artefact.{9}:")
     _code(doc,
           "Censorship susceptibility  ~ Recognition as a medium\n"
           "Cipher strength            ~ 1 / Censorship susceptibility\n")
@@ -972,7 +986,7 @@ def build_manuscript() -> Document:
           "'repetition -> crossing -> return' -- is universal. "
           "SITS9's ability to unify three domains is not a coincidence "
           "but a reflection of the universal structure of human "
-          "procedural cognition.{8}")
+          "procedural cognition.{5}")
 
     _para(doc,
           "A supporting observation comes from the parallel evolution "
@@ -988,7 +1002,12 @@ def build_manuscript() -> Document:
           "temporal non-monotonicity, TENSION introduces continuous "
           "modulation. The order in which humans can learn and teach these "
           "degrees of freedom appears to be invariant across cultures "
-          "and across domains.")
+          "and across domains. Steve Reich's concept of 'music as a "
+          "gradual process' -- in which perceptible, slowly unfolding "
+          "transformations constitute the musical material -- is itself "
+          "an instance of this universal trajectory: minimal music "
+          "strips the instruction set back to loop-FWD and makes the "
+          "process audible.{10}")
 
     _para(doc,
           "The naming of SITS9 -- from the proverb 'a stitch in time "
@@ -1076,26 +1095,26 @@ def build_manuscript() -> Document:
     refs = [
         ("1", "Essinger, J. (2004) Jacquard's Web: How a Hand-Loom Led to "
               "the Birth of the Information Age. Oxford University Press."),
-        ("2", "Aldwell, E., Schachter, C. and Cadwallader, A. (2018) "
+        ("2", "Aldwell, E., Schachter, C. and Cadwallader, A. (2019) "
               "Harmony and Voice Leading, 5th edn. Cengage Learning."),
         ("3", "McGee, H. (2004) On Food and Cooking: The Science and Lore "
               "of the Kitchen. New York: Scribner."),
         ("4", "Urton, G. (2003) Signs of the Inka Khipu: Binary Coding in "
               "the Andean Knotted-String Records. Austin: University of "
               "Texas Press."),
-        ("5", "Lerdahl, F. and Jackendoff, R. (1983) A Generative Theory "
+        ("5", "McLuhan, M. (1964) Understanding Media: The Extensions of "
+              "Man. New York: McGraw-Hill."),
+        ("6", "Lerdahl, F. and Jackendoff, R. (1983) A Generative Theory "
               "of Tonal Music. Cambridge, MA: MIT Press."),
-        ("6", "Stallings, W. (2017) Cryptography and Network Security: "
-              "Principles and Practice, 7th edn. London: Pearson."),
-        ("7", "Tobin, J. and Dobard, R. (1999) Hidden in Plain View: A "
+        ("7", "Stallings, W. (2017) Cryptography and Network Security: "
+              "Principles and Practice, 7th edn. Hoboken, NJ: Pearson."),
+        ("8", "Tobin, J. and Dobard, R. (1999) Hidden in Plain View: A "
               "Secret Story of Quilts and the Underground Railroad. New "
               "York: Anchor Books. [Contested thesis]"),
-        ("8", "McLuhan, M. (1964) Understanding Media: The Extensions of "
-              "Man. New York: McGraw-Hill."),
-        ("9", "Reich, S. (2002) Writings on Music, 1965-2000. Oxford "
-              "University Press."),
-        ("10", "Santoro, A. (2007) Sonic Fabric. Available at: "
-               "https://sonicfabric.com/ (Accessed: 22 June 2026)."),
+        ("9", "Santoro, A. (2007) Sonic Fabric. Available at: "
+              "https://sonicfabric.com/ (Accessed: 22 June 2026)."),
+        ("10", "Reich, S. (2002) Writings on Music, 1965-2000. Oxford "
+               "University Press."),
     ]
     for num, ref in refs:
         p = doc.add_paragraph()
