@@ -10,17 +10,41 @@ echo ========================================================
 echo.
 
 REM --- Python チェック ---
-where python >nul 2>&1
-if %errorlevel% neq 0 (
-    echo [エラー] Python が見つかりません。
-    echo https://www.python.org/downloads/ からインストールしてください。
-    echo インストール時に「Add Python to PATH」にチェックを入れてください。
-    pause
-    exit /b 1
+REM py launcher を優先、なければ python
+set PYCMD=
+py -3 --version >nul 2>&1
+if %errorlevel% equ 0 (
+    set PYCMD=py -3
+    goto :pyfound
 )
+where python >nul 2>&1
+if %errorlevel% equ 0 (
+    set PYCMD=python
+    goto :pyfound
+)
+echo [エラー] Python が見つかりません。
+echo https://www.python.org/downloads/ からインストールしてください。
+echo インストール時に Add Python to PATH にチェックを入れてください。
+pause
+exit /b 1
 
-for /f "tokens=*" %%i in ('python --version 2^>^&1') do set PYVER=%%i
+:pyfound
+for /f "tokens=*" %%i in ('%PYCMD% --version 2^>^&1') do set PYVER=%%i
 echo Python: %PYVER%
+echo.
+
+REM --- プロジェクト用 venv 作成 ---
+if not exist .venv (
+    echo プロジェクト用仮想環境を作成中...
+    %PYCMD% -m venv .venv
+    if %errorlevel% neq 0 (
+        echo [エラー] venv の作成に失敗しました。
+        pause
+        exit /b 1
+    )
+)
+call .venv\Scripts\activate.bat
+echo venv: .venv
 echo.
 
 REM --- バイタルデータ取込ソフト選択 ---
@@ -83,6 +107,8 @@ echo   依存ライブラリをインストール中...
 echo --------------------------------------------------------
 echo.
 
+python -m ensurepip --upgrade >nul 2>&1
+python -m pip install --upgrade pip >nul 2>&1
 python -m pip install "PyYAML>=6.0" "matplotlib>=3.7" numpy scipy
 if %errorlevel% neq 0 (
     echo [エラー] 基本ライブラリのインストールに失敗しました。
