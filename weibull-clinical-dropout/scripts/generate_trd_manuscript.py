@@ -47,13 +47,13 @@ TB_RESULTS = {
     'Ethiopia (Nationwide)': {'k': 1.31, 'k_ci': '1.18-1.44', 'lam': 5.82, 'r2': 0.9945, 'n': 18420,
                               'source': 'Tola et al. 2019'},
     'South Africa (KwaZulu-Natal)': {'k': 1.28, 'k_ci': '1.14-1.41', 'lam': 5.45, 'r2': 0.9932, 'n': 12350,
-                                      'source': 'Kaplan et al. 2017'},
+                                      'source': 'Kaplan et al. 2014'},
     'India (RNTCP)': {'k': 1.22, 'k_ci': '1.09-1.36', 'lam': 5.18, 'r2': 0.9918, 'n': 45000,
                        'source': 'Parmar et al. 2015'},
     'Brazil (SINAN)': {'k': 1.26, 'k_ci': '1.13-1.39', 'lam': 5.55, 'r2': 0.9928, 'n': 28500,
-                        'source': 'Lacerda et al. 2018'},
+                        'source': 'Lacerda et al. 2014'},
     'China (National TB Programme)': {'k': 1.24, 'k_ci': '1.11-1.38', 'lam': 5.35, 'r2': 0.9935, 'n': 35200,
-                                       'source': 'Li et al. 2020'},
+                                       'source': 'Li et al. 2018'},
 }
 
 FIVE_DOMAIN_RESULTS = {
@@ -217,8 +217,8 @@ def generate_figures():
     ax.legend(fontsize=10)
 
     # Add annotations
-    ax.text(1.35, 8, 'IFR\n(k > 1)', fontsize=10, color='#d62728', fontweight='bold', ha='center')
-    ax.text(0.55, 2, 'DFR\n(k < 1)', fontsize=10, color='#1f77b4', fontweight='bold', ha='center')
+    ax.text(1.35, 2, 'IFR\n(k > 1)', fontsize=10, color='#d62728', fontweight='bold', ha='center')
+    ax.text(0.55, 8, 'DFR\n(k < 1)', fontsize=10, color='#1f77b4', fontweight='bold', ha='center')
 
     plt.tight_layout()
     fig.savefig(os.path.join(FIG_DIR, 'trd_fig1_cross_domain_k.png'), dpi=300, bbox_inches='tight')
@@ -696,7 +696,7 @@ def generate_manuscript_en():
         'month 1 for TB using the mean parameters (k=1.26, \u03bb=5.47): h(5)/h(1) = '
         '(5/1)^(k-1) = 5^0.26 = 1.50. This indicates that TB dropout hazard at month 5 is '
         '50% higher than at month 1. For comparison, HIV/ART (k=0.597) yields h(5)/h(1) = '
-        '5^(-0.403) = 0.47, meaning hazard at month 5 is less than half that at month 1. '
+        '5^(-0.403) = 0.52, meaning hazard at month 5 is approximately half that at month 1. '
         'These opposing trajectories demand fundamentally different intervention timing.')
     set_paragraph_format(p, line_spacing=2.0)
 
