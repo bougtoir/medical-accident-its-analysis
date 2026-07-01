@@ -280,7 +280,7 @@ def render_chart_erga(
             sharex=False,
         ),
         BandSpec(
-            2.45,
+            4.9,
             lambda ax: _render_vitals(
                 ax,
                 vitals,
@@ -597,7 +597,8 @@ def _render_vitals(
         twin = ax.twinx()
         twins.append(twin)
         twin.spines["right"].set_position(("axes", 1.0))
-        twin.tick_params(axis="y", direction="in", pad=-22, labelsize=7)
+        twin.spines["right"].set_visible(False)
+        twin.tick_params(axis="y", direction="in", pad=-24 - 20 * (offset - 1), labelsize=7)
         _apply_axis_style(twin, spec, main=False)
         _plot_axis_group(twin, key, series_groups[key], style_map, display_intervals, display_modes)
 
@@ -1124,8 +1125,8 @@ def _render_lane_cumulative(ax, lane: DrugLane, drug, patient: Optional[Patient]
     else:
         label = f"{total_mg:.4g}"
     ax.text(
-        0.99, 0.92, label,
-        ha="right", va="top", fontsize=6, color="#555555",
+        0.99, 1.7, label,
+        ha="right", va="bottom", fontsize=6, color="#555555",
         transform=ax.transAxes, clip_on=False,
     )
 
@@ -1360,20 +1361,19 @@ def _render_ecg_strips(
     ax.axis("off")
     if not snapshots:
         return
-    sub = GridSpecFromSubplotSpec(1, len(snapshots), subplot_spec=ax.get_subplotspec(), wspace=0.25)
+    sub = GridSpecFromSubplotSpec(1, len(snapshots), subplot_spec=ax.get_subplotspec(), wspace=0.15)
     for idx, (center, label, xs, ys) in enumerate(snapshots):
         strip = ax.figure.add_subplot(sub[0, idx])
         strip.plot(xs, ys, color="#222222", lw=0.7)
         strip.set_xlim(xs[0], xs[-1])
         strip.set_yticks([])
-        strip.grid(True, axis="x", ls=":", alpha=0.2)
+        strip.set_xticks([])
         strip.spines["top"].set_visible(False)
         strip.spines["right"].set_visible(False)
         strip.spines["left"].set_visible(False)
+        strip.spines["bottom"].set_linewidth(0.3)
         strip.tick_params(axis="y", left=False, labelleft=False)
-        strip.xaxis.set_major_locator(mdates.SecondLocator(interval=max(1, int(round(window_sec / 2.0)))))
-        strip.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M:%S"))
-        strip.set_xlabel(f"{center.strftime('%H:%M:%S')}\n{label}", fontsize=7)
+        strip.text(0.5, -0.12, center.strftime("%H:%M"), transform=strip.transAxes, ha="center", va="top", fontsize=7)
 
 
 def _slice_waveform(

@@ -1,3 +1,8 @@
 medical_sapir_whorf/scripts/__pycache__/
 canonical_curves_reexamination/scripts/__pycache__/
 landmine_transparent_map/scripts/__pycache__/
+anesthesia-record/build/
+anesthesia-record/dist/
+anesthesia-record/*.spec
+anesthesia-record/test-plan.md
+anesthesia-record/test-report.md
