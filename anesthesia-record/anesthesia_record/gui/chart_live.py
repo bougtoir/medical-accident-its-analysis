@@ -73,7 +73,11 @@ def render_live_chart(
 
     ordered_events = _sorted_events(session.med_events)
     clinical_sorted = sorted(session.events, key=lambda e: e.time)
-    drug_rows = _drug_rows(ordered_events, drug_master)
+    try:
+        drug_rows = _drug_rows(ordered_events, drug_master)
+    except KeyError:
+        # マスタ未登録の薬剤がある場合はスキップ
+        drug_rows = []
 
     # コスト算定
     cost_report: Optional[CostReport] = None
@@ -189,7 +193,7 @@ def _build_fee_events(session: AnesthesiaSession) -> tuple[list[AnesthesiaEvent]
     # 特殊体位イベント (position_start/end から構築)
     pos_events: list[PositionEvent] = []
     pos_starts: dict[str, datetime] = {}
-    for ev in session.events:
+    for ev in sorted(session.events, key=lambda e: e.time):
         if ev.type == "position_start" or ev.type == "position_change":
             pos_id = ev.label or "unknown"
             pos_starts[pos_id] = ev.time
