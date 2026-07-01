@@ -107,7 +107,7 @@ class TestGetDrugRows:
     def test_drug_ordering(self, drug_master):
         now = datetime(2024, 6, 1, 9, 0, 0)
         events = [
-            MedEvent(drug_id="lactated_ringer", start_time=now, delivery=Delivery.INFUSION,
+            MedEvent(drug_id="acetated_ringer_500", start_time=now, delivery=Delivery.INFUSION,
                      remaining_ml_start=500),
             MedEvent(drug_id="propofol_1pct", start_time=now, delivery=Delivery.BOLUS,
                      dose=120, dose_unit="mg"),
@@ -116,8 +116,7 @@ class TestGetDrugRows:
         ]
         rows = _get_drug_rows(events, drug_master)
         keys = list(rows.keys())
-        # iv_anesthetic (propofol) before opioid (remifentanil) before fluid (lactated_ringer)
+        # iv_anesthetic (propofol) before opioid (remifentanil) before fluid
         assert keys.index("propofol_1pct") < keys.index("remifentanil_2mg")
         # fluid は最後
-        if "lactated_ringer" in keys:
-            assert keys.index("lactated_ringer") == len(keys) - 1
+        assert keys.index("acetated_ringer_500") == len(keys) - 1
