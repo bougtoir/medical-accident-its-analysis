@@ -5,7 +5,7 @@ setlocal enabledelayedexpansion
 
 echo.
 echo ========================================================
-echo   anesthesia-record v0.1 Setup
+echo   anesthesia-record v0.2 Setup (Real-time GUI)
 echo ========================================================
 echo.
 
@@ -174,7 +174,7 @@ if /i "%BUILD%"=="y" (
     python -m pip install pyinstaller
     echo.
     echo ビルド中... （数分かかります）
-    pyinstaller --onefile --add-data "data;data" --name anesthesia_record main.py
+    pyinstaller --onefile --add-data "data;data" --name anesthesia_record run_gui.py
     if %errorlevel% neq 0 (
         echo [エラー] ビルドに失敗しました。
         pause
@@ -193,7 +193,8 @@ echo   選択ソース: %SOURCE_LABEL%
 echo   設定ファイル: config.yaml
 echo.
 echo   使い方:
-echo     python main.py case.yaml    症例からチャート生成
+echo     python run_gui.py           リアルタイムGUIを起動
+echo     python main.py case.yaml    バッチモードでチャート生成
 echo     python main.py --demo       デモチャート生成
 echo     python -m pytest -q         テスト実行
 if /i "%BUILD%"=="y" (
