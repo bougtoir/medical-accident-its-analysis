@@ -98,11 +98,20 @@ def _table(doc: Document, headers: list[str], rows: list[list[str]],
     for row_data in rows:
         row = tbl.add_row()
         for i, val in enumerate(row_data):
-            row.cells[i].text = val
-            for par in row.cells[i].paragraphs:
-                for r in par.runs:
-                    r.font.size = Pt(10)
-                    r.font.name = "Times New Roman"
+            cell = row.cells[i]
+            cell.text = ""
+            p = cell.paragraphs[0]
+            parts = re.split(r'(\{[^}]+\})', val)
+            for part in parts:
+                if part.startswith('{') and part.endswith('}'):
+                    run = p.add_run(part[1:-1])
+                    run.font.superscript = True
+                    run.font.size = Pt(8)
+                    run.font.name = "Times New Roman"
+                else:
+                    run = p.add_run(part)
+                    run.font.size = Pt(10)
+                    run.font.name = "Times New Roman"
 
 
 def _code(doc: Document, code: str) -> None:
