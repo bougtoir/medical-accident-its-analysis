@@ -349,7 +349,7 @@ def render_chart_erga(
             )
 
     fig = plt.figure(figsize=(11.69, 8.27))
-    right_margin = max(0.68, 0.96 - 0.08 * sum(1 for spec in axis_spec_list if spec.side == "right"))
+    right_margin = 0.94
     fig.subplots_adjust(left=0.05, right=right_margin, top=0.97, bottom=0.04)
     gs = fig.add_gridspec(len(bands), 1, height_ratios=[b.height for b in bands])
 
@@ -596,7 +596,8 @@ def _render_vitals(
         spec = axis_spec_map[key]
         twin = ax.twinx()
         twins.append(twin)
-        twin.spines["right"].set_position(("outward", 48 * offset))
+        twin.spines["right"].set_position(("axes", 1.0))
+        twin.tick_params(axis="y", direction="in", pad=-22, labelsize=7)
         _apply_axis_style(twin, spec, main=False)
         _plot_axis_group(twin, key, series_groups[key], style_map, display_intervals, display_modes)
 
@@ -1123,8 +1124,8 @@ def _render_lane_cumulative(ax, lane: DrugLane, drug, patient: Optional[Patient]
     else:
         label = f"{total_mg:.4g}"
     ax.text(
-        0.99, 0.5, label,
-        ha="right", va="center", fontsize=6, color="#555555",
+        0.99, 0.92, label,
+        ha="right", va="top", fontsize=6, color="#555555",
         transform=ax.transAxes, clip_on=False,
     )
 
