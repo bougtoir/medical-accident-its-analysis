@@ -6,6 +6,12 @@ import matplotlib
 import matplotlib.font_manager as fm
 
 _JP_FONT_CANDIDATES = [
+    # Windows
+    "Yu Gothic",
+    "Meiryo",
+    "MS Gothic",
+    "MS PGothic",
+    # Linux
     "Noto Sans CJK JP",
     "IPAGothic",
     "IPAPGothic",

@@ -174,14 +174,14 @@ if /i "%BUILD%"=="y" (
     python -m pip install pyinstaller
     echo.
     echo ビルド中... （数分かかります）
-    pyinstaller --onefile --add-data "data;data" --name anesthesia_demo demo.py
+    pyinstaller --onefile --add-data "data;data" --name anesthesia_record main.py
     if %errorlevel% neq 0 (
         echo [エラー] ビルドに失敗しました。
         pause
         exit /b 1
     )
     echo.
-    echo dist\anesthesia_demo.exe が生成されました。
+    echo dist\anesthesia_record.exe が生成されました。
 )
 
 echo.
@@ -193,10 +193,11 @@ echo   選択ソース: %SOURCE_LABEL%
 echo   設定ファイル: config.yaml
 echo.
 echo   使い方:
-echo     python demo.py              デモを実行
-echo     python -m pytest -q         テストを実行
+echo     python main.py case.yaml    症例からチャート生成
+echo     python main.py --demo       デモチャート生成
+echo     python -m pytest -q         テスト実行
 if /i "%BUILD%"=="y" (
-echo     dist\anesthesia_demo.exe    実行ファイルで実行
+echo     dist\anesthesia_record.exe  実行ファイルで実行
 )
 echo.
 echo   詳細は docs\manual.md を参照してください。
