@@ -1418,7 +1418,7 @@ def _render_ce(
         _apply_tick_interval(ax, tick_interval_min)
     end_main = main_window[1]
     ax.axvline(end_main, color="#666666", ls="--", lw=0.8)
-    ax.text(end_main, 0.97, "実測/予測", transform=ax.get_xaxis_transform(), ha="center", va="top", fontsize=7, color="#444444")
+    ax.text(end_main, 0.97, "予測", transform=ax.get_xaxis_transform(), ha="center", va="top", fontsize=7, color="#444444")
     for drug_id, res in ce_results.items():
         xs = [ce_t0 + timedelta(minutes=m) for m in res.times_min]
         label = f"{master.get(drug_id).generic_name} Ce ({res.conc_unit})"
