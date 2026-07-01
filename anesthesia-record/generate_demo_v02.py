@@ -95,7 +95,7 @@ def main():
         MedEvent(drug_id="propofol_1pct", start_time=t0 + timedelta(minutes=35),
                  delivery=Delivery.BOLUS, dose=30.0, dose_unit="mg"),
         # 輸液
-        MedEvent(drug_id="lactated_ringer", start_time=t0,
+        MedEvent(drug_id="acetated_ringer_500", start_time=t0,
                  delivery=Delivery.INFUSION,
                  remaining_ml_start=500, remaining_ml_end=120,
                  end_time=t0 + timedelta(minutes=130)),
@@ -115,7 +115,7 @@ def main():
     session.vitals = _generate_demo_vitals(t0, duration_min=135)
 
     # 描画
-    fig = Figure(figsize=(14, 8), dpi=150)
+    fig = Figure(figsize=(11.69, 8.27), dpi=150)
     render_live_chart(fig, session, drug_master, fee_config)
 
     out_path = base_dir / "demo_chart_v02.png"
