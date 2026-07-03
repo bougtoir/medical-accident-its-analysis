@@ -162,9 +162,9 @@ def build_main_document():
         'Medical safety incidents may deter physicians from high-risk '
         'specialties, yet the temporal dynamics of this relationship remain '
         'poorly quantified. In Japan, physician workforce maldistribution '
-        'has intensified amid the 2024 work-style reform and the growing '
-        '"chokubi" phenomenon\u2014young physicians bypassing specialist '
-        'training to enter non-insured aesthetic medicine.')
+        'has intensified amid the 2024 work-style reform, yet the '
+        'temporal relationship between safety incidents and specialty-specific '
+        'workforce supply has not been formally tested.')
 
     add_abstract_field('Methods:',
         'We constructed bivariate vector autoregression (VAR) models for '
@@ -186,14 +186,13 @@ def build_main_document():
     add_abstract_field('Conclusions:',
         'Medical safety incidents Granger-cause reductions in physician '
         'supply across most specialties, with effects lasting 3\u20135 years. '
-        'Combined with work-style reform constraints and the pull of '
-        'non-insured sectors, these findings highlight an accelerating '
-        'workforce crisis requiring integrated policy responses.')
+        'Combined with work-style reform constraints, these findings '
+        'highlight an accelerating workforce crisis requiring integrated '
+        'policy responses.')
 
     add_para(
         'Key words: physician workforce, Granger causality, medical safety '
-        'incidents, specialty maldistribution, work-style reform, aesthetic '
-        'medicine, Japan',
+        'incidents, specialty maldistribution, work-style reform, Japan',
         italic=True, space_after=Pt(18),
     )
 
@@ -214,25 +213,13 @@ def build_main_document():
     )
 
     add_para(
-        'Two recent developments have amplified public concern over specialty '
-        'maldistribution. First, the "chokubi" (\u76f4\u7f8e) phenomenon\u2014'
-        'in which newly licensed physicians bypass specialist training to '
-        'enter non-insured aesthetic medicine immediately after their '
-        'mandatory 2-year residency\u2014has drawn considerable media and '
-        'policy attention.{5,6} An estimated 200\u2013300 physicians (2\u20133% of '
-        'annual new registrants) now take this path, attracted by salaries '
-        'exceeding 20 million JPY and regular working hours without '
-        'night shifts.{5} Second, the April 2024 implementation of '
-        'physician work-style reform (time-based overtime caps of 960 '
-        'hours annually) has restricted moonlighting opportunities '
-        '("gaikin") that previously supplemented income in '
-        'lower-paying hospital posts, paradoxically increasing workload '
-        'for mid-career physicians through uncompensated labour classified '
-        'as "deemed self-study" (minashi jiko-kenshu).{7,8} These '
-        'structural incentives, combined with occupational medicine '
-        '(sangyoui) offering stable corporate employment without clinical '
-        'risk, create powerful pull factors away from high-acuity '
-        'hospital-based specialties.{9}'
+        'In parallel, the April 2024 implementation of physician work-style '
+        'reform (time-based overtime caps of 960 hours annually) has '
+        'restricted "gaikin" (moonlighting opportunities) that previously '
+        'supplemented income in lower-paying hospital posts.{5,6} These '
+        'regulatory changes may interact with safety-incident-driven '
+        'workforce dynamics, yet existing evidence is limited to '
+        'single-event, single-specialty case studies.'
     )
 
     add_para(
@@ -240,9 +227,9 @@ def build_main_document():
         'physicians away from high-risk specialties has been discussed '
         'since the landmark 2004 Fukushima obstetrics prosecution, in '
         'which an obstetrician was arrested following a maternal death '
-        'during caesarean section.{10,11} Morita estimated a 13% decrease '
+        'during caesarean section.{7,8} Morita estimated a 13% decrease '
         'in obstetricians in the affected prefecture using '
-        'difference-in-differences analysis.{12} However, this analysis '
+        'difference-in-differences analysis.{9} However, this analysis '
         'was limited to a single event, specialty, and geographic area. '
         'Broader evidence linking incident trends to workforce dynamics '
         'across multiple specialties remains scarce.'
@@ -251,20 +238,20 @@ def build_main_document():
     add_para(
         'Japan possesses two complementary national data sources on medical '
         'safety incidents: the Japan Medical Safety Research Organisation '
-        '(JMSR) mandatory reporting system established in 2015,{13} and '
+        '(JMSR) mandatory reporting system established in 2015,{10} and '
         'the Supreme Court annual statistics on medical malpractice '
-        'litigation by specialty.{14,15} Combined with biennial national '
+        'litigation by specialty.{11,12} Combined with biennial national '
         'physician surveys and annual facility registrations, these data '
         'enable a systematic, multi-specialty analysis.'
     )
 
     add_para(
         'Previous analyses, including our own, relied on interrupted time '
-        'series (ITS) methodology,{16} which assumes a discrete exogenous '
+        'series (ITS) methodology,{13} which assumes a discrete exogenous '
         'intervention point poorly suited to continuously varying incident '
         'counts. We therefore applied vector autoregression (VAR) models '
         'and Granger causality tests\u2014methods widely used in econometrics '
-        'and increasingly in health policy research{17\u201319}\u2014to formally '
+        'and increasingly in health policy research{14\u201316}\u2014to formally '
         'test whether medical safety incidents temporally precede and '
         'predict changes in specialty-specific physician and facility '
         'counts.'
@@ -282,7 +269,7 @@ def build_main_document():
         'administrative data from Japan using bivariate VAR models and '
         'Granger causality tests. This study is reported in accordance '
         'with the RECORD (REporting of studies Conducted using '
-        'Observational Routinely-collected health Data) statement.{20}'
+        'Observational Routinely-collected health Data) statement.{17}'
     )
 
     add_heading_styled('Data sources', level=2)
@@ -290,19 +277,19 @@ def build_main_document():
         'Medical safety incident data were obtained from two sources. '
         'Definition 1 (JMSR): annual specialty-specific incident reports '
         'to the Japan Medical Safety Research Organisation for fiscal years '
-        '2015\u20132025 (11 annual observations).{13} Definition 2 (litigation): '
+        '2015\u20132025 (11 annual observations).{10} Definition 2 (litigation): '
         'annual specialty-specific medical malpractice closed-claim counts '
         'from the Supreme Court of Japan for 2004\u20132023 (20 annual '
-        'observations).{14}'
+        'observations).{11}'
     )
     add_para(
         'Specialty-specific physician counts were obtained from the '
         'Survey of Physicians, Dentists, and Pharmacists (biennial, '
-        '2002\u20132024; annual values by linear interpolation).{21} '
+        '2002\u20132024; annual values by linear interpolation).{18} '
         'Facility counts were obtained from the Survey of Medical '
-        'Institutions (2005\u20132024).{22} Specialist trainee enrolment '
+        'Institutions (2005\u20132024).{19} Specialist trainee enrolment '
         'data were obtained from the Japan Board of Medical Specialties '
-        '(2018\u20132025).{23}'
+        '(2018\u20132025).{20}'
     )
 
     add_heading_styled('Specialties analysed', level=2)
@@ -325,7 +312,7 @@ def build_main_document():
 
     add_para(
         'Granger causality was tested in both directions using F-tests on '
-        'lagged coefficients.{24} The null hypothesis for the forward test '
+        'lagged coefficients.{21} The null hypothesis for the forward test '
         'is that lagged incident counts do not improve prediction of the '
         'workforce outcome. Significance was set at P < 0.05.'
     )
@@ -333,7 +320,7 @@ def build_main_document():
     add_para(
         'Impulse response functions (IRFs) were computed over a 10-year '
         'horizon to estimate the magnitude and duration of workforce '
-        'effects following a one-unit incident shock.{25} VAR-based '
+        'effects following a one-unit incident shock.{22} VAR-based '
         'forecasts with 95% intervals were generated for 2024\u20132033 using '
         'litigation-based models.'
     )
@@ -341,7 +328,7 @@ def build_main_document():
     add_para(
         'For specialist trainees (8 years), detrended Pearson correlations '
         'between JMSR incidents and enrolment were computed. All analyses '
-        'used Python 3.10 with statsmodels 0.14.{26} Code and data are '
+        'used Python 3.10 with statsmodels 0.14.{23} Code and data are '
         'available at https://github.com/bougtoir/medical-accident-its-analysis.'
     )
 
@@ -532,7 +519,7 @@ def build_main_document():
 
     add_para(
         'The VAR/Granger framework addresses key limitations of prior ITS '
-        'analyses:{16} it does not require an exogenous intervention '
+        'analyses:{13} it does not require an exogenous intervention '
         'point, provides formal predictive-causality tests, controls for '
         'shared trends through stationarity testing, and generates '
         'multivariate forecasts grounded in estimated dynamics.'
@@ -544,65 +531,40 @@ def build_main_document():
         'combinations suggests a reinforcing cycle. Forward causality '
         '(incidents \u2192 workforce decline) reflects "incident avoidance": '
         'high-profile safety events deter specialty entry and accelerate '
-        'exit.{1,12} Reverse causality (workforce decline \u2192 incidents) '
+        'exit.{1,9} Reverse causality (workforce decline \u2192 incidents) '
         'reflects an "overwork" pathway: fewer physicians per caseload '
         'increases fatigue, reduces supervision, and raises incident '
-        'risk.{27} The coexistence of both pathways in obstetrics, '
+        'risk.{24} The coexistence of both pathways in obstetrics, '
         'paediatrics, and general surgery defines the specialties most '
         'vulnerable to self-perpetuating decline.'
     )
 
-    add_heading_styled('Context: work-style reform and the "chokubi" '
-                       'phenomenon', level=2)
+    add_heading_styled('Context: work-style reform', level=2)
     add_para(
         'Our findings must be interpreted against the backdrop of '
         'Japan\u2019s evolving physician labour market. The April 2024 '
         'work-style reform caps annual overtime at 960 hours (A-level) '
-        'with transitional exceptions (B/C-level at 1,860 hours).{7} '
+        'with transitional exceptions (B/C-level at 1,860 hours).{5} '
         'While intended to improve physician well-being, the reform has '
         'produced several unintended consequences. Restrictions on '
-        'moonlighting ("gaikin")\u2014historically an important income '
-        'supplement for hospital-based physicians\u2014have reduced the '
-        'financial attractiveness of demanding specialties. Moreover, '
-        'the phenomenon of "deemed self-study" (minashi jiko-kenshu), '
-        'whereby hours exceeding the cap are reclassified as voluntary '
-        'training rather than labour, has paradoxically increased '
-        'uncompensated workload for mid-career physicians while failing '
-        'to improve working conditions for trainees.{8}'
-    )
-
-    add_para(
-        'Simultaneously, the "chokubi" phenomenon represents a growing '
-        'pull factor. Approximately 200\u2013300 newly registered physicians '
-        'annually now enter non-insured aesthetic medicine directly after '
-        'residency, bypassing specialist certification entirely.{5,6} '
-        'The number of physicians primarily employed in aesthetic surgery '
-        'clinics tripled between 2008 and 2022, with half aged under '
-        '40.{5} Entry-level salaries in aesthetic clinics (>20 million '
-        'JPY) far exceed those in hospital training posts (4.35 million '
-        'JPY for residents), and these positions offer predictable hours '
-        'without night calls or emergency duties.'
-    )
-
-    add_para(
-        'A parallel trend is the early career shift to occupational '
-        'medicine (sangyoui), where corporate employment offers stable '
-        'income, minimal litigation risk, and regular hours.{9,28} '
-        'Although occupational physicians serve an essential public health '
-        'function, the low retention rate (55\u201365% turnover within 2 '
-        'years){28} suggests that for many, it functions as a temporary '
-        'refuge from clinical demands rather than a committed career path.'
+        '"gaikin" (moonlighting opportunities)\u2014historically an '
+        'important income supplement for hospital-based physicians\u2014have '
+        'reduced the financial attractiveness of demanding specialties. '
+        'Moreover, deemed self-study, whereby hours exceeding the cap '
+        'are reclassified as voluntary training rather than labour, has '
+        'paradoxically increased uncompensated workload for mid-career '
+        'physicians while failing to improve working conditions for '
+        'trainees.{6}'
     )
 
     add_para(
         'Our Granger causality results illuminate the push side of this '
         'equation: safety incidents actively drive physicians away from '
         'high-risk specialties over a 3\u20135 year horizon. When combined '
-        'with the structural pull of non-insured sectors and the reduced '
-        'financial incentives imposed by work-style reform, the result is '
-        'an accelerating workforce crisis in precisely those specialties '
-        'that society most needs\u2014surgery, obstetrics, emergency medicine, '
-        'and paediatrics.'
+        'with the reduced financial incentives imposed by work-style '
+        'reform, the result is an accelerating workforce crisis in '
+        'precisely those specialties that society most needs\u2014surgery, '
+        'obstetrics, emergency medicine, and paediatrics.'
     )
 
     add_heading_styled('Policy implications', level=2)
@@ -610,19 +572,14 @@ def build_main_document():
         'Breaking the vicious cycle requires interventions targeting both '
         'pathways. On the push side, improved post-incident support, '
         'no-fault compensation systems, and balanced media reporting could '
-        'reduce the deterrent effect of safety events.{10,29} On the pull '
+        'reduce the deterrent effect of safety events.{7,25} On the pull '
         'side, the Ministry of Health, Labour and Welfare\u2019s 2024 draft '
         'measures to restrict new clinic openings in physician-surplus '
         'areas may function to attenuate the outflow from essential '
-        'specialties into non-insured practice. However, such regulatory '
-        'approaches face constitutional challenges regarding freedom of '
-        'practice and may prove insufficient without simultaneously '
-        'addressing the structural remuneration gap between insured and '
-        'non-insured medicine\u2014entry-level aesthetic clinic salaries '
-        'exceed hospital trainee salaries by nearly five-fold.{5} '
-        'The IRF results, showing 3\u20135 year effect duration, define a '
-        'critical intervention window during which combined regulatory '
-        'and incentive-based policies could be most effective.'
+        'specialties. The IRF results, showing 3\u20135 year effect '
+        'duration, define a critical intervention window during which '
+        'combined regulatory and incentive-based policies could be most '
+        'effective.'
     )
 
     add_para(
@@ -638,13 +595,28 @@ def build_main_document():
         'Strengths include population-level data from mandatory national '
         'registries across 12 specialties over up to 20 years, and the '
         'application of VAR/Granger methodology suited to continuously '
-        'varying exposures. Limitations include the ecological study '
-        'design precluding individual-level causal inference; biennial '
-        'physician data requiring interpolation; limited power in the '
-        'JMSR series (11 years); and unmeasured confounders including '
-        'demographic shifts, the 2004 postgraduate training reform, and '
-        'the direct effects of work-style reform itself (which overlaps '
-        'temporally with the most recent data points).'
+        'varying exposures.'
+    )
+
+    add_para(
+        'Limitations include the ecological study design precluding '
+        'individual-level causal inference; biennial physician data '
+        'requiring interpolation; limited power in the JMSR series (11 '
+        'years); and unmeasured confounders including demographic shifts, '
+        'the 2004 postgraduate training reform, and the direct effects '
+        'of work-style reform itself (which overlaps temporally with the '
+        'most recent data points). Importantly, our 12-specialty '
+        'framework does not capture career paths that fall outside '
+        'conventional specialty registration, notably aesthetic '
+        'medicine{26,27} and occupational medicine.{28,29} The growing '
+        'migration of early-career physicians into these '
+        'non-traditionally-classified sectors may confound our '
+        'estimates; to the extent that pull-driven exits correlate '
+        'temporally with incident trends, our models may overestimate '
+        'the incident-attributable component of workforce decline. '
+        'Low retention among occupational '
+        'physicians (55\u201365% turnover within 2 years){29} further '
+        'complicates workforce planning assumptions.'
     )
 
     # ============================================================
@@ -657,8 +629,8 @@ def build_main_document():
         'effects persisting for 3\u20135 years. Bidirectional causality in '
         'obstetrics, paediatrics, and general surgery suggests a '
         'self-reinforcing shortage\u2013incident cycle. In the context of '
-        'work-style reform and the growing migration of young physicians '
-        'to non-insured sectors, these temporal dynamics pose an urgent '
+        'work-style reform and career paths outside conventional '
+        'specialty frameworks, these temporal dynamics pose an urgent '
         'threat to essential medical services. Integrated policy responses '
         'addressing both the push of safety incidents and the pull of '
         'alternative career paths are needed.'
@@ -704,106 +676,106 @@ def build_main_document():
 
     references = [
         # 1
-        'Ikegami N, Yoo BK, Hashimoto H, et al. Japanese universal health '
+                'Ikegami N, Yoo BK, Hashimoto H, et al. Japanese universal health '
         'coverage: evolution, achievements, and challenges. Lancet. '
         '2011;378(9796):1106-15.',
         # 2
-        'Toyabe S. Trend in geographic distribution of physicians in Japan. '
+                'Toyabe S. Trend in geographic distribution of physicians in Japan. '
         'Int J Equity Health. 2009;8:5.',
         # 3
-        'Ministry of Health, Labour and Welfare. Survey of physicians, '
+                'Ministry of Health, Labour and Welfare. Survey of physicians, '
         'dentists, and pharmacists 2022. Tokyo: MHLW; 2023. Japanese.',
         # 4
-        'Tanaka K, Katsumata Y, Matsuda S. Supply, demand and distribution '
+                'Tanaka K, Katsumata Y, Matsuda S. Supply, demand and distribution '
         'of physicians in Japan. Keio J Med. 2024;doi:10.46308/kmj.2024.00087.',
         # 5
-        'Takei T. The \u2018Chokubi\u2019 phenomenon: young physicians\u2019 exodus from '
-        'state service to private medicine in Japan. QJM. '
-        '2024;117(12):843-5.',
-        # 6
-        'Ministry of Health, Labour and Welfare. Survey of medical '
-        'institutions 2023: aesthetic surgery clinics. Tokyo: MHLW; 2024. Japanese.',
-        # 7
-        'Ishikawa T, Ohba H, Yokooka Y, et al. Labor shortage of '
+                'Ishikawa T, Ohba H, Yokooka Y, et al. Labor shortage of '
         'physicians in rural areas and surgical specialties caused by Work '
         'Style Reform Policies of the Japanese government: a quantitative '
         'simulation analysis. J Rural Med. 2024;19(3):198-207.',
-        # 8
-        'Japan Medical Association. Survey on physician work-style reform '
+        # 6
+                'Japan Medical Association. Survey on physician work-style reform '
         'implementation status. Tokyo: JMA; 2024. Japanese.',
-        # 9
-        'Koike S, Isse T, Kawaguchi H, et al. Retention among full-time '
-        'occupational physicians in Japan. Occup Med (Lond). '
-        '2019;69(2):139-42.',
-        # 10
-        'Nagamatsu S, Kami M, Nakata Y. Healthcare safety committee in '
+        # 7
+                'Nagamatsu S, Kami M, Nakata Y. Healthcare safety committee in '
         'Japan: mandatory accountability reporting system and punishment. '
         'Curr Opin Anaesthesiol. 2009;22(2):199-206.',
-        # 11
-        'Hiyama T, Yoshihara M, Tanaka S, et al. Defensive medicine '
+        # 8
+                'Hiyama T, Yoshihara M, Tanaka S, et al. Defensive medicine '
         'practices among gastroenterologists in Japan. World J '
         'Gastroenterol. 2006;12(47):7671-5.',
-        # 12
-        'Morita H. Criminal prosecution and physician supply. Int Rev Law '
+        # 9
+                'Morita H. Criminal prosecution and physician supply. Int Rev Law '
         'Econ. 2018;55:1-11.',
-        # 13
-        'Japan Medical Safety Research Organisation. Annual report on '
+        # 10
+                'Japan Medical Safety Research Organisation. Annual report on '
         'medical accident investigation. Tokyo: JMSR; 2025. Available '
         'from: https://www.medsafe.or.jp/',
-        # 14
-        'Supreme Court of Japan. Annual report of judicial statistics: '
+        # 11
+                'Supreme Court of Japan. Annual report of judicial statistics: '
         'medical malpractice litigation. Tokyo: Supreme Court; 2024. Japanese.',
-        # 15
-        'Taniguchi K, Watari T, Nagoshi K. Characteristics and trends of '
+        # 12
+                'Taniguchi K, Watari T, Nagoshi K. Characteristics and trends of '
         'medical malpractice claims in Japan between 2006 and 2021. PLoS '
         'One. 2024;19(1):e0296155.',
-        # 16
-        'Onishi T. Impact of medical safety incidents on physician '
+        # 13
+                'Onishi T. Impact of medical safety incidents on physician '
         'workforce and healthcare facility supply across 12 specialties in '
         'Japan: an interrupted time series analysis. Preprint. 2025.',
-        # 17
-        'Granger CWJ. Investigating causal relations by econometric models '
+        # 14
+                'Granger CWJ. Investigating causal relations by econometric models '
         'and cross-spectral methods. Econometrica. 1969;37(3):424-38.',
-        # 18
-        'L\u00fctkepohl H. New Introduction to Multiple Time Series Analysis. '
+        # 15
+                'L\u00fctkepohl H. New Introduction to Multiple Time Series Analysis. '
         'Berlin: Springer; 2005.',
-        # 19
-        'Toda HY, Yamamoto T. Statistical inference in vector '
+        # 16
+                'Toda HY, Yamamoto T. Statistical inference in vector '
         'autoregressions with possibly integrated processes. J Econom. '
         '1995;66(1-2):225-50.',
-        # 20
-        'Benchimol EI, Smeeth L, Guttmann A, et al. The REporting of '
+        # 17
+                'Benchimol EI, Smeeth L, Guttmann A, et al. The REporting of '
         'studies Conducted using Observational Routinely-collected health '
         'Data (RECORD) statement. PLoS Med. 2015;12(10):e1001885.',
-        # 21
-        'Ministry of Health, Labour and Welfare. Survey of physicians, '
+        # 18
+                'Ministry of Health, Labour and Welfare. Survey of physicians, '
         'dentists, and pharmacists. Tokyo: MHLW; 2024. Japanese.',
-        # 22
-        'Ministry of Health, Labour and Welfare. Survey of medical '
+        # 19
+                'Ministry of Health, Labour and Welfare. Survey of medical '
         'institutions (dynamic survey). Tokyo: MHLW; 2024. Japanese.',
-        # 23
-        'Japan Board of Medical Specialties. Specialist trainee '
+        # 20
+                'Japan Board of Medical Specialties. Specialist trainee '
         'registration statistics. Tokyo: JBMS; 2025. Japanese.',
-        # 24
-        'Hamilton JD. Time Series Analysis. Princeton: Princeton '
+        # 21
+                'Hamilton JD. Time Series Analysis. Princeton: Princeton '
         'University Press; 1994.',
-        # 25
-        'Sims CA. Macroeconomics and reality. Econometrica. '
+        # 22
+                'Sims CA. Macroeconomics and reality. Econometrica. '
         '1980;48(1):1-48.',
-        # 26
-        'Seabold S, Perktold J. Statsmodels: econometric and statistical '
+        # 23
+                'Seabold S, Perktold J. Statsmodels: econometric and statistical '
         'modeling with Python. Proc 9th Python Sci Conf. 2010:92-6.',
-        # 27
-        'Studdert DM, Mello MM, Sage WM, et al. Defensive medicine among '
+        # 24
+                'Studdert DM, Mello MM, Sage WM, et al. Defensive medicine among '
         'high-risk specialist physicians in a volatile malpractice '
         'environment. JAMA. 2005;293(21):2609-17.',
+        # 25
+                'Currie J, MacLeod WB. First do no harm? Tort reform and birth '
+        'outcomes. Q J Econ. 2008;123(2):795-830.',
+        # 26
+                'Takei T. The \u2018Chokubi\u2019 phenomenon: young physicians\u2019 exodus from '
+        'state service to private medicine in Japan. QJM. '
+        '2024;117(12):843-5.',
+        # 27
+                'Ministry of Health, Labour and Welfare. Survey of medical '
+        'institutions 2023: aesthetic surgery clinics. Tokyo: MHLW; 2024. Japanese.',
         # 28
-        'Isse T, Nakamura H, Hachisuka K. Turnover of full-time '
+                'Koike S, Isse T, Kawaguchi H, et al. Retention among full-time '
+        'occupational physicians in Japan. Occup Med (Lond). '
+        '2019;69(2):139-42.',
+        # 29
+                'Isse T, Nakamura H, Hachisuka K. Turnover of full-time '
         'occupational physicians in Japan in the period 2002\u20132008. Sangyo '
         'Eiseigaku Zasshi. 2012;54(5):174-83. Japanese.',
-        # 29
-        'Currie J, MacLeod WB. First do no harm? Tort reform and birth '
-        'outcomes. Q J Econ. 2008;123(2):795-830.',
     ]
 
     for i, ref in enumerate(references, 1):
