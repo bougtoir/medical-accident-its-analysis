@@ -1,174 +1,117 @@
 #!/usr/bin/env python3
-"""Build BMJ cover letter as editable .docx."""
+"""Generate cover letter for JMA Journal submission."""
 
 import os
 from docx import Document
 from docx.shared import Pt, Cm
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 
-OUTPUT_PATH = os.path.join(os.path.dirname(__file__), "bmj_cover_letter.docx")
-
-doc = Document()
-
-# --- Page setup: A4, 2.54 cm margins ---
-for section in doc.sections:
-    section.top_margin = Cm(2.54)
-    section.bottom_margin = Cm(2.54)
-    section.left_margin = Cm(2.54)
-    section.right_margin = Cm(2.54)
-
-style = doc.styles['Normal']
-font = style.font
-font.name = 'Times New Roman'
-font.size = Pt(12)
-style.paragraph_format.line_spacing = 1.15
-style.paragraph_format.space_after = Pt(6)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
-def add_para(text, bold=False, italic=False, space_after=Pt(6), alignment=None):
+def build_cover_letter():
+    doc = Document()
+
+    for section in doc.sections:
+        section.top_margin = Cm(2.54)
+        section.bottom_margin = Cm(2.54)
+        section.left_margin = Cm(2.54)
+        section.right_margin = Cm(2.54)
+
+    style = doc.styles['Normal']
+    style.font.name = 'Times New Roman'
+    style.font.size = Pt(12)
+    style.paragraph_format.space_after = Pt(6)
+    style.paragraph_format.line_spacing = 1.5
+
+    # Date
     p = doc.add_paragraph()
-    if alignment:
-        p.alignment = alignment
-    run = p.add_run(text)
+    p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    run = p.add_run('[Date]')
     run.font.name = 'Times New Roman'
-    run.font.size = Pt(12)
-    run.bold = bold
-    run.italic = italic
-    p.paragraph_format.space_after = space_after
-    return p
+
+    doc.add_paragraph()
+
+    # Addressee
+    p = doc.add_paragraph()
+    run = p.add_run('Editor-in-Chief\nJMA Journal\nJapan Medical Association')
+    run.font.name = 'Times New Roman'
+
+    doc.add_paragraph()
+
+    # Salutation
+    p = doc.add_paragraph()
+    run = p.add_run('Dear Editor,')
+    run.font.name = 'Times New Roman'
+
+    doc.add_paragraph()
+
+    # Body paragraphs
+    body_text = [
+        (
+            'We submit the enclosed manuscript entitled '
+            '\u201cMedical safety incidents Granger-cause physician workforce decline '
+            'across 12 specialties in Japan: a vector autoregression analysis\u201d '
+            'for consideration as an Original Research Article in JMA Journal.'
+        ),
+        (
+            'This study applies vector autoregression and Granger causality '
+            'testing to two national incident series\u2014mandatory safety reports '
+            '(2015\u20132025) and malpractice litigation statistics (2004\u20132023)\u2014'
+            'paired with physician and facility counts across 12 specialties. '
+            'We demonstrate that incident burden carries significant predictive '
+            'information for subsequent workforce change in 9 of 12 specialties, '
+            'with bidirectional causality in obstetrics, paediatrics, and general '
+            'surgery pointing to a self-reinforcing shortage\u2013incident cycle.'
+        ),
+        (
+            'These findings are timely given the April 2024 implementation of '
+            'physician work-style reform and ongoing policy debates regarding '
+            'specialty maldistribution. To our knowledge, this is the first '
+            'multi-specialty application of Granger causality testing to the '
+            'relationship between safety incidents and physician workforce dynamics.'
+        ),
+        (
+            'The manuscript has not been published previously and is not under '
+            'consideration elsewhere. All data used are publicly available '
+            'aggregate statistics from national registries. The author declares '
+            'no conflict of interest.'
+        ),
+        (
+            'We believe this work will be of interest to the readership of '
+            'JMA Journal given its direct relevance to Japanese health policy '
+            'and physician workforce planning.'
+        ),
+    ]
+
+    for text in body_text:
+        p = doc.add_paragraph()
+        run = p.add_run(text)
+        run.font.name = 'Times New Roman'
+
+    doc.add_paragraph()
+
+    # Closing
+    p = doc.add_paragraph()
+    run = p.add_run('Sincerely,')
+    run.font.name = 'Times New Roman'
+
+    doc.add_paragraph()
+    doc.add_paragraph()
+
+    p = doc.add_paragraph()
+    run = p.add_run('Tatsuki Onishi, MD')
+    run.font.name = 'Times New Roman'
+    run.bold = True
+
+    p = doc.add_paragraph()
+    run = p.add_run('Corresponding Author')
+    run.font.name = 'Times New Roman'
+
+    out_path = os.path.join(BASE_DIR, 'cover_letter.docx')
+    doc.save(out_path)
+    print(f'Cover letter saved to {out_path}')
 
 
-# ============================================================
-# DATE AND ADDRESSEE
-# ============================================================
-add_para("[Date]")
-add_para("")
-add_para("The Editor")
-add_para("The BMJ")
-add_para("BMA House, Tavistock Square")
-add_para("London WC1H 9JR")
-add_para("United Kingdom")
-add_para("")
-
-# ============================================================
-# SUBJECT LINE
-# ============================================================
-add_para(
-    "Re: Submission of original research article — "
-    "\"Impact of medical safety incidents on physician workforce and healthcare facility "
-    "supply across 12 specialties in Japan: an interrupted time series analysis\"",
-    bold=True
-)
-add_para("")
-
-# ============================================================
-# SALUTATION
-# ============================================================
-add_para("Dear Editor,")
-add_para("")
-
-# ============================================================
-# BODY
-# ============================================================
-
-# Paragraph 1: What we are submitting and why it matters
-add_para(
-    "We would like to submit the above manuscript for consideration as an original "
-    "research article in The BMJ. This study examines whether medical safety incidents "
-    "have measurable downstream effects on the physician workforce — a question of direct "
-    "relevance to health systems worldwide that are grappling with workforce shortages "
-    "in high-risk specialties."
-)
-
-# Paragraph 2: What we did
-add_para(
-    "Using national administrative data from Japan spanning up to 20 years, we conducted "
-    "an interrupted time series analysis across 12 medical specialties, employing three "
-    "complementary definitions of medical safety incidents: mandatory reporting to the "
-    "Japan Medical Safety Research Organisation (JMSR), Supreme Court medical malpractice "
-    "litigation statistics, and a composite index. We analysed the impact on three "
-    "workforce outcomes: specialty-specific physician counts, healthcare facility numbers, "
-    "and specialist trainee enrolment. Cross-correlation analysis was used to estimate "
-    "lead times, and AIC-based model selection to estimate the duration of the effect "
-    "(window period)."
-)
-
-# Paragraph 3: Key findings
-add_para(
-    "Our principal findings are as follows. First, medical safety incidents are followed "
-    "by reductions in specialty-specific physician supply, with an estimated lead time of "
-    "1–3 years and an effect duration of 4–5 years. Obstetrics and gynaecology showed "
-    "the strongest and most consistent association (r = −0.95, lag +3 years). Second, "
-    "the phenomenon extends well beyond obstetrics: otolaryngology (r = −0.97), "
-    "dermatology (r = −0.99), and urology (r = −0.94) — specialties not traditionally "
-    "considered 'high-risk' — also showed strong delayed inverse associations. Third, "
-    "negative lag values observed for anaesthesiology (−4 years) and otolaryngology "
-    "trainees (−3 years) suggest that the relationship may be bidirectional: workforce "
-    "shortages may themselves precede and contribute to increased incident reporting, "
-    "raising the possibility of a vicious cycle."
-)
-
-# Paragraph 4: Why BMJ — novelty and significance
-add_para(
-    "We believe this work is well suited to The BMJ for several reasons. The study "
-    "addresses a gap at the intersection of patient safety and workforce policy — two "
-    "topics of central importance to BMJ's readership. While previous work has documented "
-    "the Fukushima obstetrics prosecution as a natural experiment affecting a single "
-    "specialty, no study has systematically quantified the temporal parameters of the "
-    "incident–workforce association across multiple specialties and definitions. The "
-    "explicit estimation of lead time and window period parameters is methodologically "
-    "novel and provides directly actionable inputs for workforce forecasting models. "
-    "Furthermore, the finding that the relationship may be bidirectional — with workforce "
-    "shortages potentially driving incidents as well as incidents driving workforce "
-    "decline — has important implications for how health systems design both patient "
-    "safety and workforce retention strategies."
-)
-
-# Paragraph 5: Reporting guidelines and data
-add_para(
-    "The study follows the REporting of studies Conducted using Observational "
-    "Routinely-collected health Data (RECORD) guidelines and the Cochrane EPOC criteria "
-    "for interrupted time series studies. All data sources are publicly available national "
-    "administrative databases. Analysis code and data will be deposited in a public "
-    "repository upon acceptance."
-)
-
-# Paragraph 6: Declarations
-add_para(
-    "This manuscript has not been published previously, is not under consideration by "
-    "any other journal, and will not be submitted elsewhere while under review at The BMJ. "
-    "All authors have read and approved the final manuscript. There are no conflicts of "
-    "interest to declare. [Ethical approval was not required as the study used only "
-    "publicly available, aggregated, de-identified administrative data with no individual "
-    "patient information.]"
-)
-
-# Paragraph 7: Word count
-add_para(
-    "The manuscript contains approximately 3,800 words (excluding abstract, references, "
-    "tables, and figures), a structured abstract of approximately 350 words, 8 figures, "
-    "and 4 tables.",
-    italic=True
-)
-
-add_para("")
-
-# ============================================================
-# CLOSING
-# ============================================================
-add_para("We thank you for considering this manuscript and look forward to your response.")
-add_para("")
-add_para("Yours sincerely,")
-add_para("")
-add_para("[Corresponding author name]")
-add_para("[Affiliation]")
-add_para("[Email address]")
-add_para("[ORCID]")
-add_para("")
-add_para("On behalf of all authors")
-
-# ============================================================
-# SAVE
-# ============================================================
-doc.save(OUTPUT_PATH)
-print(f"Saved to {OUTPUT_PATH}")
+if __name__ == '__main__':
+    build_cover_letter()
