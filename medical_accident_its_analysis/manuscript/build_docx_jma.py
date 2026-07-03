@@ -259,9 +259,9 @@ def build_main_document():
     add_para(
         'This is a secondary analysis of routinely collected national '
         'administrative data using bivariate VAR models and Granger '
-        'causality tests, reported in accordance with the RECORD '
-        '(REporting of studies Conducted using Observational '
-        'Routinely-collected health Data) statement.{16}'
+        'causality tests, reported in accordance with the STROBE '
+        '(Strengthening the Reporting of Observational Studies in '
+        'Epidemiology) statement for cross-sectional studies.{16}'
     )
 
     add_heading_styled('Data sources', level=2)
@@ -708,9 +708,10 @@ def build_main_document():
         'autoregressions with possibly integrated processes. J Econom. '
         '1995;66(1-2):225-50.',
         # 16
-                'Benchimol EI, Smeeth L, Guttmann A, et al. The REporting of '
-        'studies Conducted using Observational Routinely-collected health '
-        'Data (RECORD) statement. PLoS Med. 2015;12(10):e1001885.',
+                'von Elm E, Altman DG, Egger M, et al. The Strengthening the '
+        'Reporting of Observational Studies in Epidemiology (STROBE) '
+        'statement: guidelines for reporting observational studies. '
+        'Lancet. 2007;370(9596):1453-7.',
         # 17
                 'Ministry of Health, Labour and Welfare. Survey of physicians, '
         'dentists, and pharmacists. Tokyo: MHLW; 2024. Japanese.',
