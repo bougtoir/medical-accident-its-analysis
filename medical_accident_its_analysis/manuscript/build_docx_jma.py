@@ -510,10 +510,23 @@ def build_main_document():
         'models (general surgery and psychiatry). A sensitivity analysis '
         'restricting litigation data to the overlapping 2015\u20132023 '
         'window (9 years) reduced significant models from 18 to 4, '
-        'indicating that the apparent superiority of litigation-based '
-        'results largely reflects greater statistical power afforded '
-        'by the longer series rather than a qualitative difference '
-        'between data sources.'
+        'indicating that the gap in significance counts largely '
+        'reflects statistical power afforded by the longer series.'
+    )
+
+    add_para(
+        'Notably, JMSR incident counts and litigation counts were '
+        'weakly correlated across the overlapping period (median '
+        '|r|\u2009=\u20090.23; no specialty reached P < 0.05). This '
+        'independence implies that litigation captures a distinct '
+        'dimension of professional risk\u2014reputational exposure, '
+        'financial liability, and prolonged procedural stress\u2014'
+        'that is not reducible to incident frequency. A trivariate '
+        'VAR incorporating both sources simultaneously did not improve '
+        'model fit over bivariate models (mean \u0394AIC = +0.6), '
+        'and an interaction term (occurrence \u00d7 litigation) reached '
+        'significance in only 1 of 22 models, consistent with '
+        'additive rather than synergistic effects.'
     )
 
     add_heading_styled('Bidirectional causality', level=2)
@@ -547,32 +560,36 @@ def build_main_document():
 
     add_heading_styled('Policy implications', level=2)
     add_para(
-        'Because both incident definitions\u2014occurrence-based and '
-        'litigation-based\u2014predict workforce decline when series '
-        'length is adequate, interventions should target the common '
-        'upstream determinant: the safety event itself and its '
-        'professional consequences. Several complementary levers '
-        'emerge from our results.'
+        'The independence of occurrence and litigation counts has a '
+        'direct policy corollary: because safety events occur with '
+        'a certain irreducible probability, the litigation pathway '
+        'constitutes a modifiable mediator. If malpractice disputes '
+        'are resolved before reaching court\u2014through early '
+        'mediation, alternative dispute resolution, or no-fault '
+        'compensation\u2014the workforce signal associated with '
+        'litigation may be attenuated without requiring a reduction '
+        'in incident rates themselves.{7,24}'
     )
 
     add_para(
-        'First, economic incentives for high-risk specialties '
-        '(enhanced remuneration, training stipends, rural service '
-        'allowances) address the most proximate driver of specialty '
-        'avoidance.{24} Second, fostering a non-punitive safety '
-        'culture\u2014structured post-incident psychological support, '
-        'transparent root-cause analysis, and proportionate media '
-        'reporting\u2014may attenuate the deterrent signal of adverse '
-        'events.{7} Third, the reverse-causality pathway (fewer '
-        'physicians \u2192 more incidents) implies that minimum staffing '
-        'thresholds in specialties exhibiting bidirectional causality '
-        '(obstetrics, paediatrics, general surgery) could interrupt '
-        'the reinforcing cycle before it becomes self-sustaining. '
-        'Fourth, effective implementation of work-style reform\u2014'
-        'including correction of deemed self-study practices and '
-        'equitable redistribution of workload\u2014is essential to '
-        'prevent the reform itself from accelerating exit from '
-        'demanding specialties.'
+        'Beyond dispute resolution, several complementary levers '
+        'emerge from our results. Economic incentives for high-risk '
+        'specialties (enhanced remuneration, training stipends, '
+        'rural service allowances) address the most proximate '
+        'driver of specialty avoidance.{24} Fostering a non-punitive '
+        'safety culture\u2014structured post-incident psychological '
+        'support, transparent root-cause analysis, and proportionate '
+        'media reporting\u2014may attenuate the deterrent signal of '
+        'adverse events.{7} The reverse-causality pathway (fewer '
+        'physicians \u2192 more incidents) implies that minimum '
+        'staffing thresholds in specialties exhibiting bidirectional '
+        'causality (obstetrics, paediatrics, general surgery) could '
+        'interrupt the reinforcing cycle before it becomes '
+        'self-sustaining. Effective implementation of work-style '
+        'reform\u2014including correction of deemed self-study '
+        'practices and equitable redistribution of workload\u2014is '
+        'essential to prevent the reform itself from accelerating '
+        'exit from demanding specialties.'
     )
 
     add_para(
