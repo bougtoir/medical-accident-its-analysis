@@ -160,11 +160,11 @@ def build_main_document():
 
     add_abstract_field('Introduction:',
         'Medical safety incidents may deter physicians from high-risk '
-        'specialties, yet the temporal dynamics of this relationship remain '
-        'poorly quantified. In Japan, physician workforce maldistribution '
-        'has intensified amid the 2024 work-style reform, yet the '
-        'temporal relationship between safety incidents and specialty-specific '
-        'workforce supply has not been formally tested.')
+        'specialties, yet the temporal dynamics remain poorly quantified. '
+        'In Japan, workforce maldistribution has intensified amid the '
+        '2024 work-style reform, but no multi-specialty test of '
+        'predictive causality between incidents and physician supply '
+        'has been conducted.')
 
     add_abstract_field('Methods:',
         'We constructed bivariate vector autoregression (VAR) models for '
@@ -175,20 +175,20 @@ def build_main_document():
         'functions, and VAR-based forecasts were computed.')
 
     add_abstract_field('Results:',
-        'Of 47 VAR models, 20 showed significant forward Granger causality '
-        '(incidents \u2192 workforce; P < 0.05). Obstetrics and gynaecology '
-        'exhibited the strongest association (F = 46.66, P < 0.001). '
-        'Bidirectional causality was observed in 7 specialty\u2013outcome pairs. '
-        'Impulse response functions indicated that a litigation shock reduced '
-        'physician supply for 3\u20135 years. General surgery physicians are '
-        'projected to decline by approximately 230 per year through 2033.')
+        'Of 47 VAR models, 20 demonstrated significant forward Granger '
+        'causality (incidents \u2192 workforce; P < 0.05). The strongest '
+        'association was in obstetrics and gynaecology (F = 46.66, '
+        'P < 0.001). Bidirectional causality emerged in 7 '
+        'specialty\u2013outcome pairs. Impulse response functions showed that '
+        'a litigation shock depressed physician supply for 3\u20135 years. '
+        'General surgery is projected to lose approximately 230 '
+        'physicians per year through 2033.')
 
     add_abstract_field('Conclusions:',
-        'Medical safety incidents Granger-cause reductions in physician '
-        'supply across most specialties, with effects lasting 3\u20135 years. '
-        'Combined with work-style reform constraints, these findings '
-        'highlight an accelerating workforce crisis requiring integrated '
-        'policy responses.')
+        'Safety incidents Granger-cause specialty-specific workforce '
+        'decline lasting 3\u20135 years. Coupled with work-style reform '
+        'constraints, the resulting reinforcing cycle threatens essential '
+        'medical services and demands integrated policy intervention.')
 
     add_para(
         'Key words: physician workforce, Granger causality, medical safety '
@@ -203,55 +203,50 @@ def build_main_document():
     add_heading_styled('Introduction', level=1)
 
     add_para(
-        'Japan\u2019s healthcare system faces a deepening crisis of physician '
-        'workforce maldistribution across specialties and geographic '
-        'regions.{1,2} While the total number of physicians has grown '
-        'steadily, reaching approximately 340,000 in 2022, this aggregate '
-        'growth masks critical shortages in essential specialties such as '
-        'general surgery, obstetrics, emergency medicine, and '
-        'paediatrics.{3,4}'
+        'Japan\u2019s physician workforce has grown steadily to '
+        'approximately 340,000, yet aggregate expansion masks deepening '
+        'maldistribution across specialties and regions.{1,2} General '
+        'surgery, obstetrics, emergency medicine, and paediatrics face '
+        'persistent shortages even as total supply rises.{3,4}'
     )
 
     add_para(
-        'In parallel, the April 2024 implementation of physician work-style '
-        'reform (time-based overtime caps of 960 hours annually) has '
-        'restricted "gaikin" (moonlighting opportunities) that previously '
-        'supplemented income in lower-paying hospital posts.{5,6} These '
-        'regulatory changes may interact with safety-incident-driven '
-        'workforce dynamics, yet existing evidence is limited to '
-        'single-event, single-specialty case studies.'
+        'The April 2024 work-style reform, capping physician overtime at '
+        '960 hours annually, has curtailed "gaikin" (moonlighting '
+        'opportunities) that long supplemented hospital incomes.{5,6} '
+        'How these regulatory constraints interact with '
+        'incident-driven workforce dynamics remains untested beyond '
+        'single-event case studies.'
     )
 
     add_para(
-        'The role of medical safety incidents as a push factor driving '
-        'physicians away from high-risk specialties has been discussed '
-        'since the landmark 2004 Fukushima obstetrics prosecution, in '
+        'Safety incidents as a determinant of specialty choice gained '
+        'prominence after the 2004 Fukushima obstetrics prosecution, in '
         'which an obstetrician was arrested following a maternal death '
-        'during caesarean section.{7,8} Morita estimated a 13% decrease '
+        'during caesarean section.{7,8} Morita reported a 13% decline '
         'in obstetricians in the affected prefecture using '
-        'difference-in-differences analysis.{9} However, this analysis '
-        'was limited to a single event, specialty, and geographic area. '
-        'Broader evidence linking incident trends to workforce dynamics '
-        'across multiple specialties remains scarce.'
+        'difference-in-differences.{9} That analysis, however, addressed '
+        'a single event in one specialty and one region; broader '
+        'multi-specialty evidence linking incident burden to workforce '
+        'dynamics is lacking.'
     )
 
     add_para(
-        'Japan possesses two complementary national data sources on medical '
-        'safety incidents: the Japan Medical Safety Research Organisation '
-        '(JMSR) mandatory reporting system established in 2015,{10} and '
-        'the Supreme Court annual statistics on medical malpractice '
-        'litigation by specialty.{11,12} Combined with biennial national '
+        'Japan offers two complementary national incident series: the '
+        'Japan Medical Safety Research Organisation (JMSR) mandatory '
+        'reports (from 2015){10} and Supreme Court malpractice '
+        'litigation statistics by specialty.{11,12} Paired with biennial '
         'physician surveys and annual facility registrations, these data '
-        'enable a systematic, multi-specialty analysis.'
+        'permit a systematic multi-specialty analysis.'
     )
 
     add_para(
-        'We applied vector autoregression (VAR) models and Granger '
-        'causality tests\u2014methods widely used in econometrics and '
-        'increasingly in health policy research{13\u201315}\u2014to formally '
-        'test whether medical safety incidents temporally precede and '
-        'predict changes in specialty-specific physician and facility '
-        'counts.'
+        'Here we apply vector autoregression (VAR) and Granger '
+        'causality testing{13\u201315}\u2014established econometric tools '
+        'for predictive-causality inference\u2014to determine whether '
+        'incident trends temporally precede changes in '
+        'specialty-specific physician and facility counts across 12 '
+        'specialties over up to 20 years.'
     )
 
     # ============================================================
@@ -262,11 +257,11 @@ def build_main_document():
 
     add_heading_styled('Study design', level=2)
     add_para(
-        'We conducted a secondary analysis of routinely collected national '
-        'administrative data from Japan using bivariate VAR models and '
-        'Granger causality tests. This study is reported in accordance '
-        'with the RECORD (REporting of studies Conducted using '
-        'Observational Routinely-collected health Data) statement.{16}'
+        'This is a secondary analysis of routinely collected national '
+        'administrative data using bivariate VAR models and Granger '
+        'causality tests, reported in accordance with the RECORD '
+        '(REporting of studies Conducted using Observational '
+        'Routinely-collected health Data) statement.{16}'
     )
 
     add_heading_styled('Data sources', level=2)
@@ -308,10 +303,10 @@ def build_main_document():
     )
 
     add_para(
-        'Granger causality was tested in both directions using F-tests on '
-        'lagged coefficients.{20} The null hypothesis for the forward test '
-        'is that lagged incident counts do not improve prediction of the '
-        'workforce outcome. Significance was set at P < 0.05.'
+        'Granger causality was tested bidirectionally using F-tests on '
+        'lagged coefficients.{20} The forward null hypothesis is that '
+        'lagged incident counts do not improve prediction of the '
+        'workforce outcome; significance was set at P < 0.05.'
     )
 
     add_para(
@@ -323,10 +318,11 @@ def build_main_document():
     )
 
     add_para(
-        'For specialist trainees (8 years), detrended Pearson correlations '
-        'between JMSR incidents and enrolment were computed. All analyses '
-        'used Python 3.10 with statsmodels 0.14.{22} Code and data are '
-        'available at https://github.com/bougtoir/medical-accident-its-analysis.'
+        'For specialist trainees (8 annual observations), detrended '
+        'Pearson correlations between JMSR incidents and enrolment were '
+        'computed. Analyses used Python 3.10 with statsmodels 0.14.{22} '
+        'Code and data are deposited at '
+        'https://github.com/bougtoir/medical-accident-its-analysis.'
     )
 
     add_heading_styled('Ethical considerations', level=2)
@@ -344,12 +340,12 @@ def build_main_document():
 
     add_heading_styled('Descriptive overview', level=2)
     add_para(
-        'Between 2015 and 2025, the JMSR received 3,860 reports across '
-        'the 12 specialties, with general surgery (n = 520), internal '
-        'medicine (n = 479), and orthopaedic surgery (n = 310) recording '
-        'the highest volumes. Medical malpractice litigation declined from '
-        '1,139 cases in 2004 to 746 in 2023 overall, although trends '
-        'varied substantially by specialty (Figure 1).'
+        'Over the study period the JMSR received 3,860 reports across '
+        '12 specialties (2015\u20132025); general surgery (n = 520), '
+        'internal medicine (n = 479), and orthopaedic surgery (n = 310) '
+        'contributed the largest volumes. Malpractice litigation declined '
+        'from 1,139 cases (2004) to 746 (2023) nationally, though '
+        'specialty-level trajectories diverged (Figure 1).'
     )
 
     add_figure_inline('fig4_accident_trends.png',
@@ -440,12 +436,12 @@ def build_main_document():
     # IRF results
     add_heading_styled('Impulse response functions', level=2)
     add_para(
-        'Figure 2 shows IRFs for physician counts in response to a '
-        'one-unit litigation shock for six key specialties. Obstetrics '
-        'and gynaecology demonstrated a sustained negative response '
-        'peaking at 2\u20133 years and persisting for approximately 5 years. '
-        'General surgery showed a similar pattern attenuating by year 4. '
-        'Facility-count IRFs are shown in Figure 3.'
+        'Figure 2 displays physician-count IRFs following a one-unit '
+        'litigation shock for six key specialties. Obstetrics and '
+        'gynaecology exhibited a sustained negative response peaking at '
+        '2\u20133 years and persisting approximately 5 years; general '
+        'surgery followed a similar trajectory attenuating by year 4. '
+        'Facility-count IRFs appear in Figure 3.'
     )
 
     add_figure_inline('fig2_irf_physicians.png',
@@ -506,114 +502,91 @@ def build_main_document():
     add_heading_styled('Discussion', level=1)
 
     add_para(
-        'This study provides the first multi-specialty application of '
-        'Granger causality testing to the relationship between medical '
-        'safety incidents and physician workforce dynamics. Litigation '
-        'statistics Granger-caused physician counts in 9 of 12 specialties '
-        'and facility counts in 9 of 12, with obstetrics and gynaecology '
-        'showing the strongest association (F = 46.66, P < 0.001).'
+        'Litigation statistics Granger-caused physician counts in 9 of '
+        '12 specialties and facility counts in 9 of 12; obstetrics and '
+        'gynaecology showed the strongest association (F = 46.66, '
+        'P < 0.001). These results establish, for the first time across '
+        'multiple specialties simultaneously, that incident burden '
+        'carries predictive information for subsequent workforce change.'
     )
 
-    add_para(
-        'The VAR/Granger framework addresses key limitations of prior ITS '
-        'analyses:{13} it does not require an exogenous intervention '
-        'point, provides formal predictive-causality tests, controls for '
-        'shared trends through stationarity testing, and generates '
-        'multivariate forecasts grounded in estimated dynamics.'
-    )
-
-    add_heading_styled('Bidirectional causality and the vicious cycle', level=2)
+    add_heading_styled('Bidirectional causality', level=2)
     add_para(
         'Bidirectional Granger causality in 7 specialty\u2013outcome '
-        'combinations suggests a reinforcing cycle. Forward causality '
-        '(incidents \u2192 workforce decline) reflects "incident avoidance": '
-        'high-profile safety events deter specialty entry and accelerate '
-        'exit.{1,9} Reverse causality (workforce decline \u2192 incidents) '
-        'reflects an "overwork" pathway: fewer physicians per caseload '
-        'increases fatigue, reduces supervision, and raises incident '
-        'risk.{23} The coexistence of both pathways in obstetrics, '
-        'paediatrics, and general surgery defines the specialties most '
-        'vulnerable to self-perpetuating decline.'
+        'pairs points to a reinforcing cycle. The forward pathway '
+        '(incidents \u2192 workforce decline) is consistent with '
+        'incident-avoidance behaviour: high-profile events deter '
+        'specialty entry and hasten exit.{1,9} The reverse pathway '
+        '(workforce decline \u2192 incidents) accords with the overwork '
+        'hypothesis\u2014fewer physicians per caseload raises fatigue and '
+        'incident risk.{23} That both directions reach significance in '
+        'obstetrics, paediatrics, and general surgery identifies these '
+        'specialties as most susceptible to self-perpetuating decline.'
     )
 
-    add_heading_styled('Context: work-style reform', level=2)
+    add_heading_styled('Work-style reform as a compounding factor', level=2)
     add_para(
-        'Our findings must be interpreted against the backdrop of '
-        'Japan\u2019s evolving physician labour market. The April 2024 '
-        'work-style reform caps annual overtime at 960 hours (A-level) '
-        'with transitional exceptions (B/C-level at 1,860 hours).{5} '
-        'While intended to improve physician well-being, the reform has '
-        'produced several unintended consequences. Restrictions on '
-        '"gaikin"\u2014historically an important income supplement '
-        'for hospital-based physicians\u2014have reduced the financial '
-        'attractiveness of demanding specialties. '
-        'Moreover, deemed self-study, whereby hours exceeding the cap '
-        'are reclassified as voluntary training rather than labour, has '
-        'paradoxically increased uncompensated workload for mid-career '
-        'physicians while failing to improve working conditions for '
-        'trainees.{6}'
-    )
-
-    add_para(
-        'Our Granger causality results illuminate the push side of this '
-        'equation: safety incidents actively drive physicians away from '
-        'high-risk specialties over a 3\u20135 year horizon. When combined '
-        'with the reduced financial incentives imposed by work-style '
-        'reform, the result is an accelerating workforce crisis in '
-        'precisely those specialties that society most needs\u2014surgery, '
-        'obstetrics, emergency medicine, and paediatrics.'
+        'These incident-driven dynamics operate within a labour market '
+        'reshaped by the April 2024 work-style reform (960-hour annual '
+        'overtime cap, A-level; 1,860-hour transitional B/C-level).{5} '
+        'Restrictions on "gaikin" have eroded the income supplement '
+        'that historically offset demanding hospital posts, while '
+        'deemed self-study\u2014hours reclassified as voluntary training '
+        'rather than compensable labour\u2014has shifted workload onto '
+        'mid-career physicians without relieving trainee burden.{6} '
+        'The 3\u20135 year incident-response horizon identified by our '
+        'IRFs thus coincides with a period of contracting financial '
+        'incentives for the very specialties most affected.'
     )
 
     add_heading_styled('Policy implications', level=2)
     add_para(
-        'Breaking the vicious cycle requires interventions targeting both '
-        'pathways. On the push side, improved post-incident support, '
-        'no-fault compensation systems, and balanced media reporting could '
-        'reduce the deterrent effect of safety events.{7,24} On the pull '
-        'side, the Ministry of Health, Labour and Welfare\u2019s 2024 draft '
-        'measures to restrict new clinic openings in physician-surplus '
-        'areas may function to attenuate the outflow from essential '
-        'specialties. The IRF results, showing 3\u20135 year effect '
-        'duration, define a critical intervention window during which '
-        'combined regulatory and incentive-based policies could be most '
-        'effective.'
+        'Disrupting the reinforcing cycle requires action on both '
+        'pathways. On the push side, structured post-incident support, '
+        'no-fault compensation mechanisms, and proportionate media '
+        'reporting may blunt the deterrent signal of safety events.{7,24} '
+        'On the pull side, the 2024 draft restrictions on new clinic '
+        'openings in physician-surplus areas may function to attenuate '
+        'outflow from essential specialties. The 3\u20135 year effect '
+        'duration estimated here defines a policy window within which '
+        'combined regulatory and incentive-based measures could '
+        'realistically alter trajectories.'
     )
 
     add_para(
-        'Workforce planning models should incorporate the temporal lag '
-        'parameters estimated here. The projected decline in general '
-        'surgery (\u2212230 physicians/year) and facilities (\u2212310/year) '
-        'demands urgent policy attention, particularly given the reform-'
-        'driven constraints on existing workforce capacity.'
+        'The projected contraction in general surgery (\u2212230 '
+        'physicians/year; \u2212310 facilities/year) warrants particular '
+        'attention given concurrent reform-driven capacity constraints. '
+        'Workforce planning models should incorporate the lag parameters '
+        'estimated here.'
     )
 
     add_heading_styled('Strengths and limitations', level=2)
     add_para(
-        'Strengths include population-level data from mandatory national '
-        'registries across 12 specialties over up to 20 years, and the '
-        'application of VAR/Granger methodology suited to continuously '
-        'varying exposures.'
+        'Strengths of this study include population-level coverage from '
+        'mandatory national registries across 12 specialties over up to '
+        '20 years, and a VAR/Granger framework suited to continuously '
+        'varying exposures without requiring an assumed intervention '
+        'point.'
     )
 
     add_para(
-        'Limitations include the ecological study design precluding '
-        'individual-level causal inference; biennial physician data '
-        'requiring interpolation; limited power in the JMSR series (11 '
-        'years); and unmeasured confounders including demographic shifts, '
-        'the 2004 postgraduate training reform, and the direct effects '
-        'of work-style reform itself (which overlaps temporally with the '
-        'most recent data points). Importantly, our 12-specialty '
-        'framework does not capture career paths that fall outside '
-        'conventional specialty registration, notably aesthetic '
-        'medicine{25,26} and occupational medicine.{27,28} The growing '
-        'migration of early-career physicians into these '
-        'non-traditionally-classified sectors may confound our '
-        'estimates; to the extent that pull-driven exits correlate '
-        'temporally with incident trends, our models may overestimate '
-        'the incident-attributable component of workforce decline. '
-        'Low retention among occupational '
-        'physicians (55\u201365% turnover within 2 years){28} further '
-        'complicates workforce planning assumptions.'
+        'Several limitations warrant consideration. The ecological '
+        'design precludes individual-level causal inference. Biennial '
+        'physician data required interpolation, potentially smoothing '
+        'abrupt transitions. The JMSR series spans only 11 years, '
+        'limiting statistical power. Unmeasured confounders\u2014demographic '
+        'shifts, the 2004 postgraduate training reform, and the direct '
+        'effects of work-style reform (temporally overlapping the most '
+        'recent observations)\u2014may bias estimates. Notably, our '
+        '12-specialty framework does not capture career paths outside '
+        'conventional specialty registration, such as aesthetic '
+        'medicine{25,26} and occupational medicine.{27,28} To the extent '
+        'that migration into these sectors correlates temporally with '
+        'incident trends, our models may overestimate the '
+        'incident-attributable component of workforce decline. Low '
+        'retention among occupational physicians (55\u201365% turnover '
+        'within 2 years){28} further complicates workforce projections.'
     )
 
     # ============================================================
@@ -621,16 +594,13 @@ def build_main_document():
     # ============================================================
     add_heading_styled('Conclusions', level=2)
     add_para(
-        'Medical safety incidents in Japan Granger-cause reductions in '
-        'specialty-specific physician supply in 9 of 12 specialties, with '
-        'effects persisting for 3\u20135 years. Bidirectional causality in '
-        'obstetrics, paediatrics, and general surgery suggests a '
-        'self-reinforcing shortage\u2013incident cycle. In the context of '
-        'work-style reform and career paths outside conventional '
-        'specialty frameworks, these temporal dynamics pose an urgent '
-        'threat to essential medical services. Integrated policy responses '
-        'addressing both the push of safety incidents and the pull of '
-        'alternative career paths are needed.'
+        'Safety incidents Granger-cause reductions in physician supply '
+        'in 9 of 12 specialties, with effects persisting 3\u20135 years. '
+        'Bidirectional causality in obstetrics, paediatrics, and general '
+        'surgery points to a self-reinforcing shortage\u2013incident cycle '
+        'that, compounded by work-style reform and the emergence of '
+        'career paths outside conventional specialty frameworks, poses '
+        'a credible threat to essential medical services.'
     )
 
     # ============================================================
