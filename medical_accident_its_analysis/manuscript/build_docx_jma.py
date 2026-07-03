@@ -97,6 +97,27 @@ def build_main_document():
         _add_runs_with_citations(p, text)
         return p
 
+    def add_figure_inline(filename, caption_text):
+        """Insert a figure image inline with caption."""
+        img_path = os.path.join(OUTPUT_DIR, filename)
+        if not os.path.exists(img_path):
+            return
+        # Caption above
+        cap = doc.add_paragraph()
+        cap.paragraph_format.space_before = Pt(12)
+        cap.paragraph_format.space_after = Pt(6)
+        cap.paragraph_format.line_spacing = 2.0
+        run_cap = cap.add_run(caption_text)
+        run_cap.font.name = 'Times New Roman'
+        run_cap.font.size = Pt(10)
+        run_cap.bold = True
+        # Image
+        p = doc.add_paragraph()
+        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        run_img = p.add_run()
+        run_img.add_picture(img_path, width=Inches(5.5))
+        doc.add_paragraph()  # spacing
+
     def add_table_from_data(headers, rows, caption=None):
         if caption:
             cap = doc.add_paragraph()
@@ -347,6 +368,9 @@ def build_main_document():
         'varied substantially by specialty (Figure 1).'
     )
 
+    add_figure_inline('fig4_accident_trends.png',
+        'Figure 1. Trends in medical safety incident counts by specialty.')
+
     add_heading_styled('Granger causality tests', level=2)
     add_para(
         'A total of 47 bivariate VAR models were fitted. Table 1 presents '
@@ -440,7 +464,14 @@ def build_main_document():
         'Facility-count IRFs are shown in Figure 3.'
     )
 
+    add_figure_inline('fig2_irf_physicians.png',
+        'Figure 2. IRF: physician count response to a one-unit litigation shock.')
+
+    add_figure_inline('sfig1_irf_facilities.png',
+        'Figure 3. IRF: facility count response to a one-unit litigation shock.')
+
     # Forecasts
+    doc.add_page_break()
     add_heading_styled('VAR-based forecasts', level=2)
     add_para(
         'Figure 4 presents VAR-based forecasts for physician and facility '
@@ -449,6 +480,9 @@ def build_main_document():
         'Obstetrics and gynaecology physician counts show modest growth '
         'while facilities decline. Table 3 summarises forecast values.'
     )
+
+    add_figure_inline('fig3_var_forecasts.png',
+        'Figure 4. VAR-based forecasts of physician and facility counts (2024\u20132033).')
 
     # Table 3: Forecast summary
     fc_df = pd.read_csv(os.path.join(OUTPUT_DIR, 'var_forecast_results.csv'))
