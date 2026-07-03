@@ -505,9 +505,13 @@ def build_main_document():
         'Litigation statistics Granger-caused physician counts in 9 of '
         '12 specialties and facility counts in 9 of 12; obstetrics and '
         'gynaecology showed the strongest association (F = 46.66, '
-        'P < 0.001). These results establish, for the first time across '
-        'multiple specialties simultaneously, that incident burden '
-        'carries predictive information for subsequent workforce change.'
+        'P < 0.001). By contrast, JMSR incident reports\u2014which '
+        'capture adverse events irrespective of legal proceedings\u2014'
+        'reached significance in only 2 of 23 models (general surgery '
+        'and psychiatry), partly reflecting the shorter series (11 '
+        'versus 20 years) but also suggesting that the litigation '
+        'process itself, rather than incident occurrence alone, is the '
+        'stronger predictor of workforce change.'
     )
 
     add_heading_styled('Bidirectional causality', level=2)
@@ -541,15 +545,23 @@ def build_main_document():
 
     add_heading_styled('Policy implications', level=2)
     add_para(
-        'Disrupting the reinforcing cycle requires action on both '
-        'pathways. On the push side, structured post-incident support, '
-        'no-fault compensation mechanisms, and proportionate media '
-        'reporting may blunt the deterrent signal of safety events.{7,24} '
+        'That litigation-based models dominate the results carries a '
+        'constructive corollary: if disputes are resolved before '
+        'reaching court\u2014through early mediation, alternative dispute '
+        'resolution, or no-fault compensation\u2014the workforce signal '
+        'may be substantially attenuated. Strengthening these '
+        'mechanisms, alongside structured post-incident support and '
+        'proportionate media reporting, could blunt the deterrent '
+        'effect that currently drives physicians from high-risk '
+        'specialties.{7,24}'
+    )
+
+    add_para(
         'On the pull side, the 2024 draft restrictions on new clinic '
         'openings in physician-surplus areas may function to attenuate '
         'outflow from essential specialties. The 3\u20135 year effect '
-        'duration estimated here defines a policy window within which '
-        'combined regulatory and incentive-based measures could '
+        'duration estimated by our IRFs defines a policy window within '
+        'which combined regulatory and incentive-based measures could '
         'realistically alter trajectories.'
     )
 
