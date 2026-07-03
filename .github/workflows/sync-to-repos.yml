@@ -30,7 +30,6 @@ jobs:
           BRANCH_MAP["IONE-stratification-framework"]="ione-stratification-framework"
           BRANCH_MAP["devin/1774274321-rct-decomposition-paper"]="kotha-rct-decomposition"
           BRANCH_MAP["devin/1774353301-icr-paper"]="linko-icr-paper"
-          BRANCH_MAP["devin/1774514189-medical-accident-its-analysis"]="medical-accident-its-analysis"
           BRANCH_MAP["devin/1783102664-jma-journal-manuscript"]="medical-accident-its-analysis"
           BRANCH_MAP["devin/1774578035-cetacean-acoustic-analysis"]="cetacean-acoustic-analysis"
           BRANCH_MAP["devin/1774681647-yoshka-pkpd-package"]="yoshika-pkpd"
