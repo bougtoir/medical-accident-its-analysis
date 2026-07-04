@@ -30,7 +30,7 @@ jobs:
           BRANCH_MAP["IONE-stratification-framework"]="ione-stratification-framework"
           BRANCH_MAP["devin/1774274321-rct-decomposition-paper"]="kotha-rct-decomposition"
           BRANCH_MAP["devin/1774353301-icr-paper"]="linko-icr-paper"
-          BRANCH_MAP["devin/1774514189-medical-accident-its-analysis"]="medical-accident-its-analysis"
+          BRANCH_MAP["devin/1783102664-jma-journal-manuscript"]="medical-accident-its-analysis"
           BRANCH_MAP["devin/1774578035-cetacean-acoustic-analysis"]="cetacean-acoustic-analysis"
           BRANCH_MAP["devin/1774681647-yoshka-pkpd-package"]="yoshika-pkpd"
           BRANCH_MAP["devin/1774686640-cryoanesthesia-scoping-review"]="cryoanesthesia-scoping-review"
@@ -186,6 +186,7 @@ jobs:
           declare -A SUBDIR_MAP
 
           # Problem B fixes (branches with unrelated folders mixed in)
+          SUBDIR_MAP["devin/1783102664-jma-journal-manuscript"]="medical_accident_its_analysis"
           SUBDIR_MAP["devin/1778846737-flood-prediction-models"]="flood-prediction-review"
           SUBDIR_MAP["devin/1777462980-spectral-causality-brainstorm"]="spectral-causality-brainstorm"
           SUBDIR_MAP["devin/1777863337-spectral-causality-jmlr"]="spectral-causality-jmlr"
