@@ -330,11 +330,13 @@ def analyze_A2():
     for e in scan:
         ke = e["ke"]
         rates = e["rates"]
+        # Column convention (dp/dt = Am p), matching extract_rates:
+        # Am[j, i] is the rate from compartment i -> j.
         Am = np.zeros((3, 3))
         for i in range(3):
             for j in range(3):
                 if i != j:
-                    Am[i, j] = rates[i][j]
+                    Am[j, i] = rates[i][j]
             Am[i, i] = -(sum(rates[i][j] for j in range(3) if j != i) + ke[i])
         try:
             mrt = float(-np.ones(3) @ np.linalg.inv(Am) @ np.array([1.0, 0, 0]))

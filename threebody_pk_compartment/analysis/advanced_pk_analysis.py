@@ -276,12 +276,13 @@ def population_pk_analysis(scan_data):
         rates = entry["rates"]  # 3x3 list
         ke = entry["ke"]        # [3]
 
-        # Build rate matrix A
+        # Build rate matrix A in column convention (dp/dt = A p):
+        # A[j, i] is the rate from compartment i -> j.
         A = np.zeros((3, 3))
         for i in range(3):
             for j in range(3):
                 if i != j:
-                    A[i, j] = rates[i][j]
+                    A[j, i] = rates[i][j]
             A[i, i] = -(sum(rates[i][j] for j in range(3) if j != i) + ke[i])
 
         # Eigenvalues → half-lives

@@ -11,8 +11,8 @@
   },
   "A2_flux_benchmark": {
     "ks_pk_equal": 0.16737863956483276,
-    "mrt_vs_lifetime_slope": 1.5045395854298325,
-    "mrt_vs_lifetime_r2": 0.6076080065119116,
+    "mrt_vs_lifetime_slope": 1.0002381963334368,
+    "mrt_vs_lifetime_r2": 0.9999999832824272,
     "n_configs": 64
   },
   "A3_ejection_mf": {

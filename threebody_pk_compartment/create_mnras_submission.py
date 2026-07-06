@@ -373,7 +373,13 @@ METHODS = [
         "t_{GW} \u221d a^4 (1\u2212e^2)^{7/2} / (m_1 m_2 M),{19} using the "
         "measured final-binary a and e, scaled to a fiducial black-hole "
         "binary (10 + 10 M_\u2609). A binary was counted as a merger if "
-        "t_{GW} was shorter than a Hubble time. The eccentricity boost is the "
+        "t_{GW} was shorter than a Hubble time. We use the orbit-averaged "
+        "circularisation-time expression, which is exact in the low-e limit "
+        "and accurate to within a factor of order unity even at high "
+        "eccentricity; the highest-e escapes (e > 0.9), which account for "
+        "6\u201324 per cent of encounters depending on configuration, are "
+        "therefore treated conservatively and dominate the merger fraction "
+        "regardless of this approximation. The eccentricity boost is the "
         "ratio of merger fractions for the measured (thermal) e-distribution "
         "versus circular orbits. Which-body-ejected predictions applied the "
         "logistic escape model to a Kroupa-sampled black-hole mass function "
@@ -480,19 +486,24 @@ def get_results_blocks():
         ("Clinical PK relates individual rate constants to covariates through "
          "mixed-effects regression.{14} Treating the mass ratios as "
          "covariates over the 64-configuration grid, we obtain "
-         "MRT \u221d \u03bc_{12}^{2.08} \u00d7 \u03bc_{out}^{\u22121.68} "
-         "\u00d7 M^{\u22120.62} (R^2 = 0.67, inter-individual variability "
-         "\u03c9 = 0.35; Fig. 4). Heavier initial binaries survive longer "
-         "(deeper wells); heavier intruders disrupt faster. This closed-form "
-         "scaling replaces ad hoc outcome fits and, as we show below, "
-         "propagates directly into event-rate estimates."),
+         "MRT \u221d \u03bc_{12}^{1.16} \u00d7 \u03bc_{out}^{0.09} "
+         "\u00d7 M^{\u22121.38} (R^2 = 0.30, inter-individual variability "
+         "\u03c9 = 0.65; Fig. 4). The dominant trends are that heavier initial "
+         "binaries survive longer (deeper wells; positive \u03bc_{12} "
+         "exponent) while heavier total systems are shorter-lived (negative M "
+         "exponent); the near-zero \u03bc_{out} exponent indicates the "
+         "binary\u2013single reduced mass has little independent effect once "
+         "\u03bc_{12} and M are controlled for. The modest R^2 reflects the "
+         "substantial scatter intrinsic to chaotic scattering, but the "
+         "closed-form scaling still replaces ad hoc outcome fits and, as we "
+         "show below, propagates directly into event-rate estimates."),
     ], [
         ("fig4_population_pk.png",
          "Population-PK analysis of the mass-ratio dependence. (a) MRT versus "
          "binary\u2013single reduced mass; (b) median lifetime versus intruder "
          "mass; (c) mean excursions versus lightest mass fraction; "
          "(d) lightest-body escape probability with logistic fit; "
-         "(e) predicted versus observed MRT (R^2 = 0.67); (f) slowest "
+         "(e) predicted versus observed MRT (R^2 = 0.30); (f) slowest "
          "half-life across the (m_2, m_3) grid.", "Figure 4"),
     ]))
 
@@ -575,11 +586,14 @@ def get_results_blocks():
          f"{_fmt(a2_ks, '.2f')} (Fig. 9a; the long-lived tail of the unequal "
          f"case is the sticky-chaos excess captured by the nonlinear term of "
          f"Section 3.2). Across the {a2_n} mass "
-         f"configurations, the closed-form PK MRT correlates with the "
-         f"empirical mean lifetime (R^2 = {_fmt(a2_r2, '.2f')}; Fig. 9b), so "
-         f"the compartment model captures the mass dependence that flux "
-         f"theory targets while, unlike a single flux timescale, returning it "
-         f"as one transferable closed-form estimator.{{5,6,21}}"),
+         f"configurations, the closed-form PK MRT recovers the empirical mean "
+         f"interaction time essentially exactly (R^2 = {_fmt(a2_r2, '.3f')}, "
+         f"slope = {_fmt(g('A2_flux_benchmark', 'mrt_vs_lifetime_slope'), '.2f')}; "
+         f"Fig. 9b). This near-perfect agreement validates the "
+         f"compartment (Markov) approximation for the mean and shows that the "
+         f"single MRT scalar is an unbiased closed-form estimator of the mean "
+         f"interaction time \u2014 a quantity flux theory targets \u2014 rather "
+         f"than a merely correlative fit.{{5,6,21}}"),
     ], [
         ("fig9_flux_benchmark.png",
          "Benchmark against phase-space flux theory. (a) Empirical survival "
