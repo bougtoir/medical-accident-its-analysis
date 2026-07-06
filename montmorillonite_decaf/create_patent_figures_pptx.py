@@ -14,13 +14,39 @@ from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
 from pptx.enum.shapes import MSO_SHAPE, MSO_CONNECTOR
 from pptx.chart.data import CategoryChartData, XyChartData
-from pptx.enum.chart import XL_CHART_TYPE, XL_LEGEND_POSITION
+from pptx.enum.chart import XL_CHART_TYPE, XL_LEGEND_POSITION, XL_MARKER_STYLE
+from pptx.enum.dml import MSO_PATTERN
 
+# JPO図面の慣行に合わせ、無彩色（白黒）のみで作図する。
+# 色の代わりにハッチング・破線・マーカー形状で系列を区別する。
 BLACK = RGBColor(0x00, 0x00, 0x00)
 WHITE = RGBColor(0xFF, 0xFF, 0xFF)
-GRAY = RGBColor(0x80, 0x80, 0x80)
-LGRAY = RGBColor(0xD9, 0xD9, 0xD9)
 FONT = "IPAGothic"
+
+
+def _pattern(fmt, pattern):
+    """系列の塗りを白地に黒のハッチングとする。"""
+    fmt.fill.patterned()
+    fmt.fill.pattern = pattern
+    fmt.fill.fore_color.rgb = BLACK
+    fmt.fill.back_color.rgb = WHITE
+    fmt.line.color.rgb = BLACK
+
+
+def _bw_line(series, dash=False, marker=XL_MARKER_STYLE.CIRCLE):
+    """折れ線系列を黒線（必要に応じ破線）＋白塗りマーカーとする。"""
+    series.format.line.color.rgb = BLACK
+    series.format.line.width = Pt(2.0 if not dash else 1.75)
+    if dash:
+        series.format.line._get_or_add_ln().append(
+            series.format.line._get_or_add_ln().makeelement(
+                "{http://schemas.openxmlformats.org/drawingml/2006/main}prstDash",
+                {"val": "dash"}))
+    series.marker.style = marker
+    series.marker.size = 7
+    series.marker.format.fill.solid()
+    series.marker.format.fill.fore_color.rgb = WHITE
+    series.marker.format.line.color.rgb = BLACK
 
 prs = Presentation()
 prs.slide_width = Inches(13.333)
@@ -135,7 +161,11 @@ def fig2():
     s = add_slide("図2　モンモリロナイト層間の選択的吸着機構（選択図）")
     ys = [5.6, 4.0, 2.4]
     for y in ys:
-        shape(s, MSO_SHAPE.RECTANGLE, 2.5, y, 8.3, 0.5, fill=LGRAY)
+        rect = shape(s, MSO_SHAPE.RECTANGLE, 2.5, y, 8.3, 0.5)
+        rect.fill.patterned()
+        rect.fill.pattern = MSO_PATTERN.PERCENT_20
+        rect.fill.fore_color.rgb = BLACK
+        rect.fill.back_color.rgb = WHITE
         textbox(s, 0.4, y + 0.05, 2.0, 0.4, "シリケート層", 10, PP_ALIGN.RIGHT)
     # 層間カチオン
     for y in [4.7, 3.1]:
@@ -184,6 +214,9 @@ def fig3():
     gf = s.shapes.add_chart(XL_CHART_TYPE.COLUMN_CLUSTERED,
                             Inches(1.0), Inches(1.2), Inches(11.3), Inches(5.8), cd)
     _style_chart(gf.chart)
+    plot = gf.chart.plots[0]
+    _pattern(plot.series[0].format, MSO_PATTERN.WIDE_UPWARD_DIAGONAL)
+    _pattern(plot.series[1].format, MSO_PATTERN.PERCENT_25)
 
 
 def fig4():
@@ -194,6 +227,7 @@ def fig4():
     gf = s.shapes.add_chart(XL_CHART_TYPE.LINE_MARKERS,
                             Inches(1.2), Inches(1.3), Inches(10.9), Inches(5.6), cd)
     _style_chart(gf.chart, legend=False)
+    _bw_line(gf.chart.plots[0].series[0])
     textbox(s, 1.5, 6.9, 8, 0.4, "横軸: MMT粒径 (mm)　／　最適範囲 0.1〜0.5mm", 11)
 
 
@@ -206,6 +240,8 @@ def fig5():
     gf = s.shapes.add_chart(XL_CHART_TYPE.LINE_MARKERS,
                             Inches(1.2), Inches(1.3), Inches(10.9), Inches(5.4), cd)
     _style_chart(gf.chart)
+    _bw_line(gf.chart.plots[0].series[0], marker=XL_MARKER_STYLE.CIRCLE)
+    _bw_line(gf.chart.plots[0].series[1], dash=True, marker=XL_MARKER_STYLE.SQUARE)
     textbox(s, 1.5, 6.8, 11, 0.5,
             "横軸: 接触時間 (分)。Fe溶出量は視認性のため×100表示（飲料水基準0.3mg/L=30）。", 10)
 
@@ -221,6 +257,12 @@ def fig6():
     gf = s.shapes.add_chart(XL_CHART_TYPE.XY_SCATTER,
                             Inches(1.5), Inches(1.3), Inches(9.0), Inches(5.4), cd)
     _style_chart(gf.chart, legend=False)
+    sc = gf.chart.plots[0].series[0]
+    sc.marker.style = XL_MARKER_STYLE.CIRCLE
+    sc.marker.size = 9
+    sc.marker.format.fill.solid()
+    sc.marker.format.fill.fore_color.rgb = BLACK
+    sc.marker.format.line.color.rgb = BLACK
     textbox(s, 1.6, 6.8, 11, 0.6,
             "横軸: カフェイン除去率(%)、縦軸: カテキン保持率(%)。"
             "本発明(93,96)／活性炭(89,31)／ゼオライト(28,94)／架橋ポリマー(78,62)。", 10)

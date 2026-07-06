@@ -16,13 +16,23 @@ import matplotlib.patches as mpatches
 from matplotlib.patches import FancyArrowPatch, Polygon, Circle
 import numpy as np
 
-# 日本語フォント（IPAGothic）
+# 日本語フォント（IPAGothic）。JPO図面の慣行に合わせ、無彩色（純粋な白黒）で作図する。
 matplotlib.rcParams["font.family"] = "IPAGothic"
 matplotlib.rcParams["axes.unicode_minus"] = False
+matplotlib.rcParams["hatch.linewidth"] = 0.5
 
 LINE = "black"
-GRAY = "0.5"
-LGRAY = "0.8"
+# グレーを用いず、破線・ハッチングで区別する。
+GRAY = "black"
+
+
+def _grid(ax, axis="both"):
+    ax.grid(axis=axis, color="black", lw=0.3, ls=":")
+
+
+def _hatch_span(ax, x0, x1, ymin=0.0, ymax=1.0, hatch="...."):
+    ax.axvspan(x0, x1, ymin=ymin, ymax=ymax, facecolor="none",
+               edgecolor="black", hatch=hatch, lw=0.0)
 
 
 def _save(fig, name):
@@ -104,7 +114,8 @@ def fig2():
     layer_y = [1.5, 4.0, 6.5]
     for y in layer_y:
         ax.add_patch(mpatches.Rectangle((1.0, y), 10.0, 0.7,
-                                        facecolor=LGRAY, edgecolor=LINE, lw=1.2))
+                                        facecolor="white", edgecolor=LINE, lw=1.2,
+                                        hatch="...."))
         ax.text(0.6, y + 0.35, "シリケート層", ha="right", va="center", fontsize=8)
 
     # 層間カチオン（+）
@@ -163,7 +174,7 @@ def fig3():
     ax.set_ylim(0, 110)
     ax.set_title("図3　各種飲料における除去率・保持率（実施例6）", fontsize=11)
     ax.legend(fontsize=8, frameon=False)
-    ax.grid(axis="y", color=LGRAY, lw=0.5)
+    _grid(ax, axis="y")
     _save(fig, "patent_fig3.png")
 
 
@@ -175,14 +186,14 @@ def fig4():
     ax.plot(size, rem, marker="o", color=LINE, lw=1.5, mfc="white", mec=LINE)
     for s, r in zip(size, rem):
         ax.text(s, r + 1.8, f"{r}", ha="center", fontsize=8)
-    ax.axvspan(0.1, 0.5, color=LGRAY, alpha=0.5)
+    _hatch_span(ax, 0.1, 0.5)
     ax.text(0.3, 50, "最適範囲\n0.1〜0.5mm", ha="center", fontsize=8)
     ax.set_xscale("log")
     ax.set_xlabel("MMT粒径 (mm)")
     ax.set_ylabel("3分後カフェイン除去率 (%)")
     ax.set_ylim(30, 100)
     ax.set_title("図4　粒径とカフェイン吸着効率の関係（実施例4）", fontsize=11)
-    ax.grid(color=LGRAY, lw=0.5)
+    _grid(ax)
     _save(fig, "patent_fig4.png")
 
 
@@ -198,18 +209,18 @@ def fig5():
     ax1.set_ylabel("カフェイン除去率 (%)")
     ax1.set_ylim(50, 105)
     ax2 = ax1.twinx()
-    ax2.plot(t, fe, marker="s", color=GRAY, lw=1.5, ls="--", mfc="white", mec=GRAY,
+    ax2.plot(t, fe, marker="s", color="black", lw=1.5, ls="--", mfc="white", mec="black",
              label="Fe溶出量")
     ax2.axhline(0.3, color=LINE, lw=1.0, ls=":")
     ax2.text(60, 0.34, "飲料水基準 0.3 mg/L", ha="right", va="bottom", fontsize=8)
     ax2.set_ylabel("Fe溶出量 (mg/L)")
     ax2.set_ylim(0, 1.3)
-    ax1.axvspan(3, 5, color=LGRAY, alpha=0.5)
+    _hatch_span(ax1, 3, 5)
     ax1.set_title("図5　接触時間と除去率・Fe溶出量の関係（実施例5）", fontsize=11)
     lines1, lab1 = ax1.get_legend_handles_labels()
     lines2, lab2 = ax2.get_legend_handles_labels()
     ax1.legend(lines1 + lines2, lab1 + lab2, fontsize=8, frameon=False, loc="center right")
-    ax1.grid(color=LGRAY, lw=0.5)
+    _grid(ax1)
     _save(fig, "patent_fig5.png")
 
 
@@ -226,14 +237,14 @@ def fig6():
         ax.scatter(xx, yy, s=90, facecolor="white", edgecolor=LINE, marker=mk, lw=1.3)
         ax.annotate(label, (xx, yy), textcoords="offset points", xytext=off,
                     fontsize=8, ha="right" if off[0] < 0 else "left")
-    ax.axvspan(80, 100, ymin=0.8, color=LGRAY, alpha=0.4)
+    _hatch_span(ax, 80, 100, ymin=0.8)
     ax.text(90, 84, "高除去・高保持", ha="center", fontsize=8)
     ax.set_xlabel("カフェイン除去率 (%)")
     ax.set_ylabel("カテキン（ポリフェノール）保持率 (%)")
     ax.set_xlim(20, 105)
     ax.set_ylim(20, 105)
     ax.set_title("図6　吸着材の選択性比較", fontsize=11)
-    ax.grid(color=LGRAY, lw=0.5)
+    _grid(ax)
     _save(fig, "patent_fig6.png")
 
 
