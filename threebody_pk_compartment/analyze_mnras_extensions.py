@@ -585,6 +585,33 @@ def analyze_B7(mrt_dyn=None):
     return {"mrt_dyn": mrt_dyn, "environments": rows}
 
 
+def analyze_population_scaling():
+    """B1: allometric scaling on the (tail-robust) median lifetime, with
+    collinearity diagnostics (VIF) and an LMG/Shapley R^2 decomposition."""
+    from analysis.advanced_pk_analysis import (
+        load_mass_scan, population_pk_analysis, fit_population_model)
+    scan_data = load_mass_scan(DATADIR)
+    recs = population_pk_analysis(scan_data)
+    res = fit_population_model(recs, response="median")
+    if res is None:
+        return None
+    return {
+        "response": res["response"],
+        "beta": res["beta"],
+        "exp_mu12": res["beta"][1],
+        "exp_muout": res["beta"][2],
+        "exp_M": res["beta"][3],
+        "r_squared": res["r_squared"],
+        "omega": res["omega"],
+        "vif": res["vif"],
+        "shapley_r2": res["shapley_r2"],
+        "beta_ortho": res["beta_ortho"],
+        "r2_ortho": res["r2_ortho"],
+        "corr_m2m3": res["corr_m2m3"],
+        "n_configs": res["n"],
+    }
+
+
 def main():
     print("=" * 60)
     print("  MNRAS extension analyses")
@@ -592,6 +619,7 @@ def main():
     summary = {}
     summary["A1_gw_merger"] = analyze_A1()
     summary["A2_flux_benchmark"] = analyze_A2()
+    summary["A_population_scaling"] = analyze_population_scaling()
     summary["A3_ejection_mf"] = analyze_A3()
     summary["A4_ecc_kick"] = analyze_A4()
     summary["B56_pn_tidal"] = analyze_B56()

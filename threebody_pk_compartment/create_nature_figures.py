@@ -403,7 +403,8 @@ def fig4_population_pk():
 
     scan_data = load_mass_scan(DATADIR)
     records = population_pk_analysis(scan_data)
-    pop_results = fit_population_model(records)
+    # B1: report the allometric law on the (tail-robust) median lifetime.
+    pop_results = fit_population_model(records, response="median")
 
     if pop_results is None:
         print("  Skipping fig4 — no population data")
@@ -458,7 +459,7 @@ def fig4_population_pk():
     ax.set_ylabel("$P$(lightest escapes)")
     ax.set_title("d", fontweight="bold", fontsize=9, loc="left", x=-0.2)
 
-    # (e) Predicted vs observed MRT
+    # (e) Predicted vs observed median lifetime, with collinearity diagnostics
     ax = fig.add_subplot(gs[1, 1])
     X = np.column_stack([
         np.ones(len(valid)),
@@ -466,20 +467,25 @@ def fig4_population_pk():
         np.log([r["mu_out"] for r in valid]),
         np.log([r["M"] for r in valid]),
     ])
-    y_obs = np.array([r["mrt"] for r in valid])
+    y_obs = np.array([r["lifetimes_median"] for r in valid])
     y_pred = np.exp(X @ np.array(beta))
 
     ax.scatter(y_pred, y_obs, s=8, c=CB_BLUE, alpha=0.7, edgecolors="none")
     lim = [min(min(y_pred), min(y_obs)) * 0.5,
            max(max(y_pred), max(y_obs)) * 2]
     ax.plot(lim, lim, "k--", lw=0.5, alpha=0.4)
-    ax.set_xlabel("Predicted MRT")
-    ax.set_ylabel("Observed MRT")
+    ax.set_xlabel("Predicted median lifetime")
+    ax.set_ylabel("Observed median lifetime")
     ax.set_xscale("log")
     ax.set_yscale("log")
     ax.set_title("e", fontweight="bold", fontsize=9, loc="left", x=-0.2)
-    ax.text(0.05, 0.9, f"$R^2={pop_results['r_squared']:.2f}$",
-            transform=ax.transAxes, fontsize=6)
+    sh = pop_results["shapley_r2"]
+    vf = pop_results["vif"]
+    ax.text(0.05, 0.94,
+            f"$R^2={pop_results['r_squared']:.2f}$\n"
+            f"LMG: {sh[0]:.02f}/{sh[1]:.02f}/{sh[2]:.02f}\n"
+            f"VIF: {vf[0]:.1f}/{vf[1]:.1f}/{vf[2]:.1f}",
+            transform=ax.transAxes, fontsize=4.5, va="top")
 
     # (f) Half-life heatmap
     ax = fig.add_subplot(gs[1, 2])

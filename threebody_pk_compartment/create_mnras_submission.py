@@ -244,7 +244,7 @@ ABSTRACT = (
     "mean residence time (MRT) in closed form; a nonlinear "
     "(Michaelis\u2013Menten) elimination term captures the sticky-chaos tail; "
     "and population-PK (mixed-effects) modelling delivers an allometric "
-    "scaling law for the MRT in the three mass ratios. We then use these "
+    "scaling law for the interaction time in the reduced masses. We then use these "
     "tools to make astrophysical predictions: (i) Peters-inspiral merger "
     "fractions and the eccentricity boost of the gravitational-wave (GW) "
     "merger rate; (ii) a closed-form, dose\u2013response predictor for which "
@@ -482,28 +482,57 @@ def get_results_blocks():
          "RMSE improvement), (c) democratic (36 per cent).", "Figure 3"),
     ]))
 
+    pe12 = g("A_population_scaling", "exp_mu12")
+    peout = g("A_population_scaling", "exp_muout")
+    peM = g("A_population_scaling", "exp_M")
+    pr2 = g("A_population_scaling", "r_squared")
+    pomega = g("A_population_scaling", "omega")
+    pvif = g("A_population_scaling", "vif", default=[float("nan")] * 3)
+    plmg = g("A_population_scaling", "shapley_r2", default=[float("nan")] * 3)
+    portho = g("A_population_scaling", "r2_ortho")
+
     blocks.append(("Population PK reveals allometric scaling", [
-        ("Clinical PK relates individual rate constants to covariates through "
-         "mixed-effects regression.{14} Treating the mass ratios as "
-         "covariates over the 64-configuration grid, we obtain "
-         "MRT \u221d \u03bc_{12}^{1.16} \u00d7 \u03bc_{out}^{0.09} "
-         "\u00d7 M^{\u22121.38} (R^2 = 0.30, inter-individual variability "
-         "\u03c9 = 0.65; Fig. 4). The dominant trends are that heavier initial "
-         "binaries survive longer (deeper wells; positive \u03bc_{12} "
-         "exponent) while heavier total systems are shorter-lived (negative M "
-         "exponent); the near-zero \u03bc_{out} exponent indicates the "
-         "binary\u2013single reduced mass has little independent effect once "
-         "\u03bc_{12} and M are controlled for. The modest R^2 reflects the "
-         "substantial scatter intrinsic to chaotic scattering, but the "
-         "closed-form scaling still replaces ad hoc outcome fits and, as we "
-         "show below, propagates directly into event-rate estimates."),
+        (f"Clinical PK relates individual rate constants to covariates through "
+         f"mixed-effects regression.{{14}} Treating the reduced masses as "
+         f"covariates over the 64-configuration grid, and using the tail-robust "
+         f"median lifetime as the response, we obtain "
+         f"t_{{1/2}} \u221d \u03bc_{{12}}^{{{_fmt(pe12, '.2f')}}} \u00d7 "
+         f"\u03bc_{{out}}^{{{_fmt(peout, '.2f')}}} \u00d7 "
+         f"M^{{{_fmt(peM, '.2f')}}} (R^2 = {_fmt(pr2, '.2f')}, "
+         f"inter-individual variability \u03c9 = {_fmt(pomega, '.2f')}; "
+         f"Fig. 4). Heavier initial binaries and heavier binary\u2013single "
+         f"pairs survive longer (deeper potential wells; positive \u03bc_{{12}} "
+         f"and \u03bc_{{out}} exponents), while a heavier total mass shortens "
+         f"the interaction (negative M exponent), consistent with the shorter "
+         f"dynamical time of a more massive triple."),
+        (f"The three reduced-mass covariates are strongly collinear "
+         f"(variance-inflation factors "
+         f"{_fmt(pvif[0], '.1f')}/{_fmt(pvif[1], '.1f')}/{_fmt(pvif[2], '.1f')} "
+         f"for \u03bc_{{12}}/\u03bc_{{out}}/M), so the individual exponents "
+         f"should be read jointly rather than as independent partial "
+         f"derivatives. An LMG/Shapley decomposition, which attributes the "
+         f"explained variance fairly across correlated predictors, assigns "
+         f"R^2 shares of "
+         f"{_fmt(plmg[0], '.02f')}/{_fmt(plmg[1], '.02f')}/{_fmt(plmg[2], '.02f')} "
+         f"to \u03bc_{{12}}/\u03bc_{{out}}/M, confirming that all three carry "
+         f"real, comparable information. Refitting on the orthogonal design "
+         f"axes (log m_2, log m_3; correlation "
+         f"{_fmt(g('A_population_scaling', 'corr_m2m3'), '.2f')}) removes the "
+         f"collinearity and yields a consistent trend "
+         f"(R^2 = {_fmt(portho, '.2f')}). The modest R^2 reflects the scatter "
+         f"intrinsic to chaotic scattering; the value of the law is that it "
+         f"replaces ad hoc outcome fits with a closed-form scaling that, as we "
+         f"show below, propagates directly into event-rate estimates."),
     ], [
         ("fig4_population_pk.png",
          "Population-PK analysis of the mass-ratio dependence. (a) MRT versus "
          "binary\u2013single reduced mass; (b) median lifetime versus intruder "
          "mass; (c) mean excursions versus lightest mass fraction; "
          "(d) lightest-body escape probability with logistic fit; "
-         "(e) predicted versus observed MRT (R^2 = 0.30); (f) slowest "
+         "(e) predicted versus observed median lifetime for the allometric "
+         "fit, annotated with the R^2, the LMG/Shapley R^2 shares and the "
+         "variance-inflation factors for "
+         "(\u03bc_{12}, \u03bc_{out}, M); (f) slowest "
          "half-life across the (m_2, m_3) grid.", "Figure 4"),
     ]))
 
