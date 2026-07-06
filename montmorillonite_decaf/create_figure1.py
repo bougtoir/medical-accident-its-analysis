@@ -45,7 +45,7 @@ def create_figure1():
         facecolor="#FFFFFF", edgecolor="#8B4513", linewidth=1
     )
     ax.add_patch(tag)
-    ax.text(5, 11.1, "DECLAY", ha="center", va="center", fontsize=8,
+    ax.text(5, 11.1, "caffe-out", ha="center", va="center", fontsize=8,
             fontweight="bold", color="#2E7D32")
 
     # MMT granules inside
