@@ -796,6 +796,26 @@ DISCUSSION = [
      "and ecological dynamics \u2014 a broader programme we would call the "
      "\u2018pharmacokinetics of chaos\u2019."),
 
+    ("The compartmental reading is not restricted to three bodies. Because a "
+     "compartment is simply a metastable configuration and a transfer is a "
+     "reshuffling between them, the general N-body problem admits an "
+     "N-compartment PK/PD description in which the compartments are the "
+     "distinct bound sub-structures (binaries, stable hierarchical triples, "
+     "higher multiples) and the transfers are their formation and disruption, "
+     "with escape again the elimination channel. The number of compartments "
+     "grows combinatorially with N \u2014 for small-N encounters it remains "
+     "tractable, while for larger systems the same generator can be coarse-"
+     "grained onto a manageable set of dynamically distinct states (e.g. "
+     "\u2018hard binary present\u2019 versus \u2018democratic\u2019), exactly "
+     "as physiological PK lumps many tissues into a few kinetically "
+     "distinguishable compartments. The closed-form residence-time and "
+     "population-scaling machinery used here for N = 3 then carries over "
+     "essentially unchanged, suggesting the compartmental toolkit is a "
+     "general instrument for the statistical mechanics of few- and "
+     "many-body gravitational dynamics rather than a three-body special "
+     "case. Verifying this for N = 4\u20135 scattering and for small "
+     "sub-clusters is a natural next step."),
+
     ("Limitations remain. The radiation-reaction treatment is perturbative "
      "(valid for c \u226b v_{orbital}); the tidal term is phenomenological "
      "rather than a full equilibrium-tide model; and the linear PK model "
