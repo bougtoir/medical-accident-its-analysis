@@ -276,12 +276,13 @@ def population_pk_analysis(scan_data):
         rates = entry["rates"]  # 3x3 list
         ke = entry["ke"]        # [3]
 
-        # Build rate matrix A
+        # Build rate matrix A in column convention (dp/dt = A p):
+        # A[j, i] is the rate from compartment i -> j.
         A = np.zeros((3, 3))
         for i in range(3):
             for j in range(3):
                 if i != j:
-                    A[i, j] = rates[i][j]
+                    A[j, i] = rates[i][j]
             A[i, i] = -(sum(rates[i][j] for j in range(3) if j != i) + ke[i])
 
         # Eigenvalues → half-lives
@@ -319,46 +320,108 @@ def population_pk_analysis(scan_data):
     return records
 
 
-def fit_population_model(records):
+def _ols_r2(X, y):
+    beta, _, _, _ = np.linalg.lstsq(X, y, rcond=None)
+    yp = X @ beta
+    ss_res = np.sum((y - yp) ** 2)
+    ss_tot = np.sum((y - np.mean(y)) ** 2)
+    return (1 - ss_res / ss_tot if ss_tot > 0 else 0.0), beta
+
+
+def _vif(cols):
+    """Variance inflation factors for a list of covariate arrays."""
+    vifs = []
+    for i in range(len(cols)):
+        others = [cols[j] for j in range(len(cols)) if j != i]
+        X = np.column_stack([np.ones(len(cols[i]))] + others)
+        r2, _ = _ols_r2(X, cols[i])
+        vifs.append(1.0 / (1.0 - r2) if r2 < 1 else np.inf)
+    return vifs
+
+
+def _shapley_r2(cols, y):
+    """LMG / Shapley-value decomposition of R^2 across the covariates."""
+    import itertools
+    from math import factorial
+    n = len(cols)
+    names = list(range(n))
+
+    def r2_of(idxs):
+        if not idxs:
+            return 0.0
+        X = np.column_stack([np.ones(len(y))] + [cols[k] for k in idxs])
+        return _ols_r2(X, y)[0]
+
+    share = [0.0] * n
+    for perm in itertools.permutations(names):
+        prev = []
+        for k in perm:
+            share[k] += r2_of(prev + [k]) - r2_of(prev)
+            prev = prev + [k]
+    return [s / factorial(n) for s in share]
+
+
+def fit_population_model(records, response="mrt"):
     """
     Fit population-level PK parameter relationships.
 
-    Model: log(MRT) = a0 + a1*log(mu12) + a2*log(mu_out) + a3*log(M) + epsilon
+    Model: log(y) = a0 + a1*log(mu12) + a2*log(mu_out) + a3*log(M) + epsilon
     This is analogous to allometric scaling in clinical PK:
       CL = CL_ref * (BW/70)^alpha
 
-    For three-body: MRT ∝ mu12^a1 * mu_out^a2 * M^a3
+    For three-body: y ∝ mu12^a1 * mu_out^a2 * M^a3, where y is the MRT
+    (``response='mrt'``) or the median lifetime (``response='median'``).
+    Also returns variance inflation factors (VIF) and an LMG/Shapley
+    decomposition of R^2 to diagnose and fairly attribute the collinear
+    covariates, plus an orthogonal-design-axis fit on (m2, m3).
     """
-    valid = [r for r in records if r["mrt"] > 0 and np.isfinite(r["mrt"])]
+    key = "mrt" if response == "mrt" else "lifetimes_median"
+    valid = [r for r in records
+             if r.get(key, 0) > 0 and np.isfinite(r.get(key, 0))
+             and r["mrt"] > 0 and np.isfinite(r["mrt"])]
     if len(valid) < 5:
         return None
 
+    # Collinear reduced-mass covariates.
+    c_mu12 = np.log([r["mu12"] for r in valid])
+    c_muout = np.log([r["mu_out"] for r in valid])
+    c_M = np.log([r["M"] for r in valid])
     # Design matrix: [1, log(mu12), log(mu_out), log(M)]
-    X = np.column_stack([
-        np.ones(len(valid)),
-        np.log([r["mu12"] for r in valid]),
-        np.log([r["mu_out"] for r in valid]),
-        np.log([r["M"] for r in valid]),
-    ])
-    y = np.log([r["mrt"] for r in valid])
+    X = np.column_stack([np.ones(len(valid)), c_mu12, c_muout, c_M])
+    y = np.log([r[key] for r in valid])
 
     # OLS fit
-    beta, residuals, rank, sv = np.linalg.lstsq(X, y, rcond=None)
+    r_squared, beta = _ols_r2(X, y)
     y_pred = X @ beta
-    ss_res = np.sum((y - y_pred) ** 2)
-    ss_tot = np.sum((y - np.mean(y)) ** 2)
-    r_squared = 1 - ss_res / ss_tot if ss_tot > 0 else 0
 
     # Prediction errors
     errors = y - y_pred
     omega = np.std(errors)  # inter-individual variability (eta in NONMEM)
 
-    print(f"    Population PK model: log(MRT) = {beta[0]:.2f} + "
+    # Collinearity diagnostics + fair R^2 attribution.
+    cov_cols = [c_mu12, c_muout, c_M]
+    vif = _vif(cov_cols)
+    shapley = _shapley_r2(cov_cols, y)
+
+    # Orthogonal-design-axis fit on (m2, m3) (m1 fixed => nearly uncorrelated).
+    c_m2 = np.log([r["m2"] for r in valid])
+    c_m3 = np.log([r["m3"] for r in valid])
+    Xo = np.column_stack([np.ones(len(valid)), c_m2, c_m3])
+    r2_ortho, beta_ortho = _ols_r2(Xo, y)
+    corr_m2m3 = float(np.corrcoef(c_m2, c_m3)[0, 1])
+
+    print(f"    Population PK model ({response}): log(y) = {beta[0]:.2f} + "
           f"{beta[1]:.2f}*log(mu12) + {beta[2]:.2f}*log(mu_out) + "
           f"{beta[3]:.2f}*log(M)")
-    print(f"    R² = {r_squared:.4f}")
-    print(f"    Inter-individual variability (omega): {omega:.4f}")
-    print(f"    → MRT ∝ mu12^{beta[1]:.2f} * mu_out^{beta[2]:.2f} * M^{beta[3]:.2f}")
+    print(f"    R² = {r_squared:.4f}  omega = {omega:.4f}")
+    print(f"    → y ∝ mu12^{beta[1]:.2f} * mu_out^{beta[2]:.2f} * M^{beta[3]:.2f}")
+    print(f"    VIF (mu12, mu_out, M) = "
+          f"({vif[0]:.2f}, {vif[1]:.2f}, {vif[2]:.2f})")
+    print(f"    Shapley/LMG R² shares = "
+          f"({shapley[0]:.3f}, {shapley[1]:.3f}, {shapley[2]:.3f})")
+    print(f"    Orthogonal (m2,m3) fit: R²={r2_ortho:.3f}, "
+          f"m2^{beta_ortho[1]:.2f} m3^{beta_ortho[2]:.2f} "
+          f"(corr[log m2, log m3]={corr_m2m3:.3f})")
 
     # Also fit escape probability of lightest body
     p_esc_lightest = []
@@ -389,10 +452,16 @@ def fit_population_model(records):
         popt = None
 
     return {
+        "response": response,
         "beta": beta.tolist(),
         "r_squared": r_squared,
         "omega": omega,
         "n": len(valid),
+        "vif": [float(v) for v in vif],
+        "shapley_r2": [float(s) for s in shapley],
+        "beta_ortho": beta_ortho.tolist(),
+        "r2_ortho": float(r2_ortho),
+        "corr_m2m3": corr_m2m3,
         "records": valid,
         "logistic_params": popt.tolist() if popt is not None else None,
         "q_min": q_min,

@@ -1,0 +1,31 @@
+MNRAS submission — task checklist
+
+Story: PK/PD inspiration -> re-examine three-body -> PK toolkit is genuinely
+useful for three-body statistics -> bidirectional method exchange is a
+productive synergy (reverse-mapping/TMDD condensed).
+
+Extensions (all implemented):
+[x] A-1 GW merger-rate connection (Peters inspiral, eccentricity boost)     fig8
+[x] A-2 Benchmark vs phase-space flux theory (Stone&Leigh / Ginat&Perets)   fig9
+[x] A-3 Which body is ejected x Kroupa BH mass function (dose-response)      fig11
+[x] A-4 Eccentricity + ejection-velocity distributions                      fig10
+[x] B-5 1PN precession robustness                                           fig12
+[x] B-6 Tidal dissipation robustness                                        fig12
+[x] B-7 Cluster / nuclear-cluster / AGN-disc application timescales         fig13
+
+Pipeline:
+[x] simulations/threebody_fast.py  Numba integrator (modes 0-3), records ecc + v_esc
+[x] run_mnras_sims.py              9 datasets (equal/unequal/democratic x newton/pn1/tidal), 3000 runs each
+[x] analyze_mnras_extensions.py    figs 8-13 + data/mnras_extensions_summary.json
+[x] create_mnras_submission.py     manuscript_mnras.docx + cover_letter_mnras.docx + figures_mnras_editable.pptx + zip
+
+MNRAS format compliance:
+[x] Author-year (Harvard) citations, alphabetical reference list, 27 refs all cited (no orphans/phantoms)
+[x] Numbered sections 1..5 (Intro, Methods, Results, Discussion, Conclusions)
+[x] All 13 figures cited in text, in sequential order, placed after first mention (inline)
+[x] Editable EN pptx (13.333x7.5, one figure/slide) + inline figures in docx
+[x] Key words line; abstract self-contained
+[x] Body word count ~3.5k (MNRAS has no strict limit)
+
+Outputs: manuscript/manuscript_mnras.docx, cover_letter_mnras.docx,
+figures_mnras_editable.pptx, threebody_pk_mnras_submission.zip

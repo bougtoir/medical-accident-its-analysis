@@ -1,0 +1,8 @@
+POPULAR SUMMARY
+============================================================
+
+When three stars meet in space, their gravitational dance is chaotic and unpredictable—a puzzle that has challenged physicists since Newton. Meanwhile, in hospitals and pharmacies, scientists have spent decades perfecting mathematical models that describe how drugs move through the human body, passing between blood, tissues, and organs before being eliminated.
+
+This study reveals a surprising connection: the mathematics governing these two seemingly unrelated phenomena are structurally identical. In the three-body problem, at any moment two stars form a pair while the third orbits at a distance. The pair can swap partners, and eventually one star is flung away permanently. In pharmacokinetics, a drug molecule occupies one body compartment (say, blood), can transfer to another (say, liver), and is eventually eliminated from the body. Both processes are described by the same type of random process—a continuous-time Markov chain on three states with irreversible exit.
+
+By running 15,000 computer simulations of three-body encounters across 64 different mass combinations, the author shows that pharmacokinetic models quantitatively reproduce the statistical behavior of three-body scattering—including how long the interaction lasts, which star gets ejected, and how the outcome depends on the masses involved. The mapping works in both directions: drug-design tools from clinical medicine can be applied to astrophysics, and stability analysis from celestial mechanics can inform pharmacology. The correspondence holds even in realistic three-dimensional encounters with gravitational-wave energy loss, suggesting broad applicability to real astrophysical systems.

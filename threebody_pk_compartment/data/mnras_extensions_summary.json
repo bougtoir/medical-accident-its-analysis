@@ -1,0 +1,203 @@
+{
+  "A1_gw_merger": {
+    "merger_fraction_a0_0.5AU_thermal": 0.176056338028169,
+    "merger_fraction_a0_0.5AU_circular": 0.0007042253521126761,
+    "ecc_merger_boost": 249.99999999999997,
+    "dissipative_lifetime_ratio": {
+      "equal_mass": 0.9830964002999107,
+      "unequal_mass": 0.9614371404760389,
+      "democratic": 0.830986806624999
+    }
+  },
+  "A2_flux_benchmark": {
+    "ks_pk_equal": 0.16737863956483276,
+    "mrt_vs_lifetime_slope": 1.0002381963334368,
+    "mrt_vs_lifetime_r2": 0.9999999832824272,
+    "n_configs": 64
+  },
+  "A3_ejection_mf": {
+    "logistic_b0": -1.7464972845115598,
+    "logistic_b1": -0.8284136128972664,
+    "frac_lightest_ejected_powerlaw": 0.397435,
+    "mean_ejected_mass": 8.131896340901207,
+    "mean_member_mass": 11.176172824389019
+  },
+  "A4_ecc_kick": {
+    "equal_mass": {
+      "median_ecc": 0.7031505902853257,
+      "mean_ecc": 0.6608480262889226,
+      "frac_e_gt_0p9": 0.19577464788732393,
+      "median_vej": 0.4092568773814278,
+      "n": 2840
+    },
+    "unequal_mass": {
+      "median_ecc": 0.5847182442691587,
+      "mean_ecc": 0.6148406259894998,
+      "frac_e_gt_0p9": 0.06266937669376693,
+      "median_vej": 0.6785401616335742,
+      "n": 2952
+    },
+    "democratic": {
+      "median_ecc": 0.7596891668776884,
+      "mean_ecc": 0.7067594357724162,
+      "frac_e_gt_0p9": 0.2370475514549326,
+      "median_vej": 0.3658765535120107,
+      "n": 2818
+    }
+  },
+  "B56_pn_tidal": {
+    "pn1": {
+      "equal_mass": {
+        "ks_vs_newton": 0.07271224009432993,
+        "ks_pk_fit": 0.12811024104833235,
+        "lifetime_ratio": 0.9340218658178938,
+        "n_collision_newton": 16,
+        "n_collision_ext": 0,
+        "n": 2999
+      },
+      "unequal_mass": {
+        "ks_vs_newton": 0.030519558676028083,
+        "ks_pk_fit": 0.3024427890401159,
+        "lifetime_ratio": 0.9624046151044253,
+        "n_collision_newton": 9,
+        "n_collision_ext": 0,
+        "n": 3000
+      },
+      "democratic": {
+        "ks_vs_newton": 0.05233877262084112,
+        "ks_pk_fit": 0.14920562271754534,
+        "lifetime_ratio": 0.8878209890846932,
+        "n_collision_newton": 22,
+        "n_collision_ext": 2,
+        "n": 2997
+      }
+    },
+    "tidal": {
+      "equal_mass": {
+        "ks_vs_newton": 0.19764661732991604,
+        "ks_pk_fit": 0.1238941880057638,
+        "lifetime_ratio": 0.6508501690630086,
+        "n_collision_newton": 16,
+        "n_collision_ext": 137,
+        "n": 2863
+      },
+      "unequal_mass": {
+        "ks_vs_newton": 0.09622575208619054,
+        "ks_pk_fit": 0.30322037259986867,
+        "lifetime_ratio": 0.911312059464027,
+        "n_collision_newton": 9,
+        "n_collision_ext": 60,
+        "n": 2940
+      },
+      "democratic": {
+        "ks_vs_newton": 0.31644969395973793,
+        "ks_pk_fit": 0.1446454271412766,
+        "lifetime_ratio": 0.43300696708572595,
+        "n_collision_newton": 22,
+        "n_collision_ext": 190,
+        "n": 2810
+      }
+    }
+  },
+  "B7_environments": {
+    "mrt_dyn": 1655.9649905807996,
+    "environments": [
+      {
+        "env": "Globular cluster core",
+        "t_enc_yr": 37210581.84041453,
+        "t_dyn_yr": 0.22357064181150535,
+        "t_resonance_yr": 370.2251557615328,
+        "encounters_per_Gyr": 26.87407588219695
+      },
+      {
+        "env": "Nuclear star cluster",
+        "t_enc_yr": 29113064.78520562,
+        "t_dyn_yr": 0.22357064181150535,
+        "t_resonance_yr": 370.2251557615328,
+        "encounters_per_Gyr": 34.348839855162545
+      },
+      {
+        "env": "AGN disc (migration trap)",
+        "t_enc_yr": 18334.854289656858,
+        "t_dyn_yr": 0.05589266045287634,
+        "t_resonance_yr": 92.5562889403832,
+        "encounters_per_Gyr": 54540.92976152663
+      }
+    ]
+  },
+  "A_population_scaling": {
+    "response": "median",
+    "beta": [
+      8.456130388939851,
+      0.7569469982307444,
+      0.49921649909938703,
+      -1.6582803376155195
+    ],
+    "exp_mu12": 0.7569469982307444,
+    "exp_muout": 0.49921649909938703,
+    "exp_M": -1.6582803376155195,
+    "r_squared": 0.3160200059802103,
+    "omega": 0.5107956664580985,
+    "vif": [
+      2.2816563464715136,
+      3.4790038547487585,
+      5.5745525477513445
+    ],
+    "shapley_r2": [
+      0.05141178026969725,
+      0.06067023108212383,
+      0.20393799462838888
+    ],
+    "beta_ortho": [
+      5.544746972152734,
+      -0.04647114060941229,
+      -0.25879982329598744
+    ],
+    "r2_ortho": 0.14133404181689202,
+    "corr_m2m3": 0.0604516095401897,
+    "n_configs": 59,
+    "interaction_model": {
+      "terms": [
+        "const",
+        "log_mu12",
+        "log_mu_out",
+        "log_M",
+        "log_mu12*log_mu_out"
+      ],
+      "beta": [
+        7.954957646932309,
+        0.9783444435275241,
+        0.7965841874632187,
+        -1.2851653157697656,
+        0.7772632531196868
+      ],
+      "r_squared": 0.398317240608564,
+      "delta_r2_vs_main": 0.0822972346283537
+    },
+    "expanded_scan_check": {
+      "n_configs": 93,
+      "n_runs_per_config": 2500,
+      "r_squared": 0.3140851886984177,
+      "beta": [
+        7.749437466697786,
+        0.5725572482562931,
+        0.4721749700941908,
+        -1.241584991719703
+      ],
+      "exp_mu12": 0.5725572482562931,
+      "exp_muout": 0.4721749700941908,
+      "exp_M": -1.241584991719703,
+      "vif": [
+        1.8989494354643999,
+        2.902346429339971,
+        4.287313576781063
+      ],
+      "shapley_r2": [
+        0.0530758388208328,
+        0.06301012809338792,
+        0.19799922178419704
+      ],
+      "r2_ortho": 0.051976293876068835
+    }
+  }
+}
