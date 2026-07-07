@@ -231,8 +231,8 @@ ABSTRACT = (
     "enough to be described by rate equations, yet the community lacks a "
     "compact, transferable toolkit for turning those regularities into "
     "quantitative astrophysical predictions. Motivated by pharmacokinetics "
-    "(PK) \u2014 the clinical discipline that models how drugs distribute and "
-    "clear through the body \u2014 we re-examine the gravitational three-body "
+    "(PK) \u2014 the clinical discipline modelling how drugs distribute and "
+    "clear \u2014 we re-examine the gravitational three-body "
     "problem through a compartmental lens: each bound binary configuration is "
     "a compartment, configuration changes are inter-compartmental transfers, "
     "and escape is elimination. Using 15,000 planar scattering experiments "
@@ -244,8 +244,8 @@ ABSTRACT = (
     "mean residence time (MRT) in closed form; a nonlinear "
     "(Michaelis\u2013Menten) elimination term captures the sticky-chaos tail; "
     "and population-PK (mixed-effects) modelling delivers an allometric "
-    "scaling law for the interaction time in the reduced masses. We then use these "
-    "tools to make astrophysical predictions: (i) Peters-inspiral merger "
+    "scaling law for the interaction time. We then make astrophysical "
+    "predictions: (i) Peters-inspiral merger "
     "fractions and the eccentricity boost of the gravitational-wave (GW) "
     "merger rate; (ii) a closed-form, dose\u2013response predictor for which "
     "body is ejected, convolved with a realistic black-hole mass function; "
@@ -254,8 +254,8 @@ ABSTRACT = (
     "clusters, nuclear star clusters, and AGN discs. The compartment "
     "structure survives 1PN precession and tidal drag. The mapping is bidirectional \u2014 celestial-mechanics "
     "stability theory also informs target-mediated drug disposition \u2014 "
-    "illustrating that two-way traffic of methods between pharmacology and "
-    "dynamics is a productive synergy."
+    "illustrating that this two-way traffic of methods is a productive "
+    "synergy."
 )
 
 INTRO = [
@@ -922,9 +922,9 @@ def build_manuscript():
     r = kw.add_run("Key words: ")
     r.bold = True
     r.font.size = Pt(10)
-    r2 = kw.add_run("gravitation \u2013 celestial mechanics \u2013 stars: "
-                    "kinematics and dynamics \u2013 methods: statistical \u2013 "
-                    "gravitational waves.")
+    r2 = kw.add_run("celestial mechanics \u2013 gravitation \u2013 "
+                    "gravitational waves \u2013 methods: statistical \u2013 "
+                    "stars: kinematics and dynamics.")
     r2.font.size = Pt(10)
     kw.paragraph_format.space_after = Pt(12)
 
