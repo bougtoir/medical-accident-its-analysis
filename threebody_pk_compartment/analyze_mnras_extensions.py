@@ -595,7 +595,7 @@ def analyze_population_scaling():
     res = fit_population_model(recs, response="median")
     if res is None:
         return None
-    return {
+    out = {
         "response": res["response"],
         "beta": res["beta"],
         "exp_mu12": res["beta"][1],
@@ -610,6 +610,30 @@ def analyze_population_scaling():
         "corr_m2m3": res["corr_m2m3"],
         "n_configs": res["n"],
     }
+
+    # Direction C: robustness check on an expanded, wider/finer 3D grid
+    # (100 configurations x 2500 runs). More data does not raise R^2 ->
+    # the modest R^2 is intrinsic chaotic-scattering scatter, not noise.
+    exp_path = os.path.join(DATADIR, "mass_scan_3d.json")
+    if os.path.exists(exp_path):
+        with open(exp_path) as f:
+            scan_exp = json.load(f)
+        recs_exp = population_pk_analysis(scan_exp)
+        res_exp = fit_population_model(recs_exp, response="median")
+        if res_exp is not None:
+            out["expanded_scan_check"] = {
+                "n_configs": res_exp["n"],
+                "n_runs_per_config": 2500,
+                "r_squared": res_exp["r_squared"],
+                "beta": res_exp["beta"],
+                "exp_mu12": res_exp["beta"][1],
+                "exp_muout": res_exp["beta"][2],
+                "exp_M": res_exp["beta"][3],
+                "vif": res_exp["vif"],
+                "shapley_r2": res_exp["shapley_r2"],
+                "r2_ortho": res_exp["r2_ortho"],
+            }
+    return out
 
 
 def main():

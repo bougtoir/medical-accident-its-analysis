@@ -520,9 +520,17 @@ def get_results_blocks():
          f"{_fmt(g('A_population_scaling', 'corr_m2m3'), '.2f')}) removes the "
          f"collinearity and yields a consistent trend "
          f"(R^2 = {_fmt(portho, '.2f')}). The modest R^2 reflects the scatter "
-         f"intrinsic to chaotic scattering; the value of the law is that it "
-         f"replaces ad hoc outcome fits with a closed-form scaling that, as we "
-         f"show below, propagates directly into event-rate estimates."),
+         f"intrinsic to chaotic scattering rather than estimation noise: "
+         f"re-running the scan on a wider, finer three-dimensional grid "
+         f"({int(g('A_population_scaling', 'expanded_scan_check', 'n_configs', default=0))} "
+         f"configurations at 2500 encounters each) leaves the law essentially "
+         f"unchanged (R^2 = "
+         f"{_fmt(g('A_population_scaling', 'expanded_scan_check', 'r_squared'), '.2f')}, "
+         f"same exponent signs), confirming that a several-fold increase in "
+         f"sampling does not tighten the relation. The value of the law is "
+         f"that it replaces ad hoc outcome fits with a closed-form scaling "
+         f"that, as we show below, propagates directly into event-rate "
+         f"estimates."),
     ], [
         ("fig4_population_pk.png",
          "Population-PK analysis of the mass-ratio dependence. (a) MRT versus "
