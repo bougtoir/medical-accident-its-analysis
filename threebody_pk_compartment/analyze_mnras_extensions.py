@@ -611,6 +611,28 @@ def analyze_population_scaling():
         "n_configs": res["n"],
     }
 
+    # B2 secondary model: add a mu12*mu_out interaction term.
+    def _r2(X, yv):
+        b, _, _, _ = np.linalg.lstsq(X, yv, rcond=None)
+        yp = X @ b
+        sr = np.sum((yv - yp) ** 2)
+        st = np.sum((yv - np.mean(yv)) ** 2)
+        return (1 - sr / st if st > 0 else 0.0), b
+    valid = res["records"]
+    lm12 = np.log([r["mu12"] for r in valid])
+    lmo = np.log([r["mu_out"] for r in valid])
+    lM = np.log([r["M"] for r in valid])
+    ylt = np.log([r["lifetimes_median"] for r in valid])
+    Xi = np.column_stack([np.ones(len(valid)), lm12, lmo, lM, lm12 * lmo])
+    r2_int, b_int = _r2(Xi, ylt)
+    out["interaction_model"] = {
+        "terms": ["const", "log_mu12", "log_mu_out", "log_M",
+                  "log_mu12*log_mu_out"],
+        "beta": b_int.tolist(),
+        "r_squared": float(r2_int),
+        "delta_r2_vs_main": float(r2_int - res["r_squared"]),
+    }
+
     # Direction C: robustness check on an expanded, wider/finer 3D grid
     # (100 configurations x 2500 runs). More data does not raise R^2 ->
     # the modest R^2 is intrinsic chaotic-scattering scatter, not noise.

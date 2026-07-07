@@ -490,6 +490,10 @@ def get_results_blocks():
     pvif = g("A_population_scaling", "vif", default=[float("nan")] * 3)
     plmg = g("A_population_scaling", "shapley_r2", default=[float("nan")] * 3)
     portho = g("A_population_scaling", "r2_ortho")
+    pint_r2 = g("A_population_scaling", "interaction_model", "r_squared")
+    pint_beta = g("A_population_scaling", "interaction_model", "beta",
+                  default=[float("nan")] * 5)
+    pint_cross = pint_beta[4] if len(pint_beta) > 4 else float("nan")
 
     blocks.append(("Population PK reveals allometric scaling", [
         (f"Clinical PK relates individual rate constants to covariates through "
@@ -527,7 +531,15 @@ def get_results_blocks():
          f"unchanged (R^2 = "
          f"{_fmt(g('A_population_scaling', 'expanded_scan_check', 'r_squared'), '.2f')}, "
          f"same exponent signs), confirming that a several-fold increase in "
-         f"sampling does not tighten the relation. The value of the law is "
+         f"sampling does not tighten the relation. As a secondary model, "
+         f"adding a \u03bc_{{12}}\u00d7\u03bc_{{out}} interaction term raises "
+         f"the explained variance to R^2 = {_fmt(pint_r2, '.2f')} "
+         f"(from {_fmt(pr2, '.2f')}), with a positive cross-coefficient "
+         f"(+{_fmt(pint_cross, '.2f')}) "
+         f"indicating that a deep initial binary and a massive intruder "
+         f"reinforce each other's effect on the interaction time; we retain "
+         f"the pure power law as the primary result for interpretability. "
+         f"The value of the law is "
          f"that it replaces ad hoc outcome fits with a closed-form scaling "
          f"that, as we show below, propagates directly into event-rate "
          f"estimates."),

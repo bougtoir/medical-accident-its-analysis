@@ -156,6 +156,24 @@
     "r2_ortho": 0.14133404181689202,
     "corr_m2m3": 0.0604516095401897,
     "n_configs": 59,
+    "interaction_model": {
+      "terms": [
+        "const",
+        "log_mu12",
+        "log_mu_out",
+        "log_M",
+        "log_mu12*log_mu_out"
+      ],
+      "beta": [
+        7.954957646932309,
+        0.9783444435275241,
+        0.7965841874632187,
+        -1.2851653157697656,
+        0.7772632531196868
+      ],
+      "r_squared": 0.398317240608564,
+      "delta_r2_vs_main": 0.0822972346283537
+    },
     "expanded_scan_check": {
       "n_configs": 93,
       "n_runs_per_config": 2500,
