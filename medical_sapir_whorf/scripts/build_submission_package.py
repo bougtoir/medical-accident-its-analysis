@@ -141,8 +141,9 @@ def build_checklist():
          "placed inline.", "Confirmed (Fig. 1, Fig. 2, Table 1)."),
         ("Figures supplied at \u2265 300 dpi; tables editable (not images).",
          "Figures provided as 300 dpi PNG and TIFF; tables native/editable."),
-        ("References complete and verified against primary sources; numbered in order "
-         "of first appearance.", "32 references verified; refs 1\u20133 = Sapir, Whorf, Warner."),
+        ("References complete and verified against primary sources; formatted in "
+         "Chicago Manual of Style author\u2013date and ordered alphabetically.",
+         "32 references verified; in-text citations use (Author Year)."),
         ("Text is 1.5-spaced; 11\u2013/12-point Times New Roman.",
          "Confirmed (Times New Roman 11 pt, 1.5 spacing)."),
     ]
@@ -160,10 +161,9 @@ def build_checklist():
     note = doc.add_paragraph()
     note.add_run("Note on citation style: ").bold = True
     note.add_run(
-        f"references currently use numbered (Vancouver) style. {JOURNAL} specifies "
-        "Chicago Manual of Style author\u2013date for the final version but states that "
-        "initial submissions need not conform to journal citation style. Conversion to "
-        "author\u2013date can be applied on request or at revision."
+        f"references and in-text citations follow the Chicago Manual of Style "
+        f"author\u2013date system specified by {JOURNAL}. In-text citations appear as "
+        "(Author Year); the reference list is ordered alphabetically by author surname."
     )
 
     out = OUT_DIR / "reporting_checklist_en.docx"

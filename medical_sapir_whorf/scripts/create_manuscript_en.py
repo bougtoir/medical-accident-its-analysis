@@ -36,24 +36,54 @@ OUT_DIR.mkdir(exist_ok=True)
 # Utility helpers
 # ---------------------------------------------------------------------------
 
-# Citation map (key -> Vancouver number), populated by compute_citations().
-CIT_MAP = {}
+def _format_marker(marker):
+    """Render a citation marker into a CMoS author–date parenthetical.
+    {key}          -> (Author Year)
+    {key1,key2}    -> (Author1 Year1; Author2 Year2), grouped by author,
+                      sorted alphabetically by author.
+    {@key}         -> (Year)  [narrative use, author already named in prose]
+    """
+    year_only = marker.startswith('@')
+    keys = [k.strip() for k in marker.lstrip('@').split(',')]
+
+    if year_only:
+        years = [AUTHOR_YEAR[k][1] for k in keys]
+        return f"({', '.join(years)})"
+
+    # group years under the same author label
+    grouped = {}
+    order = []
+    for k in keys:
+        author, year = AUTHOR_YEAR[k]
+        if author not in grouped:
+            grouped[author] = []
+            order.append(author)
+        grouped[author].append(year)
+    order.sort(key=str.lower)
+    parts = [f"{a} {', '.join(grouped[a])}" for a in order]
+    return f"({'; '.join(parts)})"
 
 
-def add_superscript_text(paragraph, text):
-    """Parse text with {key} or {key1,key2} citation markers and render the
-    resolved Vancouver numbers as Word-native superscripts."""
-    parts = re.split(r'(\{[^}]+\})', text)
-    for part in parts:
-        if part.startswith('{') and part.endswith('}'):
-            keys = [k.strip() for k in part[1:-1].split(',')]
-            nums = sorted(CIT_MAP[k] for k in keys)
-            run = paragraph.add_run(','.join(str(n) for n in nums))
-            run.font.superscript = True
-            run.font.size = Pt(8)
-        else:
-            run = paragraph.add_run(part)
-            run.font.size = Pt(11)
+def render_citations(text):
+    """Replace {key}/{@key} markers with CMoS author–date parentheticals,
+    keeping citations before terminal punctuation and correctly spaced."""
+    # Move a trailing punctuation mark to after the citation, adding a space.
+    text = re.sub(r'([.,;:])(\{@?[^}]+\})', r' \2\1', text)
+    # Ensure a space between a preceding word/paren char and the citation.
+    text = re.sub(r'(\S)(\{@?[^}]+\})', r'\1 \2', text)
+    text = re.sub(r'\{(@?[^}]+)\}', lambda m: _format_marker(m.group(1)), text)
+    return re.sub(r' {2,}', ' ', text)
+
+
+def add_italic_text(paragraph, text, size=Pt(10)):
+    """Add text to a paragraph, honouring <i>…</i> italic markup."""
+    for part in re.split(r'(<i>.*?</i>)', text):
+        if not part:
+            continue
+        run = paragraph.add_run(re.sub(r'</?i>', '', part))
+        run.font.size = size
+        if part.startswith('<i>'):
+            run.italic = True
     return paragraph
 
 
@@ -73,10 +103,11 @@ def add_heading(doc, text, level):
 
 
 def add_body(doc, text):
-    """Add a body paragraph with superscript citation support."""
+    """Add a body paragraph, rendering CMoS author–date citations."""
     p = doc.add_paragraph()
     p.style = doc.styles['Normal']
-    add_superscript_text(p, text)
+    run = p.add_run(render_citations(text))
+    run.font.size = Pt(11)
     p.paragraph_format.space_after = Pt(6)
     p.paragraph_format.line_spacing = 1.5
     return p
@@ -247,47 +278,83 @@ KEYWORDS = [
     "diagnostic labels",
 ]
 
-# Reference database keyed by citation key. Vancouver numbers are assigned
-# automatically in order of first appearance by compute_citations().
+# Reference database keyed by citation key, in Chicago Manual of Style
+# author–date form (Philosophy of Medicine house style).
+#   AUTHOR_YEAR[key] -> (in-text author label, year) for parenthetical citations
+#   REFERENCES_DB[key] -> full reference-list entry; <i>…</i> marks italic titles
+# The reference list is ordered alphabetically by author (CMoS author–date).
+AUTHOR_YEAR = {
+    "sapir1929": ("Sapir", "1929"),
+    "whorf1956": ("Whorf", "1956"),
+    "warner1976": ("Warner", "1977"),
+    "hacking1995": ("Hacking", "1995"),
+    "hacking2006": ("Hacking", "2006"),
+    "kleinman1988": ("Kleinman", "1988"),
+    "jutel2009": ("Jutel", "2009"),
+    "zachar2017": ("Zachar and Kendler", "2017"),
+    "boorse1977": ("Boorse", "1977"),
+    "swartz1985": ("Swartz", "1985"),
+    "michaleff2021": ("Sims et al.", "2021"),
+    "nickel2017": ("Nickel et al.", "2017"),
+    "iwasaki2006": ("Iwasaki et al.", "2006"),
+    "nishiyama1997": ("Nishiyama and Johnson", "1997"),
+    "who2019icd": ("World Health Organization", "2019"),
+    "reed2019": ("Reed et al.", "2019"),
+    "treede2019": ("Treede et al.", "2019"),
+    "tsou2016": ("Tsou", "2016"),
+    "cooper2005": ("Cooper", "2005"),
+    "fabrega1974": ("Fabrega", "1974"),
+    "eisenberg1977": ("Eisenberg", "1977"),
+    "rosenhan1973": ("Rosenhan", "1973"),
+    "engel1977": ("Engel", "1977"),
+    "boroditsky2001": ("Boroditsky", "2001"),
+    "lupyan2016": ("Lupyan and Bergen", "2016"),
+    "conrad2007": ("Conrad", "2007"),
+    "bowker1999": ("Bowker and Star", "1999"),
+    "craddock2010": ("Craddock and Owen", "2010"),
+    "frances2013": ("Frances", "2013"),
+    "kirmayer2001": ("Kirmayer", "2001"),
+    "feinstein1985": ("Feinstein et al.", "1985"),
+    "brierley2017": ("Brierley et al.", "2017"),
+}
+
 REFERENCES_DB = {
-    "sapir1929": "Sapir E. The status of linguistics as a science. Language. 1929;5(4):207–14.",
-    "whorf1956": "Whorf BL. Language, thought, and reality: selected writings of Benjamin Lee Whorf. Carroll JB, editor. Cambridge (MA): MIT Press; 1956.",
-    "warner1976": "Warner R. The relationship between language and disease concepts. Int J Psychiatry Med. 1977;7(1):57–68.",
-    "hacking1995": "Hacking I. The looping effects of human kinds. In: Sperber D, Premack D, Premack AJ, editors. Causal cognition: a multidisciplinary debate. Oxford: Clarendon Press; 1995. p. 351–94.",
-    "hacking2006": "Hacking I. Making up people. London Review of Books. 2006;28(16):23–6.",
-    "kleinman1988": "Kleinman A. The illness narratives: suffering, healing, and the human condition. New York: Basic Books; 1988.",
-    "jutel2009": "Jutel A. Sociology of diagnosis: a preliminary review. Sociol Health Illn. 2009;31(2):278–99.",
-    "zachar2017": "Zachar P, Kendler KS. The philosophy of nosology. Annu Rev Clin Psychol. 2017;13:49–71.",
-    "boorse1977": "Boorse C. Health as a theoretical concept. Philos Sci. 1977;44(4):542–73.",
-    "swartz1985": "Swartz L. Anorexia nervosa as a culture-bound syndrome. Soc Sci Med. 1985;20(7):725–30.",
-    "michaleff2021": "Sims R, Michaleff ZA, Glasziou P, Thomas R. Consequences of a diagnostic label: a systematic scoping review and thematic framework. Front Public Health. 2021;9:725877.",
-    "nickel2017": "Nickel B, Barratt A, Copp T, Moynihan R, McCaffery K. Words do matter: a systematic review on how different terminology for the same condition influences management preferences. BMJ Open. 2017;7(7):e014129.",
-    "iwasaki2006": "Iwasaki K, Takahashi M, Nakata A. Health problems due to long working hours in Japan: working hours, workers' compensation (karoshi), and preventive measures. Ind Health. 2006;44(4):537–40.",
-    "nishiyama1997": "Nishiyama K, Johnson JV. Karoshi—death from overwork: occupational health consequences of Japanese production management. Int J Health Serv. 1997;27(4):625–41.",
-    "who2019icd": "World Health Organization. ICD-11 for Mortality and Morbidity Statistics. Geneva: WHO; 2019.",
-    "reed2019": "Reed GM, First MB, Kogan CS, et al. Innovations and changes in the ICD-11 classification of mental, behavioural and neurodevelopmental disorders. World Psychiatry. 2019;18(1):3–19.",
-    "treede2019": "Treede RD, Rief W, Barke A, et al. Chronic pain as a symptom or a disease: the IASP Classification of Chronic Pain for the International Classification of Diseases (ICD-11). Pain. 2019;160(1):19–27.",
-    "tsou2016": "Tsou JY. Natural kinds, psychiatric classification and the history of the DSM. Hist Psychiatry. 2016;27(4):406–24.",
-    "cooper2005": "Cooper R. Classifying madness: a philosophical examination of the Diagnostic and Statistical Manual of Mental Disorders. Dordrecht: Springer; 2005.",
-    "fabrega1974": "Fabrega H Jr. Disease and social behavior: an interdisciplinary perspective. Cambridge (MA): MIT Press; 1974.",
-    "eisenberg1977": "Eisenberg L. Disease and illness: distinctions between professional and popular ideas of sickness. Cult Med Psychiatry. 1977;1(1):9–23.",
-    "rosenhan1973": "Rosenhan DL. On being sane in insane places. Science. 1973;179(4070):250–8.",
-    "engel1977": "Engel GL. The need for a new medical model: a challenge for biomedicine. Science. 1977;196(4286):129–36.",
-    "boroditsky2001": "Boroditsky L. Does language shape thought? Mandarin and English speakers' conceptions of time. Cogn Psychol. 2001;43(1):1–22.",
-    "lupyan2016": "Lupyan G, Bergen B. How language programs the mind. Top Cogn Sci. 2016;8(2):408–24.",
-    "conrad2007": "Conrad P. The medicalization of society: on the transformation of human conditions into treatable disorders. Baltimore: Johns Hopkins University Press; 2007.",
-    "bowker1999": "Bowker GC, Star SL. Sorting things out: classification and its consequences. Cambridge (MA): MIT Press; 1999.",
-    "craddock2010": "Craddock N, Owen MJ. The Kraepelinian dichotomy — going, going... but still not gone. Br J Psychiatry. 2010;196(2):92–5.",
-    "frances2013": "Frances A. Saving normal: an insider's revolt against out-of-control psychiatric diagnosis, DSM-5, Big Pharma, and the medicalization of ordinary life. New York: William Morrow; 2013.",
-    "kirmayer2001": "Kirmayer LJ. Cultural variations in the clinical presentation of depression and anxiety: implications for diagnosis and treatment. J Clin Psychiatry. 2001;62 Suppl 13:22–8.",
-    "feinstein1985": "Feinstein AR, Sosin DM, Wells CK. The Will Rogers phenomenon: stage migration and new diagnostic techniques as a source of misleading statistics for survival in cancer. N Engl J Med. 1985;312(25):1604–8.",
-    "brierley2017": "Brierley JD, Gospodarowicz MK, Wittekind C, editors. TNM classification of malignant tumours. 8th ed. Oxford: Wiley Blackwell; 2017.",
+    "sapir1929": "Sapir, E. 1929. \u201cThe Status of Linguistics as a Science.\u201d <i>Language</i> 5 (4): 207\u201314.",
+    "whorf1956": "Whorf, B. L. 1956. <i>Language, Thought, and Reality: Selected Writings of Benjamin Lee Whorf</i>. Edited by J. B. Carroll. Cambridge, MA: MIT Press.",
+    "warner1976": "Warner, R. 1977. \u201cThe Relationship between Language and Disease Concepts.\u201d <i>International Journal of Psychiatry in Medicine</i> 7 (1): 57\u201368.",
+    "hacking1995": "Hacking, I. 1995. \u201cThe Looping Effects of Human Kinds.\u201d In <i>Causal Cognition: A Multidisciplinary Debate</i>, edited by D. Sperber, D. Premack, and A. J. Premack, 351\u201394. Oxford: Clarendon Press.",
+    "hacking2006": "Hacking, I. 2006. \u201cMaking Up People.\u201d <i>London Review of Books</i> 28 (16): 23\u201326.",
+    "kleinman1988": "Kleinman, A. 1988. <i>The Illness Narratives: Suffering, Healing, and the Human Condition</i>. New York: Basic Books.",
+    "jutel2009": "Jutel, A. 2009. \u201cSociology of Diagnosis: A Preliminary Review.\u201d <i>Sociology of Health & Illness</i> 31 (2): 278\u201399.",
+    "zachar2017": "Zachar, P., and K. S. Kendler. 2017. \u201cThe Philosophy of Nosology.\u201d <i>Annual Review of Clinical Psychology</i> 13: 49\u201371.",
+    "boorse1977": "Boorse, C. 1977. \u201cHealth as a Theoretical Concept.\u201d <i>Philosophy of Science</i> 44 (4): 542\u201373.",
+    "swartz1985": "Swartz, L. 1985. \u201cAnorexia Nervosa as a Culture-Bound Syndrome.\u201d <i>Social Science & Medicine</i> 20 (7): 725\u201330.",
+    "michaleff2021": "Sims, R., Z. A. Michaleff, P. Glasziou, and R. Thomas. 2021. \u201cConsequences of a Diagnostic Label: A Systematic Scoping Review and Thematic Framework.\u201d <i>Frontiers in Public Health</i> 9: 725877.",
+    "nickel2017": "Nickel, B., A. Barratt, T. Copp, R. Moynihan, and K. McCaffery. 2017. \u201cWords Do Matter: A Systematic Review on How Different Terminology for the Same Condition Influences Management Preferences.\u201d <i>BMJ Open</i> 7 (7): e014129.",
+    "iwasaki2006": "Iwasaki, K., M. Takahashi, and A. Nakata. 2006. \u201cHealth Problems Due to Long Working Hours in Japan: Working Hours, Workers\u2019 Compensation (Karoshi), and Preventive Measures.\u201d <i>Industrial Health</i> 44 (4): 537\u201340.",
+    "nishiyama1997": "Nishiyama, K., and J. V. Johnson. 1997. \u201cKaroshi\u2014Death from Overwork: Occupational Health Consequences of Japanese Production Management.\u201d <i>International Journal of Health Services</i> 27 (4): 625\u201341.",
+    "who2019icd": "World Health Organization. 2019. <i>ICD-11 for Mortality and Morbidity Statistics</i>. Geneva: World Health Organization.",
+    "reed2019": "Reed, G. M., M. B. First, C. S. Kogan, et al. 2019. \u201cInnovations and Changes in the ICD-11 Classification of Mental, Behavioural and Neurodevelopmental Disorders.\u201d <i>World Psychiatry</i> 18 (1): 3\u201319.",
+    "treede2019": "Treede, R.-D., W. Rief, A. Barke, et al. 2019. \u201cChronic Pain as a Symptom or a Disease: The IASP Classification of Chronic Pain for the International Classification of Diseases (ICD-11).\u201d <i>Pain</i> 160 (1): 19\u201327.",
+    "tsou2016": "Tsou, J. Y. 2016. \u201cNatural Kinds, Psychiatric Classification and the History of the DSM.\u201d <i>History of Psychiatry</i> 27 (4): 406\u201324.",
+    "cooper2005": "Cooper, R. 2005. <i>Classifying Madness: A Philosophical Examination of the Diagnostic and Statistical Manual of Mental Disorders</i>. Dordrecht: Springer.",
+    "fabrega1974": "Fabrega, H., Jr. 1974. <i>Disease and Social Behavior: An Interdisciplinary Perspective</i>. Cambridge, MA: MIT Press.",
+    "eisenberg1977": "Eisenberg, L. 1977. \u201cDisease and Illness: Distinctions between Professional and Popular Ideas of Sickness.\u201d <i>Culture, Medicine and Psychiatry</i> 1 (1): 9\u201323.",
+    "rosenhan1973": "Rosenhan, D. L. 1973. \u201cOn Being Sane in Insane Places.\u201d <i>Science</i> 179 (4070): 250\u201358.",
+    "engel1977": "Engel, G. L. 1977. \u201cThe Need for a New Medical Model: A Challenge for Biomedicine.\u201d <i>Science</i> 196 (4286): 129\u201336.",
+    "boroditsky2001": "Boroditsky, L. 2001. \u201cDoes Language Shape Thought? Mandarin and English Speakers\u2019 Conceptions of Time.\u201d <i>Cognitive Psychology</i> 43 (1): 1\u201322.",
+    "lupyan2016": "Lupyan, G., and B. Bergen. 2016. \u201cHow Language Programs the Mind.\u201d <i>Topics in Cognitive Science</i> 8 (2): 408\u201324.",
+    "conrad2007": "Conrad, P. 2007. <i>The Medicalization of Society: On the Transformation of Human Conditions into Treatable Disorders</i>. Baltimore: Johns Hopkins University Press.",
+    "bowker1999": "Bowker, G. C., and S. L. Star. 1999. <i>Sorting Things Out: Classification and Its Consequences</i>. Cambridge, MA: MIT Press.",
+    "craddock2010": "Craddock, N., and M. J. Owen. 2010. \u201cThe Kraepelinian Dichotomy\u2014Going, Going\u2026 but Still Not Gone.\u201d <i>British Journal of Psychiatry</i> 196 (2): 92\u201395.",
+    "frances2013": "Frances, A. 2013. <i>Saving Normal: An Insider\u2019s Revolt against Out-of-Control Psychiatric Diagnosis, DSM-5, Big Pharma, and the Medicalization of Ordinary Life</i>. New York: William Morrow.",
+    "kirmayer2001": "Kirmayer, L. J. 2001. \u201cCultural Variations in the Clinical Presentation of Depression and Anxiety: Implications for Diagnosis and Treatment.\u201d <i>Journal of Clinical Psychiatry</i> 62 (Suppl 13): 22\u201328.",
+    "feinstein1985": "Feinstein, A. R., D. M. Sosin, and C. K. Wells. 1985. \u201cThe Will Rogers Phenomenon: Stage Migration and New Diagnostic Techniques as a Source of Misleading Statistics for Survival in Cancer.\u201d <i>New England Journal of Medicine</i> 312 (25): 1604\u20138.",
+    "brierley2017": "Brierley, J. D., M. K. Gospodarowicz, and C. Wittekind, eds. 2017. <i>TNM Classification of Malignant Tumours</i>. 8th ed. Oxford: Wiley Blackwell.",
 }
 
 
-def compute_citations():
-    """Assign Vancouver numbers to citation keys in order of first appearance
-    across the manuscript body, and return (cit_map, ordered_refs)."""
+def _iter_body_blocks():
     blocks = []
     blocks += INTRO_PARAS
     for paras in BACKGROUND_PARAS.values():
@@ -301,25 +368,32 @@ def compute_citations():
     blocks += PREDICTIONS_PARAS
     blocks += DISCUSSION_PARAS
     blocks += CONCLUSION_PARAS
+    return blocks
 
-    order = []
-    for b in blocks:
-        for marker in re.findall(r'\{([^}]+)\}', b):
+
+def compute_citations():
+    """Validate citation keys and return the reference list ordered
+    alphabetically by author (CMoS author–date), as a list of (key, ref)."""
+    used = []
+    for b in _iter_body_blocks():
+        for marker in re.findall(r'\{@?([^}]+)\}', b):
             for key in marker.split(','):
                 key = key.strip()
-                if key not in order:
-                    order.append(key)
+                if key not in used:
+                    used.append(key)
 
-    unknown = [k for k in order if k not in REFERENCES_DB]
+    unknown = [k for k in used if k not in REFERENCES_DB or k not in AUTHOR_YEAR]
     if unknown:
         raise KeyError(f"Unknown citation key(s): {unknown}")
-    orphans = [k for k in REFERENCES_DB if k not in order]
+    orphans = [k for k in REFERENCES_DB if k not in used]
     if orphans:
         raise ValueError(f"Reference(s) in DB but never cited: {orphans}")
 
-    cit_map = {k: i + 1 for i, k in enumerate(order)}
-    ordered_refs = [(cit_map[k], REFERENCES_DB[k]) for k in order]
-    return cit_map, ordered_refs
+    def sort_key(k):
+        s = re.sub(r'</?i>', '', REFERENCES_DB[k]).lower()
+        return s
+    ordered = sorted(used, key=sort_key)
+    return [(k, REFERENCES_DB[k]) for k in ordered]
 
 # ---------------------------------------------------------------------------
 # BODY TEXT sections  (with {n} citation markers for superscript)
@@ -341,7 +415,7 @@ INTRO_PARAS = [
         "clinical medicine. Just as the categories of a natural language shape how speakers perceive and "
         "reason about the world, nosological categories may shape how clinicians perceive, diagnose, "
         "and treat patients. Warner first explored this analogy in 1977, arguing that linguistic "
-        "structures in different cultures lead to fundamentally different conceptions of disease.{warner1976} "
+        "structures in different cultures lead to fundamentally different conceptions of disease.{@warner1976} "
         "However, the parallel has not been formally developed beyond initial observations."
     ),
     (
@@ -353,7 +427,7 @@ INTRO_PARAS = [
         "epidemiological patterns. Moreover, as Ian Hacking has demonstrated for psychiatric "
         "classifications, a distinctive looping mechanism operates: classification systems alter "
         "patient self-identification and symptom expression, which in turn generates data that "
-        "reinforces the original classification.{hacking1995,hacking2006}"
+        "reinforces the original classification.{@hacking1995,hacking2006}"
     ),
     (
         "At the same time, evidence constrains this hypothesis. Kleinman's observation that "
@@ -381,8 +455,8 @@ BACKGROUND_PARAS = {
             "language does not rigidly determine thought, but it does influence habitual patterns "
             "of cognition.{boroditsky2001,lupyan2016} Boroditsky demonstrated that Mandarin and English speakers "
             "conceptualize time differently, consistent with structural differences in how each "
-            "language encodes temporal relations.{boroditsky2001} Lupyan and Bergen showed that linguistic "
-            "labels facilitate categorization and modulate perceptual processing.{lupyan2016} These "
+            "language encodes temporal relations.{@boroditsky2001} Lupyan and Bergen showed that linguistic "
+            "labels facilitate categorization and modulate perceptual processing.{@lupyan2016} These "
             "findings establish that symbolic classification systems exert measurable cognitive "
             "effects—a principle we extend to medical nosology."
         ),
@@ -390,7 +464,7 @@ BACKGROUND_PARAS = {
     "Prior Work on Language and Disease": [
         (
             "Warner's 1977 paper represents the first explicit application of the Sapir–Whorf "
-            "hypothesis to medicine.{warner1976} He argued that Indo-European linguistic structures—"
+            "hypothesis to medicine.{@warner1976} He argued that Indo-European linguistic structures—"
             "particularly the use of nouns rather than verbs to describe illness, the extensive "
             "use of spatial metaphors, and the subject–predicate dichotomy—encourage a static, "
             "unicausal, and dualistic conception of disease. Warner suggested that these linguistic "
@@ -401,15 +475,15 @@ BACKGROUND_PARAS = {
             "Subsequent work has expanded this perspective without formalization. Eisenberg "
             "distinguished between “disease” (the biomedical construct) and “illness” (the "
             "patient's lived experience), showing that the gap between these constructs is "
-            "mediated by cultural and linguistic categories.{eisenberg1977} Fabrega offered an "
-            "interdisciplinary framework linking disease to social behavior.{fabrega1974} Kleinman's "
+            "mediated by cultural and linguistic categories.{@eisenberg1977} Fabrega offered an "
+            "interdisciplinary framework linking disease to social behavior.{@fabrega1974} Kleinman's "
             "medical anthropology demonstrated that cultural categories of sickness guide "
-            "labeling, help-seeking, and therapeutic responses.{kleinman1988} Hacking's philosophy of "
+            "labeling, help-seeking, and therapeutic responses.{@kleinman1988} Hacking's philosophy of "
             "human kinds introduced the looping-effect concept, showing that psychiatric "
             "classifications are not passive labels but active constituents of the phenomena "
-            "they describe.{hacking1995,hacking2006} Jutel's sociology of diagnosis showed that the diagnostic "
+            "they describe.{@hacking1995,hacking2006} Jutel's sociology of diagnosis showed that the diagnostic "
             "act itself is a social event with consequences that extend beyond the clinical "
-            "encounter.{jutel2009}"
+            "encounter.{@jutel2009}"
         ),
         (
             "Despite this substantial body of work, no integrated formal framework exists "
@@ -525,7 +599,7 @@ EVIDENCE_SECTIONS = {
         ),
         (
             "Nickel et al. showed in a systematic review that different terminology for the "
-            "same condition influences clinicians' and patients' management preferences.{nickel2017} "
+            "same condition influences clinicians' and patients' management preferences.{@nickel2017} "
             "This finding directly supports Proposition 2: nosological labels influence, but do "
             "not determine, clinical reasoning."
         ),
@@ -604,9 +678,9 @@ EVIDENCE_SECTIONS = {
         (
             "The NR framework must accommodate evidence that some diseases manifest independently "
             "of nosological framing. Kleinman documented that anorexia nervosa occurs in "
-            "cultures where thinness is not idealized,{kleinman1988} and Swartz argued that anorexia should "
+            "cultures where thinness is not idealized,{@kleinman1988} and Swartz argued that anorexia should "
             "be understood as a culture-bound syndrome precisely because its form varies across "
-            "cultures even when its core features persist.{swartz1985} More broadly, infectious diseases "
+            "cultures even when its core features persist.{@swartz1985} More broadly, infectious diseases "
             "with clear etiological agents (e.g., tuberculosis, malaria) manifest regardless "
             "of how they are classified."
         ),
@@ -615,9 +689,9 @@ EVIDENCE_SECTIONS = {
             "Boorse's biostatistical theory of health provides a useful reference point: "
             "to the extent that a condition deviates from species-typical function in ways "
             "measurable independently of nosological framing, it is less susceptible to "
-            "nosological relativity.{boorse1977} Kirmayer has further documented how cultural "
+            "nosological relativity.{@boorse1977} Kirmayer has further documented how cultural "
             "variations in the clinical presentation of depression and anxiety complicate "
-            "simple universalist assumptions.{kirmayer2001} We propose that the strength of "
+            "simple universalist assumptions.{@kirmayer2001} We propose that the strength of "
             "nosological effects is inversely proportional to the strength of the underlying "
             "biological signal: conditions with strong, objectively measurable biological "
             "substrates (e.g., fractures, infections with identifiable pathogens) are less "
@@ -772,8 +846,7 @@ TABLE1_ROWS = [
 # ---------------------------------------------------------------------------
 
 def build_manuscript(fig1_path, fig2_path):
-    global CIT_MAP
-    CIT_MAP, ordered_refs = compute_citations()
+    ordered_refs = compute_citations()
 
     doc = Document()
 
@@ -961,15 +1034,13 @@ def build_manuscript(fig1_path, fig2_path):
     # ---- REFERENCES ----
     doc.add_page_break()
     add_heading(doc, 'References', level=1)
-    for num, ref in ordered_refs:
+    for _key, ref in ordered_refs:
         p = doc.add_paragraph()
         p.paragraph_format.space_after = Pt(2)
         p.paragraph_format.line_spacing = 1.15
-        run_num = p.add_run(f'{num}. ')
-        run_num.bold = True
-        run_num.font.size = Pt(10)
-        run_ref = p.add_run(ref)
-        run_ref.font.size = Pt(10)
+        p.paragraph_format.left_indent = Inches(0.5)
+        p.paragraph_format.first_line_indent = Inches(-0.5)
+        add_italic_text(p, ref, size=Pt(10))
 
     # Save
     out_path = OUT_DIR / "manuscript_en.docx"
