@@ -102,7 +102,8 @@ jobs:
           # ── Medical Sapir-Whorf ──
           BRANCH_MAP["devin/1777545460-medical-sapir-whorf-paper"]="medical-sapir-whorf-paper"
           BRANCH_MAP["devin/1777545466-medical-sapir-whorf-paper"]="medical-sapir-whorf-paper-v2"
-          BRANCH_MAP["devin/1777545531-medical-sapir-whorf-formalization"]="medical-sapir-whorf-formalization"
+          # NOTE: superseded by devin/1783517489-nosological-relativity-flow (same target repo)
+          # BRANCH_MAP["devin/1777545531-medical-sapir-whorf-formalization"]="medical-sapir-whorf-formalization"
           BRANCH_MAP["devin/1783517489-nosological-relativity-flow"]="medical-sapir-whorf-formalization"
 
           # ── Other research projects ──
@@ -213,7 +214,7 @@ jobs:
           SUBDIR_MAP["devin/1781893388-confounding-corrections"]="denisovan-archaic-dna-analysis"
           SUBDIR_MAP["devin/1777989710-tatsuki-3journal-submission"]="tasuki-electoral-model"
           SUBDIR_MAP["devin/1777545460-medical-sapir-whorf-paper"]="medical_sapir_whorf"
-          SUBDIR_MAP["devin/1777545531-medical-sapir-whorf-formalization"]="medical_sapir_whorf"
+          # SUBDIR_MAP["devin/1777545531-medical-sapir-whorf-formalization"]="medical_sapir_whorf"  # superseded
           SUBDIR_MAP["devin/1783517489-nosological-relativity-flow"]="medical_sapir_whorf"
           SUBDIR_MAP["devin/1779745617-round1-crime-analysis"]="round1_crime_analysis"
           SUBDIR_MAP["devin/1777594452-buddhist-food-map"]="buddhist_food_lexicon_map"
