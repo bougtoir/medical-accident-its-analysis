@@ -36,17 +36,54 @@ OUT_DIR.mkdir(exist_ok=True)
 # Utility helpers
 # ---------------------------------------------------------------------------
 
-def add_superscript_text(paragraph, text):
-    """Parse text with {n} or {n-m} markers and render them as Word-native superscripts."""
-    parts = re.split(r'(\{[^}]+\})', text)
-    for part in parts:
-        if part.startswith('{') and part.endswith('}'):
-            run = paragraph.add_run(part[1:-1])
-            run.font.superscript = True
-            run.font.size = Pt(8)
-        else:
-            run = paragraph.add_run(part)
-            run.font.size = Pt(11)
+def _format_marker(marker):
+    """Render a citation marker into a CMoS author–date parenthetical.
+    {key}          -> (Author Year)
+    {key1,key2}    -> (Author1 Year1; Author2 Year2), grouped by author,
+                      sorted alphabetically by author.
+    {@key}         -> (Year)  [narrative use, author already named in prose]
+    """
+    year_only = marker.startswith('@')
+    keys = [k.strip() for k in marker.lstrip('@').split(',')]
+
+    if year_only:
+        years = [AUTHOR_YEAR[k][1] for k in keys]
+        return f"({', '.join(years)})"
+
+    # group years under the same author label
+    grouped = {}
+    order = []
+    for k in keys:
+        author, year = AUTHOR_YEAR[k]
+        if author not in grouped:
+            grouped[author] = []
+            order.append(author)
+        grouped[author].append(year)
+    order.sort(key=str.lower)
+    parts = [f"{a} {', '.join(grouped[a])}" for a in order]
+    return f"({'; '.join(parts)})"
+
+
+def render_citations(text):
+    """Replace {key}/{@key} markers with CMoS author–date parentheticals,
+    keeping citations before terminal punctuation and correctly spaced."""
+    # Move a trailing punctuation mark to after the citation, adding a space.
+    text = re.sub(r'([.,;:])(\{@?[^}]+\})', r' \2\1', text)
+    # Ensure a space between a preceding word/paren char and the citation.
+    text = re.sub(r'(\S)(\{@?[^}]+\})', r'\1 \2', text)
+    text = re.sub(r'\{(@?[^}]+)\}', lambda m: _format_marker(m.group(1)), text)
+    return re.sub(r' {2,}', ' ', text)
+
+
+def add_italic_text(paragraph, text, size=Pt(10)):
+    """Add text to a paragraph, honouring <i>…</i> italic markup."""
+    for part in re.split(r'(<i>.*?</i>)', text):
+        if not part:
+            continue
+        run = paragraph.add_run(re.sub(r'</?i>', '', part))
+        run.font.size = size
+        if part.startswith('<i>'):
+            run.italic = True
     return paragraph
 
 
@@ -66,10 +103,11 @@ def add_heading(doc, text, level):
 
 
 def add_body(doc, text):
-    """Add a body paragraph with superscript citation support."""
+    """Add a body paragraph, rendering CMoS author–date citations."""
     p = doc.add_paragraph()
     p.style = doc.styles['Normal']
-    add_superscript_text(p, text)
+    run = p.add_run(render_citations(text))
+    run.font.size = Pt(11)
     p.paragraph_format.space_after = Pt(6)
     p.paragraph_format.line_spacing = 1.5
     return p
@@ -151,6 +189,8 @@ def create_figure1():
 
     fig_path = OUT_DIR / "figure1_framework.png"
     fig.savefig(fig_path, dpi=300, bbox_inches='tight')
+    fig.savefig(OUT_DIR / "figure1_framework.tif", dpi=300, bbox_inches='tight',
+                pil_kwargs={"compression": "tiff_lzw"})
     plt.close(fig)
     return fig_path
 
@@ -195,6 +235,8 @@ def create_figure2():
 
     fig_path = OUT_DIR / "figure2_looping.png"
     fig.savefig(fig_path, dpi=300, bbox_inches='tight')
+    fig.savefig(OUT_DIR / "figure2_looping.tif", dpi=300, bbox_inches='tight',
+                pil_kwargs={"compression": "tiff_lzw"})
     plt.close(fig)
     return fig_path
 
@@ -206,36 +248,23 @@ def create_figure2():
 TITLE = "Nosological Relativity: Formalizing the Medical Sapir–Whorf Hypothesis"
 
 AUTHORS = "Tatsuki Onishi"
-AFFILIATIONS = ""  # To be filled by the author
+AUTHOR_AFFILIATION = "[Department, Institution, City, Country]"
+AUTHOR_EMAIL = "[email address]"
+AFFILIATIONS = ""  # legacy; affiliation now carried on the separate title page
+# Philosophy of Medicine uses double-masked (double-blind) review, so the manuscript
+# file itself must not identify the author. Identity lives on a separate title page.
+ANONYMIZE = True
 
+# Philosophy of Medicine requires an abstract of no more than 100 words.
 ABSTRACT = (
-    "Background: The Sapir–Whorf hypothesis in linguistics posits that the structure of language "
-    "influences cognition and perception. An analogous phenomenon may operate in medicine: "
-    "nosological frameworks—the systems by which diseases are classified and named—may not merely "
-    "describe clinical reality but actively shape it. While the notion that disease concepts "
-    "influence medical practice is intuitive, we argue that the effects extend beyond the obvious "
-    "and warrant formal theoretical treatment. "
-    "Objective: This paper proposes the 'Nosological Relativity' framework, a formal analogue of "
-    "the Sapir–Whorf hypothesis applied to medical classification systems. We define strong and "
-    "weak forms of the hypothesis, delineate three levels of effect (cognitive, institutional, and "
-    "population), and incorporate Ian Hacking's looping-effect mechanism as the central feedback "
-    "dynamic. "
-    "Methods: We synthesize insights from philosophy of science, medical anthropology, sociology "
-    "of diagnosis, and clinical medicine to construct the theoretical framework. Case studies from "
-    "pain medicine, occupational health (karoshi), and ICD revision history are analyzed as "
-    "illustrative evidence. Counter-evidence from culture-independent disease manifestations "
-    "(e.g., anorexia nervosa in non-thin-ideal societies) is integrated to delimit the "
-    "framework's boundaries. "
-    "Results: The Nosological Relativity framework identifies six propositions and three testable "
-    "predictions. We demonstrate that nosological categories operate as cognitive constraints on "
-    "clinical reasoning (diagnostic foreclosure), institutional determinants of research funding "
-    "and therapeutic pathways, and population-level shapers of epidemiological patterns. The "
-    "looping mechanism—whereby classification alters patient self-identification, which in turn "
-    "generates data that reinforces the classification—is formalized as the central dynamic. "
-    "Conclusions: The Nosological Relativity framework provides a structured theoretical lens for "
-    "understanding how disease classification systems shape medical practice. The framework yields "
-    "testable predictions amenable to natural-experiment designs, particularly around ICD "
-    "revisions, and has practical implications for nosological policy and clinical education."
+    "The Sapir–Whorf hypothesis holds that the structure of a language shapes thought. "
+    "We argue that an analogous relation holds in medicine: nosological systems—the "
+    "frameworks by which diseases are classified and named—do not merely describe clinical "
+    "reality but partly constitute it. We develop the Nosological Relativity framework, "
+    "distinguishing weak and strong forms and three levels of effect—cognitive, "
+    "institutional, and population—with Hacking's looping effects as the central dynamic. "
+    "Drawing on pain medicine, karoshi, and ICD revision, and treating culture-independent "
+    "disease as a boundary condition, we derive six propositions and three testable predictions."
 )
 
 KEYWORDS = [
@@ -249,69 +278,122 @@ KEYWORDS = [
     "diagnostic labels",
 ]
 
-# References (Vancouver style, numbered in order of appearance)
-REFERENCES = [
-    # 1
-    "Sapir E. The status of linguistics as a science. Language. 1929;5(4):207–14.",
-    # 2
-    "Whorf BL. Language, thought, and reality: selected writings of Benjamin Lee Whorf. Carroll JB, editor. Cambridge (MA): MIT Press; 1956.",
-    # 3
-    "Warner R. The relationship between language and disease concepts. Int J Psychiatry Med. 1976;7(1):57–68.",
-    # 4
-    "Hacking I. The looping effects of human kinds. In: Sperber D, Premack D, Premack AJ, editors. Causal cognition: a multidisciplinary debate. Oxford: Clarendon Press; 1995. p. 351–94.",
-    # 5
-    "Hacking I. Making up people. London Review of Books. 2006;28(16):23–6.",
-    # 6
-    "Kleinman A. The illness narratives: suffering, healing, and the human condition. New York: Basic Books; 1988.",
-    # 7
-    "Jutel A. Sociology of diagnosis: a preliminary review. Sociol Health Illn. 2009;31(2):278–99.",
-    # 8
-    "Zachar P, Kendler KS. The philosophy of nosology. Annu Rev Clin Psychol. 2017;13:49–71.",
-    # 9
-    "Boorse C. Health as a theoretical concept. Philos Sci. 1977;44(4):542–73.",
-    # 10
-    "Swartz L. Anorexia nervosa as a culture-bound syndrome. Soc Sci Med. 1985;20(7):725–30.",
-    # 11
-    "Michaleff ZA, Glasziou P, Thomas R. Consequences of a diagnostic label: a systematic scoping review and thematic framework. Front Public Health. 2021;9:725877.",
-    # 12
-    "Nickel B, Moynihan R, Barratt A, Brito JP, McCaffery K. Words do matter: a systematic review on how different terminology for the same condition influences management preferences. BMJ Open. 2017;7(7):e014129.",
-    # 13
-    "Iwasaki K, Takahashi M, Nakata A. Health problems due to long working hours in Japan: working hours, workers' compensation (karoshi), and preventive measures. Ind Health. 2006;44(4):537–40.",
-    # 14
-    "Nishiyama K, Johnson JV. Karoshi—death from overwork: occupational health consequences of Japanese production management. Int J Health Serv. 1997;27(4):625–41.",
-    # 15
-    "World Health Organization. ICD-11 for Mortality and Morbidity Statistics. Geneva: WHO; 2019.",
-    # 16
-    "Reed GM, First MB, Kogan CS, et al. Innovations and changes in the ICD-11 classification of mental, behavioural and neurodevelopmental disorders. World Psychiatry. 2019;18(1):3–19.",
-    # 17
-    "Treede RD, Rief W, Barke A, et al. Chronic pain as a symptom or a disease: the IASP Classification of Chronic Pain for the International Classification of Diseases (ICD-11). Pain. 2019;160(1):19–27.",
-    # 18
-    "Tsou JY. Natural kinds, psychiatric classification and the history of the DSM. Hist Psychiatry. 2016;27(4):406–24.",
-    # 19
-    "Cooper R. Classifying madness: a philosophical examination of the Diagnostic and Statistical Manual of Mental Disorders. Dordrecht: Springer; 2005.",
-    # 20
-    "Fabrega H Jr. Disease and social behavior: an interdisciplinary perspective. Cambridge (MA): MIT Press; 1974.",
-    # 21
-    "Eisenberg L. Disease and illness: distinctions between professional and popular ideas of sickness. Cult Med Psychiatry. 1977;1(1):9–23.",
-    # 22
-    "Rosenhan DL. On being sane in insane places. Science. 1973;179(4070):250–8.",
-    # 23
-    "Thibault JM, Bhatt DL, Engel GL. The biopsychosocial model: past, present, future. Psychosomatics. 2003;44(4):267–75.",
-    # 24
-    "Boroditsky L. Does language shape thought? Mandarin and English speakers' conceptions of time. Cogn Psychol. 2001;43(1):1–22.",
-    # 25
-    "Lupyan G, Bergen B. How language programs the mind. Top Cogn Sci. 2016;8(2):408–24.",
-    # 26
-    "Conrad P. The medicalization of society: on the transformation of human conditions into treatable disorders. Baltimore: Johns Hopkins University Press; 2007.",
-    # 27
-    "Bowker GC, Star SL. Sorting things out: classification and its consequences. Cambridge (MA): MIT Press; 1999.",
-    # 28
-    "Craddock N, Owen MJ. The Kraepelinian dichotomy — going, going... but still not gone. Br J Psychiatry. 2010;196(2):92–5.",
-    # 29
-    "Frances A. Saving normal: an insider's revolt against out-of-control psychiatric diagnosis, DSM-5, Big Pharma, and the medicalization of ordinary life. New York: William Morrow; 2013.",
-    # 30
-    "Kirmayer LJ. Cultural variations in the clinical presentation of depression and anxiety: implications for diagnosis and treatment. J Clin Psychiatry. 2001;62 Suppl 13:22–8.",
-]
+# Reference database keyed by citation key, in Chicago Manual of Style
+# author–date form (Philosophy of Medicine house style).
+#   AUTHOR_YEAR[key] -> (in-text author label, year) for parenthetical citations
+#   REFERENCES_DB[key] -> full reference-list entry; <i>…</i> marks italic titles
+# The reference list is ordered alphabetically by author (CMoS author–date).
+AUTHOR_YEAR = {
+    "sapir1929": ("Sapir", "1929"),
+    "whorf1956": ("Whorf", "1956"),
+    "warner1976": ("Warner", "1977"),
+    "hacking1995": ("Hacking", "1995"),
+    "hacking2006": ("Hacking", "2006"),
+    "kleinman1988": ("Kleinman", "1988"),
+    "jutel2009": ("Jutel", "2009"),
+    "zachar2017": ("Zachar and Kendler", "2017"),
+    "boorse1977": ("Boorse", "1977"),
+    "swartz1985": ("Swartz", "1985"),
+    "michaleff2021": ("Sims et al.", "2021"),
+    "nickel2017": ("Nickel et al.", "2017"),
+    "iwasaki2006": ("Iwasaki et al.", "2006"),
+    "nishiyama1997": ("Nishiyama and Johnson", "1997"),
+    "who2019icd": ("World Health Organization", "2019"),
+    "reed2019": ("Reed et al.", "2019"),
+    "treede2019": ("Treede et al.", "2019"),
+    "tsou2016": ("Tsou", "2016"),
+    "cooper2005": ("Cooper", "2005"),
+    "fabrega1974": ("Fabrega", "1974"),
+    "eisenberg1977": ("Eisenberg", "1977"),
+    "rosenhan1973": ("Rosenhan", "1973"),
+    "engel1977": ("Engel", "1977"),
+    "boroditsky2001": ("Boroditsky", "2001"),
+    "lupyan2016": ("Lupyan and Bergen", "2016"),
+    "conrad2007": ("Conrad", "2007"),
+    "bowker1999": ("Bowker and Star", "1999"),
+    "craddock2010": ("Craddock and Owen", "2010"),
+    "frances2013": ("Frances", "2013"),
+    "kirmayer2001": ("Kirmayer", "2001"),
+    "feinstein1985": ("Feinstein et al.", "1985"),
+    "brierley2017": ("Brierley et al.", "2017"),
+}
+
+REFERENCES_DB = {
+    "sapir1929": "Sapir, E. 1929. \u201cThe Status of Linguistics as a Science.\u201d <i>Language</i> 5 (4): 207\u201314.",
+    "whorf1956": "Whorf, B. L. 1956. <i>Language, Thought, and Reality: Selected Writings of Benjamin Lee Whorf</i>. Edited by J. B. Carroll. Cambridge, MA: MIT Press.",
+    "warner1976": "Warner, R. 1977. \u201cThe Relationship between Language and Disease Concepts.\u201d <i>International Journal of Psychiatry in Medicine</i> 7 (1): 57\u201368.",
+    "hacking1995": "Hacking, I. 1995. \u201cThe Looping Effects of Human Kinds.\u201d In <i>Causal Cognition: A Multidisciplinary Debate</i>, edited by D. Sperber, D. Premack, and A. J. Premack, 351\u201394. Oxford: Clarendon Press.",
+    "hacking2006": "Hacking, I. 2006. \u201cMaking Up People.\u201d <i>London Review of Books</i> 28 (16): 23\u201326.",
+    "kleinman1988": "Kleinman, A. 1988. <i>The Illness Narratives: Suffering, Healing, and the Human Condition</i>. New York: Basic Books.",
+    "jutel2009": "Jutel, A. 2009. \u201cSociology of Diagnosis: A Preliminary Review.\u201d <i>Sociology of Health & Illness</i> 31 (2): 278\u201399.",
+    "zachar2017": "Zachar, P., and K. S. Kendler. 2017. \u201cThe Philosophy of Nosology.\u201d <i>Annual Review of Clinical Psychology</i> 13: 49\u201371.",
+    "boorse1977": "Boorse, C. 1977. \u201cHealth as a Theoretical Concept.\u201d <i>Philosophy of Science</i> 44 (4): 542\u201373.",
+    "swartz1985": "Swartz, L. 1985. \u201cAnorexia Nervosa as a Culture-Bound Syndrome.\u201d <i>Social Science & Medicine</i> 20 (7): 725\u201330.",
+    "michaleff2021": "Sims, R., Z. A. Michaleff, P. Glasziou, and R. Thomas. 2021. \u201cConsequences of a Diagnostic Label: A Systematic Scoping Review and Thematic Framework.\u201d <i>Frontiers in Public Health</i> 9: 725877.",
+    "nickel2017": "Nickel, B., A. Barratt, T. Copp, R. Moynihan, and K. McCaffery. 2017. \u201cWords Do Matter: A Systematic Review on How Different Terminology for the Same Condition Influences Management Preferences.\u201d <i>BMJ Open</i> 7 (7): e014129.",
+    "iwasaki2006": "Iwasaki, K., M. Takahashi, and A. Nakata. 2006. \u201cHealth Problems Due to Long Working Hours in Japan: Working Hours, Workers\u2019 Compensation (Karoshi), and Preventive Measures.\u201d <i>Industrial Health</i> 44 (4): 537\u201340.",
+    "nishiyama1997": "Nishiyama, K., and J. V. Johnson. 1997. \u201cKaroshi\u2014Death from Overwork: Occupational Health Consequences of Japanese Production Management.\u201d <i>International Journal of Health Services</i> 27 (4): 625\u201341.",
+    "who2019icd": "World Health Organization. 2019. <i>ICD-11 for Mortality and Morbidity Statistics</i>. Geneva: World Health Organization.",
+    "reed2019": "Reed, G. M., M. B. First, C. S. Kogan, et al. 2019. \u201cInnovations and Changes in the ICD-11 Classification of Mental, Behavioural and Neurodevelopmental Disorders.\u201d <i>World Psychiatry</i> 18 (1): 3\u201319.",
+    "treede2019": "Treede, R.-D., W. Rief, A. Barke, et al. 2019. \u201cChronic Pain as a Symptom or a Disease: The IASP Classification of Chronic Pain for the International Classification of Diseases (ICD-11).\u201d <i>Pain</i> 160 (1): 19\u201327.",
+    "tsou2016": "Tsou, J. Y. 2016. \u201cNatural Kinds, Psychiatric Classification and the History of the DSM.\u201d <i>History of Psychiatry</i> 27 (4): 406\u201324.",
+    "cooper2005": "Cooper, R. 2005. <i>Classifying Madness: A Philosophical Examination of the Diagnostic and Statistical Manual of Mental Disorders</i>. Dordrecht: Springer.",
+    "fabrega1974": "Fabrega, H., Jr. 1974. <i>Disease and Social Behavior: An Interdisciplinary Perspective</i>. Cambridge, MA: MIT Press.",
+    "eisenberg1977": "Eisenberg, L. 1977. \u201cDisease and Illness: Distinctions between Professional and Popular Ideas of Sickness.\u201d <i>Culture, Medicine and Psychiatry</i> 1 (1): 9\u201323.",
+    "rosenhan1973": "Rosenhan, D. L. 1973. \u201cOn Being Sane in Insane Places.\u201d <i>Science</i> 179 (4070): 250\u201358.",
+    "engel1977": "Engel, G. L. 1977. \u201cThe Need for a New Medical Model: A Challenge for Biomedicine.\u201d <i>Science</i> 196 (4286): 129\u201336.",
+    "boroditsky2001": "Boroditsky, L. 2001. \u201cDoes Language Shape Thought? Mandarin and English Speakers\u2019 Conceptions of Time.\u201d <i>Cognitive Psychology</i> 43 (1): 1\u201322.",
+    "lupyan2016": "Lupyan, G., and B. Bergen. 2016. \u201cHow Language Programs the Mind.\u201d <i>Topics in Cognitive Science</i> 8 (2): 408\u201324.",
+    "conrad2007": "Conrad, P. 2007. <i>The Medicalization of Society: On the Transformation of Human Conditions into Treatable Disorders</i>. Baltimore: Johns Hopkins University Press.",
+    "bowker1999": "Bowker, G. C., and S. L. Star. 1999. <i>Sorting Things Out: Classification and Its Consequences</i>. Cambridge, MA: MIT Press.",
+    "craddock2010": "Craddock, N., and M. J. Owen. 2010. \u201cThe Kraepelinian Dichotomy\u2014Going, Going\u2026 but Still Not Gone.\u201d <i>British Journal of Psychiatry</i> 196 (2): 92\u201395.",
+    "frances2013": "Frances, A. 2013. <i>Saving Normal: An Insider\u2019s Revolt against Out-of-Control Psychiatric Diagnosis, DSM-5, Big Pharma, and the Medicalization of Ordinary Life</i>. New York: William Morrow.",
+    "kirmayer2001": "Kirmayer, L. J. 2001. \u201cCultural Variations in the Clinical Presentation of Depression and Anxiety: Implications for Diagnosis and Treatment.\u201d <i>Journal of Clinical Psychiatry</i> 62 (Suppl 13): 22\u201328.",
+    "feinstein1985": "Feinstein, A. R., D. M. Sosin, and C. K. Wells. 1985. \u201cThe Will Rogers Phenomenon: Stage Migration and New Diagnostic Techniques as a Source of Misleading Statistics for Survival in Cancer.\u201d <i>New England Journal of Medicine</i> 312 (25): 1604\u20138.",
+    "brierley2017": "Brierley, J. D., M. K. Gospodarowicz, and C. Wittekind, eds. 2017. <i>TNM Classification of Malignant Tumours</i>. 8th ed. Oxford: Wiley Blackwell.",
+}
+
+
+def _iter_body_blocks():
+    blocks = []
+    blocks += INTRO_PARAS
+    for paras in BACKGROUND_PARAS.values():
+        blocks += paras
+    blocks.append(FRAMEWORK_INTRO)
+    for _title, text in PROPOSITIONS:
+        blocks.append(text)
+    blocks += LOOPING_PARAS
+    for paras in EVIDENCE_SECTIONS.values():
+        blocks += paras
+    blocks += PREDICTIONS_PARAS
+    blocks += DISCUSSION_PARAS
+    blocks += CONCLUSION_PARAS
+    return blocks
+
+
+def compute_citations():
+    """Validate citation keys and return the reference list ordered
+    alphabetically by author (CMoS author–date), as a list of (key, ref)."""
+    used = []
+    for b in _iter_body_blocks():
+        for marker in re.findall(r'\{@?([^}]+)\}', b):
+            for key in marker.split(','):
+                key = key.strip()
+                if key not in used:
+                    used.append(key)
+
+    unknown = [k for k in used if k not in REFERENCES_DB or k not in AUTHOR_YEAR]
+    if unknown:
+        raise KeyError(f"Unknown citation key(s): {unknown}")
+    orphans = [k for k in REFERENCES_DB if k not in used]
+    if orphans:
+        raise ValueError(f"Reference(s) in DB but never cited: {orphans}")
+
+    def sort_key(k):
+        s = re.sub(r'</?i>', '', REFERENCES_DB[k]).lower()
+        return s
+    ordered = sorted(used, key=sort_key)
+    return [(k, REFERENCES_DB[k]) for k in ordered]
 
 # ---------------------------------------------------------------------------
 # BODY TEXT sections  (with {n} citation markers for superscript)
@@ -321,23 +403,23 @@ INTRO_PARAS = [
     (
         "The Sapir–Whorf hypothesis, formulated in the early twentieth century by Edward Sapir and "
         "Benjamin Lee Whorf, proposes that the structure of a language influences its speakers' "
-        "cognition and worldview.{1,2} In its strong form (linguistic determinism), language "
-        "determines thought; in its weak form (linguistic relativity), language influences habitual "
-        "patterns of thought without fully constraining them.{24,25} Although the strong form has "
-        "been largely abandoned in linguistics, robust evidence supports the weak form across "
-        "domains including color perception, spatial reasoning, and temporal cognition.{24}"
+        "cognition and worldview.{sapir1929,whorf1956} It is conventionally distinguished into a "
+        "strong form (linguistic determinism), in which language determines thought, and a weak form "
+        "(linguistic relativity), in which language shapes habitual patterns of thought without "
+        "fully constraining them. The strong form has been largely abandoned in linguistics, but "
+        "robust evidence supports the weak form (reviewed in Section 2.1)."
     ),
     (
         "An analogous phenomenon may operate in medicine. Nosological frameworks—the formal systems "
-        "by which diseases are classified, named, and organized—constitute the 'language' of "
-        "clinical medicine. Just as natural language categories shape how speakers perceive and "
+        "by which diseases are classified, named, and organized—constitute the “language” of "
+        "clinical medicine. Just as the categories of a natural language shape how speakers perceive and "
         "reason about the world, nosological categories may shape how clinicians perceive, diagnose, "
-        "and treat patients. Warner first explored this analogy in 1976, arguing that linguistic "
-        "structures in different cultures lead to fundamentally different conceptions of disease.{3} "
+        "and treat patients. Warner first explored this analogy in 1977, arguing that linguistic "
+        "structures in different cultures lead to fundamentally different conceptions of disease.{@warner1976} "
         "However, the parallel has not been formally developed beyond initial observations."
     ),
     (
-        "The claim that 'disease concepts shape medical practice' might appear trivially true—medicine "
+        "The claim that “disease concepts shape medical practice” might appear trivially true—medicine "
         "is, after all, organized around disease categories. However, we argue that the effects "
         "extend well beyond the obvious and warrant systematic theoretical treatment. The phenomenon "
         "includes cognitive effects on clinical reasoning (diagnostic foreclosure), institutional "
@@ -345,18 +427,18 @@ INTRO_PARAS = [
         "epidemiological patterns. Moreover, as Ian Hacking has demonstrated for psychiatric "
         "classifications, a distinctive looping mechanism operates: classification systems alter "
         "patient self-identification and symptom expression, which in turn generates data that "
-        "reinforces the original classification.{4,5}"
+        "reinforces the original classification.{@hacking1995,hacking2006}"
     ),
     (
         "At the same time, evidence constrains this hypothesis. Kleinman's observation that "
-        "anorexia nervosa occurs even in cultures where thinness is not idealized{6,10} suggests "
+        "anorexia nervosa occurs even in cultures where thinness is not idealized{kleinman1988,swartz1985} suggests "
         "that some diseases possess a biological substrate that manifests independently of "
         "nosological framing. Any adequate theoretical framework must accommodate both the "
         "constructive power of nosological categories and the existence of nosology-independent "
         "disease phenomena."
     ),
     (
-        "In this paper, we propose the 'Nosological Relativity' (NR) framework—a formal analogue "
+        "In this paper, we propose the Nosological Relativity (NR) framework—a formal analogue "
         "of the Sapir–Whorf hypothesis applied to medical classification systems. We define the "
         "framework's core propositions, distinguish strong and weak forms, delineate three levels "
         "of effect, and formalize the looping mechanism as the central feedback dynamic. We then "
@@ -369,20 +451,20 @@ BACKGROUND_PARAS = {
     "The Sapir–Whorf Hypothesis in Linguistics": [
         (
             "The linguistic relativity hypothesis has undergone substantial revision since its "
-            "original formulation.{1,2} Contemporary research supports a moderate position: "
+            "original formulation.{sapir1929,whorf1956} Contemporary research supports a moderate position: "
             "language does not rigidly determine thought, but it does influence habitual patterns "
-            "of cognition.{24,25} Boroditsky demonstrated that Mandarin and English speakers "
+            "of cognition.{boroditsky2001,lupyan2016} Boroditsky demonstrated that Mandarin and English speakers "
             "conceptualize time differently, consistent with structural differences in how each "
-            "language encodes temporal relations.{24} Lupyan and Bergen showed that linguistic "
-            "labels facilitate categorization and modulate perceptual processing.{25} These "
+            "language encodes temporal relations.{@boroditsky2001} Lupyan and Bergen showed that linguistic "
+            "labels facilitate categorization and modulate perceptual processing.{@lupyan2016} These "
             "findings establish that symbolic classification systems exert measurable cognitive "
             "effects—a principle we extend to medical nosology."
         ),
     ],
     "Prior Work on Language and Disease": [
         (
-            "Warner's 1976 paper represents the first explicit application of the Sapir–Whorf "
-            "hypothesis to medicine.{3} He argued that Indo-European linguistic structures—"
+            "Warner's 1977 paper represents the first explicit application of the Sapir–Whorf "
+            "hypothesis to medicine.{@warner1976} He argued that Indo-European linguistic structures—"
             "particularly the use of nouns rather than verbs to describe illness, the extensive "
             "use of spatial metaphors, and the subject–predicate dichotomy—encourage a static, "
             "unicausal, and dualistic conception of disease. Warner suggested that these linguistic "
@@ -391,20 +473,20 @@ BACKGROUND_PARAS = {
         ),
         (
             "Subsequent work has expanded this perspective without formalization. Eisenberg "
-            "distinguished between 'disease' (the biomedical construct) and 'illness' (the "
+            "distinguished between “disease” (the biomedical construct) and “illness” (the "
             "patient's lived experience), showing that the gap between these constructs is "
-            "mediated by cultural and linguistic categories.{21} Fabrega offered an "
-            "interdisciplinary framework linking disease to social behavior.{20} Kleinman's "
+            "mediated by cultural and linguistic categories.{@eisenberg1977} Fabrega offered an "
+            "interdisciplinary framework linking disease to social behavior.{@fabrega1974} Kleinman's "
             "medical anthropology demonstrated that cultural categories of sickness guide "
-            "labeling, help-seeking, and therapeutic responses.{6} Hacking's philosophy of "
+            "labeling, help-seeking, and therapeutic responses.{@kleinman1988} Hacking's philosophy of "
             "human kinds introduced the looping-effect concept, showing that psychiatric "
             "classifications are not passive labels but active constituents of the phenomena "
-            "they describe.{4,5} Jutel's sociology of diagnosis showed that the diagnostic "
+            "they describe.{@hacking1995,hacking2006} Jutel's sociology of diagnosis showed that the diagnostic "
             "act itself is a social event with consequences that extend beyond the clinical "
-            "encounter.{7}"
+            "encounter.{@jutel2009}"
         ),
         (
-            "Despite these rich intellectual traditions, no integrated formal framework exists "
+            "Despite this substantial body of work, no integrated formal framework exists "
             "for the proposition that nosological categories shape medical practice in ways "
             "analogous to linguistic relativity. The present paper fills this gap."
         ),
@@ -465,7 +547,7 @@ PROPOSITIONS = [
 LOOPING_PARAS = [
     (
         "Central to the NR framework is the looping mechanism, adapted from Hacking's "
-        "analysis of human kinds (Fig. 2).{4,5} The mechanism operates as follows:"
+        "analysis of human kinds (Fig. 2).{hacking1995,hacking2006} The mechanism operates as follows:"
     ),
     (
         "Stage 1 (Classification → Practice): A nosological category is introduced or "
@@ -476,13 +558,13 @@ LOOPING_PARAS = [
         "Stage 2 (Practice → Experience): Clinicians using the category communicate the "
         "diagnosis to patients, who incorporate it into their self-understanding. The "
         "diagnostic label provides a framework for interpreting symptoms, a basis for "
-        "illness identity, and a social role.{11}"
+        "illness identity, and a social role.{michaleff2021}"
     ),
     (
         "Stage 3 (Experience → Data): Patients who self-identify with the diagnostic "
         "category generate health-seeking behavior, symptom reports, and clinical "
         "encounters that are coded using the category. This produces epidemiological "
-        "data consistent with the category's existence.{26}"
+        "data consistent with the category's existence.{conrad2007}"
     ),
     (
         "Stage 4 (Data → Classification): Epidemiological data are used to validate and "
@@ -491,8 +573,8 @@ LOOPING_PARAS = [
     ),
     (
         "This looping mechanism creates a self-reinforcing cycle that can make it "
-        "difficult to distinguish between categories that 'carve nature at its joints' "
-        "and categories that generate the very patterns they claim to describe.{18,19}"
+        "difficult to distinguish between categories that “carve nature at its joints” "
+        "and categories that generate the very patterns they claim to describe.{tsou2016,cooper2005}"
     ),
 ]
 
@@ -500,11 +582,11 @@ EVIDENCE_SECTIONS = {
     "Diagnostic Foreclosure in Pain Medicine": [
         (
             "The recognition of chronic pain as an independent disease entity in ICD-11 "
-            "(code MG30) illustrates the cognitive-level effects of nosological categories.{17} "
+            "(code MG30) illustrates the cognitive-level effects of nosological categories.{treede2019} "
             "Prior to ICD-11, chronic pain was classified exclusively as a symptom of underlying "
             "conditions. This nosological framing constrained clinical reasoning: once an "
             "underlying condition was identified (e.g., osteoarthritis), diagnostic exploration "
-            "of pain mechanisms typically ceased—a phenomenon we term diagnostic foreclosure.{4}"
+            "of pain mechanisms typically ceased—a phenomenon we term diagnostic foreclosure.{hacking1995}"
         ),
         (
             "The introduction of chronic pain as an independent diagnostic entity creates the "
@@ -517,17 +599,17 @@ EVIDENCE_SECTIONS = {
         ),
         (
             "Nickel et al. showed in a systematic review that different terminology for the "
-            "same condition influences clinicians' and patients' management preferences.{12} "
+            "same condition influences clinicians' and patients' management preferences.{@nickel2017} "
             "This finding directly supports Proposition 2: nosological labels influence, but do "
             "not determine, clinical reasoning."
         ),
     ],
     "Karoshi: Culture-Specific Nosological Innovation": [
         (
-            "Karoshi (過労死, death from overwork) provides a compelling illustration of "
+            "Karoshi (過労死, death from overwork) is a clear illustration of "
             "Proposition 3—the strong form of nosological relativity. The concept emerged in "
             "Japan in the 1970s as a legally and medically recognized cause of death, distinct "
-            "from the underlying cardiovascular or cerebrovascular events.{13,14} In other "
+            "from the underlying cardiovascular or cerebrovascular events.{iwasaki2006,nishiyama1997} In other "
             "countries, identical pathophysiological events (myocardial infarction, stroke) "
             "occurring in the context of overwork are classified under their organ-specific "
             "categories without reference to occupational causation."
@@ -539,18 +621,28 @@ EVIDENCE_SECTIONS = {
             "of sudden cardiovascular death in working-age adults, a consideration that is "
             "largely absent in countries without an equivalent category; (b) at the "
             "institutional level, Japan has developed a dedicated legal-medical apparatus for "
-            "karoshi certification, with specific overtime-hour thresholds (the '80-hour "
-            "karoshi line') that do not exist elsewhere; (c) at the population level, Japan "
+            "karoshi certification, with specific overtime-hour thresholds (the “80-hour "
+            "karoshi line”) that do not exist elsewhere; (c) at the population level, Japan "
             "reports karoshi statistics as a distinct epidemiological phenomenon, generating "
             "policy responses (the 2014 Act on Promotion of Measures to Prevent Karoshi) "
             "that are structurally impossible in countries where the category does not exist."
+        ),
+        (
+            "Critically, these effects instantiate the complete looping mechanism (Fig. 2). The "
+            "introduction of karoshi as a category (Stage 1) reshaped clinical assessment and "
+            "legal-medical certification practice (Stage 2); bereaved families and workers came to "
+            "interpret sudden deaths and chronic exhaustion through the karoshi frame and to pursue "
+            "compensation claims (Stage 3); the resulting certified cases, official statistics, and "
+            "case law were then used to define and refine the category's diagnostic and "
+            "overtime-hour criteria (Stage 4)—a self-reinforcing cycle that is structurally absent "
+            "in health systems lacking the category."
         ),
         (
             "The ICD-11 inclusion of burnout (QD85) as a classifiable occupational phenomenon "
             "provides a partial international diffusion of this nosological innovation, and "
             "the NR framework predicts that countries adopting this code will begin to "
             "replicate—at a smaller scale—the institutional and epidemiological patterns "
-            "observed in Japan.{15,16}"
+            "observed in Japan.{who2019icd,reed2019}"
         ),
     ],
     "ICD Revisions as Natural Experiments": [
@@ -558,7 +650,8 @@ EVIDENCE_SECTIONS = {
             "Major revisions of the International Classification of Diseases constitute "
             "natural experiments for the NR framework. The transition from ICD-10 to ICD-11 "
             "introduced several nosological innovations whose effects can be tracked using "
-            "before-after designs (Table 1).{15,16}"
+            "before-after designs; Prediction 1 (Section 5) formalizes this logic as a testable "
+            "hypothesis (Table 1).{who2019icd,reed2019}"
         ),
         (
             "Of particular theoretical interest is the reclassification of gender incongruence "
@@ -567,16 +660,27 @@ EVIDENCE_SECTIONS = {
             "reclassification will produce measurable changes at all three levels: reduced "
             "cognitive association with mental illness among clinicians, institutional "
             "reorganization of care pathways away from psychiatric services, and population-level "
-            "reduction in stigma-related barriers to care.{16}"
+            "reduction in stigma-related barriers to care.{reed2019}"
+        ),
+        (
+            "The dynamics described here are not unique to the ICD. Analogous effects arise across "
+            "other classification systems. In oncology, revisions to the TNM staging system produce "
+            "stage migration—the “Will Rogers phenomenon,” whereby reclassifying patients between "
+            "stages raises apparent stage-specific survival with no change in individual outcomes—a "
+            "direct instance of the population-level effects of Proposition 6.{feinstein1985,brierley2017} "
+            "Successive editions of the DSM and the expanding terminology of clinical vocabularies "
+            "such as SNOMED CT similarly reshape which conditions become clinically and "
+            "administratively visible. The NR framework therefore applies to nosological systems "
+            "generally, not to the ICD alone."
         ),
     ],
     "Counter-Evidence: Disease-Independent-of-Nosology": [
         (
             "The NR framework must accommodate evidence that some diseases manifest independently "
             "of nosological framing. Kleinman documented that anorexia nervosa occurs in "
-            "cultures where thinness is not idealized,{6} and Swartz argued that anorexia should "
+            "cultures where thinness is not idealized,{@kleinman1988} and Swartz argued that anorexia should "
             "be understood as a culture-bound syndrome precisely because its form varies across "
-            "cultures even when its core features persist.{10} More broadly, infectious diseases "
+            "cultures even when its core features persist.{@swartz1985} More broadly, infectious diseases "
             "with clear etiological agents (e.g., tuberculosis, malaria) manifest regardless "
             "of how they are classified."
         ),
@@ -585,9 +689,9 @@ EVIDENCE_SECTIONS = {
             "Boorse's biostatistical theory of health provides a useful reference point: "
             "to the extent that a condition deviates from species-typical function in ways "
             "measurable independently of nosological framing, it is less susceptible to "
-            "nosological relativity.{9} Kirmayer has further documented how cultural "
+            "nosological relativity.{@boorse1977} Kirmayer has further documented how cultural "
             "variations in the clinical presentation of depression and anxiety complicate "
-            "simple universalist assumptions.{30} We propose that the strength of "
+            "simple universalist assumptions.{@kirmayer2001} We propose that the strength of "
             "nosological effects is inversely proportional to the strength of the underlying "
             "biological signal: conditions with strong, objectively measurable biological "
             "substrates (e.g., fractures, infections with identifiable pathogens) are less "
@@ -628,23 +732,27 @@ PREDICTIONS_PARAS = [
 
 DISCUSSION_PARAS = [
     (
-        "The Nosological Relativity framework offers several implications for medical "
-        "practice and nosological policy."
+        "Confirmation of these predictions would establish nosological framing as a "
+        "measurable causal influence on clinical epidemiology, whereas their refutation "
+        "would usefully bound the framework's scope to particular disease types; either "
+        "outcome advances the field. Beyond this empirical agenda, the Nosological "
+        "Relativity framework offers several implications for medical practice and "
+        "nosological policy."
     ),
     (
         "First, nosological revisions should be understood not merely as improved "
         "descriptions of clinical reality but as interventions that actively reshape "
         "clinical practice. This suggests that the process of revising classification "
         "systems should incorporate prospective impact assessment, analogous to "
-        "regulatory impact assessment for legislation.{8,27}"
+        "regulatory impact assessment for legislation.{zachar2017,bowker1999}"
     ),
     (
         "Second, clinical education should include explicit instruction in the cognitive "
         "effects of diagnostic categories. Awareness of diagnostic foreclosure—the "
         "tendency to cease diagnostic reasoning once a category is assigned—may partially "
         "mitigate its effects, analogous to debiasing training for other cognitive "
-        "heuristics.{22} Integration with biopsychosocial approaches may further "
-        "counteract the reductionism inherent in categorical thinking.{23}"
+        "heuristics.{rosenhan1973} Integration with biopsychosocial approaches may further "
+        "counteract the reductionism inherent in categorical thinking.{engel1977}"
     ),
     (
         "Third, the framework provides a principled basis for evaluating proposals to "
@@ -652,7 +760,7 @@ DISCUSSION_PARAS = [
         "(improved detection, research funding, treatment development) must be weighed "
         "against the risks of reification (treating a provisional category as a natural "
         "kind) and looping effects (the category generating the very phenomenon it "
-        "describes).{26,29}"
+        "describes).{conrad2007,frances2013}"
     ),
     (
         "Limitations of this framework should be acknowledged. The NR framework is "
@@ -663,7 +771,7 @@ DISCUSSION_PARAS = [
         "explicitly constructed and primarily used by specialists. Additionally, the "
         "framework does not address the normative question of whether nosological "
         "categories should be designed to minimize or to harness their constructive "
-        "effects.{8}"
+        "effects.{zachar2017}"
     ),
 ]
 
@@ -682,7 +790,7 @@ CONCLUSION_PARAS = [
         "are perceived, categorized, and managed introduces systematic and predictable "
         "distortions. By making these distortions explicit and testable, the NR framework "
         "opens new avenues for empirical research and provides principled guidance for "
-        "nosological policy.{27,28}"
+        "nosological policy.{bowker1999,craddock2010}"
     ),
     (
         "Future research should prioritize empirical testing of the three predictions "
@@ -738,6 +846,8 @@ TABLE1_ROWS = [
 # ---------------------------------------------------------------------------
 
 def build_manuscript(fig1_path, fig2_path):
+    ordered_refs = compute_citations()
+
     doc = Document()
 
     # --- Style setup ---
@@ -757,10 +867,15 @@ def build_manuscript(fig1_path, fig2_path):
 
     tp2 = doc.add_paragraph()
     tp2.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    run2 = tp2.add_run(AUTHORS)
+    run2 = tp2.add_run(
+        "[Author identifying information removed for double-masked review]"
+        if ANONYMIZE else AUTHORS
+    )
     run2.font.size = Pt(12)
+    if ANONYMIZE:
+        run2.italic = True
 
-    if AFFILIATIONS:
+    if AFFILIATIONS and not ANONYMIZE:
         tp3 = doc.add_paragraph()
         tp3.alignment = WD_ALIGN_PARAGRAPH.CENTER
         run3 = tp3.add_run(AFFILIATIONS)
@@ -919,20 +1034,68 @@ def build_manuscript(fig1_path, fig2_path):
     # ---- REFERENCES ----
     doc.add_page_break()
     add_heading(doc, 'References', level=1)
-    for i, ref in enumerate(REFERENCES, 1):
+    for _key, ref in ordered_refs:
         p = doc.add_paragraph()
         p.paragraph_format.space_after = Pt(2)
         p.paragraph_format.line_spacing = 1.15
-        run_num = p.add_run(f'{i}. ')
-        run_num.bold = True
-        run_num.font.size = Pt(10)
-        run_ref = p.add_run(ref)
-        run_ref.font.size = Pt(10)
+        p.paragraph_format.left_indent = Inches(0.5)
+        p.paragraph_format.first_line_indent = Inches(-0.5)
+        add_italic_text(p, ref, size=Pt(10))
 
     # Save
     out_path = OUT_DIR / "manuscript_en.docx"
     doc.save(str(out_path))
     print(f"Manuscript saved: {out_path}")
+    return out_path
+
+
+# ---------------------------------------------------------------------------
+# Build separate (non-anonymized) title page for double-masked submission
+# ---------------------------------------------------------------------------
+
+def build_title_page_docx():
+    doc = Document()
+    style = doc.styles['Normal']
+    style.font.name = 'Times New Roman'
+    style.font.size = Pt(12)
+    style.paragraph_format.line_spacing = 1.5
+
+    t = doc.add_paragraph()
+    t.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    tr = t.add_run(TITLE)
+    tr.bold = True
+    tr.font.size = Pt(16)
+
+    doc.add_paragraph()
+    a = doc.add_paragraph()
+    a.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    a.add_run(AUTHORS).font.size = Pt(12)
+
+    aff = doc.add_paragraph()
+    aff.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    aff_run = aff.add_run(AUTHOR_AFFILIATION)
+    aff_run.italic = True
+    aff_run.font.size = Pt(11)
+
+    doc.add_paragraph()
+    corr = doc.add_paragraph()
+    corr.add_run('Corresponding author: ').bold = True
+    corr.add_run(f'{AUTHORS}, {AUTHOR_AFFILIATION}. Email: {AUTHOR_EMAIL}')
+
+    for label in [
+        'Funding: None declared.',
+        'Conflicts of interest: None declared.',
+        'Acknowledgements: [optional].',
+        'Word count (main text, excluding abstract and references): see manuscript.',
+    ]:
+        p = doc.add_paragraph()
+        head, _, rest = label.partition(':')
+        p.add_run(head + ':').bold = True
+        p.add_run(rest)
+
+    out_path = OUT_DIR / "title_page_en.docx"
+    doc.save(str(out_path))
+    print(f"Title page saved: {out_path}")
     return out_path
 
 
@@ -1030,6 +1193,9 @@ def main():
 
     print("Building manuscript...")
     ms = build_manuscript(fig1, fig2)
+
+    print("Building title page...")
+    build_title_page_docx()
 
     print("Building figures PPTX...")
     build_figures_pptx(fig1, fig2)

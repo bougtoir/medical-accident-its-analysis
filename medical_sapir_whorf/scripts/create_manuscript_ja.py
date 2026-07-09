@@ -58,11 +58,17 @@ def setup_japanese_font():
 # Utility helpers
 # ---------------------------------------------------------------------------
 
+# Citation map (key -> Vancouver number), populated by compute_citations().
+CIT_MAP = {}
+
+
 def add_superscript_text(paragraph, text):
     parts = re.split(r'(\{[^}]+\})', text)
     for part in parts:
         if part.startswith('{') and part.endswith('}'):
-            run = paragraph.add_run(part[1:-1])
+            keys = [k.strip() for k in part[1:-1].split(',')]
+            nums = sorted(CIT_MAP[k] for k in keys)
+            run = paragraph.add_run(','.join(str(n) for n in nums))
             run.font.superscript = True
             run.font.size = Pt(8)
         else:
@@ -242,48 +248,88 @@ KEYWORDS = [
     "診断ラベル",
 ]
 
-REFERENCES = [
-    "Sapir E. The status of linguistics as a science. Language. 1929;5(4):207–14.",
-    "Whorf BL. Language, thought, and reality: selected writings of Benjamin Lee Whorf. Carroll JB, editor. Cambridge (MA): MIT Press; 1956.",
-    "Warner R. The relationship between language and disease concepts. Int J Psychiatry Med. 1976;7(1):57–68.",
-    "Hacking I. The looping effects of human kinds. In: Sperber D, Premack D, Premack AJ, editors. Causal cognition: a multidisciplinary debate. Oxford: Clarendon Press; 1995. p. 351–94.",
-    "Hacking I. Making up people. London Review of Books. 2006;28(16):23–6.",
-    "Kleinman A. The illness narratives: suffering, healing, and the human condition. New York: Basic Books; 1988.（邦訳：クラインマン A. 病いの語り. 誠信書房; 1996.）",
-    "Jutel A. Sociology of diagnosis: a preliminary review. Sociol Health Illn. 2009;31(2):278–99.",
-    "Zachar P, Kendler KS. The philosophy of nosology. Annu Rev Clin Psychol. 2017;13:49–71.",
-    "Boorse C. Health as a theoretical concept. Philos Sci. 1977;44(4):542–73.",
-    "Swartz L. Anorexia nervosa as a culture-bound syndrome. Soc Sci Med. 1985;20(7):725–30.",
-    "Michaleff ZA, Glasziou P, Thomas R. Consequences of a diagnostic label: a systematic scoping review and thematic framework. Front Public Health. 2021;9:725877.",
-    "Nickel B, Moynihan R, Barratt A, Brito JP, McCaffery K. Words do matter: a systematic review on how different terminology for the same condition influences management preferences. BMJ Open. 2017;7(7):e014129.",
-    "Iwasaki K, Takahashi M, Nakata A. Health problems due to long working hours in Japan: working hours, workers' compensation (karoshi), and preventive measures. Ind Health. 2006;44(4):537–40.",
-    "Nishiyama K, Johnson JV. Karoshi—death from overwork: occupational health consequences of Japanese production management. Int J Health Serv. 1997;27(4):625–41.",
-    "World Health Organization. ICD-11 for Mortality and Morbidity Statistics. Geneva: WHO; 2019.",
-    "Reed GM, First MB, Kogan CS, et al. Innovations and changes in the ICD-11 classification of mental, behavioural and neurodevelopmental disorders. World Psychiatry. 2019;18(1):3–19.",
-    "Treede RD, Rief W, Barke A, et al. Chronic pain as a symptom or a disease: the IASP Classification of Chronic Pain for the International Classification of Diseases (ICD-11). Pain. 2019;160(1):19–27.",
-    "Tsou JY. Natural kinds, psychiatric classification and the history of the DSM. Hist Psychiatry. 2016;27(4):406–24.",
-    "Cooper R. Classifying madness: a philosophical examination of the Diagnostic and Statistical Manual of Mental Disorders. Dordrecht: Springer; 2005.",
-    "Fabrega H Jr. Disease and social behavior: an interdisciplinary perspective. Cambridge (MA): MIT Press; 1974.",
-    "Eisenberg L. Disease and illness: distinctions between professional and popular ideas of sickness. Cult Med Psychiatry. 1977;1(1):9–23.",
-    "Rosenhan DL. On being sane in insane places. Science. 1973;179(4070):250–8.",
-    "Thibault JM, Bhatt DL, Engel GL. The biopsychosocial model: past, present, future. Psychosomatics. 2003;44(4):267–75.",
-    "Boroditsky L. Does language shape thought? Mandarin and English speakers' conceptions of time. Cogn Psychol. 2001;43(1):1–22.",
-    "Lupyan G, Bergen B. How language programs the mind. Top Cogn Sci. 2016;8(2):408–24.",
-    "Conrad P. The medicalization of society: on the transformation of human conditions into treatable disorders. Baltimore: Johns Hopkins University Press; 2007.",
-    "Bowker GC, Star SL. Sorting things out: classification and its consequences. Cambridge (MA): MIT Press; 1999.",
-    "Craddock N, Owen MJ. The Kraepelinian dichotomy — going, going... but still not gone. Br J Psychiatry. 2010;196(2):92–5.",
-    "Frances A. Saving normal: an insider's revolt against out-of-control psychiatric diagnosis, DSM-5, Big Pharma, and the medicalization of ordinary life. New York: William Morrow; 2013.",
-    "Kirmayer LJ. Cultural variations in the clinical presentation of depression and anxiety: implications for diagnosis and treatment. J Clin Psychiatry. 2001;62 Suppl 13:22–8.",
-]
+# Reference database keyed by citation key. Vancouver numbers are assigned
+# automatically in order of first appearance by compute_citations().
+REFERENCES_DB = {
+    "sapir1929": "Sapir E. The status of linguistics as a science. Language. 1929;5(4):207–14.",
+    "whorf1956": "Whorf BL. Language, thought, and reality: selected writings of Benjamin Lee Whorf. Carroll JB, editor. Cambridge (MA): MIT Press; 1956.",
+    "warner1976": "Warner R. The relationship between language and disease concepts. Int J Psychiatry Med. 1976;7(1):57–68.",
+    "hacking1995": "Hacking I. The looping effects of human kinds. In: Sperber D, Premack D, Premack AJ, editors. Causal cognition: a multidisciplinary debate. Oxford: Clarendon Press; 1995. p. 351–94.",
+    "hacking2006": "Hacking I. Making up people. London Review of Books. 2006;28(16):23–6.",
+    "kleinman1988": "Kleinman A. The illness narratives: suffering, healing, and the human condition. New York: Basic Books; 1988.（邦訳：クラインマン A. 病いの語り. 誠信書房; 1996.）",
+    "jutel2009": "Jutel A. Sociology of diagnosis: a preliminary review. Sociol Health Illn. 2009;31(2):278–99.",
+    "zachar2017": "Zachar P, Kendler KS. The philosophy of nosology. Annu Rev Clin Psychol. 2017;13:49–71.",
+    "boorse1977": "Boorse C. Health as a theoretical concept. Philos Sci. 1977;44(4):542–73.",
+    "swartz1985": "Swartz L. Anorexia nervosa as a culture-bound syndrome. Soc Sci Med. 1985;20(7):725–30.",
+    "michaleff2021": "Michaleff ZA, Glasziou P, Thomas R. Consequences of a diagnostic label: a systematic scoping review and thematic framework. Front Public Health. 2021;9:725877.",
+    "nickel2017": "Nickel B, Moynihan R, Barratt A, Brito JP, McCaffery K. Words do matter: a systematic review on how different terminology for the same condition influences management preferences. BMJ Open. 2017;7(7):e014129.",
+    "iwasaki2006": "Iwasaki K, Takahashi M, Nakata A. Health problems due to long working hours in Japan: working hours, workers' compensation (karoshi), and preventive measures. Ind Health. 2006;44(4):537–40.",
+    "nishiyama1997": "Nishiyama K, Johnson JV. Karoshi—death from overwork: occupational health consequences of Japanese production management. Int J Health Serv. 1997;27(4):625–41.",
+    "who2019icd": "World Health Organization. ICD-11 for Mortality and Morbidity Statistics. Geneva: WHO; 2019.",
+    "reed2019": "Reed GM, First MB, Kogan CS, et al. Innovations and changes in the ICD-11 classification of mental, behavioural and neurodevelopmental disorders. World Psychiatry. 2019;18(1):3–19.",
+    "treede2019": "Treede RD, Rief W, Barke A, et al. Chronic pain as a symptom or a disease: the IASP Classification of Chronic Pain for the International Classification of Diseases (ICD-11). Pain. 2019;160(1):19–27.",
+    "tsou2016": "Tsou JY. Natural kinds, psychiatric classification and the history of the DSM. Hist Psychiatry. 2016;27(4):406–24.",
+    "cooper2005": "Cooper R. Classifying madness: a philosophical examination of the Diagnostic and Statistical Manual of Mental Disorders. Dordrecht: Springer; 2005.",
+    "fabrega1974": "Fabrega H Jr. Disease and social behavior: an interdisciplinary perspective. Cambridge (MA): MIT Press; 1974.",
+    "eisenberg1977": "Eisenberg L. Disease and illness: distinctions between professional and popular ideas of sickness. Cult Med Psychiatry. 1977;1(1):9–23.",
+    "rosenhan1973": "Rosenhan DL. On being sane in insane places. Science. 1973;179(4070):250–8.",
+    "engel2003": "Thibault JM, Bhatt DL, Engel GL. The biopsychosocial model: past, present, future. Psychosomatics. 2003;44(4):267–75.",
+    "boroditsky2001": "Boroditsky L. Does language shape thought? Mandarin and English speakers' conceptions of time. Cogn Psychol. 2001;43(1):1–22.",
+    "lupyan2016": "Lupyan G, Bergen B. How language programs the mind. Top Cogn Sci. 2016;8(2):408–24.",
+    "conrad2007": "Conrad P. The medicalization of society: on the transformation of human conditions into treatable disorders. Baltimore: Johns Hopkins University Press; 2007.",
+    "bowker1999": "Bowker GC, Star SL. Sorting things out: classification and its consequences. Cambridge (MA): MIT Press; 1999.",
+    "craddock2010": "Craddock N, Owen MJ. The Kraepelinian dichotomy — going, going... but still not gone. Br J Psychiatry. 2010;196(2):92–5.",
+    "frances2013": "Frances A. Saving normal: an insider's revolt against out-of-control psychiatric diagnosis, DSM-5, Big Pharma, and the medicalization of ordinary life. New York: William Morrow; 2013.",
+    "kirmayer2001": "Kirmayer LJ. Cultural variations in the clinical presentation of depression and anxiety: implications for diagnosis and treatment. J Clin Psychiatry. 2001;62 Suppl 13:22–8.",
+    "feinstein1985": "Feinstein AR, Sosin DM, Wells CK. The Will Rogers phenomenon: stage migration and new diagnostic techniques as a source of misleading statistics for survival in cancer. N Engl J Med. 1985;312(25):1604–8.",
+    "brierley2017": "Brierley JD, Gospodarowicz MK, Wittekind C, editors. TNM classification of malignant tumours. 8th ed. Oxford: Wiley Blackwell; 2017.",
+}
+
+
+def compute_citations():
+    """出現順にVancouver番号を割り当て、(cit_map, ordered_refs) を返す。"""
+    blocks = []
+    blocks += INTRO_PARAS
+    for paras in BACKGROUND_SECTIONS.values():
+        blocks += paras
+    blocks.append(FRAMEWORK_INTRO)
+    for _title, text in PROPOSITIONS:
+        blocks.append(text)
+    blocks += LOOPING_PARAS
+    for paras in EVIDENCE_SECTIONS.values():
+        blocks += paras
+    blocks += PREDICTIONS_PARAS
+    blocks += DISCUSSION_PARAS
+    blocks += CONCLUSION_PARAS
+
+    order = []
+    for b in blocks:
+        for marker in re.findall(r'\{([^}]+)\}', b):
+            for key in marker.split(','):
+                key = key.strip()
+                if key not in order:
+                    order.append(key)
+
+    unknown = [k for k in order if k not in REFERENCES_DB]
+    if unknown:
+        raise KeyError(f"Unknown citation key(s): {unknown}")
+    orphans = [k for k in REFERENCES_DB if k not in order]
+    if orphans:
+        raise ValueError(f"Reference(s) in DB but never cited: {orphans}")
+
+    cit_map = {k: i + 1 for i, k in enumerate(order)}
+    ordered_refs = [(cit_map[k], REFERENCES_DB[k]) for k in order]
+    return cit_map, ordered_refs
 
 
 INTRO_PARAS = [
     (
         "サピア＝ウォーフ仮説は、20世紀初頭にEdward SapirとBenjamin Lee Whorfによって定式化"
-        "された仮説であり、言語の構造がその話者の認知と世界観に影響を与えると主張する。{1,2}"
-        "その強い形式（言語決定論）では言語が思考を決定し、弱い形式（言語相対性）では言語が"
-        "習慣的な思考パターンに影響を与えるが完全には制約しないとする。{24,25}強い形式は"
-        "言語学では大部分が放棄されているが、色彩知覚・空間認知・時間的認知を含む複数の"
-        "領域において弱い形式を支持する堅固な証拠が存在する。{24}"
+        "された仮説であり、言語の構造がその話者の認知と世界観に影響を与えると主張する。{sapir1929,whorf1956}"
+        "この仮説は慣例的に、言語が思考を決定するとする強い形式（言語決定論）と、言語が習慣的な"
+        "思考パターンに影響を与えるが完全には制約しないとする弱い形式（言語相対性）に区別される。"
+        "強い形式は言語学では大部分が放棄されているが、弱い形式を支持する堅固な証拠が存在する"
+        "（2.1節で概観する）。"
     ),
     (
         "医療においても類似の現象が作用している可能性がある。疾患分類学的フレームワーク"
@@ -291,7 +337,7 @@ INTRO_PARAS = [
         "自然言語のカテゴリが話者の知覚と推論を形成するように、疾患分類学的カテゴリは"
         "臨床医が患者をいかに知覚し、診断し、治療するかを形成する可能性がある。"
         "Warnerは1976年にこの類推を初めて探求し、異なる文化の言語構造が根本的に異なる"
-        "疾患概念につながると論じた。{3}しかし、この並行関係は初期の観察を超えて形式的に"
+        "疾患概念につながると論じた。{warner1976}しかし、この並行関係は初期の観察を超えて形式的に"
         "発展されていない。"
     ),
     (
@@ -302,11 +348,11 @@ INTRO_PARAS = [
         "ガイドラインに対する制度的効果、疫学パターンに対する集団レベルの効果が含まれる。"
         "さらに、Ian Hackingが精神医学的分類について示したように、特有のループメカニズムが"
         "作用する：分類体系が患者の自己同一化と症状表現を変化させ、それが翻って元の分類を"
-        "補強するデータを生成する。{4,5}"
+        "補強するデータを生成する。{hacking1995,hacking2006}"
     ),
     (
         "同時に、この仮説を制約する証拠も存在する。Kleinmanは、痩せていることが理想とされ"
-        "ない文化においても拒食症が発生することを観察しており、{6,10}一部の疾患は疾患分類"
+        "ない文化においても拒食症が発生することを観察しており、{kleinman1988,swartz1985}一部の疾患は疾患分類"
         "学的枠組みとは独立に発現する生物学的基盤を有することを示唆する。適切な理論的フレーム"
         "ワークは、疾患分類学的カテゴリの構成的力と分類非依存性の疾患現象の存在の両方を"
         "包含しなければならない。"
@@ -323,11 +369,11 @@ INTRO_PARAS = [
 BACKGROUND_SECTIONS = {
     "言語学におけるサピア＝ウォーフ仮説": [
         (
-            "言語的相対性仮説は、その最初の定式化以来、相当な修正を経てきた。{1,2}現代の研究は"
+            "言語的相対性仮説は、その最初の定式化以来、相当な修正を経てきた。{sapir1929,whorf1956}現代の研究は"
             "中庸な立場を支持する：言語は思考を厳格に決定しないが、習慣的な認知パターンに影響を"
-            "与える。{24,25}Boroditskyは、中国語と英語の話者が時間を異なって概念化することを"
-            "示し、各言語が時間関係を符号化する構造的差異と一致する。{24}LupyanとBergenは、"
-            "言語的ラベルがカテゴリ化を促進し知覚処理を調節することを示した。{25}これらの知見は、"
+            "与える。{boroditsky2001,lupyan2016}Boroditskyは、中国語と英語の話者が時間を異なって概念化することを"
+            "示し、各言語が時間関係を符号化する構造的差異と一致する。{boroditsky2001}LupyanとBergenは、"
+            "言語的ラベルがカテゴリ化を促進し知覚処理を調節することを示した。{lupyan2016}これらの知見は、"
             "記号的分類体系が測定可能な認知的効果を発揮することを確立する——我々はこの原理を"
             "医療疾患分類学に拡張する。"
         ),
@@ -335,7 +381,7 @@ BACKGROUND_SECTIONS = {
     "言語と疾患に関する先行研究": [
         (
             "Warnerの1976年の論文は、サピア＝ウォーフ仮説を医療に明示的に適用した最初の"
-            "研究を代表する。{3}彼はインド＝ヨーロッパ語族の言語構造——特に疾病を記述する際の"
+            "研究を代表する。{warner1976}彼はインド＝ヨーロッパ語族の言語構造——特に疾病を記述する際の"
             "動詞よりも名詞の使用、空間メタファーの多用、主語＝述語の二分法——が静的、単因的、"
             "二元論的な疾患概念を促進すると論じた。Warnerは、これらの言語的特徴が外科手術への"
             "過度な依存を促進し、疾患原因における社会的・心理的因子の認識を阻害すると示唆した。"
@@ -343,13 +389,13 @@ BACKGROUND_SECTIONS = {
         (
             "その後の研究は、定式化なしにこの観点を拡張してきた。Eisenbergは「疾患」（生物医学的"
             "構成概念）と「病い」（患者の生きた経験）を区別し、これらの構成概念間のギャップが"
-            "文化的・言語的カテゴリによって媒介されることを示した。{21}Fabregaは疾患を"
-            "社会的行動と結びつける学際的枠組みを提供した。{20}Kleinmanの医療人類学は、"
-            "疾病の文化的カテゴリがラベリング、援助希求、治療的応答を導くことを実証した。{6}"
+            "文化的・言語的カテゴリによって媒介されることを示した。{eisenberg1977}Fabregaは疾患を"
+            "社会的行動と結びつける学際的枠組みを提供した。{fabrega1974}Kleinmanの医療人類学は、"
+            "疾病の文化的カテゴリがラベリング、援助希求、治療的応答を導くことを実証した。{kleinman1988}"
             "Hackingの人間種の哲学はループ効果概念を導入し、精神医学的分類が受動的なラベルでは"
-            "なく、それが記述する現象の能動的構成要素であることを示した。{4,5}Jutelの診断の"
+            "なく、それが記述する現象の能動的構成要素であることを示した。{hacking1995,hacking2006}Jutelの診断の"
             "社会学は、診断行為自体が臨床的出会いを超えた帰結を持つ社会的事象であることを"
-            "示した。{7}"
+            "示した。{jutel2009}"
         ),
         (
             "これらの豊かな知的伝統にもかかわらず、疾患分類学的カテゴリが言語的相対性と類似した"
@@ -406,7 +452,7 @@ PROPOSITIONS = [
 LOOPING_PARAS = [
     (
         "NRフレームワークの中核はループメカニズムであり、Hackingの人間種の分析から適応した"
-        "ものである（図2）。{4,5}メカニズムは以下のように作用する："
+        "ものである（図2）。{hacking1995,hacking2006}メカニズムは以下のように作用する："
     ),
     (
         "段階1（分類→実践）：疾患分類学的カテゴリが公式体系（例：ICD, DSM）内で導入または"
@@ -416,12 +462,12 @@ LOOPING_PARAS = [
     (
         "段階2（実践→体験）：カテゴリを使用する臨床医が患者に診断を伝達し、患者はそれを"
         "自己理解に組み込む。診断ラベルは症状解釈の枠組み、疾患アイデンティティの基盤、"
-        "社会的役割を提供する。{11}"
+        "社会的役割を提供する。{michaleff2021}"
     ),
     (
         "段階3（体験→データ）：診断カテゴリに自己同一化した患者は、カテゴリを使用して"
         "コード化される医療希求行動、症状報告、臨床的出会いを生成する。これによりカテゴリの"
-        "存在と整合的な疫学的データが産出される。{26}"
+        "存在と整合的な疫学的データが産出される。{conrad2007}"
     ),
     (
         "段階4（データ→分類）：疫学的データが疾患分類学的カテゴリの妥当性確認と精緻化に"
@@ -430,7 +476,7 @@ LOOPING_PARAS = [
     ),
     (
         "このループメカニズムは自己強化的なサイクルを創出し、「自然の関節で切る」カテゴリと、"
-        "それが記述すると主張するまさにそのパターンを生成するカテゴリとの区別を困難にする。{18,19}"
+        "それが記述すると主張するまさにそのパターンを生成するカテゴリとの区別を困難にする。{tsou2016,cooper2005}"
     ),
 ]
 
@@ -438,10 +484,10 @@ EVIDENCE_SECTIONS = {
     "疼痛医学における診断的閉鎖": [
         (
             "ICD-11における独立した疾患実体としての慢性疼痛の認知（コードMG30）は、疾患分類学的"
-            "カテゴリの認知的レベルの効果を例証する。{17}ICD-11以前、慢性疼痛は基礎疾患の症状として"
+            "カテゴリの認知的レベルの効果を例証する。{treede2019}ICD-11以前、慢性疼痛は基礎疾患の症状として"
             "もっぱら分類されていた。この疾患分類学的枠組みは臨床推論を制約した：基礎疾患が同定されると"
             "（例：変形性関節症）、疼痛メカニズムの診断的探索は典型的に停止した——我々がこれを"
-            "診断的閉鎖と呼ぶ現象である。{4}"
+            "診断的閉鎖と呼ぶ現象である。{hacking1995}"
         ),
         (
             "独立した診断実体としての慢性疼痛の導入は自然実験の条件を創出する。NRフレームワークは、"
@@ -452,7 +498,7 @@ EVIDENCE_SECTIONS = {
         ),
         (
             "Nickelらはシステマティックレビューにおいて、同一疾患に対する異なる用語が臨床医と"
-            "患者の管理選好に影響を与えることを示した。{12}この知見は命題2を直接支持する："
+            "患者の管理選好に影響を与えることを示した。{nickel2017}この知見は命題2を直接支持する："
             "疾患分類学的ラベルは臨床推論に影響を与えるが、決定はしない。"
         ),
     ],
@@ -460,7 +506,7 @@ EVIDENCE_SECTIONS = {
         (
             "過労死は命題3——疾患分類学的相対性の強い形式——の説得的な例証を提供する。この概念は"
             "1970年代の日本で、基礎にある心血管または脳血管イベントとは区別された、法的・医学的に"
-            "認知された死因として出現した。{13,14}他の国々では、過重労働の文脈で発生する同一の"
+            "認知された死因として出現した。{iwasaki2006,nishiyama1997}他の国々では、過重労働の文脈で発生する同一の"
             "病態生理学的イベント（心筋梗塞、脳卒中）は、職業的因果関係への言及なしに臓器特異的"
             "カテゴリの下に分類される。"
         ),
@@ -475,34 +521,50 @@ EVIDENCE_SECTIONS = {
             "推進法）を生成している。"
         ),
         (
+            "重要なことに、これらの効果は完全なループメカニズム（図2）を体現している。過労死という"
+            "カテゴリの導入（段階1）は臨床的評価と法医学的認定の実践を再形成し（段階2）、遺族や"
+            "労働者は突然死や慢性的な疲弊を過労死の枠組みを通じて解釈し、労災補償を請求するように"
+            "なった（段階3）；その結果生じた認定症例・公式統計・判例が、翻ってカテゴリの診断基準と"
+            "残業時間閾値の定義・精緻化に用いられた（段階4）——カテゴリを持たない医療システムには"
+            "構造的に存在しない自己強化的サイクルである。"
+        ),
+        (
             "ICD-11における分類可能な職業的現象としてのバーンアウト（QD85）の収載は、この"
             "疾患分類学的革新の部分的な国際的拡散を提供し、NRフレームワークはこのコードを"
             "採用する国々が——より小さな規模で——日本で観察された制度的・疫学的パターンを"
-            "再現し始めると予測する。{15,16}"
+            "再現し始めると予測する。{who2019icd,reed2019}"
         ),
     ],
     "自然実験としてのICD改定": [
         (
             "国際疾病分類の大規模改定はNRフレームワークの自然実験を構成する。ICD-10からICD-11への"
             "移行はいくつかの疾患分類学的革新を導入し、その効果は前後比較デザインを用いて追跡"
-            "可能である（表1）。{15,16}"
+            "可能である；予測1（第5節）はこの論理を検証可能な仮説として定式化する（表1）。{who2019icd,reed2019}"
         ),
         (
             "理論的に特に興味深いのは、性別不合の精神および行動の障害（ICD-10, 第V章）から"
             "性の健康に関連する状態（ICD-11, 第17章）への再分類である。NRフレームワークは、"
             "この再分類が3つのレベルすべてで測定可能な変化を生じさせると予測する：臨床医における"
             "精神疾患との認知的連合の減少、精神科サービスから離れたケア経路の制度的再編成、"
-            "スティグマ関連のケアアクセス障壁の集団レベルでの減少。{16}"
+            "スティグマ関連のケアアクセス障壁の集団レベルでの減少。{reed2019}"
+        ),
+        (
+            "ここで述べた動態はICDに固有のものではなく、他の分類体系にも同型の効果が及ぶ。腫瘍学"
+            "では、TNM病期分類の改定が病期移行——患者を病期間で再分類することで個々の転帰は変わら"
+            "ないのに病期別生存率が見かけ上改善する「ウィル・ロジャース現象」——を生じさせ、これは"
+            "命題6の集団レベルの効果の明快な一例である。{feinstein1985,brierley2017}DSMの版の変遷や、"
+            "SNOMED CTのような臨床用語体系の拡張もまた、どの状態が臨床的・行政的に可視化されるかを"
+            "同様に再形成する。したがってNRフレームワークはICDに限らず疾患分類体系一般に適用される。"
         ),
     ],
     "反証：分類非依存性疾患": [
         (
             "NRフレームワークは、一部の疾患が疾患分類学的枠組みとは独立して発現するという"
             "証拠を包含しなければならない。Kleinmanは痩せていることが理想とされない文化において"
-            "拒食症が発生することを記録し、{6}Swartzは拒食症の中核的特徴が持続する場合でも"
+            "拒食症が発生することを記録し、{kleinman1988}Swartzは拒食症の中核的特徴が持続する場合でも"
             "その形態が文化間で変動するがゆえに、拒食症は文化結合症候群として理解されるべきだと"
-            "論じた。{10}Kirmayerはさらに、うつ病や不安の臨床的発現における文化的変異が"
-            "単純な普遍主義的仮定を複雑にすることを記録している。{30}より広くは、明確な"
+            "論じた。{swartz1985}Kirmayerはさらに、うつ病や不安の臨床的発現における文化的変異が"
+            "単純な普遍主義的仮定を複雑にすることを記録している。{kirmayer2001}より広くは、明確な"
             "病因因子を持つ感染症（例：結核、マラリア）は、それがどのように分類されるかに"
             "かかわらず発現する。"
         ),
@@ -511,7 +573,7 @@ EVIDENCE_SECTIONS = {
             "強度は基礎にある生物学的シグナルの強度と反比例すると提案する：強い、客観的に測定"
             "可能な生物学的基盤を持つ疾患（例：骨折、同定可能な病原体を持つ感染症）は疾患分類学的"
             "形成に対する感受性が低い一方、主に症状群、機能障害、主観的体験によって定義される疾患"
-            "（例：線維筋痛症、慢性疲労症候群、多くの精神障害）は高い感受性を持つ。{9}この勾配は"
+            "（例：線維筋痛症、慢性疲労症候群、多くの精神障害）は高い感受性を持つ。{boorse1977}この勾配は"
             "NRフレームワークの検証可能な予測を構成する。"
         ),
     ],
@@ -578,25 +640,28 @@ PREDICTIONS_PARAS = [
 
 DISCUSSION_PARAS = [
     (
-        "疾患分類学的相対性フレームワークは、診療と疾患分類学的政策にいくつかの含意を提供する。"
+        "これらの予測が支持されれば、疾患分類学的枠組みが臨床疫学に対する測定可能な因果的影響で"
+        "あることが確立され、反証されれば、フレームワークの適用範囲が特定の疾患類型に限定される"
+        "ことが有益に画定される——いずれの結果も学問を前進させる。この経験的課題に加えて、疾患"
+        "分類学的相対性フレームワークは診療と疾患分類学的政策にいくつかの含意を提供する。"
     ),
     (
         "第一に、疾患分類学的改定は、臨床的現実の改善された記述としてのみではなく、臨床実践を"
         "能動的に再形成する介入として理解されるべきである。これは、分類体系の改定プロセスに、"
-        "法規制の規制影響評価に類似した前向きの影響評価を組み込むべきことを示唆する。{8,27}"
+        "法規制の規制影響評価に類似した前向きの影響評価を組み込むべきことを示唆する。{zachar2017,bowker1999}"
     ),
     (
         "第二に、臨床教育は診断カテゴリの認知的効果に関する明示的な教育を含むべきである。"
         "診断的閉鎖——カテゴリが付与された時点で診断推論を停止する傾向——の認知は、他の認知的"
-        "ヒューリスティックのデバイアシング訓練と類似して、その効果を部分的に緩和しうる。{22}"
+        "ヒューリスティックのデバイアシング訓練と類似して、その効果を部分的に緩和しうる。{rosenhan1973}"
         "生物心理社会的アプローチとの統合は、カテゴリ的思考に内在する還元主義をさらに"
-        "打ち消す可能性がある。{23}"
+        "打ち消す可能性がある。{engel2003}"
     ),
     (
         "第三に、フレームワークは新たな診断カテゴリを創出する提案を評価するための原則的基盤を"
         "提供する。疾患分類学的認知の利益（検出の改善、研究資金、治療開発）は、実体化の"
         "リスク（暫定的カテゴリを自然種として扱うこと）およびループ効果のリスク（カテゴリが"
-        "それが記述するまさにその現象を生成すること）と衡量されなければならない。{26,29}"
+        "それが記述するまさにその現象を生成すること）と衡量されなければならない。{conrad2007,frances2013}"
     ),
     (
         "本フレームワークの限界を認めるべきである。NRフレームワークは現段階では主に理論的"
@@ -604,7 +669,7 @@ DISCUSSION_PARAS = [
         "疾患分類学的体系の間の類推は不完全である：自然言語は暗黙的に習得され集団全体で"
         "使用されるが、疾患分類学的体系は明示的に構築され主に専門家によって使用される。"
         "さらに、フレームワークは疾患分類学的カテゴリの構成的効果を最小化すべきか活用すべきか"
-        "という規範的問題には取り組まない。{8}"
+        "という規範的問題には取り組まない。{zachar2017}"
     ),
 ]
 
@@ -619,7 +684,7 @@ CONCLUSION_PARAS = [
         "フレームワークは生物学的疾患基盤の存在を否定しない；むしろ、これらの基盤が知覚・"
         "分類・管理される疾患分類学的「レンズ」が体系的で予測可能な歪みを導入すると論じる。"
         "これらの歪みを明示的かつ検証可能にすることにより、NRフレームワークは実証的研究の"
-        "新たな方途を開き、疾患分類学的政策に原則的な指針を提供する。{27,28}"
+        "新たな方途を開き、疾患分類学的政策に原則的な指針を提供する。{bowker1999,craddock2010}"
     ),
     (
         "今後の研究は、上述の3つの予測の経験的検証——特にICD-10からICD-11への移行を自然"
@@ -637,6 +702,9 @@ CONCLUSION_PARAS = [
 # ---------------------------------------------------------------------------
 
 def build_manuscript(fig1_path, fig2_path):
+    global CIT_MAP
+    CIT_MAP, ordered_refs = compute_citations()
+
     doc = Document()
     style = doc.styles['Normal']
     font = style.font
@@ -789,11 +857,11 @@ def build_manuscript(fig1_path, fig2_path):
     # References
     doc.add_page_break()
     add_heading(doc, '参考文献', level=1)
-    for i, ref in enumerate(REFERENCES, 1):
+    for num, ref in ordered_refs:
         p = doc.add_paragraph()
         p.paragraph_format.space_after = Pt(2)
         p.paragraph_format.line_spacing = 1.15
-        run_num = p.add_run(f'{i}. ')
+        run_num = p.add_run(f'{num}. ')
         run_num.bold = True
         run_num.font.size = Pt(10)
         run_ref = p.add_run(ref)
