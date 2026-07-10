@@ -112,6 +112,25 @@ BODY = [
  "practical problem, acute again in a fluid and rearming world, of "
  "preventing a third one."),
 
+("P",
+ "A word on method and scope. This is a work of normative argument, not of "
+ "historical revision; I take no stand on the disputed facts of 1945 beyond "
+ "granting the defender his most favorable version, precisely so that the "
+ "outer-layer question can be isolated from the empirical quarrel that "
+ "usually swallows it. Nor do I claim that the argument settles what any "
+ "particular government should do in a given crisis; its ambition is prior "
+ "to that\u2014to recover a question that policy has learned not to ask, and "
+ "to show that the recovery has consequences all the way down, from the "
+ "metaethics of value to the design of security institutions. The choice of "
+ "Hiroshima as the case is deliberate. It is the moment at which the "
+ "arithmetic of lives was performed most explicitly, at the largest scale, "
+ "and with the clearest public conscience; if the outer-layer question has "
+ "force anywhere, it has force here, and what is learned here transfers to "
+ "the quieter weighings\u2014of sanctions, of deterrence, of the acceptable "
+ "civilian toll\u2014that fill the ordinary conduct of states. The bomb is "
+ "not the disease but its purest symptom, and I use it as a lens rather than "
+ "a target."),
+
 ("H1", "2. The Impossibility of the Calculus: Commensurability and Its Denial"),
 
 ("P",
@@ -189,6 +208,26 @@ BODY = [
  "tells us that whatever we do, we cannot honestly represent it as the sum "
  "the defender claims to have computed."),
 
+("P",
+ "It will be objected that we compare lives constantly and unavoidably: the "
+ "battlefield medic triages, the health system prices a year of life, the "
+ "regulator fixes a value on statistical mortality. If incommensurability "
+ "were true, the objection runs, all such practice would be impossible, and "
+ "since it is not impossible, incommensurability must be false. The reply "
+ "turns on a distinction the objection blurs. To choose under "
+ "incommensurability is not the same as to choose by computing a common "
+ "sum. The medic who saves the salvageable is not asserting that the "
+ "salvageable life contains more units of a homogeneous good than the life "
+ "he lets go; he is acting well under a tragic constraint without claiming "
+ "that arithmetic vindicates him. What incommensurability denies is not that "
+ "we can choose, nor even that some choices are better than others, but that "
+ "the choice is licensed by, and answerable to, a cardinal quantity of "
+ "aggregated value.{10} At most there is rough comparability\u2014enough to "
+ "act, never enough to certify a killing as the balance struck by a "
+ "ledger.{9} The atomic justification does not merely choose under tragedy; "
+ "it claims the authority of a sum. That claim, and not the possibility of "
+ "hard choice, is what the argument refuses."),
+
 ("H1", "3. Choosing Under Finitude: The Taking Calculus and the Giving Calculus"),
 
 ("P",
@@ -259,6 +298,28 @@ BODY = [
  "outer-layer question at all."),
 
 ("P",
+ "A hard-nosed reader will protest that this makes morality turn on a "
+ "feeling. If two acts have the same outcome, what can it matter whether the "
+ "agent mourned? The objection assumes that the remainder is a mere "
+ "sentiment decorating an act whose moral character is already fixed by its "
+ "consequences. But the remainder is not decoration; it is evidence, and "
+ "sometimes constitutive. Bernard Williams called the residue that a "
+ "decent agent feels after a forced wrong agent-regret, and argued that its "
+ "absence marks not toughness but a failure to register a moral reality: "
+ "that a genuine claim was overridden, not annulled.{29} Martha Nussbaum, "
+ "reading Greek tragedy, showed that the mature response to an irresolvable "
+ "conflict of obligations is not to declare the defeated obligation "
+ "cancelled by the victorious one but to remain answerable to both, and so "
+ "to owe something to the party one had to fail.{30} The remainder tracks "
+ "this fact. And because it does, it is not inert: the agent who feels it "
+ "acts differently next time\u2014builds the institutions, the rules of "
+ "engagement, the habits of restraint that a society without the remainder "
+ "never troubles to build. Attitude, in this sense, is not private "
+ "sentiment but a disposition with public and cumulative effects. It is the "
+ "difference between a polity that treats each recourse to lethal force as a "
+ "wound to be minimized and one that treats it as a cost to be optimized."),
+
+("P",
  "I concede without embarrassment that the giving calculus still weighs, and "
  "so is not innocent of the tragic structure of finite life. To choose whom "
  "to feed with a finite harvest is still to prefer some to others. But the "
@@ -305,6 +366,29 @@ BODY = [
  "expression of its dignity."),
 
 ("P",
+ "The consent basis invites an immediate objection: most soldiers through "
+ "history have been conscripts, pressed into service by states they did not "
+ "choose, and some\u2014child soldiers above all\u2014cannot consent in any "
+ "meaningful sense. If liability depended on literal autobiographical "
+ "consent, the account would exempt most combatants and collapse. So I do "
+ "not rest it there. Consent is the clearest case of a more general "
+ "relation: standing within the role of a bearer of arms, and thereby "
+ "presenting oneself as a threat and entering the zone of danger. The role "
+ "is normative, not merely biographical; the conscript, however he arrived "
+ "at it, occupies it and poses the threat that grounds his liability, "
+ "whereas the civilian occupies no such role and poses no such threat. What "
+ "the vocation account adds to the bare fact of threat is an explanation of "
+ "why the soldier's death can be more than sheer wrong done to him\u2014why "
+ "there is honor available in it\u2014and that explanation is fullest where "
+ "the role is freely embraced and thinnest where it is coerced. This is why "
+ "our moral unease rightly returns, rather than disappears, in the case of "
+ "the child soldier: we sense that someone has been placed in the zone of "
+ "danger who never could have shouldered its meaning, and the wrong belongs "
+ "to those who put him there. The account thus tracks our judgments across "
+ "the range of cases better than the crude function test, which would make "
+ "liability a simple matter of causal contribution to the war effort."),
+
+("P",
  "This yields a verdict on the bomb that requires no delicate balancing. The "
  "atomic attacks did not target the soldier at his post or even the worker at "
  "his factory; they took the city itself\u2014the civilian as such, the pure "
@@ -331,6 +415,27 @@ BODY = [
  "registers, and every death is flattened into an interchangeable unit of "
  "disvalue awaiting its place in a sum. The debatability of the bomb is a "
  "measure of how far the taking calculus has colonized the moral imagination."),
+
+("P",
+ "The most serious challenge to this verdict is Walzer's own doctrine of "
+ "supreme emergency. Faced with an imminent and unprecedented threat\u2014"
+ "Nazism triumphant, say\u2014Walzer allows that a political community may "
+ "deliberately violate noncombatant immunity, as Britain arguably did in the "
+ "early area bombing of German cities, because the very existence of a moral "
+ "world is at stake.{31} If the prohibition can be overridden in extremis, "
+ "the objection runs, then it is after all a weight in a balance, and we are "
+ "back inside the calculus. I resist this at both levels. On the outer view, "
+ "the prohibition on using the innocent as a mere means is not a heavy weight "
+ "but a constraint of a different type\u2014not something that great enough "
+ "stakes outweigh, but something that stakes do not reach; supreme emergency "
+ "is precisely the taking calculus readmitted under the duress that makes it "
+ "most tempting and least examined. But even those unwilling to go so far "
+ "should notice the second point: the atomic case does not satisfy Walzer's "
+ "own conditions. The United States in 1945 faced neither imminent defeat "
+ "nor an existential threat to its moral community; it faced the prospect of "
+ "a costlier victory it was already assured of winning. Whatever one thinks "
+ "of supreme emergency in the abstract, the bombing was not an instance of "
+ "it. The exception, even granted, does not cover the case."),
 
 ("H1", "5. The Sovereign Who Weighs: Biopolitics and a Civilizational Diagnosis"),
 
@@ -360,6 +465,25 @@ BODY = [
  "rather than a usurpation. To recover the outer-layer question is thus a "
  "political act: it reintroduces, against the sovereign's silence, the doubt "
  "about whether anyone is entitled to occupy the accountant's chair."),
+
+("P",
+ "Nuclear deterrence is this biopolitics raised to a principle and made "
+ "permanent. Under mutual assured destruction, entire civilian populations "
+ "are held, continuously and by design, as hostages to the conduct of their "
+ "governments; the credibility of the threat depends on a standing readiness "
+ "to incinerate them. Thomas Schelling described this with cold precision as "
+ "the diplomacy of violence, in which the capacity to inflict pain on the "
+ "innocent is not an unfortunate by-product of war but its very instrument "
+ "of persuasion.{32} Here the taking calculus is not merely committed in a "
+ "moment of decision but institutionalized as a posture maintained around "
+ "the clock, for decades, as the ordinary condition of international order. "
+ "The outer-layer question, asked of deterrence, is radical precisely "
+ "because deterrence has normalized what it interrogates: it treats the "
+ "reduction of populations to hostages\u2014to summable quantities of "
+ "potential disvalue\u2014as the settled grammar of security. That this "
+ "arrangement is widely regarded as prudent, even stabilizing, is the "
+ "clearest measure of how completely the sovereign's chair has been "
+ "occupied without the question of entitlement being raised."),
 
 ("P",
  "Why do polities drift toward this standpoint, and toward the total wars it "
@@ -406,6 +530,27 @@ BODY = [
  "from the outer-layer question. Where the world is a frontier to be taken, "
  "the peoples on it are variables to be optimized. This is the metaphysical "
  "home of the taking calculus."),
+
+("P",
+ "I should be explicit about the status of these claims, since a typology "
+ "that sorts religions risks caricature. I am not ranking traditions by "
+ "moral worth, nor predicting the behavior of their adherents, who "
+ "overwhelmingly live at peace with their neighbors. The claim is about the "
+ "structural tendencies of doctrines under pressure\u2014about the "
+ "directions in which a metaphysic inclines a civilization when scarcity "
+ "forces the question of provision\u2014not about the character of believers. "
+ "And the two-axis map is built precisely to defeat the caricature it might "
+ "seem to invite: because supply-orientation and expansion are independent "
+ "of each other, the framework predicts and accommodates the "
+ "counterexamples rather than being embarrassed by them. Ascetic "
+ "Protestantism sits in the demand-reducing column and yet, by Weber's "
+ "dialectic, drove supply-expansion; imperial Rome sits among the "
+ "polytheisms and yet conquered without limit. These are not anomalies to "
+ "be explained away but data the model is designed to hold. What survives "
+ "the qualifications is modest and, I think, secure: a metaphysic of the "
+ "infinite external frontier lowers the threshold at which a civilization "
+ "will reach for the taking calculus, and nothing in the typology licenses "
+ "the inference from a people's creed to its guilt."),
 
 ("FIG", "fig2_quadrant"),
 
@@ -533,7 +678,75 @@ BODY = [
  "of life on earth;{28} the two-handed task is what such an ethics looks like "
  "when it is turned specifically against the recurrence of total war."),
 
-("H1", "7. Conclusion"),
+("P",
+ "The realist will answer that this is a luxury of the secure. A civilization "
+ "that unilaterally reduces its wants, he says, merely clears the field for "
+ "the unrestrained, who will expand into the room it vacates; demand-"
+ "reduction is a recipe for conquest by the greedy. The objection would be "
+ "decisive against a doctrine of disarmament, but that is not the doctrine. "
+ "What is to be reduced is demand\u2014the appetite that drives a polity to "
+ "resolve scarcity by taking from others\u2014not the capacity to defend what "
+ "one has. The two-handed task keeps the defensive hand; Section 4's ethic of "
+ "the professional who accepts danger on others' behalf is exactly the "
+ "honorable form that a contractive, defensive civilization's security takes. "
+ "Indeed the argument cuts the other way for the exposed. A small state on a "
+ "dangerous border cannot make itself safe by out-expanding a larger "
+ "neighbor; its security, if it has any, lies in becoming hard to digest and "
+ "cheap to leave alone\u2014in defensive resilience joined to a politics that "
+ "gives its neighbors no frontier to covet. For such a state, restraint of "
+ "demand is not utopian sentiment but the most realistic security posture "
+ "available. Joseph Nye argued that a defensible nuclear ethics must weave "
+ "together consequences, rights, and intentions rather than collapsing into "
+ "any one of them;{33} the account offered here specifies which thread is "
+ "non-negotiable\u2014the refusal to make the innocent a mere instrument\u2014"
+ "and which civilizational disposition makes honoring it sustainable."),
+
+("H1", "7. Objections and Replies"),
+
+("P",
+ "Three further objections deserve a direct answer. The first is that the "
+ "position is quietist: that in the face of atrocities demanding action, an "
+ "ethic of wanting less and holding the scale reluctantly does nothing for "
+ "the victims. But the argument is not a private spirituality of withdrawal. "
+ "Its institutional content is considerable: it underwrites the laws of "
+ "armed conflict and their prohibition on targeting civilians, the "
+ "protection of the noncombatant as a right rather than a courtesy, and a "
+ "security policy that measures itself by the wounds it refuses to inflict. "
+ "To reduce demand at the civilizational scale is a program of political "
+ "economy, not a counsel of retreat. Quietism would be the refusal to hold "
+ "the scale at all; what is proposed is to hold it differently, and to build "
+ "the institutions that a giving posture requires."),
+
+("P",
+ "The second objection is that incommensurability, if taken seriously, "
+ "paralyzes policy: governments must compare and aggregate, and a doctrine "
+ "that forbids it forbids governing. The reply completes the one begun in "
+ "Section 2. Incommensurability does not forbid choice; it forbids a "
+ "particular self-description of choice\u2014the claim that a killing has "
+ "been vindicated by a computed surplus of value. Sound institutions already "
+ "reflect this. The lexical priority of certain rights over aggregate "
+ "welfare, the side-constraints that no cost-benefit total may breach, the "
+ "categorical prohibitions of the laws of war: these are the giving calculus "
+ "written into public structure, mechanisms by which a polity binds itself "
+ "in advance not to treat certain persons as summable. Far from paralyzing "
+ "policy, the view recommends a familiar and workable architecture, and "
+ "explains why its constraints are not mere prudence but principle."),
+
+("P",
+ "The third objection is that the distinction between taking and giving is "
+ "unverifiable, a matter of inner attitude to which we have no access, and so "
+ "useless for judgment. But the distinction is not locked inside the agent's "
+ "breast. Its three marks are public. Whether a polity leaves a moral "
+ "remainder shows in how it memorializes its dead and its enemy's, in "
+ "whether it holds inquiries or averts its eyes; whether it directs the tie-"
+ "breaker against itself shows in whether it accepts risk to its own forces "
+ "to spare noncombatants, as the law of proportionality demands; whether it "
+ "regards the unchosen as claimants shows in reparation, apology, and the "
+ "revision of doctrine. Attitude leaves tracks. We read it in individuals "
+ "every day, and we can read it in institutions by the same signs, writ "
+ "large."),
+
+("H1", "8. Conclusion"),
 
 ("P",
  "The question of whether the atomic bombings were necessary is the wrong "
@@ -552,6 +765,23 @@ BODY = [
  "whole civilizations toward the sovereign's chair, from which lives appear "
  "as summable quantities, is bound up with a choice between increasing supply "
  "and reducing demand."),
+
+("P",
+ "These threads are one argument. The incommensurability that unmasks the "
+ "calculus, the attitude that survives its collapse, the vocation that "
+ "bounds its reach, the frontier that mismatches and so ignites, the two "
+ "hands that might yet prevent\u2014each is a face of a single refusal: the "
+ "refusal to occupy the accountant's chair as though it were ours by right. "
+ "The unity matters, because the danger is unified. A civilization does not "
+ "arrive at the incineration of cities by a single wicked decision but by a "
+ "long habituation, in which the person becomes a quantity, the quantity "
+ "becomes summable, and the summing becomes governance. To interrupt that "
+ "habituation at any one of its stages is to weaken it at all of them. That "
+ "is why an argument pitched at the level of metaphysics and attitude is not "
+ "a retreat from politics but its most durable form: institutions decay, "
+ "treaties lapse, deterrents are outbuilt, but a people that has learned to "
+ "flinch at the sovereign's chair carries the prohibition in a place no "
+ "adversary can disarm."),
 
 ("P",
  "The upshot for the prevention of a third world war is not a sharper "
@@ -681,6 +911,25 @@ NOTES = [
  "Hans Jonas, The Imperative of Responsibility: In Search of an Ethics for "
  "the Technological Age, trans. Hans Jonas with David Herr (Chicago: "
  "University of Chicago Press, 1984).",
+
+ "Bernard Williams, \u201CMoral Luck,\u201D in Moral Luck: Philosophical "
+ "Papers 1973\u20131980 (Cambridge: Cambridge University Press, 1981), "
+ "20\u201339, on agent-regret.",
+
+ "Martha C. Nussbaum, The Fragility of Goodness: Luck and Ethics in Greek "
+ "Tragedy and Philosophy, rev. ed. (Cambridge: Cambridge University Press, "
+ "2001), esp. chaps. 2\u20133.",
+
+ "Michael Walzer, Just and Unjust Wars, 5th ed. (New York: Basic Books, "
+ "2015), chap. 16 (\u201CSupreme Emergency\u201D); for criticism, see "
+ "Brian Orend, The Morality of War, 2nd ed. (Peterborough: Broadview, "
+ "2013), chap. 5.",
+
+ "Thomas C. Schelling, Arms and Influence (New Haven: Yale University "
+ "Press, 1966), chap. 1 (\u201CThe Diplomacy of Violence\u201D).",
+
+ "Joseph S. Nye Jr., Nuclear Ethics (New York: Free Press, 1986), esp. "
+ "chaps. 1 and 5.",
 ]
 
 # ---------------------------------------------------------------------------
@@ -700,19 +949,39 @@ def _set_base_style(doc):
     pf.space_after = Pt(0)
 
 
-def _add_runs_with_markers(par, text):
-    """Split text on {n} citation markers; render n as superscript."""
+def _renumber():
+    """Renumber citation markers by order of first appearance and reorder the
+    notes to match (Vancouver rule). Markers in BODY carry stable identifiers
+    (the index into NOTES, 1-based); the displayed number is derived here, so
+    new notes can be inserted anywhere without hand-renumbering."""
+    order = []
+    for _style, text in BODY:
+        for m in re.findall(r"\{(\d+)\}", text):
+            n = int(m)
+            if n not in order:
+                order.append(n)
+    assert sorted(order) == list(range(1, len(NOTES) + 1)), (
+        "marker/notes mismatch: markers=%s notes=%d"
+        % (sorted(order), len(NOTES)))
+    mapping = {old: i + 1 for i, old in enumerate(order)}
+    notes_ordered = [NOTES[old - 1] for old in order]
+    return mapping, notes_ordered
+
+
+def _add_runs_with_markers(par, text, mapping):
+    """Split text on {n} citation markers; render mapped n as superscript."""
     parts = re.split(r"(\{\d+\})", text)
     for part in parts:
         m = re.fullmatch(r"\{(\d+)\}", part)
         if m:
-            r = par.add_run(m.group(1))
+            r = par.add_run(str(mapping[int(m.group(1))]))
             r.font.superscript = True
         else:
             par.add_run(part)
 
 
 def build_manuscript():
+    mapping, notes_ordered = _renumber()
     doc = Document()
     _set_base_style(doc)
     for section in doc.sections:
@@ -764,7 +1033,7 @@ def build_manuscript():
         elif style == "P":
             pp = doc.add_paragraph()
             pp.paragraph_format.first_line_indent = Inches(0.4)
-            _add_runs_with_markers(pp, text)
+            _add_runs_with_markers(pp, text, mapping)
         elif style == "FIG":
             fig_count += 1
             img = OUT / f"{text}.png"
@@ -785,7 +1054,7 @@ def build_manuscript():
     hr = hp.add_run("Notes")
     hr.bold = True
     hr.font.size = Pt(13)
-    for i, note in enumerate(NOTES, start=1):
+    for i, note in enumerate(notes_ordered, start=1):
         np_ = doc.add_paragraph()
         np_.paragraph_format.line_spacing = 1.5
         np_.paragraph_format.space_after = Pt(2)

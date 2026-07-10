@@ -20,24 +20,35 @@ disciplined, two-handed (technological and ideational) retreat from it.
 
 ## Outputs
 
-Two deliverables, from the same argument:
+Three deliverables, from the same argument:
 
-- **Academic article (English)** — target journal *Ethics & International
-  Affairs* (Cambridge University Press). Chicago-style numbered endnotes.
+- **Feature article (English, ~7,100 words, 33 endnotes, 3 figures inline)** —
+  the full peer-reviewed version. Primary target *Journal of Military Ethics*
+  (hybrid; subscription route = no APC); *Ethics & International Affairs*
+  Feature (Gold OA; post-acceptance waiver) as secondary. Eight sections
+  including a dedicated §7 "Objections and Replies." Chicago-style
+  numbered endnotes, numbered in order of first appearance.
+- **Essay (English, ~2,700 words, 8 endnotes, no figures)** — condensed from
+  the same core argument for the *Ethics & International Affairs* "Essays"
+  (non-refereed) category: fast, editor-only review, likely no APC. Title:
+  "The Accountants of One Another's Lives."
 - **General-audience essay (Japanese)** — to be refined in Japanese and
   translated for submission to an Estonian general-interest magazine
-  (e.g. *Vikerkaar* / *Diplomaatia* / *Akadeemia*).
+  (e.g. *Vikerkaar* / *Diplomaatia* / *Akadeemia*). Estonian route currently
+  on hold.
 
 ## Directory layout
 
 ```
 scripts/
   generate_figures.py      # 3 conceptual figures (PNG + TIFF), English
-  create_manuscript_en.py  # manuscript_en.docx (figures inline, endnotes) + title_page_en.docx
+  create_manuscript_en.py  # manuscript_en.docx (Feature; figures inline, endnotes) + title_page_en.docx
+  create_essay_en.py       # essay_en.docx (E&IA Essay; ~2,700 words, 8 notes, no figures)
   create_figures_pptx.py   # figures_en.pptx (editable, one figure per slide)
   create_essay_ja.py       # essay_ja.docx (Japanese general-audience version)
 output/
   manuscript_en.docx, title_page_en.docx
+  essay_en.docx
   essay_ja.docx
   figures_en.pptx
   fig1_layers.{png,tif}, fig2_quadrant.{png,tif}, fig3_asymptote.{png,tif}
@@ -50,6 +61,7 @@ pip install python-docx python-pptx matplotlib pillow
 cd scripts
 python generate_figures.py       # figures first (manuscript embeds them)
 python create_manuscript_en.py
+python create_essay_en.py
 python create_figures_pptx.py
 python create_essay_ja.py
 ```
