@@ -36,7 +36,7 @@ The package includes statements for:
 - consent for publication;
 - data availability;
 - author contribution; and
-- generative-AI disclosure.
+- generative-artificial-intelligence disclosure.
 
 ## Sources
 

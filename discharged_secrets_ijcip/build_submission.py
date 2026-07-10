@@ -983,8 +983,8 @@ DECLARATIONS = [
         "The sole author: Conceptualization, investigation, methodology, writing—original draft, and writing—review and editing.",
     ),
     (
-        "Declaration of generative AI in scientific writing",
-        "Generative artificial intelligence (AI) was used to assist language editing, document formatting, and consistency checks. The author reviewed and takes responsibility for the manuscript's content, claims, and references.",
+        "Declaration of generative artificial intelligence (AI) in scientific writing",
+        "Generative AI was used to assist language editing, document formatting, and consistency checks. The author reviewed and takes responsibility for the manuscript's content, claims, and references.",
     ),
 ]
 
@@ -1809,7 +1809,7 @@ def build_checklist(validation: dict) -> Path:
         ("Figure citation", "Figure 1 is cited before placement and supplied inline and separately.", validation["figure_cited"]),
         ("Table citations", "Tables 1 and 2 are cited before placement and supplied inline and separately.", validation["tables_cited"]),
         ("Artwork", "Editable PPTX, PDF, 600-dpi PNG, and 1200-dpi TIFF supplied.", True),
-        ("Declarations", "Funding, competing interests, ethics, data, contribution, and AI-use statements included.", True),
+        ("Declarations", "Funding, competing interests, ethics, data, contribution, and generative-artificial-intelligence statements included.", True),
         ("Language", "American English, terminology, abbreviations, and flow reviewed.", True),
         ("Limitations", "No compromise or vendor misconduct alleged; transfer boundaries stated.", True),
         ("Data availability", "No new dataset; source list provided.", True),
@@ -1898,7 +1898,7 @@ def validate_content() -> dict:
     all_text = " ".join(
         [
             body,
-            " ".join(value for _, value in DECLARATIONS),
+            " ".join(f"{label} {value}" for label, value in DECLARATIONS),
         ]
     )
     for abbreviation, definition in {
