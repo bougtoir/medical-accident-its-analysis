@@ -409,6 +409,64 @@ BODY = [
 
 ("FIG", "fig2_quadrant"),
 
+("H2", "5.1 The Frontier Mismatch: Intensive and Extensive Frontiers, and a "
+       "Third Incommensurability"),
+
+("P",
+ "A single mechanism can be extracted from this diagnosis, and it bears "
+ "directly on the contemporary fear of civilizational war. A tradition of "
+ "the infinite external frontier depends, for its peace, on the frontier "
+ "remaining open: Frederick Jackson Turner argued that the vitality and "
+ "cohesion of an expansionist society are sustained by the availability of "
+ "unclaimed land, so that the closing of the frontier throws the "
+ "expansionist energy back upon the society itself.{23} One might infer that "
+ "once the known and unclaimed regions are exhausted, collision becomes "
+ "inevitable, and that a new frontier\u2014outer space, say\u2014might "
+ "therefore drain the pressure and pacify the wars of the expansionist "
+ "creeds. I think this inference is half right, and that seeing why sharpens "
+ "the whole account."),
+
+("P",
+ "The frontier that such traditions crave is not one thing but two, and the "
+ "two have different topologies. The material frontier is extensive: empty "
+ "land, unused energy, a matter of volume that more space can always "
+ "enlarge. The spiritual frontier is intensive: it is directed at particular "
+ "souls, at the neighbor who believes otherwise, at territory that is not "
+ "empty but wrongly occupied\u2014a matter of density, not of volume. The "
+ "two cannot be exchanged for each other. An intensive demand cannot be "
+ "discharged into an extensive supply, because the object the intensive "
+ "drive seeks (this heretic, converted or erased) is not the object the "
+ "extensive frontier offers (that empty expanse, settled). This is a third "
+ "incommensurability, and it is the same blade that has cut twice already, "
+ "now recurring at the civilizational scale: as lives are not convertible "
+ "into a common unit (Section 2) and dignity is not convertible into price "
+ "(Section 3), so the spiritual and material frontiers are not convertible "
+ "into each other. Conflict springs less from the exhaustion of frontier "
+ "than from the mismatch between the two frontiers\u2014from the attempt, and "
+ "the failure, to vent an intensive pressure through an extensive outlet."),
+
+("P",
+ "The historical record fits the mismatch better than the exhaustion story. "
+ "The Age of Discovery flung open a vast extensive frontier, yet Europe\u2019s "
+ "most terrible religious war, the Thirty Years\u2019 War, raged in the same "
+ "epoch: the new material space did nothing to relieve the intensive "
+ "pressure of confessional truth-claims turned against the neighbor. "
+ "Conversely, where the intensive demand is low\u2014where a plurality of "
+ "truths has been inwardly accepted\u2014religious war is rare even under "
+ "material scarcity. What varies is not the quantity of available frontier "
+ "but the phase-match between the two kinds. The implication for the space "
+ "age is sobering. Space enlarges only the extensive frontier; it leaves the "
+ "phase gap untouched, and the very triumph of expansion may amplify the "
+ "intensive drive to carry one\u2019s own truth to the stars\u2014a Jevons "
+ "rebound of the spirit. The one pacifying path space might open is not the "
+ "frontier as outlet but the frontier as mirror: the \u2018overview "
+ "effect,\u2019 the relativizing of tribal and confessional boundaries "
+ "reported by those who have seen the earth whole and undivided from "
+ "outside.{24} But that works by lowering the intensive demand "
+ "itself\u2014by shrinking the claim rather than enlarging the "
+ "supply\u2014and so belongs, once again, to the demand-reducing hand to "
+ "which I now turn."),
+
 ("H1", "6. Deterring Total War: The Two-Handed Task of Technology and Thought"),
 
 ("P",
@@ -430,7 +488,7 @@ BODY = [
  "is undercut by a perverse dynamic first noticed by William Stanley Jevons, "
  "who observed that improvements in the efficiency of coal use increased "
  "rather than decreased total consumption, because efficiency cheapens use "
- "and so multiplies it.{23} The rebound generalizes: supply-side progress, "
+ "and so multiplies it.{25} The rebound generalizes: supply-side progress, "
  "pursued alone, tends to inflate the very demand it was meant to satisfy, so "
  "that the frontier recedes as fast as one advances on it. Technology "
  "unaccompanied by any discipline of wanting does not close the gap between "
@@ -442,7 +500,7 @@ BODY = [
  "demand: the deliberate cultivation of wanting less. E. F. Schumacher's "
  "\u201CBuddhist economics\u201D made this its first principle, defining the "
  "rational aim of economic life as the maximum of well-being with the minimum "
- "of consumption, rather than the maximum of consumption as such.{24} What I "
+ "of consumption, rather than the maximum of consumption as such.{26} What I "
  "propose adds to Schumacher's economics the ethical and political content of "
  "the preceding sections: demand-reduction matters not only because it eases "
  "the material scramble but because it is the practical form of stepping down "
@@ -455,7 +513,7 @@ BODY = [
  "must do in large. It is here that private asceticism and the avoidance of "
  "world war turn out to be the same movement viewed at different scales, and "
  "here too that the tradition of ahimsa, which refuses to license impure "
- "means by pure ends, meets the argument of Section 4.{25}"),
+ "means by pure ends, meets the argument of Section 4.{27}"),
 
 ("P",
  "This is not a program for the abolition of scarcity or of choice; the "
@@ -472,7 +530,7 @@ BODY = [
  "resolve scarcity by taking, and so to weigh the lives of others, steadily "
  "diminishes. Hans Jonas argued that the scale of modern technological power "
  "demands a new ethics answerable to the future and to the finite conditions "
- "of life on earth;{26} the two-handed task is what such an ethics looks like "
+ "of life on earth;{28} the two-handed task is what such an ethics looks like "
  "when it is turned specifically against the recurrence of total war."),
 
 ("H1", "7. Conclusion"),
@@ -597,6 +655,15 @@ NOTES = [
  "Max Weber, The Protestant Ethic and the Spirit of Capitalism (1905), "
  "trans. Talcott Parsons (London: Routledge, 1992), esp. chap. 5.",
 
+ "Frederick Jackson Turner, \u201CThe Significance of the Frontier in "
+ "American History\u201D (1893), in The Frontier in American History (New "
+ "York: Henry Holt, 1920), 1\u201338.",
+
+ "On the \u2018overview effect,\u2019 see Frank White, The Overview Effect: "
+ "Space Exploration and Human Evolution, 3rd ed. (Reston, VA: AIAA, 2014); "
+ "and Carl Sagan, Pale Blue Dot: A Vision of the Human Future in Space (New "
+ "York: Random House, 1994), 3\u20139.",
+
  "William Stanley Jevons, The Coal Question, 2nd ed. (London: Macmillan, "
  "1866), chap. 7. For the contemporary literature, see Blake Alcott, "
  "\u201CJevons\u2019 Paradox,\u201D Ecological Economics 54, no. 1 (2005): "
@@ -686,6 +753,14 @@ def build_manuscript():
             rr = hp.add_run(text)
             rr.bold = True
             rr.font.size = Pt(13)
+        elif style == "H2":
+            hp = doc.add_paragraph()
+            hp.paragraph_format.space_before = Pt(8)
+            hp.paragraph_format.space_after = Pt(4)
+            rr = hp.add_run(text)
+            rr.bold = True
+            rr.italic = True
+            rr.font.size = Pt(12)
         elif style == "P":
             pp = doc.add_paragraph()
             pp.paragraph_format.first_line_indent = Inches(0.4)
