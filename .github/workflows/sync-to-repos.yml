@@ -184,6 +184,9 @@ jobs:
           # ── Three-body PK compartment (MNRAS submission) ──
           BRANCH_MAP["devin/1783365908-mnras-submission"]="threebody-pk-compartment"
 
+          # ── Discharged Secrets (IJCIP submission) ──
+          BRANCH_MAP["devin/1783649000-ijcip-submission"]="discharged-secrets-ijcip"
+
           # ── Subdirectory filter map ──
           # When a branch contains multiple project folders (e.g. branched from
           # master), SUBDIR_MAP tells the sync to extract ONLY the specified
@@ -243,6 +246,7 @@ jobs:
           SUBDIR_MAP["sits9-sync"]="sits9"
           SUBDIR_MAP["devin/1782828801-anesthesia-record"]="anesthesia-record"
           SUBDIR_MAP["devin/1783365908-mnras-submission"]="threebody_pk_compartment"
+          SUBDIR_MAP["devin/1783649000-ijcip-submission"]="discharged_secrets_ijcip"
 
           # ── File exclusion map ──
           # Space-separated list of file paths (relative to subdir root if
