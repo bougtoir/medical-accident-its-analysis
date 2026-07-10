@@ -6,7 +6,8 @@ Generate the short English *Essay* version for Ethics & International Affairs
   "The Accountants of One Another's Lives"
 
 Derived from the full manuscript, condensed for a general scholarly readership.
-No figures; Chicago-style numbered endnotes, kept to a minimum.
+One explanatory figure (the two layers of the question); Chicago-style
+numbered endnotes, kept to a minimum.
 
 Output into ../output:
   essay_en.docx
@@ -29,7 +30,13 @@ TITLE = "The Accountants of One Another's Lives"
 STANDFIRST = ("Eighty years after Hiroshima we still argue about whether the "
               "bomb was necessary. That is the wrong argument.")
 
-# Each item is ("style", "text"): H = heading, P = paragraph.
+FIG_CAPTION = ("Figure 1. Two layers of the question. The inner layer audits a "
+               "weighing whose legitimacy it takes for granted (“was the bomb "
+               "necessary?”); the outer layer asks whether we are entitled to "
+               "perform the weighing at all. One can win every point on the "
+               "inner layer and have said nothing to the outer one.")
+
+# Each item is ("style", "text"): H = heading, P = paragraph, FIG = image key.
 BODY = [
 ("P",
  "The destruction of Hiroshima and Nagasaki is still defended, eight decades "
@@ -57,7 +64,7 @@ BODY = [
  "stead?"),
 
 ("P",
- "Call this a shift in the layer of the question. The \u201Cwas it "
+ "Call this a shift in the layer of the question (Figure 1). The \u201Cwas it "
  "necessary?\u201D debate operates inside the calculus; it audits a weighing "
  "whose legitimacy it never examines. The question I want to press sits "
  "outside the calculus and asks whether we are entitled to perform it at all. "
@@ -71,6 +78,8 @@ BODY = [
  "the quieter ones: economic coercion and cultural domination are also ways "
  "of securing one's own flourishing by drawing down another's, and they too "
  "invite both questions."),
+
+("FIG", "fig1_layers"),
 
 ("H", "Why the sums do not add up"),
 
@@ -391,6 +400,17 @@ def build():
             rr = hp.add_run(text)
             rr.bold = True
             rr.font.size = Pt(13)
+        elif style == "FIG":
+            ip = doc.add_paragraph()
+            ip.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            ip.paragraph_format.space_before = Pt(12)
+            ip.add_run().add_picture(str(OUT / f"{text}.png"), width=Inches(5.4))
+            cap = doc.add_paragraph()
+            cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            cap.paragraph_format.space_before = Pt(6)
+            cap.paragraph_format.space_after = Pt(8)
+            cap.paragraph_format.line_spacing = 1.0
+            cap.add_run(FIG_CAPTION).font.size = Pt(10)
         else:
             pp = doc.add_paragraph()
             pp.paragraph_format.first_line_indent = Inches(0.4)

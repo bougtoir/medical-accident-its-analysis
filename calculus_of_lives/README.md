@@ -28,7 +28,7 @@ Three deliverables, from the same argument:
   Feature (Gold OA; post-acceptance waiver) as secondary. Eight sections
   including a dedicated §7 "Objections and Replies." Chicago-style
   numbered endnotes, numbered in order of first appearance.
-- **Essay (English, ~2,700 words, 8 endnotes, no figures)** — condensed from
+- **Essay (English, ~2,700 words, 8 endnotes, 1 figure)** — condensed from
   the same core argument for the *Ethics & International Affairs* "Essays"
   (non-refereed) category: fast, editor-only review, likely no APC. Title:
   "The Accountants of One Another's Lives."
@@ -43,7 +43,7 @@ Three deliverables, from the same argument:
 scripts/
   generate_figures.py      # 3 conceptual figures (PNG + TIFF), English
   create_manuscript_en.py  # manuscript_en.docx (Feature; figures inline, endnotes) + title_page_en.docx
-  create_essay_en.py       # essay_en.docx (E&IA Essay; ~2,700 words, 8 notes, no figures)
+  create_essay_en.py       # essay_en.docx (E&IA Essay; ~2,700 words, 8 notes, fig1 inline)
   create_figures_pptx.py   # figures_en.pptx (editable, one figure per slide)
   create_essay_ja.py       # essay_ja.docx (Japanese general-audience version)
 output/
