@@ -202,6 +202,9 @@ jobs:
           # BRANCH_MAP["devin/1784122193-luup-data-policy"]="discharged-secrets-scoping-review"
           BRANCH_MAP["devin/1784904207-transport-policy"]="discharged-secrets-scoping-review"
 
+          # ── Calculus of lives (Ethics & International Affairs / JME submission) ──
+          BRANCH_MAP["devin/1783674016-calculus-of-lives"]="calculus-of-lives"
+
           # ── Subdirectory filter map ──
           # When a branch contains multiple project folders (e.g. branched from
           # master), SUBDIR_MAP tells the sync to extract ONLY the specified
@@ -238,6 +241,7 @@ jobs:
           SUBDIR_MAP["devin/1777594452-buddhist-food-map"]="buddhist_food_lexicon_map"
           SUBDIR_MAP["devin/1777594554-khmer-inscription-analysis"]="khmer_inscription_analysis"
           SUBDIR_MAP["devin/1777547587-pwv-vitaldb-analysis"]="pwv_vitaldb_analysis"
+          SUBDIR_MAP["devin/1783674016-calculus-of-lives"]="calculus_of_lives"
           # devin/1776768797-gdp-tempo-paper superseded by jom-submission branch
           SUBDIR_MAP["devin/1781676665-jom-submission"]="gdp_tempo_paper"
           SUBDIR_MAP["master"]="gdp_tempo_paper"
