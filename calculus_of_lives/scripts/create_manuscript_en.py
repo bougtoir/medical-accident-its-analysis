@@ -1065,10 +1065,13 @@ def build_manuscript():
 
 
 FIG_CAPTIONS = {
-    1: ("Figure 1. Two layers of the question. The standard \u201Cwas it "
-        "necessary?\u201D debate audits a weighing from inside the calculus; "
-        "the ethical question asks, from outside, whether such a weighing is "
-        "ours to perform."),
+    1: ("Figure 1. The funnel of attention. Every question the bombing raises "
+        "enters at the top, but a layer of common sense and preconception\u2014"
+        "that we are entitled to do the weighing\u2014acts as a sieve: only the "
+        "inner, technical (\u201Cwas it necessary?\u201D) question passes through "
+        "into public debate, while the outer question\u2014whether such weighing "
+        "is ours to perform at all\u2014is screened out and never comes into "
+        "view."),
     2: ("Figure 2. Two independent axes\u2014supply-increasing vs. "
         "demand-reducing, and expansion vs. contraction\u2014with "
         "illustrative religious and economic types. The naive alignment of "

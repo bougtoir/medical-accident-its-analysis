@@ -30,11 +30,13 @@ TITLE = "The Accountants of One Another's Lives"
 STANDFIRST = ("Eighty years after Hiroshima we still argue about whether the "
               "bomb was necessary. That is the wrong argument.")
 
-FIG_CAPTION = ("Figure 1. Two layers of the question. The inner layer audits a "
-               "weighing whose legitimacy it takes for granted (“was the bomb "
-               "necessary?”); the outer layer asks whether we are entitled to "
-               "perform the weighing at all. One can win every point on the "
-               "inner layer and have said nothing to the outer one.")
+FIG_CAPTION = ("Figure 1. The funnel of attention. Every question the bombing "
+               "raises pours in at the top, but a layer of common sense and "
+               "preconception\u2014that we are entitled to do the weighing\u2014"
+               "acts as a sieve: only the inner, technical question (\u201Cwas "
+               "it necessary?\u201D) passes through into public debate, while "
+               "the outer question\u2014whether such weighing is ours to perform "
+               "at all\u2014is screened out and never comes into view.")
 
 # Each item is ("style", "text"): H = heading, P = paragraph, FIG = image key.
 BODY = [

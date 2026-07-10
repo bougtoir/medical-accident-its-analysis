@@ -43,37 +43,75 @@ def _save(fig, stem):
 
 
 def fig1_layers():
-    fig, ax = plt.subplots(figsize=(7.2, 4.6))
-    ax.set_xlim(0, 10); ax.set_ylim(0, 10); ax.axis("off")
+    """A funnel / sieve. Every question the bomb raises pours in at the top,
+    but a layer of common sense and preconception ('we are entitled to do the
+    weighing') acts as a filter: only the inner, technical question passes
+    through into public debate, while the outer, fundamental question is
+    screened out and never comes into view."""
+    from matplotlib.patches import Polygon, Rectangle
+    fig, ax = plt.subplots(figsize=(8.0, 7.0))
+    ax.set_xlim(0, 11.0); ax.set_ylim(0, 10.5); ax.axis("off")
+    cx = 5.0  # funnel centre
 
-    # Outer layer box
-    outer = FancyBboxPatch((0.4, 0.6), 9.2, 8.8, boxstyle="round,pad=0.1,rounding_size=0.25",
-                           linewidth=1.6, edgecolor=BLUE, facecolor=LIGHT)
+    # --- inflow: everything the bomb puts in question ---
+    ax.text(cx, 10.25, "Everything the bomb puts in question",
+            ha="center", va="center", fontsize=10.5, color=GREY, style="italic")
+    for x in (2.6, 5.0, 7.4):
+        ax.add_patch(FancyArrowPatch((x, 9.85), (x, 9.35), arrowstyle="-|>",
+                     mutation_scale=12, linewidth=1.4, color=GREY))
+
+    # --- the OUTER question, screened out above the filter ---
+    outer = FancyBboxPatch((1.7, 7.95), 6.6, 1.3,
+                           boxstyle="round,pad=0.08,rounding_size=0.18",
+                           linewidth=1.5, edgecolor=BLUE, facecolor="white",
+                           linestyle=(0, (5, 3)), alpha=0.9)
     ax.add_patch(outer)
-    ax.text(5, 8.9, "OUTER QUESTION (ethical / existential)", ha="center",
-            va="center", fontsize=11.5, fontweight="bold", color=BLUE)
-    ax.text(5, 8.05, "May human beings weigh and decide\nwho is to live and who is to die?",
-            ha="center", va="center", fontsize=11, color=INK, style="italic")
+    ax.text(cx, 8.85, "OUTER QUESTION (ethical / existential)", ha="center",
+            va="center", fontsize=10.5, fontweight="bold", color=BLUE)
+    ax.text(cx, 8.25, "May human beings weigh and decide\nwho is to live and who is to die?",
+            ha="center", va="center", fontsize=9.5, color=INK, style="italic")
 
-    # Inner layer box
-    inner = FancyBboxPatch((1.7, 1.5), 6.6, 4.4, boxstyle="round,pad=0.1,rounding_size=0.2",
-                           linewidth=1.4, edgecolor=RED, facecolor="white")
-    ax.add_patch(inner)
-    ax.text(5, 5.35, "INNER QUESTION (technical / consequential)", ha="center",
-            va="center", fontsize=11.5, fontweight="bold", color=RED)
-    ax.text(5, 4.5, "Was the bombing necessary?\nDid it save more lives than it cost?",
-            ha="center", va="center", fontsize=11, color=INK, style="italic")
-    ax.text(5, 3.35, "efficiency of a weighing that is\nalready assumed to be legitimate",
-            ha="center", va="center", fontsize=9.5, color=GREY)
-    ax.text(5, 2.15, "the standard 'necessity' debate\nlives here", ha="center",
-            va="center", fontsize=9.5, color=GREY)
+    # --- the filter / sieve: common sense and preconception ---
+    filt = Rectangle((0.8, 7.05), 8.4, 0.66, linewidth=1.4,
+                     edgecolor=INK, facecolor=LIGHT, hatch="////")
+    ax.add_patch(filt)
+    ax.text(cx, 7.38,
+            "COMMON SENSE / PRECONCEPTION:\n\u201Cwe are entitled to do the weighing\u201D",
+            ha="center", va="center", fontsize=8.6, fontweight="bold", color=INK,
+            bbox=dict(boxstyle="round,pad=0.18", facecolor="white",
+                      edgecolor="none"))
 
-    # Arrow moving the question outward
-    arr = FancyArrowPatch((8.35, 3.7), (9.15, 3.7), arrowstyle="-|>",
-                          mutation_scale=18, linewidth=2, color=INK)
-    ax.add_patch(arr)
-    ax.text(9.2, 4.35, "shift the\nlayer", ha="center", va="center", fontsize=9,
-            color=INK)
+    # outer question deflected off the filter -> stays unexamined
+    ax.add_patch(FancyArrowPatch((8.4, 7.75), (9.5, 8.65), arrowstyle="-|>",
+                 mutation_scale=14, linewidth=1.5, color=BLUE, alpha=0.85,
+                 connectionstyle="arc3,rad=0.35"))
+    ax.text(9.9, 7.0, "screened\nout\u2014never\ncomes\ninto view",
+            ha="center", va="center", fontsize=8.4, color=BLUE)
+
+    # --- the funnel: narrows attention to the inner question ---
+    funnel = Polygon([(1.2, 7.05), (8.8, 7.05), (5.6, 2.35), (4.4, 2.35)],
+                     closed=True, linewidth=1.5, edgecolor=RED,
+                     facecolor="white")
+    ax.add_patch(funnel)
+    ax.text(cx, 6.25, "INNER QUESTION (technical / consequential)", ha="center",
+            va="center", fontsize=10.2, fontweight="bold", color=RED)
+    ax.text(cx, 5.45, "Was the bombing necessary?\nDid it save more lives than it cost?",
+            ha="center", va="center", fontsize=9.8, color=INK, style="italic")
+    ax.text(cx, 4.3, "efficiency of a weighing whose\nlegitimacy is already assumed",
+            ha="center", va="center", fontsize=9, color=GREY)
+    ax.add_patch(FancyArrowPatch((cx, 3.2), (cx, 2.35), arrowstyle="-|>",
+                 mutation_scale=15, linewidth=1.6, color=RED))
+
+    # --- spout / outflow: the public debate ---
+    tube = Rectangle((4.4, 1.05), 1.2, 1.3, linewidth=1.5,
+                     edgecolor=RED, facecolor="white")
+    ax.add_patch(tube)
+    out = FancyBboxPatch((1.9, 0.1), 6.2, 0.82,
+                         boxstyle="round,pad=0.08,rounding_size=0.15",
+                         linewidth=1.4, edgecolor=RED, facecolor=LIGHT)
+    ax.add_patch(out)
+    ax.text(cx, 0.5, "the public \u2018necessity\u2019 debate\u2014the only question that gets through",
+            ha="center", va="center", fontsize=9.2, color=INK)
     _save(fig, "fig1_layers")
 
 
