@@ -28,7 +28,8 @@ FONT = "Times New Roman"
 
 TITLE = "The Accountants of One Another's Lives"
 STANDFIRST = ("Eighty years after Hiroshima we still argue about whether the "
-              "bomb was necessary. That is the wrong argument.")
+              "bomb was necessary. The prior question is whether anyone may "
+              "weigh such things at all.")
 
 FIG_CAPTION = ("Figure 1. The funnel of attention. Every question the bombing "
                "raises pours in at the top, but a layer of common sense and "
@@ -260,10 +261,11 @@ BODY = [
  "frontier is extensive: empty land and unused energy, a matter of volume "
  "that more space can enlarge. The spiritual frontier is intensive: it is "
  "aimed at particular souls and at the neighbor who believes otherwise, a "
- "matter of density, not volume. The two cannot be exchanged. You cannot "
- "discharge an intensive demand into an extensive supply, which is why the "
+ "matter of density, not volume. The two cannot be exchanged: an intensive "
+ "demand cannot be discharged into an extensive supply. The pattern is "
+ "suggestive rather than probative, but it is at least striking that the "
  "Age of Discovery flung open a vast material frontier and yet coincided "
- "with Europe's most terrible war of religion. Space enlarges only the "
+ "with Europe's most terrible wars of religion. Space enlarges only the "
  "extensive frontier; it leaves the mismatch untouched and may even amplify "
  "the intensive drive to carry one's own truth to the stars. If the heavens "
  "pacify anything, it will not be as an outlet but as a mirror\u2014the view "
@@ -313,8 +315,8 @@ BODY = [
  "is whether we still wish to be the kind of beings who keep the books\u2014"
  "or whether we might, at last, prefer to give in order to keep others "
  "alive rather than to take in order to live. That preference will not "
- "abolish tragedy. But it is the only ground on which a third world war "
- "becomes, not merely deterred, but unthinkable."),
+ "abolish tragedy. But it is the ground on which a third world war "
+ "might become, not merely deterred, but unthinkable."),
 ]
 
 NOTES = [

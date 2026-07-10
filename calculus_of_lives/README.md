@@ -46,6 +46,7 @@ scripts/
   create_essay_en.py       # essay_en.docx (E&IA Essay; ~2,700 words, 8 notes, fig1 inline)
   create_figures_pptx.py   # figures_en.pptx (editable, one figure per slide)
   create_essay_ja.py       # essay_ja.docx (Japanese general-audience version)
+  build_submission_eia.py  # assembles the E&IA Essay submission package (+ zip)
 output/
   manuscript_en.docx, title_page_en.docx
   essay_en.docx
