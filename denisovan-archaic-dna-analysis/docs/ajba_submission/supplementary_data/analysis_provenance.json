@@ -1,4 +1,6 @@
 {
+  "analysis_release": "ajba-critical-revision-2026-07",
+  "analysis_code_commit": "c957c9932746d3aa2e0fac366081ef2e54983c40",
   "segments_1kg": {
     "path": "/home/ubuntu/hg38_1000g_segments.txt",
     "sha256": "d3ea9fe7ac6b5abacb176acecf4747bacdead89c0a35e1750a4f8ee71b2bb1d4"
