@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import subprocess
 from itertools import combinations
 from pathlib import Path
 
@@ -32,6 +33,7 @@ SEGMENT_COLUMNS = [
     "mean_prob",
     "ND_type",
 ]
+ANALYSIS_RELEASE = "ajba-critical-revision-2026-07"
 
 
 def parse_args() -> argparse.Namespace:
@@ -53,6 +55,17 @@ def sha256(path: Path) -> str:
         for block in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(block)
     return digest.hexdigest()
+
+
+def code_commit(project_root: Path) -> str:
+    result = subprocess.run(
+        ["git", "rev-parse", "HEAD"],
+        cwd=project_root,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return result.stdout.strip()
 
 
 def read_segments(path: Path, dataset: str) -> pd.DataFrame:
@@ -371,6 +384,8 @@ def main() -> None:
     )
     quality.to_csv(args.output_dir / "profile_quality_checks.csv", index=False)
     provenance = {
+        "analysis_release": ANALYSIS_RELEASE,
+        "analysis_code_commit": code_commit(Path(__file__).resolve().parents[1]),
         "segments_1kg": {
             "path": str(args.segments_1kg.resolve()),
             "sha256": sha256(args.segments_1kg),
