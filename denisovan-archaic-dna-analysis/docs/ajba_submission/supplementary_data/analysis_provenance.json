@@ -1,12 +1,12 @@
 {
   "analysis_release": "ajba-critical-revision-2026-07",
-  "analysis_code_commit": "c957c9932746d3aa2e0fac366081ef2e54983c40",
+  "analysis_code_commit": "ea914dcd0eb80c5c2e34461395b7b65ae5d48434",
   "segments_1kg": {
-    "path": "/home/ubuntu/hg38_1000g_segments.txt",
+    "file_name": "hg38_1000g_segments.txt",
     "sha256": "d3ea9fe7ac6b5abacb176acecf4747bacdead89c0a35e1750a4f8ee71b2bb1d4"
   },
   "segments_hgdp": {
-    "path": "/home/ubuntu/hg38_HGDP_segments.txt",
+    "file_name": "hg38_HGDP_segments.txt",
     "sha256": "c222d44a05fed3f059b2907ca6e9deb8899c41ff8fd59bc629bd57c910a593ac"
   },
   "minimum_probability": 0.8,

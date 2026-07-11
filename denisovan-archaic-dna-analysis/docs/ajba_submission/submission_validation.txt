@@ -1,7 +1,7 @@
 AJBA SUBMISSION VALIDATION
 ==========================
 
-Abstract words: 168
+Abstract words: 194
 References: 25
 Uncited references: []
 First-appearance figure order: [1, 2, 3, 4]
