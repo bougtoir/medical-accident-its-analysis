@@ -108,7 +108,10 @@ doc.add_paragraph()
 # Affiliation
 affil = doc.add_paragraph()
 affil.alignment = WD_ALIGN_PARAGRAPH.CENTER
-run = affil.add_run('1 [Affiliation to be added]')
+run = affil.add_run(
+    '1 Data Science and AI Innovation Research Promotion Center, '
+    'Shiga University of Medical Science, Otsu, Japan'
+)
 run.font.size = Pt(10)
 run.font.name = 'Times New Roman'
 
@@ -857,7 +860,10 @@ da = doc.add_paragraph(
 
 # ===== ACKNOWLEDGMENTS =====
 add_heading(doc, 'Acknowledgments', level=1)
-doc.add_paragraph('[To be added]')
+doc.add_paragraph(
+    'The author acknowledges the investigators and participants who generated '
+    'the publicly available genomic resources used in this study.'
+)
 
 # ===== CONFLICT OF INTEREST =====
 add_heading(doc, 'Conflict of interest', level=1)

@@ -19,9 +19,7 @@ Output: data/pairwise_sharing_corrected.csv
 import pandas as pd
 import numpy as np
 from scipy import stats
-from scipy.spatial.distance import squareform
 import statsmodels.api as sm
-from itertools import combinations
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -301,7 +299,7 @@ r_nean_partial, p_nean_partial = partial_correlation(
 r_nean_raw, p_nean_raw = stats.pearsonr(
     valid_n['geo_dist_km'].values / 1000, valid_n['nean_corr'].values)
 
-print(f"Neanderthal sharing ~ distance:")
+print("Neanderthal sharing ~ distance:")
 print(f"  Raw correlation:     r = {r_nean_raw:.4f}, p = {p_nean_raw:.2e}")
 print(f"  Partial correlation: r = {r_nean_partial:.4f}, p = {p_nean_partial:.2e}")
 
@@ -315,7 +313,7 @@ r_deni_partial, p_deni_partial = partial_correlation(
 r_deni_raw, p_deni_raw = stats.pearsonr(
     valid_d['geo_dist_km'].values / 1000, valid_d['deni_corr'].values)
 
-print(f"\nDenisovan sharing ~ distance:")
+print("\nDenisovan sharing ~ distance:")
 print(f"  Raw correlation:     r = {r_deni_raw:.4f}, p = {p_deni_raw:.2e}")
 print(f"  Partial correlation: r = {r_deni_partial:.4f}, p = {p_deni_partial:.2e}")
 
@@ -458,6 +456,21 @@ outlier_df = pd.DataFrame(all_outliers)
 outlier_df.to_csv('data/outlier_summary.csv', index=False)
 print(f"Saved outlier summary: data/outlier_summary.csv ({len(outlier_df)} rows)")
 
+def deterministic_model_summary(model):
+    """Return a statsmodels summary without run-specific date and time fields."""
+    lines = model.summary().as_text().splitlines()
+    stable_lines = []
+    for line in lines:
+        if "Date:" in line and "Prob (F-statistic):" in line:
+            suffix = line[line.index("Prob (F-statistic):") :]
+            line = " " * (len(line) - len(suffix)) + suffix
+        elif "Time:" in line and "Log-Likelihood:" in line:
+            suffix = line[line.index("Log-Likelihood:") :]
+            line = " " * (len(line) - len(suffix)) + suffix
+        stable_lines.append(line)
+    return "\n".join(stable_lines)
+
+
 # Save stats summary
 with open('data/correction_stats.txt', 'w') as f:
     f.write("CONFOUNDING CORRECTION STATISTICS\n")
@@ -488,9 +501,9 @@ with open('data/correction_stats.txt', 'w') as f:
     f.write(f"   Denisovan nominal p<0.05:   {np.sum(deni_clean['deni_perm_pval'] < 0.05)} pairs\n\n")
 
     f.write("6. Regression coefficients (Neanderthal)\n")
-    f.write(model_n.summary().as_text() + "\n\n")
+    f.write(deterministic_model_summary(model_n) + "\n\n")
 
     f.write("7. Regression coefficients (Denisovan)\n")
-    f.write(model_d.summary().as_text() + "\n")
+    f.write(deterministic_model_summary(model_d) + "\n")
 
 print("\nAll corrections complete!")

@@ -1,0 +1,13 @@
+individual,age_kya,population,closest_reference,altai_proportion,vindija_proportion,chagyrskaya_proportion,segment_detected,strict_abo_overlap,source_doi,provenance_note
+OaseNew,40.0,Early European,Altai,0.850,0.800,0.800,True,True,10.1126/science.adq3010,Secondary extraction from public archaic-segment calls; exploratory use only
+SunghirI,33.2,Early Upper Paleolithic Russia,Unresolved,,,,True,True,10.1126/science.adq3010,Very short reported segment; exploratory use only
+Vestonice43,31.0,Gravettian Moravia,Chagyrskaya,0.735,0.676,0.765,True,False,10.1126/science.adq3010,Secondary extraction from public archaic-segment calls; exploratory use only
+Yana2,31.6,ANE/Paleo-Siberian,Chagyrskaya,0.500,0.714,0.833,True,False,10.1126/science.adq3010,Secondary extraction from public archaic-segment calls; exploratory use only
+ElMiron,18.7,Magdalenian Iberia,Chagyrskaya,0.708,0.583,0.958,True,False,10.1126/science.adq3010,Secondary extraction from public archaic-segment calls; exploratory use only
+BK1653,8.0,Balkans Mesolithic,Altai,0.944,0.903,0.934,True,False,10.1126/science.adq3010,Secondary extraction from public archaic-segment calls; exploratory use only
+Tianyuan,40.0,Early East Asian,None,,,,False,False,10.1126/science.adq3010,No segment recorded in the extracted ABO interval
+Yana1,31.6,ANE/Paleo-Siberian,None,,,,False,False,10.1126/science.adq3010,No segment recorded in the extracted ABO interval
+Malta,24.0,Ancient North Eurasian,None,,,,False,False,10.1126/science.adq3010,No segment recorded in the extracted ABO interval
+Kostenki14Shotgun,37.0,Early European,None,,,,False,False,10.1126/science.adq3010,No segment recorded in the extracted ABO interval
+Anzick,12.6,Ancient Indigenous American,None,,,,False,False,10.1126/science.adq3010,No segment recorded in the extracted ABO interval
+Kolyma,9.8,Ancient Northeast Asian,None,,,,False,False,10.1126/science.adq3010,No segment recorded in the extracted ABO interval

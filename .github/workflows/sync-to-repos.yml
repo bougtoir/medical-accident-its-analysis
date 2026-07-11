@@ -167,10 +167,8 @@ jobs:
           BRANCH_MAP["devin/1777844647-tatsuki-electoral-studies"]="tatsuki-electoral-studies"
           BRANCH_MAP["devin/1777989587-jcss-ssr-submission"]="jcss-ssr-submission"
           BRANCH_MAP["devin/1777989710-tatsuki-3journal-submission"]="tatsuki-3journal-submission"
-          BRANCH_MAP["devin/1781893388-confounding-corrections"]="denisovan-archaic-dna-analysis"
-
           # ── Denisovan / archaic DNA analysis ──
-          BRANCH_MAP["devin/denisovan-archaic-dna-analysis"]="denisovan-archaic-dna-analysis"
+          BRANCH_MAP["devin/1783804093-ajba-submission"]="denisovan-archaic-dna-analysis"
 
           # ── Landmine transparent map (JoBS submission) ──
           BRANCH_MAP["devin/1782083347-landmine-transparent-map"]="landmine-transparent-map"
@@ -211,7 +209,7 @@ jobs:
           SUBDIR_MAP["devin/1776763216-healthcare-sustainable"]="healthcare_tempo_poc"
           SUBDIR_MAP["devin/1777844647-tatsuki-electoral-studies"]="tasuki-electoral-model"
           SUBDIR_MAP["devin/1777989587-jcss-ssr-submission"]="tasuki-electoral-model"
-          SUBDIR_MAP["devin/1781893388-confounding-corrections"]="denisovan-archaic-dna-analysis"
+          SUBDIR_MAP["devin/1783804093-ajba-submission"]="denisovan-archaic-dna-analysis"
           SUBDIR_MAP["devin/1777989710-tatsuki-3journal-submission"]="tasuki-electoral-model"
           SUBDIR_MAP["devin/1777545460-medical-sapir-whorf-paper"]="medical_sapir_whorf"
           # SUBDIR_MAP["devin/1777545531-medical-sapir-whorf-formalization"]="medical_sapir_whorf"  # superseded
@@ -238,7 +236,6 @@ jobs:
           SUBDIR_MAP["devin/1780052155-yago-ionv-analysis"]="yago_ionv"
           SUBDIR_MAP["devin/1775637899-pmea-zero-calibration"]="zero_calibration_pmea"
           SUBDIR_MAP["stem-cell-seasonality"]="stem_cell_seasonality"
-          SUBDIR_MAP["devin/denisovan-archaic-dna-analysis"]="denisovan-archaic-dna-analysis"
           SUBDIR_MAP["devin/1782083347-landmine-transparent-map"]="landmine_transparent_map"
           SUBDIR_MAP["sits9-sync"]="sits9"
           SUBDIR_MAP["devin/1782828801-anesthesia-record"]="anesthesia-record"
