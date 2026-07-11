@@ -93,7 +93,7 @@ doc.add_paragraph()
 # Authors
 author_para = doc.add_paragraph()
 author_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
-run = author_para.add_run('Tatsuki Onishi')
+run = author_para.add_run('Onishi Tatsuki')
 run.font.size = Pt(12)
 run.font.name = 'Times New Roman'
 run2 = author_para.add_run('1')
@@ -109,8 +109,7 @@ doc.add_paragraph()
 affil = doc.add_paragraph()
 affil.alignment = WD_ALIGN_PARAGRAPH.CENTER
 run = affil.add_run(
-    '1 Data Science and AI Innovation Research Promotion Center, '
-    'Shiga University of Medical Science, Otsu, Japan'
+    '1 Data Science and AI Innovation Research Promotion Center'
 )
 run.font.size = Pt(10)
 run.font.name = 'Times New Roman'
@@ -120,7 +119,7 @@ doc.add_paragraph()
 # Corresponding author
 corr = doc.add_paragraph()
 corr.alignment = WD_ALIGN_PARAGRAPH.CENTER
-run = corr.add_run('*Corresponding author: Tatsuki Onishi (bougtoir@gmail.com)')
+run = corr.add_run('*Corresponding author: Onishi Tatsuki (bougtoir@gmail.com)')
 run.font.size = Pt(10)
 run.font.name = 'Times New Roman'
 

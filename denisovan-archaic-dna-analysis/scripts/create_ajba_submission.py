@@ -32,15 +32,11 @@ TITLE = (
     "populations: An exploratory geographic analysis"
 )
 RUNNING_TITLE = "Geography of archaic DNA sharing"
-AUTHOR = "Tatsuki Onishi"
-AFFILIATION = (
-    "Data Science and AI Innovation Research Promotion Center, "
-    "Shiga University of Medical Science, Otsu, Japan"
-)
+AUTHOR = "Onishi Tatsuki"
+AFFILIATION = "Data Science and AI Innovation Research Promotion Center"
 CORRESPONDENCE = (
-    "Tatsuki Onishi, Data Science and AI Innovation Research Promotion Center, "
-    "Shiga University of Medical Science, Seta Tsukinowa-cho, Otsu, "
-    "Shiga 520-2192, Japan; Email: bougtoir@gmail.com"
+    "Onishi Tatsuki, Data Science and AI Innovation Research Promotion Center; "
+    "Email: bougtoir@gmail.com"
 )
 ABSTRACT = (
     "Archaic introgression is usually summarized as ancestry proportion within "
@@ -792,7 +788,7 @@ def add_manuscript_body(document: Document, inline: bool) -> None:
     )
     document.add_heading("Author Contributions", level=1)
     document.add_paragraph(
-        "Tatsuki Onishi: Conceptualization, methodology, formal analysis, "
+        "Onishi Tatsuki: Conceptualization, methodology, formal analysis, "
         "visualization, writing—original draft, and writing—review and editing."
     )
     document.add_heading("Literature Cited", level=1)
