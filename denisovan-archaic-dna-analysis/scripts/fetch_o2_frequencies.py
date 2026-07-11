@@ -62,7 +62,7 @@ def main() -> None:
         if population["allele"] != "T":
             continue
         code = name.rsplit(":", 1)[-1]
-        if code in {"ALL", "AFR", "AMR", "EUR", "SAS"}:
+        if code in {"ALL", "AFR", "AMR", "EAS", "EUR", "SAS"}:
             continue
         rows.append(
             {
