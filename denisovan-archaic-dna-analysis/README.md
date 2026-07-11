@@ -8,7 +8,7 @@ Archaic human (Neanderthal/Denisovan) DNA introgression patterns across modern h
 scripts/          Analysis and visualization scripts (Python)
 figures/          Generated figures (PNG)
 data/             Pairwise sharing data (CSV)
-docs/             Discussion notes
+docs/             Discussion notes and AJBA submission files
 ```
 
 ## Figures
@@ -31,9 +31,13 @@ docs/             Discussion notes
 ## Requirements
 
 ```
-pip install matplotlib cartopy numpy pandas
+pip install matplotlib cartopy numpy pandas scipy statsmodels seaborn \
+  python-docx python-pptx Pillow requests
 sudo apt install fonts-noto-cjk  # for Japanese labels
 ```
+
+LibreOffice and Poppler are required for the optional DOCX/PPTX rendering
+checks.
 
 ## Usage
 
@@ -43,7 +47,17 @@ python scripts/denisovan_map.py
 python scripts/denisovan_neanderthal_map.py
 python scripts/minard_migration.py
 
-# Run sharing analysis (requires hmmix segment data from Zenodo)
-python scripts/archaic_sharing_analysis.py
-python scripts/visualize_results.py
+# Rebuild the AJBA analysis and submission package from hmmix source files
+python scripts/run_ajba_pipeline.py \
+  --segments-1kg /path/to/hg38_1000g_segments.txt \
+  --segments-hgdp /path/to/hg38_HGDP_segments.txt \
+  --permutations 9999 \
+  --sensitivity-permutations 999
 ```
+
+The AJBA pipeline deduplicates individual-haplotype-window presence, validates
+that every population-window frequency is at most one, runs population-label
+QAP inference and sensitivity analyses, regenerates figures, validates
+references, and writes the submission package to `docs/ajba_submission/`.
+Raw source paths and SHA256 checksums are recorded in
+`data/analysis_provenance.json`.

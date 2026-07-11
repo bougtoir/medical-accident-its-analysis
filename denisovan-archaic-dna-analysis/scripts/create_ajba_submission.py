@@ -21,6 +21,8 @@ from pptx.enum.text import PP_ALIGN
 from pptx.util import Inches as PptInches
 from pptx.util import Pt as PptPt
 
+import ajba_content as revised_content
+
 
 PROJECT_DIR = Path(__file__).resolve().parents[1]
 DATA_DIR = PROJECT_DIR / "data"
@@ -546,6 +548,22 @@ FIGURES = {
     ),
 }
 
+TITLE = revised_content.TITLE
+RUNNING_TITLE = revised_content.RUNNING_TITLE
+AUTHOR = revised_content.AUTHOR
+AFFILIATION = revised_content.AFFILIATION
+CORRESPONDENCE = revised_content.CORRESPONDENCE
+ABSTRACT = revised_content.ABSTRACT
+KEYWORDS = revised_content.KEYWORDS
+REFERENCES = revised_content.REFERENCES
+REFERENCE_KEYS = revised_content.REFERENCE_KEYS
+INTRODUCTION = revised_content.INTRODUCTION
+METHODS = revised_content.METHODS
+RESULTS = revised_content.RESULTS
+DISCUSSION = revised_content.DISCUSSION
+FIGURES = revised_content.FIGURES
+SUPPORTING_FIGURES = revised_content.SUPPORTING_FIGURES
+
 
 def set_cell_shading(cell, fill: str) -> None:
     properties = cell._tc.get_or_add_tcPr()
@@ -574,17 +592,10 @@ def configure_document(document: Document) -> None:
 def add_cited_paragraph(document: Document, text: str, italic: bool = False):
     paragraph = document.add_paragraph()
     paragraph.paragraph_format.first_line_indent = Inches(0.3)
-    for part in re.split(r"(\{[^}]+\})", text):
-        if part.startswith("{") and part.endswith("}"):
-            run = paragraph.add_run(part[1:-1])
-            run.font.superscript = True
-            run.font.name = "Times New Roman"
-            run.font.size = Pt(10)
-        else:
-            run = paragraph.add_run(part)
-            run.font.name = "Times New Roman"
-            run.font.size = Pt(12)
-            run.italic = italic
+    run = paragraph.add_run(text)
+    run.font.name = "Times New Roman"
+    run.font.size = Pt(12)
+    run.italic = italic
     return paragraph
 
 
@@ -620,16 +631,72 @@ def add_title_page(document: Document) -> None:
 
 
 def table_1_rows() -> list[list[str]]:
+    model_summary = pd.read_csv(DATA_DIR / "model_summary.csv")
+
+    def interval(ancestry: str) -> str:
+        row = model_summary[
+            (model_summary["ancestry"] == ancestry)
+            & (model_summary["model"] == "expanded QAP")
+            & (model_summary["term"] == "geo_dist_1000km")
+        ].iloc[0]
+        return (
+            f"{row['leave_one_population_out_2.5pct']:.5f} to "
+            f"{row['leave_one_population_out_97.5pct']:.5f}"
+        )
+
+    neanderthal = revised_content.NEANDERTHAL
+    denisovan = revised_content.DENISOVAN
     return [
         ["Metric", "Neanderthal", "Denisovan", "Interpretation"],
         ["Populations / unique pairs", "66 / 2,145", "66 / 2,145", "Same pair set"],
-        ["Raw sharing-distance r", "-0.4847", "-0.4656", "Pairwise descriptive correlation"],
-        ["Partial r", "-0.3105", "-0.3001", "Controls maximum admixture and same continent"],
-        ["Distance-only R²", "0.2350", "0.2167", "Uncorrected model"],
-        ["Corrected R²", "0.5100", "0.4953", "Distance plus two confounders"],
-        ["Non-admixed Mantel r", "-0.6157", "-0.5809", "9,999 label permutations"],
-        ["Mantel p", "0.0001", "0.0001", "Matrix-level inference"],
-        ["FDR q<0.10 positive outliers", "0", "0", "Non-admixed pairs"],
+        [
+            "Raw sharing-distance r",
+            f"{neanderthal['raw_r']:.4f}",
+            f"{denisovan['raw_r']:.4f}",
+            "Descriptive pairwise correlation",
+        ],
+        [
+            "Expanded-model partial r",
+            f"{neanderthal['partial_r']:.4f}",
+            f"{denisovan['partial_r']:.4f}",
+            "Distance after coarse sensitivity covariates",
+        ],
+        [
+            "Distance-only R²",
+            f"{neanderthal['distance_only_r_squared']:.4f}",
+            f"{denisovan['distance_only_r_squared']:.4f}",
+            "Descriptive matrix fit",
+        ],
+        [
+            "Expanded descriptive R²",
+            f"{neanderthal['expanded_r_squared']:.4f}",
+            f"{denisovan['expanded_r_squared']:.4f}",
+            "Not an independent-pair causal estimate",
+        ],
+        [
+            "QAP distance coefficient / 1,000 km",
+            f"{neanderthal['distance_qap_beta']:.5f}",
+            f"{denisovan['distance_qap_beta']:.5f}",
+            "Expanded model",
+        ],
+        [
+            "QAP two-sided P",
+            f"{neanderthal['distance_qap_p']:.4f}",
+            f"{denisovan['distance_qap_p']:.4f}",
+            "9,999 population-label permutations",
+        ],
+        [
+            "Population-deletion interval",
+            interval("Neanderthal"),
+            interval("Denisovan"),
+            "2.5th-97.5th percentile sensitivity interval",
+        ],
+        [
+            "FDR q<0.10 and positive z>2 outliers",
+            str(neanderthal["fdr_q_lt_0.10_positive_z_gt_2"]),
+            str(denisovan["fdr_q_lt_0.10_positive_z_gt_2"]),
+            "All non-admixed pairs tested within ancestry",
+        ],
     ]
 
 
@@ -679,12 +746,12 @@ def table_2_rows() -> list[list[str]]:
 
 TABLES = {
     1: (
-        "Corrected geographic-distance models and matrix-level tests",
+        "Dependence-aware geographic-distance results",
         table_1_rows,
-        "Partial correlations use pairwise rows and should not be interpreted as independent-sample inference. Mantel tests used non-admixed population matrices.",
+        "R-squared and correlation values are descriptive. QAP tests permute population labels on the response matrix. Population-deletion intervals are sensitivity summaries, not independent-sample confidence intervals.",
     ),
     2: (
-        "Descriptive Neanderthal-reference composition in the 500-kb ABO-centered interval",
+        "ABO-window Neanderthal-reference composition",
         table_2_rows,
         "Counts are segments, not individuals. Equal maximum similarity counts are reported as ties. The Indigenous American row contains two segments, only one of which overlaps ABO.",
     ),
@@ -763,15 +830,18 @@ def add_manuscript_body(document: Document, inline: bool) -> None:
         add_cited_paragraph(document, text)
     document.add_heading("Acknowledgements", level=1)
     document.add_paragraph(
-        "The author acknowledges the investigators and participants who generated "
-        "the publicly available 1000 Genomes, HGDP, hmmix, and ancient-genome resources."
+        "The author acknowledges the participants, communities, and investigators whose "
+        "contributions made the 1000 Genomes, HGDP, hmmix, and ancient-genome resources "
+        "available. Public availability does not remove obligations of respectful reuse."
     )
     document.add_heading("Data Availability", level=1)
     document.add_paragraph(
-        "Analysis scripts, derived data, figures, and document-generation code are "
-        "available at https://github.com/bougtoir/denisovan-archaic-dna-analysis. "
+        "Analysis scripts, aggregate derived data, figures, and document-generation code "
+        "are available at https://github.com/bougtoir/denisovan-archaic-dna-analysis "
+        "and will be fixed as release ajba-critical-revision-2026-07 before submission. "
         "The source hmmix segment calls are available from Zenodo record 14136628 "
-        "(https://doi.org/10.5281/zenodo.14136628)."
+        "(https://doi.org/10.5281/zenodo.14136628). Raw-file SHA-256 checksums and all "
+        "analysis parameters are included in analysis_provenance.json."
     )
     document.add_heading("Funding", level=1)
     document.add_paragraph(
@@ -782,9 +852,16 @@ def add_manuscript_body(document: Document, inline: bool) -> None:
     document.add_paragraph("The author declares no conflict of interest.")
     document.add_heading("Ethics Statement", level=1)
     document.add_paragraph(
-        "This secondary analysis used de-identified, publicly available genomic data "
-        "and involved no new participant recruitment or specimen collection. Ethical "
-        "approval and consent procedures are described in the original source studies."
+        "This secondary computational analysis used de-identified public genomic data "
+        "and involved no recruitment, participant contact, biospecimen collection, or "
+        "new phenotype inference. No separate institutional review determination was "
+        "obtained; approvals, consent, and access procedures were those reported by the "
+        "source studies. No source community representatives participated in this "
+        "secondary study, and no direct community return-of-results process occurred. "
+        "Because Indigenous genomic records are included, results are reported only at "
+        "the minimum level needed for auditability, are not generalized to communities, "
+        "and are not used to assign migration routes. The public article, code, and "
+        "aggregate derived results are the current means of results availability."
     )
     document.add_heading("Author Contributions", level=1)
     document.add_paragraph(
@@ -792,8 +869,8 @@ def add_manuscript_body(document: Document, inline: bool) -> None:
         "visualization, writing—original draft, and writing—review and editing."
     )
     document.add_heading("Literature Cited", level=1)
-    for number, reference in enumerate(REFERENCES, 1):
-        paragraph = document.add_paragraph(f"{number}. {reference}")
+    for reference in REFERENCES:
+        paragraph = document.add_paragraph(reference)
         paragraph.paragraph_format.first_line_indent = Inches(-0.25)
         paragraph.paragraph_format.left_indent = Inches(0.25)
         paragraph.paragraph_format.line_spacing = 1.15
@@ -807,6 +884,14 @@ def add_manuscript_body(document: Document, inline: bool) -> None:
             paragraph.paragraph_format.line_spacing = 1.5
             paragraph.paragraph_format.space_after = Pt(8)
             run = paragraph.add_run(f"Figure {number}. ")
+            run.bold = True
+            paragraph.add_run(caption)
+        document.add_heading("Supporting Information Legends", level=1)
+        for number, (_, caption) in SUPPORTING_FIGURES.items():
+            paragraph = document.add_paragraph()
+            paragraph.paragraph_format.line_spacing = 1.5
+            paragraph.paragraph_format.space_after = Pt(8)
+            run = paragraph.add_run(f"Figure S{number}. ")
             run.bold = True
             paragraph.add_run(caption)
 
@@ -845,6 +930,49 @@ def create_single_table_document(path: Path, table_number: int) -> None:
     document.save(path)
 
 
+def create_supporting_information(path: Path) -> None:
+    document = Document()
+    configure_document(document)
+    paragraph = document.add_paragraph()
+    paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    run = paragraph.add_run("Supporting Information")
+    run.bold = True
+    run.font.size = Pt(16)
+    paragraph = document.add_paragraph(TITLE)
+    paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    for number, (filename, caption) in SUPPORTING_FIGURES.items():
+        heading = document.add_paragraph()
+        heading.paragraph_format.space_before = Pt(16)
+        run = heading.add_run(f"Figure S{number}. {caption}")
+        run.bold = True
+        image = document.add_paragraph()
+        image.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        image.add_run().add_picture(
+            str(FIGURE_DIR / filename), width=Inches(6.35)
+        )
+        if number != max(SUPPORTING_FIGURES):
+            document.add_page_break()
+    document.add_heading("Supplementary Data Files", level=1)
+    document.add_paragraph(
+        "Supplementary Data 1: population_metadata.csv. Population, project, sample "
+        "size, coordinates, continent assignment, and analysis inclusion."
+    )
+    document.add_paragraph(
+        "Supplementary Data 2: pairwise_sharing_corrected.csv. Complete pairwise "
+        "similarity, geographic, covariate, residual, permutation, and FDR results."
+    )
+    document.add_paragraph(
+        "Supplementary Data 3: model_summary.csv. QAP coefficients, permutation P "
+        "values, descriptive R-squared values, and population-deletion intervals."
+    )
+    document.add_paragraph(
+        "Supplementary Data 4: sensitivity_analysis.csv and "
+        "window_size_sensitivity.csv. Metric, population-subset, and window-size "
+        "robustness summaries."
+    )
+    document.save(path)
+
+
 def create_cover_letter(path: Path) -> None:
     document = Document()
     configure_document(document)
@@ -868,24 +996,25 @@ def create_cover_letter(path: Path) -> None:
         ),
         (
             "The manuscript evaluates pairwise similarity in the genomic distribution "
-            "of Neanderthal- and Denisovan-like segments across 66 global populations. "
-            "It combines geographic-distance modeling, explicit sensitivity analysis "
-            "for designated recent admixture, matrix-level Mantel tests, and a "
-            "reproducible exploratory analysis of the ABO-centered interval."
+            "of Neanderthal- and Denisovan-like segments across 66 populations. It "
+            "corrects duplicate haplotype-window contributions, uses population-label "
+            "quadratic assignment tests for dyadic dependence, and evaluates window, "
+            "metric, sample-size, dataset, and regional sensitivities."
         ),
         (
-            "The corrected analysis finds robust broad distance decay but no "
+            "The rebuilt analysis finds broad distance decay but no "
             "non-admixed positive-residual pair that survives false-discovery-rate "
             "correction. The manuscript therefore avoids claiming definitive evidence "
-            "for a migration route and presents the ABO, Beringian, Wallace Line, and "
-            "ancient-genome interpretations as testable hypotheses requiring "
-            "independent validation."
+            "for a migration route and presents the ABO-centered observations only as "
+            "a secondary hypothesis requiring independent validation."
         ),
         (
             "The work is original, is not under consideration elsewhere, and uses "
             "de-identified public genomic resources. No new human participants or "
-            "specimens were recruited. The author declares no conflict of interest "
-            "and reports no external funding."
+            "specimens were recruited. The manuscript explicitly discloses that no "
+            "separate institutional review determination, community participation, or "
+            "direct return-of-results process occurred for this secondary analysis. "
+            "The author declares no conflict of interest and reports no external funding."
         ),
         (
             "All analysis code and derived outputs are provided through the project "
@@ -904,21 +1033,33 @@ def create_cover_letter(path: Path) -> None:
 
 
 def add_slide_title(slide, title: str) -> None:
-    box = slide.shapes.add_textbox(PptInches(0.45), PptInches(0.18), PptInches(12.4), PptInches(0.55))
+    box = slide.shapes.add_textbox(
+        PptInches(0.6),
+        PptInches(0.12),
+        PptInches(12.1),
+        PptInches(0.7),
+    )
+    box.text_frame.word_wrap = True
     paragraph = box.text_frame.paragraphs[0]
     paragraph.text = title
     paragraph.font.name = "Arial"
-    paragraph.font.size = PptPt(22)
+    paragraph.font.size = PptPt(16)
     paragraph.font.bold = True
     paragraph.alignment = PP_ALIGN.CENTER
 
 
 def add_slide_caption(slide, caption: str) -> None:
-    box = slide.shapes.add_textbox(PptInches(0.55), PptInches(6.68), PptInches(12.2), PptInches(0.58))
+    box = slide.shapes.add_textbox(
+        PptInches(0.65),
+        PptInches(6.55),
+        PptInches(12.0),
+        PptInches(0.72),
+    )
+    box.text_frame.word_wrap = True
     paragraph = box.text_frame.paragraphs[0]
     paragraph.text = caption
     paragraph.font.name = "Arial"
-    paragraph.font.size = PptPt(9)
+    paragraph.font.size = PptPt(8)
     paragraph.alignment = PP_ALIGN.LEFT
 
 
@@ -979,6 +1120,11 @@ def create_presentation(path: Path) -> None:
         add_slide_title(slide, f"Figure {number}")
         add_picture_contained(slide, FIGURE_DIR / filename)
         add_slide_caption(slide, caption)
+    for number, (filename, caption) in SUPPORTING_FIGURES.items():
+        slide = presentation.slides.add_slide(blank)
+        add_slide_title(slide, f"Figure S{number}")
+        add_picture_contained(slide, FIGURE_DIR / filename)
+        add_slide_caption(slide, caption)
     for number, (title, row_function, note) in TABLES.items():
         slide = presentation.slides.add_slide(blank)
         add_slide_title(slide, f"Table {number}. {title}")
@@ -989,6 +1135,8 @@ def create_presentation(path: Path) -> None:
 
 def prepare_separate_figures() -> None:
     OUTPUT_FIGURE_DIR.mkdir(parents=True, exist_ok=True)
+    for stale in OUTPUT_FIGURE_DIR.glob("Figure_*"):
+        stale.unlink()
     for number, (filename, _) in FIGURES.items():
         source = FIGURE_DIR / filename
         png_target = OUTPUT_FIGURE_DIR / f"Figure_{number}.png"
@@ -1001,19 +1149,18 @@ def prepare_separate_figures() -> None:
                 dpi=(300, 300),
                 compression="tiff_lzw",
             )
-
-
-def expand_citations(texts: list[str]) -> list[int]:
-    citations = []
-    for text in texts:
-        for marker in re.findall(r"\{([^}]+)\}", text):
-            for token in marker.split(","):
-                if "-" in token:
-                    start, end = map(int, token.split("-"))
-                    citations.extend(range(start, end + 1))
-                else:
-                    citations.append(int(token))
-    return citations
+    for number, (filename, _) in SUPPORTING_FIGURES.items():
+        source = FIGURE_DIR / filename
+        png_target = OUTPUT_FIGURE_DIR / f"Figure_S{number}.png"
+        tiff_target = OUTPUT_FIGURE_DIR / f"Figure_S{number}.tiff"
+        shutil.copy2(source, png_target)
+        with Image.open(source) as image:
+            image.convert("RGB").save(
+                tiff_target,
+                format="TIFF",
+                dpi=(300, 300),
+                compression="tiff_lzw",
+            )
 
 
 def validate_content() -> list[str]:
@@ -1022,14 +1169,26 @@ def validate_content() -> list[str]:
         body_texts.extend(paragraphs)
     body_texts.extend(text for _, text, _ in RESULTS)
     body_texts.extend(DISCUSSION)
-    citations = expand_citations(body_texts)
-    unique_order = list(dict.fromkeys(citations))
+    joined_body = "\n".join(body_texts)
+    uncited_references = []
+    for key in REFERENCE_KEYS:
+        author, year = key.rsplit(" ", 1)
+        variants = [key, f"{author} ({year})"]
+        if not any(variant in joined_body for variant in variants):
+            uncited_references.append(key)
     figure_mentions = []
+    supporting_figure_mentions = []
     table_mentions = []
     for text in body_texts:
-        figure_mentions.extend(int(value) for value in re.findall(r"Figure (\d+)", text))
+        figure_mentions.extend(
+            int(value) for value in re.findall(r"Figures? (?!S)(\d+)", text)
+        )
+        supporting_figure_mentions.extend(
+            int(value) for value in re.findall(r"Figures? S(\d+)", text)
+        )
         table_mentions.extend(int(value) for value in re.findall(r"Table (\d+)", text))
     figure_order = list(dict.fromkeys(figure_mentions))
+    supporting_figure_order = list(dict.fromkeys(supporting_figure_mentions))
     table_order = list(dict.fromkeys(table_mentions))
     unresolved = [
         value
@@ -1041,9 +1200,14 @@ def validate_content() -> list[str]:
         if value in "\n".join(body_texts)
     ]
     checks = [
-        ("Citation first-appearance order", unique_order == list(range(1, len(REFERENCES) + 1))),
-        ("Every reference cited", set(citations) == set(range(1, len(REFERENCES) + 1))),
+        ("Chicago author-date citations", not re.findall(r"\{\d", joined_body)),
+        ("Every reference cited", not uncited_references),
+        ("References alphabetized", REFERENCES == sorted(REFERENCES)),
         ("Figure first-appearance order", figure_order == list(FIGURES)),
+        (
+            "Supporting figure first-appearance order",
+            supporting_figure_order == list(SUPPORTING_FIGURES),
+        ),
         ("Table first-appearance order", table_order == list(TABLES)),
         ("No placeholder strings", not unresolved),
         ("Running title under 48 characters", len(RUNNING_TITLE) < 48),
@@ -1052,6 +1216,13 @@ def validate_content() -> list[str]:
             "All figure source files present",
             all((FIGURE_DIR / filename).exists() for filename, _ in FIGURES.values()),
         ),
+        (
+            "All supporting figure source files present",
+            all(
+                (FIGURE_DIR / filename).exists()
+                for filename, _ in SUPPORTING_FIGURES.values()
+            ),
+        ),
     ]
     lines = [
         "AJBA SUBMISSION VALIDATION",
@@ -1059,8 +1230,9 @@ def validate_content() -> list[str]:
         "",
         f"Abstract words: {len(ABSTRACT.split())}",
         f"References: {len(REFERENCES)}",
-        f"First-appearance citation order: {unique_order}",
+        f"Uncited references: {uncited_references}",
         f"First-appearance figure order: {figure_order}",
+        f"First-appearance supporting figure order: {supporting_figure_order}",
         f"First-appearance table order: {table_order}",
         "",
     ]
@@ -1080,17 +1252,19 @@ def create_checklist(path: Path) -> None:
 - `manuscript_ajba_inline_review.docx`: internal review copy with figures and tables immediately after first mention
 - `Table_1_corrected_model.docx` and `Table_2_abo_summary.docx`: individual editable tables
 - `tables_ajba.docx`: combined editable Tables 1-2 for internal convenience
-- `figures_tables_ajba.pptx`: Figures 1-9 and Tables 1-2, one item per widescreen slide
+- `supporting_information_ajba.docx`: Supporting Figures S1-S5 and data-file descriptions
+- `figures_tables_ajba.pptx`: Figures 1-4, Figures S1-S5, and Tables 1-2
 - `cover_letter_ajba.docx`: AJBA Research Article cover letter
-- `figures/Figure_1` through `Figure_9`: separate PNG and TIFF files
+- `figures/Figure_1` through `Figure_4` and `Figure_S1` through `Figure_S5`: separate PNG and TIFF files
+- `supplementary_data/`: population metadata, complete pairwise results, model output, sensitivities, and provenance
 - `reproducibility_checklist.md`: data provenance, rebuild commands, expected checks, and package versions
 - `reference_validation.csv`: DOI/PubMed existence and title checks
 
 ## Automated checks
 
-- References are numbered in first-appearance order.
+- References use Chicago author-date style and are alphabetized.
 - Every listed reference is cited and every citation has a reference entry.
-- Figures 1-9 and Tables 1-2 are first mentioned sequentially.
+- Figures 1-4, Figures S1-S5, and Tables 1-2 are first mentioned sequentially.
 - The abstract is within 250 words.
 - The running title is under 48 characters.
 - Required title-page, availability, funding, conflict, ethics, and contribution statements are present.
@@ -1098,12 +1272,14 @@ def create_checklist(path: Path) -> None:
 
 ## Author checks before upload
 
-- Confirm the current affiliation and full correspondence address.
+- Confirm the full correspondence postal address.
 - Confirm the no-external-funding statement.
 - Confirm the conflict-of-interest statement.
-- Review the descriptive ancient ABO extraction against the cited public outputs.
-- Confirm AJBA article type and current file-size limits in ScholarOne.
+- Obtain or confirm an institutional determination for this secondary genomic analysis.
+- Review the explicit disclosure of no direct community engagement or return of results.
+- Confirm AJBA article type and current file-size limits in Wiley Research Exchange.
 - Upload the manuscript without embedded figures; upload each TIFF separately.
+- Upload `supporting_information_ajba.docx` and the supplementary CSV/JSON files.
 - Upload `Table_1_corrected_model.docx` and `Table_2_abo_summary.docx` as editable table files.
 - Do not interpret nominal residuals, PEL-containing pairs, or the two Indigenous-American ABO-window segments as definitive migration evidence.
 
@@ -1147,14 +1323,11 @@ def create_reproducibility_checklist(path: Path) -> None:
 Run from the project root:
 
 ```bash
-python scripts/archaic_sharing_corrected.py
-python scripts/analyze_abo_window.py \
+python scripts/run_ajba_pipeline.py \
   --segments-1kg /path/to/hg38_1000g_segments.txt \
-  --segments-hgdp /path/to/hg38_HGDP_segments.txt
-python scripts/fetch_o2_frequencies.py
-python scripts/create_ajba_figures.py
-python scripts/validate_references.py
-python scripts/create_ajba_submission.py
+  --segments-hgdp /path/to/hg38_HGDP_segments.txt \
+  --permutations 9999 \
+  --sensitivity-permutations 999
 ```
 
 ## Expected primary checks
@@ -1162,9 +1335,12 @@ python scripts/create_ajba_submission.py
 - Individuals: 3,134
 - Populations: 66
 - Unique population pairs: 2,145
-- Neanderthal corrected R²: 0.5100
-- Denisovan corrected R²: 0.4953
-- Non-admixed Mantel r: -0.6157 and -0.5809
+- Every population-window frequency is between 0 and 1
+- Neanderthal raw distance r: {revised_content.NEANDERTHAL['raw_r']:.4f}
+- Denisovan raw distance r: {revised_content.DENISOVAN['raw_r']:.4f}
+- Neanderthal expanded descriptive R²: {revised_content.NEANDERTHAL['expanded_r_squared']:.4f}
+- Denisovan expanded descriptive R²: {revised_content.DENISOVAN['expanded_r_squared']:.4f}
+- QAP distance P: {revised_content.NEANDERTHAL['distance_qap_p']:.4f} and {revised_content.DENISOVAN['distance_qap_p']:.4f}
 - FDR q<0.10 non-admixed outliers: 0 and 0
 - Neanderthal/Both segments in the 500-kb ABO interval: 834
 - Strict ABO-overlapping Neanderthal/Both segments: 129
@@ -1178,6 +1354,8 @@ python scripts/create_ajba_submission.py
 ## Interpretation guardrails
 
 - Pairwise correlation does not prove identity by descent.
+- Pairwise rows are dependent; inference uses population-label permutations.
+- Expanded-model R² is descriptive and not a causal variance decomposition.
 - Reference-genome similarity does not prove a specific migration route.
 - Admixed American residuals are not treated as ancient-migration evidence.
 - No positive-residual non-admixed pair survived FDR correction.
@@ -1200,32 +1378,49 @@ def main() -> None:
     tables = OUTPUT_DIR / "tables_ajba.docx"
     table_1 = OUTPUT_DIR / "Table_1_corrected_model.docx"
     table_2 = OUTPUT_DIR / "Table_2_abo_summary.docx"
+    supporting = OUTPUT_DIR / "supporting_information_ajba.docx"
     cover = OUTPUT_DIR / "cover_letter_ajba.docx"
     presentation = OUTPUT_DIR / "figures_tables_ajba.pptx"
     checklist = OUTPUT_DIR / "submission_checklist.md"
     reproducibility = OUTPUT_DIR / "reproducibility_checklist.md"
     validation = OUTPUT_DIR / "submission_validation.txt"
     reference_validation = OUTPUT_DIR / "reference_validation.csv"
+    supplementary_directory = OUTPUT_DIR / "supplementary_data"
+    supplementary_directory.mkdir(parents=True, exist_ok=True)
     create_manuscript(manuscript, inline=False)
     create_manuscript(review, inline=True)
     create_tables_document(tables)
     create_single_table_document(table_1, 1)
     create_single_table_document(table_2, 2)
+    create_supporting_information(supporting)
     create_cover_letter(cover)
     create_presentation(presentation)
     create_checklist(checklist)
     create_reproducibility_checklist(reproducibility)
     validation.write_text("\n".join(validate_content()) + "\n", encoding="utf-8")
+    supplementary_sources = [
+        DATA_DIR / "population_metadata.csv",
+        DATA_DIR / "pairwise_sharing_corrected.csv",
+        DATA_DIR / "model_summary.csv",
+        DATA_DIR / "sensitivity_analysis.csv",
+        DATA_DIR / "window_size_sensitivity.csv",
+        DATA_DIR / "analysis_provenance.json",
+        DATA_DIR / "profile_quality_checks.csv",
+    ]
+    for source in supplementary_sources:
+        shutil.copy2(source, supplementary_directory / source.name)
     zip_files = [
         manuscript,
         table_1,
         table_2,
+        supporting,
         cover,
         presentation,
         checklist,
         reproducibility,
         validation,
         *sorted(OUTPUT_FIGURE_DIR.glob("Figure_*")),
+        *sorted(supplementary_directory.iterdir()),
     ]
     if reference_validation.exists():
         zip_files.append(reference_validation)

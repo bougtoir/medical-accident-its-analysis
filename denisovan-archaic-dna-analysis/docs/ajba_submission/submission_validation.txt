@@ -1,17 +1,21 @@
 AJBA SUBMISSION VALIDATION
 ==========================
 
-Abstract words: 197
-References: 23
-First-appearance citation order: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
-First-appearance figure order: [1, 2, 3, 4, 5, 6, 7, 8, 9]
+Abstract words: 168
+References: 25
+Uncited references: []
+First-appearance figure order: [1, 2, 3, 4]
+First-appearance supporting figure order: [1, 2, 3, 4, 5]
 First-appearance table order: [1, 2]
 
-PASS: Citation first-appearance order
+PASS: Chicago author-date citations
 PASS: Every reference cited
+PASS: References alphabetized
 PASS: Figure first-appearance order
+PASS: Supporting figure first-appearance order
 PASS: Table first-appearance order
 PASS: No placeholder strings
 PASS: Running title under 48 characters
 PASS: Abstract at most 250 words
 PASS: All figure source files present
+PASS: All supporting figure source files present

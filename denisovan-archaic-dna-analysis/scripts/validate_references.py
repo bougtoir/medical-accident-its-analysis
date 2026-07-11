@@ -8,19 +8,18 @@ from pathlib import Path
 import pandas as pd
 import requests
 
-from create_ajba_submission import REFERENCES
+from ajba_content import REFERENCES
 
 
 OUTPUT_PATH = Path("docs/ajba_submission/reference_validation.csv")
 HEADERS = {
     "User-Agent": "AJBA-reference-validation/1.0 (mailto:bougtoir@gmail.com)"
 }
-MANTEL_PMID = "6018555"
 
 
 def expected_title(reference: str) -> str:
-    parts = reference.split(". ")
-    return parts[1] if len(parts) > 1 else reference
+    match = re.search(r"“([^”]+)”", reference)
+    return match.group(1) if match else reference
 
 
 def crossref_record(doi: str) -> tuple[str, str]:
@@ -54,15 +53,13 @@ def main() -> None:
     rows = []
     for number, reference in enumerate(REFERENCES, 1):
         expected = expected_title(reference)
-        doi_match = re.search(r"doi:([^.\s]+(?:\.[^.\s]+)*)\.$", reference)
+        doi_match = re.search(r"https://doi\.org/(.+)\.$", reference)
         if doi_match:
             identifier = doi_match.group(1)
             canonical, url = crossref_record(identifier)
             registry = "Crossref"
         else:
-            identifier = MANTEL_PMID
-            canonical, url = pubmed_record(identifier)
-            registry = "PubMed"
+            raise ValueError(f"Reference has no DOI: {reference}")
         expected_words = set(normalized(expected).split())
         canonical_words = set(normalized(canonical).split())
         overlap = len(expected_words & canonical_words) / max(len(expected_words), 1)

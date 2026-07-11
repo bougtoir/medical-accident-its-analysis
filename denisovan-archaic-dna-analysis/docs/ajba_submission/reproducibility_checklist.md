@@ -12,12 +12,7 @@
 Run from the project root:
 
 ```bash
-python scripts/archaic_sharing_corrected.py
-python scripts/analyze_abo_window.py   --segments-1kg /path/to/hg38_1000g_segments.txt   --segments-hgdp /path/to/hg38_HGDP_segments.txt
-python scripts/fetch_o2_frequencies.py
-python scripts/create_ajba_figures.py
-python scripts/validate_references.py
-python scripts/create_ajba_submission.py
+python scripts/run_ajba_pipeline.py   --segments-1kg /path/to/hg38_1000g_segments.txt   --segments-hgdp /path/to/hg38_HGDP_segments.txt   --permutations 9999   --sensitivity-permutations 999
 ```
 
 ## Expected primary checks
@@ -25,9 +20,12 @@ python scripts/create_ajba_submission.py
 - Individuals: 3,134
 - Populations: 66
 - Unique population pairs: 2,145
-- Neanderthal corrected R²: 0.5100
-- Denisovan corrected R²: 0.4953
-- Non-admixed Mantel r: -0.6157 and -0.5809
+- Every population-window frequency is between 0 and 1
+- Neanderthal raw distance r: -0.4971
+- Denisovan raw distance r: -0.4617
+- Neanderthal expanded descriptive R²: 0.5461
+- Denisovan expanded descriptive R²: 0.5113
+- QAP distance P: 0.0001 and 0.0002
 - FDR q<0.10 non-admixed outliers: 0 and 0
 - Neanderthal/Both segments in the 500-kb ABO interval: 834
 - Strict ABO-overlapping Neanderthal/Both segments: 129
@@ -49,6 +47,8 @@ python scripts/create_ajba_submission.py
 ## Interpretation guardrails
 
 - Pairwise correlation does not prove identity by descent.
+- Pairwise rows are dependent; inference uses population-label permutations.
+- Expanded-model R² is descriptive and not a causal variance decomposition.
 - Reference-genome similarity does not prove a specific migration route.
 - Admixed American residuals are not treated as ancient-migration evidence.
 - No positive-residual non-admixed pair survived FDR correction.

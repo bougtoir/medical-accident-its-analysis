@@ -1,509 +1,465 @@
-"""
-Corrected analysis: Archaic introgression segment sharing between populations
-with confounding factor adjustments.
+"""Dependence-aware regression, outlier testing, and sensitivity analyses."""
 
-Corrections applied:
-1. Admixed population flagging and European ancestry proportion as covariate
-2. Continental-pair indicator as covariate (shared demographic history proxy)
-3. Multiple regression: sharing ~ geo_dist + admixture + same_continent
-4. Partial correlation (controlling for admixture and continental grouping)
-5. Permutation test for outlier significance
-6. Bootstrap confidence intervals for key correlations
+from __future__ import annotations
 
-Input:  data/pairwise_sharing.csv (from archaic_sharing_analysis.py)
-Output: data/pairwise_sharing_corrected.csv
-        data/outlier_summary.csv
-        data/correction_stats.txt
-"""
+import argparse
+import json
+from itertools import combinations
+from pathlib import Path
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 from scipy import stats
-import statsmodels.api as sm
-import warnings
-warnings.filterwarnings('ignore')
-
-np.random.seed(42)
-
-# ===== Load data =====
-print("=" * 60)
-print("Loading pairwise sharing data...")
-print("=" * 60)
-
-res = pd.read_csv('data/pairwise_sharing.csv')
-print(f"Total pairs: {len(res)}")
-print(f"Columns: {list(res.columns)}")
-
-# ===== 1. Admixed population metadata =====
-# Known admixture proportions (European ancestry fraction)
-# Sources: 1000 Genomes Phase 3, Bryc et al. 2015, Moreno-Estrada et al. 2013
-ADMIXED_EUR_FRAC = {
-    'PUR': 0.64,   # Puerto Rico — ~64% European
-    'CLM': 0.57,   # Colombia — ~57% European
-    'MXL': 0.48,   # Mexican-American — ~48% European
-    'PEL': 0.16,   # Peru — ~16% European
-    'ACB': 0.04,   # African Caribbean — ~4% European
-    'ASW': 0.20,   # African-American SW — ~20% European
-}
-
-# All populations with any known recent admixture (post-1500 CE)
-ADMIXED_POPS = set(ADMIXED_EUR_FRAC.keys())
-
-# Continental assignments for each population
-CONTINENT_MAP = {
-    # Europe
-    'CEU': 'EUR', 'FIN': 'EUR', 'GBR': 'EUR', 'IBS': 'EUR', 'TSI': 'EUR',
-    'French': 'EUR', 'Sardinian': 'EUR', 'Orcadian': 'EUR', 'Russian': 'EUR',
-    'BergamoItalian': 'EUR', 'Tuscan': 'EUR', 'Basque': 'EUR', 'Adygei': 'EUR',
-    # Middle East
-    'Druze': 'WAS', 'Bedouin': 'WAS', 'Palestinian': 'WAS', 'Mozabite': 'WAS',
-    # Central/South Asia
-    'Brahui': 'SAS', 'Balochi': 'SAS', 'Hazara': 'SAS', 'Makrani': 'SAS',
-    'Sindhi': 'SAS', 'Pathan': 'SAS', 'Kalash': 'SAS', 'Burusho': 'SAS',
-    'Uygur': 'SAS', 'PJL': 'SAS', 'BEB': 'SAS', 'STU': 'SAS',
-    'ITU': 'SAS', 'GIH': 'SAS',
-    # East Asia
-    'CHB': 'EAS', 'CHS': 'EAS', 'CDX': 'EAS', 'KHV': 'EAS', 'JPT': 'EAS',
-    'Cambodian': 'EAS', 'Japanese': 'EAS', 'Han': 'EAS', 'Yakut': 'EAS',
-    'Tujia': 'EAS', 'Yi': 'EAS', 'Miao': 'EAS', 'Oroqen': 'EAS',
-    'Daur': 'EAS', 'Mongolian': 'EAS', 'Hezhen': 'EAS', 'Xibo': 'EAS',
-    'NorthernHan': 'EAS', 'Dai': 'EAS', 'Lahu': 'EAS', 'She': 'EAS',
-    'Naxi': 'EAS', 'Tu': 'EAS',
-    # Americas
-    'PUR': 'AMR', 'CLM': 'AMR', 'PEL': 'AMR', 'MXL': 'AMR',
-    'Colombian': 'AMR', 'Surui': 'AMR', 'Maya': 'AMR',
-    'Karitiana': 'AMR', 'Pima': 'AMR',
-    # Oceania
-    'Bougainville': 'OCE', 'PapuanSepik': 'OCE', 'PapuanHighlands': 'OCE',
-}
-
-# ===== 2. Add covariates =====
-print("\n" + "=" * 60)
-print("Adding covariates...")
-print("=" * 60)
-
-def get_admix_eur(pop):
-    return ADMIXED_EUR_FRAC.get(pop, 0.0)
-
-def is_admixed(pop):
-    return 1 if pop in ADMIXED_POPS else 0
-
-def get_continent(pop):
-    return CONTINENT_MAP.get(pop, 'UNK')
-
-res = res.copy()
-
-# Admixture covariates
-res['admix_eur_1'] = res['pop1'].apply(get_admix_eur)
-res['admix_eur_2'] = res['pop2'].apply(get_admix_eur)
-res['max_admix_eur'] = res[['admix_eur_1', 'admix_eur_2']].max(axis=1)
-res['any_admixed'] = ((res['pop1'].apply(is_admixed)) |
-                       (res['pop2'].apply(is_admixed))).astype(int)
-
-# Continental covariates
-res['continent1'] = res['pop1'].apply(get_continent)
-res['continent2'] = res['pop2'].apply(get_continent)
-res['same_continent'] = (res['continent1'] == res['continent2']).astype(int)
-
-# Continental pair type (for interaction effects)
-res['continent_pair'] = res.apply(
-    lambda r: '-'.join(sorted([r['continent1'], r['continent2']])), axis=1)
-
-print(f"Admixed pairs: {res['any_admixed'].sum()}")
-print(f"Same-continent pairs: {res['same_continent'].sum()}")
-print(f"Continental pair types: {res['continent_pair'].nunique()}")
-
-# ===== 3. Multiple regression with covariates (Neanderthal) =====
-print("\n" + "=" * 60)
-print("Multiple regression: Neanderthal sharing ~ covariates")
-print("=" * 60)
-
-valid_n = res.dropna(subset=['nean_corr']).copy()
-
-# Model: nean_corr ~ geo_dist + max_admix_eur + same_continent
-X_n = valid_n[['geo_dist_km', 'max_admix_eur', 'same_continent']].copy()
-X_n['geo_dist_km'] = X_n['geo_dist_km'] / 1000  # scale to thousands km
-X_n = sm.add_constant(X_n)
-y_n = valid_n['nean_corr']
-
-model_n = sm.OLS(y_n, X_n).fit()
-print(model_n.summary())
-
-# Corrected residuals
-valid_n['nean_resid_corrected'] = model_n.resid
-
-# For comparison: uncorrected residuals (simple distance-only model)
-X_simple = sm.add_constant(valid_n['geo_dist_km'] / 1000)
-model_simple_n = sm.OLS(y_n, X_simple).fit()
-valid_n['nean_resid_uncorrected'] = model_simple_n.resid
-
-print(f"\nUncorrected model R²: {model_simple_n.rsquared:.4f}")
-print(f"Corrected model R²:   {model_n.rsquared:.4f}")
-print(f"Variance explained by confounders: {model_n.rsquared - model_simple_n.rsquared:.4f}")
-
-# ===== 4. Multiple regression with covariates (Denisovan) =====
-print("\n" + "=" * 60)
-print("Multiple regression: Denisovan sharing ~ covariates")
-print("=" * 60)
-
-valid_d = res.dropna(subset=['deni_corr']).copy()
-
-X_d = valid_d[['geo_dist_km', 'max_admix_eur', 'same_continent']].copy()
-X_d['geo_dist_km'] = X_d['geo_dist_km'] / 1000
-X_d = sm.add_constant(X_d)
-y_d = valid_d['deni_corr']
-
-model_d = sm.OLS(y_d, X_d).fit()
-print(model_d.summary())
-
-valid_d['deni_resid_corrected'] = model_d.resid
-
-X_simple_d = sm.add_constant(valid_d['geo_dist_km'] / 1000)
-model_simple_d = sm.OLS(y_d, X_simple_d).fit()
-valid_d['deni_resid_uncorrected'] = model_simple_d.resid
-
-print(f"\nUncorrected model R²: {model_simple_d.rsquared:.4f}")
-print(f"Corrected model R²:   {model_d.rsquared:.4f}")
-print(f"Variance explained by confounders: {model_d.rsquared - model_simple_d.rsquared:.4f}")
-
-# ===== 5. Permutation test for outlier significance =====
-print("\n" + "=" * 60)
-print("Permutation test (10,000 iterations)...")
-print("=" * 60)
-
-N_PERM = 10000
-
-def permutation_test_residuals(valid_df, corr_col, model_covariates_cols, n_perm=N_PERM):
-    """
-    Permutation test: shuffle the correlation values and refit the model.
-    Build null distribution from ALL residuals across ALL permutations,
-    then compute per-pair empirical p-values with FDR correction.
-    """
-    X = valid_df[model_covariates_cols].copy()
-    X.iloc[:, 0] = X.iloc[:, 0] / 1000 if X.iloc[:, 0].max() > 100 else X.iloc[:, 0]
-    X = sm.add_constant(X)
-    y = valid_df[corr_col].values
-
-    # Observed residuals
-    model = sm.OLS(y, X).fit()
-    obs_resid = model.resid.values
-
-    # Null distribution: collect ALL residuals from permuted data
-    null_resid_pool = np.zeros(n_perm)
-    for i in range(n_perm):
-        y_perm = np.random.permutation(y)
-        model_perm = sm.OLS(y_perm, X).fit()
-        # Sample one random residual per permutation for the null
-        null_resid_pool[i] = np.random.choice(model_perm.resid.values)
-
-    # Per-pair p-values: fraction of null residuals >= observed
-    p_values = np.array([
-        np.mean(null_resid_pool >= r) for r in obs_resid
-    ])
-
-    # FDR correction (Benjamini-Hochberg)
-    from statsmodels.stats.multitest import multipletests
-    reject, p_fdr, _, _ = multipletests(p_values, alpha=0.05, method='fdr_bh')
-
-    return obs_resid, p_values, p_fdr, null_resid_pool
-
-# Neanderthal permutation test
-nean_resid, nean_pval, nean_fdr, nean_null = permutation_test_residuals(
-    valid_n, 'nean_corr', ['geo_dist_km', 'max_admix_eur', 'same_continent'])
-valid_n['nean_perm_pval'] = nean_pval
-valid_n['nean_fdr_pval'] = nean_fdr
-print(f"Neanderthal: {np.sum(nean_pval < 0.05)} pairs nominal p<0.05")
-print(f"Neanderthal: {np.sum(nean_fdr < 0.05)} pairs FDR q<0.05")
-print(f"Neanderthal: {np.sum(nean_fdr < 0.10)} pairs FDR q<0.10")
-
-# Denisovan permutation test
-deni_resid, deni_pval, deni_fdr, deni_null = permutation_test_residuals(
-    valid_d, 'deni_corr', ['geo_dist_km', 'max_admix_eur', 'same_continent'])
-valid_d['deni_perm_pval'] = deni_pval
-valid_d['deni_fdr_pval'] = deni_fdr
-print(f"Denisovan:   {np.sum(deni_pval < 0.05)} pairs nominal p<0.05")
-print(f"Denisovan:   {np.sum(deni_fdr < 0.05)} pairs FDR q<0.05")
-print(f"Denisovan:   {np.sum(deni_fdr < 0.10)} pairs FDR q<0.10")
-
-# ===== 6. Bootstrap confidence intervals for key correlations =====
-print("\n" + "=" * 60)
-print("Bootstrap CIs for regression coefficients (5,000 iterations)...")
-print("=" * 60)
-
-N_BOOT = 5000
-
-def bootstrap_regression_ci(valid_df, corr_col, covariate_cols, n_boot=N_BOOT):
-    """Bootstrap CIs for regression coefficients."""
-    X = valid_df[covariate_cols].copy()
-    X.iloc[:, 0] = X.iloc[:, 0] / 1000 if X.iloc[:, 0].max() > 100 else X.iloc[:, 0]
-    X = sm.add_constant(X)
-    y = valid_df[corr_col].values
-    n = len(y)
-
-    boot_coefs = np.zeros((n_boot, X.shape[1]))
-    boot_r2 = np.zeros(n_boot)
-
-    for i in range(n_boot):
-        idx = np.random.choice(n, n, replace=True)
-        try:
-            model_b = sm.OLS(y[idx], X.iloc[idx]).fit()
-            boot_coefs[i] = model_b.params
-            boot_r2[i] = model_b.rsquared
-        except Exception:
-            boot_coefs[i] = np.nan
-            boot_r2[i] = np.nan
-
-    ci_lower = np.nanpercentile(boot_coefs, 2.5, axis=0)
-    ci_upper = np.nanpercentile(boot_coefs, 97.5, axis=0)
-
-    col_names = ['const'] + list(covariate_cols)
-    print(f"\n{'Coefficient':<20} {'Estimate':>10} {'95% CI Lower':>14} {'95% CI Upper':>14}")
-    original_model = sm.OLS(y, X).fit()
-    for j, name in enumerate(col_names):
-        print(f"{name:<20} {original_model.params.iloc[j]:>10.4f} {ci_lower[j]:>14.4f} {ci_upper[j]:>14.4f}")
-
-    print(f"{'R²':<20} {original_model.rsquared:>10.4f} "
-          f"{np.nanpercentile(boot_r2, 2.5):>14.4f} {np.nanpercentile(boot_r2, 97.5):>14.4f}")
-
-    return boot_coefs, boot_r2
-
-cov_cols = ['geo_dist_km', 'max_admix_eur', 'same_continent']
-
-print("\n--- Neanderthal ---")
-nean_boot_coefs, nean_boot_r2 = bootstrap_regression_ci(valid_n, 'nean_corr', cov_cols)
-
-print("\n--- Denisovan ---")
-deni_boot_coefs, deni_boot_r2 = bootstrap_regression_ci(valid_d, 'deni_corr', cov_cols)
-
-# ===== 7. Partial correlation (Neanderthal sharing ~ distance | confounders) =====
-print("\n" + "=" * 60)
-print("Partial correlations...")
-print("=" * 60)
-
-def partial_correlation(x, y, covariates):
-    """Compute partial correlation of x and y controlling for covariates."""
-    # Regress x on covariates
-    X_cov = sm.add_constant(covariates)
-    resid_x = sm.OLS(x, X_cov).fit().resid
-    resid_y = sm.OLS(y, X_cov).fit().resid
-    r, p = stats.pearsonr(resid_x, resid_y)
-    return r, p
-
-# Neanderthal: sharing ~ distance | admixture + continent
-covariates_n = valid_n[['max_admix_eur', 'same_continent']].values
-r_nean_partial, p_nean_partial = partial_correlation(
-    valid_n['geo_dist_km'].values / 1000,
-    valid_n['nean_corr'].values,
-    covariates_n
-)
-r_nean_raw, p_nean_raw = stats.pearsonr(
-    valid_n['geo_dist_km'].values / 1000, valid_n['nean_corr'].values)
-
-print("Neanderthal sharing ~ distance:")
-print(f"  Raw correlation:     r = {r_nean_raw:.4f}, p = {p_nean_raw:.2e}")
-print(f"  Partial correlation: r = {r_nean_partial:.4f}, p = {p_nean_partial:.2e}")
-
-# Denisovan
-covariates_d = valid_d[['max_admix_eur', 'same_continent']].values
-r_deni_partial, p_deni_partial = partial_correlation(
-    valid_d['geo_dist_km'].values / 1000,
-    valid_d['deni_corr'].values,
-    covariates_d
-)
-r_deni_raw, p_deni_raw = stats.pearsonr(
-    valid_d['geo_dist_km'].values / 1000, valid_d['deni_corr'].values)
-
-print("\nDenisovan sharing ~ distance:")
-print(f"  Raw correlation:     r = {r_deni_raw:.4f}, p = {p_deni_raw:.2e}")
-print(f"  Partial correlation: r = {r_deni_partial:.4f}, p = {p_deni_partial:.2e}")
-
-# ===== 8. Identify significant outliers after correction =====
-print("\n" + "=" * 60)
-print("Significant outlier pairs after confounding correction")
-print("=" * 60)
-
-# Neanderthal outliers: top corrected residuals with significance
-print("\nTop 20 Neanderthal pairs by corrected residual (non-admixed):")
-nean_clean = valid_n[valid_n['any_admixed'] == 0].copy()
-nean_top = nean_clean.nlargest(20, 'nean_resid_corrected')
-print(f"{'Pop1':<20} {'Pop2':<20} {'Region1':<15} {'Region2':<15} "
-      f"{'Dist(km)':<10} {'Corr':<8} {'Resid':<8} {'p_nom':<8} {'q_FDR':<8}")
-for _, row in nean_top.iterrows():
-    print(f"{row['pop1']:<20} {row['pop2']:<20} {row['region1']:<15} {row['region2']:<15} "
-          f"{row['geo_dist_km']:<10.0f} {row['nean_corr']:<8.3f} "
-          f"{row['nean_resid_corrected']:<8.3f} {row['nean_perm_pval']:<8.4f} {row['nean_fdr_pval']:<8.4f}")
-
-# Neanderthal outliers: FDR significant
-nean_outliers = nean_clean[nean_clean['nean_fdr_pval'] < 0.10].sort_values(
-    'nean_resid_corrected', ascending=False)
-print(f"\nNeanderthal FDR q<0.10 outliers (non-admixed): {len(nean_outliers)}")
-
-# Also show admixed pairs
-print("\nTop 10 Neanderthal pairs by corrected residual (admixed):")
-nean_admix_top = valid_n[valid_n['any_admixed'] == 1].nlargest(10, 'nean_resid_corrected')
-for _, row in nean_admix_top.iterrows():
-    print(f"{row['pop1']:<20} {row['pop2']:<20} {row['region1']:<15} {row['region2']:<15} "
-          f"{row['geo_dist_km']:<10.0f} {row['nean_corr']:<8.3f} "
-          f"{row['nean_resid_corrected']:<8.3f} {row['nean_perm_pval']:<8.4f} {row['nean_fdr_pval']:<8.4f}")
-
-# Denisovan outliers
-print("\nTop 20 Denisovan pairs by corrected residual (non-admixed):")
-deni_clean = valid_d[valid_d['any_admixed'] == 0].copy()
-deni_top = deni_clean.nlargest(20, 'deni_resid_corrected')
-print(f"{'Pop1':<20} {'Pop2':<20} {'Region1':<15} {'Region2':<15} "
-      f"{'Dist(km)':<10} {'Corr':<8} {'Resid':<8} {'p_nom':<8} {'q_FDR':<8}")
-for _, row in deni_top.iterrows():
-    print(f"{row['pop1']:<20} {row['pop2']:<20} {row['region1']:<15} {row['region2']:<15} "
-          f"{row['geo_dist_km']:<10.0f} {row['deni_corr']:<8.3f} "
-          f"{row['deni_resid_corrected']:<8.3f} {row['deni_perm_pval']:<8.4f} {row['deni_fdr_pval']:<8.4f}")
-
-deni_outliers = deni_clean[deni_clean['deni_fdr_pval'] < 0.10].sort_values(
-    'deni_resid_corrected', ascending=False)
-print(f"\nDenisovan FDR q<0.10 outliers (non-admixed): {len(deni_outliers)}")
-
-# ===== 9. Mantel test =====
-print("\n" + "=" * 60)
-print("Mantel test: geographic distance matrix ~ sharing matrix")
-print("=" * 60)
-
-def mantel_test(df, pop1_col, pop2_col, dist_col, corr_col, n_perm=9999):
-    """Mantel test: permute population labels (rows/columns of matrix)."""
-    # Build population list
-    pops = sorted(set(df[pop1_col].tolist() + df[pop2_col].tolist()))
-    pop_idx = {p: i for i, p in enumerate(pops)}
-    n_pops = len(pops)
-
-    # Build symmetric matrices
-    dist_mat = np.zeros((n_pops, n_pops))
-    corr_mat = np.zeros((n_pops, n_pops))
-    for _, row in df.iterrows():
-        i, j = pop_idx[row[pop1_col]], pop_idx[row[pop2_col]]
-        dist_mat[i, j] = dist_mat[j, i] = row[dist_col]
-        corr_mat[i, j] = corr_mat[j, i] = row[corr_col]
-
-    # Extract upper triangle as vectors
-    tri_idx = np.triu_indices(n_pops, k=1)
-    dist_vec = dist_mat[tri_idx]
-    corr_vec = corr_mat[tri_idx]
-
-    obs_r, _ = stats.pearsonr(dist_vec, corr_vec)
-
-    # Permutation: shuffle population labels (rows/columns together)
-    count = 0
-    for _ in range(n_perm):
-        perm = np.random.permutation(n_pops)
-        perm_corr = corr_mat[np.ix_(perm, perm)]
-        perm_vec = perm_corr[tri_idx]
-        perm_r, _ = stats.pearsonr(dist_vec, perm_vec)
-        if abs(perm_r) >= abs(obs_r):
-            count += 1
-    p_val = (count + 1) / (n_perm + 1)
-    return obs_r, p_val
-
-# Use non-admixed pairs only
-nean_for_mantel = valid_n[valid_n['any_admixed'] == 0]
-r_mantel_n, p_mantel_n = mantel_test(
-    nean_for_mantel, 'pop1', 'pop2', 'geo_dist_km', 'nean_corr',
-    n_perm=9999
-)
-print(f"Neanderthal (non-admixed): Mantel r = {r_mantel_n:.4f}, p = {p_mantel_n:.4f}")
-
-deni_for_mantel = valid_d[valid_d['any_admixed'] == 0]
-r_mantel_d, p_mantel_d = mantel_test(
-    deni_for_mantel, 'pop1', 'pop2', 'geo_dist_km', 'deni_corr',
-    n_perm=9999
-)
-print(f"Denisovan (non-admixed):   Mantel r = {r_mantel_d:.4f}, p = {p_mantel_d:.4f}")
-
-# ===== 10. Save corrected results =====
-print("\n" + "=" * 60)
-print("Saving corrected results...")
-print("=" * 60)
-
-# Merge corrected data back
-out_n = valid_n[['pop1', 'pop2', 'region1', 'region2', 'nean_corr', 'geo_dist_km',
-                 'max_admix_eur', 'any_admixed', 'same_continent', 'continent_pair',
-                 'nean_resid_uncorrected', 'nean_resid_corrected',
-                 'nean_perm_pval', 'nean_fdr_pval']].copy()
-out_d = valid_d[['pop1', 'pop2', 'deni_corr',
-                 'deni_resid_uncorrected', 'deni_resid_corrected',
-                 'deni_perm_pval', 'deni_fdr_pval']].copy()
-
-out_d_cols = out_d.copy()
-out = out_n.merge(out_d_cols, on=['pop1', 'pop2'], how='left')
-out.to_csv('data/pairwise_sharing_corrected.csv', index=False)
-print(f"Saved corrected results: data/pairwise_sharing_corrected.csv ({len(out)} rows)")
-
-# Save outlier summary
-all_outliers = []
-for _, row in nean_outliers.iterrows():
-    all_outliers.append({
-        'type': 'Neanderthal', 'pop1': row['pop1'], 'pop2': row['pop2'],
-        'region1': row['region1'], 'region2': row['region2'],
-        'geo_dist_km': row['geo_dist_km'], 'correlation': row['nean_corr'],
-        'corrected_residual': row['nean_resid_corrected'],
-        'perm_pvalue': row['nean_perm_pval'], 'admixed': row['any_admixed']
-    })
-for _, row in deni_outliers.iterrows():
-    all_outliers.append({
-        'type': 'Denisovan', 'pop1': row['pop1'], 'pop2': row['pop2'],
-        'region1': row['region1'], 'region2': row['region2'],
-        'geo_dist_km': row['geo_dist_km'], 'correlation': row['deni_corr'],
-        'corrected_residual': row['deni_resid_corrected'],
-        'perm_pvalue': row['deni_perm_pval'], 'admixed': row['any_admixed']
-    })
-outlier_df = pd.DataFrame(all_outliers)
-outlier_df.to_csv('data/outlier_summary.csv', index=False)
-print(f"Saved outlier summary: data/outlier_summary.csv ({len(outlier_df)} rows)")
-
-def deterministic_model_summary(model):
-    """Return a statsmodels summary without run-specific date and time fields."""
-    lines = model.summary().as_text().splitlines()
-    stable_lines = []
-    for line in lines:
-        if "Date:" in line and "Prob (F-statistic):" in line:
-            suffix = line[line.index("Prob (F-statistic):") :]
-            line = " " * (len(line) - len(suffix)) + suffix
-        elif "Time:" in line and "Log-Likelihood:" in line:
-            suffix = line[line.index("Log-Likelihood:") :]
-            line = " " * (len(line) - len(suffix)) + suffix
-        stable_lines.append(line)
-    return "\n".join(stable_lines)
-
-
-# Save stats summary
-with open('data/correction_stats.txt', 'w') as f:
-    f.write("CONFOUNDING CORRECTION STATISTICS\n")
-    f.write("=" * 60 + "\n\n")
-
-    f.write("1. Model comparison (Neanderthal)\n")
-    f.write(f"   Uncorrected R²: {model_simple_n.rsquared:.4f}\n")
-    f.write(f"   Corrected R²:   {model_n.rsquared:.4f}\n")
-    f.write(f"   Improvement:    {model_n.rsquared - model_simple_n.rsquared:.4f}\n\n")
-
-    f.write("2. Model comparison (Denisovan)\n")
-    f.write(f"   Uncorrected R²: {model_simple_d.rsquared:.4f}\n")
-    f.write(f"   Corrected R²:   {model_d.rsquared:.4f}\n")
-    f.write(f"   Improvement:    {model_d.rsquared - model_simple_d.rsquared:.4f}\n\n")
-
-    f.write("3. Partial correlations (sharing ~ distance | confounders)\n")
-    f.write(f"   Neanderthal: raw r={r_nean_raw:.4f}, partial r={r_nean_partial:.4f}\n")
-    f.write(f"   Denisovan:   raw r={r_deni_raw:.4f}, partial r={r_deni_partial:.4f}\n\n")
-
-    f.write("4. Mantel test (non-admixed pairs only)\n")
-    f.write(f"   Neanderthal: r={r_mantel_n:.4f}, p={p_mantel_n:.4f}\n")
-    f.write(f"   Denisovan:   r={r_mantel_d:.4f}, p={p_mantel_d:.4f}\n\n")
-
-    f.write("5. Significant outlier counts (FDR q<0.10, non-admixed)\n")
-    f.write(f"   Neanderthal: {len(nean_outliers)} pairs\n")
-    f.write(f"   Denisovan:   {len(deni_outliers)} pairs\n")
-    f.write(f"   Neanderthal nominal p<0.05: {np.sum(nean_clean['nean_perm_pval'] < 0.05)} pairs\n")
-    f.write(f"   Denisovan nominal p<0.05:   {np.sum(deni_clean['deni_perm_pval'] < 0.05)} pairs\n\n")
-
-    f.write("6. Regression coefficients (Neanderthal)\n")
-    f.write(deterministic_model_summary(model_n) + "\n\n")
-
-    f.write("7. Regression coefficients (Denisovan)\n")
-    f.write(deterministic_model_summary(model_d) + "\n")
-
-print("\nAll corrections complete!")
+from statsmodels.stats.multitest import multipletests
+
+from archaic_sharing_common import ADMIXED_EUR_FRAC, build_symmetric_matrix
+
+
+FULL_PREDICTORS = [
+    "geo_dist_1000km",
+    "any_admixed",
+    "same_continent",
+    "same_dataset",
+]
+NONADMIXED_PREDICTORS = [
+    "geo_dist_1000km",
+    "same_continent",
+    "same_dataset",
+]
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--pairwise-input", type=Path, default=Path("data/pairwise_sharing.csv")
+    )
+    parser.add_argument("--output-dir", type=Path, default=Path("data"))
+    parser.add_argument("--permutations", type=int, default=9_999)
+    parser.add_argument("--sensitivity-permutations", type=int, default=999)
+    parser.add_argument("--seed", type=int, default=42)
+    return parser.parse_args()
+
+
+def fit_linear_model(
+    response: np.ndarray, predictors: np.ndarray
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, float]:
+    design = np.column_stack([np.ones(len(response)), predictors])
+    coefficients = np.linalg.lstsq(design, response, rcond=None)[0]
+    predicted = design @ coefficients
+    residuals = response - predicted
+    total_sum_squares = float(np.sum((response - response.mean()) ** 2))
+    residual_sum_squares = float(np.sum(residuals**2))
+    r_squared = (
+        1 - residual_sum_squares / total_sum_squares
+        if total_sum_squares
+        else np.nan
+    )
+    return coefficients, predicted, residuals, r_squared
+
+
+def matrix_vectors(
+    pairs: pd.DataFrame,
+    populations: list[str],
+    response_column: str,
+    predictor_columns: list[str],
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    triangle = np.triu_indices(len(populations), k=1)
+    response_matrix = build_symmetric_matrix(pairs, populations, response_column)
+    response = response_matrix[triangle]
+    predictors = np.column_stack(
+        [
+            build_symmetric_matrix(pairs, populations, column)[triangle]
+            for column in predictor_columns
+        ]
+    )
+    if np.isnan(response).any() or np.isnan(predictors).any():
+        raise ValueError(
+            f"{response_column} analysis requires a complete population-pair matrix"
+        )
+    return response_matrix, response, predictors, triangle
+
+
+def qap_regression(
+    pairs: pd.DataFrame,
+    populations: list[str],
+    response_column: str,
+    predictor_columns: list[str],
+    permutations: int,
+    rng: np.random.Generator,
+) -> dict[str, object]:
+    response_matrix, response, predictors, triangle = matrix_vectors(
+        pairs, populations, response_column, predictor_columns
+    )
+    coefficients, predicted, residuals, r_squared = fit_linear_model(
+        response, predictors
+    )
+    exceedances = np.zeros(len(coefficients), dtype=np.int64)
+    for _ in range(permutations):
+        permutation = rng.permutation(len(populations))
+        permuted_response = response_matrix[np.ix_(permutation, permutation)][triangle]
+        permuted_coefficients = fit_linear_model(permuted_response, predictors)[0]
+        exceedances += np.abs(permuted_coefficients) >= np.abs(coefficients)
+    p_values = (exceedances + 1) / (permutations + 1)
+    return {
+        "coefficients": coefficients,
+        "p_values": p_values,
+        "predicted": predicted,
+        "residuals": residuals,
+        "r_squared": r_squared,
+        "response": response,
+        "predictors": predictors,
+        "triangle": triangle,
+    }
+
+
+def partial_correlation(
+    response: np.ndarray, predictors: np.ndarray, distance_index: int = 0
+) -> float:
+    distance = predictors[:, distance_index]
+    covariates = np.delete(predictors, distance_index, axis=1)
+    if covariates.shape[1]:
+        response_residuals = fit_linear_model(response, covariates)[2]
+        distance_residuals = fit_linear_model(distance, covariates)[2]
+    else:
+        response_residuals = response
+        distance_residuals = distance
+    return float(stats.pearsonr(distance_residuals, response_residuals).statistic)
+
+
+def leave_one_population_out(
+    pairs: pd.DataFrame,
+    populations: list[str],
+    response_column: str,
+    predictor_columns: list[str],
+) -> np.ndarray:
+    estimates = []
+    for omitted in populations:
+        retained = [population for population in populations if population != omitted]
+        _, response, predictors, _ = matrix_vectors(
+            pairs[
+                (pairs["pop1"] != omitted) & (pairs["pop2"] != omitted)
+            ],
+            retained,
+            response_column,
+            predictor_columns,
+        )
+        estimates.append(fit_linear_model(response, predictors)[0])
+    return np.asarray(estimates)
+
+
+def pair_order(populations: list[str]) -> pd.DataFrame:
+    return pd.DataFrame(
+        combinations(populations, 2), columns=["pop1", "pop2"]
+    )
+
+
+def outlier_qap(
+    pairs: pd.DataFrame,
+    response_column: str,
+    prefix: str,
+    permutations: int,
+    rng: np.random.Generator,
+) -> pd.DataFrame:
+    nonadmixed_populations = sorted(
+        (set(pairs["pop1"]) | set(pairs["pop2"])) - set(ADMIXED_EUR_FRAC)
+    )
+    nonadmixed_pairs = pairs[
+        pairs["pop1"].isin(nonadmixed_populations)
+        & pairs["pop2"].isin(nonadmixed_populations)
+    ].copy()
+    response_matrix, response, predictors, triangle = matrix_vectors(
+        nonadmixed_pairs,
+        nonadmixed_populations,
+        response_column,
+        NONADMIXED_PREDICTORS,
+    )
+    coefficients, predicted, residuals, _ = fit_linear_model(response, predictors)
+    residual_standard_deviation = residuals.std(ddof=len(coefficients))
+    z_scores = residuals / residual_standard_deviation
+    exceedances = np.zeros(len(residuals), dtype=np.int64)
+    for _ in range(permutations):
+        permutation = rng.permutation(len(nonadmixed_populations))
+        permuted_response = response_matrix[np.ix_(permutation, permutation)][triangle]
+        permuted_residuals = fit_linear_model(permuted_response, predictors)[2]
+        exceedances += permuted_residuals >= residuals
+    p_values = (exceedances + 1) / (permutations + 1)
+    q_values = multipletests(p_values, method="fdr_bh")[1]
+    ordered = pair_order(nonadmixed_populations)
+    ordered[f"{prefix}_predicted"] = predicted
+    ordered[f"{prefix}_resid_corrected"] = residuals
+    ordered[f"{prefix}_resid_z"] = z_scores
+    ordered[f"{prefix}_perm_pval"] = p_values
+    ordered[f"{prefix}_fdr_pval"] = q_values
+    return ordered
+
+
+def qap_summary_rows(
+    pairs: pd.DataFrame,
+    response_column: str,
+    ancestry: str,
+    permutations: int,
+    rng: np.random.Generator,
+) -> tuple[list[dict[str, object]], dict[str, object]]:
+    populations = sorted(set(pairs["pop1"]) | set(pairs["pop2"]))
+    full = qap_regression(
+        pairs,
+        populations,
+        response_column,
+        FULL_PREDICTORS,
+        permutations,
+        rng,
+    )
+    simple = qap_regression(
+        pairs,
+        populations,
+        response_column,
+        ["geo_dist_1000km"],
+        permutations,
+        rng,
+    )
+    jackknife = leave_one_population_out(
+        pairs, populations, response_column, FULL_PREDICTORS
+    )
+    names = ["intercept", *FULL_PREDICTORS]
+    rows = []
+    for index, name in enumerate(names):
+        rows.append(
+            {
+                "ancestry": ancestry,
+                "model": "expanded QAP",
+                "term": name,
+                "estimate": full["coefficients"][index],
+                "qap_p_two_sided": full["p_values"][index],
+                "leave_one_population_out_2.5pct": np.percentile(
+                    jackknife[:, index], 2.5
+                ),
+                "leave_one_population_out_97.5pct": np.percentile(
+                    jackknife[:, index], 97.5
+                ),
+                "r_squared": full["r_squared"],
+                "permutations": permutations,
+            }
+        )
+    rows.append(
+        {
+            "ancestry": ancestry,
+            "model": "distance-only QAP",
+            "term": "geo_dist_1000km",
+            "estimate": simple["coefficients"][1],
+            "qap_p_two_sided": simple["p_values"][1],
+            "leave_one_population_out_2.5pct": np.nan,
+            "leave_one_population_out_97.5pct": np.nan,
+            "r_squared": simple["r_squared"],
+            "permutations": permutations,
+        }
+    )
+    statistics = {
+        "raw_r": float(
+            stats.pearsonr(
+                pairs["geo_dist_1000km"], pairs[response_column]
+            ).statistic
+        ),
+        "partial_r": partial_correlation(
+            full["response"], full["predictors"]
+        ),
+        "distance_only_r_squared": simple["r_squared"],
+        "expanded_r_squared": full["r_squared"],
+        "distance_qap_beta": full["coefficients"][1],
+        "distance_qap_p": full["p_values"][1],
+    }
+    return rows, statistics
+
+
+def is_complete_population_subset(frame: pd.DataFrame) -> bool:
+    populations = set(frame["pop1"]) | set(frame["pop2"])
+    return len(frame) == len(populations) * (len(populations) - 1) // 2
+
+
+def sensitivity_subsets(pairs: pd.DataFrame) -> dict[str, pd.DataFrame]:
+    subsets = {
+        "all": pairs,
+        "nonadmixed": pairs[pairs["any_admixed"] == 0],
+        "zero_distance_excluded": pairs[pairs["geo_dist_km"] > 0],
+        "1000_genomes_only": pairs[
+            (pairs["dataset1"] == "1000 Genomes")
+            & (pairs["dataset2"] == "1000 Genomes")
+        ],
+        "hgdp_only": pairs[
+            (pairs["dataset1"] == "HGDP") & (pairs["dataset2"] == "HGDP")
+        ],
+    }
+    for minimum in [10, 15, 20]:
+        subsets[f"minimum_n_{minimum}"] = pairs[
+            (pairs["n1"] >= minimum) & (pairs["n2"] >= minimum)
+        ]
+    continents = sorted(set(pairs["continent1"]) | set(pairs["continent2"]))
+    for continent in continents:
+        subsets[f"leave_out_{continent}"] = pairs[
+            (pairs["continent1"] != continent)
+            & (pairs["continent2"] != continent)
+        ]
+    return subsets
+
+
+def sensitivity_analysis(
+    pairs: pd.DataFrame,
+    permutations: int,
+    rng: np.random.Generator,
+) -> pd.DataFrame:
+    response_columns = {
+        "nean_corr": ("Neanderthal", "Pearson"),
+        "deni_corr": ("Denisovan", "Pearson"),
+        "nean_spearman": ("Neanderthal", "Spearman"),
+        "deni_spearman": ("Denisovan", "Spearman"),
+        "nean_cosine": ("Neanderthal", "Cosine"),
+        "deni_cosine": ("Denisovan", "Cosine"),
+        "nean_full_corr": ("Neanderthal", "Full-window Pearson"),
+        "deni_full_corr": ("Denisovan", "Full-window Pearson"),
+        "nean_jaccard": ("Neanderthal", "Presence Jaccard"),
+        "deni_jaccard": ("Denisovan", "Presence Jaccard"),
+    }
+    records = []
+    for subset_name, subset in sensitivity_subsets(pairs).items():
+        for response_column, (ancestry, metric) in response_columns.items():
+            valid = subset.dropna(subset=[response_column])
+            raw_r = float(
+                stats.pearsonr(valid["geo_dist_1000km"], valid[response_column]).statistic
+            )
+            record = {
+                "subset": subset_name,
+                "ancestry": ancestry,
+                "metric": metric,
+                "populations": len(set(valid["pop1"]) | set(valid["pop2"])),
+                "pairs": len(valid),
+                "raw_distance_r": raw_r,
+                "distance_qap_beta": np.nan,
+                "distance_qap_p_two_sided": np.nan,
+                "qap_permutations": 0,
+            }
+            if is_complete_population_subset(valid):
+                populations = sorted(set(valid["pop1"]) | set(valid["pop2"]))
+                result = qap_regression(
+                    valid,
+                    populations,
+                    response_column,
+                    ["geo_dist_1000km"],
+                    permutations,
+                    rng,
+                )
+                record["distance_qap_beta"] = result["coefficients"][1]
+                record["distance_qap_p_two_sided"] = result["p_values"][1]
+                record["qap_permutations"] = permutations
+            records.append(record)
+    return pd.DataFrame(records)
+
+
+def main() -> None:
+    args = parse_args()
+    args.output_dir.mkdir(parents=True, exist_ok=True)
+    pairs = pd.read_csv(args.pairwise_input)
+    pairs["geo_dist_1000km"] = pairs["geo_dist_km"] / 1000
+    required = set(FULL_PREDICTORS) | {
+        "nean_corr",
+        "deni_corr",
+        "nean_spearman",
+        "deni_spearman",
+        "nean_cosine",
+        "deni_cosine",
+        "nean_full_corr",
+        "deni_full_corr",
+        "nean_jaccard",
+        "deni_jaccard",
+    }
+    missing = required - set(pairs.columns)
+    if missing:
+        raise ValueError(f"Missing required pairwise columns: {sorted(missing)}")
+    rng = np.random.default_rng(args.seed)
+    summary_rows = []
+    statistics = {}
+    for response_column, ancestry, prefix in [
+        ("nean_corr", "Neanderthal", "nean"),
+        ("deni_corr", "Denisovan", "deni"),
+    ]:
+        rows, ancestry_statistics = qap_summary_rows(
+            pairs,
+            response_column,
+            ancestry,
+            args.permutations,
+            rng,
+        )
+        summary_rows.extend(rows)
+        statistics[prefix] = ancestry_statistics
+    neanderthal_outliers = outlier_qap(
+        pairs, "nean_corr", "nean", args.permutations, rng
+    )
+    denisovan_outliers = outlier_qap(
+        pairs, "deni_corr", "deni", args.permutations, rng
+    )
+    outlier_results = neanderthal_outliers.merge(
+        denisovan_outliers, on=["pop1", "pop2"], how="outer"
+    )
+    corrected = pairs.merge(outlier_results, on=["pop1", "pop2"], how="left")
+    corrected.to_csv(
+        args.output_dir / "pairwise_sharing_corrected.csv", index=False
+    )
+    model_summary = pd.DataFrame(summary_rows)
+    model_summary.to_csv(args.output_dir / "model_summary.csv", index=False)
+    sensitivity = sensitivity_analysis(
+        pairs, args.sensitivity_permutations, rng
+    )
+    sensitivity.to_csv(
+        args.output_dir / "sensitivity_analysis.csv", index=False
+    )
+    significant = corrected[
+        ((corrected["nean_resid_z"] > 2) & (corrected["nean_fdr_pval"] < 0.10))
+        | ((corrected["deni_resid_z"] > 2) & (corrected["deni_fdr_pval"] < 0.10))
+    ].copy()
+    significant.to_csv(args.output_dir / "outlier_summary.csv", index=False)
+    statistics["nonadmixed_pairs_tested"] = len(neanderthal_outliers)
+    statistics["nean"]["fdr_q_lt_0.10_positive_z_gt_2"] = int(
+        (
+            (corrected["nean_resid_z"] > 2)
+            & (corrected["nean_fdr_pval"] < 0.10)
+        ).sum()
+    )
+    statistics["deni"]["fdr_q_lt_0.10_positive_z_gt_2"] = int(
+        (
+            (corrected["deni_resid_z"] > 2)
+            & (corrected["deni_fdr_pval"] < 0.10)
+        ).sum()
+    )
+    statistics["permutations"] = args.permutations
+    statistics["sensitivity_permutations"] = args.sensitivity_permutations
+    (args.output_dir / "correction_stats.json").write_text(
+        json.dumps(statistics, indent=2) + "\n", encoding="utf-8"
+    )
+    lines = [
+        "Dependence-aware QAP analysis",
+        f"Population-label permutations: {args.permutations}",
+        f"Sensitivity permutations: {args.sensitivity_permutations}",
+        "",
+    ]
+    for prefix, ancestry in [("nean", "Neanderthal"), ("deni", "Denisovan")]:
+        values = statistics[prefix]
+        lines.extend(
+            [
+                ancestry,
+                f"Raw distance r: {values['raw_r']:.4f}",
+                f"Partial distance r: {values['partial_r']:.4f}",
+                f"Distance-only R2: {values['distance_only_r_squared']:.4f}",
+                f"Expanded descriptive R2: {values['expanded_r_squared']:.4f}",
+                f"Distance QAP beta per 1000 km: {values['distance_qap_beta']:.6f}",
+                f"Distance QAP p: {values['distance_qap_p']:.4f}",
+                "FDR q<0.10 positive z>2 outliers: "
+                f"{values['fdr_q_lt_0.10_positive_z_gt_2']}",
+                "",
+            ]
+        )
+    (args.output_dir / "correction_stats.txt").write_text(
+        "\n".join(lines), encoding="utf-8"
+    )
+    print("\n".join(lines))
+
+
+if __name__ == "__main__":
+    main()
