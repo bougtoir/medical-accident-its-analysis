@@ -30,9 +30,12 @@ CORRESPONDENCE = (
     "Email: bougtoir@gmail.com"
 )
 ABSTRACT = (
-    "Objectives: We tested whether population-level genomic profiles of inferred "
-    "Neanderthal- and Denisovan-like segments become less similar with geographic "
-    "distance. Materials and Methods: High-confidence hmmix calls from 3,134 "
+    "Objectives: Archaic-like segments around the ABO blood-group locus have been "
+    "proposed as clues to blood-group history and human dispersal, but their "
+    "interpretation lacks a genome-wide geographic baseline. We tested whether "
+    "population-level genomic profiles of inferred Neanderthal- and Denisovan-like "
+    "segments become less similar with geographic distance. Materials and Methods: "
+    "High-confidence hmmix calls from 3,134 "
     "individuals in 66 populations were summarized in 500-kb windows. Each "
     "individual-haplotype-window contributed at most one presence, constraining "
     "population frequencies to 0-1. Pearson similarity was calculated for 2,145 "

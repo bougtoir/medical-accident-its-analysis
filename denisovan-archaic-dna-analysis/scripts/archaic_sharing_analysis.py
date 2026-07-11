@@ -387,11 +387,11 @@ def main() -> None:
         "analysis_release": ANALYSIS_RELEASE,
         "analysis_code_commit": code_commit(Path(__file__).resolve().parents[1]),
         "segments_1kg": {
-            "path": str(args.segments_1kg.resolve()),
+            "file_name": args.segments_1kg.name,
             "sha256": sha256(args.segments_1kg),
         },
         "segments_hgdp": {
-            "path": str(args.segments_hgdp.resolve()),
+            "file_name": args.segments_hgdp.name,
             "sha256": sha256(args.segments_hgdp),
         },
         "minimum_probability": args.min_probability,
