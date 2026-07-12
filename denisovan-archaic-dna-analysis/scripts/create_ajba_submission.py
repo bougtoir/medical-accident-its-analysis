@@ -720,7 +720,7 @@ def table_2_rows() -> list[list[str]]:
 
 TABLES = {
     1: (
-        "FDR-supported positive-residual Neanderthal population pairs",
+        "Positive-residual Neanderthal pairs after false discovery rate control",
         table_1_rows,
         "The prespecified family contains all non-admixed population pairs. No pair met both z>2 and Benjamini-Hochberg q<0.10; the Denisovan analysis likewise identified no qualifying pair. Complete nominal rankings and dependence-aware model results are provided in Supplementary Data.",
     ),
@@ -933,11 +933,13 @@ def create_supporting_information(path: Path) -> None:
     )
     document.add_paragraph(
         "Supplementary Data 2: pairwise_sharing_corrected.csv. Complete pairwise "
-        "similarity, geographic, covariate, residual, permutation, and FDR results."
+        "similarity, geographic, covariate, residual, permutation, and false discovery "
+        "rate results."
     )
     document.add_paragraph(
-        "Supplementary Data 3: model_summary.csv. QAP coefficients, permutation P "
-        "values, descriptive R-squared values, and population-deletion intervals."
+        "Supplementary Data 3: model_summary.csv. Quadratic assignment procedure "
+        "coefficients, permutation P values, descriptive R-squared values, and "
+        "population-deletion intervals."
     )
     document.add_paragraph(
         "Supplementary Data 4: sensitivity_analysis.csv and "
@@ -992,7 +994,9 @@ def create_cover_letter(path: Path) -> None:
         ),
         (
             "All analysis code and derived outputs are provided through the project "
-            "repository, and the source hmmix data are publicly archived in Zenodo. "
+            "repository. The source archaic-introgression data, generated with hmmix "
+            "(a hidden Markov model-based detection method), are publicly archived in "
+            "Zenodo. "
             "The submission includes separate figure files, editable tables, and "
             "figure legends in the manuscript."
         ),
@@ -1295,8 +1299,8 @@ def create_reproducibility_checklist(path: Path) -> None:
 
 ## Public source data
 
-- hmmix 1000 Genomes and HGDP segment files: Zenodo record 14136628
-- O2-defining `rs41302905 T` frequencies: Ensembl REST Variation endpoint
+- hmmix archaic-introgression segment files from the 1000 Genomes Project and Human Genome Diversity Project (HGDP): Zenodo record 14136628
+- O2 blood-group subtype-defining `rs41302905 T` frequencies: Ensembl Variation application programming interface endpoint
 - Solomon Islands ABO*O02 frequencies: Ohashi et al. 2006, doi:10.1007/s10038-006-0375-8
 - Ancient ABO-window summary: secondary extraction from public Iasi et al. 2024 outputs
 
@@ -1322,8 +1326,8 @@ python scripts/run_ajba_pipeline.py \
 - Denisovan raw distance r: {revised_content.DENISOVAN['raw_r']:.4f}
 - Neanderthal expanded descriptive R²: {revised_content.NEANDERTHAL['expanded_r_squared']:.4f}
 - Denisovan expanded descriptive R²: {revised_content.DENISOVAN['expanded_r_squared']:.4f}
-- QAP distance P: {revised_content.NEANDERTHAL['distance_qap_p']:.4f} and {revised_content.DENISOVAN['distance_qap_p']:.4f}
-- FDR q<0.10 non-admixed outliers: 0 and 0
+- Quadratic assignment procedure distance P: {revised_content.NEANDERTHAL['distance_qap_p']:.4f} and {revised_content.DENISOVAN['distance_qap_p']:.4f}
+- False discovery rate q<0.10 non-admixed outliers: 0 and 0
 - Neanderthal/Both segments in the 500-kb ABO interval: 834
 - Strict ABO-overlapping Neanderthal/Both segments: 129
 - Indigenous American window carriers: Pima 1/13, Maya 1/21, Colombian 0/7
@@ -1340,7 +1344,7 @@ python scripts/run_ajba_pipeline.py \
 - Expanded-model R² is descriptive and not a causal variance decomposition.
 - Reference-genome similarity does not prove a specific migration route.
 - Admixed American residuals are not treated as ancient-migration evidence.
-- No positive-residual non-admixed pair survived FDR correction.
+- No positive-residual non-admixed pair survived false discovery rate correction.
 - Ancient and modern ABO-window calls were produced by different pipelines.
 """
     path.write_text(content, encoding="utf-8")

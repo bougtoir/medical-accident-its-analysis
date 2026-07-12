@@ -35,8 +35,9 @@ ABSTRACT = (
     "interpretation lacks a genome-wide geographic baseline. We tested whether "
     "population-level genomic profiles of inferred Neanderthal- and Denisovan-like "
     "segments become less similar with geographic distance. Materials and Methods: "
-    "High-confidence hmmix calls from 3,134 "
-    "individuals in 66 populations were summarized in 500-kb windows. Each "
+    "High-confidence archaic-introgression calls from 3,134 individuals in 66 "
+    "populations were obtained using hmmix, a hidden Markov model-based detection "
+    "method, and summarized in 500-kilobase (kb) windows. Each "
     "individual-haplotype-window contributed at most one presence, constraining "
     "population frequencies to 0-1. Pearson similarity was calculated for 2,145 "
     "population pairs. Distance associations were evaluated with population-label "
@@ -245,17 +246,18 @@ INTRODUCTION = [
         "of shared genomic distribution, but it creates dyadic data: every population "
         "appears in many pair rows. Standard row-wise regression tests, bootstraps, or "
         "response shuffles therefore do not preserve the population-level dependence "
-        "structure. Quadratic assignment procedures address this problem by permuting "
-        "population labels on a complete matrix (Krackhardt 1988; Dekker, Krackhardt, "
-        "and Snijders 2007)."
+        "structure. Quadratic assignment procedures (QAP) address this problem by "
+        "permuting population labels on a complete matrix (Krackhardt 1988; Dekker, "
+        "Krackhardt, and Snijders 2007)."
     ),
     (
         "The primary objective was to test whether Neanderthal- and Denisovan-segment "
         "profile similarity declines with great-circle distance across 66 populations "
-        "from the 1000 Genomes Project and Human Genome Diversity Project. We also "
+        "from the 1000 Genomes Project and Human Genome Diversity Project (HGDP). We also "
         "tested robustness to alternative genomic windows, similarity metrics, "
         "sample-size thresholds, datasets, co-located pairs, and regional omission. A "
-        "secondary analysis of the ABO-centered interval was retained because ABO has "
+        "secondary analysis of the interval centered on the ABO blood-group locus was "
+        "retained because ABO has "
         "an unusually deep allelic history and has motivated founder-effect and "
         "archaic-background hypotheses (Calafell et al. 2008; Halverson and Bolnick "
         "2008; Segurel et al. 2012; Condemi et al. 2021). This focal analysis was "
@@ -269,13 +271,15 @@ METHODS = [
         "Data sources and population inclusion",
         [
             (
-                "We analyzed publicly archived hmmix segment calls from 1000 Genomes "
-                "and HGDP samples in Zenodo record 14136628. Hmmix detects candidate "
-                "archaic sequence without requiring an unadmixed modern outgroup (Skov "
-                "et al. 2018). Source population definitions followed the 1000 Genomes "
-                "and HGDP resources (1000 Genomes Project Consortium 2015; Bergström "
-                "et al. 2020). SHA-256 checksums of both raw files are written to the "
-                "analysis provenance record."
+                "We analyzed publicly archived segment calls generated with hmmix, a "
+                "hidden Markov model-based method that detects candidate archaic "
+                "sequence without requiring an unadmixed modern outgroup (Skov et al. "
+                "2018). Segment files for the 1000 Genomes Project and Human Genome "
+                "Diversity Project (HGDP) samples were obtained from Zenodo record "
+                "14136628. Source population definitions followed those resources "
+                "(1000 Genomes Project Consortium 2015; Bergström et al. 2020). Secure "
+                "Hash Algorithm 256 (SHA-256) checksums of both raw files are "
+                "written to the analysis provenance record."
             ),
             (
                 "Segments with mean posterior probability below 0.8 were excluded. "
@@ -290,9 +294,10 @@ METHODS = [
         "Population profiles and pairwise similarity",
         [
             (
-                "Autosomes were partitioned into 500-kb windows. Within each ancestry "
-                "category, overlapping or fragmented source segments were collapsed so "
-                "that each individual-haplotype-window contributed at most one presence. "
+                "Autosomes were partitioned into 500-kilobase (kb) windows. Within each "
+                "ancestry category, overlapping or fragmented source segments were "
+                "collapsed so that each individual-haplotype-window contributed at most "
+                "one presence. "
                 "For each population and window, unique haplotype presences were divided "
                 "by twice the number of represented individuals. A runtime validity "
                 "check required every frequency to lie between 0 and 1."
@@ -322,9 +327,12 @@ METHODS = [
             (
                 "The primary expanded descriptive model regressed pairwise similarity "
                 "on distance per 1,000 km, involvement of one of four designated "
-                "recently admixed American populations (PUR, CLM, MXL, or PEL), "
-                "same-continent status, and same-dataset status. These indicators are "
-                "coarse sensitivity covariates, not individual ancestry estimates or "
+                "recently admixed American populations: Puerto Ricans from Puerto Rico "
+                "(PUR), Colombians from Medellín, Colombia (CLM), people with Mexican "
+                "ancestry from Los Angeles, United States (MXL), or Peruvians from "
+                "Lima, Peru (PEL). The model also included same-continent status and "
+                "same-dataset status. These indicators are coarse sensitivity "
+                "covariates, not individual ancestry estimates or "
                 "causal controls. Distance-only models were also fit."
             ),
             (
@@ -357,7 +365,8 @@ METHODS = [
                 "a one-sided nominal P value was calculated from its own residual null "
                 "distribution across 9,999 population-label permutations. The "
                 "Benjamini-Hochberg procedure was applied jointly to all non-admixed "
-                "pairs within each ancestry analysis (Benjamini and Hochberg 1995). "
+                "pairs within each ancestry analysis to control the false discovery "
+                "rate (FDR) (Benjamini and Hochberg 1995). "
                 "A supported positive outlier required z>2 and q<0.10."
             ),
         ],
@@ -367,9 +376,9 @@ METHODS = [
         [
             (
                 "We repeated distance-only population-label tests for 250-kb, 500-kb, "
-                "and 1-Mb windows. At 500 kb, robustness summaries compared Pearson, "
-                "Spearman, and cosine similarity; minimum population sizes of 7, 10, "
-                "15, and 20; the complete dataset, non-admixed populations, 1000 "
+                "and 1-megabase (Mb) windows. At 500 kb, robustness summaries compared "
+                "Pearson, Spearman, and cosine similarity; minimum population sizes of "
+                "7, 10, 15, and 20; the complete dataset, non-admixed populations, 1000 "
                 "Genomes-only and HGDP-only subsets; exclusion of zero-distance pairs; "
                 "and leave-one-continent-out subsets. Full-window Pearson correlation "
                 "and presence-absence Jaccard similarity assessed sensitivity to the "
@@ -384,7 +393,8 @@ METHODS = [
         "Secondary ABO-centered analysis",
         [
             (
-                "The ABO gene was defined on GRCh38 as chr9:133,233,278-133,276,024. "
+                "The ABO gene was defined on Genome Reference Consortium Human Build "
+                "38 (GRCh38) as chromosome 9 (chr9):133,233,278-133,276,024. "
                 "We distinguished strict gene overlap from any overlap with a 500-kb "
                 "interval spanning chr9:133.0-133.5 Mb. Population carrier frequencies "
                 "used unique individuals in the numerator and all represented source "
@@ -394,7 +404,8 @@ METHODS = [
                 "For Neanderthal or Both segments in the interval, similarity counts to "
                 "Altai, Vindija, and Chagyrskaya were compared; tied maxima remained "
                 "ties. The Vindija reference is a high-coverage Neanderthal genome "
-                "(Prüfer et al. 2017). The O2-defining rs41302905 T allele was summarized "
+                "(Prüfer et al. 2017). The O2 blood-group subtype-defining rs41302905 T "
+                "allele was summarized "
                 "from Ensembl/1000 Genomes frequencies and published Solomon Islands "
                 "frequencies (Ohashi et al. 2006). Ancient-window observations were "
                 "descriptively extracted from public outputs associated with Iasi et "
@@ -423,13 +434,14 @@ METHODS = [
                 "conducted. Because the dataset includes Indigenous participants and "
                 "the topic can affect narratives of ancestry and migration, analyses "
                 "were interpreted in light of Indigenous data-governance guidance and "
-                "the CARE principles (Claw et al. 2018; Carroll et al. 2020). Population "
-                "labels were retained only when needed for transparent source-data "
-                "description; locus-level observations were not generalized to "
-                "communities, and migration routes were not assigned from these data. "
+                "the Collective Benefit, Authority to Control, Responsibility, and "
+                "Ethics (CARE) Principles (Claw et al. 2018; Carroll et al. 2020). "
+                "Population labels were retained only when needed for transparent "
+                "source-data description; locus-level observations were not generalized "
+                "to communities, and migration routes were not assigned from these data. "
                 "The public article, code, and derived aggregate results are the current "
                 "means of results availability. These disclosures follow the expanded "
-                "AJBA guidance on ethical review and stakeholder communication (Turner "
+                "journal guidance on ethical review and stakeholder communication (Turner "
                 "2025)."
             ),
         ],
@@ -482,7 +494,7 @@ RESULTS = [
     (
         "Schematic dispersal context",
         (
-            "A polygon-based Minard diagram places the analysis within broad "
+            "A Minard-style diagram places the analysis within broad "
             "dispersal and archaic-introgression contexts (Figure 3). Band widths, "
             "branch positions, and event placement are schematic and are not "
             "estimates from the present pairwise analysis."
@@ -631,7 +643,7 @@ FIGURES = {
     ),
     3: (
         "fig3_minard_migration.png",
-        "Polygon-based Minard-style schematic of human dispersal and archaic "
+        "Minard-style schematic of human dispersal and archaic "
         "introgression. Band widths, branch positions, and event placement are "
         "illustrative and do not estimate migration magnitude, ancestry proportion, "
         "or a route supported by the present analysis.",
@@ -644,7 +656,8 @@ FIGURES = {
     5: (
         "fig5_window_sensitivity.png",
         "Descriptive geographic distance correlations at 250-kb, 500-kb, and 1-Mb "
-        "window sizes. QAP results are tabulated in Supplementary Data.",
+        "window sizes. Quadratic assignment procedure results are tabulated in "
+        "Supplementary Data.",
     ),
     6: (
         "fig5_abo_sublineage.png",
@@ -656,7 +669,8 @@ FIGURES = {
     ),
     7: (
         "fig6_o2_introgression.png",
-        "O2-defining allele frequencies and ABO-window segment-carrier frequencies. "
+        "O2 blood-group subtype-defining allele frequencies and ABO-window "
+        "segment-carrier frequencies. "
         "The panels use different sources and are not an association analysis; "
         "proximity does not establish that the O2 allele is Neanderthal-derived.",
     ),

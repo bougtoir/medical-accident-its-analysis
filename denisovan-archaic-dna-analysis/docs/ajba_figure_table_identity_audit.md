@@ -11,7 +11,7 @@ identity.
 |---|---|---|---|
 | Figure 1 | Figure 1 | Restored two-panel scatter design, point classes, regression lines, annotations, palette, and dimensions (historical 4771×2230; current 4770×2230). | Uses corrected profile construction and expanded descriptive fits; unsupported historical outlier labels are absent. |
 | Figure 2 | Figure 2 | Restored 31-population two-panel heat-map layout, ordering, palette, region-colored labels, and legend (6548×3041; 6550×3041). | Matrices use corrected profiles. |
-| Figure 3 | Figure 3 | Exact canonical PNG restored after running the historical polygon generator: 4770×2612; SHA-256 `9c796e76919b65bf42a808b7c6337bdc5e105d0cc8dab472adbda2ad98704424`. | Caption states that widths, positions, and events are schematic. |
+| Figure 3 | Figure 3 | Exact canonical PNG restored after running the historical source generator: 4770×2612; SHA-256 `9c796e76919b65bf42a808b7c6337bdc5e105d0cc8dab472adbda2ad98704424`. | Caption states that widths, positions, and events are schematic. |
 | Figure 4 | Figure 4 | Restored single-panel admixture-exclusion scatter and dual-fit layout (3938×2335; 3934×2331). | Correlations are recomputed from corrected data and are descriptive. |
 | — | Figure 5 | New main-text window-size sensitivity figure. | Promoted from Supporting Information because it directly tests the primary 500-kb analysis choice. |
 | Figure 5 | Figure 6 | Restored grouped three-reference bars plus selected ABO-region segment map (4175×1624; 4170×1675). | Equal-score ties are excluded from the three-reference denominator and retained in supplementary data; Pima/Maya overlap wording is corrected. |

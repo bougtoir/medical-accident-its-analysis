@@ -2,8 +2,8 @@
 
 ## Public source data
 
-- hmmix 1000 Genomes and HGDP segment files: Zenodo record 14136628
-- O2-defining `rs41302905 T` frequencies: Ensembl REST Variation endpoint
+- hmmix archaic-introgression segment files from the 1000 Genomes Project and Human Genome Diversity Project (HGDP): Zenodo record 14136628
+- O2 blood-group subtype-defining `rs41302905 T` frequencies: Ensembl Variation application programming interface endpoint
 - Solomon Islands ABO*O02 frequencies: Ohashi et al. 2006, doi:10.1007/s10038-006-0375-8
 - Ancient ABO-window summary: secondary extraction from public Iasi et al. 2024 outputs
 
@@ -25,8 +25,8 @@ python scripts/run_ajba_pipeline.py   --segments-1kg /path/to/hg38_1000g_segment
 - Denisovan raw distance r: -0.4617
 - Neanderthal expanded descriptive R²: 0.5461
 - Denisovan expanded descriptive R²: 0.5113
-- QAP distance P: 0.0001 and 0.0002
-- FDR q<0.10 non-admixed outliers: 0 and 0
+- Quadratic assignment procedure distance P: 0.0001 and 0.0002
+- False discovery rate q<0.10 non-admixed outliers: 0 and 0
 - Neanderthal/Both segments in the 500-kb ABO interval: 834
 - Strict ABO-overlapping Neanderthal/Both segments: 129
 - Indigenous American window carriers: Pima 1/13, Maya 1/21, Colombian 0/7
@@ -51,5 +51,5 @@ python scripts/run_ajba_pipeline.py   --segments-1kg /path/to/hg38_1000g_segment
 - Expanded-model R² is descriptive and not a causal variance decomposition.
 - Reference-genome similarity does not prove a specific migration route.
 - Admixed American residuals are not treated as ancient-migration evidence.
-- No positive-residual non-admixed pair survived FDR correction.
+- No positive-residual non-admixed pair survived false discovery rate correction.
 - Ancient and modern ABO-window calls were produced by different pipelines.
