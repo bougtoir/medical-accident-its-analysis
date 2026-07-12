@@ -16,12 +16,12 @@ import pandas as pd
 
 
 REGION_COLORS = {
-    "EUROPE": "#4c78a8",
-    "MIDDLE_EAST": "#f58518",
-    "CENTRAL_SOUTH_ASIA": "#b279a2",
-    "EAST_ASIA": "#54a24b",
-    "AMERICA": "#e45756",
-    "OCEANIA": "#72b7b2",
+    "EUROPE": "#6b8e23",
+    "MIDDLE_EAST": "#cd853f",
+    "CENTRAL_SOUTH_ASIA": "#9370db",
+    "EAST_ASIA": "#e67e22",
+    "AMERICA": "#4682b4",
+    "OCEANIA": "#8b0000",
 }
 
 
@@ -49,90 +49,179 @@ def distance_figure(
     statistics: dict[str, object],
     figure_directory: Path,
 ) -> None:
-    figure, axes = plt.subplots(1, 2, figsize=(13.2, 6.2), sharex=True)
-    for axis, column, prefix, title, color in [
-        (
-            axes[0],
-            "nean_corr",
-            "nean",
-            "A. Neanderthal profile similarity",
-            "#4c78a8",
-        ),
-        (
-            axes[1],
-            "deni_corr",
-            "deni",
-            "B. Denisovan profile similarity",
-            "#b279a2",
-        ),
-    ]:
-        valid = pairs.dropna(subset=[column])
-        nonadmixed = valid[valid["any_admixed"] == 0]
-        admixed = valid[valid["any_admixed"] == 1]
-        axis.scatter(
-            nonadmixed["geo_dist_km"] / 1000,
-            nonadmixed[column],
-            s=13,
-            alpha=0.27,
-            color=color,
-            edgecolor="none",
-            label="No designated recently admixed population",
+    figure, axes = plt.subplots(1, 2, figsize=(16, 7))
+    neanderthal = pairs.dropna(subset=["nean_corr"]).copy()
+    neanderthal["pair_type"] = np.where(
+        neanderthal["same_continent"] == 1, "intra", "inter"
+    )
+    admixed = neanderthal[neanderthal["any_admixed"] == 1]
+    nonadmixed_intra = neanderthal[
+        (neanderthal["any_admixed"] == 0)
+        & (neanderthal["pair_type"] == "intra")
+    ]
+    nonadmixed_inter = neanderthal[
+        (neanderthal["any_admixed"] == 0)
+        & (neanderthal["pair_type"] == "inter")
+    ]
+    axes[0].scatter(
+        nonadmixed_intra["geo_dist_km"] / 1000,
+        nonadmixed_intra["nean_corr"],
+        alpha=0.35,
+        s=18,
+        c="#4a90d9",
+        label="Same continent",
+        zorder=3,
+    )
+    axes[0].scatter(
+        nonadmixed_inter["geo_dist_km"] / 1000,
+        nonadmixed_inter["nean_corr"],
+        alpha=0.35,
+        s=18,
+        c="#e74c3c",
+        label="Cross-continent",
+        zorder=3,
+    )
+    axes[0].scatter(
+        admixed["geo_dist_km"] / 1000,
+        admixed["nean_corr"],
+        alpha=0.5,
+        s=30,
+        c="#f39c12",
+        marker="^",
+        label="Admixed population involved",
+        zorder=4,
+    )
+    predictors = neanderthal[
+        ["geo_dist_1000km", "any_admixed", "same_continent", "same_dataset"]
+    ].to_numpy()
+    design = np.column_stack([np.ones(len(neanderthal)), predictors])
+    coefficients = np.linalg.lstsq(
+        design, neanderthal["nean_corr"].to_numpy(), rcond=None
+    )[0]
+    distance_range = np.linspace(0, 22, 100)
+    cross_continent = coefficients[0] + coefficients[1] * distance_range
+    same_continent = cross_continent + coefficients[3]
+    axes[0].plot(
+        distance_range,
+        cross_continent,
+        "k--",
+        linewidth=1.2,
+        alpha=0.5,
+        label="Expanded fit (cross-cont.)",
+    )
+    axes[0].plot(
+        distance_range,
+        same_continent,
+        "b--",
+        linewidth=1.2,
+        alpha=0.5,
+        label="Expanded fit (same cont.)",
+    )
+    supported_outliers = neanderthal[
+        (neanderthal["nean_resid_z"] > 2)
+        & (neanderthal["nean_fdr_pval"] < 0.10)
+    ]
+    for row in supported_outliers.itertuples():
+        axes[0].annotate(
+            f"{row.pop1}-{row.pop2}",
+            (row.geo_dist_km / 1000, row.nean_corr),
+            fontsize=6.5,
+            xytext=(5, 5),
+            textcoords="offset points",
+            arrowprops={"arrowstyle": "-", "color": "gray", "alpha": 0.5},
         )
-        axis.scatter(
-            admixed["geo_dist_km"] / 1000,
-            admixed[column],
-            s=20,
-            alpha=0.55,
-            color="#f58518",
-            marker="^",
-            edgecolor="none",
-            label="Designated recently admixed population involved",
-        )
-        slope, intercept = np.polyfit(
-            valid["geo_dist_km"] / 1000, valid[column], 1
-        )
-        distance_range = np.linspace(0, valid["geo_dist_km"].max() / 1000, 200)
-        axis.plot(
-            distance_range,
-            intercept + slope * distance_range,
-            color="black",
-            linewidth=1.4,
-            label="Descriptive distance-only fit",
-        )
-        values = statistics[prefix]
-        axis.text(
-            0.03,
-            0.04,
-            (
-                f"Raw r = {values['raw_r']:.3f}\n"
-                f"Expanded-model partial r = {values['partial_r']:.3f}\n"
-                f"QAP distance P = {values['distance_qap_p']:.4f}"
-            ),
-            transform=axis.transAxes,
-            fontsize=9,
-            bbox={"facecolor": "white", "alpha": 0.85, "edgecolor": "#cccccc"},
-        )
-        axis.set_title(title)
-        axis.set_xlabel("Great-circle distance (×1,000 km)")
-        axis.grid(alpha=0.2)
-    axes[0].set_ylabel("Population-level archaic-segment profile similarity (Pearson r)")
-    axes[1].legend(frameon=False, fontsize=8, loc="upper right")
-    figure.suptitle(
-        "Archaic-segment profile similarity declines with geographic distance",
-        fontsize=15,
+    axes[0].set_xlabel("Geographic distance (×1,000 km)", fontsize=11)
+    axes[0].set_ylabel(
+        "Neanderthal segment sharing\n(Pearson correlation)", fontsize=11
+    )
+    axes[0].set_title(
+        "A. Neanderthal DNA sharing vs. distance",
+        fontsize=12,
         fontweight="bold",
+    )
+    axes[0].legend(fontsize=7.5, loc="upper right")
+    axes[0].set_xlim(-0.5, 22)
+    axes[0].set_ylim(-0.15, 1.05)
+    axes[0].grid(True, alpha=0.15)
+
+    denisovan = pairs.dropna(subset=["deni_corr"]).copy()
+    denisovan["oceania_involved"] = (
+        (denisovan["region1"] == "OCEANIA")
+        | (denisovan["region2"] == "OCEANIA")
+    )
+    denisovan["pair_type"] = np.where(
+        denisovan["same_continent"] == 1, "intra", "inter"
+    )
+    oceania = denisovan[denisovan["oceania_involved"]]
+    nonoceania_intra = denisovan[
+        (~denisovan["oceania_involved"])
+        & (denisovan["pair_type"] == "intra")
+    ]
+    nonoceania_inter = denisovan[
+        (~denisovan["oceania_involved"])
+        & (denisovan["pair_type"] == "inter")
+    ]
+    axes[1].scatter(
+        nonoceania_intra["geo_dist_km"] / 1000,
+        nonoceania_intra["deni_corr"],
+        alpha=0.35,
+        s=18,
+        c="#4a90d9",
+        label="Same continent",
+        zorder=3,
+    )
+    axes[1].scatter(
+        nonoceania_inter["geo_dist_km"] / 1000,
+        nonoceania_inter["deni_corr"],
+        alpha=0.35,
+        s=18,
+        c="#e74c3c",
+        label="Cross-continent",
+        zorder=3,
+    )
+    axes[1].scatter(
+        oceania["geo_dist_km"] / 1000,
+        oceania["deni_corr"],
+        alpha=0.7,
+        s=50,
+        c="#8e44ad",
+        marker="D",
+        label="Oceania involved",
+        zorder=4,
+    )
+    axes[1].set_xlabel("Geographic distance (×1,000 km)", fontsize=11)
+    axes[1].set_ylabel(
+        "Denisovan segment sharing\n(Pearson correlation)", fontsize=11
+    )
+    axes[1].set_title(
+        "B. Denisovan DNA sharing vs. distance",
+        fontsize=12,
+        fontweight="bold",
+    )
+    axes[1].legend(fontsize=7.5, loc="upper right")
+    axes[1].set_xlim(-0.5, 22)
+    axes[1].set_ylim(-0.25, 1.05)
+    axes[1].grid(True, alpha=0.15)
+    figure.suptitle(
+        "Archaic DNA sharing patterns vs. geographic distance",
+        fontsize=13,
+        fontweight="bold",
+        y=1.01,
     )
     figure.text(
         0.5,
-        0.01,
+        -0.02,
         (
-            "Each point is a dependent population pair. P values use population-label "
-            "quadratic assignment permutations, not row-wise tests."
+            "Data: high-confidence hmmix calls, 1000 Genomes + HGDP, "
+            "66 populations, 3,134 individuals | Deduplicated 500-kb profiles; "
+            f"QAP distance P = {statistics['nean']['distance_qap_p']:.4f} "
+            f"(Neanderthal), {statistics['deni']['distance_qap_p']:.4f} (Denisovan)"
         ),
         ha="center",
-        fontsize=9,
+        fontsize=7.5,
+        color="#888888",
     )
-    figure.tight_layout(rect=[0, 0.05, 1, 0.95])
+    figure.tight_layout()
     save_figure(figure, figure_directory, "fig1_sharing_vs_distance")
 
 
@@ -168,96 +257,86 @@ def heatmap_figure(
         regions[second] = region_second
     neanderthal = similarity_matrix(pairs, populations, "nean_corr")
     denisovan = similarity_matrix(pairs, populations, "deni_corr")
-    figure, axes = plt.subplots(1, 2, figsize=(14.2, 7.2))
+    figure, axes = plt.subplots(1, 2, figsize=(22, 10))
     for axis, matrix, panel_title, color_map in [
-        (axes[0], neanderthal, "A. Neanderthal", "YlGnBu"),
-        (axes[1], denisovan, "B. Denisovan", "magma"),
+        (axes[0], neanderthal, "Neanderthal DNA sharing", "YlOrRd"),
+        (axes[1], denisovan, "Denisovan DNA sharing", "PuRd"),
     ]:
-        image = axis.imshow(matrix, vmin=-0.2, vmax=1, cmap=color_map, aspect="auto")
+        image = axis.imshow(matrix, vmin=0, vmax=1, cmap=color_map, aspect="auto")
         axis.set_xticks(range(len(populations)))
         axis.set_yticks(range(len(populations)))
-        axis.set_xticklabels(populations, rotation=90, fontsize=5.5)
-        axis.set_yticklabels(populations, fontsize=5.5)
+        axis.set_xticklabels(populations, rotation=90, fontsize=7)
+        axis.set_yticklabels(populations, fontsize=7)
         for position, population in enumerate(populations):
             color = REGION_COLORS.get(regions[population], "black")
             axis.get_xticklabels()[position].set_color(color)
             axis.get_yticklabels()[position].set_color(color)
-        axis.set_title(panel_title)
-        figure.colorbar(image, ax=axis, fraction=0.045, pad=0.03, label="Pearson r")
+        axis.set_title(panel_title, fontsize=12, fontweight="bold", pad=10)
+        figure.colorbar(
+            image, ax=axis, fraction=0.046, pad=0.04, label="Correlation"
+        )
     handles = [
         mpatches.Patch(color=color, label=region.replace("_", " ").title())
         for region, color in REGION_COLORS.items()
     ]
     figure.legend(
         handles=handles,
-        frameon=False,
         ncol=6,
         loc="lower center",
-        fontsize=8,
+        fontsize=9,
+        title="Region",
+        title_fontsize=10,
+        bbox_to_anchor=(0.5, -0.02),
     )
     figure.suptitle(title, fontsize=14, fontweight="bold")
-    figure.tight_layout(rect=[0, 0.06, 1, 0.95])
+    figure.tight_layout(rect=[0, 0.03, 1, 0.96])
     save_figure(figure, figure_directory, stem)
 
 
-def sensitivity_figure(sensitivity: pd.DataFrame, figure_directory: Path) -> None:
-    subset_order = [
-        "all",
-        "nonadmixed",
-        "zero_distance_excluded",
-        "1000_genomes_only",
-        "hgdp_only",
-        "minimum_n_10",
-        "minimum_n_15",
-        "minimum_n_20",
-        "leave_out_AMR",
-        "leave_out_EAS",
-        "leave_out_EUR",
-        "leave_out_OCE",
-        "leave_out_SAS",
-        "leave_out_WAS",
-    ]
-    pearson = sensitivity[
-        (sensitivity["metric"] == "Pearson")
-        & sensitivity["subset"].isin(subset_order)
-    ].copy()
-    pearson["subset"] = pd.Categorical(
-        pearson["subset"], categories=subset_order, ordered=True
+def sensitivity_figure(pairs: pd.DataFrame, figure_directory: Path) -> None:
+    valid = pairs.dropna(subset=["nean_corr"]).copy()
+    nonadmixed = valid[valid["any_admixed"] == 0]
+    full_r = valid["geo_dist_km"].corr(valid["nean_corr"])
+    nonadmixed_r = nonadmixed["geo_dist_km"].corr(nonadmixed["nean_corr"])
+    figure, axis = plt.subplots(figsize=(16, 9))
+    axis.scatter(
+        valid["geo_dist_km"] / 1000,
+        valid["nean_corr"],
+        alpha=0.15,
+        s=8,
+        c="gray",
+        label="All pairs",
     )
-    pearson = pearson.sort_values("subset")
-    figure, axis = plt.subplots(figsize=(10.6, 7.4))
-    positions = np.arange(len(subset_order))
-    offsets = {"Neanderthal": -0.13, "Denisovan": 0.13}
-    colors = {"Neanderthal": "#4c78a8", "Denisovan": "#b279a2"}
-    for ancestry in ["Neanderthal", "Denisovan"]:
-        rows = pearson[pearson["ancestry"] == ancestry].set_index("subset")
-        values = [
-            rows.loc[subset, "raw_distance_r"] if subset in rows.index else np.nan
-            for subset in subset_order
-        ]
-        axis.scatter(
-            values,
-            positions + offsets[ancestry],
-            s=48,
-            color=colors[ancestry],
-            label=ancestry,
-            zorder=3,
-        )
-    axis.axvline(0, color="black", linewidth=0.8)
-    axis.set_yticks(positions)
-    axis.set_yticklabels(
-        [subset.replace("_", " ") for subset in subset_order], fontsize=9
+    distance_range = np.linspace(0, 20, 100)
+    full_slope, full_intercept = np.polyfit(
+        valid["geo_dist_km"] / 1000, valid["nean_corr"], 1
     )
-    axis.invert_yaxis()
-    axis.set_xlabel("Descriptive Pearson correlation with geographic distance")
+    nonadmixed_slope, nonadmixed_intercept = np.polyfit(
+        nonadmixed["geo_dist_km"] / 1000, nonadmixed["nean_corr"], 1
+    )
+    axis.plot(
+        distance_range,
+        full_slope * distance_range + full_intercept,
+        "b-",
+        linewidth=1.5,
+        alpha=0.7,
+        label=f"All pairs (r={full_r:.3f})",
+    )
+    axis.plot(
+        distance_range,
+        nonadmixed_slope * distance_range + nonadmixed_intercept,
+        "r--",
+        linewidth=1.5,
+        alpha=0.7,
+        label=f"Excl. admixed (r={nonadmixed_r:.3f})",
+    )
+    axis.set_xlabel("Geographic distance (×1,000 km)")
+    axis.set_ylabel("Neanderthal segment sharing (Pearson r)")
     axis.set_title(
-        "Distance decay is evaluated across population and dataset sensitivities",
-        fontsize=13,
-        fontweight="bold",
+        "Sensitivity analysis: effect of excluding admixed populations"
     )
-    axis.grid(axis="x", alpha=0.2)
-    axis.legend(frameon=False)
-    figure.tight_layout()
+    axis.legend(fontsize=9)
+    axis.grid(True, alpha=0.15)
     save_figure(figure, figure_directory, "fig4_sensitivity_admixed")
 
 
@@ -291,7 +370,7 @@ def window_sensitivity_figure(
     axis.grid(alpha=0.2)
     axis.legend(frameon=False)
     figure.tight_layout()
-    save_figure(figure, figure_directory, "figS2_window_sensitivity")
+    save_figure(figure, figure_directory, "fig5_window_sensitivity")
 
 
 def main() -> None:
@@ -345,7 +424,7 @@ def main() -> None:
         representative,
         args.figure_dir,
         "fig2_sharing_heatmap",
-        "Pairwise archaic-segment profile similarity in 31 prespecified populations",
+        "Pairwise archaic DNA segment sharing across 31 key populations",
     )
     heatmap_figure(
         pairs,
@@ -354,8 +433,7 @@ def main() -> None:
         "figS1_full_heatmap",
         "Pairwise archaic-segment profile similarity in all 66 populations",
     )
-    sensitivity = pd.read_csv(args.data_dir / "sensitivity_analysis.csv")
-    sensitivity_figure(sensitivity, args.figure_dir)
+    sensitivity_figure(pairs, args.figure_dir)
     window_path = args.data_dir / "window_size_sensitivity.csv"
     if window_path.exists():
         window_sensitivity_figure(

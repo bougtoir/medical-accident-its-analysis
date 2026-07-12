@@ -85,6 +85,8 @@ def main() -> None:
         run(project_root, ["scripts/fetch_o2_frequencies.py"])
     run(project_root, ["scripts/create_core_figures.py"])
     run(project_root, ["scripts/create_ajba_figures.py"])
+    run(project_root, ["scripts/create_minard_figure.py"])
+    run(project_root, ["scripts/restore_historical_assets.py"])
     run(project_root, ["scripts/validate_references.py"])
     run(project_root, ["scripts/create_ajba_submission.py"])
 

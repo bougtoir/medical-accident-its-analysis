@@ -466,9 +466,9 @@ RESULTS = [
             f"per 1,000 km were {value(NEANDERTHAL, 'distance_qap_beta', 5)} "
             f"(P={value(NEANDERTHAL, 'distance_qap_p', 4)}) and "
             f"{value(DENISOVAN, 'distance_qap_beta', 5)} "
-            f"(P={value(DENISOVAN, 'distance_qap_p', 4)}) (Figure 1; Table 1)."
+            f"(P={value(DENISOVAN, 'distance_qap_p', 4)}) (Figure 1)."
         ),
-        ["Figure 1", "Table 1"],
+        ["Figure 1"],
     ),
     (
         "Population structure",
@@ -482,10 +482,10 @@ RESULTS = [
     (
         "Schematic dispersal context",
         (
-            "A polygon-based Minard diagram retains the dispersal and archaic-"
-            "introgression context developed for the earlier BioEssays version "
-            "(Figure 3). Band widths, branch positions, and event placement are "
-            "schematic and are not estimates from the present pairwise analysis."
+            "A polygon-based Minard diagram places the analysis within broad "
+            "dispersal and archaic-introgression contexts (Figure 3). Band widths, "
+            "branch positions, and event placement are schematic and are not "
+            "estimates from the present pairwise analysis."
         ),
         ["Figure 3"],
     ),
@@ -494,12 +494,12 @@ RESULTS = [
         (
             "Negative distance correlations were examined across admixture "
             "exclusions, within-dataset subsets, minimum sample sizes, and regional "
-            "omissions (Figure 4). "
-            "Window-size results at 250 kb, 500 kb, and 1 Mb are shown in Figure S2. "
-            "These analyses were treated as robustness checks rather than independent "
-            "confirmatory tests."
+            "omissions. Figure 4 shows the effect of excluding designated recently "
+            "admixed populations, and Figure 5 shows window-size results at 250 kb, "
+            "500 kb, and 1 Mb. These analyses were treated as robustness checks rather "
+            "than independent confirmatory tests."
         ),
-        ["Figure 4"],
+        ["Figure 4", "Figure 5"],
     ),
     (
         "Residual outlier testing",
@@ -507,9 +507,10 @@ RESULTS = [
             "No non-admixed pair met both the positive-residual z>2 criterion and "
             "Benjamini-Hochberg q<0.10 for either ancestry category. Nominal residual "
             "ranks are retained in the full pairwise data table for auditability but "
-            "are not interpreted as statistically supported population connections."
+            "are not interpreted as statistically supported population connections "
+            "(Table 1)."
         ),
-        [],
+        ["Table 1"],
     ),
     (
         "Secondary ABO-window observations",
@@ -521,25 +522,25 @@ RESULTS = [
             "overlapped ABO and one Maya segment lay downstream within the wider "
             "interval. Both were Vindija-closest, but two segments among 41 represented "
             "individuals do not support a regional proportion or migration-route "
-            "inference (Figure 5; Table 2)."
+            "inference (Figure 6; Table 2)."
         ),
-        ["Figure 5", "Table 2"],
+        ["Figure 6", "Table 2"],
     ),
     (
         "ABO-related and global contextual figures",
         (
             "The O2-defining allele and ABO-window carrier summaries use different "
             "sources and are displayed descriptively rather than as an association "
-            "analysis (Figure 6). The Ancient North Eurasian pathway is retained as a "
+            "analysis (Figure 7). The Ancient North Eurasian pathway is retained as a "
             "testable contextual hypothesis, not a route inferred from the two "
-            "Indigenous American segment records (Figure 7). Ancient and modern "
+            "Indigenous American segment records (Figure 8). Ancient and modern "
             "ABO-window observations were produced by different pipelines and permit "
-            "no formal temporal comparison (Figure 8). A literature-derived global "
+            "no formal temporal comparison (Figure 9). A literature-derived global "
             "bivariate map provides broad Neanderthal and Denisovan ancestry context; "
             "its approximate values were not used in the statistical models "
-            "(Figure 9)."
+            "(Figure 10)."
         ),
-        ["Figure 6", "Figure 7", "Figure 8", "Figure 9"],
+        ["Figure 7", "Figure 8", "Figure 9", "Figure 10"],
     ),
 ]
 
@@ -550,7 +551,7 @@ DISCUSSION = [
         "and Denisovan profile similarities retained negative geographic associations. "
         "The result is therefore not an artifact of allowing fragmented segments to "
         "contribute repeatedly to the same haplotype-window. The revised estimates "
-        "should replace all values from the earlier prototype analysis."
+        "are used throughout the manuscript and submission materials."
     ),
     (
         "The population-label permutation is central to interpretation. A dataset of "
@@ -637,33 +638,40 @@ FIGURES = {
     ),
     4: (
         "fig4_sensitivity_admixed.png",
-        "Descriptive distance correlations across population, sample-size, dataset, "
-        "zero-distance, and leave-one-continent-out sensitivities.",
+        "Sensitivity of the descriptive Neanderthal distance correlation to exclusion "
+        "of designated recently admixed populations.",
     ),
     5: (
-        "fig5_abo_sublineage.png",
-        "Secondary ABO-centered analysis. Closest-reference counts retain tied maxima. "
-        "The Pima segment overlaps ABO; the Maya segment is within the wider interval "
-        "but does not overlap the gene. Counts are segments, not regional frequencies.",
+        "fig5_window_sensitivity.png",
+        "Descriptive geographic distance correlations at 250-kb, 500-kb, and 1-Mb "
+        "window sizes. QAP results are tabulated in Supplementary Data.",
     ),
     6: (
+        "fig5_abo_sublineage.png",
+        "ABO-centered analysis preserving the historical grouped-bar and segment-map "
+        "layout. Equal maximum-similarity ties are excluded from the displayed "
+        "three-reference proportions and retained in Supplementary Data. The Pima "
+        "segment overlaps ABO; the Maya segment is within the wider interval but does "
+        "not overlap the gene. Counts are segments, not regional frequencies.",
+    ),
+    7: (
         "fig6_o2_introgression.png",
         "O2-defining allele frequencies and ABO-window segment-carrier frequencies. "
         "The panels use different sources and are not an association analysis; "
         "proximity does not establish that the O2 allele is Neanderthal-derived.",
     ),
-    7: (
+    8: (
         "fig7_ane_model.png",
         "Ancient North Eurasian contextual hypothesis. Dashed arrows represent a "
         "testable narrative, not evidence that either observed segment followed the "
         "illustrated route.",
     ),
-    8: (
+    9: (
         "fig8_temporal_dynamics.png",
         "Descriptive ancient and modern ABO-window summaries generated by different "
         "pipelines; no formal temporal comparison is made.",
     ),
-    9: (
+    10: (
         "fig9_bivariate_world_map.png",
         "Literature-derived global context. Circle size represents approximate "
         "Neanderthal ancestry and color intensity represents approximate Denisovan "
@@ -676,10 +684,5 @@ SUPPORTING_FIGURES = {
     1: (
         "figS1_full_heatmap.png",
         "Complete 66-population Neanderthal and Denisovan profile-similarity matrices.",
-    ),
-    2: (
-        "figS2_window_sensitivity.png",
-        "Descriptive geographic distance correlations at 250-kb, 500-kb, and 1-Mb "
-        "window sizes; QAP results are tabulated in Supplementary Data.",
     ),
 }

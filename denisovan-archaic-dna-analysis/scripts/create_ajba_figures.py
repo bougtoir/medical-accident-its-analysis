@@ -5,10 +5,10 @@ from __future__ import annotations
 from pathlib import Path
 
 import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 import numpy as np
 import pandas as pd
 from matplotlib.patches import FancyArrowPatch, FancyBboxPatch
-from PIL import Image, ImageDraw, ImageFont
 
 
 DATA_DIR = Path("data")
@@ -40,304 +40,345 @@ def save_figure(figure: plt.Figure, stem: str) -> None:
 
 
 def create_figure_3() -> None:
-    figure, axis = plt.subplots(figsize=(13.2, 6.8))
-    axis.set_xlim(72, 0)
-    axis.set_ylim(0, 8)
-    axis.set_xlabel("Approximate time before present (thousand years)")
-    axis.set_yticks([])
-    axis.grid(axis="x", alpha=0.2)
-    streams = [
-        ("African source populations", 6.6, 72, 48, "#78909c"),
-        ("West Eurasian branch", 5.3, 55, 0, "#ef6c00"),
-        ("East Asian branch", 4.0, 52, 0, "#1565c0"),
-        ("South Asian branch", 2.8, 52, 0, "#7e57c2"),
-        ("Sahul/Oceanian branch", 1.6, 50, 0, "#8d3c2e"),
-        ("First American branch", 0.5, 25, 0, "#2e7d32"),
-    ]
-    for label, y, start, end, color in streams:
-        axis.plot([start, end], [y, y], color=color, linewidth=12, alpha=0.72)
-        axis.text(end + 0.5 if end else 1, y + 0.18, label, color=color, fontsize=9)
-    add_arrow(axis, (52, 6.6), (50, 5.3), "#ef6c00")
-    add_arrow(axis, (52, 6.6), (48, 4.0), "#1565c0")
-    add_arrow(axis, (52, 6.6), (48, 2.8), "#7e57c2")
-    add_arrow(axis, (48, 2.8), (45, 1.6), "#8d3c2e")
-    add_arrow(axis, (25, 4.0), (22, 0.5), "#2e7d32")
-    axis.axvspan(55, 45, ymin=0.58, ymax=0.88, color="#ffcc80", alpha=0.24)
-    axis.text(
-        50,
-        7.25,
-        "Major Neanderthal admixture interval",
-        ha="center",
-        fontsize=10,
-        color="#e65100",
+    raise RuntimeError(
+        "Figure 3 must be generated with scripts/create_minard_figure.py and "
+        "restored with scripts/restore_historical_assets.py."
     )
-    axis.scatter(
-        [47, 42, 35],
-        [3.5, 2.25, 1.1],
-        marker="*",
-        s=180,
-        color="#6a1b9a",
-        edgecolor="white",
-        linewidth=0.8,
-        zorder=5,
-    )
-    axis.text(
-        39,
-        3.15,
-        "Multiple Denisovan-related introgression events\nare represented schematically",
-        ha="center",
-        fontsize=9,
-        color="#6a1b9a",
-    )
-    axis.axvline(15, color="#455a64", linestyle="--", linewidth=1.2)
-    axis.text(15, 7.1, "Peopling of the Americas\nby ~15 kya", ha="center", fontsize=9)
-    axis.text(
-        2,
-        7.7,
-        "Schematic context for human dispersal and archaic introgression",
-        ha="right",
-        va="top",
-        fontsize=16,
-        fontweight="bold",
-    )
-    figure.text(
-        0.5,
-        0.015,
-        "Line widths and branch positions are illustrative; the diagram is not a quantitative migration estimate.",
-        ha="center",
-        fontsize=9,
-    )
-    figure.tight_layout(rect=[0, 0.04, 1, 1])
-    save_figure(figure, "fig3_minard_migration")
 
 
 def create_figure_5() -> None:
     summary = pd.read_csv(DATA_DIR / "abo_sublineage_summary.csv")
     segments = pd.read_csv(DATA_DIR / "abo_neanderthal_segments.csv")
     group_order = [
-        "Europe",
-        "Middle East",
-        "Central/South Asia",
         "East Asia",
         "Oceania",
-        "Admixed Americas",
         "Indigenous Americas",
+        "Admixed Americas",
+        "Europe",
     ]
-    reference_order = ["Vindija", "Altai", "Chagyrskaya", "Tie"]
-    figure, axes = plt.subplots(1, 2, figsize=(13.2, 6.6), gridspec_kw={"width_ratios": [1.25, 1]})
+    labels = {
+        "East Asia": "East Asia",
+        "Oceania": "Oceania",
+        "Indigenous Americas": "Indigenous\nAmericas",
+        "Admixed Americas": "Admixed\nAmericas",
+        "Europe": "Europe",
+    }
+    reference_order = ["Altai", "Chagyrskaya", "Vindija"]
+    reference_colors = {
+        "Altai": "#d94e4e",
+        "Chagyrskaya": "#ffa726",
+        "Vindija": "#3b8ad8",
+    }
+    figure, axes = plt.subplots(1, 2, figsize=(14, 5.5))
     left = axes[0]
-    cumulative = np.zeros(len(group_order))
-    totals = []
+    positions = np.arange(len(group_order))
+    width = 0.25
+    classifiable_totals: dict[str, int] = {}
     for reference in reference_order:
-        values = []
+        values: list[float] = []
         for group in group_order:
-            rows = summary[
+            group_rows = summary[
                 (summary["analysis_group"] == group)
-                & (summary["closest_reference"] == reference)
+                & (summary["closest_reference"].isin(reference_order))
             ]
-            values.append(float(rows["proportion"].iloc[0]) if len(rows) else 0.0)
-            if reference == reference_order[0]:
-                group_rows = summary[summary["analysis_group"] == group]
-                totals.append(
-                    int(group_rows["group_total"].iloc[0]) if len(group_rows) else 0
-                )
-        left.barh(
-            group_order,
-            np.asarray(values) * 100,
-            left=cumulative,
-            color=COLORS[reference],
+            classifiable_total = int(group_rows["n_segments"].sum())
+            classifiable_totals[group] = classifiable_total
+            rows = group_rows[group_rows["closest_reference"] == reference]
+            count = int(rows["n_segments"].iloc[0]) if len(rows) else 0
+            values.append(
+                100 * count / classifiable_total if classifiable_total else 0
+            )
+        offset = (reference_order.index(reference) - 1) * width
+        bars = left.bar(
+            positions + offset,
+            values,
+            width,
+            color=reference_colors[reference],
             label=reference,
-            edgecolor="white",
-            linewidth=0.5,
+            alpha=0.9,
         )
-        cumulative += np.asarray(values) * 100
-    for index, total in enumerate(totals):
-        left.text(101, index, f"n={total}", va="center", fontsize=9)
-    left.set_xlim(0, 112)
-    left.set_xlabel("Segment composition (%)")
-    left.set_title("A. Closest-reference composition in the 500-kb interval")
-    left.legend(
-        frameon=False,
-        ncol=4,
-        loc="lower center",
-        bbox_to_anchor=(0.5, 1.01),
+        for bar, value in zip(bars, values):
+            if value >= 1:
+                left.text(
+                    bar.get_x() + bar.get_width() / 2,
+                    value + 1.2,
+                    f"{value:.0f}",
+                    ha="center",
+                    va="bottom",
+                    fontsize=6.5,
+                )
+    left.set_xticks(
+        positions,
+        [
+            f"{labels[group]}\n(n={classifiable_totals[group]})"
+            for group in group_order
+        ],
+        fontsize=7.5,
     )
-    left.grid(axis="x", alpha=0.2)
-    left.invert_yaxis()
+    left.set_ylim(0, 110)
+    left.set_ylabel("Proportion of segments (%)")
+    left.set_title(
+        "A. Neanderthal sub-lineage composition\nat the ABO locus",
+        fontsize=11,
+        fontweight="bold",
+    )
+    left.legend(fontsize=8, loc="upper right")
+    left.grid(axis="y", alpha=0.2)
 
     right = axes[1]
-    highlighted = segments[
-        segments["pop"].isin(["Bougainville", "Maya", "Pima"])
+    selected = segments[
+        (
+            (segments["name"] == "HGDP00656")
+            & (segments["pop"] == "Bougainville")
+            & (segments["start"] == 133_231_000)
+        )
+        | (
+            (segments["name"] == "HGDP01058")
+            & (segments["pop"] == "Pima")
+            & (segments["start"] == 133_254_000)
+        )
+        | (
+            (segments["name"] == "HGDP00877")
+            & (segments["pop"] == "Maya")
+            & (segments["start"] == 133_294_000)
+        )
     ].copy()
-    highlighted["label"] = highlighted["name"] + " (" + highlighted["pop"] + ")"
-    highlighted = highlighted.sort_values(["pop", "name"])
-    y_positions = np.arange(len(highlighted))[::-1]
-    right.axvspan(
-        ABO_START / 1e6,
-        ABO_END / 1e6,
-        color="#ffd54f",
-        alpha=0.55,
-        label="ABO gene",
+    selected["display"] = selected["name"] + "\n(" + selected["pop"] + ")"
+    selected = (
+        selected.set_index("name")
+        .loc[["HGDP00656", "HGDP01058", "HGDP00877"]]
+        .reset_index()
     )
-    for y, (_, row) in zip(y_positions, highlighted.iterrows()):
-        color = "#d62728" if bool(row["strict_overlap"]) else "#6f42c1"
-        right.plot(
-            [max(row["start"], WINDOW_START) / 1e6, min(row["end"], WINDOW_END) / 1e6],
-            [y, y],
-            linewidth=10,
-            solid_capstyle="butt",
-            color=color,
+    y_positions = np.arange(len(selected))[::-1]
+    right.axvspan(
+        ABO_START,
+        ABO_END,
+        color="#fff4bf",
+        alpha=0.9,
+        label="ABO gene",
+        zorder=0,
+    )
+    for y_value, row in zip(y_positions, selected.itertuples()):
+        right.barh(
+            y_value,
+            row.end - row.start,
+            left=row.start,
+            height=0.38,
+            color="#79c37c" if row.pop == "Bougainville" else "#5398dd",
+            edgecolor="#333333",
+            linewidth=0.6,
         )
         right.text(
-            min(row["end"], WINDOW_END) / 1e6 + 0.006,
-            y,
-            row["closest_reference"],
+            row.start + (row.end - row.start) / 2,
+            y_value,
+            row.closest_reference,
+            ha="center",
             va="center",
-            fontsize=8,
+            fontsize=7,
+            color="white",
+            fontweight="bold",
         )
-    right.set_yticks(y_positions, highlighted["label"])
-    right.set_xlim(WINDOW_START / 1e6, WINDOW_END / 1e6)
-    right.set_xlabel("Chromosome 9 position (Mb; GRCh38)")
-    right.set_title("B. Traceable segments in selected HGDP individuals")
+    right.set_yticks(y_positions, selected["display"], fontsize=8)
+    right.set_xlim(133_050_000, 133_550_000)
+    right.ticklabel_format(axis="x", style="plain", useOffset=False)
+    right.set_xticks(
+        [133_100_000, 133_200_000, 133_300_000, 133_400_000, 133_500_000],
+        ["133.1", "133.2", "133.3", "133.4", "133.5"],
+    )
+    right.set_xlabel("Chromosome 9 position (Mb, GRCh38)")
+    right.set_title(
+        "B. Selected archaic segments near ABO",
+        fontsize=11,
+        fontweight="bold",
+    )
     right.grid(axis="x", alpha=0.2)
-    right.legend(
-        handles=[
-            plt.Line2D([0], [0], color="#d62728", lw=8, label="Overlaps ABO"),
-            plt.Line2D([0], [0], color="#6f42c1", lw=8, label="Window only"),
-            plt.Rectangle((0, 0), 1, 1, color="#ffd54f", alpha=0.55, label="ABO gene"),
-        ],
-        frameon=False,
-        loc="upper center",
-        bbox_to_anchor=(0.5, -0.14),
-        ncol=3,
+    right.legend(frameon=False, fontsize=8, loc="lower right")
+    right.text(
+        133_505_000,
+        -0.75,
+        "Pima: strict overlap\nMaya: window only",
+        fontsize=7,
+        ha="right",
+        color="#555555",
     )
     figure.suptitle(
-        "Neanderthal-like segments in the ABO-centered interval",
-        fontsize=15,
+        "Archaic Neanderthal sub-lineages at the ABO locus",
+        fontsize=14,
         fontweight="bold",
     )
     figure.text(
         0.5,
-        0.01,
-        "Ties are retained rather than forced to a single reference. The Maya segment is within the 500-kb interval but does not overlap ABO.",
+        0.005,
+        "Equal maximum-similarity ties are excluded; the 2/2 Indigenous result is a segment summary, not a regional estimate.",
         ha="center",
-        fontsize=9,
+        fontsize=8,
+        color="#666666",
     )
-    figure.tight_layout(rect=[0, 0.1, 1, 0.94])
+    figure.tight_layout(rect=[0, 0.04, 1, 0.93])
     save_figure(figure, "fig5_abo_sublineage")
 
 
 def create_figure_6() -> None:
     o2 = pd.read_csv(DATA_DIR / "o2_frequency_summary.csv")
     population = pd.read_csv(DATA_DIR / "abo_population_summary.csv")
-    selected_o2 = o2[
-        o2["population"].isin(
-            [
-                "Munda",
-                "Paradise",
-                "Rawaki",
-                "GBR",
-                "FIN",
-                "TSI",
-                "IBS",
-                "PUR",
-                "PEL",
-                "MXL",
-                "CEU",
-            ]
-        )
-    ].sort_values("frequency", ascending=True)
-    selected_window = population[
-        population["pop"].isin(
-            [
-                "PapuanSepik",
-                "PapuanHighlands",
-                "Bougainville",
-                "JPT",
-                "GBR",
-                "PEL",
-                "Pima",
-                "Maya",
-                "Colombian",
-            ]
-        )
-    ].sort_values("window_individual_frequency", ascending=True)
-    display_names = {
-        "GBR": "British",
-        "PUR": "Puerto Rican",
-        "TSI": "Toscani",
-        "FIN": "Finnish",
-        "IBS": "Iberian",
-        "PEL": "Peruvian",
-        "MXL": "Mexican ancestry",
-        "CEU": "Utah European",
-        "JPT": "Japanese",
-        "PapuanSepik": "Papuan Sepik",
-        "PapuanHighlands": "Papuan Highlands",
+    allele_order = [
+        "Munda",
+        "Rawaki",
+        "Paradise",
+        "GBR",
+        "PUR",
+        "TSI",
+        "FIN",
+        "IBS",
+        "GIH",
+        "PEL",
+        "BEB",
+        "CLM",
+        "MXL",
+        "CEU",
+        "JPT",
+        "CHB",
+    ]
+    region_by_population = {
+        "Munda": "Oceania",
+        "Rawaki": "Oceania",
+        "Paradise": "Oceania",
+        "GBR": "Europe",
+        "TSI": "Europe",
+        "FIN": "Europe",
+        "IBS": "Europe",
+        "CEU": "Europe",
+        "PUR": "Americas",
+        "PEL": "Americas",
+        "CLM": "Americas",
+        "MXL": "Americas",
+        "GIH": "South Asia",
+        "BEB": "South Asia",
+        "JPT": "East Asia",
+        "CHB": "East Asia",
     }
-    selected_o2 = selected_o2.assign(
-        display_population=selected_o2["population"].map(display_names).fillna(
-            selected_o2["population"]
-        )
-    )
-    selected_window = selected_window.assign(
-        display_population=selected_window["pop"].map(display_names).fillna(
-            selected_window["pop"]
-        )
-    )
-    figure, axes = plt.subplots(1, 2, figsize=(13.2, 6.8))
-    source_colors = {
-        "Solomon Islands": "#7b1fa2",
-        "1000 Genomes Phase 3": "#1976d2",
+    region_colors = {
+        "Oceania": "#4caf50",
+        "Europe": "#2196f3",
+        "Americas": "#f44336",
+        "South Asia": "#9c27b0",
+        "East Asia": "#ff9800",
     }
-    axes[0].barh(
-        selected_o2["display_population"],
-        selected_o2["frequency"] * 100,
-        color=[source_colors[group] for group in selected_o2["group"]],
+    o2_values = o2.set_index("population")["frequency"].to_dict()
+    allele_frequencies = np.asarray(
+        [100 * float(o2_values.get(name, 0)) for name in allele_order]
     )
-    for index, row in enumerate(selected_o2.itertuples()):
-        axes[0].text(row.frequency * 100 + 0.25, index, f"{row.frequency * 100:.1f}%", va="center", fontsize=8)
-    axes[0].set_xlabel("T-allele frequency (%)")
-    axes[0].set_title("A. O2-defining rs41302905 T allele")
+    allele_colors = [
+        region_colors[region_by_population[name]] for name in allele_order
+    ]
+    carrier_order = [
+        "Surui",
+        "Karitiana",
+        "Maya",
+        "Pima",
+        "PEL",
+        "MXL",
+        "PUR",
+        "CLM",
+        "Bougainville",
+        "PapuanHighlands",
+        "PapuanSepik",
+    ]
+    carrier = (
+        population.set_index("pop").reindex(carrier_order).reset_index()
+    )
+    carrier_colors = [
+        "#2196f3"
+        if row.analysis_group in {"Indigenous Americas", "Other Americas"}
+        else "#ff9800"
+        if row.analysis_group == "Admixed Americas"
+        else "#4caf50"
+        for row in carrier.itertuples()
+    ]
+
+    figure, axes = plt.subplots(1, 2, figsize=(14, 6))
+    y_allele = np.arange(len(allele_order))
+    axes[0].barh(y_allele, allele_frequencies, color=allele_colors)
+    axes[0].set_yticks(y_allele, allele_order, fontsize=8)
+    axes[0].invert_yaxis()
+    axes[0].set_xlabel("rs41302905 T allele frequency (%)")
+    axes[0].set_title(
+        "A. O2-defining rs41302905 T allele frequency",
+        fontsize=11,
+        fontweight="bold",
+    )
     axes[0].grid(axis="x", alpha=0.2)
+    for index, value in enumerate(allele_frequencies):
+        if value > 0:
+            axes[0].text(
+                value + 0.2,
+                index,
+                f"{value:.1f}%",
+                va="center",
+                fontsize=7,
+            )
     axes[0].legend(
         handles=[
-            plt.Rectangle((0, 0), 1, 1, color=color, label=label)
-            for label, color in source_colors.items()
+            mpatches.Patch(color=color, label=region)
+            for region, color in region_colors.items()
         ],
+        fontsize=7,
         frameon=False,
         loc="lower right",
     )
 
-    axes[1].barh(
-        selected_window["display_population"],
-        selected_window["window_individual_frequency"] * 100,
-        color="#d95f02",
-    )
-    for index, row in enumerate(selected_window.itertuples()):
-        label = f"{row.n_window_individuals}/{row.n_total}"
-        axes[1].text(
-            row.window_individual_frequency * 100 + 1,
-            index,
-            label,
-            va="center",
-            fontsize=8,
-        )
+    y_carrier = np.arange(len(carrier))
+    carrier_frequencies = carrier["window_individual_frequency"].fillna(0) * 100
+    axes[1].barh(y_carrier, carrier_frequencies, color=carrier_colors)
+    axes[1].set_yticks(y_carrier, carrier_order, fontsize=8)
+    axes[1].invert_yaxis()
     axes[1].set_xlim(0, 100)
-    axes[1].set_xlabel("Individuals carrying a segment (%)")
-    axes[1].set_title("B. Neanderthal-like segments in the 500-kb ABO interval")
+    axes[1].set_xlabel(
+        "Individuals with a segment in the 500-kb ABO interval (%)"
+    )
+    axes[1].set_title(
+        "B. Neanderthal-classified ABO-window carrier frequency",
+        fontsize=11,
+        fontweight="bold",
+    )
     axes[1].grid(axis="x", alpha=0.2)
+    for index, row in enumerate(carrier.itertuples()):
+        carriers = 0 if pd.isna(row.n_window_individuals) else int(row.n_window_individuals)
+        total = 0 if pd.isna(row.n_total) else int(row.n_total)
+        value = (
+            0
+            if pd.isna(row.window_individual_frequency)
+            else 100 * row.window_individual_frequency
+        )
+        axes[1].text(
+            value + 1,
+            index,
+            f"{carriers}/{total}",
+            va="center",
+            fontsize=7,
+        )
+    axes[1].legend(
+        handles=[
+            mpatches.Patch(color="#2196f3", label="Indigenous Americas"),
+            mpatches.Patch(color="#ff9800", label="Admixed Americas"),
+            mpatches.Patch(color="#4caf50", label="Oceania"),
+        ],
+        fontsize=7,
+        frameon=False,
+        loc="lower right",
+    )
     figure.suptitle(
-        "ABO allele and introgression-window summaries use different data sources",
-        fontsize=15,
+        "O2-defining allele and ABO-window segment-carrier frequencies",
+        fontsize=14,
         fontweight="bold",
     )
     figure.text(
         0.5,
-        0.01,
-        "Panel A: Ensembl/1000 Genomes and Ohashi et al. (2006). Panel B: hmmix segment calls; labels show carriers/individuals.",
+        0.005,
+        "The panels use different sources and summarize different biological quantities.",
         ha="center",
-        fontsize=9,
+        fontsize=8,
+        color="#666666",
     )
     figure.tight_layout(rect=[0, 0.04, 1, 0.94])
     save_figure(figure, "fig6_o2_introgression")
@@ -393,57 +434,193 @@ def add_arrow(
 
 
 def create_figure_7() -> None:
-    population = pd.read_csv(DATA_DIR / "abo_population_summary.csv")
-    segments = pd.read_csv(DATA_DIR / "abo_neanderthal_segments.csv")
-    indigenous_population = population[
-        population["analysis_group"] == "Indigenous Americas"
-    ]
-    indigenous_segments = segments[
-        segments["analysis_group"] == "Indigenous Americas"
-    ]
-    n_total = int(indigenous_population["n_total"].sum())
-    n_carriers = int(indigenous_population["n_window_individuals"].sum())
-    n_strict = int(indigenous_population["n_strict_individuals"].sum())
-    n_vindija = int(
-        (indigenous_segments["closest_reference"] == "Vindija").sum()
-    )
-    figure, axis = plt.subplots(figsize=(12.5, 7.0))
-    axis.set_xlim(0, 12)
-    axis.set_ylim(0, 8)
+    sublineage = pd.read_csv(DATA_DIR / "abo_sublineage_summary.csv")
+
+    def classifiable(group: str) -> tuple[int, int]:
+        rows = sublineage[
+            (sublineage["analysis_group"] == group)
+            & (sublineage["closest_reference"] != "Tie")
+        ]
+        total = int(rows["n_segments"].sum())
+        vindija_rows = rows[rows["closest_reference"] == "Vindija"]
+        vindija = (
+            int(vindija_rows["n_segments"].iloc[0]) if len(vindija_rows) else 0
+        )
+        return vindija, total
+
+    europe_vindija, europe_total = classifiable("Europe")
+    east_vindija, east_total = classifiable("East Asia")
+    oceania_vindija, oceania_total = classifiable("Oceania")
+    figure, axis = plt.subplots(figsize=(14, 9))
+    axis.set_xlim(0, 14)
+    axis.set_ylim(0, 9)
     axis.axis("off")
-    add_box(axis, (4.4, 6.7), 3.2, 0.75, "Out-of-Africa populations\nwith Neanderthal ancestry", "#eceff1", "#455a64")
-    add_box(axis, (1.0, 4.9), 3.1, 0.85, "West Eurasian ancestry\n(Vindija-related signal common)", "#fff3e0", "#ef6c00")
-    add_box(axis, (7.9, 4.9), 3.1, 0.85, "East Asian ancestry\n(Altai/Chagyrskaya-related signal common)", "#e3f2fd", "#1565c0")
-    add_box(axis, (1.8, 2.8), 3.2, 0.95, "Ancient North Eurasian ancestry\n~35% contribution in a published model", "#fff8e1", "#f9a825")
-    add_box(axis, (7.0, 2.8), 3.2, 0.95, "Northeast Asian ancestry\n~65% contribution in the same model", "#e8f5e9", "#2e7d32")
-    observation = (
-        "Present-day Indigenous HGDP sample\n"
-        f"{n_carriers}/{n_total} window carriers; {n_strict} overlaps ABO\n"
-        f"{n_vindija}/{len(indigenous_segments)} segments Vindija-closest"
-    )
-    add_box(axis, (3.65, 0.65), 4.7, 1.15, observation, "#fce4ec", "#c2185b")
-    add_arrow(axis, (5.2, 6.7), (3.0, 5.75), "#ef6c00")
-    add_arrow(axis, (6.8, 6.7), (9.0, 5.75), "#1565c0")
-    add_arrow(axis, (2.6, 4.9), (3.2, 3.75), "#f9a825")
-    add_arrow(axis, (9.4, 4.9), (8.6, 3.75), "#2e7d32")
-    add_arrow(axis, (3.7, 2.8), (5.0, 1.8), "#c2185b", dashed=True)
-    add_arrow(axis, (8.3, 2.8), (7.0, 1.8), "#c2185b", dashed=True)
     axis.text(
-        6,
-        7.75,
-        "Ancient North Eurasian pathway hypothesis for an ABO-window observation",
-        ha="center",
-        va="top",
-        fontsize=16,
+        7,
+        8.7,
+        "ANE dual ancestry model — contextual hypothesis",
+        fontsize=13,
         fontweight="bold",
+        ha="center",
+    )
+    for y_value, label in [
+        (8.0, "~50 kya"),
+        (7.0, "~45 kya"),
+        (6.0, "~35 kya"),
+        (5.0, "~25 kya"),
+        (4.0, "~15 kya"),
+        (3.0, "~10 kya"),
+        (1.5, "Present"),
+    ]:
+        axis.text(0.3, y_value, label, fontsize=8, ha="right", color="gray")
+        axis.axhline(
+            y=y_value, xmin=0.02, xmax=0.06, color="gray", linewidth=0.5
+        )
+
+    boxes = [
+        (
+            (3, 7.7, 3, 0.5),
+            "Out of Africa → Neanderthal admixture",
+            "#e8eaf6",
+            "black",
+            9,
+        ),
+        (
+            (1.5, 6.5, 2.5, 0.5),
+            "West Eurasian\nbranch",
+            "#fff3e0",
+            "#e65100",
+            8,
+        ),
+        (
+            (9.7, 6.5, 2.5, 0.5),
+            "East Asian\nbranch",
+            "#e3f2fd",
+            "#1565c0",
+            8,
+        ),
+        (
+            (4.5, 5.5, 3.5, 0.7),
+            "ANE (Ancient North Eurasian)\nMal'ta 24 kya | Yana 31.6 kya | Sunghir 33 kya",
+            "#fff9c4",
+            "#f57f17",
+            8,
+        ),
+        (
+            (4.9, 3.7, 3.1, 0.75),
+            "Beringian population context\npublished model: ANE + East Asian ancestry",
+            "#e8f5e9",
+            "#2e7d32",
+            8,
+        ),
+        (
+            (1.0, 1.15, 3.4, 0.9),
+            (
+                "Present-day Europe\n"
+                f"Vindija-closest: {europe_vindija}/{europe_total} "
+                "classifiable ABO-window segments"
+            ),
+            "#fff5e6",
+            "#e65100",
+            7.5,
+        ),
+        (
+            (5.1, 1.15, 3.8, 0.9),
+            (
+                "Indigenous American records\nPima: 1 strict overlap; "
+                "Maya: 1 window-only\nboth Vindija-closest"
+            ),
+            "#fce4ec",
+            "#c62828",
+            7.5,
+        ),
+        (
+            (9.6, 1.15, 3.4, 0.9),
+            (
+                "East Asia / Oceania\n"
+                f"Vindija-closest: {east_vindija}/{east_total} and "
+                f"{oceania_vindija}/{oceania_total}"
+            ),
+            "#e3f2fd",
+            "#1565c0",
+            7.5,
+        ),
+    ]
+    for coordinates, text, face, edge, fontsize in boxes:
+        x_value, y_value, width, height = coordinates
+        patch = FancyBboxPatch(
+            (x_value, y_value),
+            width,
+            height,
+            boxstyle="round,pad=0.1",
+            facecolor=face,
+            edgecolor=edge,
+        )
+        axis.add_patch(patch)
+        axis.text(
+            x_value + width / 2,
+            y_value + height / 2,
+            text,
+            fontsize=fontsize,
+            ha="center",
+            va="center",
+            fontweight="bold" if "ANE (" in text else "normal",
+        )
+    axis.text(
+        8.5,
+        5.85,
+        "Yana2: Chagyrskaya-closest upstream record\n"
+        "Mal'ta: no segment recorded in extracted interval\n"
+        "Ancient and modern calls used different pipelines",
+        fontsize=7,
+        ha="left",
+        color="#e65100",
+        style="italic",
+    )
+    arrows = [
+        ((4.5, 7.75), (2.8, 7.0), "#e65100", "solid"),
+        ((4.5, 7.75), (10.9, 7.0), "#1565c0", "solid"),
+        ((2.8, 6.5), (5.1, 6.0), "#e65100", "solid"),
+        ((10.9, 6.5), (7.8, 5.95), "#1565c0", "solid"),
+        ((6.25, 5.5), (6.45, 4.45), "#f57f17", "solid"),
+        ((10.9, 6.5), (7.9, 4.2), "#1565c0", "solid"),
+        ((6.45, 3.7), (2.7, 2.05), "#e65100", "dashed"),
+        ((6.45, 3.7), (7.0, 2.05), "#c62828", "dashed"),
+        ((7.2, 3.7), (11.3, 2.05), "#1565c0", "dashed"),
+    ]
+    for start, end, color, style in arrows:
+        axis.add_patch(
+            FancyArrowPatch(
+                start,
+                end,
+                arrowstyle="-|>",
+                mutation_scale=12,
+                linewidth=1.5,
+                color=color,
+                linestyle=style,
+                connectionstyle="arc3,rad=0.03",
+            )
+        )
+    axis.text(
+        7,
+        0.45,
+        "Dashed arrows denote a testable hypothesis, not an inferred migration route.",
+        fontsize=8,
+        ha="center",
+        color="#555555",
     )
     axis.text(
-        6,
-        0.18,
-        "Dashed arrows indicate a hypothesis, not a migration inference. The observed sample is too small for regional estimation.",
+        10.7,
+        3.65,
+        "Two modern records cannot estimate\na regional frequency or pathway.",
+        fontsize=7.5,
         ha="center",
-        fontsize=10,
-        color="#8e244d",
+        color="#c62828",
+        bbox={
+            "boxstyle": "round",
+            "facecolor": "#fff5f5",
+            "edgecolor": "#c62828",
+        },
     )
     figure.tight_layout()
     save_figure(figure, "fig7_ane_model")
@@ -452,140 +629,154 @@ def create_figure_7() -> None:
 def create_figure_8() -> None:
     ancient = pd.read_csv(DATA_DIR / "ancient_abo_summary.csv")
     modern = pd.read_csv(DATA_DIR / "abo_sublineage_summary.csv")
-    figure, axes = plt.subplots(1, 2, figsize=(13.2, 6.8))
+    figure, axes = plt.subplots(1, 2, figsize=(16, 8))
     detected = ancient[ancient["segment_detected"]].copy()
     undetected = ancient[~ancient["segment_detected"]].copy()
     detected["maximum_proportion"] = detected[
         ["altai_proportion", "vindija_proportion", "chagyrskaya_proportion"]
     ].max(axis=1)
-    detected["maximum_proportion"] = detected["maximum_proportion"].fillna(0.55)
+    reference_colors = {
+        "Altai": "#2196f3",
+        "Vindija": "#ff9800",
+        "Chagyrskaya": "#4caf50",
+    }
     for reference, group in detected.groupby("closest_reference"):
         axes[0].scatter(
             group["age_kya"],
             group["maximum_proportion"],
-            color=COLORS.get(reference, COLORS["Unresolved"]),
-            s=70,
+            color=reference_colors.get(reference, "#777777"),
+            s=55,
             label=reference,
-            edgecolor="black",
-            linewidth=0.4,
+            zorder=3,
         )
         for row in group.itertuples():
             axes[0].annotate(
                 row.individual,
                 (row.age_kya, row.maximum_proportion),
-                xytext=(3, 5),
+                xytext=(3, 4),
                 textcoords="offset points",
-                fontsize=8,
+                fontsize=7,
             )
     axes[0].scatter(
         undetected["age_kya"],
-        np.full(len(undetected), 0.04),
-        marker="x",
-        color=COLORS["None"],
-        s=55,
+        np.zeros(len(undetected)),
+        facecolor="white",
+        edgecolor="#777777",
+        s=48,
         label="No segment recorded",
+        zorder=3,
     )
-    for row in undetected.itertuples():
-        axes[0].annotate(
-            row.individual,
-            (row.age_kya, 0.04),
-            xytext=(3, 5),
-            textcoords="offset points",
-            fontsize=7,
-            rotation=35,
-        )
-    axes[0].set_xlim(43, 5)
-    axes[0].set_ylim(0, 1.05)
-    axes[0].set_xlabel("Age (thousand years ago)")
-    axes[0].set_ylabel("Highest recorded reference-match proportion")
-    axes[0].set_title("A. Descriptive ancient-genome extraction")
+    axes[0].axvspan(15, 25, color="#ffb2b2", alpha=0.25)
+    axes[0].text(
+        20,
+        0.08,
+        "Beringian\ncontext interval",
+        ha="center",
+        fontsize=7,
+        color="#b71c1c",
+    )
+    axes[0].invert_xaxis()
+    axes[0].set_xlim(42, -1)
+    axes[0].set_ylim(-0.05, 1.05)
+    axes[0].set_xlabel("Approximate age (thousand years)")
+    axes[0].set_ylabel("Maximum similarity to an archaic reference")
+    axes[0].set_title(
+        "A. Ancient ABO-window observations",
+        fontsize=11,
+        fontweight="bold",
+    )
     axes[0].grid(alpha=0.2)
-    axes[0].legend(frameon=False, fontsize=8)
+    axes[0].legend(frameon=False, fontsize=7, loc="lower left")
 
-    groups = [
+    ancient_classifiable = detected[
+        (detected["age_kya"] > 8)
+        & detected["closest_reference"].isin(reference_colors)
+    ]
+    modern_groups = [
         "Europe",
         "Central/South Asia",
         "East Asia",
         "Oceania",
-        "Admixed Americas",
         "Indigenous Americas",
     ]
-    cumulative = np.zeros(len(groups))
-    for reference in ["Vindija", "Altai", "Chagyrskaya", "Tie"]:
-        values = []
-        for group in groups:
-            rows = modern[
-                (modern["analysis_group"] == group)
-                & (modern["closest_reference"] == reference)
-            ]
-            values.append(float(rows["proportion"].iloc[0]) if len(rows) else 0.0)
+    display_groups = ["Ancient records\n(>8 kya)"] + modern_groups
+    counts: dict[str, dict[str, int]] = {
+        display_groups[0]: {
+            reference: int(
+                (ancient_classifiable["closest_reference"] == reference).sum()
+            )
+            for reference in reference_colors
+        }
+    }
+    for group in modern_groups:
+        rows = modern[
+            (modern["analysis_group"] == group)
+            & (modern["closest_reference"].isin(reference_colors))
+        ]
+        counts[group] = {
+            reference: int(
+                rows.loc[
+                    rows["closest_reference"] == reference, "n_segments"
+                ].sum()
+            )
+            for reference in reference_colors
+        }
+    cumulative = np.zeros(len(display_groups))
+    for reference in ["Altai", "Vindija", "Chagyrskaya"]:
+        values: list[float] = []
+        for group in display_groups:
+            total = sum(counts[group].values())
+            values.append(100 * counts[group][reference] / total if total else 0)
         axes[1].bar(
-            groups,
-            np.asarray(values) * 100,
+            display_groups,
+            values,
             bottom=cumulative,
-            color=COLORS[reference],
+            color=reference_colors[reference],
             label=reference,
-            edgecolor="white",
-            linewidth=0.5,
         )
-        cumulative += np.asarray(values) * 100
-    for index, group in enumerate(groups):
-        rows = modern[modern["analysis_group"] == group]
-        total = int(rows["group_total"].iloc[0]) if len(rows) else 0
-        axes[1].text(index, 102, f"n={total}", ha="center", fontsize=8)
-    axes[1].set_ylim(0, 110)
-    axes[1].set_ylabel("Segment composition (%)")
-    axes[1].set_title("B. Modern hmmix segments in the 500-kb interval")
-    axes[1].tick_params(axis="x", rotation=30)
-    axes[1].legend(frameon=False, ncol=2, loc="lower left")
+        cumulative += np.asarray(values)
+    axes[1].tick_params(axis="x", rotation=30, labelsize=8)
+    axes[1].set_ylim(0, 100)
+    axes[1].set_ylabel("Classifiable segment proportion (%)")
+    axes[1].set_title(
+        "B. Ancient and modern descriptive composition",
+        fontsize=11,
+        fontweight="bold",
+    )
+    axes[1].legend(frameon=False, fontsize=8, loc="upper left")
     axes[1].grid(axis="y", alpha=0.2)
+    for index, group in enumerate(display_groups):
+        axes[1].text(
+            index,
+            102,
+            f"n={sum(counts[group].values())}",
+            ha="center",
+            fontsize=7,
+            clip_on=False,
+        )
     figure.suptitle(
-        "Ancient and modern ABO-window summaries are descriptive and method-dependent",
-        fontsize=15,
+        "Temporal dynamics of Neanderthal sub-lineages at the ABO locus",
+        fontsize=14,
         fontweight="bold",
     )
     figure.text(
         0.5,
-        0.01,
-        "Ancient and modern calls were produced by different pipelines; this figure does not constitute a formal temporal test.",
+        0.005,
+        "Ancient and modern calls used different pipelines; no formal temporal comparison is made.",
         ha="center",
-        fontsize=9,
+        fontsize=8,
+        color="#666666",
     )
-    figure.tight_layout(rect=[0, 0.04, 1, 0.94])
+    figure.tight_layout(rect=[0, 0.04, 1, 0.93])
     save_figure(figure, "fig8_temporal_dynamics")
 
 
 def main() -> None:
-    create_figure_3()
     create_figure_5()
     create_figure_6()
     create_figure_7()
     create_figure_8()
-    source = FIGURE_DIR / "fig4_bivariate_world_map.png"
-    target = FIGURE_DIR / "fig9_bivariate_world_map.png"
-    with Image.open(source) as image:
-        output = image.convert("RGB")
-    draw = ImageDraw.Draw(output)
-    draw.rectangle((0, output.height - 120, output.width, output.height), fill="white")
-    font_path = Path("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf")
-    font = (
-        ImageFont.truetype(str(font_path), 24)
-        if font_path.exists()
-        else ImageFont.load_default()
-    )
-    footer = (
-        "Contextual approximate values from Sankararaman et al. (2014, 2016), "
-        "Jacobs et al. (2019), and Liu et al. (2024)"
-    )
-    left, _, right, _ = draw.textbbox((0, 0), footer, font=font)
-    draw.text(
-        ((output.width - (right - left)) / 2, output.height - 72),
-        footer,
-        fill="#666666",
-        font=font,
-    )
-    output.save(target, format="PNG", dpi=(300, 300))
-    print("Created AJBA Figures 5-9 source files")
+    print("Created AJBA Figures 5-8 source files")
 
 
 if __name__ == "__main__":

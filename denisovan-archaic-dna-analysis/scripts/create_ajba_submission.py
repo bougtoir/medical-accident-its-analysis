@@ -631,114 +631,88 @@ def add_title_page(document: Document) -> None:
 
 
 def table_1_rows() -> list[list[str]]:
-    model_summary = pd.read_csv(DATA_DIR / "model_summary.csv")
-
-    def interval(ancestry: str) -> str:
-        row = model_summary[
-            (model_summary["ancestry"] == ancestry)
-            & (model_summary["model"] == "expanded QAP")
-            & (model_summary["term"] == "geo_dist_1000km")
-        ].iloc[0]
-        return (
-            f"{row['leave_one_population_out_2.5pct']:.5f} to "
-            f"{row['leave_one_population_out_97.5pct']:.5f}"
-        )
-
-    neanderthal = revised_content.NEANDERTHAL
-    denisovan = revised_content.DENISOVAN
-    return [
-        ["Metric", "Neanderthal", "Denisovan", "Interpretation"],
-        ["Populations / unique pairs", "66 / 2,145", "66 / 2,145", "Same pair set"],
+    pairs = pd.read_csv(DATA_DIR / "pairwise_sharing_corrected.csv")
+    qualifying = pairs[
+        (pairs["any_admixed"] == 0)
+        & (pairs["nean_resid_z"] > 2)
+        & (pairs["nean_fdr_pval"] < 0.10)
+    ].sort_values("nean_resid_z", ascending=False)
+    rows = [
         [
-            "Raw sharing-distance r",
-            f"{neanderthal['raw_r']:.4f}",
-            f"{denisovan['raw_r']:.4f}",
-            "Descriptive pairwise correlation",
-        ],
-        [
-            "Expanded-model partial r",
-            f"{neanderthal['partial_r']:.4f}",
-            f"{denisovan['partial_r']:.4f}",
-            "Distance after coarse sensitivity covariates",
-        ],
-        [
-            "Distance-only R²",
-            f"{neanderthal['distance_only_r_squared']:.4f}",
-            f"{denisovan['distance_only_r_squared']:.4f}",
-            "Descriptive matrix fit",
-        ],
-        [
-            "Expanded descriptive R²",
-            f"{neanderthal['expanded_r_squared']:.4f}",
-            f"{denisovan['expanded_r_squared']:.4f}",
-            "Not an independent-pair causal estimate",
-        ],
-        [
-            "QAP distance coefficient / 1,000 km",
-            f"{neanderthal['distance_qap_beta']:.5f}",
-            f"{denisovan['distance_qap_beta']:.5f}",
-            "Expanded model",
-        ],
-        [
-            "QAP two-sided P",
-            f"{neanderthal['distance_qap_p']:.4f}",
-            f"{denisovan['distance_qap_p']:.4f}",
-            "9,999 population-label permutations",
-        ],
-        [
-            "Population-deletion interval",
-            interval("Neanderthal"),
-            interval("Denisovan"),
-            "2.5th-97.5th percentile sensitivity interval",
-        ],
-        [
-            "FDR q<0.10 and positive z>2 outliers",
-            str(neanderthal["fdr_q_lt_0.10_positive_z_gt_2"]),
-            str(denisovan["fdr_q_lt_0.10_positive_z_gt_2"]),
-            "All non-admixed pairs tested within ancestry",
-        ],
+            "Population 1",
+            "Population 2",
+            "Region 1",
+            "Region 2",
+            "Distance (km)",
+            "Sharing (r)",
+            "z-score",
+        ]
     ]
+    if qualifying.empty:
+        rows.append(
+            [
+                "No qualifying pair",
+                "—",
+                "—",
+                "—",
+                "—",
+                "—",
+                "No z>2 and q<0.10 result",
+            ]
+        )
+        return rows
+    for row in qualifying.itertuples():
+        rows.append(
+            [
+                row.pop1,
+                row.pop2,
+                row.region1.replace("_", " ").title(),
+                row.region2.replace("_", " ").title(),
+                f"{row.geo_dist_km:,.0f}",
+                f"{row.nean_corr:.3f}",
+                f"{row.nean_resid_z:.2f}",
+            ]
+        )
+    return rows
 
 
 def table_2_rows() -> list[list[str]]:
     sublineage = pd.read_csv(DATA_DIR / "abo_sublineage_summary.csv")
-    segments = pd.read_csv(DATA_DIR / "abo_neanderthal_segments.csv")
     order = [
-        "Europe",
-        "Middle East",
-        "Central/South Asia",
         "East Asia",
-        "Oceania",
-        "Admixed Americas",
+        "Europe",
         "Indigenous Americas",
+        "Admixed Americas",
+        "Central/South Asia",
+        "Middle East",
+        "Oceania",
     ]
     rows = [
         [
-            "Group",
-            "Segments",
-            "Vindija %",
+            "Region",
+            "n",
             "Altai %",
+            "Vindija %",
             "Chagyrskaya %",
-            "Tie %",
-            "Strict ABO overlap",
         ]
     ]
     for group in order:
-        group_summary = sublineage[sublineage["analysis_group"] == group]
-        group_segments = segments[segments["analysis_group"] == group]
+        group_summary = sublineage[
+            (sublineage["analysis_group"] == group)
+            & (sublineage["closest_reference"] != "Tie")
+        ]
+        total = int(group_summary["n_segments"].sum())
         values = {
-            row.closest_reference: row.proportion * 100
+            row.closest_reference: 100 * row.n_segments / total
             for row in group_summary.itertuples()
-        }
+        } if total else {}
         rows.append(
             [
                 group,
-                str(len(group_segments)),
-                f"{values.get('Vindija', 0):.1f}",
+                str(total),
                 f"{values.get('Altai', 0):.1f}",
+                f"{values.get('Vindija', 0):.1f}",
                 f"{values.get('Chagyrskaya', 0):.1f}",
-                f"{values.get('Tie', 0):.1f}",
-                str(int(group_segments["strict_overlap"].sum())),
             ]
         )
     return rows
@@ -746,14 +720,14 @@ def table_2_rows() -> list[list[str]]:
 
 TABLES = {
     1: (
-        "Dependence-aware geographic-distance results",
+        "FDR-supported positive-residual Neanderthal population pairs",
         table_1_rows,
-        "R-squared and correlation values are descriptive. QAP tests permute population labels on the response matrix. Population-deletion intervals are sensitivity summaries, not independent-sample confidence intervals.",
+        "The prespecified family contains all non-admixed population pairs. No pair met both z>2 and Benjamini-Hochberg q<0.10; the Denisovan analysis likewise identified no qualifying pair. Complete nominal rankings and dependence-aware model results are provided in Supplementary Data.",
     ),
     2: (
         "ABO-window Neanderthal-reference composition",
         table_2_rows,
-        "Counts are segments, not individuals. Equal maximum similarity counts are reported as ties. The Indigenous American row contains two segments, only one of which overlaps ABO.",
+        "Counts are classifiable segments, not individuals. Percentages use the three-reference denominator shown by n. Equal maximum-similarity ties are excluded from these percentages but retained in Supplementary Data. The 2/2 Indigenous American value is not a regional frequency estimate; only one segment overlaps ABO.",
     ),
 }
 
@@ -1142,25 +1116,33 @@ def prepare_separate_figures() -> None:
         png_target = OUTPUT_FIGURE_DIR / f"Figure_{number}.png"
         tiff_target = OUTPUT_FIGURE_DIR / f"Figure_{number}.tiff"
         shutil.copy2(source, png_target)
-        with Image.open(source) as image:
-            image.convert("RGB").save(
-                tiff_target,
-                format="TIFF",
-                dpi=(300, 300),
-                compression="tiff_lzw",
-            )
+        tiff_source = source.with_suffix(".tiff")
+        if tiff_source.exists():
+            shutil.copy2(tiff_source, tiff_target)
+        else:
+            with Image.open(source) as image:
+                image.convert("RGB").save(
+                    tiff_target,
+                    format="TIFF",
+                    dpi=(300, 300),
+                    compression="tiff_lzw",
+                )
     for number, (filename, _) in SUPPORTING_FIGURES.items():
         source = FIGURE_DIR / filename
         png_target = OUTPUT_FIGURE_DIR / f"Figure_S{number}.png"
         tiff_target = OUTPUT_FIGURE_DIR / f"Figure_S{number}.tiff"
         shutil.copy2(source, png_target)
-        with Image.open(source) as image:
-            image.convert("RGB").save(
-                tiff_target,
-                format="TIFF",
-                dpi=(300, 300),
-                compression="tiff_lzw",
-            )
+        tiff_source = source.with_suffix(".tiff")
+        if tiff_source.exists():
+            shutil.copy2(tiff_source, tiff_target)
+        else:
+            with Image.open(source) as image:
+                image.convert("RGB").save(
+                    tiff_target,
+                    format="TIFF",
+                    dpi=(300, 300),
+                    compression="tiff_lzw",
+                )
 
 
 def validate_content() -> list[str]:
@@ -1250,12 +1232,12 @@ def create_checklist(path: Path) -> None:
 
 - `manuscript_ajba.docx`: AJBA-oriented manuscript with figure legends and no embedded figure bodies
 - `manuscript_ajba_inline_review.docx`: internal review copy with figures and tables immediately after first mention
-- `Table_1_corrected_model.docx` and `Table_2_abo_summary.docx`: individual editable tables
+- `Table_1_residual_outliers.docx` and `Table_2_abo_summary.docx`: individual editable tables
 - `tables_ajba.docx`: combined editable Tables 1-2 for internal convenience
-- `supporting_information_ajba.docx`: Supporting Figures S1-S2 and data-file descriptions
-- `figures_tables_ajba.pptx`: Figures 1-9, Figures S1-S2, and Tables 1-2
+- `supporting_information_ajba.docx`: Supporting Figure S1 and data-file descriptions
+- `figures_tables_ajba.pptx`: Figures 1-10, Figure S1, and Tables 1-2
 - `cover_letter_ajba.docx`: AJBA Research Article cover letter
-- `figures/Figure_1` through `Figure_9` and `Figure_S1` through `Figure_S2`: separate PNG and TIFF files
+- `figures/Figure_1` through `Figure_10` and `Figure_S1`: separate PNG and TIFF files
 - `supplementary_data/`: population metadata, complete pairwise results, model output, sensitivities, and provenance
 - `reproducibility_checklist.md`: data provenance, rebuild commands, expected checks, and package versions
 - `reference_validation.csv`: DOI/PubMed existence and title checks
@@ -1264,7 +1246,7 @@ def create_checklist(path: Path) -> None:
 
 - References use Chicago author-date style and are alphabetized.
 - Every listed reference is cited and every citation has a reference entry.
-- Figures 1-9, Figures S1-S2, and Tables 1-2 are first mentioned sequentially.
+- Figures 1-10, Figure S1, and Tables 1-2 are first mentioned sequentially.
 - The abstract is within 250 words.
 - The running title is under 48 characters.
 - Required title-page, availability, funding, conflict, ethics, and contribution statements are present.
@@ -1280,7 +1262,7 @@ def create_checklist(path: Path) -> None:
 - Confirm AJBA article type and current file-size limits in Wiley Research Exchange.
 - Upload the manuscript without embedded figures; upload each TIFF separately.
 - Upload `supporting_information_ajba.docx` and the supplementary CSV/JSON files.
-- Upload `Table_1_corrected_model.docx` and `Table_2_abo_summary.docx` as editable table files.
+- Upload `Table_1_residual_outliers.docx` and `Table_2_abo_summary.docx` as editable table files.
 - Do not interpret nominal residuals, PEL-containing pairs, or the two Indigenous-American ABO-window segments as definitive migration evidence.
 
 ## Submission links
@@ -1372,11 +1354,13 @@ def create_zip(path: Path, files: list[Path]) -> None:
 
 def main() -> None:
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    for stale in ["Table_1_corrected_model.docx"]:
+        (OUTPUT_DIR / stale).unlink(missing_ok=True)
     prepare_separate_figures()
     manuscript = OUTPUT_DIR / "manuscript_ajba.docx"
     review = OUTPUT_DIR / "manuscript_ajba_inline_review.docx"
     tables = OUTPUT_DIR / "tables_ajba.docx"
-    table_1 = OUTPUT_DIR / "Table_1_corrected_model.docx"
+    table_1 = OUTPUT_DIR / "Table_1_residual_outliers.docx"
     table_2 = OUTPUT_DIR / "Table_2_abo_summary.docx"
     supporting = OUTPUT_DIR / "supporting_information_ajba.docx"
     cover = OUTPUT_DIR / "cover_letter_ajba.docx"
