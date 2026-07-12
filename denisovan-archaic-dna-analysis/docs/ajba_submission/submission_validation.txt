@@ -4,8 +4,8 @@ AJBA SUBMISSION VALIDATION
 Abstract words: 194
 References: 25
 Uncited references: []
-First-appearance figure order: [1, 2, 3, 4, 5, 6, 7, 8, 9]
-First-appearance supporting figure order: [1, 2]
+First-appearance figure order: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+First-appearance supporting figure order: [1]
 First-appearance table order: [1, 2]
 
 PASS: Chicago author-date citations

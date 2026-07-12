@@ -1,6 +1,6 @@
 {
   "analysis_release": "ajba-critical-revision-2026-07",
-  "analysis_code_commit": "ea914dcd0eb80c5c2e34461395b7b65ae5d48434",
+  "analysis_code_commit": "1965618ded383a22a45c57497d0cd894d0f867af",
   "segments_1kg": {
     "file_name": "hg38_1000g_segments.txt",
     "sha256": "d3ea9fe7ac6b5abacb176acecf4747bacdead89c0a35e1750a4f8ee71b2bb1d4"
