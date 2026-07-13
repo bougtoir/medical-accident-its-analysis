@@ -84,6 +84,12 @@ REFS: dict[str, str] = {
         "PRISMA Extension for Scoping Reviews (PRISMA-ScR): checklist and "
         "explanation. Ann Intern Med. 2018;169(7):467-473. doi:10.7326/M18-0850."
     ),
+    "grade_indirectness": (
+        "Guyatt GH, Oxman AD, Kunz R, Woodcock J, Brozek J, Helfand M, et al. "
+        "GRADE guidelines: 8. Rating the quality of evidence - indirectness. "
+        "J Clin Epidemiol. 2011;64(12):1303-1310. "
+        "doi:10.1016/j.jclinepi.2011.04.014."
+    ),
     "arksey": (
         "Arksey H, O'Malley L. Scoping studies: towards a methodological "
         "framework. Int J Soc Res Methodol. 2005;8(1):19-32. "
@@ -801,7 +807,11 @@ def body_blocks() -> list[tuple]:
         "assessment. Each retrieved study was classified by evidence distance: "
         "D4, direct target-domain empirical evidence; D3, direct target-domain "
         "documentary evidence; D2, near-domain empirical evidence; D1, "
-        "mechanism analogy; and N, normative evidence. We did not treat a "
+        "mechanism analogy; and N, normative evidence. This ordering is an "
+        "operational classification defined for the present study; it is "
+        "conceptually related to the GRADE notion of indirectness "
+        "[[grade_indirectness]] but is not a GRADE certainty rating. We did not "
+        "treat a "
         "title/abstract decision as equivalent to a confirmed full-text "
         "finding, and we did not claim to have read full text that could not be "
         "retrieved. From the included studies we built a study-level extraction "
@@ -1212,8 +1222,8 @@ ABSTRACT_STRUCT = [
      "structured disclosure audit of public operator privacy notices across 14 "
      "domains, using deterministic screening and explicit denominators with "
      "95% Wilson confidence intervals (CIs)."),
-    ("Results", "Eighteen direct studies were included (5 direct-empirical, D4; "
-     "9 direct-documentary, D3; 4 near-domain, D2), with "
+    ("Results", "Eighteen direct studies were included (5 direct-empirical, "
+     "9 direct-documentary, and 4 near-domain), with "
      "the strongest evidence at the operation stage. Across 813 motorized "
      "micromobility feeds, vehicle identifiers appeared in 100% and coordinates "
      "in 99.4%, while battery percentage appeared in 68.9%. Operator notices "

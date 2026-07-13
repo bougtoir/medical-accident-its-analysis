@@ -1,9 +1,9 @@
 Submission validation report
 ==============================
 
-word_count: 2302
-abstract_words: 215
-references: 29
+word_count: 2331
+abstract_words: 213
+references: 30
 citations_sequential: True
 no_orphan_or_phantom_refs: True
 figures_cited_in_text: True
