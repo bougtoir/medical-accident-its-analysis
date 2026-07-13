@@ -1,14 +1,30 @@
-IJCIP submission validation
-Build date: 10 July 2026
-Main-text word count (references excluded): 4495
-Abstract word count: 190
-References: 23
-Citations sequential: True
-References complete: True
-Figure cited: True
-Tables cited: True
-Highlights <=85 characters: True
-Figure PNG pixels: 4800 x 2300
-Figure PNG render target: 600 dpi
-Figure TIFF metadata target: 1200 dpi
-Remaining manual action: confirm the live Editorial Manager upload item list.
+Submission validation report
+==============================
+
+word_count: 2278
+abstract_words: 192
+references: 29
+citations_sequential: True
+no_orphan_or_phantom_refs: True
+figures_cited_in_text: True
+tables_cited_in_text: True
+five_figures_present: True
+five_tables_present: True
+abstract_within_300w: True
+
+Figure files:
+  Figure 1 png: Figure1.png
+  Figure 1 tiff: Figure1.tiff
+  Figure 1 pdf: Figure1.pdf
+  Figure 2 png: Figure2.png
+  Figure 2 tiff: Figure2.tiff
+  Figure 2 pdf: Figure2.pdf
+  Figure 3 png: Figure3.png
+  Figure 3 tiff: Figure3.tiff
+  Figure 3 pdf: Figure3.pdf
+  Figure 4 png: Figure4.png
+  Figure 4 tiff: Figure4.tiff
+  Figure 4 pdf: Figure4.pdf
+  Figure 5 png: Figure5.png
+  Figure 5 tiff: Figure5.tiff
+  Figure 5 pdf: Figure5.pdf

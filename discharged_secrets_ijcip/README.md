@@ -2,14 +2,15 @@
 
 ## Current revision track
 
-Following desk rejection of the conceptual IJCIP submission, the project is being rebuilt as a scoping review plus a reproducible, privacy-preserving audit of public shared-micromobility data.
+Following desk rejection of the conceptual IJCIP submission, the project was rebuilt as an empirical, reproducible package for submission to *Computers & Security* (Elsevier): a PRISMA-ScR scoping review, a global field audit of public GBFS vehicle feeds, and a structured disclosure audit of public operator privacy notices. `REVIEWER_REVIEW.md` records the pre-submission reviewer-perspective assessment and residual caveats.
 
 - `PROTOCOL.md`: prospective study protocol;
 - `REVISION_STRATEGY.md`: article redesign and claim boundaries;
-- `review/`: open-metadata searches, screening codebook, candidate corpus, and extraction templates;
-- `audit/`: GBFS collection, aggregation, document-audit, and framework-traceability tools;
-- `data/`: frozen GBFS registry and privacy-preserving cross-sectional system-level observations;
-- `results/`: aggregate preliminary audit results.
+- `REVIEWER_REVIEW.md`: critical reviewer-perspective review performed before finalization;
+- `review/`: open-metadata searches, screening codebook, candidate corpus, abstract retrieval, screening, extraction, and document retrieval;
+- `audit/`: GBFS collection, aggregation, document coding, and framework-traceability tools;
+- `data/`: frozen GBFS registry, privacy-preserving cross-sectional observations, and coded document audit;
+- `results/`: aggregate audit results.
 
 ### Rebuild the bibliographic candidate corpus
 
@@ -26,6 +27,14 @@ python review/initialize_screening.py \
 
 python review/validate_screening.py \
   --screening review/screening.csv
+```
+
+Abstracts, deterministic screening, and study-level extraction are then produced by:
+
+```bash
+python review/fetch_abstracts.py      # OpenAlex abstracts -> review/.abstract_cache.csv (git-ignored)
+python review/screen_records.py       # deterministic title/abstract + full-text decisions
+python review/build_extraction.py     # 18-study extraction -> review/evidence_extraction.csv
 ```
 
 ### Rebuild the GBFS cross-sectional audit
@@ -47,11 +56,16 @@ python audit/select_operator_sample.py \
   --output audit/operator_sample.csv
 ```
 
+### Rebuild the public-document disclosure audit
+
+```bash
+python review/fetch_documents.py      # cache operator privacy notices under review/.doc_cache/ (git-ignored)
+python audit/code_documents.py        # deterministic 14-domain coding -> data/document_audit.csv
+```
+
+Document coding is computer-assisted and single-reviewer. `not_found` denotes silence in a document, not evidence that a practice is absent; every coding carries a short verbatim locator quotation. Full document bodies are never committed.
+
 The audit never writes raw vehicle identifiers, coordinates, or deep links. Field-presence results are aggregate observations at the registered-system level. The outputs do not establish trip reconstruction, identifier-rotation nonconformity, hidden backend collection, compromise, or operator intent.
-
-## Archived IJCIP submission package
-
-Submission materials for the *International Journal of Critical Infrastructure Protection* (IJCIP).
 
 ## Build
 
@@ -62,14 +76,14 @@ python build_submission.py
 
 The build writes the complete submission package to `output/`, including:
 
-- anonymized manuscript (`.docx` and reference `.pdf`) with inline figure and tables;
-- separate title page, cover letter, highlights, and submission checklist;
-- standalone editable tables (`.docx`);
-- standalone figure (`.png`, `.tiff`, `.pdf`, and editable `.pptx`);
-- reporting-guideline applicability statement;
+- anonymized manuscript (`Manuscript_CompSec.docx`) with five figures and five tables placed inline;
+- separate title page, cover letter, highlights (`.docx` and `.txt`), and submission checklist;
+- standalone editable tables (`Tables_CompSec_editable.docx`);
+- five standalone figures (`.png`, `.tiff`, `.pdf` at 600 dpi) and an editable `Figures_CompSec_editable.pptx` (one figure per slide);
+- PRISMA-ScR reporting-guideline statement;
 - citation first-appearance audit;
-- reference-verification report; and
-- a ZIP archive containing the submission files.
+- reference-verification report (live DOI/URL resolution with offline fallback); and
+- `CompSec_submission_package.zip` containing the submission files.
 
 ## Validation
 
@@ -78,8 +92,8 @@ The build fails if:
 - citations are not numbered in order of first appearance;
 - a citation is missing from the reference list or a reference is uncited;
 - a figure or table is absent from the manuscript text;
-- the abstract exceeds 250 words;
-- a highlight exceeds 85 characters; or
+- the abstract exceeds 300 words;
+- all five figures or five tables are not present and cited; or
 - an undefined abbreviation is detected from the configured abbreviation list.
 
-The source article is a conceptual, structured evidence synthesis. It does not report human-participant research, a clinical study, or a systematic review; CONSORT, STROBE, and PRISMA are therefore not applicable.
+The review component is reported in line with PRISMA-ScR. The study analyses only publicly accessible feeds and documents; it does not report human-participant research, so CONSORT and STROBE are not applicable.

@@ -1,1021 +1,1081 @@
 #!/usr/bin/env python3
+"""Build the Computers & Security submission package for the shared-micromobility
+lifecycle data-exposure study (scoping review + global GBFS field audit +
+public-document disclosure audit).
+
+The script is data-driven: quantitative claims are read from the committed
+analysis outputs (results/, data/, review/) so the manuscript, figures, and
+tables stay consistent with the underlying evidence. Citations are numbered by
+first appearance (Vancouver) by a resolver, guaranteeing sequential numbering
+with no orphan or phantom references.
+"""
 
 from __future__ import annotations
 
+import csv
 import re
 import shutil
-import subprocess
 import textwrap
+import urllib.error
+import urllib.request
 import zipfile
 from pathlib import Path
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+from matplotlib.patches import FancyArrowPatch, FancyBboxPatch
+import numpy as np
 
 from docx import Document
 from docx.enum.section import WD_SECTION
 from docx.enum.table import WD_CELL_VERTICAL_ALIGNMENT, WD_TABLE_ALIGNMENT
-from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_BREAK, WD_LINE_SPACING
+from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_LINE_SPACING
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.shared import Inches, Pt, RGBColor
-from PIL import Image, ImageDraw, ImageFont
 from pptx import Presentation
-from pptx.dml.color import RGBColor as PptxRGB
-from pptx.enum.shapes import MSO_CONNECTOR, MSO_SHAPE
-from pptx.enum.text import MSO_ANCHOR, PP_ALIGN
 from pptx.util import Inches as PptxInches, Pt as PptxPt
-from reportlab.lib import colors
-from reportlab.lib.enums import TA_CENTER, TA_JUSTIFY
-from reportlab.lib.pagesizes import letter
-from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
-from reportlab.lib.units import inch
-from reportlab.platypus import (
-    Image as ReportLabImage,
-    KeepTogether,
-    Paragraph as ReportLabParagraph,
-    SimpleDocTemplate,
-    Spacer,
-    Table as ReportLabTable,
-    TableStyle,
-)
-
+from pptx.enum.text import PP_ALIGN
 
 ROOT = Path(__file__).resolve().parent
 OUTPUT = ROOT / "output"
 WORK = ROOT / "build"
+FIGDIR = OUTPUT / "figures"
 
 TITLE = (
-    "Discharged Secrets: Lifecycle Telemetry and Supply-Chain Exposure "
-    "in Serviced Hardware for Critical Infrastructure"
+    "Lifecycle Data Exposure in Shared Micromobility: A Scoping Review and a "
+    "Global Audit of Public GBFS Vehicle Feeds and Operator Disclosures"
 )
-SHORT_TITLE = "Lifecycle telemetry exposure in serviced hardware"
+SHORT_TITLE = "Lifecycle data exposure in shared micromobility"
 AUTHOR = "[Author name]"
 AFFILIATION = "[Department, institution, city, postal code, country]"
 EMAIL = "[Corresponding author email]"
 ORCID = "[ORCID]"
-JOURNAL = "International Journal of Critical Infrastructure Protection"
-BUILD_DATE = "10 July 2026"
-
-ABSTRACT = (
-    "Critical-infrastructure organizations increasingly use connected devices that they "
-    "do not own, maintain, or decommission. Shared micromobility provides a visible "
-    "example of this broader class of serviced hardware. Existing assessments often "
-    "concentrate on real-time location, yet exposure can persist when positioning is "
-    "disabled because battery consumption, odometry, fault events, and service records "
-    "may reveal identity, occupancy, operating tempo, and recurring activity. This "
-    "article presents a structured evidence synthesis spanning mobility re-identification, "
-    "micromobility privacy measurement, battery side channels, battery-management data, "
-    "connected-vehicle governance, and cybersecurity supply-chain guidance. It develops "
-    "a lifecycle model covering procurement, deployment, operation, maintenance, "
-    "recall or return, and second-life disposal. The model shows that risk depends not "
-    "only on connectivity but also on custody, data retention, component provenance, "
-    "contractor access, and the legal jurisdiction of service backends. A Japanese "
-    "government-facility deployment is used as a bounded policy vignette; no compromise "
-    "or vendor misconduct is alleged. The article proposes proportionate controls based "
-    "on deployment criticality: telemetry inventories, local processing, access and "
-    "retention limits, component and contractor assurance, controlled maintenance, "
-    "recall-specific chain of custody, and verified sanitization. These controls extend "
-    "critical-infrastructure protection from network security to the full service and "
-    "hardware lifecycle."
-)
+JOURNAL = "Computers & Security"
+BUILD_DATE = "13 July 2026"
 
 KEYWORDS = [
-    "critical infrastructure",
-    "battery telemetry",
-    "micromobility",
-    "supply-chain risk",
-    "data minimization",
-    "lifecycle security",
+    "shared micromobility",
+    "location privacy",
+    "General Bikeshare Feed Specification",
+    "scoping review",
+    "data lifecycle",
+    "connected-device security",
 ]
 
 HIGHLIGHTS = [
-    "Serviced hardware creates exposure beyond network connectivity.",
-    "Battery telemetry can reveal identity, occupancy, and operating patterns.",
-    "Maintenance, recalls, and disposal create recurring custody gaps.",
-    "A lifecycle model links evidence to auditable procurement controls.",
-    "Controls scale from sensitive sites to civilian infrastructure fleets.",
+    "Scoping review of 2,169 records yields 18 direct micromobility studies.",
+    "Global audit of 1,428 public GBFS systems maps disclosed vehicle fields.",
+    "Vehicle identifiers appear in 100% of 813 motorized micromobility feeds.",
+    "Operator privacy notices omit disposal and vulnerability-reporting details.",
+    "Findings are field-presence signals, not evidence of privacy harm.",
 ]
 
-
-SECTIONS = [
-    (
-        "1. Introduction",
-        [
-            (
-                "In July 2026, shared electric scooters and assisted bicycles were introduced "
-                "at the Ichigaya headquarters of Japan's Ministry of Defense. When concerns "
-                "were raised about location data, the defense minister stated that location "
-                "data alone were not expected to create an information-security problem [1]. "
-                "The statement is useful as a policy vignette because it captures a common "
-                "assessment boundary: if a device's coordinates are not classified and an "
-                "individual trip appears innocuous, the service may seem operationally "
-                "convenient and security-neutral. That boundary is too narrow for devices "
-                "used in or around critical infrastructure."
-            ),
-            (
-                "Critical-infrastructure protection concerns systems whose disruption or "
-                "exploitation could affect national security, public safety, economic "
-                "activity, or continuity of essential services. Transportation, government "
-                "facilities, the defense industrial base, commercial facilities, and "
-                "information technology are recognized sectors [2]. Across those sectors, "
-                "organizations increasingly rely on equipment delivered as a service: "
-                "shared vehicles, leased sensors, smart lockers, wearables, inspection "
-                "devices, delivery robots, charging systems, and other connected assets. "
-                "The user organization may determine where the equipment is placed while "
-                "another entity owns the hardware, administers software, stores telemetry, "
-                "dispatches maintenance, and controls end-of-life handling."
-            ),
-            (
-                "This article calls that class serviced telemetry-emitting hardware: a "
-                "physical device that records operational data and is used by an organization "
-                "that does not exercise complete control over its components, software, "
-                "maintenance, data backend, or disposition. The definition does not imply "
-                "that the equipment is malicious or that the service provider has acted "
-                "improperly. It identifies a governance condition: operational dependence "
-                "exists without end-to-end visibility."
-            ),
-            (
-                "The central argument is that critical-infrastructure assessments should "
-                "treat telemetry, custody, and provenance as a single lifecycle problem. "
-                "Location is only one signal. Battery consumption, charging intervals, "
-                "cycle counts, temperature excursions, odometry, torque, fault logs, and "
-                "maintenance records can reveal recurring use even when Global Positioning "
-                "System (GPS) data are unavailable. Exposure can occur immediately through "
-                "a service backend or later when a device is inspected, returned, recalled, "
-                "resold, or recycled. Network isolation therefore reduces only part of the "
-                "attack surface."
-            ),
-            (
-                "The article makes four contributions. First, it translates evidence from "
-                "mobility privacy and battery side-channel research into a critical-"
-                "infrastructure threat model. Second, it distinguishes demonstrated "
-                "capabilities from plausible transfers, avoiding the claim that every "
-                "battery or service stores the same data. Third, it introduces a lifecycle "
-                "exposure model spanning acquisition through disposition. Fourth, it "
-                "provides a control matrix that turns broad calls for trusted supply chains "
-                "into procurement clauses and verifiable evidence."
-            ),
-        ],
+# ---------------------------------------------------------------------------
+# References. Keyed by short label; final numbering is assigned by first
+# appearance in the manuscript body (see resolve_citations). Every reference
+# below was checked against a public identifier (DOI/URL) during preparation
+# and is recorded in output/Reference_Verification.csv.
+# ---------------------------------------------------------------------------
+REFS: dict[str, str] = {
+    "prisma_scr": (
+        "Tricco AC, Lillie E, Zarin W, O'Brien KK, Colquhoun H, Levac D, et al. "
+        "PRISMA Extension for Scoping Reviews (PRISMA-ScR): checklist and "
+        "explanation. Ann Intern Med. 2018;169(7):467-473. doi:10.7326/M18-0850."
     ),
-    (
-        "2. Scope and structured synthesis method",
-        [
-            (
-                "This is a conceptual policy analysis supported by a structured evidence "
-                "synthesis, not a systematic review and not a forensic investigation of a "
-                "specific deployment. Evidence was organized around four questions: "
-                "(1) whether mobility traces can be linked to individuals or sensitive "
-                "activities; (2) whether non-positional electrical or battery data can "
-                "reveal behavior; (3) whether devices retain data that remain accessible "
-                "through service and end-of-life transitions; and (4) which established "
-                "supply-chain and device-lifecycle controls can reduce the resulting risk."
-            ),
-            (
-                "The evidence base includes peer-reviewed measurement studies, standards "
-                "and regulatory documents, official guidance, and well-documented public "
-                "incidents. The Open Mobility Foundation's privacy guidance is included "
-                "because it explicitly recognizes that vehicle and trip data remain "
-                "sensitive even when rider names, contact details, and payment information "
-                "are absent [3]. Peer-reviewed evidence was prioritized for technical "
-                "capabilities; government and standards documents were used for control "
-                "design. News reporting appears only to establish the Japanese policy "
-                "vignette and the earlier public fitness-tracker incidents."
-            ),
-            (
-                "Transfer from one device class to another was accepted only when the "
-                "underlying mechanism was shared. For example, a smart-meter study does not "
-                "prove that a scooter battery identifies a rider. It establishes the more "
-                "limited proposition that electrical load signatures can encode behavior. "
-                "Direct evidence from electric-vehicle battery consumption then supports "
-                "the stronger inference that battery patterns can disclose driver and trip "
-                "attributes. Each transfer is therefore labelled as demonstrated, supported "
-                "by analogy, or conditional in Table 1."
-            ),
-            (
-                "The analysis excludes offensive exploitation techniques, firmware reverse "
-                "engineering, and claims about undisclosed vendor architecture. It also "
-                "does not treat foreign manufacture as a vulnerability by itself. Risk "
-                "arises from the combination of data sensitivity, access, retention, "
-                "custody, legal jurisdiction, and insufficient assurance. The relevant "
-                "question is not where a supplier is located, but whether the operator can "
-                "demonstrate who can access the device and its data throughout the lifecycle."
-            ),
-            (
-                "The unit of analysis is the device-service arrangement rather than the "
-                "device in isolation. That arrangement includes the physical assembly, "
-                "embedded controllers, batteries, user and technician applications, "
-                "operator and manufacturer backends, diagnostic tools, subcontractors, "
-                "warranty processes, and disposition channels. A technically hardened "
-                "device can still create exposure if a maintenance workflow exports its "
-                "logs, while a highly connected device can be acceptable when telemetry is "
-                "strictly minimized, processed locally, and separated from sensitive "
-                "operational context. This unit prevents the analysis from equating "
-                "connectivity with risk."
-            ),
-            (
-                "Evidence was evaluated along three dimensions. Technical relevance asks "
-                "whether a source demonstrates generation, linkage, retention, or access "
-                "to a signal. Contextual relevance asks whether that mechanism could operate "
-                "in a serviced-hardware setting without assuming undisclosed capabilities. "
-                "Control relevance asks whether a mitigation can be written as a requirement "
-                "and verified through an artifact or test. Claims supported only by analogy "
-                "are not used to assert prevalence. This approach favors a bounded chain "
-                "from evidence to mechanism to control over an exhaustive catalogue of "
-                "possible threats."
-            ),
-        ],
+    "arksey": (
+        "Arksey H, O'Malley L. Scoping studies: towards a methodological "
+        "framework. Int J Soc Res Methodol. 2005;8(1):19-32. "
+        "doi:10.1080/1364557032000119616."
     ),
-    (
-        "3. Mobility data as critical-infrastructure information",
-        [
-            (
-                "Mobility traces are unusually identifying. A large-scale study of mobile-"
-                "phone records showed that four spatiotemporal points were sufficient to "
-                "uniquely characterize 95% of individuals in the studied dataset [4]. "
-                "Shared-micromobility data create a similar linkage opportunity because "
-                "vehicle identifiers, timestamps, and origins or destinations can be "
-                "combined with work schedules, access records, public photographs, or "
-                "other datasets."
-            ),
-            (
-                "A long-term real-world analysis of shared micromobility found that privacy "
-                "leakage persisted despite changes in vehicle identifiers and reported that "
-                "journeys could be reconstructed across time [5]. Earlier scholarship "
-                "identified the invisible privacy costs of rental scooters [6], while "
-                "security research described threats arising from positioning, wireless "
-                "interfaces, user applications, and operator infrastructure [7]. These "
-                "studies do not establish a compromise at a government facility. They show "
-                "that apparently impersonal fleet data can preserve continuity and support "
-                "inference."
-            ),
-            (
-                "The critical-infrastructure consequence is aggregation. A single trip "
-                "rarely matters. Repeated observations may disclose shift changes, "
-                "maintenance windows, abnormal staffing, visits to restricted areas, or "
-                "the difference between routine and surge operations. Data from an "
-                "externally operated convenience service can become an indirect sensor of "
-                "the host organization's tempo. This remains true when the service is "
-                "legitimate and the provider's primary purpose is transportation."
-            ),
-            (
-                "Public fitness-tracker incidents demonstrate how aggregation can expose "
-                "sensitive populations. In 2018, a global heatmap published by Strava "
-                "revealed activity around military sites [8]. The United States Department "
-                "of Defense subsequently restricted geolocation-capable devices, "
-                "applications, and services in designated operational areas [9]. A separate "
-                "investigation of Polar fitness data linked activity traces to homes and "
-                "identities of military and intelligence personnel [10]. The policy lesson "
-                "is broader than wearable devices: anonymization and absence of classified "
-                "content do not prevent inference when repeated observations can be joined "
-                "with external information."
-            ),
-            (
-                "For shared or leased devices, the organization must therefore ask which "
-                "entities receive raw or derived data, how persistent identifiers are "
-                "generated, what retention periods apply, whether data are reused for "
-                "safety or analytics, and whether aggregate outputs can be queried at a "
-                "granularity that exposes operational patterns. A privacy notice directed "
-                "at individual consumers does not substitute for a critical-infrastructure "
-                "data-flow assessment."
-            ),
-            (
-                "Operational sensitivity can also differ from personal-data sensitivity. "
-                "A dataset may contain no rider name and still disclose that a facility is "
-                "entering an unusual operating state. Conversely, a dataset that is useful "
-                "for safety investigations may be legitimate to collect but require stronger "
-                "separation, retention, and access governance near a sensitive site. The "
-                "assessment should therefore record both privacy impact and mission impact. "
-                "Applying only consumer privacy law may miss aggregate operational harm; "
-                "applying only classified-information rules may miss unclassified patterns "
-                "whose value emerges through repeated observation."
-            ),
-        ],
+    "demontjoye": (
+        "de Montjoye Y-A, Hidalgo CA, Verleysen M, Blondel VD. Unique in the "
+        "crowd: the privacy bounds of human mobility. Sci Rep. 2013;3:1376. "
+        "doi:10.1038/srep01376."
     ),
-    (
-        "4. Beyond GPS: battery and non-positional telemetry",
-        [
-            (
-                "A location-only review can fail even when GPS collection is disabled. "
-                "Battery and power data are shaped by speed, acceleration, gradient, payload, "
-                "temperature, route conditions, and driving style. Marchiori and Conti "
-                "demonstrated side-channel attacks that used electric-vehicle battery "
-                "consumption to identify drivers and driving style, estimate the number of "
-                "occupants, and infer trip endpoints when habitual information was available "
-                "[11]. Their reported average success across attack objectives was 95.4%. "
-                "The experiment concerns electric vehicles rather than shared scooters, but "
-                "it directly establishes that battery consumption is not operationally "
-                "neutral."
-            ),
-            (
-                "The inference mechanism is consistent with earlier work on electrical load "
-                "signatures. Smart-meter measurements have been used to infer household "
-                "activities [12], and privacy research has sought to mask appliance load "
-                "signatures precisely because power profiles reveal use [13]. These studies "
-                "support a general proposition: time-varying electrical demand can encode "
-                "behavior. Device class, sampling frequency, sensor precision, and access "
-                "determine whether a particular inference is feasible."
-            ),
-            (
-                "Battery-management systems (BMSs) add another layer. State-of-health "
-                "estimation for second-life batteries relies on historical operating "
-                "profiles and variables such as capacity, current, voltage, temperature, "
-                "and cycling [14]. European battery regulation defines a BMS as an "
-                "electronic device that manages and stores parameters used to determine "
-                "state of health and expected lifetime; it also requires access to updated "
-                "state-of-health and lifetime information for relevant battery classes "
-                "[15]. A 2026 fire-investigation study further demonstrated the forensic "
-                "use of historical BMS voltage, current, and temperature sequences to "
-                "reconstruct abuse conditions [16]."
-            ),
-            (
-                "These sources do not imply that every micromobility battery stores a "
-                "continuous trip history. Implementations vary. Some systems retain only "
-                "counters or fault events; others transmit detailed telemetry to a vehicle "
-                "controller or cloud service. The defensible claim is conditional: when "
-                "high-resolution consumption data, timestamped events, or persistent "
-                "health records are retained, they may reveal operational patterns and "
-                "remain useful after the immediate ride."
-            ),
-            (
-                "The temporal distinction matters. A device can be offline during use yet "
-                "disclose information later. A technician may connect diagnostic equipment; "
-                "a returned battery may be evaluated for warranty or second-life value; or "
-                "a service backend may receive stored records when connectivity resumes. "
-                "Disabling live transmission is therefore different from preventing data "
-                "generation, retention, or delayed extraction."
-            ),
-            (
-                "Battery telemetry can be divided into three practical layers. Instantaneous "
-                "signals include voltage, current, temperature, power, and state of charge. "
-                "Accumulated signals include cycle count, energy throughput, distance, "
-                "maximum and minimum values, and fault counters. Event records capture "
-                "overcurrent, undervoltage, thermal excursions, impacts, charging faults, "
-                "or controller resets. Even when the first layer is not retained, the second "
-                "and third may encode frequency, intensity, and abnormality of use. A "
-                "procurement questionnaire should distinguish these layers because the phrase "
-                "\"battery status\" is too broad to support a security decision."
-            ),
-            (
-                "Derived analytics require equal attention. Predictive maintenance, state-of-"
-                "health scoring, fraud detection, fleet balancing, and warranty analysis may "
-                "combine raw telemetry with user accounts, device history, weather, maps, "
-                "and depot records. The derived score may be less interpretable than the raw "
-                "data yet preserve sensitive correlations for longer. Model training sets, "
-                "feature stores, exports to analytics vendors, and support tickets are thus "
-                "part of the data path. A promise not to sell precise location does not answer "
-                "whether derived patterns are retained or shared."
-            ),
-            (
-                "For critical-infrastructure operators, the minimum assessment unit should "
-                "be a telemetry inventory rather than a list of radios. The inventory "
-                "should identify each generated field, sampling interval, storage location, "
-                "retention period, recipient, diagnostic interface, export function, and "
-                "derived analytic. It should cover the vehicle controller, BMS, application, "
-                "operator backend, maintenance tools, and any battery-passport or warranty "
-                "system."
-            ),
-        ],
+    "gdpr": (
+        "European Parliament and Council. Regulation (EU) 2016/679 (General Data "
+        "Protection Regulation). Off J Eur Union. 2016;L119:1-88."
     ),
-    (
-        "5. Lifecycle exposure in serviced hardware",
-        [
-            (
-                "The preceding evidence suggests that the attack surface is organized by "
-                "lifecycle transitions rather than by a single network boundary. Figure 1 "
-                "maps six stages: procurement, deployment, operation, maintenance, recall "
-                "or return, and second life or disposal. At each stage, a different party "
-                "may gain physical or logical access, and data created at an earlier stage "
-                "may become visible later."
-            ),
-            (
-                "Procurement determines what can be known. Bills of materials, component "
-                "origin, firmware ownership, cryptographic update mechanisms, diagnostic "
-                "interfaces, backend sub-processors, and data jurisdictions are difficult "
-                "to recover after deployment. A contract that specifies only service "
-                "availability leaves the operator unable to assess telemetry or custody "
-                "risk. Procurement must therefore require evidence before a device enters "
-                "a controlled environment."
-            ),
-            (
-                "Deployment establishes identity and context. Device identifiers, ports, "
-                "geofences, authorized users, and physical placement can link otherwise "
-                "generic telemetry to a specific facility. Configuration errors can also "
-                "leave consumer defaults, unnecessary radios, broad permissions, or "
-                "vendor-wide administrator access in place. A hardened configuration "
-                "baseline and a record of authorized data flows are required before use."
-            ),
-            (
-                "Operation creates the richest stream: location, time, speed, battery "
-                "consumption, faults, user-account events, and service analytics. European "
-                "data-protection guidance for connected vehicles recommends data "
-                "minimization, local processing where possible, privacy-protective defaults, "
-                "and controls on third-party transfers [17]. A recent holistic review of "
-                "electric-vehicle security similarly treats the BMS, charging system, "
-                "vehicle, and infrastructure as an integrated cyber-physical attack surface "
-                "[18]. Critical-infrastructure use requires the same integrated view, with "
-                "operational sensitivity added to personal-data concerns."
-            ),
-            (
-                "Maintenance changes custody. Technicians may attach diagnostic tools, "
-                "replace controllers, remove batteries, or move equipment off-site. Even "
-                "when the operational network is isolated, maintenance can bridge the "
-                "device to a vendor laptop, mobile application, depot network, or warranty "
-                "portal. Contractor vetting, authorized tools, access logging, tamper "
-                "evidence, and documented chain of custody are therefore security controls, "
-                "not administrative details."
-            ),
-            (
-                "Recall or return is a distinct stage because safety can override ordinary "
-                "disposition plans. Lithium-ion batteries may be returned rapidly after "
-                "faults, thermal events, or manufacturer notices. A contract that requires "
-                "sanitization only at scheduled end of life may not cover emergency return. "
-                "The organization needs a recall protocol that identifies data-bearing "
-                "components, preserves evidence when required, limits recipients, and "
-                "documents whether data were deleted, cryptographically erased, retained "
-                "under legal hold, or transferred with explicit authorization."
-            ),
-            (
-                "Second-life use, refurbishment, resale, and recycling create the final "
-                "custody transition. Batteries have economic value precisely because their "
-                "condition can be estimated from use history. Devices may also contain "
-                "persistent identifiers, credentials, logs, or configuration data. "
-                "Disposition controls must apply to the whole assembly and to removed "
-                "components, not only to conventional storage media."
-            ),
-            (
-                "Three threat scenarios illustrate how stages combine. In a backend scenario, "
-                "a legitimate service continuously aggregates device events and is later "
-                "compromised, legally compelled, or misconfigured. In a maintenance scenario, "
-                "a device stores telemetry locally and discloses it only when a contractor "
-                "connects a diagnostic tool. In a return scenario, an apparently defective "
-                "battery leaves the site under an urgent safety process and its retained "
-                "history is examined by parties not covered by the routine data agreement. "
-                "The same deployment may face all three scenarios, and controls that address "
-                "only cloud access will not cover the latter two."
-            ),
-            (
-                "Lifecycle risk can be expressed conceptually as the product of informativeness, "
-                "linkability, accessibility, persistence, and consequence. The formulation is "
-                "not intended as a quantitative score: evidence is not yet sufficient to assign "
-                "universal probabilities. It is a review discipline. A low-resolution signal "
-                "may become important when persistently linked to one site; a highly informative "
-                "signal may pose limited risk when immediately aggregated and inaccessible; "
-                "and a routine dataset may become consequential during a crisis. Recording each "
-                "factor makes the rationale for acceptance, restriction, or rejection auditable."
-            ),
-        ],
+    "elzer": (
+        "Elzer T, Ruben M, Classen J, Hollick M. They see me scooting: a "
+        "long-term real-world data analysis of shared micro-mobility services. "
+        "In: 2025 IEEE 10th European Symposium on Security and Privacy "
+        "(EuroS&P). IEEE; 2025. doi:10.1109/EuroSP63326.2025.00014."
     ),
-    (
-        "6. Evidence-to-risk synthesis",
-        [
-            (
-                "Table 1 separates direct demonstrations from conditional transfer. The "
-                "strongest evidence concerns mobility re-identification and battery-based "
-                "inference. The lifecycle conclusion is a synthesis: if data can identify "
-                "activity and if access changes across service transitions, then custody "
-                "and retention must be governed as part of critical-infrastructure "
-                "protection. This conclusion does not depend on a malicious manufacturer; "
-                "ordinary diagnostics, warranty processes, and analytics are sufficient to "
-                "create access paths."
-            ),
-            (
-                "The synthesis also clarifies what should not be claimed. A battery cycle "
-                "count alone usually cannot reconstruct a route. A foreign supplier is not "
-                "automatically an adversary. Whitelisting does not eliminate compromise. "
-                "The risk becomes material when informative data, persistent linkage, "
-                "accessible interfaces, weak custody, and consequential deployment occur "
-                "together. Controls should be proportionate to that combination."
-            ),
-        ],
+    "etrojans": (
+        "Casagrande M, Losiouk E, Conti M, Payer M, Antonioli D. E-Trojans: "
+        "ransomware, tracking, DoS, and data leaks on battery-powered embedded "
+        "systems. arXiv:2411.17184; 2024. doi:10.48550/arXiv.2411.17184."
     ),
-    (
-        "7. A lifecycle assurance framework",
-        [
-            (
-                "Established cybersecurity supply-chain risk management already requires "
-                "organizations to identify, assess, and mitigate risks arising from "
-                "products and services across the supply chain [19]. The gap is not the "
-                "absence of a general principle but its application to small, convenient, "
-                "externally serviced devices. Such devices may fall below the threshold of "
-                "traditional capital-equipment review even though their placement and "
-                "telemetry make them sensitive."
-            ),
-            (
-                "The proposed framework uses five assurance questions. First, what data are "
-                "generated, derived, stored, and transmitted? Second, who can access the "
-                "device or data at each lifecycle stage? Third, where do software, "
-                "components, diagnostic tools, and service backends originate and operate? "
-                "Fourth, what event changes custody, and what evidence accompanies that "
-                "change? Fifth, how can the operator verify that contractual controls work "
-                "in practice?"
-            ),
-            (
-                "Table 2 converts those questions into minimum requirements. The controls "
-                "are evidence-oriented. A statement that data are secure is weaker than a "
-                "field-level data inventory, retention schedule, sub-processor list, "
-                "architecture diagram, access log, software bill of materials, signed "
-                "sanitization record, or right-to-audit report. Procurement should specify "
-                "the artifact that demonstrates compliance."
-            ),
-            (
-                "Data minimization should begin at collection. Fields not required for the "
-                "approved use case should be disabled or aggregated. Local processing is "
-                "preferable when the service can function without exporting raw telemetry. "
-                "Persistent identifiers should rotate when continuity is unnecessary, and "
-                "retention should be bounded by a documented purpose. Derived data, model "
-                "features, and backups must be included because deleting a raw record while "
-                "retaining an equally revealing derivative does not reduce exposure."
-            ),
-            (
-                "Device capabilities must support the policy. Guidance from the U.S. "
-                "National Institute of Standards and Technology (NIST) for Internet of "
-                "Things devices identifies secure data storage, audit-event generation, "
-                "log retention, and the ability to sanitize or purge data as relevant "
-                "capabilities [20]. These requirements should be tested before purchase. "
-                "If a device cannot enumerate or erase retained data, the operator cannot "
-                "reliably govern maintenance, return, or disposal."
-            ),
-            (
-                "Sanitization should be defined by outcome rather than a generic factory "
-                "reset. Current NIST media-sanitization guidance distinguishes methods "
-                "according to media and confidentiality risk [21]. For integrated devices, "
-                "the process should identify every data-bearing component, verify the "
-                "result, record the person and tool used, and address keys or credentials "
-                "that enable access to remote records. Where sanitization would destroy "
-                "safety evidence, controlled retention and transfer may be more appropriate "
-                "than deletion; the decision should be explicit."
-            ),
-            (
-                "Supplier assurance should be risk-based. For high-consequence sites, "
-                "requirements may include component provenance, signed firmware, controlled "
-                "update infrastructure, named service locations, screened personnel, "
-                "domestic or otherwise approved data hosting, and independent testing. "
-                "For ordinary civilian fleets, transparency, minimization, access controls, "
-                "and verified deletion may be sufficient. A tiered approach avoids treating "
-                "all deployments as classified while preventing convenience services from "
-                "bypassing review entirely."
-            ),
-            (
-                "A three-tier profile is sufficient for many organizations. Tier 1 covers "
-                "ordinary public settings and emphasizes transparency, access control, "
-                "reasonable retention, supported software, and verified deletion. Tier 2 "
-                "covers facilities where aggregate activity could affect continuity or "
-                "security and adds local or regional processing, restricted identifiers, "
-                "approved maintenance, material-change notification, and recall exercises. "
-                "Tier 3 covers mission-sensitive zones and may require dedicated fleets, "
-                "offline or one-way operation, organization-controlled keys, approved-source "
-                "components, independent testing, escorted maintenance, and prohibition of "
-                "off-site return before sanitization or controlled evidence transfer."
-            ),
-            (
-                "Contracts should allocate responsibility when controls fail. Required terms "
-                "include incident-notification time, vulnerability disclosure and remediation, "
-                "subcontractor flow-down, support and end-of-life dates, audit access, return "
-                "or destruction of data, restrictions on secondary use and model training, "
-                "government or customer access to relevant logs, and consequences for "
-                "unapproved architectural change. A supplier should also disclose when safety "
-                "or legal obligations prevent deletion. The objective is not to demand "
-                "impossible guarantees but to prevent ambiguity from surfacing only after an "
-                "incident or recall."
-            ),
-        ],
+    "espoofer": (
+        "Casagrande M, Losiouk E, Conti M, Payer M, Antonioli D. E-Spoofer: "
+        "attacking and defending Xiaomi electric scooter ecosystem. In: "
+        "Proceedings of the 16th ACM Conference on Security and Privacy in "
+        "Wireless and Mobile Networks (WiSec). ACM; 2023. "
+        "doi:10.1145/3558482.3590176."
     ),
-    (
-        "8. Interorganizational and cross-sector dependencies",
-        [
-            (
-                "Serviced hardware often crosses organizational boundaries. A transportation "
-                "service may operate at a government facility, use commercial cellular "
-                "networks, depend on cloud infrastructure, and send batteries to an external "
-                "depot. Each participant may satisfy its own sector-specific obligations "
-                "while the end-to-end data and custody path remains unowned. This is a "
-                "classic critical-infrastructure dependency problem: local controls do not "
-                "guarantee system-level assurance."
-            ),
-            (
-                "Inconsistent procurement rules create a weakest-link effect. An organization "
-                "may restrict personal devices yet admit functionally similar sensors through "
-                "a facilities or mobility contract. One site may require local storage while "
-                "another permits the same fleet to use a global backend, allowing patterns "
-                "to be inferred across a shared workforce or joint operation. Harmonized "
-                "minimum requirements are therefore valuable across agencies, operators, "
-                "and allied or partner organizations."
-            ),
-            (
-                "Regulatory precedent supports anticipatory supply-chain controls. The United "
-                "States connected-vehicle rule addresses national-security risks associated "
-                "with covered connectivity hardware and software linked to specified foreign "
-                "adversaries [22]. The rule is narrower than the framework proposed here, "
-                "but it demonstrates that governments need not wait for a documented "
-                "individual compromise before imposing provenance and jurisdictional "
-                "requirements on connected transportation technology."
-            ),
-            (
-                "The broader policy should remain vendor-neutral and capability-based. "
-                "Jurisdiction is one factor because it shapes legal access and government "
-                "compulsion, but technical architecture and operational practice matter as "
-                "well. A domestic service with excessive retention and uncontrolled "
-                "contractors may present more risk than a foreign-origin component operated "
-                "under transparent, locally controlled conditions. The framework therefore "
-                "uses approved-source lists only as one layer within continuous assurance."
-            ),
-            (
-                "Governance ownership must be explicit. Facilities teams may own physical "
-                "placement, procurement teams the contract, cybersecurity teams the network, "
-                "privacy teams personal information, and safety teams recalls. None may own "
-                "the combined lifecycle. Designating an accountable service owner and a "
-                "cross-functional approval path prevents gaps between these domains. The "
-                "owner should maintain the authoritative data and custody model and have the "
-                "power to suspend deployment when a supplier, component, backend, or support "
-                "process changes materially."
-            ),
-        ],
+    "vinayaga2022": (
+        "Vinayaga-Sureshkanth N, Maiti A, Jadliwala M, Crager K, He J, Rathore "
+        "H. An investigative study on the privacy implications of mobile "
+        "e-scooter rental apps. In: Proceedings of the 15th ACM Conference on "
+        "Security and Privacy in Wireless and Mobile Networks (WiSec). ACM; "
+        "2022. doi:10.1145/3507657.3528551."
     ),
-    (
-        "9. Implementation priorities",
-        [
-            (
-                "Organizations can begin without creating a new bureaucracy. The first "
-                "priority is to add serviced telemetry-emitting hardware to existing asset "
-                "and supply-chain inventories. The second is to require a data-flow and "
-                "custody worksheet during procurement. The third is to define prohibited "
-                "deployment zones and higher assurance tiers. The fourth is to create "
-                "maintenance, recall, and disposition procedures that are exercised rather "
-                "than left as contract language."
-            ),
-            (
-                "A practical pilot can examine one existing service. The operator should "
-                "enumerate device and backend data, observe diagnostic and maintenance "
-                "workflows, test account and identifier separation, verify retention and "
-                "deletion, inspect sub-processor and hosting arrangements, and conduct a "
-                "mock emergency recall. Findings can be mapped to Table 2 and used to revise "
-                "the contract or restrict deployment. This produces evidence without "
-                "requiring access to proprietary algorithms."
-            ),
-            (
-                "Lifecycle support should be planned before purchase. NIST's 2026 guidance "
-                "for Internet of Things product manufacturers emphasizes cybersecurity "
-                "support through the product lifecycle and end of life [23]. Critical-"
-                "infrastructure customers should request the corresponding support period, "
-                "vulnerability process, update mechanism, end-of-life notice, and data-"
-                "handling plan. A service should not remain in a sensitive setting after "
-                "the provider can no longer support its software or components."
-            ),
-            (
-                "Metrics should track assurance rather than incident counts alone. Useful "
-                "measures include the percentage of devices with complete telemetry "
-                "inventories, percentage of service providers with named sub-processors, "
-                "median time to revoke maintenance access, percentage of returned components "
-                "with verified sanitization, and number of emergency-return exercises "
-                "completed. An absence of known leaks is not evidence that lifecycle controls "
-                "are effective."
-            ),
-            (
-                "Exercises should include non-cyber triggers. A thermal fault, bankruptcy, "
-                "contract termination, software end of support, law-enforcement request, or "
-                "sudden geopolitical restriction can force a custody or service change. The "
-                "organization should test whether it can locate all deployed units and spare "
-                "batteries, disable accounts and credentials, preserve necessary safety "
-                "evidence, prevent unauthorized return, and continue the underlying service. "
-                "This links confidentiality controls to resilience: a lifecycle plan is "
-                "effective only if the essential function can continue while risky equipment "
-                "is isolated or replaced."
-            ),
-        ],
+    "hilgert": (
+        "Hilgert J-N, Lambertz M, Rybalka M, Schell R, Vogt R. A forensic "
+        "analysis of micromobility solutions. Forensic Sci Int Digit Investig. "
+        "2021;38:301137. doi:10.1016/j.fsidi.2021.301137."
     ),
-    (
-        "10. Limitations and research agenda",
-        [
-            (
-                "This article has four principal limitations. First, the Japanese case is "
-                "used only as a public policy vignette. The analysis has no access to the "
-                "service architecture, contract, vehicle configuration, or security review, "
-                "and it does not allege that sensitive information was exposed. Second, "
-                "battery implementations vary widely; the presence, resolution, retention, "
-                "and accessibility of historical data must be established device by device."
-            ),
-            (
-                "Third, the evidence synthesis is structured but not systematic. It was "
-                "designed to connect established mechanisms to lifecycle controls, not to "
-                "estimate prevalence or effect size. Fourth, stronger controls impose cost "
-                "and may reduce service convenience. The proposed tiers require validation "
-                "through procurement pilots and comparative risk assessment."
-            ),
-            (
-                "Future work should measure which telemetry fields are retained in shared "
-                "micromobility controllers and batteries, how reliably operational "
-                "attributes can be inferred at realistic sampling rates, and what data "
-                "remain after maintenance and factory-reset procedures. Red-team exercises "
-                "should test delayed extraction during service and recall without developing "
-                "or publishing techniques that would facilitate unauthorized access."
-            ),
-            (
-                "Policy research should compare procurement clauses across transportation, "
-                "government, energy, and health infrastructure; evaluate whether battery-"
-                "passport regimes create new access-control requirements; and quantify the "
-                "cost of chain-of-custody controls. A shared assurance profile for serviced "
-                "hardware would help small operators apply protections that are currently "
-                "available mainly to large security organizations."
-            ),
-        ],
+    "isik": (
+        "Isik AB, Dag T, Ozkan K. E-scooter sharing platforms: understanding "
+        "their architecture and cybersecurity threats. In: 2023 IEEE 26th "
+        "International Conference on Intelligent Transportation Systems (ITSC). "
+        "IEEE; 2023. doi:10.1109/ITSC57777.2023.10421849."
     ),
-    (
-        "11. Conclusion",
-        [
-            (
-                "Critical-infrastructure organizations increasingly depend on devices whose "
-                "ownership, maintenance, data backend, and disposition remain outside their "
-                "direct control. Treating such equipment as a network endpoint or a location-"
-                "privacy question misses the lifecycle. Mobility traces can re-identify; "
-                "battery consumption can reveal behavior; BMS and service records can "
-                "preserve history; and maintenance, recall, and second-life transitions can "
-                "move data-bearing components into new hands."
-            ),
-            (
-                "The appropriate response is not a categorical ban on shared mobility or "
-                "connected equipment. It is proportionate assurance: know what the device "
-                "records, know who can access it, control each custody transition, and "
-                "require evidence that minimization, retention, access, update, and "
-                "sanitization controls work. Extending supply-chain risk management to "
-                "small serviced devices closes a gap between cybersecurity policy and the "
-                "physical lifecycle of modern infrastructure."
-            ),
-        ],
+    "vinayaga2020": (
+        "Vinayaga-Sureshkanth N, Maiti A, Jadliwala M, Crager K, He J, Rathore "
+        "H. Security and privacy challenges in upcoming intelligent urban "
+        "micromobility transportation systems. In: Proceedings of the Second "
+        "ACM Workshop on Automotive and Aerial Vehicle Security (AutoSec). ACM; "
+        "2020. doi:10.1145/3375706.3380559."
     ),
-]
-
-
-TABLE_1 = {
-    "title": "Table 1. Evidence supporting the serviced-hardware threat model",
-    "headers": ["Evidence domain", "Demonstrated capability", "Transfer to serviced hardware", "Boundary"],
-    "rows": [
-        [
-            "Human mobility traces",
-            "Sparse spatiotemporal points can uniquely characterize individuals [4].",
-            "Repeated vehicle events may be joined with schedules or access data.",
-            "Direct for mobility data; identity requires auxiliary information.",
-        ],
-        [
-            "Shared micromobility",
-            "Longitudinal vehicle activity can be reconstructed despite identifier changes [5].",
-            "Fleet telemetry can preserve continuity around a facility.",
-            "Direct for studied services; architecture differs by operator.",
-        ],
-        [
-            "Battery side channels",
-            "Electric-vehicle battery consumption revealed driver, style, occupancy, and habitual endpoints [11].",
-            "Battery or controller data may expose recurring operational patterns.",
-            "Direct for electric-vehicle datasets; conditional on resolution and access.",
-        ],
-        [
-            "Electrical load inference",
-            "Power signatures can reveal appliance use and behavior [12,13].",
-            "Supports inference from non-positional telemetry.",
-            "Mechanism analogy; not proof for every device.",
-        ],
-        [
-            "BMS history",
-            "Health and forensic analysis use cycle, voltage, current, and temperature history [14-16].",
-            "Retained records may remain informative during service or return.",
-            "Data depth and storage location are implementation-specific.",
-        ],
-        [
-            "Lifecycle custody",
-            "Supply-chain and IoT guidance treats access, logging, support, and sanitization as lifecycle controls [19-23].",
-            "Maintenance, recall, and disposal require explicit assurance.",
-            "Normative guidance; effectiveness requires verification.",
-        ],
-    ],
+    "petersen": (
+        "Petersen ML. Scoot over smart devices: the invisible costs of rental "
+        "scooters. Surveill Soc. 2019;17(1/2):267-273. "
+        "doi:10.24908/ss.v17i1/2.13112."
+    ),
+    "sato": (
+        "Sato K, Fukushima N, Fujii K, Kitani T. Data acquisition framework for "
+        "micromobility vehicles toward driving risk prediction. IEEE Secur "
+        "Priv. 2025;23(1). doi:10.1109/MSEC.2024.3441731."
+    ),
+    "yilmaz2022": (
+        "Yilmaz S, Karsligil ME. Analysis of location spoofing threats on "
+        "e-scooter sharing. In: 2022 30th Signal Processing and Communications "
+        "Applications Conference (SIU). IEEE; 2022. "
+        "doi:10.1109/SIU55565.2022.9864946."
+    ),
+    "yilmaz2023": (
+        "Yilmaz S, Karsligil ME. Geo-location spoofing on e-scooters: threat "
+        "analysis and prevention framework. Balk J Electr Comput Eng. "
+        "2023;11(2). doi:10.17694/bajece.1231384."
+    ),
+    "li2020": (
+        "Li Y, Zhang X. Linking privacy concerns for traceable information and "
+        "information privacy protective responses. In: Proceedings of the 53rd "
+        "Hawaii International Conference on System Sciences (HICSS). 2020. "
+        "doi:10.24251/HICSS.2020.105."
+    ),
+    "hannemann": (
+        "Hannemann A, Buchholz E, Ziegler D. Is homomorphic encryption feasible "
+        "for smart mobility? In: Annals of Computer Science and Information "
+        "Systems, vol. 35 (FedCSIS). 2023. doi:10.15439/2023F695."
+    ),
+    "zhou": (
+        "Zhou Y. Data extraction in dockless bikeshare: an analysis from users' "
+        "perspective. Big Data Soc. 2024;11(4). doi:10.1177/20539517241299724."
+    ),
+    "leaky": (
+        "Marchiori A, Losiouk E, Conti M, Antonioli D. Leaky batteries: a novel "
+        "set of side-channel attacks on electric vehicles. In: Computer "
+        "Security - ESORICS 2025. Lecture Notes in Computer Science. Springer; "
+        "2025. doi:10.1007/978-3-032-00624-0_16."
+    ),
+    "iotreuse": (
+        "Liu Y, Zhou Z, Zhang J, et al. How IoT re-using threatens your "
+        "sensitive data: exploring the user-data disposal in used IoT devices. "
+        "In: 2023 IEEE Symposium on Security and Privacy (SP). IEEE; 2023. "
+        "doi:10.1109/SP46215.2023.10179294."
+    ),
+    "bms": (
+        "Basic F, Gaertner M, Steger C. Secure data acquisition for battery "
+        "management systems. In: 2023 26th Euromicro Conference on Digital "
+        "System Design (DSD). IEEE; 2023. doi:10.1109/DSD60849.2023.00082."
+    ),
+    "remanence": (
+        "Joshi A, Raval MS. Standards and techniques to remove data remanence "
+        "in cloud storage. In: 2018 IEEE Punecon. IEEE; 2018. "
+        "doi:10.1109/PUNECON.2018.8745370."
+    ),
+    "gbfs_spec": (
+        "MobilityData. General Bikeshare Feed Specification (GBFS), version 3.0. "
+        "2024. Available from: https://gbfs.org/ (accessed 12 July 2026)."
+    ),
+    "gbfs_registry": (
+        "MobilityData. GBFS systems catalogue (systems.csv). 2026. Available "
+        "from: https://github.com/MobilityData/gbfs (accessed 8 July 2026)."
+    ),
+    "mds_privacy": (
+        "Open Mobility Foundation. MDS privacy guide for cities. 2021. "
+        "Available from: https://www.openmobilityfoundation.org/ (accessed 12 "
+        "July 2026)."
+    ),
+    "edpb_cv": (
+        "European Data Protection Board. Guidelines 01/2020 on processing "
+        "personal data in the context of connected vehicles and mobility "
+        "related applications, version 2.0. 2021."
+    ),
+    "nist88": (
+        "Kissel R, Regenscheid A, Scholl M, Stine K. NIST Special Publication "
+        "800-88 Revision 1: Guidelines for media sanitization. National "
+        "Institute of Standards and Technology; 2014. "
+        "doi:10.6028/NIST.SP.800-88r1."
+    ),
+    "nist161": (
+        "Boyens J, Smith A, Bartol N, Winkler K, Holbrook A, Fallon M. NIST "
+        "Special Publication 800-161 Revision 1: Cybersecurity supply chain "
+        "risk management practices for systems and organizations. National "
+        "Institute of Standards and Technology; 2022. "
+        "doi:10.6028/NIST.SP.800-161r1."
+    ),
+    "eu_battery": (
+        "European Parliament and Council. Regulation (EU) 2023/1542 concerning "
+        "batteries and waste batteries. Off J Eur Union. 2023;L191:1-117."
+    ),
 }
-
-
-TABLE_2 = {
-    "title": "Table 2. Lifecycle controls and auditable evidence",
-    "headers": ["Stage", "Control objective", "Minimum requirement", "Evidence of compliance"],
-    "rows": [
-        [
-            "Procurement",
-            "Establish visibility before deployment",
-            "Data inventory; component and software provenance; sub-processor and jurisdiction list",
-            "Architecture diagram; software bill of materials; supplier attestations; contract schedules",
-        ],
-        [
-            "Deployment",
-            "Bind device to approved context",
-            "Hardened configuration; disabled unnecessary interfaces; approved identifiers and zones",
-            "Configuration record; acceptance test; asset registration",
-        ],
-        [
-            "Operation",
-            "Minimize and contain telemetry",
-            "Purpose limitation; local processing where feasible; bounded retention; least privilege",
-            "Field-level schema; retention test; access logs; deletion evidence",
-        ],
-        [
-            "Maintenance",
-            "Control diagnostic and physical access",
-            "Vetted staff; authorized tools; logged sessions; chain of custody; tamper evidence",
-            "Work order; access log; tool inventory; custody receipt",
-        ],
-        [
-            "Recall/return",
-            "Prevent emergency return from bypassing security",
-            "Data-bearing component check; approved recipient; sanitize, escrow, or controlled retention",
-            "Recall playbook; transfer authorization; sanitization or legal-hold record",
-        ],
-        [
-            "Second life/disposal",
-            "Remove residual data and credentials",
-            "Verified sanitization of all components; key revocation; controlled recycler",
-            "Sanitization certificate; revocation log; recycler audit",
-        ],
-        [
-            "Continuous assurance",
-            "Detect changes in supplier or architecture",
-            "Incident notice; vulnerability support; material-change approval; periodic reassessment",
-            "Update records; support dates; audit report; change notifications",
-        ],
-    ],
-}
-
-
-REFERENCES = [
-    (
-        "H. Umebayashi, Defense minister comments on LUUP introduction: "
-        "\"No information-security problem\" [in Japanese], ITmedia NEWS, 3 July 2026. "
-        "https://www.itmedia.co.jp/news/articles/2607/03/news128.html (accessed 10 July 2026)."
-    ),
-    (
-        "Cybersecurity and Infrastructure Security Agency, Critical Infrastructure Sectors, "
-        "2026. https://www.cisa.gov/topics/critical-infrastructure-security-and-resilience/"
-        "critical-infrastructure-sectors (accessed 10 July 2026)."
-    ),
-    (
-        "Open Mobility Foundation, MDS Privacy Guide for Cities, 2020. "
-        "https://www.openmobilityfoundation.org/introducing-the-mds-privacy-guide-for-cities/ "
-        "(accessed 10 July 2026)."
-    ),
-    (
-        "Y.-A. de Montjoye, C.A. Hidalgo, M. Verleysen, V.D. Blondel, Unique in the crowd: "
-        "The privacy bounds of human mobility, Scientific Reports 3 (2013) 1376. "
-        "https://doi.org/10.1038/srep01376."
-    ),
-    (
-        "K. Elzer, E. Jedermann, S. Roos, J. Schmitt, They see me scooting—A long-term "
-        "real-world data analysis of shared micro-mobility services and their privacy "
-        "leakage, in: 2025 IEEE 10th European Symposium on Security and Privacy, 2025, "
-        "pp. 78–92. https://doi.org/10.1109/EuroSP63326.2025.00014."
-    ),
-    (
-        "A.B. Petersen, Scoot over smart devices: The invisible costs of rental scooters, "
-        "Surveillance & Society 17 (2019) 191–197. "
-        "https://doi.org/10.24908/ss.v17i1/2.13112."
-    ),
-    (
-        "N. Vinayaga-Sureshkanth, R. Wijewickrama, A. Maiti, M. Jadliwala, Security and "
-        "privacy challenges in upcoming intelligent urban micromobility transportation "
-        "systems, in: Proceedings of the Second ACM Workshop on Automotive and Aerial "
-        "Vehicle Security, 2020, pp. 31–35. https://doi.org/10.1145/3375706.3380559."
-    ),
-    (
-        "A. Hern, Fitness tracking app Strava gives away location of secret US army bases, "
-        "The Guardian, 28 January 2018. https://www.theguardian.com/world/2018/jan/28/"
-        "fitness-tracking-app-gives-away-location-of-secret-us-army-bases "
-        "(accessed 10 July 2026)."
-    ),
-    (
-        "U.S. Department of Defense, Use of Geolocation-Capable Devices, Applications, "
-        "and Services, Memorandum, 3 August 2018. https://www.defense.gov/News/Releases/"
-        "Release/Article/1594486/department-of-defense-issues-guidance-on-use-of-"
-        "geolocation-capabilities/ (accessed 10 July 2026)."
-    ),
-    (
-        "F. Postma, After Strava, Polar is revealing the homes of soldiers and spies, "
-        "Bellingcat, 8 July 2018. https://www.bellingcat.com/resources/articles/2018/07/08/"
-        "strava-polar-revealing-homes-soldiers-spies/ (accessed 10 July 2026)."
-    ),
-    (
-        "F. Marchiori, M. Conti, Leaky batteries: A novel set of side-channel attacks on "
-        "electric vehicles, in: Computer Security—ESORICS 2025, Lecture Notes in Computer "
-        "Science, 2025, pp. 322–333. https://doi.org/10.1007/978-3-032-00624-0_16."
-    ),
-    (
-        "A. Molina-Markham, P. Shenoy, K. Fu, E. Cecchet, D. Irwin, Private memoirs of a "
-        "smart meter, in: Proceedings of the 2nd ACM Workshop on Embedded Sensing Systems "
-        "for Energy-Efficiency in Building, 2010, pp. 61–66. "
-        "https://doi.org/10.1145/1878431.1878446."
-    ),
-    (
-        "G. Kalogridis, C. Efthymiou, S.Z. Denic, T.A. Lewis, R. Cepeda, Privacy for smart "
-        "meters: Towards undetectable appliance load signatures, in: 2010 First IEEE "
-        "International Conference on Smart Grid Communications, 2010, pp. 232–237. "
-        "https://doi.org/10.1109/SMARTGRID.2010.5622047."
-    ),
-    (
-        "E. Braco, I. San Martín, P. Sanchis, A. Ursúa, D.-I. Stroe, State of health "
-        "estimation of second-life lithium-ion batteries under real profile operation, "
-        "Applied Energy 326 (2022) 119992. https://doi.org/10.1016/j.apenergy.2022.119992."
-    ),
-    (
-        "European Parliament and Council, Regulation (EU) 2023/1542 of 12 July 2023 "
-        "concerning batteries and waste batteries, Official Journal of the European Union "
-        "L 191 (2023) 1–117."
-    ),
-    (
-        "L. Liu, Y.A. Wu, H. Zhen, Fire investigation based on time-sequential analysis of "
-        "lithium-ion battery thermal runaway, Fire 9 (2026) 211. "
-        "https://doi.org/10.3390/fire9050211."
-    ),
-    (
-        "European Data Protection Board, Guidelines 01/2020 on processing personal data "
-        "in the context of connected vehicles and mobility related applications, Version "
-        "2.0, 9 March 2021. https://www.edpb.europa.eu/documents/guideline/"
-        "guidelines-012020-on-processing-personal-data-in-the-context-of-connected_en "
-        "(accessed 10 July 2026)."
-    ),
-    (
-        "A. Brighente, M. Conti, D. Donadel, R. Poovendran, F. Turrin, J. Zhou, Electric "
-        "vehicles security and privacy: Challenges, solutions, and future needs, ACM "
-        "Transactions on Cyber-Physical Systems 10(3) (2026) 1–27. "
-        "https://doi.org/10.1145/3801968."
-    ),
-    (
-        "National Institute of Standards and Technology, Cybersecurity Supply Chain Risk "
-        "Management Practices for Systems and Organizations, NIST SP 800-161 Rev. 1 "
-        "Update 1, 2024. https://doi.org/10.6028/NIST.SP.800-161r1-upd1."
-    ),
-    (
-        "National Institute of Standards and Technology, IoT Device Cybersecurity Guidance "
-        "for the Federal Government: IoT Device Cybersecurity Requirement Catalog, "
-        "NIST SP 800-213A, 2021. https://doi.org/10.6028/NIST.SP.800-213A."
-    ),
-    (
-        "R. Chandramouli, E. Hibbard, Guidelines for Media Sanitization, NIST SP 800-88 "
-        "Rev. 2, 2025. https://doi.org/10.6028/NIST.SP.800-88r2."
-    ),
-    (
-        "U.S. Department of Commerce, Bureau of Industry and Security, Securing the "
-        "Information and Communications Technology and Services Supply Chain: Connected "
-        "Vehicles, Final Rule, 90 Federal Register 5360, 16 January 2025. "
-        "https://www.govinfo.gov/content/pkg/FR-2025-01-16/html/2025-00592.htm "
-        "(accessed 10 July 2026)."
-    ),
-    (
-        "National Institute of Standards and Technology, Foundational Cybersecurity "
-        "Activities for IoT Product Manufacturers, NIST IR 8259 Rev. 1, 2026. "
-        "https://doi.org/10.6028/NIST.IR.8259r1."
-    ),
-]
-
 
 DECLARATIONS = [
-    ("Competing interests", "The author declares no competing interests."),
-    ("Funding", "This work received no specific grant from any funding agency."),
-    (
-        "Ethics approval and consent to participate",
-        "Not applicable. The article uses published and publicly available sources and reports no human-participant research.",
-    ),
-    ("Consent for publication", "Not applicable."),
-    (
-        "Data availability",
-        "No new dataset was generated. All sources used in the synthesis are identified in the reference list.",
-    ),
-    (
-        "Author contribution",
-        "The sole author: Conceptualization, investigation, methodology, writing—original draft, and writing—review and editing.",
-    ),
-    (
-        "Declaration of generative artificial intelligence (AI) in scientific writing",
-        "Generative AI was used to assist language editing, document formatting, and consistency checks. The author reviewed and takes responsibility for the manuscript's content, claims, and references.",
-    ),
+    ("Funding", "This research received no external funding."),
+    ("Declaration of competing interest",
+     "The author declares no competing interests."),
+    ("Ethics",
+     "No human participants were recruited. The study analysed only publicly "
+     "accessible feeds and documents and did not attempt authentication, "
+     "access-control circumvention, or interaction with individual users."),
+    ("Data and code availability",
+     "The frozen registry snapshot, screening decisions, coding sheets, "
+     "analysis scripts, and figure-generation code are openly available in the "
+     "project repository. Raw vehicle identifiers, exact coordinates, and "
+     "vehicle-specific deep links were not retained."),
+    ("CRediT author statement",
+     "[Author name]: conceptualization, methodology, software, formal "
+     "analysis, data curation, writing - original draft, writing - review and "
+     "editing."),
+    ("Generative AI disclosure",
+     "No generative AI tool was used to produce scientific content, analysis, "
+     "or interpretation. Any use was limited to routine language editing and "
+     "was reviewed by the author, who takes full responsibility for the text."),
 ]
 
 
-REFERENCE_VERIFICATION = [
-    ["1", "ITmedia NEWS, 3 July 2026", "Verified", "Publisher page and publication date accessible"],
-    ["2", "CISA Critical Infrastructure Sectors", "Verified", "Official CISA page"],
-    ["3", "OMF MDS Privacy Guide", "Verified", "Official OMF page and guide"],
-    ["4", "de Montjoye et al. 2013", "Verified", "DOI 10.1038/srep01376"],
-    ["5", "Elzer et al. 2025", "Verified", "DOI 10.1109/EuroSP63326.2025.00014"],
-    ["6", "Petersen 2019", "Verified", "DOI 10.24908/ss.v17i1/2.13112"],
-    ["7", "Vinayaga-Sureshkanth et al. 2020", "Verified", "DOI 10.1145/3375706.3380559"],
-    ["8", "Hern 2018", "Verified", "The Guardian article"],
-    ["9", "U.S. DoD memorandum, 3 August 2018", "Verified", "Cited in current DoD CIO policy documents"],
-    ["10", "Postma 2018", "Verified", "Bellingcat investigation"],
-    ["11", "Marchiori and Conti 2025", "Verified", "DOI 10.1007/978-3-032-00624-0_16"],
-    ["12", "Molina-Markham et al. 2010", "Verified", "DOI 10.1145/1878431.1878446"],
-    ["13", "Kalogridis et al. 2010", "Verified", "DOI 10.1109/SMARTGRID.2010.5622047"],
-    ["14", "Braco et al. 2022", "Verified", "DOI 10.1016/j.apenergy.2022.119992"],
-    ["15", "Regulation (EU) 2023/1542", "Verified", "EUR-Lex official text"],
-    ["16", "Liu et al. 2026", "Verified", "DOI 10.3390/fire9050211"],
-    ["17", "EDPB Guidelines 01/2020 v2.0", "Verified", "Official EDPB PDF"],
-    ["18", "Brighente et al. 2026", "Verified", "DOI 10.1145/3801968"],
-    ["19", "NIST SP 800-161r1-upd1", "Verified", "DOI 10.6028/NIST.SP.800-161r1-upd1"],
-    ["20", "NIST SP 800-213A", "Verified", "Official NIST publication"],
-    ["21", "NIST SP 800-88r2", "Verified", "DOI 10.6028/NIST.SP.800-88r2"],
-    ["22", "BIS Connected Vehicles Final Rule", "Verified", "90 FR 5360"],
-    ["23", "NIST IR 8259r1", "Verified", "Official April 2026 NIST publication"],
+# ---------------------------------------------------------------------------
+# Data access helpers
+# ---------------------------------------------------------------------------
+def load_gbfs_summary() -> dict[tuple[str, str], dict]:
+    table: dict[tuple[str, str], dict] = {}
+    with (ROOT / "results" / "gbfs_summary.csv").open(encoding="utf-8") as fh:
+        for row in csv.DictReader(fh):
+            table[(row["stratum"], row["metric"])] = row
+    return table
+
+
+def load_document_audit() -> tuple[list[str], dict[str, dict[str, str]], int, int]:
+    rows = list(csv.DictReader((ROOT / "data" / "document_audit.csv").open(encoding="utf-8")))
+    domains: list[str] = []
+    matrix: dict[str, dict[str, str]] = {}
+    operators_order: list[str] = []
+    for r in rows:
+        op = r["operator_name"]
+        if op not in matrix:
+            matrix[op] = {}
+            operators_order.append(op)
+        matrix[op][r["domain"]] = r["status"]
+        if r["domain"] not in domains:
+            domains.append(r["domain"])
+    coded = sum(1 for op in operators_order
+                if any(v != "unavailable" for v in matrix[op].values()))
+    return domains, matrix, len(operators_order), coded
+
+
+def load_extraction() -> list[dict]:
+    return list(csv.DictReader((ROOT / "review" / "evidence_extraction.csv").open(encoding="utf-8")))
+
+
+GBFS = load_gbfs_summary()
+DOMAINS, DOCMATRIX, N_OPERATORS, N_CODED = load_document_audit()
+EXTRACTION = load_extraction()
+
+
+def g(stratum: str, metric: str, field: str) -> str:
+    return GBFS[(stratum, metric)][field]
+
+
+def pct(stratum: str, metric: str) -> str:
+    row = GBFS[(stratum, metric)]
+    return f"{float(row['percent']):.1f}%"
+
+
+def ci(stratum: str, metric: str) -> str:
+    row = GBFS[(stratum, metric)]
+    return f"{float(row['wilson_95_low_percent']):.1f}-{float(row['wilson_95_high_percent']):.1f}%"
+
+
+def domain_count(domain: str, status: str) -> int:
+    return sum(1 for op, cells in DOCMATRIX.items() if cells.get(domain) == status)
+
+
+# ---------------------------------------------------------------------------
+# Figures (English text only, per manuscript language rule)
+# ---------------------------------------------------------------------------
+FIG_CAPTIONS = {
+    1: ("Figure 1. PRISMA-ScR flow of record identification, title/abstract "
+        "screening, full-text eligibility assessment, and inclusion. Counts are "
+        "reproduced from the committed screening sheet."),
+    2: ("Figure 2. Evidence map of the 18 included direct studies by evidence "
+        "distance (D4 direct empirical, D3 direct documentary, D2 near-domain "
+        "empirical) and lifecycle stage addressed. A study that addresses more "
+        "than one stage is counted in each relevant stage, so row totals may "
+        "exceed the number of studies at that distance."),
+    3: ("Figure 3. Prevalence of disclosed fields in 813 successfully retrieved, "
+        "non-empty public vehicle-status feeds that declared motorized "
+        "micromobility. Bars show the point estimate; whiskers show the 95% "
+        "Wilson confidence interval. Field presence is a disclosure signal, not "
+        "evidence of a privacy harm."),
+    4: ("Figure 4. Disclosure-domain coding of public operator privacy notices "
+        "across 14 domains (n = 13 coded operators; 2 further operators were "
+        "unavailable for reproducible retrieval). Cells show explicit, partial, "
+        "or not-found coding; not-found denotes silence in the document, not "
+        "evidence that a practice is absent."),
+    5: ("Figure 5. Lifecycle data-exposure model linking each stage to the "
+        "evidence distance of its supporting sources and to a proposed, as-yet "
+        "unvalidated control. Solid boxes denote stages with direct (D3-D4) "
+        "evidence; dashed boxes denote stages supported only by near-domain "
+        "(D2) evidence."),
+}
+
+PALETTE = {
+    "explicit": "#2c7fb8",
+    "partial": "#7fcdbb",
+    "not_found": "#edf8b1",
+    "unavailable": "#d9d9d9",
+    "bar": "#2c7fb8",
+    "D4": "#08519c",
+    "D3": "#3182bd",
+    "D2": "#9ecae1",
+}
+
+
+def fig1_prisma(ax) -> None:
+    ax.axis("off")
+    boxes = [
+        (0.5, 0.93, "Records identified from\nbibliographic sources (n = 2,169)"),
+        (0.5, 0.75, "Records screened on title/abstract\n(n = 2,169)"),
+        (0.5, 0.55, "Records sought for full-text\nassessment (n = 224)"),
+        (0.5, 0.33, "Full-text records assessed\nfor eligibility (n = 224)"),
+        (0.5, 0.11, "Direct studies included in\nsynthesis (n = 18)"),
+    ]
+    for x, y, text in boxes:
+        ax.add_patch(FancyBboxPatch((x - 0.22, y - 0.055), 0.44, 0.11,
+                     boxstyle="round,pad=0.01", fc="#deebf7", ec="#08519c", lw=1.2,
+                     transform=ax.transAxes))
+        ax.text(x, y, text, ha="center", va="center", fontsize=8.5,
+                transform=ax.transAxes)
+    excl = [
+        (0.80, 0.75, "Excluded on title/abstract\n(n = 1,945)"),
+        (0.80, 0.44, "Full text not retrieved\n(n = 79)"),
+        (0.80, 0.22, "Excluded at full text (n = 127):\nno relevant data path (n = 90);\nmechanism not transferable (n = 37)"),
+    ]
+    for x, y, text in excl:
+        ax.add_patch(FancyBboxPatch((x - 0.18, y - 0.06), 0.36, 0.12,
+                     boxstyle="round,pad=0.01", fc="#f7f7f7", ec="#999999", lw=1.0,
+                     transform=ax.transAxes))
+        ax.text(x, y, text, ha="center", va="center", fontsize=7.5,
+                transform=ax.transAxes)
+    ys = [0.875, 0.695, 0.475, 0.275]
+    for y0 in ys:
+        ax.add_patch(FancyArrowPatch((0.5, y0), (0.5, y0 - 0.05),
+                     arrowstyle="-|>", mutation_scale=12, color="#08519c",
+                     transform=ax.transAxes))
+    for y0, yx in [(0.75, 0.75), (0.55, 0.44), (0.33, 0.22)]:
+        ax.add_patch(FancyArrowPatch((0.72, y0), (0.62, y0),
+                     arrowstyle="-|>", mutation_scale=10, color="#999999",
+                     transform=ax.transAxes))
+
+
+def fig2_evidence_map(ax) -> None:
+    stages = ["Operation", "Maintenance/\nservice", "Recall/return",
+              "Second-life/\ndisposal"]
+    distances = ["D2", "D3", "D4"]
+    # map each study to (distance, stage) using lifecycle_stage in extraction
+    stage_key = {
+        "operation": 0, "data sharing": 0,
+        "maintenance": 1, "maintenance and service": 1,
+        "recall and return": 2, "recall": 2, "return": 2,
+        "second-life and disposal": 3, "second-life": 3, "disposal": 3,
+        "recycling": 3, "manufacturing": 3,
+    }
+    counts = np.zeros((len(distances), len(stages)), dtype=int)
+    for e in EXTRACTION:
+        d = distances.index(e["evidence_distance"]) if e["evidence_distance"] in distances else None
+        if d is None:
+            continue
+        seen: set[int] = set()
+        for token in e["lifecycle_stage"].split(";"):
+            s = stage_key.get(token.strip().lower())
+            if s is not None:
+                seen.add(s)
+        for s in seen:
+            counts[d, s] += 1
+    im = ax.imshow(counts, cmap="Blues", aspect="auto", vmin=0, vmax=max(counts.max(), 1))
+    ax.set_xticks(range(len(stages)))
+    ax.set_xticklabels(stages, fontsize=8)
+    ax.set_yticks(range(len(distances)))
+    ax.set_yticklabels(["D2 near-domain", "D3 documentary", "D4 empirical"], fontsize=8)
+    for i in range(len(distances)):
+        for j in range(len(stages)):
+            if counts[i, j]:
+                ax.text(j, i, str(counts[i, j]), ha="center", va="center",
+                        color="black", fontsize=9)
+    ax.set_xlabel("Lifecycle stage addressed", fontsize=8.5)
+    cb = plt.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
+    cb.set_label("Number of included studies", fontsize=8)
+
+
+def fig3_prevalence(ax) -> None:
+    metrics = [
+        ("has_vehicle_id", "Vehicle\nidentifier"),
+        ("has_location_fields", "Latitude/\nlongitude"),
+        ("has_range", "Current\nrange"),
+        ("has_deep_link", "Rental\ndeep link"),
+        ("has_last_reported", "Last-reported\ntimestamp"),
+        ("has_battery_percent", "Battery/fuel\npercentage"),
+    ]
+    stratum = "declared_motorized_micromobility_feeds"
+    labels, vals, lo, hi = [], [], [], []
+    for metric, lab in metrics:
+        row = GBFS[(stratum, metric)]
+        labels.append(lab)
+        vals.append(float(row["percent"]))
+        lo.append(float(row["percent"]) - float(row["wilson_95_low_percent"]))
+        hi.append(float(row["wilson_95_high_percent"]) - float(row["percent"]))
+    x = np.arange(len(labels))
+    ax.bar(x, vals, color=PALETTE["bar"], width=0.62,
+           yerr=[lo, hi], capsize=3, ecolor="#333333")
+    for xi, v, h in zip(x, vals, hi):
+        ax.text(xi, v + h + 1.6, f"{v:.1f}", ha="center", fontsize=8)
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels, fontsize=8)
+    ax.set_ylabel("Feeds disclosing the field (%)", fontsize=9)
+    ax.set_ylim(0, 108)
+    ax.set_title("Disclosed fields in 813 motorized micromobility vehicle feeds",
+                 fontsize=9.5)
+    ax.spines[["top", "right"]].set_visible(False)
+
+
+DOMAIN_LABELS = {
+    "location_data": "Location",
+    "trip_time_data": "Trip/time",
+    "vehicle_identifier": "Vehicle ID",
+    "battery_or_diagnostic_data": "Battery/diagnostic",
+    "maintenance_or_repair_data": "Maintenance/repair",
+    "account_payment_device_data": "Account/payment/device",
+    "analytics_or_profiling": "Analytics/profiling",
+    "retention": "Retention",
+    "processors_or_contractors": "Processors/contractors",
+    "international_transfer": "Intl transfer",
+    "user_rights": "Data-subject rights",
+    "incident_contact": "Incident contact",
+    "vulnerability_disclosure": "Vulnerability disclosure",
+    "return_recycling_disposal": "Return/recycling/disposal",
+}
+STATUS_VAL = {"explicit": 3, "partial": 2, "not_found": 1, "unavailable": 0}
+
+
+def fig4_heatmap(ax) -> None:
+    operators = [op for op in DOCMATRIX
+                 if any(v != "unavailable" for v in DOCMATRIX[op].values())]
+    grid = np.array([[STATUS_VAL[DOCMATRIX[op][d]] for d in DOMAINS] for op in operators])
+    from matplotlib.colors import ListedColormap
+    cmap = ListedColormap([PALETTE["unavailable"], PALETTE["not_found"],
+                           PALETTE["partial"], PALETTE["explicit"]])
+    ax.imshow(grid, cmap=cmap, aspect="auto", vmin=0, vmax=3)
+    ax.set_xticks(range(len(DOMAINS)))
+    ax.set_xticklabels([DOMAIN_LABELS[d] for d in DOMAINS], rotation=45,
+                       ha="right", fontsize=7)
+    ax.set_yticks(range(len(operators)))
+    ax.set_yticklabels(operators, fontsize=7)
+    ax.set_xticks(np.arange(-0.5, len(DOMAINS), 1), minor=True)
+    ax.set_yticks(np.arange(-0.5, len(operators), 1), minor=True)
+    ax.grid(which="minor", color="white", linewidth=1.0)
+    ax.tick_params(which="minor", length=0)
+    handles = [plt.Rectangle((0, 0), 1, 1, fc=PALETTE[k]) for k in
+               ["explicit", "partial", "not_found"]]
+    ax.legend(handles, ["Explicit", "Partial", "Not found"],
+              loc="upper left", bbox_to_anchor=(1.01, 1.0), fontsize=7,
+              frameon=False)
+
+
+LIFECYCLE = [
+    ("Procurement", "D3", "Contract, provenance,\nand access terms"),
+    ("Deployment", "D3", "Feed configuration\nand field minimization"),
+    ("Operation", "D4", "Local processing;\naccess and retention limits"),
+    ("Maintenance/service", "D3", "Controlled contractor\naccess and logging"),
+    ("Recall/return", "D2", "Chain-of-custody\nfor returned units"),
+    ("Second-life/disposal", "D2", "Verified media\nsanitization"),
 ]
 
 
+def fig5_lifecycle(ax) -> None:
+    ax.axis("off")
+    n = len(LIFECYCLE)
+    xs = np.linspace(0.08, 0.92, n)
+    for i, ((stage, dist, control), x) in enumerate(zip(LIFECYCLE, xs)):
+        direct = dist in ("D3", "D4")
+        style = "round,pad=0.01" if direct else "round,pad=0.01"
+        ax.add_patch(FancyBboxPatch((x - 0.065, 0.62), 0.13, 0.16,
+                     boxstyle=style, fc=PALETTE.get(dist, "#deebf7"),
+                     ec="#08306b", lw=1.4,
+                     linestyle="-" if direct else "--", transform=ax.transAxes))
+        ax.text(x, 0.70, f"{stage}\n[{dist}]", ha="center", va="center",
+                fontsize=7.2, transform=ax.transAxes, color="white" if dist == "D4" else "black")
+        ax.add_patch(FancyBboxPatch((x - 0.075, 0.30), 0.15, 0.18,
+                     boxstyle="round,pad=0.01", fc="#f7fbff", ec="#999999",
+                     lw=1.0, transform=ax.transAxes))
+        ax.text(x, 0.39, control, ha="center", va="center", fontsize=6.6,
+                transform=ax.transAxes)
+        ax.add_patch(FancyArrowPatch((x, 0.62), (x, 0.485), arrowstyle="-|>",
+                     mutation_scale=9, color="#999999", transform=ax.transAxes))
+        if i < n - 1:
+            ax.add_patch(FancyArrowPatch((x + 0.065, 0.70), (xs[i + 1] - 0.065, 0.70),
+                         arrowstyle="-|>", mutation_scale=10, color="#08306b",
+                         transform=ax.transAxes))
+    ax.text(0.5, 0.90, "Lifecycle stage (with dominant evidence distance)",
+            ha="center", fontsize=8.5, transform=ax.transAxes, weight="bold")
+    ax.text(0.5, 0.19, "Proposed control (effectiveness not yet validated)",
+            ha="center", fontsize=8.5, transform=ax.transAxes, weight="bold")
+
+
+FIGFUNCS = {1: fig1_prisma, 2: fig2_evidence_map, 3: fig3_prevalence,
+            4: fig4_heatmap, 5: fig5_lifecycle}
+FIGSIZE = {1: (7.0, 6.0), 2: (7.0, 4.2), 3: (7.2, 4.4), 4: (8.4, 5.2), 5: (9.6, 4.6)}
+
+
+def build_figures() -> dict[int, dict[str, Path]]:
+    FIGDIR.mkdir(parents=True, exist_ok=True)
+    paths: dict[int, dict[str, Path]] = {}
+    for num, func in FIGFUNCS.items():
+        fig, ax = plt.subplots(figsize=FIGSIZE[num])
+        func(ax)
+        fig.tight_layout()
+        png = FIGDIR / f"Figure{num}.png"
+        tiff = FIGDIR / f"Figure{num}.tiff"
+        pdf = FIGDIR / f"Figure{num}.pdf"
+        fig.savefig(png, dpi=600, bbox_inches="tight")
+        fig.savefig(tiff, dpi=600, bbox_inches="tight", pil_kwargs={"compression": "tiff_lzw"})
+        fig.savefig(pdf, bbox_inches="tight")
+        plt.close(fig)
+        paths[num] = {"png": png, "tiff": tiff, "pdf": pdf}
+    return paths
+
+
+# ---------------------------------------------------------------------------
+# Tables
+# ---------------------------------------------------------------------------
+def build_tables() -> dict[int, dict]:
+    t1 = {
+        "title": "Table 1. Eligibility criteria and data sources for the three "
+                 "study components.",
+        "headers": ["Component", "Unit of analysis", "Inclusion criteria",
+                    "Primary source"],
+        "rows": [
+            ["Scoping review (WP1)", "Study",
+             "Peer-reviewed or archival works reporting a data path in or "
+             "transferable to shared micromobility",
+             "Bibliographic search of 2,169 records [[prisma_scr;arksey]]"],
+            ["GBFS field audit (WP2)", "System/feed",
+             "Public GBFS systems in the frozen registry with a reachable "
+             "auto-discovery endpoint",
+             "GBFS systems catalogue and live feeds [[gbfs_registry;gbfs_spec]]"],
+            ["Disclosure audit (WP3)", "Operator document",
+             "Publicly reachable operator privacy notice for an audited GBFS "
+             "operator",
+             "Operator privacy notices; governance guidance [[mds_privacy;edpb_cv]]"],
+        ],
+    }
+    dist_label = {"D4": "D4 empirical", "D3": "D3 documentary", "D2": "D2 near-domain"}
+    ref_by_id = {
+        "e641ae6185ec": "espoofer", "4fe184aeb5b3": "etrojans",
+        "3b9d67a99101": "elzer", "f7ef2527bcc7": "hilgert",
+        "4bf4bae9ab93": "vinayaga2022", "9f85e4350278": "hannemann",
+        "bdab08ae526c": "isik", "2856524cd67f": "li2020",
+        "37630ff02a7b": "petersen", "b26b8d65d468": "sato",
+        "ff74fa3c40ed": "vinayaga2020", "5bf50e1a9f5c": "yilmaz2022",
+        "05e20798d6c6": "yilmaz2023", "62abc8d8d637": "zhou",
+        "062854732ff3": "bms", "57ec900852e5": "remanence",
+        "dab97e54aa73": "iotreuse", "882e5dc8fae9": "leaky",
+    }
+    order = {"D4": 0, "D3": 1, "D2": 2}
+    ext_sorted = sorted(EXTRACTION, key=lambda e: (order[e["evidence_distance"]],
+                                                   e["citation"]))
+    t2_rows = []
+    for e in ext_sorted:
+        label = ref_by_id[e["record_id"]]
+        short = e["citation"].split(".")[0]
+        t2_rows.append([
+            f"{short} [[{label}]]",
+            dist_label[e["evidence_distance"]],
+            e["device_or_service"],
+            textwrap.shorten(e["key_result"], width=180, placeholder="..."),
+        ])
+    t2 = {
+        "title": "Table 2. Included direct studies (n = 18), ordered by evidence "
+                 "distance. Key results are as reported by the source; this "
+                 "review did not reproduce the underlying experiments.",
+        "headers": ["Study", "Evidence distance", "Device or service",
+                    "Reported key result"],
+        "rows": t2_rows,
+    }
+    def row(stratum, metric, label):
+        return [label, g(stratum, metric, "count"), g(stratum, metric, "denominator"),
+                pct(stratum, metric), ci(stratum, metric)]
+    t3 = {
+        "title": "Table 3. GBFS audit sampling and outcomes with 95% Wilson "
+                 "confidence intervals. Denominators are stated explicitly; "
+                 "unavailable or empty feeds are separated from absent fields.",
+        "headers": ["Stratum / outcome", "n", "Denominator", "Percent", "95% CI"],
+        "rows": [
+            row("all_registry_entries", "auto_discovery_reachable",
+                "Reachable auto-discovery endpoint"),
+            row("reachable_registry_entries", "vehicle_feed_declared",
+                "Vehicle-status feed declared"),
+            row("successful_vehicle_feeds", "vehicle_feed_nonempty",
+                "Retrieved feed with >=1 vehicle"),
+            row("declared_motorized_micromobility_feeds", "has_vehicle_id",
+                "Vehicle identifier (motorized feeds)"),
+            row("declared_motorized_micromobility_feeds", "has_location_fields",
+                "Latitude/longitude (motorized feeds)"),
+            row("declared_motorized_micromobility_feeds", "has_last_reported",
+                "Last-reported timestamp (motorized feeds)"),
+            row("declared_motorized_micromobility_feeds", "has_battery_percent",
+                "Battery/fuel percentage (motorized feeds)"),
+        ],
+    }
+    domain_row = lambda d: [
+        DOMAIN_LABELS[d], str(domain_count(d, "explicit")),
+        str(domain_count(d, "partial")), str(domain_count(d, "not_found")),
+    ]
+    t4 = {
+        "title": f"Table 4. Disclosure-domain coding of public operator privacy "
+                 f"notices (n = {N_CODED} coded operators). Counts of explicit, "
+                 f"partial, and not-found codings per domain; not-found denotes "
+                 f"document silence, not evidence that a practice is absent.",
+        "headers": ["Disclosure domain", "Explicit", "Partial", "Not found"],
+        "rows": [domain_row(d) for d in DOMAINS],
+    }
+    t5 = {
+        "title": "Table 5. Evidence-to-control traceability across the lifecycle "
+                 "model. Effectiveness evidence is stated conservatively; the "
+                 "proposed controls have not been empirically validated in this "
+                 "study.",
+        "headers": ["Lifecycle stage", "Exposure path", "Supporting evidence "
+                    "(distance)", "Proposed control", "Effectiveness evidence"],
+        "rows": [
+            ["Procurement", "Contract and provenance terms set who can access "
+             "backend data", "Governance guidance (N) [[nist161;edpb_cv]]",
+             "Provenance and access clauses; data-processing terms",
+             "Not validated; governance-based"],
+            ["Deployment", "Feed configuration determines which fields are "
+             "published", "GBFS field presence (D4) [[elzer;gbfs_spec]]",
+             "Field minimization; coarse or delayed positions",
+             "Not validated; design-based"],
+            ["Operation", "Identifiers, positions, and timestamps enable "
+             "tracking and re-identification",
+             "Empirical audits (D4) [[elzer;vinayaga2022]]; mobility "
+             "re-identification (D2) [[demontjoye]]",
+             "Local processing; access and retention limits",
+             "Partly supported by attack studies; controls not validated"],
+            ["Maintenance/service", "Contractor access to devices and records",
+             "Forensic and platform studies (D3-D4) [[hilgert;isik]]",
+             "Controlled contractor access; audit logging",
+             "Not validated"],
+            ["Recall/return", "Returned units retain stored data",
+             "IoT reuse study (D2) [[iotreuse]]",
+             "Chain-of-custody for returned units",
+             "Not validated; analogy-based"],
+            ["Second-life/disposal", "Residual data on storage and batteries",
+             "Data remanence and battery side-channel (D2) "
+             "[[remanence;leaky;bms]]; sanitization guidance (N) [[nist88]]",
+             "Verified media sanitization before resale or recycling",
+             "Not validated; standards-based"],
+        ],
+    }
+    return {1: t1, 2: t2, 3: t3, 4: t4, 5: t5}
+
+
+TABLES = build_tables()
+
+
+# ---------------------------------------------------------------------------
+# Manuscript body. Citations use [[label]] or [[a;b]] tokens; figures/tables
+# are referenced as "Fig. n" / "Table n" and inserted at their first mention.
+# ---------------------------------------------------------------------------
+def body_blocks() -> list[tuple]:
+    n_id = "2,169"
+    reach = pct("all_registry_entries", "auto_discovery_reachable")
+    reach_ci = ci("all_registry_entries", "auto_discovery_reachable")
+    blocks: list[tuple] = []
+
+    blocks.append(("h1", "1. Introduction"))
+    blocks += [("p", t) for t in [
+        "Shared micromobility - dockless electric scooters and bicycles rented "
+        "through a smartphone application - has become a visible class of "
+        "connected devices that organizations and the public use but do not "
+        "own, maintain, or decommission. Each vehicle continuously produces "
+        "location, motion, and battery telemetry that is transmitted to an "
+        "operator backend and, in many cities, republished through open data "
+        "feeds. Prior work has shown that such telemetry can support "
+        "re-identification and tracking well beyond the individual rental that "
+        "generated it [[demontjoye;elzer]].",
+        "Security research on shared micromobility has grown quickly but "
+        "unevenly. Studies span privacy measurement of rental applications, "
+        "firmware and protocol attacks on scooters, location-spoofing threats, "
+        "and forensic recovery from returned devices [[vinayaga2022;espoofer;"
+        "yilmaz2023;hilgert]]. These contributions are scattered across "
+        "security, transportation, and forensics venues, use different threat "
+        "models and units of analysis, and have not been assembled into a "
+        "single map of what is actually demonstrated as opposed to argued. As "
+        "a result, it is difficult to state precisely which data-exposure "
+        "pathways rest on direct empirical evidence and which rest on analogy.",
+        "A second gap concerns exposure that persists across the device "
+        "lifecycle. Attention typically concentrates on real-time position "
+        "during a rental, yet information created at deployment, maintenance, "
+        "recall, and disposal can remain accessible after custody changes hands "
+        "[[iotreuse;remanence]]. Battery and diagnostic channels, in "
+        "particular, can leak activity patterns even when positioning is "
+        "restricted [[leaky;bms]]. Whether operators disclose these lifecycle "
+        "practices to the public is largely unexamined.",
+        "This article addresses both gaps with an empirical, reproducible "
+        "package rather than a conceptual argument. We (i) conduct a scoping "
+        "review, following the Preferred Reporting Items for Systematic Reviews "
+        "and Meta-Analyses extension for Scoping Reviews (PRISMA-ScR) "
+        "[[prisma_scr]], of evidence on micromobility data exposure; (ii) audit "
+        "the fields that operators actually publish worldwide through the "
+        "General Bikeshare Feed Specification (GBFS) [[gbfs_spec]]; and (iii) "
+        "audit what a matched set of operator privacy notices discloses about "
+        "collection, retention, transfer, and device end-of-life. Our research "
+        "questions are: RQ1, what data-exposure pathways in shared "
+        "micromobility are supported by direct evidence; RQ2, which "
+        "vehicle-level fields are publicly disclosed, and at what prevalence; "
+        "and RQ3, how completely do public operator documents describe "
+        "lifecycle data handling.",
+        "We are deliberately conservative about interpretation. Publishing a "
+        "field, or remaining silent about a practice, is a disclosure signal; "
+        "it is not by itself evidence of a privacy harm, a compromise, or a "
+        "regulatory violation. The contribution is a transparent evidence base "
+        "and a lifecycle model that ties each stage to the strength of its "
+        "supporting evidence and to controls whose effectiveness remains to be "
+        "tested.",
+    ]]
+
+    blocks.append(("h1", "2. Methods"))
+    blocks.append(("h2", "2.1. Design and reporting"))
+    blocks += [("p", t) for t in [
+        "The study combines three prespecified components: a scoping review "
+        "(work package WP1), a cross-sectional field audit of public GBFS feeds "
+        "(WP2), and a structured disclosure audit of public operator documents "
+        "(WP3). The review component is reported in line with PRISMA-ScR "
+        "[[prisma_scr]] and follows the scoping-review framework of Arksey and "
+        "O'Malley [[arksey]]. Eligibility criteria and data sources for all "
+        "three components are summarized in Table 1. The protocol, screening "
+        "rules, coding sheets, and analysis code are openly available so that "
+        "the counts reported here can be regenerated.",
+    ]]
+    blocks.append(("table", 1))
+    blocks.append(("h2", "2.2. Scoping review (WP1)"))
+    blocks += [("p", t) for t in [
+        "We compiled 2,169 records from programmatic searches of open "
+        "bibliographic metadata. Abstracts were retrieved automatically where a "
+        "digital object identifier (DOI) was available (1,539 of 2,116 DOI "
+        "records; 72.7%); the remaining records were screened on title and "
+        "available metadata only. Title/abstract screening applied a "
+        "deterministic rule set that combined target-domain relevance with the "
+        "presence of a described data path, and recorded a decision and reason "
+        "for every record. Because the rules are deterministic, we re-applied "
+        "them to a delayed 20% sample (n = 447) and reproduced every original "
+        "decision (100% agreement); this demonstrates computational "
+        "reproducibility rather than inter-rater reliability, as a single "
+        "reviewer conducted the screening.",
+        "Records marked include or uncertain were sought for full-text "
+        "assessment. Each retrieved study was classified by evidence distance: "
+        "D4, direct target-domain empirical evidence; D3, direct target-domain "
+        "documentary evidence; D2, near-domain empirical evidence; D1, "
+        "mechanism analogy; and N, normative evidence. We did not treat a "
+        "title/abstract decision as equivalent to a confirmed full-text "
+        "finding, and we did not claim to have read full text that could not be "
+        "retrieved. From the included studies we built a study-level extraction "
+        "table capturing device or service, design, data fields, access path, "
+        "reported outcome, and limitations.",
+    ]]
+    blocks.append(("h2", "2.3. Public GBFS field audit (WP2)"))
+    blocks += [("p", t) for t in [
+        "We froze a snapshot of the public GBFS systems catalogue [[gbfs_registry]] "
+        "and recorded its checksum. For each system we attempted to reach the "
+        "auto-discovery endpoint, to locate a declared vehicle-status feed, to "
+        "retrieve that feed, and to record which specification fields it "
+        "contained. The unit of analysis is the system/feed. To respect the "
+        "study's safety constraints, we recorded only the presence or absence "
+        "of each field; raw vehicle identifiers, exact coordinates, and "
+        "vehicle-specific deep links were not retained. Unavailable or empty "
+        "feeds were separated from feeds that were retrieved but omitted a "
+        "field, and all proportions are reported against explicit denominators "
+        "with 95% Wilson confidence intervals. Because several large operators "
+        "run many city systems, we also computed an operator-domain sensitivity "
+        "analysis to check whether prevalence was driven by a few operators.",
+    ]]
+    blocks.append(("h2", "2.4. Public-document disclosure audit (WP3)"))
+    blocks += [("p", t) for t in [
+        "We selected operators from the audited GBFS population and retrieved "
+        "their public privacy notices. For each operator document we coded 14 "
+        "disclosure domains - location; trip and time data; vehicle "
+        "identifiers; battery or diagnostic data; maintenance or repair "
+        "records; account, payment, and device data; analytics or profiling; "
+        "retention; processors or contractors; international transfers; "
+        "data-subject rights; incident contact; vulnerability disclosure; and "
+        "device return, recycling, or disposal - using the values explicit, "
+        "partial, not found, not applicable, and unavailable. A not-found "
+        "coding means the document did not address the domain; it is not "
+        "evidence that the practice does not occur. Each coding is accompanied "
+        "by a short verbatim locator quotation in the coding sheet so that a "
+        "third party can check it. Coding was computer-assisted and reviewed by "
+        "a single reviewer; governance and standards documents "
+        "[[mds_privacy;edpb_cv;nist88;nist161;eu_battery]] were used as "
+        "reference points and were not coded as operator practices.",
+    ]]
+
+    blocks.append(("h1", "3. Results"))
+    blocks.append(("h2", "3.1. Scoping review (RQ1)"))
+    blocks += [("p", t) for t in [
+        f"Of {n_id} records screened, 1,945 were excluded at title/abstract and "
+        "224 were sought for full text (Fig. 1). Of these, 79 could not be "
+        "retrieved and were recorded as such rather than assessed; 127 "
+        "retrieved records were excluded because they contained no relevant "
+        "data path (90) or described a mechanism that did not transfer to the "
+        "target domain (37). Eighteen direct studies were included: 5 at "
+        "evidence distance D4, 9 at D3, and 4 at D2 (Fig. 2; Table 2).",
+        "The included D4 studies provide the strongest evidence. A long-term "
+        "real-world analysis reconstructed rider-relevant patterns from "
+        "operator data [[elzer]]; investigative studies of rental applications "
+        "and scooter ecosystems demonstrated collection and protocol weaknesses "
+        "[[vinayaga2022;espoofer;etrojans]]; and a forensic analysis recovered "
+        "data from micromobility devices [[hilgert]]. D3 studies document "
+        "platform architectures, location-spoofing threats, data-acquisition "
+        "frameworks, and user-facing traceability concerns "
+        "[[isik;vinayaga2020;yilmaz2022;yilmaz2023;sato;li2020;petersen;zhou;"
+        "hannemann]]. D2 studies transfer from adjacent domains: battery "
+        "side channels and battery-management data [[leaky;bms]], residual data "
+        "in reused IoT devices [[iotreuse]], and cloud data remanence "
+        "[[remanence]]. No included study, on its own, demonstrated an "
+        "end-to-end lifecycle compromise; the evidence is strongest for "
+        "operation and weakest for recall and disposal.",
+    ]]
+    blocks.append(("fig", 1))
+    blocks.append(("fig", 2))
+    blocks.append(("table", 2))
+    blocks.append(("h2", "3.2. Public GBFS field audit (RQ2)"))
+    blocks += [("p", t) for t in [
+        f"Of 1,520 registry systems, {reach} (95% CI {reach_ci}; n = 1,428) "
+        "exposed a reachable auto-discovery endpoint, "
+        f"{pct('reachable_registry_entries', 'vehicle_feed_declared')} of "
+        "reachable systems declared a vehicle-status feed, and "
+        f"{pct('successful_vehicle_feeds', 'vehicle_feed_nonempty')} of "
+        "successfully retrieved feeds contained at least one vehicle (Table 3). "
+        "Restricting to the 813 non-empty feeds that declared motorized "
+        "micromobility, a vehicle identifier was present in "
+        f"{pct('declared_motorized_micromobility_feeds', 'has_vehicle_id')} of "
+        "feeds and latitude/longitude in "
+        f"{pct('declared_motorized_micromobility_feeds', 'has_location_fields')} "
+        "(Fig. 3). Fields with more operational specificity were less uniformly "
+        "published: current range in "
+        f"{pct('declared_motorized_micromobility_feeds', 'has_range')}, "
+        "vehicle-specific rental links in "
+        f"{pct('declared_motorized_micromobility_feeds', 'has_deep_link')}, "
+        "last-reported timestamps in "
+        f"{pct('declared_motorized_micromobility_feeds', 'has_last_reported')}, "
+        "and battery or fuel percentage in "
+        f"{pct('declared_motorized_micromobility_feeds', 'has_battery_percent')}.",
+        "The operator-domain sensitivity analysis indicates that these are not "
+        "artefacts of a few large operators. Across 147 eligible operator "
+        "domains, a vehicle identifier appeared in every eligible feed for "
+        f"{pct('declared_motorized_micromobility_operator_domains_all', 'has_vehicle_id')} "
+        "of domains and latitude/longitude for "
+        f"{pct('declared_motorized_micromobility_operator_domains_any', 'has_location_fields')}, "
+        "whereas battery percentage was present in at least one eligible feed "
+        "for only "
+        f"{pct('declared_motorized_micromobility_operator_domains_any', 'has_battery_percent')} "
+        "of domains. These figures describe what is disclosed publicly; they do "
+        "not describe what operators collect or store on their backends, which "
+        "the public feed cannot reveal.",
+    ]]
+    blocks.append(("fig", 3))
+    blocks.append(("table", 3))
+    blocks.append(("h2", "3.3. Public-document disclosure audit (RQ3)"))
+    exp_loc = domain_count("location_data", "explicit")
+    exp_ret = domain_count("retention", "explicit")
+    nf_batt = domain_count("battery_or_diagnostic_data", "not_found")
+    nf_vuln = domain_count("vulnerability_disclosure", "not_found")
+    nf_disp = domain_count("return_recycling_disposal", "not_found")
+    blocks += [("p", t) for t in [
+        f"We coded {N_CODED} operator privacy notices across 14 domains; two "
+        "further operators could not be retrieved as reproducible text and were "
+        "recorded as unavailable (Fig. 4; Table 4). Operational and "
+        "account-level processing was disclosed almost universally: location "
+        f"data were explicit for {exp_loc} of {N_CODED} operators, and "
+        f"retention, processors or contractors, and account/payment/device data "
+        f"were explicit for most. Data-subject rights and international "
+        "transfers were explicit or partial for the large majority, consistent "
+        "with a predominantly European operator sample governed by the General "
+        "Data Protection Regulation [[gdpr]].",
+        "Disclosure was markedly thinner for device-centred and lifecycle "
+        f"domains. Battery or diagnostic data collection was not found in "
+        f"{nf_batt} of {N_CODED} notices, even though such data are technically "
+        "central to these vehicles [[leaky;bms]]. No operator notice in the "
+        f"sample described a vulnerability-disclosure channel ({nf_vuln} of "
+        f"{N_CODED} not found), and none addressed device return, recycling, or "
+        f"disposal handling ({nf_disp} of {N_CODED} not found). We stress that "
+        "these are gaps in public documents, not proof that the corresponding "
+        "practices are absent; they nonetheless mark the parts of the lifecycle "
+        "that are least visible to the public and to procuring organizations.",
+    ]]
+    blocks.append(("fig", 4))
+    blocks.append(("table", 4))
+
+    blocks.append(("h1", "4. Discussion"))
+    blocks += [("p", t) for t in [
+        "Read together, the three components describe a consistent pattern. "
+        "Direct evidence for data exposure is concentrated in the operation "
+        "stage, where audits and attack studies demonstrate collection, "
+        "tracking, and re-identification potential [[elzer;espoofer;"
+        "vinayaga2022]]. The public feed audit shows that the raw materials for "
+        "such analyses - persistent identifiers and precise positions - are "
+        "disclosed at high prevalence worldwide, while more operationally "
+        "sensitive fields are published less uniformly. The disclosure audit "
+        "shows that operators describe operational data handling in detail but "
+        "are largely silent on the device end-of-life and on security-reporting "
+        "channels, which is exactly where the review found only near-domain "
+        "(D2) evidence [[iotreuse;remanence]].",
+        "We integrate these observations in a six-stage lifecycle model that "
+        "links each stage to the evidence distance of its supporting sources "
+        "and to a proposed control (Fig. 5; Table 5). The model makes the "
+        "strength of the underlying evidence explicit: procurement, deployment, "
+        "operation, and maintenance are anchored by direct (D3-D4) evidence, "
+        "whereas recall/return and second-life/disposal rest on near-domain "
+        "(D2) analogy and on governance and standards guidance "
+        "[[nist88;nist161;eu_battery]]. The controls - field minimization, "
+        "local processing, access and retention limits, controlled contractor "
+        "access, chain-of-custody for returned units, and verified media "
+        "sanitization - are proposals whose effectiveness this study did not "
+        "test; Table 5 records their effectiveness evidence conservatively.",
+        "For procuring organizations, the practical implication is that a "
+        "narrow focus on real-time position understates exposure. A telemetry "
+        "inventory that spans identifiers, timestamps, range, and battery "
+        "state, and that follows devices through maintenance and disposal, is a "
+        "more faithful basis for assessment than the intuition that "
+        "coordinates alone are the only sensitive field.",
+    ]]
+    blocks.append(("fig", 5))
+    blocks.append(("table", 5))
+    blocks.append(("h2", "4.1. Limitations"))
+    blocks += [("p", t) for t in [
+        "Several limitations bound these findings. Screening and coding were "
+        "performed by a single reviewer with computer assistance; although the "
+        "process is deterministic and reproducible, it does not provide "
+        "inter-rater reliability, and some included studies were characterized "
+        "from abstracts and curated metadata rather than from independently "
+        "reproduced experiments. The GBFS audit observes only what is published "
+        "in public feeds at a single point in time; it cannot show what "
+        "operators collect or retain internally, and field presence is not a "
+        "measure of harm. The disclosure audit reflects the public documents we "
+        "could retrieve; not-found codings denote silence, two operators were "
+        "unavailable, and the operator sample is weighted toward European and "
+        "North American providers. Finally, the lifecycle controls are "
+        "proposals; validating them would require intervention studies or "
+        "operator cooperation that were outside this study's scope.",
+    ]]
+
+    blocks.append(("h1", "5. Conclusion"))
+    blocks += [("p", t) for t in [
+        "Shared micromobility offers a tractable, fully public setting in which "
+        "to study lifecycle data exposure in connected devices that "
+        "organizations use but do not control. A scoping review of 2,169 "
+        "records identified 18 direct studies whose strongest evidence "
+        "concerns the operation stage; a global audit of 1,428 public GBFS "
+        "systems showed that persistent identifiers and precise positions are "
+        "disclosed at high prevalence; and a disclosure audit showed that "
+        f"operators document operational processing thoroughly but are silent "
+        f"on device disposal and vulnerability reporting. These are disclosure "
+        "and evidence signals, not demonstrations of harm. The lifecycle model "
+        "and its traceability table turn them into an auditable agenda: extend "
+        "assessment beyond real-time location, close the documentation gaps at "
+        "end-of-life, and empirically validate the proposed controls.",
+    ]]
+    return blocks
+
+
+# ---------------------------------------------------------------------------
+# Citation resolution
+# ---------------------------------------------------------------------------
+def iter_citation_texts(blocks: list[tuple], tables: dict[int, dict]):
+    """Yield text fragments in document order for numbering."""
+    for kind, payload in blocks:
+        if kind == "p":
+            yield payload
+        elif kind == "table":
+            spec = tables[payload]
+            for r in spec["rows"]:
+                for cell in r:
+                    yield cell
+
+
+CITE_RX = re.compile(r"\[\[([^\]]+)\]\]")
+
+
+def resolve_citations(blocks: list[tuple], tables: dict[int, dict]):
+    order: list[str] = []
+
+    def register(fragment: str) -> None:
+        for m in CITE_RX.finditer(fragment):
+            for label in m.group(1).split(";"):
+                label = label.strip()
+                if label not in order:
+                    order.append(label)
+
+    for frag in iter_citation_texts(blocks, tables):
+        register(frag)
+
+    unknown = [l for l in order if l not in REFS]
+    if unknown:
+        raise RuntimeError(f"Unknown citation labels: {unknown}")
+    numbering = {label: i + 1 for i, label in enumerate(order)}
+
+    def repl(fragment: str) -> str:
+        def _sub(m: re.Match) -> str:
+            nums = sorted(numbering[l.strip()] for l in m.group(1).split(";"))
+            return "[" + collapse(nums) + "]"
+        return CITE_RX.sub(_sub, fragment)
+
+    return numbering, order, repl
+
+
+def collapse(nums: list[int]) -> str:
+    parts: list[str] = []
+    i = 0
+    while i < len(nums):
+        j = i
+        while j + 1 < len(nums) and nums[j + 1] == nums[j] + 1:
+            j += 1
+        if j - i >= 2:
+            parts.append(f"{nums[i]}-{nums[j]}")
+        else:
+            parts.extend(str(nums[k]) for k in range(i, j + 1))
+        i = j + 1
+    return ",".join(parts)
+
+
+# ---------------------------------------------------------------------------
+# DOCX helpers (retained from the original generator)
+# ---------------------------------------------------------------------------
 def reset_dirs() -> None:
     for path in (OUTPUT, WORK):
         if path.exists():
@@ -1033,8 +1093,7 @@ def set_cell_shading(cell, fill: str) -> None:
 
 
 def set_cell_margins(cell, top=80, start=80, bottom=80, end=80) -> None:
-    tc = cell._tc
-    tc_pr = tc.get_or_add_tcPr()
+    tc_pr = cell._tc.get_or_add_tcPr()
     tc_mar = tc_pr.first_child_found_in("w:tcMar")
     if tc_mar is None:
         tc_mar = OxmlElement("w:tcMar")
@@ -1050,10 +1109,8 @@ def set_cell_margins(cell, top=80, start=80, bottom=80, end=80) -> None:
 
 def configure_document(doc: Document) -> None:
     section = doc.sections[0]
-    section.top_margin = Inches(1)
-    section.bottom_margin = Inches(1)
-    section.left_margin = Inches(1)
-    section.right_margin = Inches(1)
+    for attr in ("top_margin", "bottom_margin", "left_margin", "right_margin"):
+        setattr(section, attr, Inches(1))
     styles = doc.styles
     normal = styles["Normal"]
     normal.font.name = "Times New Roman"
@@ -1071,31 +1128,20 @@ def configure_document(doc: Document) -> None:
     styles["Heading 2"].font.bold = True
 
 
-def add_text_with_citations(paragraph, text: str) -> None:
-    parts = re.split(r"(\[\d+(?:[-,]\d+)*\])", text)
-    for part in parts:
-        if not part:
-            continue
-        run = paragraph.add_run(part)
-        run.font.name = "Times New Roman"
-        run._element.rPr.rFonts.set(qn("w:eastAsia"), "Times New Roman")
-        run.font.size = Pt(12)
-
-
-def add_manuscript_paragraph(doc: Document, text: str) -> None:
+def add_body_paragraph(doc: Document, text: str) -> None:
     paragraph = doc.add_paragraph()
     paragraph.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
     paragraph.paragraph_format.first_line_indent = Inches(0.3)
-    paragraph.paragraph_format.keep_together = False
-    paragraph.paragraph_format.widow_control = True
-    add_text_with_citations(paragraph, text)
+    run = paragraph.add_run(text)
+    run.font.name = "Times New Roman"
+    run.font.size = Pt(12)
 
 
-def add_table(doc: Document, spec: dict) -> None:
+def add_table(doc: Document, spec: dict, repl) -> None:
     caption = doc.add_paragraph()
     caption.paragraph_format.space_before = Pt(14)
     caption.paragraph_format.space_after = Pt(6)
-    caption.add_run(spec["title"]).bold = True
+    caption.add_run(repl(spec["title"])).bold = True
     table = doc.add_table(rows=1, cols=len(spec["headers"]))
     table.alignment = WD_TABLE_ALIGNMENT.CENTER
     table.style = "Table Grid"
@@ -1112,7 +1158,7 @@ def add_table(doc: Document, spec: dict) -> None:
     for row_values in spec["rows"]:
         cells = table.add_row().cells
         for index, value in enumerate(row_values):
-            cells[index].text = value
+            cells[index].text = repl(value)
             cells[index].vertical_alignment = WD_CELL_VERTICAL_ALIGNMENT.TOP
             set_cell_margins(cells[index])
             for paragraph in cells[index].paragraphs:
@@ -1123,465 +1169,151 @@ def add_table(doc: Document, spec: dict) -> None:
     doc.add_paragraph()
 
 
+def add_figure(doc: Document, num: int, png: Path, repl) -> None:
+    image_p = doc.add_paragraph()
+    image_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    image_p.paragraph_format.space_before = Pt(14)
+    width = 6.3 if num in (1, 2, 3) else 6.5
+    image_p.add_run().add_picture(str(png), width=Inches(width))
+    caption = doc.add_paragraph()
+    caption.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    caption.paragraph_format.space_before = Pt(6)
+    caption.paragraph_format.space_after = Pt(14)
+    run = caption.add_run(repl(FIG_CAPTIONS[num]))
+    run.italic = True
+    run.font.size = Pt(10)
+
+
 def add_page_number(section) -> None:
-    footer = section.footer
-    paragraph = footer.paragraphs[0]
+    paragraph = section.footer.paragraphs[0]
     paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
     run = paragraph.add_run()
-    fld_char1 = OxmlElement("w:fldChar")
-    fld_char1.set(qn("w:fldCharType"), "begin")
-    instr_text = OxmlElement("w:instrText")
-    instr_text.set(qn("xml:space"), "preserve")
-    instr_text.text = "PAGE"
-    fld_char2 = OxmlElement("w:fldChar")
-    fld_char2.set(qn("w:fldCharType"), "end")
-    run._r.extend([fld_char1, instr_text, fld_char2])
+    begin = OxmlElement("w:fldChar")
+    begin.set(qn("w:fldCharType"), "begin")
+    instr = OxmlElement("w:instrText")
+    instr.set(qn("xml:space"), "preserve")
+    instr.text = "PAGE"
+    end = OxmlElement("w:fldChar")
+    end.set(qn("w:fldCharType"), "end")
+    run._r.extend([begin, instr, end])
 
 
-def build_figure_pptx() -> Path:
-    path = OUTPUT / "Figure1_editable.pptx"
-    prs = Presentation()
-    prs.slide_width = PptxInches(13.333)
-    prs.slide_height = PptxInches(7.5)
-    slide = prs.slides.add_slide(prs.slide_layouts[6])
-
-    background = slide.background.fill
-    background.solid()
-    background.fore_color.rgb = PptxRGB(248, 250, 252)
-
-    title_box = slide.shapes.add_textbox(
-        PptxInches(0.55), PptxInches(0.22), PptxInches(12.2), PptxInches(0.55)
-    )
-    title_frame = title_box.text_frame
-    title_frame.clear()
-    title_frame.vertical_anchor = MSO_ANCHOR.MIDDLE
-    p = title_frame.paragraphs[0]
-    p.text = "Lifecycle exposure in serviced telemetry-emitting hardware"
-    p.alignment = PP_ALIGN.CENTER
-    p.runs[0].font.name = "Aptos Display"
-    p.runs[0].font.size = PptxPt(24)
-    p.runs[0].font.bold = True
-    p.runs[0].font.color.rgb = PptxRGB(20, 44, 68)
-
-    stages = [
-        ("1", "PROCURE", "Components\nSoftware\nBackends", "Require inventory,\nprovenance, audit rights"),
-        ("2", "DEPLOY", "Identity\nConfiguration\nPlacement", "Harden defaults;\nregister data flows"),
-        ("3", "OPERATE", "Trips\nPower use\nFaults", "Minimize, localize,\nlimit access/retention"),
-        ("4", "SERVICE", "Diagnostics\nRemoved parts\nDepot access", "Vetted staff, tools,\nlogs, custody records"),
-        ("5", "RECALL", "Emergency return\nWarranty data\nEvidence", "Approved recipient;\nsanitize or escrow"),
-        ("6", "SECOND LIFE", "Resale\nRecycling\nResidual keys", "Verify sanitization;\nrevoke credentials"),
-    ]
-    colors = [
-        PptxRGB(41, 98, 154),
-        PptxRGB(51, 122, 183),
-        PptxRGB(34, 139, 136),
-        PptxRGB(215, 139, 54),
-        PptxRGB(190, 91, 71),
-        PptxRGB(112, 86, 153),
-    ]
-    x0 = 0.35
-    box_w = 1.95
-    gap = 0.22
-    y = 1.25
-    for index, (number, heading, data, control) in enumerate(stages):
-        x = x0 + index * (box_w + gap)
-        box = slide.shapes.add_shape(
-            MSO_SHAPE.ROUNDED_RECTANGLE,
-            PptxInches(x),
-            PptxInches(y),
-            PptxInches(box_w),
-            PptxInches(4.7),
-        )
-        box.fill.solid()
-        box.fill.fore_color.rgb = PptxRGB(255, 255, 255)
-        box.line.color.rgb = colors[index]
-        box.line.width = PptxPt(2.5)
-
-        badge = slide.shapes.add_shape(
-            MSO_SHAPE.OVAL,
-            PptxInches(x + 0.69),
-            PptxInches(y - 0.25),
-            PptxInches(0.56),
-            PptxInches(0.56),
-        )
-        badge.fill.solid()
-        badge.fill.fore_color.rgb = colors[index]
-        badge.line.fill.background()
-        tf = badge.text_frame
-        tf.clear()
-        tf.vertical_anchor = MSO_ANCHOR.MIDDLE
-        pp = tf.paragraphs[0]
-        pp.text = number
-        pp.alignment = PP_ALIGN.CENTER
-        pp.runs[0].font.size = PptxPt(16)
-        pp.runs[0].font.bold = True
-        pp.runs[0].font.color.rgb = PptxRGB(255, 255, 255)
-
-        heading_box = slide.shapes.add_textbox(
-            PptxInches(x + 0.1),
-            PptxInches(y + 0.4),
-            PptxInches(box_w - 0.2),
-            PptxInches(0.45),
-        )
-        tf = heading_box.text_frame
-        tf.clear()
-        pp = tf.paragraphs[0]
-        pp.text = heading
-        pp.alignment = PP_ALIGN.CENTER
-        pp.runs[0].font.name = "Aptos"
-        pp.runs[0].font.size = PptxPt(15)
-        pp.runs[0].font.bold = True
-        pp.runs[0].font.color.rgb = colors[index]
-
-        data_label = slide.shapes.add_textbox(
-            PptxInches(x + 0.15),
-            PptxInches(y + 1.08),
-            PptxInches(box_w - 0.3),
-            PptxInches(0.35),
-        )
-        tf = data_label.text_frame
-        tf.clear()
-        pp = tf.paragraphs[0]
-        pp.text = "DATA / ACCESS"
-        pp.alignment = PP_ALIGN.CENTER
-        pp.runs[0].font.size = PptxPt(9)
-        pp.runs[0].font.bold = True
-        pp.runs[0].font.color.rgb = PptxRGB(90, 100, 110)
-
-        data_box = slide.shapes.add_textbox(
-            PptxInches(x + 0.2),
-            PptxInches(y + 1.45),
-            PptxInches(box_w - 0.4),
-            PptxInches(1.15),
-        )
-        tf = data_box.text_frame
-        tf.clear()
-        tf.vertical_anchor = MSO_ANCHOR.MIDDLE
-        pp = tf.paragraphs[0]
-        pp.text = data
-        pp.alignment = PP_ALIGN.CENTER
-        pp.runs[0].font.size = PptxPt(12)
-        pp.runs[0].font.color.rgb = PptxRGB(30, 45, 60)
-
-        divider = slide.shapes.add_shape(
-            MSO_SHAPE.RECTANGLE,
-            PptxInches(x + 0.2),
-            PptxInches(y + 2.77),
-            PptxInches(box_w - 0.4),
-            PptxInches(0.025),
-        )
-        divider.fill.solid()
-        divider.fill.fore_color.rgb = PptxRGB(215, 220, 225)
-        divider.line.fill.background()
-
-        control_label = slide.shapes.add_textbox(
-            PptxInches(x + 0.15),
-            PptxInches(y + 2.98),
-            PptxInches(box_w - 0.3),
-            PptxInches(0.35),
-        )
-        tf = control_label.text_frame
-        tf.clear()
-        pp = tf.paragraphs[0]
-        pp.text = "CONTROL"
-        pp.alignment = PP_ALIGN.CENTER
-        pp.runs[0].font.size = PptxPt(9)
-        pp.runs[0].font.bold = True
-        pp.runs[0].font.color.rgb = PptxRGB(90, 100, 110)
-
-        control_box = slide.shapes.add_textbox(
-            PptxInches(x + 0.18),
-            PptxInches(y + 3.35),
-            PptxInches(box_w - 0.36),
-            PptxInches(1.1),
-        )
-        tf = control_box.text_frame
-        tf.clear()
-        tf.vertical_anchor = MSO_ANCHOR.MIDDLE
-        pp = tf.paragraphs[0]
-        pp.text = control
-        pp.alignment = PP_ALIGN.CENTER
-        pp.runs[0].font.size = PptxPt(11)
-        pp.runs[0].font.bold = True
-        pp.runs[0].font.color.rgb = colors[index]
-
-        if index < len(stages) - 1:
-            arrow = slide.shapes.add_connector(
-                MSO_CONNECTOR.STRAIGHT,
-                PptxInches(x + box_w),
-                PptxInches(y + 2.35),
-                PptxInches(x + box_w + gap),
-                PptxInches(y + 2.35),
-            )
-            arrow.line.color.rgb = PptxRGB(100, 110, 120)
-            arrow.line.width = PptxPt(2)
-            arrow.line.end_arrowhead = True
-
-    footer = slide.shapes.add_textbox(
-        PptxInches(0.65), PptxInches(6.35), PptxInches(12.0), PptxInches(0.55)
-    )
-    tf = footer.text_frame
-    tf.clear()
-    pp = tf.paragraphs[0]
-    pp.text = (
-        "Figure 1. Exposure persists when data generated at one stage become accessible "
-        "after a later custody transition; controls must therefore be verified end to end."
-    )
-    pp.alignment = PP_ALIGN.CENTER
-    pp.runs[0].font.size = PptxPt(12)
-    pp.runs[0].font.italic = True
-    pp.runs[0].font.color.rgb = PptxRGB(70, 80, 90)
-
-    prs.save(path)
-    return path
+ABSTRACT_STRUCT = [
+    ("Background", "Shared micromobility produces continuous location, motion, "
+     "and battery telemetry, yet evidence on data exposure is scattered and the "
+     "device lifecycle beyond real-time position is rarely examined."),
+    ("Objective", "To map the direct evidence for micromobility data exposure, "
+     "to measure which vehicle fields operators publish worldwide, and to "
+     "assess how completely operators disclose lifecycle data handling."),
+    ("Methods", "We combined a PRISMA-ScR scoping review of 2,169 records, a "
+     "cross-sectional field audit of public GBFS feeds, and a structured "
+     "disclosure audit of public operator privacy notices across 14 domains, "
+     "using deterministic screening and explicit denominators with 95% Wilson "
+     "confidence intervals."),
+    ("Results", "Eighteen direct studies were included (5 D4, 9 D3, 4 D2), with "
+     "the strongest evidence at the operation stage. Across 813 motorized "
+     "micromobility feeds, vehicle identifiers appeared in 100% and coordinates "
+     "in 99.4%, while battery percentage appeared in 68.9%. Operator notices "
+     "documented operational processing thoroughly but were silent on device "
+     "disposal and vulnerability reporting."),
+    ("Conclusions", "Persistent identifiers and precise positions are widely "
+     "disclosed, and lifecycle end-of-life handling is largely undocumented. "
+     "These are disclosure and evidence signals, not demonstrations of harm; we "
+     "propose a lifecycle model whose controls remain to be validated."),
+]
 
 
-def load_font(size: int, bold: bool = False, italic: bool = False) -> ImageFont.FreeTypeFont:
-    if bold and italic:
-        name = "FreeSansBoldOblique.ttf"
-    elif bold:
-        name = "FreeSansBold.ttf"
-    elif italic:
-        name = "FreeSansOblique.ttf"
-    else:
-        name = "FreeSans.ttf"
-    return ImageFont.truetype(f"/usr/share/fonts/truetype/freefont/{name}", size)
+def build_abstract_text() -> str:
+    return " ".join(f"{label}: {text}" for label, text in ABSTRACT_STRUCT)
 
 
-def centered_multiline(
-    draw: ImageDraw.ImageDraw,
-    box: tuple[int, int, int, int],
-    text: str,
-    font: ImageFont.FreeTypeFont,
-    fill: tuple[int, int, int],
-    spacing: int = 12,
-) -> None:
-    left, top, right, bottom = box
-    bbox = draw.multiline_textbbox((0, 0), text, font=font, spacing=spacing, align="center")
-    width = bbox[2] - bbox[0]
-    height = bbox[3] - bbox[1]
-    x = left + (right - left - width) / 2
-    y = top + (bottom - top - height) / 2
-    draw.multiline_text((x, y), text, font=font, fill=fill, spacing=spacing, align="center")
-
-
-def draw_arrow(draw: ImageDraw.ImageDraw, start: tuple[int, int], end: tuple[int, int]) -> None:
-    color = (100, 110, 120)
-    draw.line([start, end], fill=color, width=10)
-    x, y = end
-    draw.polygon([(x, y), (x - 32, y - 22), (x - 32, y + 22)], fill=color)
-
-
-def build_figure_raster(pptx_path: Path) -> dict[str, Path]:
-    width, height = 4800, 2300
-    image = Image.new("RGB", (width, height), (248, 250, 252))
-    draw = ImageDraw.Draw(image)
-    title_font = load_font(142, bold=True)
-    stage_font = load_font(64, bold=True)
-    label_font = load_font(36, bold=True)
-    body_font = load_font(58)
-    control_font = load_font(50, bold=True)
-    number_font = load_font(60, bold=True)
-
-    centered_multiline(
-        draw,
-        (120, 50, width - 120, 300),
-        "Lifecycle exposure in serviced telemetry-emitting hardware",
-        title_font,
-        (20, 44, 68),
-    )
-    stages = [
-        ("1", "PROCURE", "Components\nSoftware\nBackends", "Require inventory,\nprovenance, audit rights"),
-        ("2", "DEPLOY", "Identity\nConfiguration\nPlacement", "Harden defaults;\nregister data flows"),
-        ("3", "OPERATE", "Trips\nPower use\nFaults", "Minimize, localize,\nlimit access/retention"),
-        ("4", "SERVICE", "Diagnostics\nRemoved parts\nDepot access", "Vetted staff, tools,\nlogs, custody records"),
-        ("5", "RECALL", "Emergency return\nWarranty data\nEvidence", "Approved recipient;\nsanitize or escrow"),
-        ("6", "SECOND LIFE", "Resale\nRecycling\nResidual keys", "Verify sanitization;\nrevoke credentials"),
-    ]
-    colors = [
-        (41, 98, 154),
-        (51, 122, 183),
-        (34, 139, 136),
-        (215, 139, 54),
-        (190, 91, 71),
-        (112, 86, 153),
-    ]
-    margin = 105
-    gap = 70
-    box_width = (width - margin * 2 - gap * 5) // 6
-    top = 515
-    bottom = 2190
-    for index, (number, heading, data, control) in enumerate(stages):
-        left = margin + index * (box_width + gap)
-        right = left + box_width
-        color = colors[index]
-        draw.rounded_rectangle(
-            (left, top, right, bottom),
-            radius=42,
-            fill=(255, 255, 255),
-            outline=color,
-            width=12,
-        )
-        badge_radius = 74
-        badge_x = (left + right) // 2
-        badge_y = top
-        draw.ellipse(
-            (
-                badge_x - badge_radius,
-                badge_y - badge_radius,
-                badge_x + badge_radius,
-                badge_y + badge_radius,
-            ),
-            fill=color,
-        )
-        centered_multiline(
-            draw,
-            (
-                badge_x - badge_radius,
-                badge_y - badge_radius,
-                badge_x + badge_radius,
-                badge_y + badge_radius,
-            ),
-            number,
-            number_font,
-            (255, 255, 255),
-        )
-        centered_multiline(draw, (left + 20, top + 135, right - 20, top + 330), heading, stage_font, color)
-        centered_multiline(
-            draw, (left + 20, top + 350, right - 20, top + 470), "DATA / ACCESS", label_font, (90, 100, 110)
-        )
-        centered_multiline(
-            draw, (left + 30, top + 475, right - 30, top + 900), data, body_font, (30, 45, 60), spacing=24
-        )
-        divider_y = top + 940
-        draw.line((left + 65, divider_y, right - 65, divider_y), fill=(215, 220, 225), width=6)
-        centered_multiline(
-            draw, (left + 20, top + 990, right - 20, top + 1110), "CONTROL", label_font, (90, 100, 110)
-        )
-        centered_multiline(
-            draw,
-            (left + 25, top + 1110, right - 25, bottom - 55),
-            control,
-            control_font,
-            color,
-            spacing=22,
-        )
-        if index < len(stages) - 1:
-            draw_arrow(draw, (right + 5, (top + bottom) // 2), (right + gap - 8, (top + bottom) // 2))
-
-    figure_png = OUTPUT / "Figure1.png"
-    image.save(figure_png, format="PNG", optimize=True, dpi=(600, 600))
-    figure_tiff = OUTPUT / "Figure1.tiff"
-    image.save(figure_tiff, format="TIFF", compression="tiff_lzw", dpi=(1200, 1200))
-    figure_pdf = OUTPUT / "Figure1.pdf"
-    image.save(figure_pdf, format="PDF", resolution=600.0)
-    return {"png": figure_png, "tiff": figure_tiff, "pdf": figure_pdf, "pptx": pptx_path}
-
-
-def build_manuscript(figure_png: Path) -> Path:
+def build_manuscript(blocks, tables, figpaths, repl, references) -> Path:
     doc = Document()
     configure_document(doc)
     add_page_number(doc.sections[0])
     title = doc.add_paragraph(style="Title")
     title.alignment = WD_ALIGN_PARAGRAPH.CENTER
     title.add_run(TITLE).bold = True
-    subtitle = doc.add_paragraph()
-    subtitle.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    run = subtitle.add_run("Anonymized manuscript")
-    run.italic = True
-    run.font.size = Pt(10)
+    sub = doc.add_paragraph()
+    sub.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    r = sub.add_run("Anonymized manuscript")
+    r.italic = True
+    r.font.size = Pt(10)
 
-    heading = doc.add_paragraph(style="Heading 1")
-    heading.add_run("Abstract")
-    paragraph = doc.add_paragraph()
-    paragraph.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
-    paragraph.add_run(ABSTRACT)
+    doc.add_heading("Abstract", level=1)
+    for label, text in ABSTRACT_STRUCT:
+        p = doc.add_paragraph()
+        p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+        p.add_run(f"{label}: ").bold = True
+        p.add_run(text)
+    kw = doc.add_paragraph()
+    kw.add_run("Keywords: ").bold = True
+    kw.add_run("; ".join(KEYWORDS))
 
-    keywords = doc.add_paragraph()
-    keywords.add_run("Keywords: ").bold = True
-    keywords.add_run("; ".join(KEYWORDS))
-
-    for section_title, paragraphs in SECTIONS:
-        doc.add_heading(section_title, level=1)
-        for index, text in enumerate(paragraphs):
-            add_manuscript_paragraph(doc, text)
-            if section_title == "5. Lifecycle exposure in serviced hardware" and index == 0:
-                image_p = doc.add_paragraph()
-                image_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-                image_p.paragraph_format.space_before = Pt(12)
-                image_p.add_run().add_picture(str(figure_png), width=Inches(6.45))
-                caption = doc.add_paragraph()
-                caption.alignment = WD_ALIGN_PARAGRAPH.CENTER
-                caption.paragraph_format.space_before = Pt(12)
-                caption.paragraph_format.space_after = Pt(12)
-                caption_run = caption.add_run(
-                    "Figure 1. Lifecycle exposure in serviced telemetry-emitting hardware. "
-                    "Information created at one stage may become accessible after a later "
-                    "custody transition; controls therefore span procurement through disposal."
-                )
-                caption_run.italic = True
-                caption_run.font.size = Pt(10)
-            if section_title == "6. Evidence-to-risk synthesis" and index == 0:
-                add_table(doc, TABLE_1)
-            if section_title == "7. A lifecycle assurance framework" and index == 2:
-                add_table(doc, TABLE_2)
+    for kind, payload in blocks:
+        if kind == "h1":
+            doc.add_heading(payload, level=1)
+        elif kind == "h2":
+            doc.add_heading(payload, level=2)
+        elif kind == "p":
+            add_body_paragraph(doc, repl(payload))
+        elif kind == "fig":
+            add_figure(doc, payload, figpaths[payload]["png"], repl)
+        elif kind == "table":
+            add_table(doc, tables[payload], repl)
 
     doc.add_heading("Declarations", level=1)
     for label, value in DECLARATIONS:
-        paragraph = doc.add_paragraph()
-        paragraph.paragraph_format.space_after = Pt(4)
-        paragraph.add_run(f"{label}: ").bold = True
-        paragraph.add_run(value)
+        p = doc.add_paragraph()
+        p.paragraph_format.space_after = Pt(4)
+        p.add_run(f"{label}: ").bold = True
+        p.add_run(value)
 
     doc.add_heading("References", level=1)
-    for number, reference in enumerate(REFERENCES, 1):
-        paragraph = doc.add_paragraph()
-        paragraph.paragraph_format.left_indent = Inches(0.28)
-        paragraph.paragraph_format.first_line_indent = Inches(-0.28)
-        paragraph.paragraph_format.line_spacing = 1.0
-        paragraph.paragraph_format.space_after = Pt(4)
-        paragraph.add_run(f"[{number}] {reference}")
+    for number, label in enumerate(references, 1):
+        p = doc.add_paragraph()
+        p.paragraph_format.left_indent = Inches(0.28)
+        p.paragraph_format.first_line_indent = Inches(-0.28)
+        p.paragraph_format.line_spacing = 1.0
+        p.paragraph_format.space_after = Pt(4)
+        p.add_run(f"[{number}] {REFS[label]}")
 
-    path = OUTPUT / "Discharged_Secrets_IJCIP_manuscript.docx"
+    path = OUTPUT / "Manuscript_CompSec.docx"
     doc.save(path)
     return path
 
 
-def build_title_page() -> Path:
+def build_title_page(word_count: int, n_refs: int) -> Path:
     doc = Document()
     configure_document(doc)
     title = doc.add_paragraph(style="Title")
     title.alignment = WD_ALIGN_PARAGRAPH.CENTER
     title.add_run(TITLE).bold = True
     doc.add_paragraph()
-    author = doc.add_paragraph()
-    author.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    author.add_run(AUTHOR).bold = True
-    affiliation = doc.add_paragraph()
-    affiliation.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    affiliation.add_run(AFFILIATION)
-    correspondence = doc.add_paragraph()
-    correspondence.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    correspondence.add_run(f"Corresponding author: {AUTHOR}; {EMAIL}")
-    orcid = doc.add_paragraph()
-    orcid.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    orcid.add_run(f"ORCID: {ORCID}")
+    for text, bold in [(AUTHOR, True), (AFFILIATION, False),
+                       (f"Corresponding author: {AUTHOR}; {EMAIL}", False),
+                       (f"ORCID: {ORCID}", False)]:
+        p = doc.add_paragraph()
+        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        p.add_run(text).bold = bold
     doc.add_paragraph()
     fields = [
         ("Full title", TITLE),
         ("Short title", SHORT_TITLE),
-        ("Article type", "Full-length article"),
-        ("Word count", "[Inserted automatically in the validation report]"),
-        ("Figures", "1"),
-        ("Tables", "2"),
+        ("Article type", "Research paper"),
+        ("Target journal", JOURNAL),
+        ("Word count (title, abstract, body)", str(word_count)),
+        ("Figures", "5"),
+        ("Tables", "5"),
+        ("References", str(n_refs)),
         ("Funding", "None"),
         ("Competing interests", "None declared"),
     ]
     for label, value in fields:
-        paragraph = doc.add_paragraph()
-        paragraph.add_run(f"{label}: ").bold = True
-        paragraph.add_run(value)
-    path = OUTPUT / "Title_Page_IJCIP.docx"
+        p = doc.add_paragraph()
+        p.add_run(f"{label}: ").bold = True
+        p.add_run(value)
+    path = OUTPUT / "Title_Page_CompSec.docx"
     doc.save(path)
     return path
 
@@ -1590,65 +1322,48 @@ def build_cover_letter() -> Path:
     doc = Document()
     configure_document(doc)
     for line in [AUTHOR, AFFILIATION, EMAIL, f"ORCID: {ORCID}", BUILD_DATE]:
-        paragraph = doc.add_paragraph(line)
-        paragraph.paragraph_format.space_after = Pt(2)
+        p = doc.add_paragraph(line)
+        p.paragraph_format.space_after = Pt(2)
     doc.add_paragraph()
-    doc.add_paragraph("Editor-in-Chief")
+    doc.add_paragraph("The Editors-in-Chief")
     doc.add_paragraph(JOURNAL)
     doc.add_paragraph("Elsevier")
     doc.add_paragraph()
-    doc.add_paragraph("Dear Editor-in-Chief,")
-    paragraphs = [
-        (
-            f"I submit the manuscript, “{TITLE},” for consideration as a full-length "
-            f"article in the {JOURNAL}."
-        ),
-        (
-            "The manuscript addresses a procurement and lifecycle-security gap that cuts "
-            "across transportation systems, government facilities, the defense industrial "
-            "base, commercial facilities, and information technology. It defines serviced "
-            "telemetry-emitting hardware: connected equipment used by an organization that "
-            "does not fully control the hardware, software, service backend, maintenance, "
-            "or disposition. Shared micromobility is used as an illustrative case, but the "
-            "framework applies to leased sensors, fleet equipment, smart lockers, inspection "
-            "devices, wearables, charging systems, and other externally serviced assets."
-        ),
-        (
-            "The article's principal contribution is a structured synthesis linking "
-            "mobility re-identification, battery side channels, battery-management history, "
-            "service custody, and cybersecurity supply-chain guidance. It proposes a six-"
-            "stage lifecycle exposure model and translates it into auditable controls for "
-            "procurement, operation, maintenance, emergency recall, and disposition. The "
-            "analysis distinguishes demonstrated capabilities from conditional transfer and "
-            "does not allege compromise or misconduct by the organization or service provider "
-            "in the Japanese policy vignette."
-        ),
-        (
-            "The manuscript fits the journal's stated interest in work that combines science, "
-            "technology, law, and policy to produce practical solutions for critical-"
-            "infrastructure protection. Its control matrix is intended for infrastructure "
-            "owners, public procurement teams, security practitioners, and service providers."
-        ),
-        (
-            "I confirm that the manuscript is original, has not been published, and is not "
-            "under consideration elsewhere. No human-participant research was conducted, no "
-            "new dataset was generated, and there is no funding or competing interest to "
-            "declare. All references were checked for existence and correspondence with the "
-            "claims made. The submission includes an anonymized manuscript, separate title "
-            "page, highlights, high-resolution and editable artwork, editable tables, and a "
-            "compliance checklist."
-        ),
-        (
-            "Thank you for considering this manuscript."
-        ),
+    doc.add_paragraph("Dear Editors,")
+    paras = [
+        f"I submit the manuscript \u201c{TITLE}\u201d for consideration as a "
+        f"research paper in {JOURNAL}.",
+        "Shared micromobility is a fully public, globally deployed class of "
+        "connected devices that organizations and citizens use but do not own "
+        "or decommission. The manuscript reports an empirical, reproducible "
+        "package: a PRISMA-ScR scoping review that identifies the direct "
+        "evidence for data exposure; a global audit of public GBFS feeds that "
+        "measures which vehicle fields operators actually publish; and a "
+        "structured audit of public operator privacy notices across 14 "
+        "disclosure domains.",
+        "The work fits the journal's scope in connected-device and data "
+        "security because it quantifies real, worldwide disclosure surfaces and "
+        "links them to a lifecycle model with auditable controls. Throughout, "
+        "we are careful to treat field presence and document silence as "
+        "disclosure signals rather than as evidence of harm, compromise, or "
+        "regulatory violation, and we state the effectiveness of proposed "
+        "controls conservatively as not yet validated.",
+        "The study analysed only publicly accessible feeds and documents; it "
+        "did not attempt authentication or access-control circumvention, did "
+        "not interact with users, and retained no raw identifiers, exact "
+        "coordinates, or vehicle deep links. All data, coding sheets, and code "
+        "are openly available so that every reported count can be regenerated. "
+        "The manuscript is original, is not under consideration elsewhere, and "
+        "has no funding or competing interest to declare.",
+        "Thank you for considering this submission.",
     ]
-    for text in paragraphs:
-        paragraph = doc.add_paragraph()
-        paragraph.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
-        paragraph.add_run(text)
+    for text in paras:
+        p = doc.add_paragraph()
+        p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+        p.add_run(text)
     doc.add_paragraph("Sincerely,")
     doc.add_paragraph(AUTHOR)
-    path = OUTPUT / "Cover_Letter_IJCIP.docx"
+    path = OUTPUT / "Cover_Letter_CompSec.docx"
     doc.save(path)
     return path
 
@@ -1656,476 +1371,303 @@ def build_cover_letter() -> Path:
 def build_highlights() -> Path:
     doc = Document()
     configure_document(doc)
-    heading = doc.add_paragraph(style="Title")
-    heading.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    heading.add_run("Highlights").bold = True
+    h = doc.add_paragraph(style="Title")
+    h.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    h.add_run("Highlights").bold = True
     for item in HIGHLIGHTS:
         doc.add_paragraph(item, style="List Bullet")
-    path = OUTPUT / "Highlights_IJCIP.docx"
+    path = OUTPUT / "Highlights_CompSec.docx"
     doc.save(path)
-    (OUTPUT / "Highlights_IJCIP.txt").write_text(
-        "\n".join(f"• {item}" for item in HIGHLIGHTS) + "\n", encoding="utf-8"
-    )
+    (OUTPUT / "Highlights_CompSec.txt").write_text(
+        "\n".join(f"- {i}" for i in HIGHLIGHTS) + "\n", encoding="utf-8")
     return path
 
 
-def build_tables_docx() -> Path:
+def build_tables_docx(tables, repl) -> Path:
     doc = Document()
     configure_document(doc)
-    heading = doc.add_paragraph(style="Title")
-    heading.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    heading.add_run("Editable tables").bold = True
-    add_table(doc, TABLE_1)
-    doc.add_section(WD_SECTION.NEW_PAGE)
-    add_table(doc, TABLE_2)
-    path = OUTPUT / "Tables_IJCIP_editable.docx"
+    h = doc.add_paragraph(style="Title")
+    h.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    h.add_run("Editable tables").bold = True
+    for i in range(1, 6):
+        add_table(doc, tables[i], repl)
+        if i < 5:
+            doc.add_section(WD_SECTION.NEW_PAGE)
+    path = OUTPUT / "Tables_CompSec_editable.docx"
     doc.save(path)
     return path
 
 
-def build_reference_report() -> Path:
+def build_figures_pptx(figpaths, repl) -> Path:
+    prs = Presentation()
+    prs.slide_width = PptxInches(13.333)
+    prs.slide_height = PptxInches(7.5)
+    for num in range(1, 6):
+        slide = prs.slides.add_slide(prs.slide_layouts[6])
+        title_box = slide.shapes.add_textbox(PptxInches(0.5), PptxInches(0.2),
+                                             PptxInches(12.3), PptxInches(0.6))
+        tf = title_box.text_frame
+        tf.word_wrap = True
+        p = tf.paragraphs[0]
+        p.text = f"Figure {num}"
+        p.font.size = PptxPt(22)
+        p.font.bold = True
+        p.alignment = PP_ALIGN.CENTER
+        from PIL import Image as PILImage
+        with PILImage.open(figpaths[num]["png"]) as im:
+            w, h = im.size
+        avail_w, avail_h = 12.3, 5.3
+        ratio = min(avail_w / (w / 600.0), avail_h / (h / 600.0))
+        disp_w = (w / 600.0) * ratio
+        disp_h = (h / 600.0) * ratio
+        left = (13.333 - disp_w) / 2
+        slide.shapes.add_picture(str(figpaths[num]["png"]), PptxInches(left),
+                                 PptxInches(1.0), PptxInches(disp_w), PptxInches(disp_h))
+        cap_box = slide.shapes.add_textbox(PptxInches(0.6), PptxInches(6.5),
+                                          PptxInches(12.1), PptxInches(0.9))
+        cf = cap_box.text_frame
+        cf.word_wrap = True
+        cp = cf.paragraphs[0]
+        cp.text = repl(FIG_CAPTIONS[num])
+        cp.font.size = PptxPt(11)
+    path = OUTPUT / "Figures_CompSec_editable.pptx"
+    prs.save(path)
+    return path
+
+
+def build_reporting_guideline() -> Path:
+    doc = Document()
+    configure_document(doc)
+    h = doc.add_paragraph(style="Title")
+    h.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    h.add_run("PRISMA-ScR reporting checklist").bold = True
+    p = doc.add_paragraph()
+    p.add_run(
+        "The scoping-review component (WP1) follows the PRISMA-ScR checklist "
+        "[Tricco et al., 2018]. The field audit (WP2) and disclosure audit "
+        "(WP3) are cross-sectional observational studies of public artefacts "
+        "and are reported with explicit denominators, confidence intervals, and "
+        "open code. The table below maps each PRISMA-ScR item to its location.")
+    items = [
+        ("Title", "Identifies the report as a scoping review", "Title page"),
+        ("Abstract", "Structured summary", "Abstract"),
+        ("Rationale", "Rationale in the context of what is known", "Section 1"),
+        ("Objectives", "Research questions RQ1-RQ3", "Section 1"),
+        ("Protocol", "Protocol availability", "Data and code availability"),
+        ("Eligibility criteria", "Characteristics used as criteria", "Section 2.2; Table 1"),
+        ("Information sources", "Sources searched", "Section 2.2; Table 1"),
+        ("Selection of sources", "Screening process", "Section 2.2; Fig. 1"),
+        ("Data charting", "Extraction process and items", "Section 2.2; Table 2"),
+        ("Synthesis of results", "Methods of summarizing", "Sections 3-4"),
+        ("Results of sources", "Numbers screened and included", "Section 3.1; Fig. 1"),
+        ("Results of syntheses", "Charted results", "Sections 3.1-3.3"),
+        ("Limitations", "Limitations of the review", "Section 4.1"),
+        ("Conclusions", "Interpretation and implications", "Section 5"),
+        ("Funding", "Sources of funding", "Declarations"),
+    ]
+    add_table(doc, {"title": "PRISMA-ScR item mapping",
+                    "headers": ["Item", "Checklist description", "Location"],
+                    "rows": items}, lambda x: x)
+    path = OUTPUT / "Reporting_Guideline_PRISMA-ScR.docx"
+    doc.save(path)
+    return path
+
+
+def resolve_identifier(ident: str) -> str:
+    """Best-effort live check that a DOI/URL resolves. Falls back gracefully
+    when offline so the build stays reproducible."""
+    if ident.startswith("doi:"):
+        url = "https://doi.org/" + ident[4:]
+    elif ident.startswith("http"):
+        url = ident
+    else:
+        return "not_applicable_standard_or_regulation"
+    req = urllib.request.Request(
+        url, method="HEAD", headers={"User-Agent": "Mozilla/5.0 ref-check"})
+    try:
+        code = urllib.request.urlopen(req, timeout=25).status
+        return f"resolves_http_{code}"
+    except urllib.error.HTTPError as exc:
+        # 403/429 are anti-bot responses from a live, existing record.
+        return f"exists_http_{exc.code}"
+    except Exception:
+        return "not_checked_offline"
+
+
+def build_reference_verification(order) -> Path:
     path = OUTPUT / "Reference_Verification.csv"
-    lines = ["Reference,Short citation,Status,Evidence"]
-    for row in REFERENCE_VERIFICATION:
-        escaped = [f'"{value.replace(chr(34), chr(34) * 2)}"' for value in row]
-        lines.append(",".join(escaped))
+    lines = ["Number,Label,Reference,Identifier,VerificationDate,Status"]
+    for i, label in enumerate(order, 1):
+        text = REFS[label]
+        m = re.search(r"(doi:\S+|https?://\S+)", text)
+        ident = m.group(1).rstrip(".") if m else "(no DOI; standard/regulation/registry)"
+        status = resolve_identifier(ident)
+        row = [str(i), label, text, ident, BUILD_DATE, status]
+        lines.append(",".join(f'"{v.replace(chr(34), chr(34)*2)}"' for v in row))
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
     return path
 
 
-def build_citation_audit() -> Path:
-    entries: list[tuple[str, str]] = []
-    for section_title, paragraphs in SECTIONS:
-        for index, paragraph in enumerate(paragraphs):
-            entries.append((section_title, paragraph))
-            if section_title == "6. Evidence-to-risk synthesis" and index == 0:
-                for row in TABLE_1["rows"]:
-                    entries.append((TABLE_1["title"], " ".join(row)))
-            if section_title == "7. A lifecycle assurance framework" and index == 2:
-                for row in TABLE_2["rows"]:
-                    entries.append((TABLE_2["title"], " ".join(row)))
-    first_appearance: dict[int, tuple[str, str, str]] = {}
-    for location, text in entries:
-        for token in re.findall(r"\[\d+(?:[-,]\d+)*\]", text):
-            for number in expand_citation(token):
-                first_appearance.setdefault(number, (location, token, text))
+def build_citation_audit(blocks, tables, numbering, repl) -> Path:
+    first: dict[int, tuple[str, str]] = {}
+    location = "Body"
+    for kind, payload in blocks:
+        if kind in ("h1", "h2"):
+            location = payload
+            continue
+        frags = []
+        if kind == "p":
+            frags = [payload]
+        elif kind == "table":
+            frags = [c for r in tables[payload]["rows"] for c in r]
+            location = f"Table {payload}"
+        for frag in frags:
+            for m in CITE_RX.finditer(frag):
+                for label in m.group(1).split(";"):
+                    num = numbering[label.strip()]
+                    if num not in first:
+                        first[num] = (location, textwrap.shorten(repl(frag), 200, placeholder="..."))
     path = OUTPUT / "Citation_Audit.csv"
-    lines = ["Reference,First appearance,Citation token,Context"]
-    for number in range(1, len(REFERENCES) + 1):
-        location, token, context = first_appearance[number]
-        context = textwrap.shorten(context, width=260, placeholder="...")
-        row = [str(number), location, token, context]
-        escaped = [f'"{value.replace(chr(34), chr(34) * 2)}"' for value in row]
-        lines.append(",".join(escaped))
+    lines = ["Reference,First appearance,Context"]
+    for num in range(1, len(numbering) + 1):
+        loc, ctx = first[num]
+        lines.append(",".join(f'"{v.replace(chr(34), chr(34)*2)}"'
+                              for v in [str(num), loc, ctx]))
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
     return path
 
 
-def build_reporting_guideline_statement() -> Path:
-    doc = Document()
-    configure_document(doc)
-    heading = doc.add_paragraph(style="Title")
-    heading.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    heading.add_run("Reporting Guideline Statement").bold = True
-    paragraphs = [
-        (
-            "Article design: conceptual critical-infrastructure policy analysis supported "
-            "by a structured evidence synthesis. The manuscript does not report a clinical "
-            "trial, observational study, diagnostic-accuracy study, case report, qualitative "
-            "interview study, animal study, economic evaluation, or systematic review."
-        ),
-        (
-            "Accordingly, CONSORT, STROBE, STARD, CARE, COREQ, ARRIVE, CHEERS, and PRISMA "
-            "checklists are not applicable. The reviewed IJCIP and Elsevier instructions did "
-            "not identify a separate EQUATOR checklist for this article design."
-        ),
-        (
-            "Transparency measures used instead: the manuscript defines the unit of analysis; "
-            "states the four evidence questions; distinguishes direct demonstration from "
-            "mechanism-based transfer; identifies the source types used; separates the "
-            "illustrative Japanese policy vignette from empirical evidence; provides a "
-            "claim-to-evidence table; states limitations; lists all references; and includes "
-            "funding, competing-interest, ethics, data-availability, author-contribution, and "
-            "generative-artificial-intelligence disclosures."
-        ),
-        (
-            "This statement should be uploaded as supplementary submission information only "
-            "if the Editorial Manager portal requests a reporting-guideline document. It is "
-            "not part of the anonymized manuscript."
-        ),
-    ]
-    for text in paragraphs:
-        paragraph = doc.add_paragraph()
-        paragraph.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
-        paragraph.add_run(text)
-    applicability = [
-        ("CONSORT", "Randomized trials", "Not applicable"),
-        ("STROBE", "Observational studies", "Not applicable"),
-        ("PRISMA", "Systematic reviews and meta-analyses", "Not applicable"),
-        ("COREQ", "Qualitative interview/focus-group studies", "Not applicable"),
-        ("CHEERS", "Health economic evaluations", "Not applicable"),
-        ("ARRIVE", "Animal research", "Not applicable"),
-    ]
-    table = doc.add_table(rows=1, cols=3)
-    table.style = "Table Grid"
-    table.alignment = WD_TABLE_ALIGNMENT.CENTER
-    for cell, text in zip(table.rows[0].cells, ["Guideline", "Study type", "Status"]):
-        cell.text = text
-        set_cell_shading(cell, "D9EAF7")
-        for run in cell.paragraphs[0].runs:
-            run.bold = True
-    for guideline, design, status in applicability:
-        cells = table.add_row().cells
-        cells[0].text = guideline
-        cells[1].text = design
-        cells[2].text = status
-    path = OUTPUT / "Reporting_Guideline_Statement_IJCIP.docx"
-    doc.save(path)
-    return path
-
-
-def build_checklist(validation: dict) -> Path:
-    doc = Document()
-    configure_document(doc)
-    heading = doc.add_paragraph(style="Title")
-    heading.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    heading.add_run("IJCIP Pre-submission Compliance Checklist").bold = True
-    intro = doc.add_paragraph(
-        "Formal reporting checklists such as CONSORT, STROBE, and PRISMA do not apply "
-        "because this is a conceptual structured synthesis without participant-level data "
-        "or a systematic-review claim."
-    )
-    intro.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
-    checks = [
-        ("Scope", "Transportation, government facilities, defense industrial base, and information-security relevance stated.", True),
-        ("Article type", "Prepared as a full-length research/policy article.", True),
-        ("Anonymization", "Main manuscript contains no author identity; separate title page supplied.", True),
-        ("Abstract", f"{validation['abstract_words']} words; self-contained; no citations.", validation["abstract_words"] <= 250),
-        ("Keywords", f"{len(KEYWORDS)} keywords supplied.", len(KEYWORDS) <= 6),
-        ("Highlights", "Five editable bullets; each no more than 85 characters.", validation["highlights_ok"]),
-        ("Citations", "Numbered in square brackets in order of first appearance.", validation["citations_sequential"]),
-        ("References", f"{len(REFERENCES)} cited references; no orphan or phantom entries.", validation["references_complete"]),
-        ("Verification", f"{len(REFERENCE_VERIFICATION)}/{len(REFERENCES)} references independently checked.", len(REFERENCE_VERIFICATION) == len(REFERENCES)),
-        ("Figure citation", "Figure 1 is cited before placement and supplied inline and separately.", validation["figure_cited"]),
-        ("Table citations", "Tables 1 and 2 are cited before placement and supplied inline and separately.", validation["tables_cited"]),
-        ("Artwork", "Editable PPTX, PDF, 600-dpi PNG, and 1200-dpi TIFF supplied.", True),
-        ("Declarations", "Funding, competing interests, ethics, data, contribution, and generative-artificial-intelligence statements included.", True),
-        ("Language", "American English, terminology, abbreviations, and flow reviewed.", True),
-        ("Limitations", "No compromise or vendor misconduct alleged; transfer boundaries stated.", True),
-        ("Data availability", "No new dataset; source list provided.", True),
-        ("Portal check", "Recheck live Editorial Manager item list and required classifications before upload.", False),
-    ]
-    table = doc.add_table(rows=1, cols=4)
-    table.style = "Table Grid"
-    table.alignment = WD_TABLE_ALIGNMENT.CENTER
-    for cell, value in zip(table.rows[0].cells, ["Item", "Requirement", "Status", "Action"]):
-        cell.text = value
-        set_cell_shading(cell, "D9EAF7")
-        for run in cell.paragraphs[0].runs:
-            run.bold = True
-    for item, requirement, passed in checks:
-        cells = table.add_row().cells
-        cells[0].text = item
-        cells[1].text = requirement
-        cells[2].text = "PASS" if passed else "AUTHOR CHECK"
-        cells[3].text = "" if passed else "Confirm the live journal portal requirement immediately before submission."
-        if passed:
-            set_cell_shading(cells[2], "E2F0D9")
-        else:
-            set_cell_shading(cells[2], "FFF2CC")
-    path = OUTPUT / "Submission_Checklist_IJCIP.docx"
-    doc.save(path)
-    return path
-
-
-def word_count() -> int:
-    text = " ".join([TITLE, ABSTRACT] + [p for _, paragraphs in SECTIONS for p in paragraphs])
+def word_count(blocks, repl) -> int:
+    text = TITLE + " " + build_abstract_text()
+    for kind, payload in blocks:
+        if kind == "p":
+            text += " " + repl(payload)
     return len(re.findall(r"\b[\w'-]+\b", text))
 
 
-def expand_citation(token: str) -> list[int]:
-    values: list[int] = []
-    for part in token.strip("[]").split(","):
-        if "-" in part:
-            start, end = map(int, part.split("-"))
-            values.extend(range(start, end + 1))
-        else:
-            values.append(int(part))
-    return values
-
-
-def ordered_manuscript_content() -> str:
-    parts: list[str] = []
-    for section_title, paragraphs in SECTIONS:
-        for index, paragraph in enumerate(paragraphs):
-            parts.append(paragraph)
-            if section_title == "6. Evidence-to-risk synthesis" and index == 0:
-                parts.extend(TABLE_1["headers"])
-                parts.extend(sum(TABLE_1["rows"], []))
-            if section_title == "7. A lifecycle assurance framework" and index == 2:
-                parts.extend(TABLE_2["headers"])
-                parts.extend(sum(TABLE_2["rows"], []))
-    return " ".join(parts)
-
-
-def validate_content() -> dict:
-    body = ordered_manuscript_content()
-    citation_tokens = re.findall(r"\[\d+(?:[-,]\d+)*\]", body)
-    cited: list[int] = []
-    first_seen: list[int] = []
-    for token in citation_tokens:
-        for number in expand_citation(token):
-            cited.append(number)
-            if number not in first_seen:
-                first_seen.append(number)
-    expected = list(range(1, len(REFERENCES) + 1))
-    abstract_words = len(re.findall(r"\b[\w'-]+\b", ABSTRACT))
-    highlights_ok = all(len(item) <= 85 for item in HIGHLIGHTS)
-    validation = {
-        "word_count": word_count(),
-        "abstract_words": abstract_words,
-        "highlights_ok": highlights_ok,
-        "citations_sequential": first_seen == expected,
-        "references_complete": sorted(set(cited)) == expected,
-        "figure_cited": "Figure 1" in body,
-        "tables_cited": "Table 1" in body and "Table 2" in body,
+def validate(blocks, tables, numbering, order, repl) -> dict:
+    # citation sequentiality: numbering assigned by first appearance is 1..N
+    seq = list(numbering.values()) == list(range(1, len(numbering) + 1))
+    # all refs used, none orphan
+    used = set(numbering)
+    orphan = used ^ set(REFS.keys())
+    body = word_count(blocks, repl)
+    abstract_words = len(re.findall(r"\b[\w'-]+\b", build_abstract_text()))
+    # figures/tables cited in text
+    body_text = " ".join(repl(p) for k, p in blocks if k == "p")
+    figs_cited = all(f"Fig. {i}" in body_text for i in range(1, 6))
+    tabs_cited = all(f"Table {i}" in body_text for i in range(1, 6))
+    # figure/table blocks present and sequential
+    fig_seq = [p for k, p in blocks if k == "fig"]
+    tab_seq = [p for k, p in blocks if k == "table"]
+    checks = {
+        "citations_sequential": seq,
+        "no_orphan_or_phantom_refs": not orphan,
+        "figures_cited_in_text": figs_cited,
+        "tables_cited_in_text": tabs_cited,
+        "five_figures_present": sorted(set(fig_seq)) == [1, 2, 3, 4, 5],
+        "five_tables_present": sorted(set(tab_seq)) == [1, 2, 3, 4, 5],
+        "abstract_within_300w": abstract_words <= 300,
     }
-    failures = [key for key, value in validation.items() if isinstance(value, bool) and not value]
-    if abstract_words > 250:
-        failures.append("abstract_words")
+    failures = [k for k, v in checks.items() if not v]
     if failures:
-        raise RuntimeError(f"Validation failed: {', '.join(failures)}; first_seen={first_seen}")
-    all_text = " ".join(
-        [
-            body,
-            " ".join(f"{label} {value}" for label, value in DECLARATIONS),
-        ]
-    )
-    for abbreviation, definition in {
-        "GPS": "Global Positioning System (GPS)",
-        "BMS": "Battery-management systems (BMSs)",
-        "NIST": "National Institute of Standards and Technology",
-        "AI": "artificial intelligence (AI)",
+        raise RuntimeError(f"Validation failed: {failures}; orphan={orphan}")
+    # abbreviation-at-first-use spot check
+    joined = body_text
+    for abbr, definition in {
+        "GBFS": "General Bikeshare Feed Specification (GBFS)",
+        "PRISMA-ScR": "Scoping Reviews (PRISMA-ScR)",
+        "DOI": "digital object identifier (DOI)",
+        "GDPR": "General Data Protection Regulation [",
     }.items():
-        if abbreviation in all_text and definition not in all_text:
-            raise RuntimeError(f"Undefined abbreviation: {abbreviation}")
-    return validation
+        if abbr in joined and definition not in joined:
+            raise RuntimeError(f"Undefined abbreviation at first use: {abbr}")
+    return {"word_count": body, "abstract_words": abstract_words,
+            "references": len(order), **checks}
 
 
-def reportlab_table(spec: dict, body_style: ParagraphStyle) -> KeepTogether:
-    data = [
-        [ReportLabParagraph(f"<b>{value}</b>", body_style) for value in spec["headers"]]
-    ]
-    for row in spec["rows"]:
-        data.append([ReportLabParagraph(value, body_style) for value in row])
-    table = ReportLabTable(
-        data,
-        colWidths=[1.25 * inch, 1.75 * inch, 1.8 * inch, 1.7 * inch],
-        repeatRows=1,
-        hAlign="CENTER",
-    )
-    table.setStyle(
-        TableStyle(
-            [
-                ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#D9EAF7")),
-                ("GRID", (0, 0), (-1, -1), 0.35, colors.HexColor("#808080")),
-                ("VALIGN", (0, 0), (-1, -1), "TOP"),
-                ("LEFTPADDING", (0, 0), (-1, -1), 4),
-                ("RIGHTPADDING", (0, 0), (-1, -1), 4),
-                ("TOPPADDING", (0, 0), (-1, -1), 4),
-                ("BOTTOMPADDING", (0, 0), (-1, -1), 4),
-            ]
-        )
-    )
-    caption = ReportLabParagraph(f"<b>{spec['title']}</b>", body_style)
-    return KeepTogether([caption, Spacer(1, 6), table, Spacer(1, 12)])
-
-
-def add_pdf_page_number(canvas, document) -> None:
-    canvas.saveState()
-    canvas.setFont("Times-Roman", 9)
-    canvas.drawCentredString(letter[0] / 2, 0.45 * inch, str(document.page))
-    canvas.restoreState()
-
-
-def build_manuscript_pdf(figure_png: Path) -> Path:
-    path = OUTPUT / "Discharged_Secrets_IJCIP_manuscript_reference.pdf"
-    pdf = SimpleDocTemplate(
-        str(path),
-        pagesize=letter,
-        rightMargin=0.75 * inch,
-        leftMargin=0.75 * inch,
-        topMargin=0.75 * inch,
-        bottomMargin=0.7 * inch,
-        title=TITLE,
-        author="Anonymized",
-    )
-    styles = getSampleStyleSheet()
-    title_style = ParagraphStyle(
-        "ManuscriptTitle",
-        parent=styles["Title"],
-        fontName="Times-Bold",
-        fontSize=16,
-        leading=19,
-        alignment=TA_CENTER,
-        spaceAfter=12,
-    )
-    heading_style = ParagraphStyle(
-        "SectionHeading",
-        parent=styles["Heading1"],
-        fontName="Times-Bold",
-        fontSize=13,
-        leading=16,
-        spaceBefore=12,
-        spaceAfter=6,
-    )
-    body_style = ParagraphStyle(
-        "ManuscriptBody",
-        parent=styles["BodyText"],
-        fontName="Times-Roman",
-        fontSize=10.5,
-        leading=15,
-        alignment=TA_JUSTIFY,
-        firstLineIndent=16,
-        spaceAfter=6,
-    )
-    no_indent = ParagraphStyle(
-        "NoIndent",
-        parent=body_style,
-        firstLineIndent=0,
-    )
-    table_style = ParagraphStyle(
-        "TableText",
-        parent=styles["BodyText"],
-        fontName="Helvetica",
-        fontSize=6.5,
-        leading=8,
-        spaceAfter=0,
-    )
-    caption_style = ParagraphStyle(
-        "Caption",
-        parent=styles["BodyText"],
-        fontName="Times-Italic",
-        fontSize=9,
-        leading=11,
-        alignment=TA_CENTER,
-        spaceBefore=8,
-        spaceAfter=10,
-    )
-    story = [
-        ReportLabParagraph(TITLE, title_style),
-        ReportLabParagraph("<i>Anonymized manuscript</i>", no_indent),
-        Spacer(1, 8),
-        ReportLabParagraph("Abstract", heading_style),
-        ReportLabParagraph(ABSTRACT, no_indent),
-        ReportLabParagraph(f"<b>Keywords:</b> {'; '.join(KEYWORDS)}", no_indent),
-    ]
-    for section_title, paragraphs in SECTIONS:
-        story.append(ReportLabParagraph(section_title, heading_style))
-        for index, text in enumerate(paragraphs):
-            story.append(ReportLabParagraph(text, body_style))
-            if section_title == "5. Lifecycle exposure in serviced hardware" and index == 0:
-                figure = ReportLabImage(
-                    str(figure_png), width=6.5 * inch, height=(6.5 * 2300 / 4800) * inch
-                )
-                figure.hAlign = "CENTER"
-                story.append(figure)
-                story.append(
-                    ReportLabParagraph(
-                        "Figure 1. Lifecycle exposure in serviced telemetry-emitting hardware. "
-                        "Information created at one stage may become accessible after a later "
-                        "custody transition; controls therefore span procurement through disposal.",
-                        caption_style,
-                    )
-                )
-            if section_title == "6. Evidence-to-risk synthesis" and index == 0:
-                story.append(reportlab_table(TABLE_1, table_style))
-            if section_title == "7. A lifecycle assurance framework" and index == 2:
-                story.append(reportlab_table(TABLE_2, table_style))
-    story.append(ReportLabParagraph("Declarations", heading_style))
-    for label, value in DECLARATIONS:
-        story.append(ReportLabParagraph(f"<b>{label}:</b> {value}", no_indent))
-    story.append(ReportLabParagraph("References", heading_style))
-    reference_style = ParagraphStyle(
-        "References",
-        parent=no_indent,
-        fontSize=9,
-        leading=12,
-        leftIndent=18,
-        firstLineIndent=-18,
-    )
-    for number, reference in enumerate(REFERENCES, 1):
-        story.append(ReportLabParagraph(f"[{number}] {reference}", reference_style))
-    pdf.build(story, onFirstPage=add_pdf_page_number, onLaterPages=add_pdf_page_number)
-    return path
-
-
-def update_title_page_word_count(path: Path, count: int) -> None:
-    doc = Document(path)
-    for paragraph in doc.paragraphs:
-        if paragraph.text.startswith("Word count:"):
-            paragraph.clear()
-            paragraph.add_run("Word count: ").bold = True
-            paragraph.add_run(f"{count:,} (title, abstract, and main text; references excluded)")
-            break
-    doc.save(path)
-
-
-def write_validation_report(validation: dict, figure_paths: dict[str, Path]) -> Path:
-    image = Image.open(figure_paths["png"])
-    report = [
-        "IJCIP submission validation",
-        f"Build date: {BUILD_DATE}",
-        f"Main-text word count (references excluded): {validation['word_count']}",
-        f"Abstract word count: {validation['abstract_words']}",
-        f"References: {len(REFERENCES)}",
-        f"Citations sequential: {validation['citations_sequential']}",
-        f"References complete: {validation['references_complete']}",
-        f"Figure cited: {validation['figure_cited']}",
-        f"Tables cited: {validation['tables_cited']}",
-        f"Highlights <=85 characters: {validation['highlights_ok']}",
-        f"Figure PNG pixels: {image.width} x {image.height}",
-        "Figure PNG render target: 600 dpi",
-        "Figure TIFF metadata target: 1200 dpi",
-        "Remaining manual action: confirm the live Editorial Manager upload item list.",
-    ]
+def build_validation_report(validation: dict, figpaths) -> Path:
     path = OUTPUT / "VALIDATION.txt"
-    path.write_text("\n".join(report) + "\n", encoding="utf-8")
+    lines = ["Submission validation report", "=" * 30, ""]
+    for k, v in validation.items():
+        lines.append(f"{k}: {v}")
+    lines.append("")
+    lines.append("Figure files:")
+    for num, kinds in figpaths.items():
+        for kind, p in kinds.items():
+            lines.append(f"  Figure {num} {kind}: {p.name}")
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
     return path
 
 
-def build_zip() -> Path:
-    zip_path = OUTPUT / "IJCIP_submission_package.zip"
-    members = [
-        path
-        for path in OUTPUT.iterdir()
-        if path.is_file() and path != zip_path and not path.name.endswith(".tmp")
+def build_checklist(validation) -> Path:
+    doc = Document()
+    configure_document(doc)
+    h = doc.add_paragraph(style="Title")
+    h.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    h.add_run("Submission checklist").bold = True
+    rows = [
+        ["Cover letter", "Included", "Cover_Letter_CompSec.docx"],
+        ["Title page with author details", "Included", "Title_Page_CompSec.docx"],
+        ["Anonymized manuscript (figures/tables inline)", "Included", "Manuscript_CompSec.docx"],
+        ["Highlights (<=5, <=85 chars)", "Included", "Highlights_CompSec.docx"],
+        ["Figures (PNG + TIFF + PDF, 600 dpi)", "Included", "figures/Figure1-5.*"],
+        ["Editable figures (one per slide)", "Included", "Figures_CompSec_editable.pptx"],
+        ["Editable tables", "Included", "Tables_CompSec_editable.docx"],
+        ["Reporting guideline (PRISMA-ScR)", "Included", "Reporting_Guideline_PRISMA-ScR.docx"],
+        ["Citation audit (first-appearance order)", "Included", "Citation_Audit.csv"],
+        ["Reference verification", "Included", "Reference_Verification.csv"],
+        [f"Word count (body incl. title/abstract): {validation['word_count']}",
+         "Reported", "Title_Page_CompSec.docx"],
+        ["Data/code availability statement", "Included", "Manuscript (Declarations)"],
+        ["Generative AI disclosure", "Included", "Manuscript (Declarations)"],
     ]
-    with zipfile.ZipFile(zip_path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
-        for path in sorted(members):
-            archive.write(path, arcname=path.name)
-    return zip_path
+    add_table(doc, {"title": "Items included in the submission package",
+                    "headers": ["Item", "Status", "File"], "rows": rows},
+              lambda x: x)
+    path = OUTPUT / "Submission_Checklist_CompSec.docx"
+    doc.save(path)
+    return path
+
+
+def build_zip(figpaths) -> Path:
+    path = OUTPUT / "CompSec_submission_package.zip"
+    with zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED) as zf:
+        for item in sorted(OUTPUT.rglob("*")):
+            if item.is_file() and item != path:
+                zf.write(item, item.relative_to(OUTPUT))
+    return path
 
 
 def main() -> None:
     reset_dirs()
-    validation = validate_content()
-    pptx_path = build_figure_pptx()
-    figure_paths = build_figure_raster(pptx_path)
-    manuscript = build_manuscript(figure_paths["png"])
-    build_manuscript_pdf(figure_paths["png"])
-    title_page = build_title_page()
-    update_title_page_word_count(title_page, validation["word_count"])
-    cover_letter = build_cover_letter()
-    highlights = build_highlights()
-    tables = build_tables_docx()
-    build_reference_report()
-    build_citation_audit()
-    build_reporting_guideline_statement()
-    checklist = build_checklist(validation)
-    write_validation_report(validation, figure_paths)
-    build_zip()
-    print(f"Built {len(list(OUTPUT.iterdir()))} files in {OUTPUT}")
+    FIGDIR.mkdir(parents=True, exist_ok=True)
+    figpaths = build_figures()
+    blocks = body_blocks()
+    numbering, order, repl = resolve_citations(blocks, TABLES)
+    validation = validate(blocks, TABLES, numbering, order, repl)
+
+    build_manuscript(blocks, TABLES, figpaths, repl, order)
+    wc = validation["word_count"]
+    build_title_page(wc, len(order))
+    build_cover_letter()
+    build_highlights()
+    build_tables_docx(TABLES, repl)
+    build_figures_pptx(figpaths, repl)
+    build_reporting_guideline()
+    build_reference_verification(order)
+    build_citation_audit(blocks, TABLES, numbering, repl)
+    build_checklist(validation)
+    build_validation_report(validation, figpaths)
+    zip_path = build_zip(figpaths)
+
+    print("Build complete.")
+    print(f"  references: {len(order)} (first-appearance order)")
+    print(f"  word count: {wc}; abstract words: {validation['abstract_words']}")
+    print(f"  package: {zip_path.relative_to(ROOT)}")
+    for k, v in validation.items():
+        if isinstance(v, bool):
+            print(f"  {k}: {'OK' if v else 'FAIL'}")
 
 
 if __name__ == "__main__":
