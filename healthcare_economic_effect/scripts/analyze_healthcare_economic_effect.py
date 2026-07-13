@@ -1222,7 +1222,7 @@ def fig10_fiscal_return_cascade(lang="en"):
     ax.legend(fontsize=9)
     plt.tight_layout()
     path = os.path.join(FIG, "fig10_fiscal_return_cascade.png")
-    fig.savefig(path, dpi=150, bbox_inches="tight")
+    fig.savefig(path, dpi=300, bbox_inches="tight")
     plt.close(fig)
     print(f"  Saved: {path}")
     return path
