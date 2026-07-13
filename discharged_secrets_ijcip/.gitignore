@@ -3,3 +3,4 @@ build/
 source_ijic/
 text/
 output/manuscript_contact_preview.png
+data/test_*
