@@ -223,10 +223,28 @@ def compute_deficit_adjusted_ratio(multiplier, tax_rate, public_share,
                                    deficit_share_of_public_he):
     """Deficit-adjusted fiscal return ratio (Reviewer 2 comment 6).
 
-    When part of public healthcare financing comes from deficit (bond) rather
-    than current taxation, the denominator should distinguish tax-funded vs
-    debt-funded portions. The ratio above 1.0 only reflects single-year tax
-    revenue flow and ignores accumulated debt service.
+    When part of public healthcare financing is met by deficit (bond) issuance
+    rather than current taxation, the gross fiscal return ratio overstates the
+    genuinely self-financing position: the deficit-funded portion is not paid
+    for by current revenue and represents an intergenerational transfer.
+
+    We report a deficit-adjusted ratio that credits only the sustainable
+    (non-deficit) part of the demand-side return against the full public cost:
+
+        FRR_deficit = tau * m * (1 - delta) / pf
+
+    where delta is the deficit dependency. Interpretation: if public healthcare
+    had to be financed on a balanced-budget (no-new-borrowing) basis, this is
+    the fraction of the full public cost that the demand-side return covers.
+    For Japan (delta ~ 0.35) this moves the ratio below 1.0, consistent with
+    the reviewer's concern that a gross ratio near 1.0 is not, by itself,
+    evidence of an economically favourable position.
+
+    For transparency we also report the reciprocal "tax-funded denominator"
+    view (ratio_tax_funded = tau*m / [pf*(1-delta)]), which answers the
+    different question of whether induced tax revenue covers the portion of
+    public cost that is currently tax-financed; this moves in the opposite
+    direction and is not our headline sustainability measure.
 
     deficit_share_of_public_he: fraction of public HE funded by deficit
     (e.g. 0.35 for Japan's general account deficit dependency ~35%).
@@ -234,12 +252,15 @@ def compute_deficit_adjusted_ratio(multiplier, tax_rate, public_share,
     tax_funded_share = public_share * (1 - deficit_share_of_public_he)
     deficit_funded_share = public_share * deficit_share_of_public_he
     demand_return = tax_rate * multiplier
-    # Ratio vs tax-funded portion only
+    # Headline: deficit-discounted return vs full public cost (formulation B)
+    ratio_deficit_adjusted = demand_return * (1 - deficit_share_of_public_he) / public_share
+    # Transparency: induced tax vs tax-funded portion only (formulation A)
     ratio_tax_only = demand_return / tax_funded_share if tax_funded_share > 0 else float('inf')
-    # Ratio vs total public cost (original)
+    # Gross ratio vs total public cost (no deficit adjustment)
     ratio_total = demand_return / public_share
     return {
         "ratio_total": round(ratio_total, 3),
+        "ratio_deficit_adjusted": round(ratio_deficit_adjusted, 3),
         "ratio_tax_funded": round(ratio_tax_only, 3),
         "deficit_share": deficit_share_of_public_he,
         "tax_funded_share": round(tax_funded_share, 3),
@@ -247,7 +268,7 @@ def compute_deficit_adjusted_ratio(multiplier, tax_rate, public_share,
     }
 
 
-def sustainability_table():
+def sustainability_table(leakage_map=None):
     """Build a table for 13 countries with I-O multiplier evidence.
 
     Note on multiplier types (Reviewer 1 comment 1):
@@ -256,7 +277,16 @@ def sustainability_table():
     Multiplying total output by the effective tax rate (tax/GDP) conflates
     output and value-added. We acknowledge this limitation and include
     a sensitivity column using approximate VA multipliers.
+
+    Reviewer 2 (second round): the deficit-adjusted column stacks the two
+    conservative demand-side adjustments -- import leakage AND deficit
+    financing -- on the effective (import-leakage-adjusted) multiplier, so
+    that for Japan it matches the fiscal-return cascade (Figure 4):
+    1.09 (gross) -> 1.04 (import-leakage) -> 0.67 (import-leakage + deficit).
+    The import-leakage fractions are taken from the trade analysis
+    (data/equipment_trade_analysis.csv); when unavailable, leakage is 0.
     """
+    leakage_map = leakage_map or {}
     params = [
         # iso, name, m_output, tau, pf, deficit_share, m_va_approx
         # m_va_approx: rough VA multiplier ~ output multiplier * VA/output ratio (~0.5-0.7)
@@ -279,7 +309,10 @@ def sustainability_table():
     for iso, name, m, tau, pf, deficit, m_va in params:
         ratio = compute_neutral_sustainability(m, tau, pf)
         ratio_va = compute_neutral_sustainability(m_va, tau, pf)
-        deficit_info = compute_deficit_adjusted_ratio(m, tau, pf, deficit)
+        leak = float(leakage_map.get(iso, 0.0))
+        m_eff = m * (1.0 - leak)
+        # Deficit adjustment stacks on the import-leakage-adjusted multiplier
+        deficit_info = compute_deficit_adjusted_ratio(m_eff, tau, pf, deficit)
         rows.append({
             "iso3": iso, "country": name,
             "io_multiplier": m,
@@ -287,9 +320,11 @@ def sustainability_table():
             "eff_tax_rate": tau,
             "public_share_che": pf,
             "deficit_share": deficit,
+            "import_leakage": round(leak, 4),
             "fiscal_return_ratio": round(ratio, 2),
             "fiscal_return_va": round(ratio_va, 2),
-            "deficit_adj_ratio": deficit_info["ratio_tax_funded"],
+            "deficit_adj_ratio": deficit_info["ratio_deficit_adjusted"],
+            "deficit_taxfunded_ratio": deficit_info["ratio_tax_funded"],
             "sustainable": "Yes" if ratio >= 1.0 else "No",
             "sustainable_va": "Yes" if ratio_va >= 1.0 else "No",
         })
@@ -299,66 +334,71 @@ def sustainability_table():
 
 
 # ---------------------------------------------------------------------------
-# 5. Candidate A-H PoC results (from healthcare_tempo_poc PR#37)
-#    "Candidate A-H" = healthcare_tempo_poc's model specification A-H
-#    (Health spending -> outcome lag with tempo drift)
+# 5. Tempo model-selection results (spending-to-outcome health-capital lag)
+#    Computed directly from World Bank public data by
+#    scripts/tempo_model_selection.py (39 countries, 2000-2019, pre-pandemic).
+#    NOTE (R2): these values were previously hard-coded and inadvertently
+#    reflected a 2000-2023 sample that included the COVID-19 mortality shock,
+#    which inflated RMSE and produced a spurious positive tempo drift.
+#    They are now loaded from the reproducible computation so that the public
+#    repository fully reproduces every reported statistic.
 # ---------------------------------------------------------------------------
-POC_AH_RESULTS = {
-    "n_countries": 39,
-    "data_source": "World Bank WDI (SH.XPD.CHEX.PP.CD, SP.DYN.LE00.IN)",
-    "period": "2000-2019",
-    "n_observations_per_country": 20,  # 2000-2019
-    "models": {
-        "M0_flow": {"description": "Naive flow-only regression",
-                    "n_params": 2,  # intercept + slope
-                    "level_rmse_median": 0.510,
-                    "change_rmse_median": 0.455,
-                    "loocv_rmse_median": 0.538,
-                    "aic_median": -8.2,
-                    "bic_median": -5.9},
-        "M1_constant_lag": {"description": "Constant lag mu_H (PIM)",
-                            "n_params": 3,  # intercept + slope + mu*
-                            "level_rmse_median": 0.441,
-                            "change_rmse_median": 0.403,
-                            "loocv_rmse_median": 0.472,
-                            "aic_median": -13.6,
-                            "bic_median": -10.4,
-                            "mu_const_median_yr": 4.0},
-        "M2_tempo_lag": {"description": "Time-varying mu_H(t) = mu0 + mu1*(year-t0)",
-                         "n_params": 5,  # intercept + slope + mu0 + mu1 + sigma_drift
-                         "level_rmse_median": 0.434,
-                         "change_rmse_median": 0.405,
-                         "loocv_rmse_median": 0.469,
-                         "aic_median": -13.1,
-                         "bic_median": -8.2,
-                         "mu_H0_median_yr": 3.2,
-                         "mu_H0_se": 0.8,
-                         "mu_H1_median_yr_per_yr": 0.15,
-                         "mu_H1_se": 0.04},
-    },
-    "key_findings": {
-        "M1_beats_M0_level_pct": 69,
-        "M2_beats_M0_level_pct": 77,
-        "M2_beats_M0_change_pct": 87,
-        "M2_beats_M1_pct": 95,
-        "M2_beats_M1_aic_pct": 62,
-        "M2_beats_M1_bic_pct": 41,
-        "M2_beats_M1_loocv_pct": 54,
-        "M0_to_M1_rmse_reduction_pct": 14,
-        "M0_to_M2_rmse_reduction_pct": 15,
-    },
-    "interpretation": (
-        "M1 substantially outperforms M0 across all criteria (level RMSE, "
-        "LOOCV RMSE, AIC, BIC), confirming that a spending-to-outcome lag "
-        "exists. M2 shows marginal improvement over M1 in level RMSE "
-        "(0.434 vs 0.441) and LOOCV RMSE (0.469 vs 0.472), but the advantage "
-        "is small and does not survive BIC penalization (M2 wins in only 41% "
-        "of countries by BIC). The tempo drift mu_H1 = +0.15 yr/yr should "
-        "therefore be interpreted as suggestive rather than definitive. "
-        "The robust finding is the existence of a lag (M1 vs M0), not its "
-        "time-variation (M2 vs M1)."
-    ),
-}
+def _load_tempo_results():
+    path = os.path.join(DATA, "tempo_model_selection.json")
+    if not os.path.exists(path):
+        raise FileNotFoundError(
+            "tempo_model_selection.json not found. Run "
+            "scripts/tempo_model_selection.py first (it fetches World Bank "
+            "data and computes level/change RMSE, LOOCV RMSE, AIC and BIC)."
+        )
+    with open(path) as fh:
+        comp = json.load(fh)
+    m = comp["models"]
+    k = comp["key_findings"]
+    m0, m1, m2 = m["M0_flow"], m["M1_constant_lag"], m["M2_tempo_lag"]
+    lvl_red_m1 = round(100 * (m0["level_rmse_median"] - m1["level_rmse_median"])
+                       / m0["level_rmse_median"])
+    lvl_red_m2 = round(100 * (m0["level_rmse_median"] - m2["level_rmse_median"])
+                       / m0["level_rmse_median"])
+    interpretation = (
+        "M1 (constant lag) substantially and robustly outperforms M0 "
+        "(flow-only) across every criterion (level RMSE, LOOCV RMSE, AIC, "
+        f"BIC): M1 beats M0 by AIC in {k['M1_beats_M0_aic_pct']}% of "
+        f"countries, by BIC in {k['M1_beats_M0_bic_pct']}%, and by LOOCV in "
+        f"{k['M1_beats_M0_loocv_pct']}%. This confirms that a spending-to-"
+        "outcome lag exists, supporting a stock-based view of health-capital "
+        "investment. The time-varying extension M2 does not improve on M1: "
+        f"M2 is favoured over M1 by AIC in only {k['M2_beats_M1_aic_pct']}% "
+        f"of countries and by BIC in {k['M2_beats_M1_bic_pct']}%, and the "
+        "median level-RMSE difference is negligible "
+        f"({m1['level_rmse_median']:.3f} vs {m2['level_rmse_median']:.3f}). "
+        "The drift parameter mu_H1 is not robustly identified (bimodal, "
+        "boundary-dominated across countries). We therefore find no reliable "
+        "evidence for a time-varying lag; the robust finding is the existence "
+        "of a constant lag (M1 vs M0), not its time-variation (M2 vs M1)."
+    )
+    return {
+        "n_countries": comp["n_countries"],
+        "data_source": comp["data_source"],
+        "period": comp["period"],
+        "delta_H": comp.get("delta_H"),
+        "n_params": comp.get("n_params"),
+        "models": {
+            "M0_flow": {"description": "Naive flow-only regression",
+                        "n_params": comp["n_params"]["M0"], **m0},
+            "M1_constant_lag": {"description": "Constant lag mu_H (PIM)",
+                                "n_params": comp["n_params"]["M1"], **m1},
+            "M2_tempo_lag": {"description": "Time-varying mu_H(t) = mu0 + mu1*(year-t0)",
+                             "n_params": comp["n_params"]["M2"], **m2},
+        },
+        "key_findings": {**k,
+                         "M0_to_M1_rmse_reduction_pct": lvl_red_m1,
+                         "M0_to_M2_rmse_reduction_pct": lvl_red_m2},
+        "interpretation": interpretation,
+    }
+
+
+POC_AH_RESULTS = _load_tempo_results()
 
 # Three-layer tempo analogy: Population -> GDP -> Healthcare
 THREE_LAYER_ANALOGY = pd.DataFrame([
@@ -381,11 +421,11 @@ THREE_LAYER_ANALOGY = pd.DataFrame([
     {"concept": "Tempo drift (mu_1)",
      "population": "+0.05 yr/yr (MAC shift)",
      "gdp": "+0.04 yr/yr (time-to-build)",
-     "healthcare": "+0.15 yr/yr (spending-to-outcome)"},
-    {"concept": "Effect size vs M0",
-     "population": "Large (TFR bias ~15-20%)",
-     "gdp": "Small (MAPE -0.6 pp)",
-     "healthcare": "Medium (RMSE -15%)"},
+     "healthcare": "not robustly identified (constant lag preferred)"},
+    {"concept": "Preferred specification",
+     "population": "Time-varying (M2)",
+     "gdp": "Time-varying (M2)",
+     "healthcare": "Constant lag (M1); M2 not favoured by AIC/BIC"},
     {"concept": "Identity",
      "population": "Renewal equation",
      "gdp": "dW/dt = S(Y) - delta*W",
@@ -400,14 +440,17 @@ def tempo_adjusted_narrative():
         "poc_summary": poc,
         "three_layer_analogy": THREE_LAYER_ANALOGY.to_dict(orient="records"),
         "key_insight": (
-            "The healthcare_tempo_poc (model specification A-H, 39 countries) shows "
-            "that treating health spending as a stock-building flow with a "
-            "time-varying lag mu_H(t) reduces life-expectancy prediction "
+            "The tempo analysis (39 countries, 2000-2019, World Bank data) "
+            "shows that treating health spending as a stock-building flow "
+            "with a constant spending-to-outcome lag mu_H reduces "
+            "life-expectancy prediction "
             f"RMSE from {poc['models']['M0_flow']['level_rmse_median']:.3f} "
-            f"to {poc['models']['M2_tempo_lag']['level_rmse_median']:.3f} years "
-            f"(-{poc['key_findings']['M0_to_M2_rmse_reduction_pct']}%). "
-            "M2 beats M1 in 95% of countries, confirming that the lag is "
-            "not constant but drifts at +0.15 yr/yr."
+            f"to {poc['models']['M1_constant_lag']['level_rmse_median']:.3f} years "
+            f"(-{poc['key_findings']['M0_to_M1_rmse_reduction_pct']}%), a "
+            "gain that is robust across LOOCV, AIC and BIC. Extending the lag "
+            "to be time-varying (M2) does not improve on the constant-lag "
+            "model under AIC or BIC, so we find no reliable evidence of a "
+            "time-varying drift."
         ),
         "policy_implication": (
             "A 'neutral' sustainability criterion must account for both "
@@ -432,8 +475,10 @@ def tempo_adjusted_narrative():
             "The tempo-plus-forgotten-parameter framework originated in "
             "demography (Bongaarts-Feeney 1998, Goldstein-Lutz-Scherbov 2003), "
             "was ported to capital accounting (Onishi 2026b), and is here "
-            "extended to healthcare. Healthcare shows the largest tempo "
-            "drift (+0.15 yr/yr vs GDP +0.04) among the three layers."
+            "extended to healthcare. In healthcare the constant-lag "
+            "specification is preferred: a spending-to-outcome lag exists and "
+            "is robust, but unlike the demographic and GDP layers we find no "
+            "reliable evidence that the lag is time-varying."
         ),
     }
 
@@ -706,8 +751,8 @@ def fig5_three_layer_analogy(lang="en"):
             ["テンポ（時間ラグ）", "MAC\n（平均出産年齢）", "mu\n（投資→産出ラグ）", "mu_H\n（支出→成果ラグ）"],
             ["忘れられたパラメータ", "sigma\n（パリティ分散）", "beta\n（無形資本比率）", "lambda_b\n（構成乗数）"],
             ["ストック", "コーホート人口\nN(t)", "資本ストック\nK(t)", "健康資本\nH(t)"],
-            ["テンポドリフト (mu_1)", "+0.05 年/年\n（MAC上昇）", "+0.04 年/年\n（建設期間延長）", "+0.15 年/年\n（支出→成果遅延）"],
-            ["効果サイズ vs M0", "大（TFR偏り\n15-20%）", "小（MAPE\n-0.6 pp）", "中（RMSE\n-15%）"],
+            ["テンポドリフト (mu_1)", "+0.05 年/年\n（MAC上昇）", "+0.04 年/年\n（建設期間延長）", "頑健に識別されず\n（定数ラグを採用）"],
+            ["採用モデル", "時変 (M2)", "時変 (M2)", "定数ラグ (M1)\nM2はAIC/BICで非優位"],
         ]
         title = "テンポ効果の三層構造 — 人口→GDP→医療への移植"
     else:
@@ -717,8 +762,8 @@ def fig5_three_layer_analogy(lang="en"):
             ["Tempo (timing lag)", "MAC\n(mean age childbearing)", "mu\n(invest-to-output lag)", "mu_H\n(spend-to-outcome lag)"],
             ["Forgotten parameter", "sigma\n(parity variance)", "beta\n(intangible K share)", "lambda_b\n(composition mult.)"],
             ["Stock", "Cohort size\nN(t)", "Capital stock\nK(t)", "Health capital\nH(t)"],
-            ["Tempo drift (mu_1)", "+0.05 yr/yr\n(MAC shift)", "+0.04 yr/yr\n(time-to-build)", "+0.15 yr/yr\n(spend-to-outcome)"],
-            ["Effect size vs M0", "Large (TFR bias\n15-20%)", "Small (MAPE\n-0.6 pp)", "Medium (RMSE\n-15%)"],
+            ["Tempo drift (mu_1)", "+0.05 yr/yr\n(MAC shift)", "+0.04 yr/yr\n(time-to-build)", "not robustly\nidentified"],
+            ["Preferred model", "Time-varying (M2)", "Time-varying (M2)", "Constant lag (M1)\nM2 not favoured"],
         ]
         title = "Three-Layer Tempo Analogy: Population to GDP to Healthcare"
 
@@ -1142,6 +1187,47 @@ def fig9_sensitivity_equip_share(cf_results):
     return path
 
 
+def fig10_fiscal_return_cascade(lang="en"):
+    """Japan fiscal-return cascade across successively conservative treatments.
+
+    Reviewer 2: deficit financing must be reflected in the analytical Results,
+    not only as a limitation. This shows how Japan's demand-side fiscal return
+    ratio moves from the gross output-multiplier basis to the value-added and
+    deficit-adjusted bases, all against the same full public-cost denominator.
+    """
+    tau, pf, delta = 0.33, 0.84, 0.35
+    m_gross, m_leak, m_va = 2.78, 2.64, 1.53
+    steps = [
+        ("Gross output\nmultiplier", tau * m_gross / pf, "#1976D2"),
+        ("Import-leakage\nadjusted", tau * m_leak / pf, "#42A5F5"),
+        ("Value-added\nmultiplier", tau * m_va / pf, "#FFB300"),
+        ("Deficit-adjusted\n(35% bond-financed)", tau * m_leak * (1 - delta) / pf, "#E53935"),
+    ]
+    labels = [s[0] for s in steps]
+    vals = [s[1] for s in steps]
+    colors = [s[2] for s in steps]
+
+    fig, ax = plt.subplots(figsize=(8, 5))
+    bars = ax.bar(range(len(vals)), vals, color=colors, width=0.6)
+    ax.axhline(1.0, color="black", linestyle="--", linewidth=1, alpha=0.6,
+               label="Break-even (1.0)")
+    for i, v in enumerate(vals):
+        ax.annotate(f"{v:.2f}", (i, v), textcoords="offset points",
+                    xytext=(0, 6), ha="center", fontsize=11, fontweight="bold")
+    ax.set_xticks(range(len(labels)))
+    ax.set_xticklabels(labels, fontsize=9)
+    ax.set_ylabel("Fiscal Return Ratio (vs full public cost)")
+    ax.set_title("Japan: Fiscal Return Ratio under Progressively Conservative Assumptions")
+    ax.set_ylim(0, max(vals) + 0.2)
+    ax.legend(fontsize=9)
+    plt.tight_layout()
+    path = os.path.join(FIG, "fig10_fiscal_return_cascade.png")
+    fig.savefig(path, dpi=300, bbox_inches="tight")
+    plt.close(fig)
+    print(f"  Saved: {path}")
+    return path
+
+
 # ---------------------------------------------------------------------------
 # 9. Main
 # ---------------------------------------------------------------------------
@@ -1171,9 +1257,15 @@ def main():
     else:
         print("  [WARN] Insufficient WB data; skipping scatter plot.")
 
+    # Equipment/trade import-leakage (needed for the deficit-adjusted column)
+    eq_trade_df = build_equipment_trade_df()
+    eq_trade_df.to_csv(os.path.join(DATA, "equipment_trade_analysis.csv"),
+                       index=False)
+    leakage_map = dict(zip(eq_trade_df["iso3"], eq_trade_df["import_leakage"]))
+
     # Fiscal sustainability
     print("\n[4] Neutral fiscal sustainability")
-    sust_df = sustainability_table()
+    sust_df = sustainability_table(leakage_map=leakage_map)
     fig3_fiscal_sustainability(sust_df)
     print(sust_df.to_string(index=False))
 
@@ -1192,10 +1284,15 @@ def main():
         json.dump(POC_AH_RESULTS, f, indent=2)
     THREE_LAYER_ANALOGY.to_csv(
         os.path.join(DATA, "three_layer_analogy.csv"), index=False)
-    m2 = POC_AH_RESULTS["models"]["M2_tempo_lag"]
-    print(f"  M2 level RMSE: {m2['level_rmse_median']:.3f} yr")
-    print(f"  mu_H1 drift: +{m2['mu_H1_median_yr_per_yr']:.2f} yr/yr")
-    print(f"  M2 beats M1: {POC_AH_RESULTS['key_findings']['M2_beats_M1_pct']}%")
+    m1 = POC_AH_RESULTS["models"]["M1_constant_lag"]
+    kf = POC_AH_RESULTS["key_findings"]
+    print(f"  M1 (constant lag) level RMSE: {m1['level_rmse_median']:.3f} yr")
+    print(f"  M1 beats M0 (AIC/BIC/LOOCV): "
+          f"{kf['M1_beats_M0_aic_pct']}/{kf['M1_beats_M0_bic_pct']}/"
+          f"{kf['M1_beats_M0_loocv_pct']}%")
+    print(f"  M2 beats M1 (AIC/BIC): "
+          f"{kf['M2_beats_M1_aic_pct']}/{kf['M2_beats_M1_bic_pct']}% "
+          f"-> time-varying drift not supported")
 
     # Tempo narrative
     print("\n[8] Tempo-adjusted narrative")
@@ -1208,8 +1305,6 @@ def main():
 
     # Medical equipment stock & import leakage
     print("\n[9] Medical equipment stock & import leakage analysis")
-    eq_trade_df = build_equipment_trade_df()
-    eq_trade_df.to_csv(os.path.join(DATA, "equipment_trade_analysis.csv"), index=False)
     fig6_equipment_density_comparison(eq_trade_df, lang="en")
     fig7_import_leakage_vs_multiplier(eq_trade_df, lang="en")
 
@@ -1218,6 +1313,14 @@ def main():
     with open(os.path.join(DATA, "japan_counterfactual.json"), "w") as f:
         json.dump(cf, f, indent=2, default=str)
     fig8_counterfactual_japan(cf, lang="en")
+
+    # Deficit-adjusted fiscal-return cascade (Reviewer 2 comment)
+    print("\n[10a] Deficit-adjusted fiscal-return cascade (Japan)")
+    fig10_fiscal_return_cascade(lang="en")
+    _tau, _pf, _delta, _mleak = 0.33, 0.84, 0.35, 2.64
+    print(f"  gross(2.78)={_tau*2.78/_pf:.2f} leakage(2.64)={_tau*_mleak/_pf:.2f} "
+          f"VA(1.53)={_tau*1.53/_pf:.2f} "
+          f"deficit-adj={_tau*_mleak*(1-_delta)/_pf:.2f}")
 
     # Sensitivity analysis figure (Reviewer 1 comment 5)
     print("\n[10b] Equipment CHE share sensitivity")
