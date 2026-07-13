@@ -172,7 +172,7 @@ def audit_row(row_number: int, registry_row: dict[str, str]) -> dict[str, str]:
         result["feed_names"] = ";".join(feed_names)
     except (RuntimeError, ValueError, json.JSONDecodeError) as error:
         result["error_stage"] = "auto_discovery"
-        result["error_message"] = f"{type(error).__name__}: {error}"[:500]
+        result["error_message"] = f"{type(error).__name__}: {error}".strip()[:500]
         return result
 
     types_feed = find_feed(feeds, ("vehicle_types",))
@@ -197,7 +197,7 @@ def audit_row(row_number: int, registry_row: dict[str, str]) -> dict[str, str]:
             result["motorized_declared"] = str(motorized).lower()
         except (RuntimeError, ValueError, json.JSONDecodeError) as error:
             result["error_stage"] = "vehicle_types"
-            result["error_message"] = f"{type(error).__name__}: {error}"[:500]
+            result["error_message"] = f"{type(error).__name__}: {error}".strip()[:500]
 
     status_feed = find_feed(feeds, ("vehicle_status", "free_bike_status"))
     if not status_feed:
@@ -228,14 +228,14 @@ def audit_row(row_number: int, registry_row: dict[str, str]) -> dict[str, str]:
     except (RuntimeError, ValueError, json.JSONDecodeError) as error:
         if not result["error_stage"]:
             result["error_stage"] = "vehicle_status"
-            result["error_message"] = f"{type(error).__name__}: {error}"[:500]
+            result["error_message"] = f"{type(error).__name__}: {error}".strip()[:500]
     return result
 
 
 def write_csv(path: Path, rows: list[dict[str, str]], fields: list[str]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", newline="", encoding="utf-8") as handle:
-        writer = csv.DictWriter(handle, fieldnames=fields)
+        writer = csv.DictWriter(handle, fieldnames=fields, lineterminator="\n")
         writer.writeheader()
         writer.writerows(rows)
 

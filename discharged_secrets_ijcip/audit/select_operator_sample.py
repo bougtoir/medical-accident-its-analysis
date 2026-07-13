@@ -45,7 +45,11 @@ def main() -> None:
     ]
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with args.output.open("w", newline="", encoding="utf-8") as handle:
-        writer = csv.DictWriter(handle, fieldnames=list(output_rows[0].keys()))
+        writer = csv.DictWriter(
+            handle,
+            fieldnames=list(output_rows[0].keys()),
+            lineterminator="\n",
+        )
         writer.writeheader()
         writer.writerows(output_rows)
     print(f"Selected {len(output_rows)} operator domains")

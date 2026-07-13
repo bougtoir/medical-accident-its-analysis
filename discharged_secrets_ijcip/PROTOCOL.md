@@ -1,8 +1,11 @@
 # Protocol: Lifecycle Data Exposure in Shared Micromobility
 
-**Version:** 0.1  
-**Status:** Prospective protocol drafted before full corpus screening and GBFS data collection  
-**Design:** Scoping review, global public-feed audit, and structured public-document audit  
+**Version:** 0.1
+
+**Status:** Prospective protocol drafted before full corpus screening and GBFS data collection
+
+**Design:** Scoping review, global public-feed audit, and structured public-document audit
+
 **Budget:** Uses only open bibliographic metadata, public standards, public GBFS feeds, and public operator documents
 
 ## 1. Rationale
