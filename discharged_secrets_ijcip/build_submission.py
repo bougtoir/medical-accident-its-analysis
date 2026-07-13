@@ -820,7 +820,7 @@ def body_blocks() -> list[tuple]:
         "vehicle-specific deep links were not retained. Unavailable or empty "
         "feeds were separated from feeds that were retrieved but omitted a "
         "field, and all proportions are reported against explicit denominators "
-        "with 95% Wilson confidence intervals. Because several large operators "
+        "with 95% Wilson confidence intervals (CIs). Because several large operators "
         "run many city systems, we also computed an operator-domain sensitivity "
         "analysis to check whether prevalence was driven by a few operators.",
     ]]
@@ -1205,12 +1205,15 @@ ABSTRACT_STRUCT = [
     ("Objective", "To map the direct evidence for micromobility data exposure, "
      "to measure which vehicle fields operators publish worldwide, and to "
      "assess how completely operators disclose lifecycle data handling."),
-    ("Methods", "We combined a PRISMA-ScR scoping review of 2,169 records, a "
-     "cross-sectional field audit of public GBFS feeds, and a structured "
-     "disclosure audit of public operator privacy notices across 14 domains, "
-     "using deterministic screening and explicit denominators with 95% Wilson "
-     "confidence intervals."),
-    ("Results", "Eighteen direct studies were included (5 D4, 9 D3, 4 D2), with "
+    ("Methods", "We combined a scoping review reported using the Preferred "
+     "Reporting Items for Systematic Reviews and Meta-Analyses extension for "
+     "Scoping Reviews (PRISMA-ScR) of 2,169 records, a cross-sectional field "
+     "audit of public General Bikeshare Feed Specification (GBFS) feeds, and a "
+     "structured disclosure audit of public operator privacy notices across 14 "
+     "domains, using deterministic screening and explicit denominators with "
+     "95% Wilson confidence intervals (CIs)."),
+    ("Results", "Eighteen direct studies were included (5 direct-empirical, D4; "
+     "9 direct-documentary, D3; 4 near-domain, D2), with "
      "the strongest evidence at the operation stage. Across 813 motorized "
      "micromobility feeds, vehicle identifiers appeared in 100% and coordinates "
      "in 99.4%, while battery percentage appeared in 68.9%. Operator notices "
