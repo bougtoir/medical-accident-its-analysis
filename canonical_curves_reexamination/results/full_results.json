@@ -63,67 +63,67 @@
   {
     "name": "Laffer Curve",
     "category": "Economics",
-    "n": 26,
-    "x_label": "Top Marginal Tax Rate (%)",
-    "y_label": "Tax Revenue (% of GDP)",
+    "n": 29,
+    "x_label": "Top Marginal Personal Income Tax Rate (%)",
+    "y_label": "Total Tax Revenue (% of GDP)",
     "f_test": {
-      "f_stat": 4.551409369702198,
-      "p_value": 0.043782073773685704
+      "f_stat": 3.8247881712109413,
+      "p_value": 0.06132582437145562
     },
     "model_comparison": {
       "linear": {
-        "aic": 159.59683448940552,
-        "bic": 162.11302756544848,
-        "r2": 0.6734344900041006,
-        "r2_adj": 0.6598275937542715
+        "aic": 201.54333008159188,
+        "bic": 204.27792174156482,
+        "r2": 0.059550666893679716,
+        "r2_adj": 0.024719210111964207
       },
       "quadratic": {
-        "aic": 156.90228813534154,
-        "bic": 160.676577749406,
-        "r2": 0.7273821230297783,
-        "r2_adj": 0.7036762206845417
+        "aic": 199.563273582728,
+        "bic": 203.6651610726874,
+        "r2": 0.1801556973213686,
+        "r2_adj": 0.11709075096147392
       },
       "log": {
-        "aic": 157.74611819624977,
-        "bic": 160.26231127229272,
-        "r2": 0.6958718447570769,
-        "r2_adj": 0.6831998382886217
+        "aic": 202.59280322026447,
+        "bic": 205.32739488023742,
+        "r2": 0.02489368711064588,
+        "r2_adj": -0.01122136151488573
       }
     },
     "loocv": {
-      "rmse_linear": 5.24302700728592,
-      "rmse_quadratic": 5.028228758001242
+      "rmse_linear": 7.72412810151464,
+      "rmse_quadratic": 7.554285545863376
     },
     "cooks_distance": {
-      "max": 0.4182056101914622,
-      "mean": 0.04415228747621113,
-      "n_influential": 2
+      "max": 0.11187171739650063,
+      "mean": 0.029697384892372496,
+      "n_influential": 0
     },
     "sensitivity": {
-      "f_full": 4.551409369702198,
-      "p_full": 0.043782073773685704,
-      "f_clean": 1.832188740411879,
-      "p_clean": 0.19097016089783092,
+      "f_full": 3.8247881712109413,
+      "p_full": 0.06132582437145562,
+      "f_clean": 4.073002977092262,
+      "p_clean": 0.05538442809751998,
       "removed_indices": [
-        25,
-        15,
-        16
+        0,
+        6,
+        23
       ],
       "removed_labels": [
-        "Colombia",
-        "Canada",
-        "Japan"
+        "EST",
+        "MEX",
+        "IRL"
       ],
-      "n_full": 26,
-      "n_clean": 23
+      "n_full": 29,
+      "n_clean": 26
     },
     "verdict": {
-      "verdict": "OUTLIER_DEPENDENT",
-      "explanation": "Nonlinearity significant with full data (p=0.044) but NOT after removing top influential points (p=0.191)",
+      "verdict": "NOT_SIGNIFICANT",
+      "explanation": "Nonlinear term not significant even with full data (p=0.061)",
       "best_aic": "quadratic",
-      "best_bic": "log"
+      "best_bic": "quadratic"
     },
-    "data_source": "Representative/Published"
+    "data_source": "OECD Table I.7 (top PIT rate) + OECD Revenue Statistics (tax %GDP), 2022 cross-section"
   },
   {
     "name": "Kuznets Curve",
@@ -608,67 +608,67 @@
   {
     "name": "Great Gatsby Curve",
     "category": "Economics",
-    "n": 23,
+    "n": 83,
     "x_label": "Gini Coefficient",
-    "y_label": "Intergenerational Earnings Elasticity",
+    "y_label": "Intergenerational Income Elasticity",
     "f_test": {
-      "f_stat": 4.371977607456301,
-      "p_value": 0.0495071098668699
+      "f_stat": 0.238230555069633,
+      "p_value": 0.6268221480252825
     },
     "model_comparison": {
       "linear": {
-        "aic": -44.4060062252243,
-        "bic": -42.135017793366,
-        "r2": 0.6922223654735306,
-        "r2_adj": 0.6775662876389368
+        "aic": -55.69417836715925,
+        "bic": -50.85649715156606,
+        "r2": 0.1778661817913061,
+        "r2_adj": 0.16771638156650737
       },
       "quadratic": {
-        "aic": -46.953146246381095,
-        "bic": -43.546663598593646,
-        "r2": 0.7474331878326453,
-        "r2_adj": 0.7221765066159098
+        "aic": -53.94097528411058,
+        "bic": -46.68445346072078,
+        "r2": 0.18030713038275037,
+        "r2_adj": 0.15981480864231923
       },
       "log": {
-        "aic": -48.02646553965465,
-        "bic": -45.75547710779635,
-        "r2": 0.7370493736965849,
-        "r2_adj": 0.7245279153011841
+        "aic": -54.85140600079765,
+        "bic": -50.01372478520446,
+        "r2": 0.1694758050569809,
+        "r2_adj": 0.15922241993422748
       }
     },
     "loocv": {
-      "rmse_linear": 0.09436441838046923,
-      "rmse_quadratic": 0.08589887297168275
+      "rmse_linear": 0.17283911564648066,
+      "rmse_quadratic": 0.1743001429273527
     },
     "cooks_distance": {
-      "max": 0.7366682917308692,
-      "mean": 0.0648854166344557,
-      "n_influential": 1
+      "max": 0.1414528500753129,
+      "mean": 0.011744410302323562,
+      "n_influential": 5
     },
     "sensitivity": {
-      "f_full": 4.371977607456301,
-      "p_full": 0.0495071098668699,
-      "f_clean": 4.208893839431753,
-      "p_clean": 0.05594729877732263,
+      "f_full": 0.238230555069633,
+      "p_full": 0.6268221480252825,
+      "f_clean": 0.2624778432860414,
+      "p_clean": 0.6098893923940936,
       "removed_indices": [
-        4,
-        15,
-        20
+        78,
+        10,
+        2
       ],
       "removed_labels": [
-        "Canada",
-        "Pakistan",
-        "South Africa"
+        "GTM",
+        "EGY",
+        "IND"
       ],
-      "n_full": 23,
-      "n_clean": 20
+      "n_full": 83,
+      "n_clean": 80
     },
     "verdict": {
-      "verdict": "OUTLIER_DEPENDENT",
-      "explanation": "Nonlinearity significant with full data (p=0.050) but NOT after removing top influential points (p=0.056)",
-      "best_aic": "log",
-      "best_bic": "log"
+      "verdict": "NOT_SIGNIFICANT",
+      "explanation": "Nonlinear term not significant even with full data (p=0.627)",
+      "best_aic": "linear",
+      "best_bic": "linear"
     },
-    "data_source": "Representative/Published"
+    "data_source": "GDIM income mobility IGE (Munoz & van der Weide 2025) + OWID/World Bank Gini; reconstruction"
   },
   {
     "name": "Balassa-Samuelson Effect",
@@ -1598,61 +1598,67 @@
   {
     "name": "Replacement Migration Curve",
     "category": "Demography",
-    "n": 25,
-    "x_label": "TFR Gap Below Replacement",
-    "y_label": "Required Net Migration (per 1000)",
+    "n": 8,
+    "x_label": "TFR Gap Below Replacement (2.1 - TFR)",
+    "y_label": "Required Net Migration, Scenario IV (per million/yr)",
     "f_test": {
-      "f_stat": 5.167161666312381,
-      "p_value": 0.033133733248922104
+      "f_stat": 4.597310734236007,
+      "p_value": 0.08487230090380304
     },
     "model_comparison": {
       "linear": {
-        "aic": 83.71899989362882,
-        "bic": 86.15675154336522,
-        "r2": 0.9515936064068978,
-        "r2_adj": 0.9494889805985021
+        "aic": 125.63013191656825,
+        "bic": 125.78901499992791,
+        "r2": 0.9357342700364133,
+        "r2_adj": 0.9250233150424821
       },
       "quadratic": {
-        "aic": 80.44483742112259,
-        "bic": 84.10146489572719,
-        "r2": 0.960800444590839,
-        "r2_adj": 0.9572368486445517
+        "aic": 122.41377179700811,
+        "bic": 122.65209642204762,
+        "r2": 0.9665188865176915,
+        "r2_adj": 0.9531264411247681
+      },
+      "log": {
+        "aic": 137.0738190530649,
+        "bic": 137.2327021364246,
+        "r2": 0.7313290463543141,
+        "r2_adj": 0.6865505540800331
       }
     },
     "loocv": {
-      "rmse_linear": 1.3215158813258732,
-      "rmse_quadratic": 1.3216271909577255
+      "rmse_linear": 765.9871575725277,
+      "rmse_quadratic": 1072.863941798927
     },
     "cooks_distance": {
-      "max": 0.4961849424576747,
-      "mean": 0.056822309358013336,
-      "n_influential": 2
+      "max": 2.3432177871052384,
+      "mean": 0.36554569069700776,
+      "n_influential": 1
     },
     "sensitivity": {
-      "f_full": 5.167161666312381,
-      "p_full": 0.033133733248922104,
-      "f_clean": 1.9745068195671556,
-      "p_clean": 0.17611034647296897,
+      "f_full": 4.597310734236007,
+      "p_full": 0.08487230090380304,
+      "f_clean": 0.19121234791567074,
+      "p_clean": 0.7045964338671669,
       "removed_indices": [
         1,
-        24,
-        0
+        0,
+        7
       ],
       "removed_labels": [
-        "South Korea",
-        "India",
-        "Japan"
+        "DEU",
+        "FRA",
+        "USA"
       ],
-      "n_full": 25,
-      "n_clean": 22
+      "n_full": 8,
+      "n_clean": 5
     },
     "verdict": {
-      "verdict": "OUTLIER_DEPENDENT",
-      "explanation": "Nonlinearity significant with full data (p=0.033) but NOT after removing top influential points (p=0.176)",
+      "verdict": "NOT_SIGNIFICANT",
+      "explanation": "Nonlinear term not significant even with full data (p=0.085)",
       "best_aic": "quadratic",
       "best_bic": "quadratic"
     },
-    "data_source": "Representative/Published"
+    "data_source": "UN (2000) Replacement Migration report, Tables IV.1 & IV.6 (model outputs, Scenario IV)"
   },
   {
     "name": "Second Demographic Transition",
@@ -1897,67 +1903,67 @@
   {
     "name": "HANPP vs Development",
     "category": "Environmental Science",
-    "n": 25,
+    "n": 156,
     "x_label": "GDP per capita (PPP, $)",
-    "y_label": "HANPP (% of NPP)",
+    "y_label": "HANPP (% of NPP0)",
     "f_test": {
-      "f_stat": 0.001762021862507148,
-      "p_value": 0.9668961182916669
+      "f_stat": 3.33726123802466,
+      "p_value": 0.06967612246290311
     },
     "model_comparison": {
       "linear": {
-        "aic": 211.03540926620386,
-        "bic": 213.47316091594027,
-        "r2": 0.0035365671372522556,
-        "r2_adj": -0.0397879299437367
+        "aic": 1449.0779370931045,
+        "bic": 1455.1776491076037,
+        "r2": 0.012572233423626789,
+        "r2_adj": 0.006160364809494445
       },
       "quadratic": {
-        "aic": 213.03340704881245,
-        "bic": 216.69003452341704,
-        "r2": 0.0036163693981869915,
-        "r2_adj": -0.08696396065652312
+        "aic": 1447.7118185045406,
+        "bic": 1456.8613865262892,
+        "r2": 0.03365041008253267,
+        "r2_adj": 0.02101838929929789
       },
       "log": {
-        "aic": 210.6949608074891,
-        "bic": 213.13271245722552,
-        "r2": 0.017014366526479696,
-        "r2_adj": -0.025724139276716906
+        "aic": 1450.7353039990644,
+        "bic": 1456.8350160135635,
+        "r2": 0.0020257312512843573,
+        "r2_adj": -0.0044546211431879534
       }
     },
     "loocv": {
-      "rmse_linear": 16.483386614648936,
-      "rmse_quadratic": 18.304122889926006
+      "rmse_linear": 25.41113553081409,
+      "rmse_quadratic": 26.119437529319676
     },
     "cooks_distance": {
-      "max": 0.17466961322137417,
-      "mean": 0.04216765809991005,
-      "n_influential": 1
+      "max": 0.6490389262505059,
+      "mean": 0.011706998494899833,
+      "n_influential": 6
     },
     "sensitivity": {
-      "f_full": 0.001762021862507148,
-      "p_full": 0.9668961182916669,
-      "f_clean": 0.05207937692072391,
-      "p_clean": 0.8219217625269695,
+      "f_full": 3.33726123802466,
+      "p_full": 0.06967612246290311,
+      "f_clean": 0.08778317054399004,
+      "p_clean": 0.7674243537494507,
       "removed_indices": [
-        5,
-        2,
-        6
+        79,
+        152,
+        153
       ],
       "removed_labels": [
-        "Canada",
-        "UK",
-        "Australia"
+        "EGY",
+        "QAT",
+        "ARE"
       ],
-      "n_full": 25,
-      "n_clean": 22
+      "n_full": 156,
+      "n_clean": 153
     },
     "verdict": {
       "verdict": "NOT_SIGNIFICANT",
-      "explanation": "Nonlinear term not significant even with full data (p=0.967)",
-      "best_aic": "log",
-      "best_bic": "log"
+      "explanation": "Nonlinear term not significant even with full data (p=0.070)",
+      "best_aic": "quadratic",
+      "best_bic": "linear"
     },
-    "data_source": "Representative/Published"
+    "data_source": "Haberl et al. 2007 PNAS gridded HANPP/NPP0 (country zonal aggregation) + OWID/World Bank GDP pc, year 2000"
   },
   {
     "name": "Jevons Paradox (Energy)",
@@ -2800,67 +2806,67 @@
   {
     "name": "Putnam Social Capital",
     "category": "Political Science",
-    "n": 25,
+    "n": 22,
     "x_label": "Daily TV Viewing (hours)",
     "y_label": "Social Trust (%)",
     "f_test": {
-      "f_stat": 1.5647845888133023,
-      "p_value": 0.22410631469900455
+      "f_stat": 0.2715332175472789,
+      "p_value": 0.6083256580344476
     },
     "model_comparison": {
       "linear": {
-        "aic": 190.27029105549246,
-        "bic": 192.70804270522888,
-        "r2": 0.6774949915573951,
-        "r2_adj": 0.6634730346685862
+        "aic": 183.70067755580322,
+        "bic": 185.88276246251985,
+        "r2": 0.0836221390072377,
+        "r2_adj": 0.03780324595759954
       },
       "quadratic": {
-        "aic": 190.5525169098387,
-        "bic": 194.20914438444328,
-        "r2": 0.6989104585702215,
-        "r2_adj": 0.6715386820766053
+        "aic": 185.38849612372277,
+        "bic": 188.6616234837977,
+        "r2": 0.09653377537137997,
+        "r2_adj": 0.0014320675157356577
       },
       "log": {
-        "aic": 189.14072605105517,
-        "bic": 191.57847770079158,
-        "r2": 0.6917423170973223,
-        "r2_adj": 0.6783398091450319
+        "aic": 183.77410266727745,
+        "bic": 185.95618757399407,
+        "r2": 0.0805586138311819,
+        "r2_adj": 0.0345865445227409
       }
     },
     "loocv": {
-      "rmse_linear": 10.886363530746655,
-      "rmse_quadratic": 11.00462911563129
+      "rmse_linear": 15.663027493719248,
+      "rmse_quadratic": 15.970556906444902
     },
     "cooks_distance": {
-      "max": 0.21425960620471526,
-      "mean": 0.0425787648909029,
-      "n_influential": 2
+      "max": 0.3534078701446077,
+      "mean": 0.04499384263698602,
+      "n_influential": 1
     },
     "sensitivity": {
-      "f_full": 1.5647845888133023,
-      "p_full": 0.22410631469900455,
-      "f_clean": 7.279660633978311,
-      "p_clean": 0.014248026860089302,
+      "f_full": 0.2715332175472789,
+      "p_full": 0.6083256580344476,
+      "f_clean": 0.00617033564395672,
+      "p_clean": 0.9383633925859689,
       "removed_indices": [
-        4,
-        5,
-        2
+        11,
+        1,
+        4
       ],
       "removed_labels": [
-        "Netherlands",
-        "Switzerland",
-        "Denmark"
+        "FIN",
+        "SVN",
+        "NOR"
       ],
-      "n_full": 25,
-      "n_clean": 22
+      "n_full": 22,
+      "n_clean": 19
     },
     "verdict": {
       "verdict": "NOT_SIGNIFICANT",
-      "explanation": "Nonlinear term not significant even with full data (p=0.224)",
-      "best_aic": "log",
-      "best_bic": "log"
+      "explanation": "Nonlinear term not significant even with full data (p=0.608)",
+      "best_aic": "linear",
+      "best_bic": "linear"
     },
-    "data_source": "Representative/Published"
+    "data_source": "Eurostat HETUS TV time (AC82) + OWID generalized trust; European proxy reconstruction"
   },
   {
     "name": "Mitscherlich Yield Curve",

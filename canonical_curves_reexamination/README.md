@@ -115,9 +115,20 @@ Not all 52 curves currently use fully traceable real data. Status:
   #31 Keeling, #33 Jevons, #34 Forest Transition, #40 Hubble,
   #42 Gutenberg-Richter, #43 Moore's Law, #44 Lipset, #46 Zipf,
   #50 Green Revolution.
+- **Public-data reconstructions / proxies** built from real primary data but
+  NOT replications of the original figure's exact point set (labelled as such
+  in `data/digitized_sources.md` and `data/source_metadata.json`):
+  #11 Great Gatsby (World Bank GDIM income IGE, Munoz & van der Weide 2025, +
+  OWID/World Bank Gini; reconstruction),
+  #32 HANPP (country values computed by zonal aggregation of the Haberl et al.
+  2007 PNAS gridded HANPP/NPP0, year 2000, + OWID/World Bank GDP per capita),
+  #48 Putnam (European proxy: Eurostat HETUS TV-viewing time AC82 + OWID
+  generalized trust).
 - **Curves digitized/transcribed from the original published figure or table**
   (values verifiable against the cited source; see `data/digitized_sources.md`):
   #21 BMI-Mortality (Global BMI Mortality Collaboration 2016 Lancet),
+  #27 Replacement Migration (UN 2000 Replacement Migration report, Tables IV.1
+  & IV.6, Scenario IV — UN **model outputs**, not empirical observations),
   #29 Species-Area (Johnson & Raven 1973 Galapagos plant species),
   #36 Ebbinghaus Forgetting Curve (Ebbinghaus 1885 original savings table),
   #41 Kleiber's Law (AnAge database, 422 mammal species),
@@ -136,5 +147,5 @@ Each curve's claimed source is recorded in `data/source_metadata.json`.
 
 ```
 numpy scipy pandas statsmodels scikit-learn matplotlib seaborn python-docx python-pptx
-wbgapi requests openpyxl
+wbgapi requests openpyxl rasterio geopandas
 ```
