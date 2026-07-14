@@ -7,8 +7,8 @@ published time-to-event curves. See `data/SOURCES.md` for provenance.
 ## Pipeline (one command)
 
 ```bash
-pip install numpy pandas scipy pillow matplotlib
-make            # or: bash run.sh
+pip install numpy pandas scipy pillow matplotlib python-docx python-pptx
+make            # regenerates data CSVs, results, figure, and the short-communication docx/pptx
 ```
 
 Steps:
