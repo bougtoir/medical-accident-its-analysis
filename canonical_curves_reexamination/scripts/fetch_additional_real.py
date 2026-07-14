@@ -308,22 +308,42 @@ def fetch_jevons():
 
 def _bls_series(series_ids, start_year, end_year):
     """Fetch BLS series (annual averages of monthly data) as
-    {series_id: {year: mean_value}}. Splits into <=20-year windows."""
-    key = os.environ.get('BLS_API_KEY')
-    if not key:
-        raise RuntimeError("BLS_API_KEY not set")
+    {series_id: {year: mean_value}}.
+
+    Uses the v2 API when BLS_API_KEY is set and valid (<=20-year windows),
+    otherwise falls back to the keyless v1 API (<=10-year windows).
+    """
     from collections import defaultdict
+    key = os.environ.get('BLS_API_KEY')
+
+    def _request(url, y0, y1, payload):
+        r = requests.post(url, json=payload, timeout=TIMEOUT, headers=HEADERS)
+        r.raise_for_status()
+        return r.json()
+
+    use_v2 = bool(key)
+    if use_v2:  # probe key validity on the first window
+        probe = _request('https://api.bls.gov/publicAPI/v2/timeseries/data/',
+                         start_year, start_year,
+                         {'seriesid': series_ids, 'startyear': str(start_year),
+                          'endyear': str(start_year), 'registrationkey': key})
+        if probe.get('status') != 'REQUEST_SUCCEEDED':
+            print(f"  [BLS] v2 key rejected ({probe.get('message')}); "
+                  f"falling back to keyless v1 API")
+            use_v2 = False
+
+    url = ('https://api.bls.gov/publicAPI/v2/timeseries/data/' if use_v2
+           else 'https://api.bls.gov/publicAPI/v1/timeseries/data/')
+    window = 19 if use_v2 else 9
+
     acc = {sid: defaultdict(list) for sid in series_ids}
     y0 = start_year
     while y0 <= end_year:
-        y1 = min(y0 + 19, end_year)
-        r = requests.post(
-            'https://api.bls.gov/publicAPI/v2/timeseries/data/',
-            json={'seriesid': series_ids, 'startyear': str(y0),
-                  'endyear': str(y1), 'registrationkey': key},
-            timeout=TIMEOUT, headers=HEADERS)
-        r.raise_for_status()
-        js = r.json()
+        y1 = min(y0 + window, end_year)
+        payload = {'seriesid': series_ids, 'startyear': str(y0), 'endyear': str(y1)}
+        if use_v2:
+            payload['registrationkey'] = key
+        js = _request(url, y0, y1, payload)
         if js.get('status') != 'REQUEST_SUCCEEDED':
             raise RuntimeError(f"BLS error: {js.get('message')}")
         for s in js['Results']['series']:
@@ -356,6 +376,33 @@ def fetch_beveridge():
     return _save(df, 'beveridge_real.csv')
 
 
+def fetch_zipf(top_n=100):
+    """#46 Zipf's Law (US cities): rank vs population.
+
+    Source: US Census Bureau 2020 Decennial (dec/pl), total population
+    (P1_001N) of all incorporated places, ranked descending.
+    """
+    key = os.environ.get('CENSUS_API_KEY')
+    if not key:
+        raise RuntimeError("CENSUS_API_KEY not set")
+    r = requests.get('https://api.census.gov/data/2020/dec/pl', timeout=TIMEOUT,
+                     headers=HEADERS, params={
+                         'get': 'NAME,P1_001N', 'for': 'place:*',
+                         'in': 'state:*', 'key': key})
+    if not r.text.lstrip().startswith('['):
+        raise RuntimeError(f"Census API rejected request: {r.text[:80]}")
+    rows = r.json()[1:]
+    places = [(row[0], int(row[1])) for row in rows if row[1] not in (None, '')]
+    places.sort(key=lambda x: -x[1])
+    places = places[:top_n]
+    df = pd.DataFrame({
+        'rank': range(1, len(places) + 1),
+        'name': [p[0] for p in places],
+        'population': [p[1] for p in places],
+    })
+    return _save(df, 'zipf_cities_real.csv')
+
+
 FETCHERS = {
     'ekc_co2': fetch_ekc_co2,
     'keeling': fetch_keeling,
@@ -367,6 +414,7 @@ FETCHERS = {
     'hubbert': fetch_hubbert,
     'jevons': fetch_jevons,
     'beveridge': fetch_beveridge,
+    'zipf': fetch_zipf,
 }
 
 

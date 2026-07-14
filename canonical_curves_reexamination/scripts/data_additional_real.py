@@ -125,6 +125,34 @@ def get_lipset_real():
     ), len(df)
 
 
+def get_beveridge_real():
+    df = _load('beveridge_real.csv')
+    if df is None:
+        return None
+    df = df.dropna(subset=['unemployment_rate', 'vacancy_rate'])
+    df = df[(df['unemployment_rate'] > 0) & (df['vacancy_rate'] > 0)]
+    return CurveReexamination(
+        "Beveridge Curve",
+        df['unemployment_rate'].values, df['vacancy_rate'].values,
+        x_label="Unemployment Rate (%)", y_label="Vacancy Rate (%)",
+        category="Economics",
+    ), len(df)
+
+
+def get_zipf_real():
+    df = _load('zipf_cities_real.csv')
+    if df is None:
+        return None
+    df = df.dropna(subset=['rank', 'population'])
+    df = df[df['population'] > 0]
+    return CurveReexamination(
+        "Zipf's Law (US Cities)",
+        np.log(df['rank'].values), np.log(df['population'].values),
+        x_label="log(Rank)", y_label="log(Population)",
+        category="Political Science",
+    ), len(df)
+
+
 def get_hubbert_real():
     df = _load('hubbert_real.csv')
     if df is None:
@@ -189,6 +217,10 @@ ADDITIONAL_REAL = {
                 'US EIA Total Energy (crude oil production)'),
     'jevons': (get_jevons_real, 'Jevons Paradox (Energy)',
                'US EIA Total Energy + World Bank WDI (US GDP)'),
+    'beveridge': (get_beveridge_real, 'Beveridge Curve',
+                  'US BLS (CPS unemployment + JOLTS job openings)'),
+    'zipf': (get_zipf_real, "Zipf's Law (US Cities)",
+             'US Census 2020 Decennial (place populations)'),
 }
 
 

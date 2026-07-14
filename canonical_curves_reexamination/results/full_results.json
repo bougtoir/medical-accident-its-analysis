@@ -252,63 +252,63 @@
   {
     "name": "Beveridge Curve",
     "category": "Economics",
-    "n": 23,
+    "n": 24,
     "x_label": "Unemployment Rate (%)",
     "y_label": "Vacancy Rate (%)",
     "f_test": {
-      "f_stat": 3.3789128796920647,
-      "p_value": 0.08093599321847633
+      "f_stat": 3.025902558386993,
+      "p_value": 0.09658300140687837
     },
     "model_comparison": {
       "linear": {
-        "aic": 70.14212231710721,
-        "bic": 72.41311074896551,
-        "r2": 0.33790948036421586,
-        "r2_adj": 0.3063813603815594
+        "aic": 71.71896653526204,
+        "bic": 74.07507419595794,
+        "r2": 0.379094907248398,
+        "r2_adj": 0.35087194848696157
       },
       "quadratic": {
-        "aic": 68.55177209581875,
-        "bic": 71.9582547436062,
-        "r2": 0.4336002507534005,
-        "r2_adj": 0.3769602758287405
+        "aic": 70.48832452180666,
+        "bic": 74.0224860128505,
+        "r2": 0.45729377216540956,
+        "r2_adj": 0.40560746475259135
       },
       "log": {
-        "aic": 68.11328955510893,
-        "bic": 70.38427798696723,
-        "r2": 0.3938107911800568,
-        "r2_adj": 0.36494463837910707
+        "aic": 69.69797661870746,
+        "bic": 72.05408427940336,
+        "r2": 0.42923913170550987,
+        "r2_adj": 0.4032954558739421
       }
     },
     "loocv": {
-      "rmse_linear": 1.1113291691877636,
-      "rmse_quadratic": 1.0928437428319941
+      "rmse_linear": 1.0676711741121503,
+      "rmse_quadratic": 1.0511107849459165
     },
     "cooks_distance": {
-      "max": 0.4212699790343988,
-      "mean": 0.045373926931758304,
+      "max": 0.3016846730737567,
+      "mean": 0.037968254561843995,
       "n_influential": 2
     },
     "sensitivity": {
-      "f_full": 3.3789128796920647,
-      "p_full": 0.08093599321847633,
-      "f_clean": 12.842921213775362,
-      "p_clean": 0.002288433480837737,
+      "f_full": 3.025902558386993,
+      "p_full": 0.09658300140687837,
+      "f_clean": 12.626392597718878,
+      "p_clean": 0.002270898864791815,
       "removed_indices": [
         20,
         19,
         21
       ],
       "removed_labels": null,
-      "n_full": 23,
-      "n_clean": 20
+      "n_full": 24,
+      "n_clean": 21
     },
     "verdict": {
       "verdict": "NOT_SIGNIFICANT",
-      "explanation": "Nonlinear term not significant even with full data (p=0.081)",
+      "explanation": "Nonlinear term not significant even with full data (p=0.097)",
       "best_aic": "log",
       "best_bic": "log"
     },
-    "data_source": "Representative/Published"
+    "data_source": "US BLS (CPS unemployment + JOLTS job openings)"
   },
   {
     "name": "Okun's Law",
