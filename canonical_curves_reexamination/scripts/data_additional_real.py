@@ -170,6 +170,21 @@ def get_rahn_real():
     ), len(df)
 
 
+def get_kleiber_real():
+    df = _load('kleiber_real.csv')
+    if df is None:
+        return None
+    df = df.dropna(subset=['body_mass_kg', 'bmr_watts'])
+    df = df[(df['body_mass_kg'] > 0) & (df['bmr_watts'] > 0)]
+    labels = df['species'].values if 'species' in df.columns else None
+    return CurveReexamination(
+        "Kleiber's Law",
+        np.log10(df['body_mass_kg'].values), np.log10(df['bmr_watts'].values),
+        x_label="log₁₀(Body Mass, kg)", y_label="log₁₀(BMR, Watts)",
+        country_labels=labels, category="Physics", x_is_logged=True,
+    ), len(df)
+
+
 def get_species_area_real():
     df = _load('species_area_real.csv')
     if df is None:
@@ -373,6 +388,8 @@ ADDITIONAL_REAL = {
                    'Ebbinghaus (1885) Ch.7 Table (7 intervals, public domain)'),
     'species_area': (get_species_area_real, 'Species-Area Curve',
                      'Johnson & Raven (1973) Galapagos plant species (gala, N=30)'),
+    'kleiber': (get_kleiber_real, "Kleiber's Law",
+                'AnAge / HAGR build (422 mammal species: body mass vs BMR)'),
 }
 
 

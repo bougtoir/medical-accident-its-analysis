@@ -37,3 +37,13 @@ WebPlotDigitizer. These are stored in `data/*_real.csv` and read by
 - 30 Galápagos islands: island area (km²) and number of plant species.
 - x = log₁₀(Area, km²); y = log₁₀(Species). Replaces the previous invented
   "representative" bird-species counts for Caribbean/global islands.
+
+## #41 Kleiber's Law — `kleiber_real.csv`
+- Source: AnAge database, build 14 (Human Ageing Genomic Resources; Tacutu et
+  al. 2018 Nucleic Acids Res 46:D1083-D1090), fields "Metabolic rate (W)" and
+  "Body mass (g)", downloaded from https://genomics.senescence.info/species/.
+- Restricted to Class Mammalia with both fields present and >0 → 422 species.
+  Body mass converted g→kg. This is a modern real-data test of Kleiber's law
+  (not Kleiber's 1932 domestic-animal table, whose scanned original is not
+  reliably machine-readable); the source is labelled accordingly.
+- x = log₁₀(Body mass, kg); y = log₁₀(BMR, W). Replaces 22 hand-entered values.

@@ -2440,61 +2440,61 @@
   {
     "name": "Kleiber's Law",
     "category": "Physics",
-    "n": 22,
+    "n": 422,
     "x_label": "log\u2081\u2080(Body Mass, kg)",
     "y_label": "log\u2081\u2080(BMR, Watts)",
     "f_test": {
-      "f_stat": 0.8894761904760592,
-      "p_value": 0.35745815494900857
+      "f_stat": 44.92915355781268,
+      "p_value": 6.616207581799927e-11
     },
     "model_comparison": {
       "linear": {
-        "aic": -84.23799430976683,
-        "bic": -82.05590940305021,
-        "r2": 0.9992428618798214,
-        "r2_adj": 0.9992050049738125
+        "aic": -216.4616010156542,
+        "bic": -208.37159038758216,
+        "r2": 0.9504693504360469,
+        "r2_adj": 0.9503514203180374
       },
       "quadratic": {
-        "aic": -83.24453342647524,
-        "bic": -79.97140606640029,
-        "r2": 0.9992767218128006,
-        "r2_adj": 0.9992005872667796
+        "aic": -257.4469153107466,
+        "bic": -245.31189936863856,
+        "r2": 0.955266139219444,
+        "r2_adj": 0.9550526124376753
       }
     },
     "loocv": {
-      "rmse_linear": 0.03604210993947353,
-      "rmse_quadratic": 0.03826272157104685
+      "rmse_linear": 0.18753956256745966,
+      "rmse_quadratic": 0.17894773078762474
     },
     "cooks_distance": {
-      "max": 0.24047442735974955,
-      "mean": 0.054338189337948976,
-      "n_influential": 2
+      "max": 0.07044704939156009,
+      "mean": 0.0032120955090119215,
+      "n_influential": 37
     },
     "sensitivity": {
-      "f_full": 0.8894761904760592,
-      "p_full": 0.35745815494900857,
-      "f_clean": 0.1284153523832159,
-      "p_clean": 0.7247650054793822,
+      "f_full": 44.92915355781268,
+      "p_full": 6.616207581799927e-11,
+      "f_clean": 51.52793680901826,
+      "p_clean": 3.269162718311236e-12,
       "removed_indices": [
-        1,
-        15,
-        13
+        389,
+        420,
+        421
       ],
       "removed_labels": [
-        "Rat",
-        "Sparrow",
-        "Elephant"
+        "Phocoena phocoena",
+        "Trichechus manatus",
+        "Elephas maximus"
       ],
-      "n_full": 22,
-      "n_clean": 19
+      "n_full": 422,
+      "n_clean": 419
     },
     "verdict": {
-      "verdict": "NOT_SIGNIFICANT",
-      "explanation": "Nonlinear term not significant even with full data (p=0.357)",
-      "best_aic": "linear",
-      "best_bic": "linear"
+      "verdict": "ROBUST_NONLINEAR",
+      "explanation": "Nonlinearity is robust: significant F-test (p=0.000), survives outlier removal (p=0.000), better LOOCV",
+      "best_aic": "quadratic",
+      "best_bic": "quadratic"
     },
-    "data_source": "Representative/Published"
+    "data_source": "AnAge / HAGR build (422 mammal species: body mass vs BMR)"
   },
   {
     "name": "Gutenberg-Richter Law",

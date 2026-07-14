@@ -572,6 +572,69 @@ def fetch_rahn():
     return _save(df, 'rahn_real.csv')
 
 
+def fetch_species_area():
+    """#29 Species-Area: Galapagos island area vs plant species count.
+
+    Source: Johnson & Raven (1973) Science 179:893-895, distributed as the
+    'gala' dataset in the R 'faraway' package. Downloads the CRAN source tarball
+    and reads data/gala.rda (raw tarball cached under data/cache/, gitignored).
+    """
+    import tarfile
+    import pyreadr
+    cache = os.path.join(DATA_DIR, 'cache')
+    os.makedirs(cache, exist_ok=True)
+    tpath = os.path.join(cache, 'faraway_source.tar.gz')
+    if not os.path.exists(tpath):
+        url = 'https://cran.r-project.org/src/contrib/faraway_1.0.9.tar.gz'
+        with requests.get(url, timeout=TIMEOUT, headers=HEADERS,
+                          stream=True) as r:
+            r.raise_for_status()
+            with open(tpath, 'wb') as f:
+                for chunk in r.iter_content(1 << 20):
+                    f.write(chunk)
+    with tarfile.open(tpath) as tf:
+        tf.extract('faraway/data/gala.rda', cache)
+    rda = pyreadr.read_r(os.path.join(cache, 'faraway', 'data', 'gala.rda'))
+    df = rda['gala'].reset_index().rename(columns={'index': 'island',
+                                                   'rownames': 'island'})
+    df = df[['island', 'Area', 'Species']]
+    if len(df) < 20:
+        raise RuntimeError("Species-Area: unexpected row count")
+    return _save(df, 'species_area_real.csv')
+
+
+def fetch_kleiber():
+    """#41 Kleiber's Law: mammal body mass vs basal metabolic rate.
+
+    Source: AnAge database (Human Ageing Genomic Resources; Tacutu et al. 2018
+    Nucleic Acids Res). Restricted to Class Mammalia with metabolic rate (W)
+    and body mass (g) both present. Raw zip cached under data/cache/ (gitignored).
+    """
+    import zipfile
+    cache = os.path.join(DATA_DIR, 'cache')
+    os.makedirs(cache, exist_ok=True)
+    zpath = os.path.join(cache, 'anage_dataset.zip')
+    if not os.path.exists(zpath):
+        url = 'https://genomics.senescence.info/species/dataset.zip'
+        with requests.get(url, timeout=TIMEOUT, headers=HEADERS) as r:
+            r.raise_for_status()
+            with open(zpath, 'wb') as f:
+                f.write(r.content)
+    with zipfile.ZipFile(zpath) as z:
+        df = pd.read_csv(io.BytesIO(z.read('anage_data.txt')), sep='\t')
+    df = df[df['Class'] == 'Mammalia'].dropna(
+        subset=['Metabolic rate (W)', 'Body mass (g)'])
+    df = df[(df['Metabolic rate (W)'] > 0) & (df['Body mass (g)'] > 0)].copy()
+    df['species'] = df['Genus'].astype(str) + ' ' + df['Species'].astype(str)
+    df['body_mass_kg'] = df['Body mass (g)'] / 1000.0
+    df['bmr_watts'] = df['Metabolic rate (W)']
+    out = df[['species', 'body_mass_kg', 'bmr_watts']].sort_values(
+        'body_mass_kg')
+    if len(out) < 100:
+        raise RuntimeError("Kleiber: unexpected row count")
+    return _save(out, 'kleiber_real.csv')
+
+
 def fetch_gravity(year=2019):
     """#10 Gravity Model of Trade: gravity index vs bilateral trade.
 
@@ -665,6 +728,8 @@ FETCHERS = {
     'rahn': fetch_rahn,
     'hubble': fetch_hubble,
     'gravity': fetch_gravity,
+    'species_area': fetch_species_area,
+    'kleiber': fetch_kleiber,
 }
 
 
