@@ -419,9 +419,12 @@ def create_source_metadata():
         {"id": 32, "name": "HANPP", "category": "Environmental Science",
          "original_paper": "Vitousek PM et al. (1986) BioScience 36:368-373",
          "original_n": 0, "original_period": "Global estimate (1986)",
-         "data_source": "Haberl et al. (2007) PNAS; World Bank GDP data",
-         "current_n": 25, "current_period": "2000s estimates",
-         "x_variable": "GDP per capita PPP ($)", "y_variable": "HANPP (% of NPP)",
+         "data_source": ("Haberl et al. (2007) PNAS gridded HANPP/NPP0 "
+                         "(year 2000), aggregated to countries by zonal "
+                         "statistics (Natural Earth admin-0) + OWID/World "
+                         "Bank GDP per capita PPP (2000)"),
+         "current_n": None, "current_period": "Year 2000",
+         "x_variable": "GDP per capita PPP ($)", "y_variable": "HANPP (% of NPP0)",
          "claimed_form": "EKC-like inverted-U (debated)", "country_scope": "Global cross-section"},
         {"id": 33, "name": "Jevons Paradox (Energy)", "category": "Environmental Science",
          "original_paper": "Jevons WS (1865) The Coal Question. Macmillan",

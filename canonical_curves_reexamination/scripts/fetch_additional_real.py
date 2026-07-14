@@ -873,9 +873,90 @@ def fetch_great_gatsby():
     return _save(out, 'great_gatsby_real.csv')
 
 
+def fetch_hanpp():
+    """#32 HANPP vs development: country HANPP (% of NPP0) vs GDP per capita.
+
+    Haberl et al. (2007) PNAS 104:12942-12947 do not publish a country-level
+    HANPP table; they publish gridded HANPP for the year 2000. Country values
+    here are computed by ZONAL AGGREGATION of the official Haberl 2007 grids:
+      country HANPP% = 100 * sum(HANPP_gCm2 * cell_area) /
+                             sum(NPP0_gCm2 * cell_area)
+    over the country's land cells (cos-latitude area weighting), using the
+    5-arc-minute grids 'thanpppallgcm' (HANPP, gC/m2/yr) and 'tn0_all_gcm'
+    (NPP0, gC/m2/yr) from the Global HANPP Data package (all_grids.zip),
+    and Natural Earth 1:110m admin-0 country polygons (ISO_A3).
+    x = GDP per capita, PPP (OWID / World Bank), year 2000 to match the grid.
+    Raw archives are cached under data/cache/ (gitignored).
+    """
+    import zipfile
+    import rasterio
+    import geopandas as gpd
+    from rasterio.features import rasterize
+    cache = os.path.join(DATA_DIR, 'cache')
+    os.makedirs(cache, exist_ok=True)
+
+    gz = os.path.join(cache, 'haberl2007_all_grids.zip')
+    if not os.path.exists(gz):
+        with requests.get('https://seafile.aau.at/f/ae722a88d7/?raw=1',
+                          timeout=TIMEOUT * 5, headers=HEADERS) as r:
+            r.raise_for_status()
+            with open(gz, 'wb') as f:
+                f.write(r.content)
+    gdir = os.path.join(cache, 'haberl2007_grids')
+    if not os.path.isdir(gdir):
+        with zipfile.ZipFile(gz) as z:
+            z.extractall(gdir)
+
+    nez = os.path.join(cache, 'ne_110m_admin_0_countries.zip')
+    if not os.path.exists(nez):
+        with requests.get('https://naciscdn.org/naturalearth/110m/cultural/'
+                          'ne_110m_admin_0_countries.zip',
+                          timeout=TIMEOUT * 2, headers=HEADERS) as r:
+            r.raise_for_status()
+            with open(nez, 'wb') as f:
+                f.write(r.content)
+
+    hg = rasterio.open(os.path.join(gdir, 'thanpppallgcm'))
+    ng = rasterio.open(os.path.join(gdir, 'tn0_all_gcm'))
+    Hd = hg.read(1).astype('float64')
+    Nd = ng.read(1).astype('float64')
+    valid = ((Hd != hg.nodata) & (Nd != ng.nodata)
+             & np.isfinite(Hd) & np.isfinite(Nd))
+    tr = hg.transform
+    height, width = hg.height, hg.width
+    lat = tr.f + (np.arange(height) + 0.5) * tr.e
+    wgrid = np.repeat(np.cos(np.deg2rad(lat))[:, None], width, axis=1)
+
+    g = gpd.read_file(f'zip://{nez}')
+    g['iso'] = g['ISO_A3_EH'].where(g['ISO_A3_EH'].str.len() == 3,
+                                    g['ADM0_ISO'])
+    g = g[(g['iso'].str.len() == 3) & (g['iso'] != '-99')].reset_index(drop=True)
+    cid = rasterize([(geom, i + 1) for i, geom in enumerate(g.geometry)],
+                    out_shape=(height, width), transform=tr, fill=0,
+                    dtype='int32')
+    sel = valid & (cid > 0)
+    idx = cid[sel]
+    num = np.bincount(idx, weights=(Hd * wgrid)[sel], minlength=len(g) + 1)
+    den = np.bincount(idx, weights=(Nd * wgrid)[sel], minlength=len(g) + 1)
+
+    gdp = _owid_csv('gdp-per-capita-worldbank')
+    gdp = gdp[gdp['Year'] == 2000].set_index('Code')['GDP per capita'].to_dict()
+    rows = []
+    for i in range(1, len(g) + 1):
+        iso = g.iloc[i - 1]['iso']
+        if den[i] > 0 and iso in gdp:
+            rows.append({'iso3': iso, 'gdp_pc_ppp': round(float(gdp[iso]), 1),
+                         'hanpp_pct': round(num[i] / den[i] * 100, 3)})
+    out = pd.DataFrame(rows).sort_values('gdp_pc_ppp')
+    if len(out) < 30:
+        raise RuntimeError("HANPP: unexpected row count")
+    return _save(out, 'hanpp_real.csv')
+
+
 FETCHERS = {
     'laffer': fetch_laffer,
     'great_gatsby': fetch_great_gatsby,
+    'hanpp': fetch_hanpp,
     'ekc_co2': fetch_ekc_co2,
     'keeling': fetch_keeling,
     'gutenberg_richter': fetch_gutenberg_richter,

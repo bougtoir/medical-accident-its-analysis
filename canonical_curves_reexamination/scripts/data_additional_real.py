@@ -70,6 +70,21 @@ def get_great_gatsby_real():
     ), len(df)
 
 
+def get_hanpp_real():
+    df = _load('hanpp_real.csv')
+    if df is None:
+        return None
+    df = df.dropna(subset=['gdp_pc_ppp', 'hanpp_pct'])
+    df = df[df['gdp_pc_ppp'] > 0]
+    labels = df['iso3'].values if 'iso3' in df.columns else None
+    return CurveReexamination(
+        "HANPP vs Development",
+        df['gdp_pc_ppp'].values, df['hanpp_pct'].values,
+        x_label="GDP per capita (PPP, $)", y_label="HANPP (% of NPP0)",
+        country_labels=labels, category="Environmental Science",
+    ), len(df)
+
+
 def get_ekc_co2_real():
     df = _load('ekc_co2_real.csv')
     if df is None:
@@ -404,6 +419,9 @@ ADDITIONAL_REAL = {
     'great_gatsby': (get_great_gatsby_real, 'Great Gatsby Curve',
                      'GDIM income mobility IGE (Munoz & van der Weide 2025) + '
                      'OWID/World Bank Gini; reconstruction'),
+    'hanpp': (get_hanpp_real, 'HANPP vs Development',
+              'Haberl et al. 2007 PNAS gridded HANPP/NPP0 (country zonal '
+              'aggregation) + OWID/World Bank GDP pc, year 2000'),
     'ekc_co2': (get_ekc_co2_real, 'Environmental Kuznets Curve (CO2)',
                 'World Bank WDI (API)'),
     'keeling': (get_keeling_real, 'Keeling Curve (CO2)',

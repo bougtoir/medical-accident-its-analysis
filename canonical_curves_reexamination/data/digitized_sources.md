@@ -87,3 +87,21 @@ WebPlotDigitizer. These are stored in `data/*_real.csv` and read by
     2000-2022 per country, rescaled to 0-100.
 - 83 economies with both variables. Replaces 23 hand-entered Gini/IGE values.
 - IGE per-country literature source is retained in the CSV (`ige_source`).
+
+## #32 HANPP vs Development — `hanpp_real.csv` (zonal aggregation of grids)
+- Source: Haberl, H., K.-H. Erb, F. Krausmann, V. Gaube, A. Bondeau, C. Plutzar,
+  S. Gingrich, W. Lucht & M. Fischer-Kowalski (2007) "Quantifying and mapping
+  the human appropriation of net primary production in Earth's terrestrial
+  ecosystems." PNAS 104(31):12942-12947 (doi:10.1073/pnas.0704243104).
+- Haberl 2007 does NOT publish a country-level HANPP table — only gridded data
+  (year 2000) and regional aggregates. Country values here are COMPUTED by
+  zonal aggregation of the official 5-arc-minute grids from the Global HANPP
+  Data package (all_grids.zip):
+    country HANPP% = 100 * Σ(HANPP_gCm2 · area) / Σ(NPP0_gCm2 · area)
+  over the country's land cells (cos-latitude area weights), using grids
+  `thanpppallgcm` (HANPP, gC/m²/yr) and `tn0_all_gcm` (NPP0, gC/m²/yr).
+  Country boundaries: Natural Earth 1:110m admin-0 (ISO_A3).
+- x = GDP per capita PPP (OWID / World Bank), year 2000, matched on ISO3.
+- 156 countries. Replaces 25 hand-entered HANPP/GDP values. Negative HANPP for
+  a few arid, heavily-irrigated countries (e.g. EGY, Gulf states) is a genuine
+  result of the aggregation (NPP0 near zero), retained rather than dropped.
