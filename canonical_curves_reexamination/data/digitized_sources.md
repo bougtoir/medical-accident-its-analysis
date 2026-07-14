@@ -28,3 +28,12 @@ WebPlotDigitizer. These are stored in `data/*_real.csv` and read by
   0.33h→58.2, 1h→44.2, 8.8h→35.8, 24h→33.7, 48h→27.8, 144h→25.4, 744h→21.1.
 - x = log(time in hours); y = retention (savings %). Not extrapolated — exactly
   the 7 intervals Ebbinghaus reported.
+
+## #29 Species-Area Curve — `species_area_real.csv`
+- Source: M. P. Johnson & P. H. Raven (1973) "Species number and endemism: The
+  Galápagos Archipelago revisited." Science 179(4076):893-895. Distributed as the
+  `gala` dataset in the R `faraway` package (extracted from the CRAN source
+  tarball `faraway/data/gala.rda`).
+- 30 Galápagos islands: island area (km²) and number of plant species.
+- x = log₁₀(Area, km²); y = log₁₀(Species). Replaces the previous invented
+  "representative" bird-species counts for Caribbean/global islands.

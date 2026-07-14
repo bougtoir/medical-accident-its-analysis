@@ -170,6 +170,22 @@ def get_rahn_real():
     ), len(df)
 
 
+def get_species_area_real():
+    df = _load('species_area_real.csv')
+    if df is None:
+        return None
+    df = df.dropna(subset=['Area', 'Species'])
+    df = df[(df['Area'] > 0) & (df['Species'] > 0)]
+    labels = df['island'].values if 'island' in df.columns else None
+    return CurveReexamination(
+        "Species-Area Curve",
+        np.log10(df['Area'].values), np.log10(df['Species'].values),
+        x_label="log₁₀(Area, km²)", y_label="log₁₀(Species Count)",
+        country_labels=labels, category="Environmental Science",
+        x_is_logged=True,
+    ), len(df)
+
+
 def get_ebbinghaus_real():
     df = _load('ebbinghaus_real.csv')
     if df is None:
@@ -355,6 +371,8 @@ ADDITIONAL_REAL = {
                       'Global BMI Mortality Collaboration 2016 Lancet (HRs, transcribed)'),
     'ebbinghaus': (get_ebbinghaus_real, 'Ebbinghaus Forgetting Curve',
                    'Ebbinghaus (1885) Ch.7 Table (7 intervals, public domain)'),
+    'species_area': (get_species_area_real, 'Species-Area Curve',
+                     'Johnson & Raven (1973) Galapagos plant species (gala, N=30)'),
 }
 
 

@@ -426,13 +426,13 @@
     "original_paper": "Arrhenius O (1921) J Ecol 9:95-99",
     "original_n": 20,
     "original_period": "Swedish plant communities",
-    "data_source": "Rosenzweig (1995) Species Diversity in Space and Time; BirdLife International",
-    "current_n": 28,
-    "current_period": "Current island bird species counts",
+    "data_source": "Johnson & Raven (1973) Science 179:893-895, Galapagos archipelago plant species vs island area (faraway 'gala' dataset; see data/digitized_sources.md)",
+    "current_n": null,
+    "current_period": "30 Galapagos islands (plant species vs area)",
     "x_variable": "log₁₀(Area, km²)",
     "y_variable": "log₁₀(Species count)",
     "claimed_form": "Power law S = cA^z (z ≈ 0.25)",
-    "country_scope": "Caribbean + global islands"
+    "country_scope": "Galapagos archipelago (30 islands)"
   },
   {
     "id": 30,

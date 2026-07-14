@@ -1716,61 +1716,61 @@
   {
     "name": "Species-Area Curve",
     "category": "Environmental Science",
-    "n": 28,
+    "n": 30,
     "x_label": "log\u2081\u2080(Area, km\u00b2)",
     "y_label": "log\u2081\u2080(Species Count)",
     "f_test": {
-      "f_stat": 7.99759572737905,
-      "p_value": 0.009091258895833954
+      "f_stat": 0.11914175129813265,
+      "p_value": 0.7326418236773651
     },
     "model_comparison": {
       "linear": {
-        "aic": -12.190817777107114,
-        "bic": -9.526408756756705,
-        "r2": 0.8518252067548133,
-        "r2_adj": 0.8461261762453831
+        "aic": 22.437508449520912,
+        "bic": 25.239903212845224,
+        "r2": 0.7571006989444142,
+        "r2_adj": 0.7484257239067147
       },
       "quadratic": {
-        "aic": -17.962466338651353,
-        "bic": -13.965852808125742,
-        "r2": 0.8877381897234395,
-        "r2_adj": 0.8787572449013147
+        "aic": 24.305419942664535,
+        "bic": 28.509012087651,
+        "r2": 0.7581678215098054,
+        "r2_adj": 0.740254326806828
       }
     },
     "loocv": {
-      "rmse_linear": 0.20029294059390987,
-      "rmse_quadratic": 0.1737509530772989
+      "rmse_linear": 0.3520462819196302,
+      "rmse_quadratic": 0.35786782706589126
     },
     "cooks_distance": {
-      "max": 0.8083427783820121,
-      "mean": 0.0560869362135006,
-      "n_influential": 2
+      "max": 0.14012683098124518,
+      "mean": 0.03511660762778225,
+      "n_influential": 1
     },
     "sensitivity": {
-      "f_full": 7.99759572737905,
-      "p_full": 0.009091258895833954,
-      "f_clean": 0.7965073181843219,
-      "p_clean": 0.3817981238957705,
+      "f_full": 0.11914175129813265,
+      "p_full": 0.7326418236773651,
+      "f_clean": 0.5926407620739979,
+      "p_clean": 0.448911171230034,
       "removed_indices": [
-        1,
-        21,
-        0
+        3,
+        6,
+        9
       ],
       "removed_labels": [
-        "Saba",
-        "Iceland",
-        "Redonda"
+        "Champion",
+        "Daphne.Minor",
+        "Enderby"
       ],
-      "n_full": 28,
-      "n_clean": 25
+      "n_full": 30,
+      "n_clean": 27
     },
     "verdict": {
-      "verdict": "OUTLIER_DEPENDENT",
-      "explanation": "Nonlinearity significant with full data (p=0.009) but NOT after removing top influential points (p=0.382)",
-      "best_aic": "quadratic",
-      "best_bic": "quadratic"
+      "verdict": "NOT_SIGNIFICANT",
+      "explanation": "Nonlinear term not significant even with full data (p=0.733)",
+      "best_aic": "linear",
+      "best_bic": "linear"
     },
-    "data_source": "Representative/Published"
+    "data_source": "Johnson & Raven (1973) Galapagos plant species (gala, N=30)"
   },
   {
     "name": "Hubbert Peak Oil (US)",
