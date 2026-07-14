@@ -226,6 +226,20 @@ def build_docx():
          "\u2014 regimen phase, health-system factors, or case mix \u2014 would require more TB "
          "cohorts with individual-level data and harmonized LTFU definitions. Until then, the "
          "honest reading is that TB retention is a heterogeneous target, not a single one.")
+    para(doc,
+         "The observation has practical implications for TB programmes, particularly in "
+         "resource-limited, high-burden settings where retention resources are scarce and must be "
+         "targeted. Because the hazard shape encodes *when* patients disengage, it maps directly "
+         "onto the timing of adherence support: a front-loaded (DFR) setting argues for "
+         "concentrating counselling, financial or social support in the intensive phase, whereas a "
+         "late-accelerating (IFR) setting argues for sustained or intensified support in the "
+         "continuation phase. A retention package optimized for one hazard shape will be mistimed "
+         "in the other, which offers a concrete, quantitative reason why globally standardized "
+         "adherence interventions have shown inconsistent effects across programmes{3}. Routinely "
+         "reporting the time-to-LTFU curve \u2014 not only the final cumulative proportion \u2014 "
+         "would let national programmes locate their own hazard shape and time support "
+         "accordingly, and would make cross-country evidence poolable in a way that a single "
+         "summary statistic cannot.")
 
     heading(doc, "Limitations")
     para(doc,
@@ -290,6 +304,73 @@ def build_pptx():
     prs.save(path); print("wrote", path)
 
 
+def build_title_page():
+    doc = Document()
+    for s in doc.sections:
+        s.left_margin = s.right_margin = Inches(1)
+    t = doc.add_paragraph(); t.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    r = t.add_run("Divergent hazard shapes of tuberculosis treatment loss to follow-up: a "
+                  "reproducible analysis of published curves quantifying the heterogeneity "
+                  "that hinders a unified retention intervention")
+    r.bold = True; r.font.size = Pt(14)
+    para(doc, "Article type: Research article (short communication)", space_before=10)
+    heading(doc, "Authors")
+    para(doc, "Tatsuki Onishi [AUTHOR ORDER / ADDITIONAL CO-AUTHORS TO BE CONFIRMED]")
+    heading(doc, "Affiliations")
+    para(doc, "1. [Institution, Department, City, Country \u2014 TO BE CONFIRMED]")
+    heading(doc, "Corresponding author")
+    para(doc, "Tatsuki Onishi. Email: bougtoir@gmail.com. [Postal address / ORCID "
+              "\u2014 TO BE CONFIRMED]")
+    heading(doc, "Declarations")
+    para(doc, "Competing interests: none declared. Funding: none. Ethics approval and consent to "
+              "participate: not applicable (secondary analysis of published aggregate data).")
+    path = os.path.join(OUT, "title_page.docx")
+    doc.save(path); print("wrote", path)
+
+
+def build_cover_letter():
+    doc = Document()
+    for s in doc.sections:
+        s.left_margin = s.right_margin = Inches(1)
+    para(doc, "[Date / your address block \u2014 TO BE CONFIRMED]")
+    para(doc, "Prof. Xiao-Nong Zhou, Editor-in-Chief", space_before=12)
+    para(doc, "Infectious Diseases of Poverty", space_before=2)
+    para(doc, "Dear Professor Zhou and Editors,", space_before=12)
+    para(doc,
+         "Please consider our short communication, \u201cDivergent hazard shapes of tuberculosis "
+         "treatment loss to follow-up: a reproducible analysis of published curves quantifying the "
+         "heterogeneity that hinders a unified retention intervention\u201d, for publication in "
+         "Infectious Diseases of Poverty.", space_before=8)
+    para(doc,
+         "Loss to follow-up (LTFU) during tuberculosis (TB) treatment is a central obstacle to "
+         "cure and transmission control in resource-limited, high-burden settings. It is already "
+         "recognized that the determinants of treatment interruption are context-dependent and "
+         "that adherence interventions transfer poorly between programmes, but this has remained a "
+         "qualitative observation. We give it a quantitative handle by asking whether the timing "
+         "of LTFU \u2014 its hazard shape \u2014 is consistent across settings. Fitting Weibull "
+         "cumulative-incidence models to real, published time-to-event curves, we find that two TB "
+         "cohorts fall on opposite sides of a constant hazard (one increasing, one decreasing), "
+         "whereas two unrelated chronic-treatment comparators are mutually consistent. This offers "
+         "a compact, reproducible explanation for why pooled TB evidence and a single unified "
+         "retention strategy are hard to build, and it argues for routinely reporting the "
+         "time-to-LTFU curve so programmes can time adherence support to their own hazard shape.",
+         space_before=8)
+    para(doc,
+         "We believe this fits the scope of Infectious Diseases of Poverty: it addresses treatment "
+         "and case management of a major infectious disease of poverty, has direct implications "
+         "for TB programme implementation and health systems, and is fully reproducible \u2014 all "
+         "source figures, digitized data and analysis code that regenerate every reported number "
+         "are openly available. The work is original, is not under consideration elsewhere, and "
+         "all authors approve the submission. We declare no competing interests.", space_before=8)
+    para(doc, "Thank you for your consideration.", space_before=8)
+    para(doc, "Sincerely,", space_before=12)
+    para(doc, "Tatsuki Onishi, on behalf of the authors", space_before=2)
+    path = os.path.join(OUT, "cover_letter.docx")
+    doc.save(path); print("wrote", path)
+
+
 if __name__ == "__main__":
     build_docx()
     build_pptx()
+    build_title_page()
+    build_cover_letter()
