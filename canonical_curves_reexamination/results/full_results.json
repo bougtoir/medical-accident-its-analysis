@@ -368,67 +368,67 @@
   {
     "name": "Engel Curve",
     "category": "Economics",
-    "n": 30,
+    "n": 102,
     "x_label": "GDP per capita (PPP, $)",
     "y_label": "Food Expenditure Share (%)",
     "f_test": {
-      "f_stat": 9.791731769207434,
-      "p_value": 0.004176357645441775
+      "f_stat": 33.840749880028945,
+      "p_value": 7.365818865956442e-08
     },
     "model_comparison": {
       "linear": {
-        "aic": 208.27045698230637,
-        "bic": 211.0728517456307,
-        "r2": 0.7156599228109661,
-        "r2_adj": 0.705504920054215
+        "aic": 717.2321051590304,
+        "bic": 722.482050785599,
+        "r2": 0.5674529886539985,
+        "r2_adj": 0.5631275185405384
       },
       "quadratic": {
-        "aic": 200.9873687700583,
-        "bic": 205.19096091504477,
-        "r2": 0.7913340385208701,
-        "r2_adj": 0.7758773006335271
+        "aic": 689.240923641872,
+        "bic": 697.1158420817247,
+        "r2": 0.6776429359068836,
+        "r2_adj": 0.6711306719858106
       },
       "log": {
-        "aic": 189.13590415727157,
-        "bic": 191.93829892059588,
-        "r2": 0.8497421904393461,
-        "r2_adj": 0.8443758400978941
+        "aic": 695.5922065567261,
+        "bic": 700.8421521832946,
+        "r2": 0.6501392743523586,
+        "r2_adj": 0.6466406670958822
       }
     },
     "loocv": {
-      "rmse_linear": 7.873407914918447,
-      "rmse_quadratic": 7.484055367835934
+      "rmse_linear": 8.232428892912807,
+      "rmse_quadratic": 7.091119115072552
     },
     "cooks_distance": {
-      "max": 0.31119166900585893,
-      "mean": 0.041604831449847064,
-      "n_influential": 3
+      "max": 0.367762972778942,
+      "mean": 0.01617138807849313,
+      "n_influential": 9
     },
     "sensitivity": {
-      "f_full": 9.791731769207434,
-      "p_full": 0.004176357645441775,
-      "f_clean": 4.055678454086299,
-      "p_clean": 0.05536467159099179,
+      "f_full": 33.840749880028945,
+      "p_full": 7.365818865956442e-08,
+      "f_clean": 11.839815925896888,
+      "p_clean": 0.0008599108056359661,
       "removed_indices": [
-        18,
-        16,
-        0
+        45,
+        80,
+        84
       ],
       "removed_labels": [
-        "Ethiopia",
-        "Nigeria",
-        "USA"
+        "Ireland",
+        "Qatar",
+        "Singapore"
       ],
-      "n_full": 30,
-      "n_clean": 27
+      "n_full": 102,
+      "n_clean": 99
     },
     "verdict": {
-      "verdict": "OUTLIER_DEPENDENT",
-      "explanation": "Nonlinearity significant with full data (p=0.004) but NOT after removing top influential points (p=0.055)",
-      "best_aic": "log",
-      "best_bic": "log"
+      "verdict": "ROBUST_NONLINEAR",
+      "explanation": "Nonlinearity is robust: significant F-test (p=0.000), survives outlier removal (p=0.001), better LOOCV",
+      "best_aic": "quadratic",
+      "best_bic": "quadratic"
     },
-    "data_source": "Representative/Published"
+    "data_source": "OWID food expenditure share (USDA) + World Bank WDI GDP pc PPP"
   },
   {
     "name": "J-Curve (Trade)",
@@ -488,67 +488,67 @@
   {
     "name": "Rahn Curve",
     "category": "Economics",
-    "n": 36,
+    "n": 151,
     "x_label": "Government Spending (% of GDP)",
-    "y_label": "Real GDP Growth (%)",
+    "y_label": "Real GDP Growth (%, 2010-2019 avg)",
     "f_test": {
-      "f_stat": 0.0022530879834203534,
-      "p_value": 0.9624273753461711
+      "f_stat": 3.846603429496603,
+      "p_value": 0.0517236380470143
     },
     "model_comparison": {
       "linear": {
-        "aic": 136.57520523696905,
-        "bic": 139.74224311388127,
-        "r2": 0.33176975069485115,
-        "r2_adj": 0.3121159198329351
+        "aic": 680.675850611018,
+        "bic": 686.7104102846478,
+        "r2": 0.09667887701843969,
+        "r2_adj": 0.09061631914608015
       },
       "quadratic": {
-        "aic": 138.57274740670906,
-        "bic": 143.32330422207738,
-        "r2": 0.33181537126326677,
-        "r2_adj": 0.2913193331580103
+        "aic": 678.8014096296799,
+        "bic": 687.8532491401247,
+        "r2": 0.11956195804310632,
+        "r2_adj": 0.10766414666531043
       },
       "log": {
-        "aic": 137.5953995069979,
-        "bic": 140.7624373839101,
-        "r2": 0.31256207919133483,
-        "r2_adj": 0.29234331681460946
+        "aic": 679.6583260948742,
+        "bic": 685.692885768504,
+        "r2": 0.10274550912924063,
+        "r2_adj": 0.09672366690863143
       }
     },
     "loocv": {
-      "rmse_linear": 1.609896594002447,
-      "rmse_quadratic": 1.6420013433285776
+      "rmse_linear": 2.314919883377483,
+      "rmse_quadratic": 2.357651336701818
     },
     "cooks_distance": {
-      "max": 0.2562186624683092,
-      "mean": 0.027732768655821367,
-      "n_influential": 3
+      "max": 0.6245428869945581,
+      "mean": 0.009248632922113706,
+      "n_influential": 8
     },
     "sensitivity": {
-      "f_full": 0.0022530879834203534,
-      "p_full": 0.9624273753461711,
-      "f_clean": 0.306835014429229,
-      "p_clean": 0.5837345301414798,
+      "f_full": 3.846603429496603,
+      "p_full": 0.0517236380470143,
+      "f_clean": 0.7800544713862833,
+      "p_clean": 0.37858644524947493,
       "removed_indices": [
-        33,
-        34,
-        4
+        149,
+        146,
+        80
       ],
       "removed_labels": [
-        "India",
-        "China",
-        "Ireland"
+        "Yemen",
+        "Venezuela",
+        "Kiribati"
       ],
-      "n_full": 36,
-      "n_clean": 33
+      "n_full": 151,
+      "n_clean": 148
     },
     "verdict": {
       "verdict": "NOT_SIGNIFICANT",
-      "explanation": "Nonlinear term not significant even with full data (p=0.962)",
-      "best_aic": "linear",
-      "best_bic": "linear"
+      "explanation": "Nonlinear term not significant even with full data (p=0.052)",
+      "best_aic": "quadratic",
+      "best_bic": "log"
     },
-    "data_source": "Representative/Published"
+    "data_source": "OWID govt expenditure (IMF) + World Bank WDI GDP growth"
   },
   {
     "name": "Gravity Model of Trade",

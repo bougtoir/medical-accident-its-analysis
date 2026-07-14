@@ -495,6 +495,83 @@ def fetch_easterlin():
     return _save(df, 'easterlin_real.csv')
 
 
+def _owid_csv(slug):
+    url = f'https://ourworldindata.org/grapher/{slug}.csv?v=1&csvType=full'
+    r = requests.get(url, timeout=TIMEOUT, headers=HEADERS)
+    r.raise_for_status()
+    from io import StringIO
+    df = pd.read_csv(StringIO(r.text))
+    return df[df['Code'].notna() & (df['Code'].str.len() == 3)]
+
+
+def _wdi_latest_by_iso3(indicator, years):
+    """Return {iso3: {year: value}} for a WDI indicator over a year range."""
+    import wbgapi as wb
+    df = wb.data.DataFrame(indicator, time=years, labels=False)
+    out = {}
+    for iso3, row in df.iterrows():
+        for col, val in row.items():
+            if pd.notna(val):
+                yr = int(''.join(ch for ch in col if ch.isdigit()))
+                out.setdefault(iso3, {})[yr] = float(val)
+    return out
+
+
+def fetch_engel():
+    """#7 Engel Curve: GDP per capita vs food expenditure share (cross-section).
+
+    Food share: OWID 'share-of-consumer-expenditure-spent-on-food' (USDA ERS).
+    Income: World Bank WDI GDP per capita PPP (NY.GDP.PCAP.PP.KD).
+    Matched by ISO3 on each country's most recent common year.
+    """
+    food = _owid_csv('share-of-consumer-expenditure-spent-on-food')
+    food.columns = list(food.columns[:3]) + ['food_share']
+    gdp = _wdi_latest_by_iso3('NY.GDP.PCAP.PP.KD', range(2010, 2024))
+    rows = []
+    for code, g in food.groupby('Code'):
+        for _, rec in g.sort_values('Year')[::-1].iterrows():
+            yr = int(rec['Year'])
+            if code in gdp and yr in gdp[code]:
+                rows.append({'country': rec['Entity'], 'iso3': code, 'year': yr,
+                             'gdp_pc_ppp': gdp[code][yr],
+                             'food_share': float(rec['food_share'])})
+                break
+    df = pd.DataFrame(rows)
+    df = df[(df['gdp_pc_ppp'] > 0) & (df['food_share'] > 0)]
+    if len(df) < 30:
+        raise RuntimeError("Engel: insufficient OWID/WDI overlap")
+    return _save(df, 'engel_real.csv')
+
+
+def fetch_rahn():
+    """#9 Rahn Curve: government size vs economic growth (cross-section).
+
+    Government expenditure (% GDP): OWID 'historical-gov-spending-gdp'
+    (IMF general government total expenditure), decade mean 2010-2019.
+    Growth: World Bank WDI real GDP growth (NY.GDP.MKTP.KD.ZG), same window.
+    Matched by ISO3.
+    """
+    gov = _owid_csv('historical-gov-spending-gdp')
+    gov.columns = list(gov.columns[:3]) + list(gov.columns[3:])
+    gov_col = [c for c in gov.columns if 'expenditure' in c.lower()][0]
+    gov = gov[(gov['Year'] >= 2010) & (gov['Year'] <= 2019)]
+    gov_mean = gov.groupby(['Code', 'Entity'])[gov_col].mean().reset_index()
+    growth = _wdi_latest_by_iso3('NY.GDP.MKTP.KD.ZG', range(2010, 2020))
+    rows = []
+    for _, rec in gov_mean.iterrows():
+        code = rec['Code']
+        if code in growth and growth[code]:
+            g = np.mean(list(growth[code].values()))
+            rows.append({'country': rec['Entity'], 'iso3': code,
+                         'gov_expenditure_gdp': float(rec[gov_col]),
+                         'gdp_growth': float(g)})
+    df = pd.DataFrame(rows)
+    df = df[df['gov_expenditure_gdp'] > 0]
+    if len(df) < 30:
+        raise RuntimeError("Rahn: insufficient OWID/WDI overlap")
+    return _save(df, 'rahn_real.csv')
+
+
 FETCHERS = {
     'ekc_co2': fetch_ekc_co2,
     'keeling': fetch_keeling,
@@ -509,6 +586,8 @@ FETCHERS = {
     'zipf': fetch_zipf,
     'lee_carter': fetch_lee_carter,
     'easterlin': fetch_easterlin,
+    'engel': fetch_engel,
+    'rahn': fetch_rahn,
 }
 
 

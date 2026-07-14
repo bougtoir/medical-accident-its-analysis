@@ -139,6 +139,37 @@ def get_beveridge_real():
     ), len(df)
 
 
+def get_engel_real():
+    df = _load('engel_real.csv')
+    if df is None:
+        return None
+    df = df.dropna(subset=['gdp_pc_ppp', 'food_share'])
+    df = df[(df['gdp_pc_ppp'] > 0) & (df['food_share'] > 0)]
+    labels = df['country'].values if 'country' in df.columns else None
+    return CurveReexamination(
+        "Engel Curve",
+        df['gdp_pc_ppp'].values, df['food_share'].values,
+        x_label="GDP per capita (PPP, $)", y_label="Food Expenditure Share (%)",
+        country_labels=labels, category="Economics",
+    ), len(df)
+
+
+def get_rahn_real():
+    df = _load('rahn_real.csv')
+    if df is None:
+        return None
+    df = df.dropna(subset=['gov_expenditure_gdp', 'gdp_growth'])
+    df = df[df['gov_expenditure_gdp'] > 0]
+    labels = df['country'].values if 'country' in df.columns else None
+    return CurveReexamination(
+        "Rahn Curve",
+        df['gov_expenditure_gdp'].values, df['gdp_growth'].values,
+        x_label="Government Spending (% of GDP)",
+        y_label="Real GDP Growth (%, 2010-2019 avg)",
+        country_labels=labels, category="Economics",
+    ), len(df)
+
+
 def get_easterlin_real():
     df = _load('easterlin_real.csv')
     if df is None:
@@ -253,6 +284,10 @@ ADDITIONAL_REAL = {
                    'HMD USA death rates (Lee-Carter SVD kappa_t)'),
     'easterlin': (get_easterlin_real, 'Easterlin Paradox',
                   'OWID Cantril ladder (WHR) + World Bank WDI GDP pc PPP'),
+    'engel': (get_engel_real, 'Engel Curve',
+              'OWID food expenditure share (USDA) + World Bank WDI GDP pc PPP'),
+    'rahn': (get_rahn_real, 'Rahn Curve',
+             'OWID govt expenditure (IMF) + World Bank WDI GDP growth'),
 }
 
 
