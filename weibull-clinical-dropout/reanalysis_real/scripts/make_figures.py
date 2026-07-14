@@ -1,0 +1,57 @@
+"""Plot digitized LTFU data with fitted Weibull cumulative-incidence curves.
+
+Reads data/*.csv and results/weibull_fits.csv (no hard-coded numbers) and
+writes figures/weibull_real_fits.png.
+"""
+import os
+import numpy as np
+import pandas as pd
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+
+HERE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DATA = os.path.join(HERE, "data")
+RESULTS = os.path.join(HERE, "results")
+FIGDIR = os.path.join(HERE, "figures")
+os.makedirs(FIGDIR, exist_ok=True)
+
+
+def weibull_cdf(t, k, lam):
+    return 1.0 - np.exp(-(t / lam) ** k)
+
+
+def load(fn):
+    df = pd.read_csv(os.path.join(DATA, fn), comment="#").dropna()
+    return df[df["time_months"] > 0]
+
+
+def main():
+    fits = pd.read_csv(os.path.join(RESULTS, "weibull_fits.csv")).set_index("dataset")
+    panels = [
+        ("Ethiopia", "ethiopia_ltfu_cif.csv", 6),
+        ("China", "china_ltfu_cif.csv", 12),
+    ]
+    fig, axes = plt.subplots(1, 2, figsize=(11, 4.5))
+    for ax, (name, fn, tmax) in zip(axes, panels):
+        df = load(fn)
+        r = fits.loc[name]
+        tt = np.linspace(0.01, tmax, 200)
+        ax.scatter(df["time_months"], df["cum_ltfu_incidence"], s=18, color="#333",
+                   label="Digitized data", zorder=3)
+        ax.plot(tt, weibull_cdf(tt, r["k"], r["lam"]), color="#c0392b", lw=2,
+                label=f"Weibull fit (k={r['k']:.2f}, 95%CI {r['k_lo']:.2f}-{r['k_hi']:.2f})")
+        ax.set_title(f"{name}  \u2014  {r['hazard_pattern']}", fontsize=11)
+        ax.set_xlabel("Time on TB treatment (months)")
+        ax.set_ylabel("Cumulative LTFU incidence")
+        ax.legend(fontsize=8, loc="upper left")
+        ax.grid(alpha=0.3)
+    fig.suptitle("Weibull fits to real, digitized TB treatment LTFU curves", fontsize=12)
+    fig.tight_layout(rect=[0, 0, 1, 0.96])
+    out = os.path.join(FIGDIR, "weibull_real_fits.png")
+    fig.savefig(out, dpi=150)
+    print("wrote", out)
+
+
+if __name__ == "__main__":
+    main()
