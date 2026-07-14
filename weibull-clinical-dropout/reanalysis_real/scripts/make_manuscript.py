@@ -48,6 +48,9 @@ REFERENCES = [
     "Isidoro Garcia M, et al. Time to discontinuation in routine clinical practice of the "
     "initially prescribed antipsychotic treatment in patients with first-episode psychosis. "
     "Eur Psychiatry. 2025;68(Suppl):PMC12437960.",
+    "Yu Y, Xian S, Yang D, Mu L, Han Y, Luo W, et al. Temporal trends in tuberculosis "
+    "incidence among the aging population in Southwest China: a retrospective study. "
+    "BMC Geriatr. 2026;26:373. doi:10.1186/s12877-026-07373-2.",
 ]
 
 
@@ -131,7 +134,7 @@ def build_docx():
          "interventions may pool more readily. The cause of the divergence is unknown and warrants "
          "individual-level study.", space_before=4)
     para(doc, "**Keywords** Tuberculosis; Loss to follow-up; Treatment adherence; Weibull; "
-              "Hazard function; Survival analysis; Health systems", space_before=4)
+              "Hazard function; Survival analysis; Age at onset; Health systems", space_before=4)
 
     heading(doc, "Background")
     para(doc,
@@ -226,6 +229,21 @@ def build_docx():
          "\u2014 regimen phase, health-system factors, or case mix \u2014 would require more TB "
          "cohorts with individual-level data and harmonized LTFU definitions. Until then, the "
          "honest reading is that TB retention is a heterogeneous target, not a single one.")
+    para(doc,
+         "One candidate deserves explicit mention because it could unify the two observations "
+         "\u2014 that the unrelated comparators behaved alike while the two TB settings did not "
+         "\u2014 namely the age structure of disease onset. The two TB cohorts arise from "
+         "demographically divergent epidemics: TB in China is increasingly concentrated in the "
+         "elderly{8}, whereas high-burden sub-Saharan settings such as Ethiopia are dominated by "
+         "young adults, and age was itself a significant risk factor for LTFU in the Ethiopian "
+         "cohort{4}. If the age-at-onset distribution governs competing mortality, comorbidity and "
+         "the reasons patients disengage, it could plausibly determine whether the LTFU hazard "
+         "rises or falls over the course of treatment \u2014 in effect a time-to-onset (age) "
+         "distribution modulating the time-to-LTFU hazard. We stress that this is a hypothesis, "
+         "not a result: our curves are aggregate and not age-stratified, so neither an "
+         "age-at-onset distribution nor an age-by-LTFU-timing interaction can be fitted here "
+         "without inventing data. Testing it would require age-stratified time-to-LTFU curves or "
+         "individual patient data.")
     para(doc,
          "The observation has practical implications for TB programmes, particularly in "
          "resource-limited, high-burden settings where retention resources are scarce and must be "
