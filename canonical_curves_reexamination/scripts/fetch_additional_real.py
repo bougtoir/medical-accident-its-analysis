@@ -572,6 +572,26 @@ def fetch_rahn():
     return _save(df, 'rahn_real.csv')
 
 
+def fetch_hubble():
+    """#40 Hubble's Law: distance vs recession velocity (original 1929 data).
+
+    Hubble E (1929) PNAS 15(3):168-173, Table 1 (24 extra-galactic nebulae),
+    public domain. Machine-readable transcription fetched from a public mirror;
+    values are the original published distances (Mpc) and velocities (km/s).
+    """
+    url = ('https://raw.githubusercontent.com/behrouzz/astrodatascience/'
+           'main/data/hubble1929.csv')
+    r = requests.get(url, timeout=TIMEOUT, headers=HEADERS)
+    r.raise_for_status()
+    from io import StringIO
+    df = pd.read_csv(StringIO(r.text))
+    df.columns = ['object', 'distance_mpc', 'velocity_kms']
+    df = df.dropna(subset=['distance_mpc', 'velocity_kms'])
+    if len(df) < 20:
+        raise RuntimeError("Hubble: unexpected row count")
+    return _save(df, 'hubble_real.csv')
+
+
 FETCHERS = {
     'ekc_co2': fetch_ekc_co2,
     'keeling': fetch_keeling,
@@ -588,6 +608,7 @@ FETCHERS = {
     'easterlin': fetch_easterlin,
     'engel': fetch_engel,
     'rahn': fetch_rahn,
+    'hubble': fetch_hubble,
 }
 
 

@@ -2375,67 +2375,67 @@
   {
     "name": "Hubble's Law",
     "category": "Physics",
-    "n": 27,
+    "n": 24,
     "x_label": "Distance (Mpc)",
     "y_label": "Recession Velocity (km/s)",
     "f_test": {
-      "f_stat": 4.98084808351264,
-      "p_value": 0.035226884850057205
+      "f_stat": 0.056741422998258594,
+      "p_value": 0.8140313426680617
     },
     "model_comparison": {
       "linear": {
-        "aic": 406.7528243964378,
-        "bic": 409.34449812844645,
-        "r2": 0.5050024154095298,
-        "r2_adj": 0.485202512025911
+        "aic": 331.65221607953947,
+        "bic": 334.00832374023537,
+        "r2": 0.6235305209067517,
+        "r2_adj": 0.6064182718570585
       },
       "quadratic": {
-        "aic": 403.6611273913765,
-        "bic": 407.5486379893895,
-        "r2": 0.5900761083341157,
-        "r2_adj": 0.5559157840286254
+        "aic": 333.587456189346,
+        "bic": 337.1216176803899,
+        "r2": 0.6245449900275926,
+        "r2_adj": 0.5887873700302204
       },
       "log": {
-        "aic": 402.30268713314575,
-        "bic": 404.8943608651544,
-        "r2": 0.5802190681781829,
-        "r2_adj": 0.5634278309053102
+        "aic": 344.2638045675114,
+        "bic": 346.6199122282073,
+        "r2": 0.3632864726738011,
+        "r2_adj": 0.33434494870442844
       }
     },
     "loocv": {
-      "rmse_linear": 452.5661062654833,
-      "rmse_quadratic": 440.5884337515397
+      "rmse_linear": 243.9282157919774,
+      "rmse_quadratic": 259.9039080765738
     },
     "cooks_distance": {
-      "max": 0.45400480509137564,
-      "mean": 0.04021500173231561,
+      "max": 0.2954660674392411,
+      "mean": 0.04773188028132164,
       "n_influential": 1
     },
     "sensitivity": {
-      "f_full": 4.98084808351264,
-      "p_full": 0.035226884850057205,
-      "f_clean": 3.2714090015510053,
-      "p_clean": 0.08483891950022882,
+      "f_full": 0.056741422998258594,
+      "p_full": 0.8140313426680617,
+      "f_clean": 0.020416801846920435,
+      "p_clean": 0.8879664773441711,
       "removed_indices": [
-        7,
-        25,
-        24
+        15,
+        1,
+        20
       ],
       "removed_labels": [
-        "NGC4639",
-        "NGC4526",
-        "NGC3370"
+        "NGC.1068",
+        "L.Mag",
+        "NGC.4382"
       ],
-      "n_full": 27,
-      "n_clean": 24
+      "n_full": 24,
+      "n_clean": 21
     },
     "verdict": {
-      "verdict": "OUTLIER_DEPENDENT",
-      "explanation": "Nonlinearity significant with full data (p=0.035) but NOT after removing top influential points (p=0.085)",
-      "best_aic": "log",
-      "best_bic": "log"
+      "verdict": "NOT_SIGNIFICANT",
+      "explanation": "Nonlinear term not significant even with full data (p=0.814)",
+      "best_aic": "linear",
+      "best_bic": "linear"
     },
-    "data_source": "Representative/Published"
+    "data_source": "Hubble (1929) PNAS Table 1 (24 nebulae, public domain)"
   },
   {
     "name": "Kleiber's Law",

@@ -170,6 +170,20 @@ def get_rahn_real():
     ), len(df)
 
 
+def get_hubble_real():
+    df = _load('hubble_real.csv')
+    if df is None:
+        return None
+    df = df.dropna(subset=['distance_mpc', 'velocity_kms'])
+    labels = df['object'].values if 'object' in df.columns else None
+    return CurveReexamination(
+        "Hubble's Law",
+        df['distance_mpc'].values, df['velocity_kms'].values,
+        x_label="Distance (Mpc)", y_label="Recession Velocity (km/s)",
+        country_labels=labels, category="Physics",
+    ), len(df)
+
+
 def get_easterlin_real():
     df = _load('easterlin_real.csv')
     if df is None:
@@ -288,6 +302,8 @@ ADDITIONAL_REAL = {
               'OWID food expenditure share (USDA) + World Bank WDI GDP pc PPP'),
     'rahn': (get_rahn_real, 'Rahn Curve',
              'OWID govt expenditure (IMF) + World Bank WDI GDP growth'),
+    'hubble': (get_hubble_real, "Hubble's Law",
+               'Hubble (1929) PNAS Table 1 (24 nebulae, public domain)'),
 }
 
 
