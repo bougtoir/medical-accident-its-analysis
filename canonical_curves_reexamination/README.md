@@ -113,9 +113,12 @@ Not all 52 curves currently use fully traceable real data. Status:
   #31 Keeling, #33 Jevons, #34 Forest Transition, #40 Hubble,
   #42 Gutenberg-Richter, #43 Moore's Law, #44 Lipset, #46 Zipf,
   #50 Green Revolution.
-- **The remaining 27 curves still use hard-coded arrays** in `scripts/data_*.py`
+- **Curves digitized/transcribed from the original published figure or table**
+  (values verifiable against the cited source; see `data/digitized_sources.md`):
+  #21 BMI-Mortality (Global BMI Mortality Collaboration 2016 Lancet).
+- **The remaining curves still use hard-coded arrays** in `scripts/data_*.py`
   and are being migrated to real, primary-source data. Until a curve appears in
-  the list above, treat its values as provisional. #35 Yerkes-Dodson is
+  the lists above, treat its values as provisional. #35 Yerkes-Dodson is
   currently **synthetic** (generated with `numpy.random`) and must be replaced
   with real data, dropped, or explicitly relabeled as a simulation.
 

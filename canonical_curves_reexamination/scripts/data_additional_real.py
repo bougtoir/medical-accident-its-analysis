@@ -170,6 +170,19 @@ def get_rahn_real():
     ), len(df)
 
 
+def get_bmi_mortality_real():
+    df = _load('bmi_mortality_real.csv')
+    if df is None:
+        return None
+    df = df.dropna(subset=['bmi_mid', 'hr'])
+    return CurveReexamination(
+        "BMI-Mortality J-Curve",
+        df['bmi_mid'].values, df['hr'].values,
+        x_label="BMI (kg/m²)", y_label="Relative Risk (all-cause mortality)",
+        category="Public Health",
+    ), len(df)
+
+
 def get_gravity_real():
     df = _load('gravity_real.csv')
     if df is None:
@@ -324,6 +337,8 @@ ADDITIONAL_REAL = {
                'Hubble (1929) PNAS Table 1 (24 nebulae, public domain)'),
     'gravity': (get_gravity_real, 'Gravity Model of Trade',
                 'CEPII Gravity V202211 (GDP, distance, BACI trade; 2019)'),
+    'bmi_mortality': (get_bmi_mortality_real, 'BMI-Mortality J-Curve',
+                      'Global BMI Mortality Collaboration 2016 Lancet (HRs, transcribed)'),
 }
 
 

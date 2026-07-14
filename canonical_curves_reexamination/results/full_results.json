@@ -1236,63 +1236,63 @@
   {
     "name": "BMI-Mortality J-Curve",
     "category": "Public Health",
-    "n": 22,
+    "n": 9,
     "x_label": "BMI (kg/m\u00b2)",
-    "y_label": "Relative Risk (All-cause Mortality)",
+    "y_label": "Relative Risk (all-cause mortality)",
     "f_test": {
-      "f_stat": 212.40438712037073,
-      "p_value": 9.125367128604012e-12
+      "f_stat": 12.202282010929505,
+      "p_value": 0.012933252123455197
     },
     "model_comparison": {
       "linear": {
-        "aic": 1.5328627256409817,
-        "bic": 3.714947632357614,
-        "r2": 0.278130422498979,
-        "r2_adj": 0.2420369436239279
+        "aic": 6.862440558286739,
+        "bic": 7.256889712959178,
+        "r2": 0.729155996909985,
+        "r2_adj": 0.6904639964685544
       },
       "quadratic": {
-        "aic": -51.461148752192955,
-        "bic": -48.188021392118,
-        "r2": 0.9407292050803474,
-        "r2_adj": 0.9344901740361734
+        "aic": -1.1256469616080516,
+        "bic": -0.5339732295993933,
+        "r2": 0.9107219623581084,
+        "r2_adj": 0.8809626164774779
       },
       "log": {
-        "aic": 4.4669709368330075,
-        "bic": 6.64905584354964,
-        "r2": 0.1751405261908876,
-        "r2_adj": 0.1338975525004319
+        "aic": 10.83131533843406,
+        "bic": 11.2257644931065,
+        "r2": 0.579043666471753,
+        "r2_adj": 0.5189070473962891
       }
     },
     "loocv": {
-      "rmse_linear": 0.2671459635818001,
-      "rmse_quadratic": 0.09146517711258181
+      "rmse_linear": 0.43683787742948077,
+      "rmse_quadratic": 0.7161616309940924
     },
     "cooks_distance": {
-      "max": 0.7497323631105385,
-      "mean": 0.09042008315638492,
-      "n_influential": 3
+      "max": 2.065111867673563,
+      "mean": 0.3566526696903496,
+      "n_influential": 2
     },
     "sensitivity": {
-      "f_full": 212.40438712037073,
-      "p_full": 9.125367128604012e-12,
-      "f_clean": 256.188213691328,
-      "p_clean": 2.8758329051470355e-11,
+      "f_full": 12.202282010929505,
+      "p_full": 0.012933252123455197,
+      "f_clean": 62.10036768271713,
+      "p_clean": 0.004258034625529539,
       "removed_indices": [
-        1,
+        4,
         0,
-        21
+        8
       ],
       "removed_labels": null,
-      "n_full": 22,
-      "n_clean": 19
+      "n_full": 9,
+      "n_clean": 6
     },
     "verdict": {
-      "verdict": "ROBUST_NONLINEAR",
-      "explanation": "Nonlinearity is robust: significant F-test (p=0.000), survives outlier removal (p=0.000), better LOOCV",
+      "verdict": "OVERFITTING",
+      "explanation": "Nonlinearity significant but LOOCV shows quadratic overfits (RMSE_lin=0.437, RMSE_quad=0.716)",
       "best_aic": "quadratic",
       "best_bic": "quadratic"
     },
-    "data_source": "Representative/Published"
+    "data_source": "Global BMI Mortality Collaboration 2016 Lancet (HRs, transcribed)"
   },
   {
     "name": "Alcohol-Mortality J-Curve",
