@@ -118,3 +118,21 @@ WebPlotDigitizer. These are stored in `data/*_real.csv` and read by
     surveys), value from the year nearest the TV survey (recorded per row).
 - 22 European countries. Replaces 25 hand-entered TV-hours/trust values.
   Coverage is European only; labelled as a proxy, not a Putnam replication.
+
+## #27 Replacement Migration Curve — `replacement_migration_real.csv` (UN model output, transcribed)
+- Source (values are UN MODEL OUTPUTS, not empirical observations):
+  United Nations, Population Division (2000/2001) "Replacement Migration: Is
+  It a Solution to Declining and Ageing Populations?" (ST/ESA/SER.A/206).
+  PDF: https://www.un.org/development/desa/pd/sites/www.un.org.development.desa.pd/files/files/documents/2020/Jan/un_2001_replacementmigration.pdf
+- Transcribed exactly from two report tables:
+  - x = TFR gap = 2.1 - TFR(1995-2000), TFR from Table IV.1 "Total fertility
+    rates, 1950 to 2050" (p.23), column 1995-2000 (based on the UN 1998
+    Revision medium variant).
+  - y = Table IV.6 "Average annual net number of migrants between 2000 and
+    2050, per million inhabitants in 2000" (p.25), Scenario IV = migration
+    required to keep the working-age population (15-64) constant.
+- 8 study countries (France, Germany, Italy, Japan, Republic of Korea, Russian
+  Federation, United Kingdom, United States). The two regional aggregates
+  (Europe, European Union) are stored in the CSV but excluded from the curve
+  to avoid double-counting member countries. Replaces 25 hand-invented values
+  (the UN report only studied 8 countries + 2 regions).

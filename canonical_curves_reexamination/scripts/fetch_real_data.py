@@ -382,10 +382,13 @@ def create_source_metadata():
         {"id": 27, "name": "Replacement Migration Curve", "category": "Demography",
          "original_paper": "UN Population Division (2000) Replacement Migration",
          "original_n": 8, "original_period": "Projections for 8 countries",
-         "data_source": "UN WPP 2022; World Bank TFR data",
-         "current_n": 25, "current_period": "2020-2022",
-         "x_variable": "TFR gap below replacement (2.1 - TFR)", "y_variable": "Required net migration (per 1000)",
-         "claimed_form": "Nonlinear increase", "country_scope": "Low-fertility countries"},
+         "data_source": ("UN (2000) 'Replacement Migration' report, Table IV.1 "
+                         "(TFR 1995-2000) and Table IV.6 (Scenario IV migrants "
+                         "per million, constant working-age pop). MODEL OUTPUTS."),
+         "current_n": None, "current_period": "UN projection 2000-2050 (Scenario IV)",
+         "x_variable": "TFR gap below replacement (2.1 - TFR)",
+         "y_variable": "Required net migration, Scenario IV (per million/yr)",
+         "claimed_form": "Nonlinear increase", "country_scope": "8 UN study countries"},
         {"id": 28, "name": "Second Demographic Transition", "category": "Demography",
          "original_paper": "Van de Kaa DJ (1987) Popul Bull 42(1):1-57",
          "original_n": 12, "original_period": "Western Europe 1960s-1980s",

@@ -100,6 +100,22 @@ def get_putnam_real():
     ), len(df)
 
 
+def get_replacement_migration_real():
+    df = _load('replacement_migration_real.csv')
+    if df is None:
+        return None
+    df = df[df['unit_type'] == 'country'].dropna(
+        subset=['tfr_gap', 'mig_per_million_sciv'])
+    labels = df['iso3'].values if 'iso3' in df.columns else None
+    return CurveReexamination(
+        "Replacement Migration Curve",
+        df['tfr_gap'].values, df['mig_per_million_sciv'].values,
+        x_label="TFR Gap Below Replacement (2.1 - TFR)",
+        y_label="Required Net Migration, Scenario IV (per million/yr)",
+        country_labels=labels, category="Demography",
+    ), len(df)
+
+
 def get_ekc_co2_real():
     df = _load('ekc_co2_real.csv')
     if df is None:
@@ -440,6 +456,10 @@ ADDITIONAL_REAL = {
     'putnam': (get_putnam_real, 'Putnam Social Capital',
                'Eurostat HETUS TV time (AC82) + OWID generalized trust; '
                'European proxy reconstruction'),
+    'replacement_migration': (
+        get_replacement_migration_real, 'Replacement Migration Curve',
+        'UN (2000) Replacement Migration report, Tables IV.1 & IV.6 '
+        '(model outputs, Scenario IV)'),
     'ekc_co2': (get_ekc_co2_real, 'Environmental Kuznets Curve (CO2)',
                 'World Bank WDI (API)'),
     'keeling': (get_keeling_real, 'Keeling Curve (CO2)',
