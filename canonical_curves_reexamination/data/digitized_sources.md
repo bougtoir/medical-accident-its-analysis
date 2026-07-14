@@ -57,3 +57,18 @@ WebPlotDigitizer. These are stored in `data/*_real.csv` and read by
   number of electoral parties (enep, Laakso-Taagepera) both present → 1660
   elections. Replaces 30 hand-entered country values.
 - x = log(district magnitude + 1); y = effective number of electoral parties.
+
+## #2 Laffer Curve — `laffer_real.csv`
+- Sources (OECD, latest common year = 2022 cross-section, matched on ISO3):
+  - x = top (statutory) personal income tax rate: OECD Tax Database, Table I.7
+    ("Top statutory personal income tax rates"), series TAX=PERS_ITAX (combined
+    central + sub-central), fetched from the OECD SDMX-JSON endpoint
+    (dataset TABLE_I7).
+  - y = total tax revenue as % of GDP: OECD Global Revenue Statistics
+    (Data Explorer dataflow DSD_REV_COMP_GLOBAL@DF_RSGLOBAL; MEASURE=TAX_REV,
+    SECTOR=S13 general government, STANDARD_REVENUE=_T total tax,
+    UNIT_MEASURE=PT_B1GQ % of GDP).
+- 29 OECD countries with both variables for 2022. Replaces the previous
+  26 hand-transcribed OECD-2022 values (which mixed years/definitions, e.g. a
+  central-only US top rate and older tax-revenue figures).
+- x = top marginal PIT rate (%); y = total tax revenue (% of GDP).

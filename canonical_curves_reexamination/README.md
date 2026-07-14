@@ -102,11 +102,13 @@ previous hard-coded values.
 
 Not all 52 curves currently use fully traceable real data. Status:
 
-- **25 curves use fetched real data** (World Bank WDI/FRED, NOAA Mauna Loa,
+- **26 curves use fetched real data** (World Bank WDI/FRED, NOAA Mauna Loa,
   USGS FDSN earthquake catalog, Penn World Table 10.01, Karl Rupp transistor
   dataset, UNDP HDI, Freedom House FIW, US EIA Total Energy, US BLS, HMD,
   US Census, OWID/World Happiness Report, OWID/USDA, OWID/IMF, Hubble 1929,
-  CEPII Gravity): #1 Phillips, #3 Kuznets, #4 Environmental Kuznets (CO2),
+  CEPII Gravity, OECD Tax Database + Revenue Statistics): #1 Phillips,
+  #2 Laffer (OECD top PIT rate vs tax revenue % GDP, 2022),
+  #3 Kuznets, #4 Environmental Kuznets (CO2),
   #5 Beveridge, #6 Okun, #7 Engel, #9 Rahn, #10 Gravity Model,
   #12 Balassa-Samuelson, #13 Preston, #14 Easterlin, #19 Omran,
   #23 & #28 Demographic Transition, #25 Lee-Carter, #30 Hubbert Peak Oil,

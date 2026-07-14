@@ -741,7 +741,91 @@ def fetch_hubble():
     return _save(df, 'hubble_real.csv')
 
 
+def fetch_laffer():
+    """#2 Laffer Curve: top marginal personal income tax rate vs tax revenue.
+
+    Two OECD sources, latest available year per country (2015-2023):
+      - x = top (statutory) personal income tax rate, OECD Tax Database
+        Table I.7 (series TAX=PERS_ITAX, combined central + sub-central),
+        via the OECD SDMX-JSON legacy endpoint.
+      - y = total tax revenue as % of GDP, OECD Global Revenue Statistics
+        (dataflow DSD_REV_COMP_GLOBAL@DF_RSGLOBAL: MEASURE=TAX_REV,
+        SECTOR=S13 general government, STANDARD_REVENUE=_T total,
+        UNIT_MEASURE=PT_B1GQ % of GDP), via the OECD Data Explorer SDMX API.
+    Countries are matched on ISO3. Both source responses are cached under
+    data/cache/ (gitignored). The per-country reference year is recorded so
+    every point is traceable.
+    """
+    import csv as _csv
+    cache = os.path.join(DATA_DIR, 'cache')
+    os.makedirs(cache, exist_ok=True)
+
+    # --- x: top personal income tax rate (OECD Table I.7, PERS_ITAX) ---
+    ratepath = os.path.join(cache, 'oecd_table_i7_pers_itax.json')
+    if not os.path.exists(ratepath):
+        u = ('https://stats.oecd.org/SDMX-JSON/data/TABLE_I7/.PERS_ITAX/all'
+             '?startTime=2015&endTime=2024')
+        r = requests.get(u, timeout=TIMEOUT * 2, headers=HEADERS)
+        r.raise_for_status()
+        with open(ratepath, 'w') as f:
+            f.write(r.text)
+    import json as _json
+    with open(ratepath) as f:
+        d = _json.load(f)
+    st = d['data']['structures'][0]
+    sdims = st['dimensions']['series']
+    tp = [v['id'] for v in st['dimensions']['observation'][0]['values']]
+    rate = {}  # (iso, year) -> top rate
+    for k, v in d['data']['dataSets'][0]['series'].items():
+        c = {sdims[i]['id']: sdims[i]['values'][int(x)]['id']
+             for i, x in enumerate(k.split(':'))}
+        if c.get('TAX') != 'PERS_ITAX':
+            continue
+        for oi, ov in v['observations'].items():
+            if ov[0] is not None and float(ov[0]) > 0:
+                rate[(c['COU'], int(tp[int(oi)]))] = float(ov[0])
+
+    # --- y: total tax revenue as % of GDP (OECD Global Revenue Statistics) ---
+    revpath = os.path.join(cache, 'oecd_revenue_pct_gdp.csv')
+    if not os.path.exists(revpath):
+        u = ('https://sdmx.oecd.org/public/rest/data/'
+             'OECD.CTP.TPS,DSD_REV_COMP_GLOBAL@DF_RSGLOBAL,2.1/'
+             '.TAX_REV.S13._T._T.PT_B1GQ.A'
+             '?startPeriod=2015&endPeriod=2024&dimensionAtObservation=AllDimensions')
+        r = requests.get(u, timeout=TIMEOUT * 2,
+                         headers={**HEADERS,
+                                  'Accept': 'application/vnd.sdmx.data+csv'})
+        r.raise_for_status()
+        with open(revpath, 'w') as f:
+            f.write(r.text)
+    rev = {}  # (iso, year) -> tax revenue % GDP
+    for row in _csv.DictReader(open(revpath)):
+        try:
+            rev[(row['REF_AREA'], int(row['TIME_PERIOD']))] = float(row['OBS_VALUE'])
+        except (KeyError, ValueError):
+            continue
+
+    # Single common cross-section year: use the most recent year with broad
+    # joint coverage (>=25 countries with BOTH the top PIT rate and tax
+    # revenue); fall back to the max-coverage year otherwise.
+    isos = {i for i, _ in rate} | {i for i, _ in rev}
+    by_year = {yr: [i for i in isos if (i, yr) in rate and (i, yr) in rev]
+               for yr in range(2023, 2015, -1)}
+    recent = [yr for yr in sorted(by_year, reverse=True) if len(by_year[yr]) >= 25]
+    best_year = recent[0] if recent else max(by_year, key=lambda y: len(by_year[y]))
+    best_isos = by_year[best_year]
+    rows = [{'iso3': i, 'year': best_year,
+             'top_rate': round(rate[(i, best_year)], 3),
+             'tax_revenue_gdp': round(rev[(i, best_year)], 3)}
+            for i in best_isos]
+    out = pd.DataFrame(rows).sort_values('top_rate')
+    if len(out) < 20:
+        raise RuntimeError("Laffer: unexpected row count")
+    return _save(out, 'laffer_real.csv')
+
+
 FETCHERS = {
+    'laffer': fetch_laffer,
     'ekc_co2': fetch_ekc_co2,
     'keeling': fetch_keeling,
     'gutenberg_richter': fetch_gutenberg_richter,

@@ -198,9 +198,12 @@ def create_source_metadata():
         {"id": 2, "name": "Laffer Curve", "category": "Economics",
          "original_paper": "Laffer A (1974) unpublished (napkin sketch)",
          "original_n": 0, "original_period": "Theoretical",
-         "data_source": "OECD Revenue Statistics 2022",
-         "current_n": 26, "current_period": "2022 cross-section",
-         "x_variable": "Top marginal tax rate (%)", "y_variable": "Tax revenue (% of GDP)",
+         "data_source": ("OECD Tax Database Table I.7 (top personal income tax "
+                         "rate, PERS_ITAX) + OECD Global Revenue Statistics "
+                         "(total tax as % of GDP)"),
+         "current_n": None, "current_period": "2022 cross-section",
+         "x_variable": "Top marginal personal income tax rate (%)",
+         "y_variable": "Total tax revenue (% of GDP)",
          "claimed_form": "Inverted-U", "country_scope": "OECD countries"},
         {"id": 3, "name": "Kuznets Curve", "category": "Economics",
          "original_paper": "Kuznets S (1955) Am Econ Rev 45:1-28",

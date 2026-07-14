@@ -38,6 +38,22 @@ def _load(fname):
     return pd.read_csv(path)
 
 
+def get_laffer_real():
+    df = _load('laffer_real.csv')
+    if df is None:
+        return None
+    df = df.dropna(subset=['top_rate', 'tax_revenue_gdp'])
+    df = df[(df['top_rate'] > 0) & (df['tax_revenue_gdp'] > 0)]
+    labels = df['iso3'].values if 'iso3' in df.columns else None
+    return CurveReexamination(
+        "Laffer Curve",
+        df['top_rate'].values, df['tax_revenue_gdp'].values,
+        x_label="Top Marginal Personal Income Tax Rate (%)",
+        y_label="Total Tax Revenue (% of GDP)",
+        country_labels=labels, category="Economics",
+    ), len(df)
+
+
 def get_ekc_co2_real():
     df = _load('ekc_co2_real.csv')
     if df is None:
@@ -366,6 +382,9 @@ def get_balassa_samuelson_real():
 
 # curve_key -> (fetcher, exact result name it replaces, human source label)
 ADDITIONAL_REAL = {
+    'laffer': (get_laffer_real, 'Laffer Curve',
+               'OECD Table I.7 (top PIT rate) + OECD Revenue Statistics '
+               '(tax %GDP), 2022 cross-section'),
     'ekc_co2': (get_ekc_co2_real, 'Environmental Kuznets Curve (CO2)',
                 'World Bank WDI (API)'),
     'keeling': (get_keeling_real, 'Keeling Curve (CO2)',
