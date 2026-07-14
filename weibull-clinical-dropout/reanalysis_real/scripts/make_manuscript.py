@@ -104,29 +104,36 @@ def build_docx():
 
     heading(doc, "Abstract")
     para(doc,
-         "Loss to follow-up (LTFU) during tuberculosis (TB) treatment is a major barrier to cure "
-         "and transmission control{1}. Its determinants are known to be multilevel and "
-         "context-dependent{2}, and community/behavioural interventions to prevent it show "
-         "inconsistent, setting-specific effectiveness{3}; why a single retention strategy does "
-         "not travel well is unresolved. We give this qualitative problem a quantitative handle by "
-         "asking whether the *timing* of LTFU (its hazard shape) is consistent across settings. We "
-         "fitted two-parameter Weibull cumulative-incidence models to four real, published "
-         "time-to-event curves recovered by figure digitization: two TB cohorts (Ethiopia{4}, "
-         "China{5}) and two non-TB comparators (HIV/ART retention{6}; antipsychotic "
-         "time-to-discontinuation{7}). The shape parameter k (k>1 increasing-failure-rate [IFR]; "
-         "k<1 decreasing-failure-rate [DFR]) **diverged within TB**: Ethiopia "
-         f"k={kfmt('TB-Ethiopia')} (IFR) versus China k={kfmt('TB-China')} (DFR) \u2014 opposite "
-         "sides of k=1 from only two cohorts, with non-identical outcome definitions. By contrast "
-         f"both comparators were DFR (HIV/ART k={kfmt('ART/HIV')}; antipsychotic "
-         f"k={kfmt('Antipsychotic')}), i.e. mutually consistent. TB LTFU is therefore **not** "
-         "uniformly increasing-hazard: its hazard shape is heterogeneous across countries "
-         "(plausibly because the country-specific mechanisms that generate LTFU differ), which "
-         "mathematically illustrates why pooled TB evidence and a one-size retention intervention "
-         "are hard to build, whereas the comparator interventions may pool more readily. The cause "
-         "of the shape divergence is unknown. All results regenerate from code and the digitized "
-         "source figures.")
+         "**Background** Loss to follow-up (LTFU) during tuberculosis (TB) treatment is a major "
+         "barrier to cure and transmission control{1}. Its determinants are multilevel and "
+         "context-dependent{2} and interventions to prevent it show inconsistent, setting-specific "
+         "effectiveness{3}, but whether the *timing* of LTFU follows a consistent hazard shape "
+         "across settings has not been quantified.")
+    para(doc,
+         "**Methods** We fitted two-parameter Weibull cumulative-incidence models "
+         "F(t)=1\u2212exp(\u2212(t/\u03bb)^k) to four real, published time-to-event curves recovered "
+         "by figure digitization: two TB treatment cohorts (Ethiopia{4}, China{5}) and two non-TB "
+         "comparators (HIV/ART retention{6}; antipsychotic time-to-discontinuation{7}). The shape "
+         "parameter k (k>1 increasing-failure-rate [IFR]; k<1 decreasing-failure-rate [DFR]) was "
+         "estimated with a bootstrap 95% confidence interval (CI) and compared with exponential and "
+         "log-normal fits by the Akaike information criterion (AIC).", space_before=4)
+    para(doc,
+         f"**Results** The shape parameter diverged within TB: Ethiopia k={kfmt('TB-Ethiopia')} "
+         f"(IFR) versus China k={kfmt('TB-China')} (DFR) \u2014 opposite sides of k=1 from only two "
+         f"cohorts, with non-identical outcome definitions. Both comparators were DFR (HIV/ART "
+         f"k={kfmt('ART/HIV')}; antipsychotic k={kfmt('Antipsychotic')}), i.e. mutually consistent.",
+         space_before=4)
+    para(doc,
+         "**Conclusions** TB LTFU is not uniformly increasing-hazard: its hazard shape is "
+         "heterogeneous across countries, plausibly because the country-specific mechanisms that "
+         "generate LTFU differ. This gives a compact, reproducible quantification of why pooled TB "
+         "evidence and a one-size retention intervention are hard to build, whereas the comparator "
+         "interventions may pool more readily. The cause of the divergence is unknown and warrants "
+         "individual-level study.", space_before=4)
+    para(doc, "**Keywords** Tuberculosis; Loss to follow-up; Treatment adherence; Weibull; "
+              "Hazard function; Survival analysis; Health systems", space_before=4)
 
-    heading(doc, "1. Introduction")
+    heading(doc, "Background")
     para(doc,
          "LTFU interrupts TB treatment, promotes acquired drug resistance and sustains "
          "transmission{1}. Two things are already established. First, the determinants of "
@@ -146,7 +153,7 @@ def build_docx():
          "comparators would give a concrete, reproducible measure of why TB retention resists a "
          "unified approach.")
 
-    heading(doc, "2. Methods")
+    heading(doc, "Methods")
     para(doc,
          "We used only real, published curves. TB data were the competing-risk LTFU cumulative "
          "incidence at Ambo General Hospital, Ethiopia{4}, and the all-patient time-to-LTFU "
@@ -161,7 +168,7 @@ def build_docx():
          "affect the cross-study comparison. Data, code and a one-command build are in the public "
          "repository (Data and code availability).")
 
-    heading(doc, "3. Results")
+    heading(doc, "Results")
     p = para(doc,
              "Fitted parameters are shown in Table 1 and the fits are overlaid on the digitized "
              "data in Figure 1. Within TB, the two cohorts fell on **opposite sides** of k=1: the "
@@ -195,7 +202,7 @@ def build_docx():
               "and DFR (China), spanning the whole range; comparators are consistently DFR.",
               space_before=4)
 
-    heading(doc, "4. Discussion")
+    heading(doc, "Discussion")
     para(doc,
          "The result puts a number on an accepted but qualitative problem. It is already known "
          "that TB LTFU determinants are context-dependent{2} and that retention interventions do "
@@ -220,7 +227,7 @@ def build_docx():
          "cohorts with individual-level data and harmonized LTFU definitions. Until then, the "
          "honest reading is that TB retention is a heterogeneous target, not a single one.")
 
-    heading(doc, "5. Limitations")
+    heading(doc, "Limitations")
     para(doc,
          "Only two TB and two comparator curves met the bar of a genuinely time-resolved, "
          "openly available dropout curve, so the analysis is small and hypothesis-generating. "
@@ -230,11 +237,33 @@ def build_docx():
          "illustrative; KM plateaus reflect administrative censoring. The findings are "
          "hypothesis-generating, not confirmatory.")
 
-    heading(doc, "6. Data and code availability")
+    heading(doc, "Conclusions")
     para(doc,
-         "All source figures, digitized CSVs, analysis code and a one-command build "
-         "(`make`) that regenerates every number, the table and Figure 1 are in the public "
-         "repository under weibull-clinical-dropout/reanalysis_real/. No result is hard-coded.")
+         "Across the few TB cohorts that publish a time-resolved LTFU curve, the Weibull hazard "
+         "shape is not consistent: two national settings fell on opposite sides of k=1, whereas "
+         "two unrelated chronic-treatment comparators were mutually consistent (both DFR). The "
+         "heterogeneity of TB LTFU is therefore visible in the hazard shape itself and offers a "
+         "compact, reproducible explanation for why pooled TB evidence and a single unified "
+         "retention strategy are difficult to construct. Individual-level data with harmonized "
+         "LTFU definitions are needed to identify what drives the divergence.")
+
+    heading(doc, "Declarations")
+    para(doc, "**Ethics approval and consent to participate** Not applicable. This study is a "
+              "secondary analysis of aggregate, already-published, de-identified survival curves "
+              "and involved no new human participants or individual-level data.")
+    para(doc, "**Consent for publication** Not applicable.", space_before=4)
+    para(doc, "**Availability of data and materials** All source figures, digitized CSV datasets, "
+              "analysis code and a one-command build that regenerates every reported number, "
+              "Table 1 and Figure 1 are openly available in the project repository. No result is "
+              "hard-coded; every value is reproduced from the source data by the released code.",
+         space_before=4)
+    para(doc, "**Competing interests** The authors declare that they have no competing interests.",
+         space_before=4)
+    para(doc, "**Funding** This study received no specific funding.", space_before=4)
+    para(doc, "**Authors' contributions** The author(s) conceived the study, digitized the source "
+              "curves, implemented the analysis and wrote the manuscript. All authors read and "
+              "approved the final manuscript.", space_before=4)
+    para(doc, "**Acknowledgements** Not applicable.", space_before=4)
 
     heading(doc, "References")
     for i, ref in enumerate(REFERENCES, 1):
