@@ -953,10 +953,76 @@ def fetch_hanpp():
     return _save(out, 'hanpp_real.csv')
 
 
+_EUROSTAT_ISO3 = {
+    'BE': 'BEL', 'BG': 'BGR', 'DE': 'DEU', 'EE': 'EST', 'EL': 'GRC',
+    'ES': 'ESP', 'FR': 'FRA', 'IT': 'ITA', 'LV': 'LVA', 'LT': 'LTU',
+    'LU': 'LUX', 'HU': 'HUN', 'NL': 'NLD', 'AT': 'AUT', 'PL': 'POL',
+    'RO': 'ROU', 'SI': 'SVN', 'FI': 'FIN', 'NO': 'NOR', 'UK': 'GBR',
+    'RS': 'SRB', 'TR': 'TUR',
+}
+
+
+def fetch_putnam():
+    """#48 Putnam social capital PROXY: daily TV viewing vs generalized trust.
+
+    This is a public-data PROXY reconstruction, not a replication of Putnam's
+    original US-community measures. Matched on ISO3:
+      - x = daily time watching television and video (hours): Eurostat
+        Harmonised European Time Use Surveys (HETUS), dataset tus_00age,
+        activity AC82 "Television and video", unit TIME_SP (mean time,
+        total sex/age), most recent survey round per country (2000 or 2010).
+      - y = generalized trust (% agreeing "most people can be trusted"): Our
+        World in Data 'self-reported-trust-attitudes' (World Values Survey /
+        integrated surveys), trust value from the year nearest the TV survey.
+    Coverage is European (22 countries). Not a direct Putnam replication.
+    """
+    def _to_min(s):
+        s = str(s)
+        if ':' in s:
+            h, m = s.split(':')
+            return int(h) * 60 + int(m)
+        return float(s)
+    u = ('https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/'
+         'tus_00age?format=JSON&sex=T&age=TOTAL&unit=TIME_SP&acl00=AC82')
+    j = requests.get(u, timeout=TIMEOUT, headers=HEADERS).json()
+    geo = j['dimension']['geo']['category']['index']
+    tyr = j['dimension']['time']['category']['index']
+    ids = j['id']
+    nt = len(j['dimension'][ids[ids.index('time')]]['category']['index'])
+    val = j['value']
+    tv_rows = []
+    for g, gp in geo.items():
+        for t, tp in tyr.items():
+            k = str(gp * nt + tp)
+            if k in val:
+                tv_rows.append({'geo': g, 'year': int(t),
+                                'tv_min': _to_min(val[k])})
+    tv = pd.DataFrame(tv_rows).sort_values('year').groupby('geo').tail(1)
+
+    tr = _owid_csv('self-reported-trust-attitudes').dropna(
+        subset=['Trust in others'])
+    rows = []
+    for _, r in tv.iterrows():
+        iso = _EUROSTAT_ISO3.get(r['geo'])
+        sub = tr[tr['Code'] == iso]
+        if iso and len(sub):
+            sub = sub.assign(d=(sub['Year'] - r['year']).abs()).sort_values('d')
+            rr = sub.iloc[0]
+            rows.append({'iso3': iso, 'tv_hours': round(r['tv_min'] / 60, 3),
+                         'tv_year': int(r['year']),
+                         'trust_pct': round(float(rr['Trust in others']), 2),
+                         'trust_year': int(rr['Year'])})
+    out = pd.DataFrame(rows).sort_values('tv_hours')
+    if len(out) < 15:
+        raise RuntimeError("Putnam: insufficient TV/trust overlap")
+    return _save(out, 'putnam_real.csv')
+
+
 FETCHERS = {
     'laffer': fetch_laffer,
     'great_gatsby': fetch_great_gatsby,
     'hanpp': fetch_hanpp,
+    'putnam': fetch_putnam,
     'ekc_co2': fetch_ekc_co2,
     'keeling': fetch_keeling,
     'gutenberg_richter': fetch_gutenberg_richter,

@@ -534,10 +534,13 @@ def create_source_metadata():
         {"id": 48, "name": "Putnam Social Capital", "category": "Political Science",
          "original_paper": "Putnam RD (2000) Bowling Alone. Simon & Schuster",
          "original_n": 50, "original_period": "US states + cross-national",
-         "data_source": "World Values Survey Wave 7; Eurobarometer trust data; OECD time use surveys",
-         "current_n": 25, "current_period": "2017-2022",
+         "data_source": ("Proxy reconstruction: Eurostat HETUS time-use "
+                         "(tus_00age, AC82 TV & video) + OWID generalized "
+                         "trust (WVS/integrated surveys). Not a direct "
+                         "Putnam replication."),
+         "current_n": None, "current_period": "HETUS 2000/2010 rounds",
          "x_variable": "Daily TV viewing (hours)", "y_variable": "Generalized social trust (%)",
-         "claimed_form": "Negative (possibly nonlinear)", "country_scope": "OECD cross-section"},
+         "claimed_form": "Negative (possibly nonlinear)", "country_scope": "European proxy (22 countries)"},
 
         # Agriculture (49-52)
         {"id": 49, "name": "Mitscherlich Yield Curve", "category": "Agriculture",

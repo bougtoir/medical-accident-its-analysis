@@ -105,3 +105,16 @@ WebPlotDigitizer. These are stored in `data/*_real.csv` and read by
 - 156 countries. Replaces 25 hand-entered HANPP/GDP values. Negative HANPP for
   a few arid, heavily-irrigated countries (e.g. EGY, Gulf states) is a genuine
   result of the aggregation (NPP0 near zero), retained rather than dropped.
+
+## #48 Putnam Social Capital — `putnam_real.csv` (European proxy)
+- PROXY reconstruction (not a replication of Putnam's US-community measures),
+  matched on ISO3:
+  - x = daily time watching television and video (hours): Eurostat Harmonised
+    European Time Use Surveys (HETUS), dataset `tus_00age`, activity code
+    AC82 "Television and video", unit TIME_SP (mean time, total sex/age),
+    most recent survey round per country (2000 or 2010).
+  - y = generalized trust (% agreeing "most people can be trusted"): Our World
+    in Data `self-reported-trust-attitudes` (World Values Survey / integrated
+    surveys), value from the year nearest the TV survey (recorded per row).
+- 22 European countries. Replaces 25 hand-entered TV-hours/trust values.
+  Coverage is European only; labelled as a proxy, not a Putnam replication.

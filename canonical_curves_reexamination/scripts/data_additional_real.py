@@ -85,6 +85,21 @@ def get_hanpp_real():
     ), len(df)
 
 
+def get_putnam_real():
+    df = _load('putnam_real.csv')
+    if df is None:
+        return None
+    df = df.dropna(subset=['tv_hours', 'trust_pct'])
+    df = df[(df['tv_hours'] > 0) & (df['trust_pct'] > 0)]
+    labels = df['iso3'].values if 'iso3' in df.columns else None
+    return CurveReexamination(
+        "Putnam Social Capital",
+        df['tv_hours'].values, df['trust_pct'].values,
+        x_label="Daily TV Viewing (hours)", y_label="Social Trust (%)",
+        country_labels=labels, category="Political Science",
+    ), len(df)
+
+
 def get_ekc_co2_real():
     df = _load('ekc_co2_real.csv')
     if df is None:
@@ -422,6 +437,9 @@ ADDITIONAL_REAL = {
     'hanpp': (get_hanpp_real, 'HANPP vs Development',
               'Haberl et al. 2007 PNAS gridded HANPP/NPP0 (country zonal '
               'aggregation) + OWID/World Bank GDP pc, year 2000'),
+    'putnam': (get_putnam_real, 'Putnam Social Capital',
+               'Eurostat HETUS TV time (AC82) + OWID generalized trust; '
+               'European proxy reconstruction'),
     'ekc_co2': (get_ekc_co2_real, 'Environmental Kuznets Curve (CO2)',
                 'World Bank WDI (API)'),
     'keeling': (get_keeling_real, 'Keeling Curve (CO2)',
