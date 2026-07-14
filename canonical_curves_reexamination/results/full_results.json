@@ -797,67 +797,67 @@
   {
     "name": "Easterlin Paradox",
     "category": "Public Health",
-    "n": 45,
+    "n": 159,
     "x_label": "GDP per capita (PPP, $)",
     "y_label": "Happiness Score (0-10)",
     "f_test": {
-      "f_stat": 22.05817602506863,
-      "p_value": 2.8329471633670167e-05
+      "f_stat": 61.336261156564426,
+      "p_value": 6.918909889463976e-13
     },
     "model_comparison": {
       "linear": {
-        "aic": 90.82337297352544,
-        "bic": 94.43669795306607,
-        "r2": 0.5357690447751053,
-        "r2_adj": 0.524972976048945
+        "aic": 399.11947927662175,
+        "bic": 405.2572876810622,
+        "r2": 0.49669320057640176,
+        "r2_adj": 0.49348742478389473
       },
       "quadratic": {
-        "aic": 73.82788060754524,
-        "bic": 79.2478680768562,
-        "r2": 0.6956251125255999,
-        "r2_adj": 0.6811310702649142
+        "aic": 348.3967110145114,
+        "bic": 357.6034236211721,
+        "r2": 0.638735569056651,
+        "r2_adj": 0.6341039737881464
       },
       "log": {
-        "aic": 76.49643951052994,
-        "bic": 80.10976449007057,
-        "r2": 0.6623513433305486,
-        "r2_adj": 0.6544990489893985
+        "aic": 340.2253064724349,
+        "bic": 346.3631148768754,
+        "r2": 0.652488999425848,
+        "r2_adj": 0.6502755535623184
       }
     },
     "loocv": {
-      "rmse_linear": 0.6771193616884064,
-      "rmse_quadratic": 0.5470774119112382
+      "rmse_linear": 0.856349703374259,
+      "rmse_quadratic": 0.7219389526261399
     },
     "cooks_distance": {
-      "max": 0.4858807060953985,
-      "mean": 0.034449791059151205,
-      "n_influential": 5
+      "max": 0.4480235299152219,
+      "mean": 0.01110933913277344,
+      "n_influential": 7
     },
     "sensitivity": {
-      "f_full": 22.05817602506863,
-      "p_full": 2.8329471633670167e-05,
-      "f_clean": 7.364656589629957,
-      "p_clean": 0.009852481906919008,
+      "f_full": 61.336261156564426,
+      "p_full": 6.918909889463976e-13,
+      "f_clean": 33.72282799320204,
+      "p_clean": 3.5555724475777595e-08,
       "removed_indices": [
-        39,
-        14,
-        21
+        123,
+        87,
+        130
       ],
       "removed_labels": [
-        "India",
-        "Ireland",
+        "Qatar",
+        "Luxembourg",
         "Singapore"
       ],
-      "n_full": 45,
-      "n_clean": 42
+      "n_full": 159,
+      "n_clean": 156
     },
     "verdict": {
       "verdict": "ROBUST_NONLINEAR",
-      "explanation": "Nonlinearity is robust: significant F-test (p=0.000), survives outlier removal (p=0.010), better LOOCV",
-      "best_aic": "quadratic",
-      "best_bic": "quadratic"
+      "explanation": "Nonlinearity is robust: significant F-test (p=0.000), survives outlier removal (p=0.000), better LOOCV",
+      "best_aic": "log",
+      "best_bic": "log"
     },
-    "data_source": "Representative/Published"
+    "data_source": "OWID Cantril ladder (WHR) + World Bank WDI GDP pc PPP"
   },
   {
     "name": "McKeown Thesis (TB Mortality)",

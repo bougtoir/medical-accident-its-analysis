@@ -139,6 +139,21 @@ def get_beveridge_real():
     ), len(df)
 
 
+def get_easterlin_real():
+    df = _load('easterlin_real.csv')
+    if df is None:
+        return None
+    df = df.dropna(subset=['gdp_pc_ppp', 'happiness'])
+    df = df[(df['gdp_pc_ppp'] > 0) & (df['happiness'] > 0)]
+    labels = df['country'].values if 'country' in df.columns else None
+    return CurveReexamination(
+        "Easterlin Paradox",
+        df['gdp_pc_ppp'].values, df['happiness'].values,
+        x_label="GDP per capita (PPP, $)", y_label="Happiness Score (0-10)",
+        country_labels=labels, category="Public Health",
+    ), len(df)
+
+
 def get_lee_carter_real():
     df = _load('lee_carter_real.csv')
     if df is None:
@@ -236,6 +251,8 @@ ADDITIONAL_REAL = {
              'US Census 2020 Decennial (place populations)'),
     'lee_carter': (get_lee_carter_real, 'Lee-Carter Mortality Model',
                    'HMD USA death rates (Lee-Carter SVD kappa_t)'),
+    'easterlin': (get_easterlin_real, 'Easterlin Paradox',
+                  'OWID Cantril ladder (WHR) + World Bank WDI GDP pc PPP'),
 }
 
 

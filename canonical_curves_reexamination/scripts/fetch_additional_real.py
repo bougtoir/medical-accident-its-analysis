@@ -448,6 +448,53 @@ def fetch_lee_carter(max_age=99):
     return _save(out, 'lee_carter_real.csv')
 
 
+def fetch_easterlin():
+    """#14 Easterlin Paradox: GDP per capita vs subjective well-being (cross-section).
+
+    Happiness: Our World in Data 'happiness-cantril-ladder' (Cantril ladder,
+    sourced from the World Happiness Report / Gallup World Poll), key-free CSV.
+    Income: World Bank WDI GDP per capita, PPP constant (NY.GDP.PCAP.PP.KD).
+    Matched by ISO3 country code on each country's most recent common year.
+    """
+    import wbgapi as wb
+    url = ('https://ourworldindata.org/grapher/happiness-cantril-ladder.csv'
+           '?v=1&csvType=full')
+    r = requests.get(url, timeout=TIMEOUT, headers=HEADERS)
+    r.raise_for_status()
+    from io import StringIO
+    hap = pd.read_csv(StringIO(r.text))
+    hap.columns = ['entity', 'code', 'year', 'ladder']
+    hap = hap.dropna(subset=['code', 'ladder'])
+    hap = hap[hap['code'].str.len() == 3]  # drop aggregates (e.g. 'OWID_*')
+
+    gdp = wb.data.DataFrame('NY.GDP.PCAP.PP.KD', time=range(2010, 2024),
+                            labels=False)
+    # index=economy (ISO3), columns like 'YR2020'
+    gdp_long = {}
+    for iso3, row in gdp.iterrows():
+        for col, val in row.items():
+            if pd.notna(val):
+                yr = int(''.join(ch for ch in col if ch.isdigit()))
+                gdp_long[(iso3, yr)] = float(val)
+
+    rows = []
+    for code, g in hap.groupby('code'):
+        g = g.sort_values('year')
+        for _, rec in g[::-1].iterrows():  # most recent first
+            yr = int(rec['year'])
+            key = (code, yr)
+            if key in gdp_long:
+                rows.append({'country': rec['entity'], 'iso3': code,
+                             'year': yr, 'gdp_pc_ppp': gdp_long[key],
+                             'happiness': float(rec['ladder'])})
+                break
+    df = pd.DataFrame(rows)
+    df = df[df['gdp_pc_ppp'] > 0]
+    if len(df) < 30:
+        raise RuntimeError("Easterlin: insufficient OWID/WDI overlap")
+    return _save(df, 'easterlin_real.csv')
+
+
 FETCHERS = {
     'ekc_co2': fetch_ekc_co2,
     'keeling': fetch_keeling,
@@ -461,6 +508,7 @@ FETCHERS = {
     'beveridge': fetch_beveridge,
     'zipf': fetch_zipf,
     'lee_carter': fetch_lee_carter,
+    'easterlin': fetch_easterlin,
 }
 
 
