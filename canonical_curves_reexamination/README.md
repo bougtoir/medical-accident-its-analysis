@@ -87,17 +87,24 @@ The two `fetch_*` scripts download primary data from public sources and write
 CSVs to `data/`. `run_all_analyses.py` then substitutes those real datasets for
 the corresponding curves before computing all statistics.
 
+Some fetchers in `fetch_additional_real.py` require a free API key exported as
+an environment variable: `EIA_API_KEY` (#30 Hubbert, #33 Jevons),
+`BLS_API_KEY` (#5 Beveridge), `CENSUS_API_KEY` (#46 Zipf), and
+`HMD_USERNAME`/`HMD_PASSWORD` (#25 Lee-Carter). Fetchers whose credentials are
+missing are skipped, leaving those curves on their previous hard-coded values.
+
 ## Data provenance (in progress)
 
 Not all 52 curves currently use fully traceable real data. Status:
 
-- **15 curves use fetched real data** (World Bank WDI/FRED, NOAA Mauna Loa,
+- **17 curves use fetched real data** (World Bank WDI/FRED, NOAA Mauna Loa,
   USGS FDSN earthquake catalog, Penn World Table 10.01, Karl Rupp transistor
-  dataset, UNDP HDI, Freedom House FIW): #1 Phillips, #3 Kuznets,
-  #4 Environmental Kuznets (CO2), #6 Okun, #12 Balassa-Samuelson, #13 Preston,
-  #19 Omran, #23 & #28 Demographic Transition, #31 Keeling, #34 Forest Transition,
-  #42 Gutenberg-Richter, #43 Moore's Law, #44 Lipset, #50 Green Revolution.
-- **The remaining 37 curves still use hard-coded arrays** in `scripts/data_*.py`
+  dataset, UNDP HDI, Freedom House FIW, US EIA Total Energy): #1 Phillips,
+  #3 Kuznets, #4 Environmental Kuznets (CO2), #6 Okun, #12 Balassa-Samuelson,
+  #13 Preston, #19 Omran, #23 & #28 Demographic Transition, #30 Hubbert Peak Oil,
+  #31 Keeling, #33 Jevons, #34 Forest Transition, #42 Gutenberg-Richter,
+  #43 Moore's Law, #44 Lipset, #50 Green Revolution.
+- **The remaining 35 curves still use hard-coded arrays** in `scripts/data_*.py`
   and are being migrated to real, primary-source data. Until a curve appears in
   the list above, treat its values as provisional. #35 Yerkes-Dodson is
   currently **synthetic** (generated with `numpy.random`) and must be replaced

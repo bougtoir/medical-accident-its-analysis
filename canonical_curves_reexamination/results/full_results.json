@@ -1775,63 +1775,63 @@
   {
     "name": "Hubbert Peak Oil (US)",
     "category": "Environmental Science",
-    "n": 24,
+    "n": 77,
     "x_label": "Year",
-    "y_label": "Oil Production (million bbl/day)",
+    "y_label": "US crude oil production (thousand bbl/day)",
     "f_test": {
-      "f_stat": 0.017065943291977654,
-      "p_value": 0.8973060766767009
+      "f_stat": 5.8412347870974894,
+      "p_value": 0.01811976919456859
     },
     "model_comparison": {
       "linear": {
-        "aic": 101.87448587797148,
-        "bic": 104.23059353866738,
-        "r2": 0.6062675986484394,
-        "r2_adj": 0.5883706713142776
+        "aic": 1384.6905627383662,
+        "bic": 1389.3781735820735,
+        "r2": 0.09488321096918462,
+        "r2_adj": 0.08281498711544033
       },
       "quadratic": {
-        "aic": 103.85498986356232,
-        "bic": 107.38915135460616,
-        "r2": 0.6065873109646975,
-        "r2_adj": 0.5691194358184782
+        "aic": 1380.8404873957393,
+        "bic": 1387.8719036613004,
+        "r2": 0.1611021226452246,
+        "r2_adj": 0.13842920704104156
       },
       "log": {
-        "aic": 101.86344167810816,
-        "bic": 104.21954933880406,
-        "r2": 0.6064487427717946,
-        "r2_adj": 0.5885600492614216
+        "aic": 1384.756649962732,
+        "bic": 1389.4442608064392,
+        "r2": 0.09410603781011195,
+        "r2_adj": 0.08202745164758007
       }
     },
     "loocv": {
-      "rmse_linear": 2.0010835123781745,
-      "rmse_quadratic": 2.071417341337716
+      "rmse_linear": 1954.9979644679904,
+      "rmse_quadratic": 1913.9013017066968
     },
     "cooks_distance": {
-      "max": 0.1907622651753916,
-      "mean": 0.03787647968060442,
-      "n_influential": 1
+      "max": 0.16847544956287624,
+      "mean": 0.016160760653841345,
+      "n_influential": 5
     },
     "sensitivity": {
-      "f_full": 0.017065943291977654,
-      "p_full": 0.8973060766767009,
-      "f_clean": 0.7034827425329491,
-      "p_clean": 0.4126163685466365,
+      "f_full": 5.8412347870974894,
+      "p_full": 0.01811976919456859,
+      "f_clean": 0.4205473418685708,
+      "p_clean": 0.5187560305933081,
       "removed_indices": [
-        23,
-        15,
-        16
+        74,
+        75,
+        76
       ],
       "removed_labels": null,
-      "n_full": 24,
-      "n_clean": 21
+      "n_full": 77,
+      "n_clean": 74
     },
     "verdict": {
-      "verdict": "NOT_SIGNIFICANT",
-      "explanation": "Nonlinear term not significant even with full data (p=0.897)",
-      "best_aic": "log",
-      "best_bic": "log"
+      "verdict": "OUTLIER_DEPENDENT",
+      "explanation": "Nonlinearity significant with full data (p=0.018) but NOT after removing top influential points (p=0.519)",
+      "best_aic": "quadratic",
+      "best_bic": "quadratic"
     },
-    "data_source": "Representative/Published"
+    "data_source": "US EIA Total Energy (crude oil production)"
   },
   {
     "name": "Keeling Curve (CO2)",
@@ -1962,63 +1962,63 @@
   {
     "name": "Jevons Paradox (Energy)",
     "category": "Environmental Science",
-    "n": 12,
-    "x_label": "Energy Intensity (kBTU/$GDP)",
-    "y_label": "Total Energy (quad BTU)",
+    "n": 66,
+    "x_label": "Energy intensity (Btu per real $ GDP)",
+    "y_label": "Total primary energy consumption (Trillion Btu)",
     "f_test": {
-      "f_stat": 3.851783437130707,
-      "p_value": 0.08130440605781741
+      "f_stat": 13.449668231013627,
+      "p_value": 0.0005054195979077303
     },
     "model_comparison": {
       "linear": {
-        "aic": 75.52746866880294,
-        "bic": 76.49728196837894,
-        "r2": 0.8239083171206769,
-        "r2_adj": 0.8062991488327446
+        "aic": 1362.4053495255966,
+        "bic": 1366.7846590096494,
+        "r2": 0.7881265541042444,
+        "r2_adj": 0.7848160315121232
       },
       "quadratic": {
-        "aic": 73.25237250972505,
-        "bic": 74.70709245908905,
-        "r2": 0.8766844186515692,
-        "r2_adj": 0.8492809561296957
+        "aic": 1351.6344903505735,
+        "bic": 1358.2034545766528,
+        "r2": 0.8254011116032854,
+        "r2_adj": 0.8198582897494214
       },
       "log": {
-        "aic": 80.02665095449599,
-        "bic": 80.996464254072,
-        "r2": 0.7438055716405263,
-        "r2_adj": 0.7181861288045789
+        "aic": 1380.5314750956616,
+        "bic": 1384.9107845797143,
+        "r2": 0.7211629923003504,
+        "r2_adj": 0.7168061640550434
       }
     },
     "loocv": {
-      "rmse_linear": 5.617511604784591,
-      "rmse_quadratic": 5.094910956929914
+      "rmse_linear": 7405.6228842873115,
+      "rmse_quadratic": 6814.3735695511195
     },
     "cooks_distance": {
-      "max": 0.48935769931197787,
-      "mean": 0.08959450646263821,
-      "n_influential": 1
+      "max": 0.14265204286976083,
+      "mean": 0.019529873142343925,
+      "n_influential": 5
     },
     "sensitivity": {
-      "f_full": 3.851783437130707,
-      "p_full": 0.08130440605781741,
-      "f_clean": 0.7532818431964599,
-      "p_clean": 0.4187945570416559,
+      "f_full": 13.449668231013627,
+      "p_full": 0.0005054195979077303,
+      "f_clean": 7.518348338095587,
+      "p_clean": 0.008037540384078223,
       "removed_indices": [
-        0,
-        7,
-        10
+        2,
+        1,
+        0
       ],
       "removed_labels": null,
-      "n_full": 12,
-      "n_clean": 9
+      "n_full": 66,
+      "n_clean": 63
     },
     "verdict": {
-      "verdict": "NOT_SIGNIFICANT",
-      "explanation": "Nonlinear term not significant even with full data (p=0.081)",
+      "verdict": "ROBUST_NONLINEAR",
+      "explanation": "Nonlinearity is robust: significant F-test (p=0.001), survives outlier removal (p=0.008), better LOOCV",
       "best_aic": "quadratic",
       "best_bic": "quadratic"
     },
-    "data_source": "Representative/Published"
+    "data_source": "US EIA Total Energy + World Bank WDI (US GDP)"
   },
   {
     "name": "Forest Transition Curve",

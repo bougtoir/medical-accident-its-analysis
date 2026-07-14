@@ -243,6 +243,119 @@ def fetch_lipset():
     raise RuntimeError("Lipset: insufficient GDP/Freedom House overlap")
 
 
+def _eia_total_energy(msn):
+    """Fetch an annual EIA Total Energy series (MSN code) as a year->value dict."""
+    key = os.environ.get('EIA_API_KEY')
+    if not key:
+        raise RuntimeError("EIA_API_KEY not set")
+    r = requests.get('https://api.eia.gov/v2/total-energy/data/', timeout=TIMEOUT,
+                     headers=HEADERS, params={
+                         'api_key': key, 'frequency': 'annual', 'data[0]': 'value',
+                         'facets[msn][]': msn, 'length': 5000})
+    r.raise_for_status()
+    rows = r.json()['response']['data']
+    out = {}
+    for d in rows:
+        try:
+            out[int(d['period'])] = float(d['value'])
+        except (ValueError, TypeError):
+            continue
+    return out
+
+
+def fetch_hubbert():
+    """#30 Hubbert Peak Oil: Year vs US crude oil production.
+
+    Source: EIA Total Energy, MSN=PAPRPUS (Crude Oil Production, Total,
+    thousand barrels/day), annual.
+    """
+    prod = _eia_total_energy('PAPRPUS')
+    df = pd.DataFrame(sorted(prod.items()), columns=['year', 'production_kbd'])
+    df = df[df['production_kbd'] > 0]
+    return _save(df, 'hubbert_real.csv')
+
+
+def fetch_jevons():
+    """#33 Jevons Paradox: US energy intensity vs total energy consumption.
+
+    Consumption: EIA Total Energy MSN=TETCBUS (Trillion Btu, annual).
+    Intensity: consumption / US real GDP (World Bank WDI NY.GDP.MKTP.KD, USA).
+    """
+    import wbgapi as wb
+    cons = _eia_total_energy('TETCBUS')
+    gdp = wb.data.DataFrame('NY.GDP.MKTP.KD', economy='USA', labels=False)
+    # columns like 'YR1990'
+    gdp_by_year = {}
+    for col in gdp.columns:
+        yr = int(''.join(ch for ch in col if ch.isdigit()))
+        val = gdp.iloc[0][col]
+        if pd.notna(val):
+            gdp_by_year[yr] = float(val)
+    rows = []
+    for yr in sorted(set(cons) & set(gdp_by_year)):
+        c = cons[yr]
+        g = gdp_by_year[yr]
+        if c > 0 and g > 0:
+            # Btu per constant dollar: (Trillion Btu * 1e12) / GDP($)
+            rows.append({'year': yr, 'total_energy_tbtu': c,
+                         'gdp_real_usd': g,
+                         'intensity_btu_per_usd': (c * 1e12) / g})
+    df = pd.DataFrame(rows)
+    if len(df) < 10:
+        raise RuntimeError("Jevons: insufficient EIA/WDI overlap")
+    return _save(df, 'jevons_real.csv')
+
+
+def _bls_series(series_ids, start_year, end_year):
+    """Fetch BLS series (annual averages of monthly data) as
+    {series_id: {year: mean_value}}. Splits into <=20-year windows."""
+    key = os.environ.get('BLS_API_KEY')
+    if not key:
+        raise RuntimeError("BLS_API_KEY not set")
+    from collections import defaultdict
+    acc = {sid: defaultdict(list) for sid in series_ids}
+    y0 = start_year
+    while y0 <= end_year:
+        y1 = min(y0 + 19, end_year)
+        r = requests.post(
+            'https://api.bls.gov/publicAPI/v2/timeseries/data/',
+            json={'seriesid': series_ids, 'startyear': str(y0),
+                  'endyear': str(y1), 'registrationkey': key},
+            timeout=TIMEOUT, headers=HEADERS)
+        r.raise_for_status()
+        js = r.json()
+        if js.get('status') != 'REQUEST_SUCCEEDED':
+            raise RuntimeError(f"BLS error: {js.get('message')}")
+        for s in js['Results']['series']:
+            sid = s['seriesID']
+            for d in s['data']:
+                if d['period'].startswith('M'):
+                    acc[sid][int(d['year'])].append(float(d['value']))
+        y0 = y1 + 1
+    return {sid: {yr: sum(v) / len(v) for yr, v in yrs.items()}
+            for sid, yrs in acc.items()}
+
+
+def fetch_beveridge():
+    """#5 Beveridge Curve: US unemployment rate vs job-openings (vacancy) rate.
+
+    Source: BLS API. Unemployment rate LNS14000000 (CPS, SA); job openings
+    rate JTS000000000000000JOR (JOLTS total nonfarm, SA). Annual averages.
+    """
+    unemp_id = 'LNS14000000'
+    vac_id = 'JTS000000000000000JOR'
+    data = _bls_series([unemp_id, vac_id], 2001, 2024)
+    rows = []
+    for yr in sorted(set(data[unemp_id]) & set(data[vac_id])):
+        rows.append({'year': yr,
+                     'unemployment_rate': round(data[unemp_id][yr], 3),
+                     'vacancy_rate': round(data[vac_id][yr], 3)})
+    df = pd.DataFrame(rows)
+    if len(df) < 10:
+        raise RuntimeError("Beveridge: insufficient BLS overlap")
+    return _save(df, 'beveridge_real.csv')
+
+
 FETCHERS = {
     'ekc_co2': fetch_ekc_co2,
     'keeling': fetch_keeling,
@@ -251,6 +364,9 @@ FETCHERS = {
     'balassa_samuelson': fetch_balassa_samuelson,
     'omran': fetch_omran,
     'lipset': fetch_lipset,
+    'hubbert': fetch_hubbert,
+    'jevons': fetch_jevons,
+    'beveridge': fetch_beveridge,
 }
 
 

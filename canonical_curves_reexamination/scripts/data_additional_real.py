@@ -125,6 +125,34 @@ def get_lipset_real():
     ), len(df)
 
 
+def get_hubbert_real():
+    df = _load('hubbert_real.csv')
+    if df is None:
+        return None
+    df = df.dropna(subset=['year', 'production_kbd'])
+    df = df[df['production_kbd'] > 0]
+    return CurveReexamination(
+        "Hubbert Peak Oil (US)", df['year'].values, df['production_kbd'].values,
+        x_label="Year", y_label="US crude oil production (thousand bbl/day)",
+        category="Environmental Science",
+    ), len(df)
+
+
+def get_jevons_real():
+    df = _load('jevons_real.csv')
+    if df is None:
+        return None
+    df = df.dropna(subset=['intensity_btu_per_usd', 'total_energy_tbtu'])
+    df = df[(df['intensity_btu_per_usd'] > 0) & (df['total_energy_tbtu'] > 0)]
+    return CurveReexamination(
+        "Jevons Paradox (Energy)",
+        df['intensity_btu_per_usd'].values, df['total_energy_tbtu'].values,
+        x_label="Energy intensity (Btu per real $ GDP)",
+        y_label="Total primary energy consumption (Trillion Btu)",
+        category="Environmental Science",
+    ), len(df)
+
+
 def get_balassa_samuelson_real():
     df = _load('balassa_samuelson_real.csv')
     if df is None:
@@ -157,6 +185,10 @@ ADDITIONAL_REAL = {
               'UNDP HDI + World Bank WDI (NCD mortality)'),
     'lipset': (get_lipset_real, 'Lipset Hypothesis',
                'World Bank WDI + Freedom House (FIW)'),
+    'hubbert': (get_hubbert_real, 'Hubbert Peak Oil (US)',
+                'US EIA Total Energy (crude oil production)'),
+    'jevons': (get_jevons_real, 'Jevons Paradox (Energy)',
+               'US EIA Total Energy + World Bank WDI (US GDP)'),
 }
 
 
