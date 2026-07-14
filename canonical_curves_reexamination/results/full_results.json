@@ -42,7 +42,7 @@
       "f_full": 0.014377713404098227,
       "p_full": 0.9053835950182431,
       "f_clean": 1.340639595066714,
-      "p_clean": 0.25744724067033675,
+      "p_clean": 0.2574472406703364,
       "removed_indices": [
         20,
         18,
@@ -68,7 +68,7 @@
     "y_label": "Tax Revenue (% of GDP)",
     "f_test": {
       "f_stat": 4.551409369702198,
-      "p_value": 0.043782073773685926
+      "p_value": 0.043782073773685704
     },
     "model_comparison": {
       "linear": {
@@ -101,9 +101,9 @@
     },
     "sensitivity": {
       "f_full": 4.551409369702198,
-      "p_full": 0.043782073773685926,
+      "p_full": 0.043782073773685704,
       "f_clean": 1.832188740411879,
-      "p_clean": 0.19097016089783103,
+      "p_clean": 0.19097016089783092,
       "removed_indices": [
         25,
         15,
@@ -133,7 +133,7 @@
     "y_label": "Gini coefficient",
     "f_test": {
       "f_stat": 2.6232756628093914,
-      "p_value": 0.10778743639020172
+      "p_value": 0.10778743639020028
     },
     "model_comparison": {
       "linear": {
@@ -160,7 +160,7 @@
     },
     "sensitivity": {
       "f_full": 2.6232756628093914,
-      "p_full": 0.10778743639020172,
+      "p_full": 0.10778743639020028,
       "f_clean": 3.8313138777110343,
       "p_clean": 0.05255004560968379,
       "removed_indices": [
@@ -187,67 +187,67 @@
   {
     "name": "Environmental Kuznets Curve (CO2)",
     "category": "Economics",
-    "n": 50,
+    "n": 189,
     "x_label": "GDP per capita (PPP, $)",
     "y_label": "CO2 per capita (tonnes)",
     "f_test": {
-      "f_stat": 10.191959725121627,
-      "p_value": 0.0025165971122230735
+      "f_stat": 1.9183597373737176,
+      "p_value": 0.16769653424305664
     },
     "model_comparison": {
       "linear": {
-        "aic": 258.2808258567181,
-        "bic": 262.1048718675744,
-        "r2": 0.35272191309999246,
-        "r2_adj": 0.33923695295624234
+        "aic": 1265.8211886612614,
+        "bic": 1272.3046826913808,
+        "r2": 0.20929171136976066,
+        "r2_adj": 0.20506332479954548
       },
       "quadratic": {
-        "aic": 250.46753972924364,
-        "bic": 256.2036087455281,
-        "r2": 0.4680708576779643,
-        "r2_adj": 0.44543557502596276
+        "aic": 1265.881871363405,
+        "bic": 1275.607112408584,
+        "r2": 0.21736363657725943,
+        "r2_adj": 0.20894819180927293
       },
       "log": {
-        "aic": 250.8596663473133,
-        "bic": 254.68371235816957,
-        "r2": 0.4420034264850089,
-        "r2_adj": 0.4303784978701133
+        "aic": 1265.7002931492038,
+        "bic": 1272.1837871793232,
+        "r2": 0.20979733315008686,
+        "r2_adj": 0.20557165043965953
       }
     },
     "loocv": {
-      "rmse_linear": 3.244032959041752,
-      "rmse_quadratic": 2.9587455304200323
+      "rmse_linear": 6.936066797000549,
+      "rmse_quadratic": 6.987921832595859
     },
     "cooks_distance": {
-      "max": 0.35337998065335413,
-      "mean": 0.028093475930466728,
-      "n_influential": 5
+      "max": 0.7765767518965108,
+      "mean": 0.009038531385976354,
+      "n_influential": 12
     },
     "sensitivity": {
-      "f_full": 10.191959725121627,
-      "p_full": 0.0025165971122230735,
-      "f_clean": 2.638946838816111,
-      "p_clean": 0.11141576884745674,
+      "f_full": 1.9183597373737176,
+      "p_full": 0.16769653424305664,
+      "f_clean": 19.696469332386584,
+      "p_clean": 1.5652994480808147e-05,
       "removed_indices": [
-        19,
-        27,
-        28
+        38,
+        57,
+        48
       ],
       "removed_labels": [
-        "Saudi Arabia",
-        "Switzerland",
-        "Ireland"
+        "Singapore",
+        "Palau",
+        "Qatar"
       ],
-      "n_full": 50,
-      "n_clean": 47
+      "n_full": 189,
+      "n_clean": 186
     },
     "verdict": {
-      "verdict": "OUTLIER_DEPENDENT",
-      "explanation": "Nonlinearity significant with full data (p=0.003) but NOT after removing top influential points (p=0.111)",
-      "best_aic": "quadratic",
+      "verdict": "NOT_SIGNIFICANT",
+      "explanation": "Nonlinear term not significant even with full data (p=0.168)",
+      "best_aic": "log",
       "best_bic": "log"
     },
-    "data_source": "Representative/Published"
+    "data_source": "World Bank WDI (API)"
   },
   {
     "name": "Beveridge Curve",
@@ -257,7 +257,7 @@
     "y_label": "Vacancy Rate (%)",
     "f_test": {
       "f_stat": 3.3789128796920647,
-      "p_value": 0.08093599321847622
+      "p_value": 0.08093599321847633
     },
     "model_comparison": {
       "linear": {
@@ -290,9 +290,9 @@
     },
     "sensitivity": {
       "f_full": 3.3789128796920647,
-      "p_full": 0.08093599321847622,
+      "p_full": 0.08093599321847633,
       "f_clean": 12.842921213775362,
-      "p_clean": 0.002288433480837404,
+      "p_clean": 0.002288433480837737,
       "removed_indices": [
         20,
         19,
@@ -347,7 +347,7 @@
       "f_full": 7.705892420392644,
       "p_full": 0.009700299552627856,
       "f_clean": 0.08968444397078462,
-      "p_clean": 0.7670543668001274,
+      "p_clean": 0.7670543668001272,
       "removed_indices": [
         7,
         17,
@@ -373,7 +373,7 @@
     "y_label": "Food Expenditure Share (%)",
     "f_test": {
       "f_stat": 9.791731769207434,
-      "p_value": 0.004176357645441664
+      "p_value": 0.004176357645441775
     },
     "model_comparison": {
       "linear": {
@@ -406,7 +406,7 @@
     },
     "sensitivity": {
       "f_full": 9.791731769207434,
-      "p_full": 0.004176357645441664,
+      "p_full": 0.004176357645441775,
       "f_clean": 4.055678454086299,
       "p_clean": 0.05536467159099179,
       "removed_indices": [
@@ -438,7 +438,7 @@
     "y_label": "Trade Balance (normalized)",
     "f_test": {
       "f_stat": 10.092256463730553,
-      "p_value": 0.004363686555785673
+      "p_value": 0.004363686555786339
     },
     "model_comparison": {
       "linear": {
@@ -465,9 +465,9 @@
     },
     "sensitivity": {
       "f_full": 10.092256463730553,
-      "p_full": 0.004363686555785673,
+      "p_full": 0.004363686555786339,
       "f_clean": 27.76894179104847,
-      "p_clean": 4.368967935941548e-05,
+      "p_clean": 4.36896793595265e-05,
       "removed_indices": [
         3,
         24,
@@ -528,7 +528,7 @@
       "f_full": 0.0022530879834203534,
       "p_full": 0.9624273753461711,
       "f_clean": 0.306835014429229,
-      "p_clean": 0.58373453014148,
+      "p_clean": 0.5837345301414798,
       "removed_indices": [
         33,
         34,
@@ -587,7 +587,7 @@
       "f_full": 1.3031724126116835,
       "p_full": 0.2659082839636253,
       "f_clean": 0.938077652746699,
-      "p_clean": 0.344941135609213,
+      "p_clean": 0.34494113560921313,
       "removed_indices": [
         22,
         2,
@@ -648,7 +648,7 @@
       "f_full": 4.371977607456301,
       "p_full": 0.0495071098668699,
       "f_clean": 4.208893839431753,
-      "p_clean": 0.05594729877732274,
+      "p_clean": 0.05594729877732263,
       "removed_indices": [
         4,
         15,
@@ -673,67 +673,67 @@
   {
     "name": "Balassa-Samuelson Effect",
     "category": "Economics",
-    "n": 30,
+    "n": 177,
     "x_label": "Relative Labor Productivity (US=100)",
     "y_label": "Relative Price Level (US=1.0)",
     "f_test": {
-      "f_stat": 0.27163594877781716,
-      "p_value": 0.6064853002011693
+      "f_stat": 0.6005547705726346,
+      "p_value": 0.4394182883065294
     },
     "model_comparison": {
       "linear": {
-        "aic": -71.85522180548983,
-        "bic": -69.05282704216552,
-        "r2": 0.9309905500470899,
-        "r2_adj": 0.9285259268344859
+        "aic": 610.6798554998999,
+        "bic": 617.0321549650475,
+        "r2": 0.001076754823034709,
+        "r2_adj": -0.004631378006548115
       },
       "quadratic": {
-        "aic": -70.15553140073155,
-        "bic": -65.95193925574509,
-        "r2": 0.9316779106237638,
-        "r2_adj": 0.926617015114413
+        "aic": 612.0699981827063,
+        "bic": 621.5984473804277,
+        "r2": 0.004512643793234239,
+        "r2_adj": -0.006929739611441388
       },
       "log": {
-        "aic": -48.465868678779685,
-        "bic": -45.66347391545538,
-        "r2": 0.8495112161824308,
-        "r2_adj": 0.8441366167603747
+        "aic": 606.2001731992061,
+        "bic": 612.5524726643538,
+        "r2": 0.02604119850301878,
+        "r2_adj": 0.020475719637321643
       }
     },
     "loocv": {
-      "rmse_linear": 0.07214892187914203,
-      "rmse_quadratic": 0.07530997337192258
+      "rmse_linear": 1.3614788336858747,
+      "rmse_quadratic": 1.3777848242771922
     },
     "cooks_distance": {
-      "max": 0.190432911042751,
-      "mean": 0.02756684300434508,
+      "max": 1.1830682931945935,
+      "mean": 0.006926759171789969,
       "n_influential": 1
     },
     "sensitivity": {
-      "f_full": 0.27163594877781716,
-      "p_full": 0.6064853002011693,
-      "f_clean": 0.1434818309119665,
-      "p_clean": 0.708174182456986,
+      "f_full": 0.6005547705726346,
+      "p_full": 0.4394182883065294,
+      "f_clean": 6.000980476339961,
+      "p_clean": 0.015305888710381188,
       "removed_indices": [
-        3,
-        16,
-        2
+        41,
+        20,
+        170
       ],
       "removed_labels": [
-        "UK",
-        "Turkey",
-        "Japan"
+        "Cayman Islands",
+        "Bermuda",
+        "Venezuela (Bolivarian Republic of)"
       ],
-      "n_full": 30,
-      "n_clean": 27
+      "n_full": 177,
+      "n_clean": 174
     },
     "verdict": {
       "verdict": "NOT_SIGNIFICANT",
-      "explanation": "Nonlinear term not significant even with full data (p=0.606)",
-      "best_aic": "linear",
-      "best_bic": "linear"
+      "explanation": "Nonlinear term not significant even with full data (p=0.439)",
+      "best_aic": "log",
+      "best_bic": "log"
     },
-    "data_source": "Representative/Published"
+    "data_source": "Penn World Table 10.01"
   },
   {
     "name": "Preston Curve",
@@ -837,7 +837,7 @@
       "f_full": 22.05817602506863,
       "p_full": 2.8329471633670167e-05,
       "f_clean": 7.364656589629957,
-      "p_clean": 0.00985248190691912,
+      "p_clean": 0.009852481906919008,
       "removed_indices": [
         39,
         14,
@@ -902,7 +902,7 @@
       "f_full": 50.9722950142716,
       "p_full": 1.1812799879606928e-05,
       "f_clean": 30.623754584486765,
-      "p_clean": 0.0003639110797387657,
+      "p_clean": 0.00036391107973854364,
       "removed_indices": [
         4,
         14,
@@ -928,7 +928,7 @@
     "y_label": "Excess Relative Risk",
     "f_test": {
       "f_stat": 1273.5971053232279,
-      "p_value": 7.085443343157749e-12
+      "p_value": 7.0855543654602116e-12
     },
     "model_comparison": {
       "linear": {
@@ -961,7 +961,7 @@
     },
     "sensitivity": {
       "f_full": 1273.5971053232279,
-      "p_full": 7.085443343157749e-12,
+      "p_full": 7.0855543654602116e-12,
       "f_clean": 1901.169595217084,
       "p_clean": 8.714376997787099e-10,
       "removed_indices": [
@@ -989,7 +989,7 @@
     "y_label": "Years of Morbidity Before Death",
     "f_test": {
       "f_stat": 21.6690544412386,
-      "p_value": 0.0016340202835822826
+      "p_value": 0.0016340202835821716
     },
     "model_comparison": {
       "linear": {
@@ -1022,9 +1022,9 @@
     },
     "sensitivity": {
       "f_full": 21.6690544412386,
-      "p_full": 0.0016340202835822826,
+      "p_full": 0.0016340202835821716,
       "f_clean": 1.8604651162820607,
-      "p_clean": 0.2307629491558869,
+      "p_clean": 0.2307629491558867,
       "removed_indices": [
         1,
         0,
@@ -1085,7 +1085,7 @@
       "f_full": 345.3417089230318,
       "p_full": 4.395673602886063e-09,
       "f_clean": 161.51530642930166,
-      "p_clean": 4.321935972773083e-06,
+      "p_clean": 4.321935972662061e-06,
       "removed_indices": [
         1,
         12,
@@ -1146,7 +1146,7 @@
       "f_full": 9.368169604890202,
       "p_full": 0.004948113572951773,
       "f_clean": 23.87574946329561,
-      "p_clean": 5.546681974211154e-05,
+      "p_clean": 5.5466819741889495e-05,
       "removed_indices": [
         24,
         27,
@@ -1176,7 +1176,7 @@
     "y_label": "Health Index (0-100)",
     "f_test": {
       "f_stat": 0.10761404987893498,
-      "p_value": 0.7459786721327635
+      "p_value": 0.7459786721327633
     },
     "model_comparison": {
       "linear": {
@@ -1209,7 +1209,7 @@
     },
     "sensitivity": {
       "f_full": 0.10761404987893498,
-      "p_full": 0.7459786721327635,
+      "p_full": 0.7459786721327633,
       "f_clean": 0.0005196395233897278,
       "p_clean": 0.9820510194392811,
       "removed_indices": [
@@ -1302,7 +1302,7 @@
     "y_label": "Relative Risk (All-cause Mortality)",
     "f_test": {
       "f_stat": 46.99438223570646,
-      "p_value": 4.4299466973596324e-05
+      "p_value": 4.4299466973707347e-05
     },
     "model_comparison": {
       "linear": {
@@ -1329,7 +1329,7 @@
     },
     "sensitivity": {
       "f_full": 46.99438223570646,
-      "p_full": 4.4299466973596324e-05,
+      "p_full": 4.4299466973707347e-05,
       "f_clean": 70.06217031857524,
       "p_clean": 6.820080102121207e-05,
       "removed_indices": [
@@ -1451,7 +1451,7 @@
       "f_full": 0.16550540467729888,
       "p_full": 0.6878986433925869,
       "f_clean": 0.33381921256369623,
-      "p_clean": 0.5698672297980645,
+      "p_clean": 0.5698672297980641,
       "removed_indices": [
         3,
         2,
@@ -1481,7 +1481,7 @@
     "y_label": "Mortality Index (\u03ba_t)",
     "f_test": {
       "f_stat": 1718.8842938597631,
-      "p_value": 0.0
+      "p_value": 1.1102230246251565e-16
     },
     "model_comparison": {
       "linear": {
@@ -1514,9 +1514,9 @@
     },
     "sensitivity": {
       "f_full": 1718.8842938597631,
-      "p_full": 0.0,
+      "p_full": 1.1102230246251565e-16,
       "f_clean": 6207.0177166520825,
-      "p_clean": 0.0,
+      "p_clean": 1.1102230246251565e-16,
       "removed_indices": [
         70,
         0,
@@ -1542,7 +1542,7 @@
     "y_label": "Marital Fertility Rate",
     "f_test": {
       "f_stat": 34.66258196726247,
-      "p_value": 0.00015362489558035097
+      "p_value": 0.00015362489558012893
     },
     "model_comparison": {
       "linear": {
@@ -1575,9 +1575,9 @@
     },
     "sensitivity": {
       "f_full": 34.66258196726247,
-      "p_full": 0.00015362489558035097,
+      "p_full": 0.00015362489558012893,
       "f_clean": 6.9280603011636686,
-      "p_clean": 0.033808255754181116,
+      "p_clean": 0.03380825575418145,
       "removed_indices": [
         11,
         1,
@@ -1632,7 +1632,7 @@
       "f_full": 5.167161666312381,
       "p_full": 0.033133733248922104,
       "f_clean": 1.9745068195671556,
-      "p_clean": 0.17611034647296908,
+      "p_clean": 0.17611034647296897,
       "removed_indices": [
         1,
         24,
@@ -1662,7 +1662,7 @@
     "y_label": "Total fertility rate",
     "f_test": {
       "f_stat": 0.2285015868306288,
-      "p_value": 0.6336214609886263
+      "p_value": 0.633621460988626
     },
     "model_comparison": {
       "linear": {
@@ -1689,7 +1689,7 @@
     },
     "sensitivity": {
       "f_full": 0.2285015868306288,
-      "p_full": 0.6336214609886263,
+      "p_full": 0.633621460988626,
       "f_clean": 0.010470461631847174,
       "p_clean": 0.9186974425037419,
       "removed_indices": [
@@ -1721,7 +1721,7 @@
     "y_label": "log\u2081\u2080(Species Count)",
     "f_test": {
       "f_stat": 7.99759572737905,
-      "p_value": 0.009091258895834065
+      "p_value": 0.009091258895833954
     },
     "model_comparison": {
       "linear": {
@@ -1748,9 +1748,9 @@
     },
     "sensitivity": {
       "f_full": 7.99759572737905,
-      "p_full": 0.009091258895834065,
+      "p_full": 0.009091258895833954,
       "f_clean": 0.7965073181843219,
-      "p_clean": 0.3817981238957707,
+      "p_clean": 0.3817981238957705,
       "removed_indices": [
         1,
         21,
@@ -1815,7 +1815,7 @@
       "f_full": 0.017065943291977654,
       "p_full": 0.8973060766767009,
       "f_clean": 0.7034827425329491,
-      "p_clean": 0.41261636854663675,
+      "p_clean": 0.4126163685466365,
       "removed_indices": [
         23,
         15,
@@ -1836,55 +1836,55 @@
   {
     "name": "Keeling Curve (CO2)",
     "category": "Environmental Science",
-    "n": 20,
+    "n": 67,
     "x_label": "Year",
     "y_label": "CO\u2082 Concentration (ppm)",
     "f_test": {
-      "f_stat": 734.40090732273,
-      "p_value": 1.9984014443252818e-15
+      "f_stat": 2343.127720055344,
+      "p_value": 1.1102230246251565e-16
     },
     "model_comparison": {
       "linear": {
-        "aic": 119.51275987323064,
-        "bic": 121.50422442033862,
-        "r2": 0.9854704731395915,
-        "r2_adj": 0.9846632772029021
+        "aic": 397.26179784753117,
+        "bic": 401.6711830863131,
+        "r2": 0.9805554802502505,
+        "r2_adj": 0.980256333792562
       },
       "quadratic": {
-        "aic": 45.73823994137973,
-        "bic": 48.7254367620417,
-        "r2": 0.9996712780697763,
-        "r2_adj": 0.9996326049015147
+        "aic": 156.23226804645452,
+        "bic": 162.8463459046274,
+        "r2": 0.999483014858906,
+        "r2_adj": 0.9994668590732468
       },
       "log": {
-        "aic": 120.7530363925804,
-        "bic": 122.74450093968838,
-        "r2": 0.9845409167985066,
-        "r2_adj": 0.9836820788428681
+        "aic": 401.2751050675429,
+        "bic": 405.6844903063248,
+        "r2": 0.979355160661916,
+        "r2_adj": 0.9790375477490224
       }
     },
     "loocv": {
-      "rmse_linear": 5.021197755792561,
-      "rmse_quadratic": 0.7813370172281299
+      "rmse_linear": 4.745051360133832,
+      "rmse_quadratic": 0.7758029454821798
     },
     "cooks_distance": {
-      "max": 0.9879207485030362,
-      "mean": 0.08331385488281315,
-      "n_influential": 1
+      "max": 0.18385600491299628,
+      "mean": 0.02136977304315763,
+      "n_influential": 8
     },
     "sensitivity": {
-      "f_full": 734.40090732273,
-      "p_full": 1.9984014443252818e-15,
-      "f_clean": 285.64557513156853,
-      "p_clean": 1.0395306837551743e-10,
+      "f_full": 2343.127720055344,
+      "p_full": 1.1102230246251565e-16,
+      "f_clean": 1899.3340016542584,
+      "p_clean": 1.1102230246251565e-16,
       "removed_indices": [
-        19,
-        1,
-        0
+        65,
+        0,
+        66
       ],
       "removed_labels": null,
-      "n_full": 20,
-      "n_clean": 17
+      "n_full": 67,
+      "n_clean": 64
     },
     "verdict": {
       "verdict": "ROBUST_NONLINEAR",
@@ -1892,7 +1892,7 @@
       "best_aic": "quadratic",
       "best_bic": "quadratic"
     },
-    "data_source": "Representative/Published"
+    "data_source": "NOAA GML Mauna Loa"
   },
   {
     "name": "HANPP vs Development",
@@ -1937,7 +1937,7 @@
       "f_full": 0.001762021862507148,
       "p_full": 0.9668961182916669,
       "f_clean": 0.05207937692072391,
-      "p_clean": 0.8219217625269694,
+      "p_clean": 0.8219217625269695,
       "removed_indices": [
         5,
         2,
@@ -2002,7 +2002,7 @@
       "f_full": 3.851783437130707,
       "p_full": 0.08130440605781741,
       "f_clean": 0.7532818431964599,
-      "p_clean": 0.418794557041656,
+      "p_clean": 0.4187945570416559,
       "removed_indices": [
         0,
         7,
@@ -2028,7 +2028,7 @@
     "y_label": "Forest area (% of land area)",
     "f_test": {
       "f_stat": 2.1651730806133824,
-      "p_value": 0.14281439614935454
+      "p_value": 0.1428143961493551
     },
     "model_comparison": {
       "linear": {
@@ -2055,9 +2055,9 @@
     },
     "sensitivity": {
       "f_full": 2.1651730806133824,
-      "p_full": 0.14281439614935454,
+      "p_full": 0.1428143961493551,
       "f_clean": 4.157004069372529,
-      "p_clean": 0.04286266472137268,
+      "p_clean": 0.04286266472137257,
       "removed_indices": [
         79,
         37,
@@ -2087,7 +2087,7 @@
     "y_label": "Performance (% max)",
     "f_test": {
       "f_stat": 107.2171945017967,
-      "p_value": 2.4782931262734564e-10
+      "p_value": 2.478294236496481e-10
     },
     "model_comparison": {
       "linear": {
@@ -2120,9 +2120,9 @@
     },
     "sensitivity": {
       "f_full": 107.2171945017967,
-      "p_full": 2.4782931262734564e-10,
+      "p_full": 2.478294236496481e-10,
       "f_clean": 60.548760295699715,
-      "p_clean": 1.2805600502208137e-07,
+      "p_clean": 1.2805600524412597e-07,
       "removed_indices": [
         18,
         0,
@@ -2177,7 +2177,7 @@
       "f_full": 167.95694474472407,
       "p_full": 3.4625096123619414e-09,
       "f_clean": 472.59820876296266,
-      "p_clean": 2.1807344818824959e-10,
+      "p_clean": 2.1807333716594712e-10,
       "removed_indices": [
         15,
         16,
@@ -2319,7 +2319,7 @@
     "y_label": "Life Satisfaction (0-10)",
     "f_test": {
       "f_stat": 113.05034505980257,
-      "p_value": 2.3736934640083973e-10
+      "p_value": 2.373691243562348e-10
     },
     "model_comparison": {
       "linear": {
@@ -2352,7 +2352,7 @@
     },
     "sensitivity": {
       "f_full": 113.05034505980257,
-      "p_full": 2.3736934640083973e-10,
+      "p_full": 2.373691243562348e-10,
       "f_clean": 61.80424156249389,
       "p_clean": 1.5248623486119328e-07,
       "removed_indices": [
@@ -2445,7 +2445,7 @@
     "y_label": "log\u2081\u2080(BMR, Watts)",
     "f_test": {
       "f_stat": 0.8894761904760592,
-      "p_value": 0.35745815494900846
+      "p_value": 0.35745815494900857
     },
     "model_comparison": {
       "linear": {
@@ -2472,9 +2472,9 @@
     },
     "sensitivity": {
       "f_full": 0.8894761904760592,
-      "p_full": 0.35745815494900846,
+      "p_full": 0.35745815494900857,
       "f_clean": 0.1284153523832159,
-      "p_clean": 0.7247650054793823,
+      "p_clean": 0.7247650054793822,
       "removed_indices": [
         1,
         15,
@@ -2499,124 +2499,124 @@
   {
     "name": "Gutenberg-Richter Law",
     "category": "Physics",
-    "n": 15,
+    "n": 10,
     "x_label": "Magnitude",
     "y_label": "log\u2081\u2080(Annual Frequency)",
     "f_test": {
-      "f_stat": 13.007009185054132,
-      "p_value": 0.003602528340864386
+      "f_stat": 5.4765817543117965,
+      "p_value": 0.05182895975954138
     },
     "model_comparison": {
       "linear": {
-        "aic": -20.252013427855672,
-        "bic": -18.83591302565125,
-        "r2": 0.9976711427951792,
-        "r2_adj": 0.9974919999332699
+        "aic": -15.741319480961138,
+        "bic": -15.136149294973047,
+        "r2": 0.9964127716198827,
+        "r2_adj": 0.9959643680723681
       },
       "quadratic": {
-        "aic": -29.265755975657243,
-        "bic": -27.14160537235061,
-        "r2": 0.9988824618629504,
-        "r2_adj": 0.9986962055067754
+        "aic": -19.52075226573521,
+        "bic": -18.612996986753075,
+        "r2": 0.9979873815476629,
+        "r2_adj": 0.997412347704138
       },
       "log": {
-        "aic": 26.824079034623175,
-        "bic": 28.240179436827596,
-        "r2": 0.9462800822058237,
-        "r2_adj": 0.9421477808370409
+        "aic": 2.702587539422545,
+        "bic": 3.307757725410637,
+        "r2": 0.9773134878972077,
+        "r2_adj": 0.9744776738843587
       }
     },
     "loocv": {
-      "rmse_linear": 0.13317300913966976,
-      "rmse_quadratic": 0.10549758082888663
+      "rmse_linear": 0.12844734282569592,
+      "rmse_quadratic": 0.10716916776222028
     },
     "cooks_distance": {
-      "max": 1.3473533403942874,
-      "mean": 0.12772041410118334,
-      "n_influential": 1
+      "max": 1.07985182847648,
+      "mean": 0.24485483388446477,
+      "n_influential": 2
     },
     "sensitivity": {
-      "f_full": 13.007009185054132,
-      "p_full": 0.003602528340864386,
-      "f_clean": 4.803912606991584,
-      "p_clean": 0.056086997270351824,
+      "f_full": 5.4765817543117965,
+      "p_full": 0.05182895975954138,
+      "f_clean": 0.5464955740645457,
+      "p_clean": 0.5007856690411717,
       "removed_indices": [
-        11,
+        7,
         0,
-        14
+        9
       ],
       "removed_labels": null,
-      "n_full": 15,
-      "n_clean": 12
+      "n_full": 10,
+      "n_clean": 7
     },
     "verdict": {
-      "verdict": "OUTLIER_DEPENDENT",
-      "explanation": "Nonlinearity significant with full data (p=0.004) but NOT after removing top influential points (p=0.056)",
+      "verdict": "NOT_SIGNIFICANT",
+      "explanation": "Nonlinear term not significant even with full data (p=0.052)",
       "best_aic": "quadratic",
       "best_bic": "quadratic"
     },
-    "data_source": "Representative/Published"
+    "data_source": "USGS FDSN earthquake catalog"
   },
   {
     "name": "Moore's Law",
     "category": "Physics",
-    "n": 26,
+    "n": 99,
     "x_label": "Year",
-    "y_label": "log\u2081\u2080(Transistors, millions)",
+    "y_label": "log\u2081\u2080(Transistors)",
     "f_test": {
-      "f_stat": 0.14041583770791874,
-      "p_value": 0.7113009132166913
+      "f_stat": 6.319691113852455,
+      "p_value": 0.013604493875555734
     },
     "model_comparison": {
       "linear": {
-        "aic": 4.335805986892922,
-        "bic": 6.851999062935886,
-        "r2": 0.9891141831134406,
-        "r2_adj": 0.988660607409834
+        "aic": -3.322155043774643,
+        "bic": 1.8680846564945366,
+        "r2": 0.9797167010076024,
+        "r2_adj": 0.9795075948324231
       },
       "quadratic": {
-        "aic": 6.177557605965504,
-        "bic": 9.95184722002995,
-        "r2": 0.9891802381535911,
-        "r2_adj": 0.9882393892973816
+        "aic": -7.633795794146494,
+        "bic": 0.15156375625727492,
+        "r2": 0.9809694821976789,
+        "r2_adj": 0.9805730130767972
       },
       "log": {
-        "aic": 4.229509793912783,
-        "bic": 6.745702869955747,
-        "r2": 0.9891585969124876,
-        "r2_adj": 0.9887068717838413
+        "aic": -1.9213002799969843,
+        "bic": 3.2689394202721953,
+        "r2": 0.9794276511389475,
+        "r2_adj": 0.9792155650682149
       }
     },
     "loocv": {
-      "rmse_linear": 0.25522193336753657,
-      "rmse_quadratic": 0.26518034181323175
+      "rmse_linear": 0.2386082563777828,
+      "rmse_quadratic": 0.23180382958938386
     },
     "cooks_distance": {
-      "max": 0.1295856946308712,
-      "mean": 0.023261425421077855,
-      "n_influential": 0
+      "max": 0.13096452901571626,
+      "mean": 0.011760656466074519,
+      "n_influential": 6
     },
     "sensitivity": {
-      "f_full": 0.14041583770791874,
-      "p_full": 0.7113009132166913,
-      "f_clean": 0.005832084171399912,
-      "p_clean": 0.9398850486988017,
+      "f_full": 6.319691113852455,
+      "p_full": 0.013604493875555734,
+      "f_clean": 3.5315613391396017,
+      "p_clean": 0.06334247661106018,
       "removed_indices": [
-        12,
-        9,
-        13
+        4,
+        7,
+        1
       ],
       "removed_labels": null,
-      "n_full": 26,
-      "n_clean": 23
+      "n_full": 99,
+      "n_clean": 96
     },
     "verdict": {
-      "verdict": "NOT_SIGNIFICANT",
-      "explanation": "Nonlinear term not significant even with full data (p=0.711)",
-      "best_aic": "log",
-      "best_bic": "log"
+      "verdict": "OUTLIER_DEPENDENT",
+      "explanation": "Nonlinearity significant with full data (p=0.014) but NOT after removing top influential points (p=0.063)",
+      "best_aic": "quadratic",
+      "best_bic": "quadratic"
     },
-    "data_source": "Representative/Published"
+    "data_source": "Karl Rupp microprocessor-trend-data"
   },
   {
     "name": "Lipset Hypothesis",
@@ -2626,7 +2626,7 @@
     "y_label": "Liberal Democracy Index (0-1)",
     "f_test": {
       "f_stat": 18.12032920195324,
-      "p_value": 0.00011386979306127198
+      "p_value": 0.0001138697930618271
     },
     "model_comparison": {
       "linear": {
@@ -2659,9 +2659,9 @@
     },
     "sensitivity": {
       "f_full": 18.12032920195324,
-      "p_full": 0.00011386979306127198,
+      "p_full": 0.0001138697930618271,
       "f_clean": 0.8159221056214514,
-      "p_clean": 0.37192081899930896,
+      "p_clean": 0.37192081899930884,
       "removed_indices": [
         36,
         38,
@@ -2750,7 +2750,7 @@
     "y_label": "log(Population, millions)",
     "f_test": {
       "f_stat": 2.183419654709833,
-      "p_value": 0.14617447714367293
+      "p_value": 0.14617447714367315
     },
     "model_comparison": {
       "linear": {
@@ -2777,9 +2777,9 @@
     },
     "sensitivity": {
       "f_full": 2.183419654709833,
-      "p_full": 0.14617447714367293,
+      "p_full": 0.14617447714367315,
       "f_clean": 4.69007750633029,
-      "p_clean": 0.03579922358790222,
+      "p_clean": 0.03579922358790233,
       "removed_indices": [
         4,
         2,
@@ -2805,7 +2805,7 @@
     "y_label": "Crime Rate Index",
     "f_test": {
       "f_stat": 17.529286838765753,
-      "p_value": 0.0010654595121339927
+      "p_value": 0.0010654595121337707
     },
     "model_comparison": {
       "linear": {
@@ -2838,7 +2838,7 @@
     },
     "sensitivity": {
       "f_full": 17.529286838765753,
-      "p_full": 0.0010654595121339927,
+      "p_full": 0.0010654595121337707,
       "f_clean": 2.4899979954245337,
       "p_clean": 0.14565133138018127,
       "removed_indices": [
@@ -2866,7 +2866,7 @@
     "y_label": "Social Trust (%)",
     "f_test": {
       "f_stat": 1.5647845888133023,
-      "p_value": 0.22410631469900477
+      "p_value": 0.22410631469900455
     },
     "model_comparison": {
       "linear": {
@@ -2899,9 +2899,9 @@
     },
     "sensitivity": {
       "f_full": 1.5647845888133023,
-      "p_full": 0.22410631469900477,
+      "p_full": 0.22410631469900455,
       "f_clean": 7.279660633978311,
-      "p_clean": 0.014248026860089191,
+      "p_clean": 0.014248026860089302,
       "removed_indices": [
         4,
         5,
@@ -2960,7 +2960,7 @@
       "f_full": 157.38195265870976,
       "p_full": 2.3497425116758563e-09,
       "f_clean": 162.22765814403638,
-      "p_clean": 2.4826965594471062e-08,
+      "p_clean": 2.4826965705493365e-08,
       "removed_indices": [
         1,
         0,
@@ -2986,7 +2986,7 @@
     "y_label": "Global cereal yield (tonnes/ha)",
     "f_test": {
       "f_stat": 2.2033525877475766,
-      "p_value": 0.14303419368264714
+      "p_value": 0.14303419368264736
     },
     "model_comparison": {
       "linear": {
@@ -3019,9 +3019,9 @@
     },
     "sensitivity": {
       "f_full": 2.2033525877475766,
-      "p_full": 0.14303419368264714,
+      "p_full": 0.14303419368264736,
       "f_clean": 2.2185951770575203,
-      "p_clean": 0.14196788681092987,
+      "p_clean": 0.1419678868109301,
       "removed_indices": [
         23,
         42,
@@ -3047,7 +3047,7 @@
     "y_label": "Relative Risk (All-cause Mortality)",
     "f_test": {
       "f_stat": 24.386259323459925,
-      "p_value": 0.00014825829257325562
+      "p_value": 0.0001482582925731446
     },
     "model_comparison": {
       "linear": {
@@ -3080,9 +3080,9 @@
     },
     "sensitivity": {
       "f_full": 24.386259323459925,
-      "p_full": 0.00014825829257325562,
+      "p_full": 0.0001482582925731446,
       "f_clean": 34.23965841137526,
-      "p_clean": 5.6715922897576654e-05,
+      "p_clean": 5.6715922897687676e-05,
       "removed_indices": [
         1,
         0,
@@ -3108,7 +3108,7 @@
     "y_label": "Weight Change (kg, 8 weeks)",
     "f_test": {
       "f_stat": 0.11799980563770483,
-      "p_value": 0.7367060372380019
+      "p_value": 0.7367060372380017
     },
     "model_comparison": {
       "linear": {
@@ -3135,9 +3135,9 @@
     },
     "sensitivity": {
       "f_full": 0.11799980563770483,
-      "p_full": 0.7367060372380019,
+      "p_full": 0.7367060372380017,
       "f_clean": 3.8498249572641305,
-      "p_clean": 0.07816366773895267,
+      "p_clean": 0.07816366773895278,
       "removed_indices": [
         1,
         12,

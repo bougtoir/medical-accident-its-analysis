@@ -85,6 +85,46 @@ def _try_real_data_substitution(all_results):
     return new_results
 
 
+def _try_additional_real_substitution(all_results):
+    """Replace hard-coded curves with additional fetched real data (NOAA, USGS,
+    Penn World Table, Karl Rupp, WDI CO2) where available."""
+    try:
+        from data_additional_real import get_all_additional_real
+    except ImportError:
+        print("  [INFO] data_additional_real not available; skipping.")
+        return all_results
+
+    extra = get_all_additional_real()
+    if not extra:
+        print("  [INFO] No additional real data loaded. "
+              "Run fetch_additional_real.py first.")
+        return all_results
+
+    replaced = []
+    new_results = []
+    for r in all_results:
+        name = r['name']
+        if name in extra:
+            crv, n, src = extra[name]
+            try:
+                new_r = crv.run_full_analysis()
+                new_r['data_source'] = src
+                new_results.append(new_r)
+                replaced.append(f"{name} ({src})")
+                continue
+            except Exception as e:
+                print(f"  [WARN] Additional real analysis failed for {name}: {e}")
+        new_results.append(r)
+
+    if replaced:
+        print(f"\n  [REAL DATA+] Replaced {len(replaced)} additional curves "
+              f"with fetched real data:")
+        for name in replaced:
+            print(f"    - {name}")
+
+    return new_results
+
+
 def main():
     print("=" * 70)
     print("CANONICAL CURVES RE-EXAMINATION")
@@ -138,6 +178,7 @@ def main():
     print("SUBSTITUTING REAL DATA (World Bank API)")
     print("=" * 70)
     all_results = _try_real_data_substitution(all_results)
+    all_results = _try_additional_real_substitution(all_results)
 
     # Summary
     print("\n" + "=" * 70)

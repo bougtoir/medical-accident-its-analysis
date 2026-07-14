@@ -74,15 +74,40 @@ canonical_curves_reexamination/
 
 ```bash
 cd scripts
-python run_all_analyses.py      # Run all 52 analyses
-python generate_figures.py      # Generate figures
-python generate_manuscript.py   # Generate English manuscript
-python generate_manuscript_ja.py # Generate Japanese manuscript
-python generate_pptx.py         # Generate editable figures
+python fetch_real_data.py          # Fetch WDI/FRED real data -> data/*.csv
+python fetch_additional_real.py    # Fetch NOAA, USGS, PWT, Karl Rupp -> data/*.csv
+python run_all_analyses.py         # Run all 52 analyses (substitutes real data)
+python generate_figures.py         # Generate figures
+python generate_manuscript.py      # Generate English manuscript
+python generate_manuscript_ja.py   # Generate Japanese manuscript
+python generate_pptx.py            # Generate editable figures
 ```
+
+The two `fetch_*` scripts download primary data from public sources and write
+CSVs to `data/`. `run_all_analyses.py` then substitutes those real datasets for
+the corresponding curves before computing all statistics.
+
+## Data provenance (in progress)
+
+Not all 52 curves currently use fully traceable real data. Status:
+
+- **13 curves use fetched real data** (World Bank WDI/FRED, NOAA Mauna Loa,
+  USGS FDSN earthquake catalog, Penn World Table 10.01, Karl Rupp transistor
+  dataset): #1 Phillips, #3 Kuznets, #4 Environmental Kuznets (CO2),
+  #6 Okun, #12 Balassa-Samuelson, #13 Preston, #23 & #28 Demographic Transition,
+  #31 Keeling, #34 Forest Transition, #42 Gutenberg-Richter, #43 Moore's Law,
+  #50 Green Revolution.
+- **The remaining 39 curves still use hard-coded arrays** in `scripts/data_*.py`
+  and are being migrated to real, primary-source data. Until a curve appears in
+  the list above, treat its values as provisional. #35 Yerkes-Dodson is
+  currently **synthetic** (generated with `numpy.random`) and must be replaced
+  with real data, dropped, or explicitly relabeled as a simulation.
+
+Each curve's claimed source is recorded in `data/source_metadata.json`.
 
 ## Dependencies
 
 ```
 numpy scipy pandas statsmodels scikit-learn matplotlib seaborn python-docx python-pptx
+wbgapi requests openpyxl
 ```
