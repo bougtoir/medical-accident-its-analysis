@@ -141,13 +141,13 @@
     "original_paper": "Tinbergen J (1962) Shaping the World Economy",
     "original_n": 42,
     "original_period": "1958 bilateral trade",
-    "data_source": "UN COMTRADE bilateral trade data; CEPII GeoDist database",
-    "current_n": 25,
-    "current_period": "2022",
+    "data_source": "CEPII Gravity database V202211 (GDP_o, GDP_d, dist, BACI bilateral trade), ordered country pairs 2019",
+    "current_n": null,
+    "current_period": "2019 (all valid ordered country pairs)",
     "x_variable": "log(GDP_i × GDP_j / Distance²)",
     "y_variable": "log(Bilateral trade)",
     "claimed_form": "Power law (log-linear)",
-    "country_scope": "Top 25 bilateral pairs"
+    "country_scope": "Global bilateral pairs"
   },
   {
     "id": 11,

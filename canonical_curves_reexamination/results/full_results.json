@@ -553,57 +553,57 @@
   {
     "name": "Gravity Model of Trade",
     "category": "Economics",
-    "n": 25,
-    "x_label": "log(GDP_i \u00d7 GDP_j / Distance\u00b2)",
-    "y_label": "log(Bilateral Trade)",
+    "n": 14263,
+    "x_label": "log\u2081\u2080(GDP_i \u00d7 GDP_j / Distance\u00b2)",
+    "y_label": "log\u2081\u2080(Bilateral Trade)",
     "f_test": {
-      "f_stat": 1.3031724126116835,
-      "p_value": 0.2659082839636253
+      "f_stat": 15.687758038759888,
+      "p_value": 7.50693196711616e-05
     },
     "model_comparison": {
       "linear": {
-        "aic": 14.316505005218879,
-        "bic": 16.75425665495528,
-        "r2": 0.6110395859318725,
-        "r2_adj": 0.5941282635810843
+        "aic": 45563.444217421384,
+        "bic": 45578.57506552243,
+        "r2": 0.6130048967217006,
+        "r2_adj": 0.6129777601181469
       },
       "quadratic": {
-        "aic": 14.877828680399041,
-        "bic": 18.534456155003642,
-        "r2": 0.6327912372622844,
-        "r2_adj": 0.5994086224679467
+        "aic": 45549.76178373721,
+        "bic": 45572.45805588878,
+        "r2": 0.6134301711915064,
+        "r2_adj": 0.6133759538242122
       }
     },
     "loocv": {
-      "rmse_linear": 0.3209699273824168,
-      "rmse_quadratic": 0.32465574826265525
+      "rmse_linear": 1.1952052579886014,
+      "rmse_quadratic": 1.1946542911016644
     },
     "cooks_distance": {
-      "max": 0.24773471074608375,
-      "mean": 0.03971630393433775,
-      "n_influential": 2
+      "max": 0.009902442873359856,
+      "mean": 6.825723471609688e-05,
+      "n_influential": 666
     },
     "sensitivity": {
-      "f_full": 1.3031724126116835,
-      "p_full": 0.2659082839636253,
-      "f_clean": 0.938077652746699,
-      "p_clean": 0.34494113560921313,
+      "f_full": 15.687758038759888,
+      "p_full": 7.50693196711616e-05,
+      "f_clean": 13.496520751827537,
+      "p_clean": 0.0002398812203179279,
       "removed_indices": [
-        22,
-        2,
-        17
+        11948,
+        13508,
+        11970
       ],
       "removed_labels": null,
-      "n_full": 25,
-      "n_clean": 22
+      "n_full": 14263,
+      "n_clean": 14260
     },
     "verdict": {
-      "verdict": "NOT_SIGNIFICANT",
-      "explanation": "Nonlinear term not significant even with full data (p=0.266)",
-      "best_aic": "linear",
-      "best_bic": "linear"
+      "verdict": "ROBUST_NONLINEAR",
+      "explanation": "Nonlinearity is robust: significant F-test (p=0.000), survives outlier removal (p=0.000), better LOOCV",
+      "best_aic": "quadratic",
+      "best_bic": "quadratic"
     },
-    "data_source": "Representative/Published"
+    "data_source": "CEPII Gravity V202211 (GDP, distance, BACI trade; 2019)"
   },
   {
     "name": "Great Gatsby Curve",

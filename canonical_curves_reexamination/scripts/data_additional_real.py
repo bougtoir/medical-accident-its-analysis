@@ -170,6 +170,24 @@ def get_rahn_real():
     ), len(df)
 
 
+def get_gravity_real():
+    df = _load('gravity_real.csv')
+    if df is None:
+        return None
+    df = df.dropna(subset=['gdp_o', 'gdp_d', 'dist', 'tradeflow_baci'])
+    df = df[(df['gdp_o'] > 0) & (df['gdp_d'] > 0)
+            & (df['dist'] > 0) & (df['tradeflow_baci'] > 0)]
+    gravity_index = np.log10(df['gdp_o'].values * df['gdp_d'].values
+                             / df['dist'].values ** 2)
+    trade_log = np.log10(df['tradeflow_baci'].values)
+    return CurveReexamination(
+        "Gravity Model of Trade", gravity_index, trade_log,
+        x_label="log₁₀(GDP_i × GDP_j / Distance²)",
+        y_label="log₁₀(Bilateral Trade)",
+        category="Economics", x_is_logged=True,
+    ), len(df)
+
+
 def get_hubble_real():
     df = _load('hubble_real.csv')
     if df is None:
@@ -304,6 +322,8 @@ ADDITIONAL_REAL = {
              'OWID govt expenditure (IMF) + World Bank WDI GDP growth'),
     'hubble': (get_hubble_real, "Hubble's Law",
                'Hubble (1929) PNAS Table 1 (24 nebulae, public domain)'),
+    'gravity': (get_gravity_real, 'Gravity Model of Trade',
+                'CEPII Gravity V202211 (GDP, distance, BACI trade; 2019)'),
 }
 
 

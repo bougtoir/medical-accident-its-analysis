@@ -572,6 +572,61 @@ def fetch_rahn():
     return _save(df, 'rahn_real.csv')
 
 
+def fetch_gravity(year=2019):
+    """#10 Gravity Model of Trade: gravity index vs bilateral trade.
+
+    Source: CEPII Gravity database V202211 (Conte, Cotterlaz & Mayer 2022).
+    For a given year, keeps ordered country pairs (o<d) with valid origin/
+    destination GDP (gdp_o, gdp_d), bilateral distance (dist) and BACI bilateral
+    trade (tradeflow_baci > 0). Raw archive (~1.2 GB) is cached under
+    data/cache/ (gitignored); only the filtered pairs are saved.
+    """
+    import zipfile
+    import csv
+    cache = os.path.join(DATA_DIR, 'cache')
+    os.makedirs(cache, exist_ok=True)
+    zpath = os.path.join(cache, 'cepii_gravity_V202211.zip')
+    if not os.path.exists(zpath):
+        url = ('https://www.cepii.fr/DATA_DOWNLOAD/gravity/data/'
+               'Gravity_csv_V202211.zip')
+        with requests.get(url, timeout=TIMEOUT, headers=HEADERS,
+                          stream=True) as r:
+            r.raise_for_status()
+            with open(zpath, 'wb') as f:
+                for chunk in r.iter_content(1 << 20):
+                    f.write(chunk)
+    with zipfile.ZipFile(zpath) as z:
+        name = [n for n in z.namelist() if n.startswith('Gravity_')][0]
+        rows = []
+        with z.open(name) as fh:
+            reader = csv.reader(
+                (line.decode('utf-8') for line in fh))
+            header = next(reader)
+            idx = {c.strip('"'): i for i, c in enumerate(header)}
+            iy, io, id_ = idx['year'], idx['iso3_o'], idx['iso3_d']
+            ig_o, ig_d = idx['gdp_o'], idx['gdp_d']
+            idist, itr = idx['dist'], idx['tradeflow_baci']
+            for row in reader:
+                if row[iy] != str(year):
+                    continue
+                o, d = row[io].strip('"'), row[id_].strip('"')
+                if o >= d:
+                    continue
+                try:
+                    go, gd = float(row[ig_o]), float(row[ig_d])
+                    dist, tr = float(row[idist]), float(row[itr])
+                except ValueError:
+                    continue
+                if go > 0 and gd > 0 and dist > 0 and tr > 0:
+                    rows.append({'iso3_o': o, 'iso3_d': d, 'gdp_o': go,
+                                 'gdp_d': gd, 'dist': dist,
+                                 'tradeflow_baci': tr})
+    df = pd.DataFrame(rows)
+    if len(df) < 100:
+        raise RuntimeError("Gravity: unexpected row count")
+    return _save(df, 'gravity_real.csv')
+
+
 def fetch_hubble():
     """#40 Hubble's Law: distance vs recession velocity (original 1929 data).
 
@@ -609,6 +664,7 @@ FETCHERS = {
     'engel': fetch_engel,
     'rahn': fetch_rahn,
     'hubble': fetch_hubble,
+    'gravity': fetch_gravity,
 }
 
 
