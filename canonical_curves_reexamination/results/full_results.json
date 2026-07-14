@@ -1476,55 +1476,55 @@
   {
     "name": "Lee-Carter Mortality Model",
     "category": "Demography",
-    "n": 74,
+    "n": 92,
     "x_label": "Year",
     "y_label": "Mortality Index (\u03ba_t)",
     "f_test": {
-      "f_stat": 1718.8842938597631,
+      "f_stat": 104.63741984360529,
       "p_value": 1.1102230246251565e-16
     },
     "model_comparison": {
       "linear": {
-        "aic": 501.2259744919212,
-        "bic": 505.83410467832954,
-        "r2": 0.920750518122374,
-        "r2_adj": 0.9196498308740736
+        "aic": 653.9982633549444,
+        "bic": 659.0418405090425,
+        "r2": 0.9476854980662601,
+        "r2_adj": 0.9471042258225519
       },
       "quadratic": {
-        "aic": 264.4112224161434,
-        "bic": 271.3234176957559,
-        "r2": 0.99685638159259,
-        "r2_adj": 0.9967678289613954
+        "aic": 584.4819648459928,
+        "bic": 592.04733057714,
+        "r2": 0.9759551089047596,
+        "r2_adj": 0.9754147742734058
       },
       "log": {
-        "aic": 498.82866602520534,
-        "bic": 503.4367962116137,
-        "r2": 0.9232767482322926,
-        "r2_adj": 0.9222111475132966
+        "aic": 650.5325607469456,
+        "bic": 655.5761379010437,
+        "r2": 0.9496195634646485,
+        "r2_adj": 0.9490597808364779
       }
     },
     "loocv": {
-      "rmse_linear": 7.21605800444534,
-      "rmse_quadratic": 1.497382772251546
+      "rmse_linear": 8.557284454769023,
+      "rmse_quadratic": 5.828875475431002
     },
     "cooks_distance": {
-      "max": 0.18459025988610742,
-      "mean": 0.018340542570021018,
-      "n_influential": 9
+      "max": 0.1785402452560082,
+      "mean": 0.017054703201930796,
+      "n_influential": 11
     },
     "sensitivity": {
-      "f_full": 1718.8842938597631,
+      "f_full": 104.63741984360529,
       "p_full": 1.1102230246251565e-16,
-      "f_clean": 6207.0177166520825,
-      "p_clean": 1.1102230246251565e-16,
+      "f_clean": 81.67139465410544,
+      "p_clean": 4.1300296516055823e-14,
       "removed_indices": [
-        70,
-        0,
-        69
+        3,
+        89,
+        88
       ],
       "removed_labels": null,
-      "n_full": 74,
-      "n_clean": 71
+      "n_full": 92,
+      "n_clean": 89
     },
     "verdict": {
       "verdict": "ROBUST_NONLINEAR",
@@ -1532,7 +1532,7 @@
       "best_aic": "quadratic",
       "best_bic": "quadratic"
     },
-    "data_source": "Representative/Published"
+    "data_source": "HMD USA death rates (Lee-Carter SVD kappa_t)"
   },
   {
     "name": "Coale-Trussell Fertility Schedule",

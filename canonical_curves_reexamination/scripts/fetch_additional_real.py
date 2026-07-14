@@ -403,6 +403,51 @@ def fetch_zipf(top_n=100):
     return _save(df, 'zipf_cities_real.csv')
 
 
+def fetch_lee_carter(max_age=99):
+    """#25 Lee-Carter: year vs mortality time index kappa_t.
+
+    Estimated by Lee-Carter SVD from Human Mortality Database (HMD) USA period
+    death rates (Mx_1x1). Because HMD prohibits redistribution of its raw data,
+    the input file is read locally (env HMD_MX_FILE, else data/hmd/USA.Mx_1x1.txt)
+    and NOT committed; only the derived kappa_t index is saved.
+    """
+    src = os.environ.get('HMD_MX_FILE',
+                         os.path.join(DATA_DIR, 'hmd', 'USA.Mx_1x1.txt'))
+    if not os.path.exists(src):
+        raise RuntimeError(
+            f"HMD Mx file not found at {src}; download USA period death rates "
+            "(Mx_1x1) from mortality.org (free account) and place it there")
+    # HMD format: header line + column names, then Year Age Female Male Total
+    df = pd.read_csv(src, skiprows=2, sep=r'\s+',
+                     names=['Year', 'Age', 'Female', 'Male', 'Total'],
+                     na_values=['.'])
+    df['Age'] = df['Age'].astype(str).str.replace('+', '', regex=False)
+    df = df[df['Age'].str.isdigit()]
+    df['Age'] = df['Age'].astype(int)
+    df = df[df['Age'] <= max_age]
+    df['Total'] = pd.to_numeric(df['Total'], errors='coerce')
+    df = df.dropna(subset=['Total'])
+    df = df[df['Total'] > 0]
+    # matrix log(m): rows=age, cols=year
+    mat = df.pivot(index='Age', columns='Year', values='Total').sort_index()
+    mat = mat.dropna(axis=1)  # keep years with complete age coverage
+    logm = np.log(mat.values)
+    ax = logm.mean(axis=1, keepdims=True)
+    centered = logm - ax
+    U, S, Vt = np.linalg.svd(centered, full_matrices=False)
+    bx = U[:, 0]
+    kt = S[0] * Vt[0, :]
+    # Lee-Carter identification: sum(bx)=1
+    s = bx.sum()
+    bx, kt = bx / s, kt * s
+    years = mat.columns.values.astype(int)
+    # sign convention: mortality improves over time -> kappa_t decreasing
+    if kt[-1] > kt[0]:
+        kt = -kt
+    out = pd.DataFrame({'year': years, 'kappa_t': kt})
+    return _save(out, 'lee_carter_real.csv')
+
+
 FETCHERS = {
     'ekc_co2': fetch_ekc_co2,
     'keeling': fetch_keeling,
@@ -415,6 +460,7 @@ FETCHERS = {
     'jevons': fetch_jevons,
     'beveridge': fetch_beveridge,
     'zipf': fetch_zipf,
+    'lee_carter': fetch_lee_carter,
 }
 
 

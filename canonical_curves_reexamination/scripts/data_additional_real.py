@@ -139,6 +139,19 @@ def get_beveridge_real():
     ), len(df)
 
 
+def get_lee_carter_real():
+    df = _load('lee_carter_real.csv')
+    if df is None:
+        return None
+    df = df.dropna(subset=['year', 'kappa_t'])
+    return CurveReexamination(
+        "Lee-Carter Mortality Model",
+        df['year'].values, df['kappa_t'].values,
+        x_label="Year", y_label="Mortality Index (\u03ba_t)",
+        category="Demography",
+    ), len(df)
+
+
 def get_zipf_real():
     df = _load('zipf_cities_real.csv')
     if df is None:
@@ -221,6 +234,8 @@ ADDITIONAL_REAL = {
                   'US BLS (CPS unemployment + JOLTS job openings)'),
     'zipf': (get_zipf_real, "Zipf's Law (US Cities)",
              'US Census 2020 Decennial (place populations)'),
+    'lee_carter': (get_lee_carter_real, 'Lee-Carter Mortality Model',
+                   'HMD USA death rates (Lee-Carter SVD kappa_t)'),
 }
 
 
