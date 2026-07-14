@@ -2143,57 +2143,57 @@
   {
     "name": "Ebbinghaus Forgetting Curve",
     "category": "Psychology",
-    "n": 17,
+    "n": 7,
     "x_label": "log(Time in hours)",
     "y_label": "Retention (%)",
     "f_test": {
-      "f_stat": 167.95694474472407,
-      "p_value": 3.4625096123619414e-09
+      "f_stat": 4.995127434445885,
+      "p_value": 0.08911705039126994
     },
     "model_comparison": {
       "linear": {
-        "aic": 101.05770709214319,
-        "bic": 102.72413378025563,
-        "r2": 0.8935641362289822,
-        "r2_adj": 0.8864684119775811
+        "aic": 39.26128965369277,
+        "bic": 39.153109951803394,
+        "r2": 0.9343801475531943,
+        "r2_adj": 0.9212561770638332
       },
       "quadratic": {
-        "aic": 59.457590135790575,
-        "bic": 61.957230167959224,
-        "r2": 0.9918106885401665,
-        "r2_adj": 0.9906407869030475
+        "aic": 35.58856893964201,
+        "bic": 35.42629938680795,
+        "r2": 0.9708198230986606,
+        "r2_adj": 0.9562297346479909
       }
     },
     "loocv": {
-      "rmse_linear": 5.2215558608931465,
-      "rmse_quadratic": 1.977498505846497
+      "rmse_linear": 5.205614779102308,
+      "rmse_quadratic": 4.4192444229590375
     },
     "cooks_distance": {
-      "max": 1.5888767527122827,
-      "mean": 0.13521803448111705,
+      "max": 2.127477450377338,
+      "mean": 0.46398330606240723,
       "n_influential": 2
     },
     "sensitivity": {
-      "f_full": 167.95694474472407,
-      "p_full": 3.4625096123619414e-09,
-      "f_clean": 472.59820876296266,
-      "p_clean": 2.1807333716594712e-10,
+      "f_full": 4.995127434445885,
+      "p_full": 0.08911705039126994,
+      "f_clean": 0.0018124788080834096,
+      "p_clean": 0.9729134049914038,
       "removed_indices": [
-        15,
-        16,
+        1,
+        6,
         0
       ],
       "removed_labels": null,
-      "n_full": 17,
-      "n_clean": 14
+      "n_full": 7,
+      "n_clean": 4
     },
     "verdict": {
-      "verdict": "ROBUST_NONLINEAR",
-      "explanation": "Nonlinearity is robust: significant F-test (p=0.000), survives outlier removal (p=0.000), better LOOCV",
+      "verdict": "NOT_SIGNIFICANT",
+      "explanation": "Nonlinear term not significant even with full data (p=0.089)",
       "best_aic": "quadratic",
       "best_bic": "quadratic"
     },
-    "data_source": "Representative/Published"
+    "data_source": "Ebbinghaus (1885) Ch.7 Table (7 intervals, public domain)"
   },
   {
     "name": "Weber-Fechner Law",

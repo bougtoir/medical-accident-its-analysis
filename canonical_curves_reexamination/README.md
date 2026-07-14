@@ -115,7 +115,8 @@ Not all 52 curves currently use fully traceable real data. Status:
   #50 Green Revolution.
 - **Curves digitized/transcribed from the original published figure or table**
   (values verifiable against the cited source; see `data/digitized_sources.md`):
-  #21 BMI-Mortality (Global BMI Mortality Collaboration 2016 Lancet).
+  #21 BMI-Mortality (Global BMI Mortality Collaboration 2016 Lancet),
+  #36 Ebbinghaus Forgetting Curve (Ebbinghaus 1885 original savings table).
 - **The remaining curves still use hard-coded arrays** in `scripts/data_*.py`
   and are being migrated to real, primary-source data. Until a curve appears in
   the lists above, treat its values as provisional. #35 Yerkes-Dodson is

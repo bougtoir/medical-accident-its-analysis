@@ -18,3 +18,13 @@ WebPlotDigitizer. These are stored in `data/*_real.csv` and read by
   their HRs (95% CI) are stated verbatim in the Abstract/Findings and Table 2.
 - Transcription (not figure digitization): HRs read from the reported numbers.
 - x = BMI category midpoint (kg/m²); y = all-cause mortality hazard ratio.
+
+## #36 Ebbinghaus Forgetting Curve — `ebbinghaus_real.csv`
+- Source: Ebbinghaus H (1885) "Über das Gedächtnis" / Ruger & Bussenius (1913)
+  translation "Memory: A Contribution to Experimental Psychology", Chapter VII,
+  Sections 28-29 (public domain). Transcribed from the original savings table
+  (verifiable at Wikisource and psychclassics.yorku.ca/Ebbinghaus/memory7.htm).
+- Values (X = hours after learning, Q = % savings retained):
+  0.33h→58.2, 1h→44.2, 8.8h→35.8, 24h→33.7, 48h→27.8, 144h→25.4, 744h→21.1.
+- x = log(time in hours); y = retention (savings %). Not extrapolated — exactly
+  the 7 intervals Ebbinghaus reported.

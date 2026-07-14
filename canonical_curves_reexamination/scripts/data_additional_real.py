@@ -170,6 +170,20 @@ def get_rahn_real():
     ), len(df)
 
 
+def get_ebbinghaus_real():
+    df = _load('ebbinghaus_real.csv')
+    if df is None:
+        return None
+    df = df.dropna(subset=['time_hours', 'retention_pct'])
+    df = df[df['time_hours'] > 0]
+    return CurveReexamination(
+        "Ebbinghaus Forgetting Curve",
+        np.log(df['time_hours'].values), df['retention_pct'].values,
+        x_label="log(Time in hours)", y_label="Retention (%)",
+        category="Psychology", x_is_logged=True,
+    ), len(df)
+
+
 def get_bmi_mortality_real():
     df = _load('bmi_mortality_real.csv')
     if df is None:
@@ -339,6 +353,8 @@ ADDITIONAL_REAL = {
                 'CEPII Gravity V202211 (GDP, distance, BACI trade; 2019)'),
     'bmi_mortality': (get_bmi_mortality_real, 'BMI-Mortality J-Curve',
                       'Global BMI Mortality Collaboration 2016 Lancet (HRs, transcribed)'),
+    'ebbinghaus': (get_ebbinghaus_real, 'Ebbinghaus Forgetting Curve',
+                   'Ebbinghaus (1885) Ch.7 Table (7 intervals, public domain)'),
 }
 
 
