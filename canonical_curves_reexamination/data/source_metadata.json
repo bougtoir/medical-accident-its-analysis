@@ -666,13 +666,13 @@
     "original_paper": "Duverger M (1954) Political Parties. Wiley",
     "original_n": 20,
     "original_period": "Western democracies 1950s",
-    "data_source": "Gallagher & Mitchell (2005) Politics of Electoral Systems; IDEA Electoral System Design",
-    "current_n": 30,
-    "current_period": "Most recent elections",
+    "data_source": "Bormann & Golder, Democratic Electoral Systems (DES) 5.0 (Electoral Studies 2022): tier-1 average district magnitude vs effective number of electoral parties, legislative elections (see data/digitized_sources.md)",
+    "current_n": null,
+    "current_period": "Legislative elections in democracies, 1919-2020",
     "x_variable": "log(District magnitude + 1)",
-    "y_variable": "Effective number of parties",
+    "y_variable": "Effective number of electoral parties",
     "claimed_form": "Positive log-linear",
-    "country_scope": "30 democracies"
+    "country_scope": "Democracies worldwide (DES 5.0)"
   },
   {
     "id": 46,

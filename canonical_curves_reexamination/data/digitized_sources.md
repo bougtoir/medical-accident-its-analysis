@@ -47,3 +47,13 @@ WebPlotDigitizer. These are stored in `data/*_real.csv` and read by
   (not Kleiber's 1932 domestic-animal table, whose scanned original is not
   reliably machine-readable); the source is labelled accordingly.
 - x = log₁₀(Body mass, kg); y = log₁₀(BMR, W). Replaces 22 hand-entered values.
+
+## #45 Duverger's Law — `duverger_real.csv`
+- Source: Nils-Christian Bormann & Matt Golder, Democratic Electoral Systems
+  (DES) dataset, version 5.0 (Bormann & Golder 2022 Electoral Studies 78;
+  Bormann & Kaftan 2024 Open Research Europe 4:73). Downloaded
+  `es_data-v50.zip` from https://mattgolder.com/elections.
+- Legislative elections with tier-1 average district magnitude and effective
+  number of electoral parties (enep, Laakso-Taagepera) both present → 1660
+  elections. Replaces 30 hand-entered country values.
+- x = log(district magnitude + 1); y = effective number of electoral parties.

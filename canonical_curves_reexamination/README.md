@@ -118,7 +118,8 @@ Not all 52 curves currently use fully traceable real data. Status:
   #21 BMI-Mortality (Global BMI Mortality Collaboration 2016 Lancet),
   #29 Species-Area (Johnson & Raven 1973 Galapagos plant species),
   #36 Ebbinghaus Forgetting Curve (Ebbinghaus 1885 original savings table),
-  #41 Kleiber's Law (AnAge database, 422 mammal species).
+  #41 Kleiber's Law (AnAge database, 422 mammal species),
+  #45 Duverger's Law (Bormann & Golder DES 5.0, 1660 elections).
 - **The remaining curves still use hard-coded arrays** in `scripts/data_*.py`
   and are being migrated to real, primary-source data. Until a curve appears in
   the lists above, treat its values as provisional. #35 Yerkes-Dodson is

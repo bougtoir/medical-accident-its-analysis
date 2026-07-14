@@ -2686,61 +2686,61 @@
   {
     "name": "Duverger's Law",
     "category": "Political Science",
-    "n": 30,
+    "n": 1660,
     "x_label": "log(District Magnitude + 1)",
     "y_label": "Effective Number of Parties",
     "f_test": {
-      "f_stat": 0.5907490981634616,
-      "p_value": 0.4488007317181142
+      "f_stat": 36.640570116630265,
+      "p_value": 1.7531240903423395e-09
     },
     "model_comparison": {
       "linear": {
-        "aic": 105.8057660569896,
-        "bic": 108.60816082031391,
-        "r2": 0.37804846196653785,
-        "r2_adj": 0.35583590703677126
+        "aic": 6861.555654542884,
+        "bic": 6872.3848003055855,
+        "r2": 0.08979784955774373,
+        "r2_adj": 0.08924887359245892
       },
       "quadratic": {
-        "aic": 107.15645586904655,
-        "bic": 111.36004801403303,
-        "r2": 0.39136514680490286,
-        "r2_adj": 0.346281083605266
+        "aic": 6827.248703814925,
+        "bic": 6843.492422458977,
+        "r2": 0.10948935099083146,
+        "r2_adj": 0.10841450410005393
       }
     },
     "loocv": {
-      "rmse_linear": 1.459022930692489,
-      "rmse_quadratic": 1.5528083961525032
+      "rmse_linear": 1.9112538870412044,
+      "rmse_quadratic": 1.8913554624522977
     },
     "cooks_distance": {
-      "max": 0.8001361649919936,
-      "mean": 0.05703975859573856,
-      "n_influential": 3
+      "max": 0.03280425604505622,
+      "mean": 0.0005851922999986559,
+      "n_influential": 95
     },
     "sensitivity": {
-      "f_full": 0.5907490981634616,
-      "p_full": 0.4488007317181142,
-      "f_clean": 1.7269993784409738e-05,
-      "p_clean": 0.9967185767157839,
+      "f_full": 36.640570116630265,
+      "p_full": 1.7531240903423395e-09,
+      "f_clean": 37.77487193843627,
+      "p_clean": 9.92945059508088e-10,
       "removed_indices": [
-        3,
-        16,
-        14
+        248,
+        347,
+        249
       ],
       "removed_labels": [
-        "India",
-        "Brazil",
-        "Netherlands"
+        "Brazil 2014",
+        "Comoros 1992",
+        "Brazil 2018"
       ],
-      "n_full": 30,
-      "n_clean": 27
+      "n_full": 1660,
+      "n_clean": 1657
     },
     "verdict": {
-      "verdict": "NOT_SIGNIFICANT",
-      "explanation": "Nonlinear term not significant even with full data (p=0.449)",
-      "best_aic": "linear",
-      "best_bic": "linear"
+      "verdict": "ROBUST_NONLINEAR",
+      "explanation": "Nonlinearity is robust: significant F-test (p=0.000), survives outlier removal (p=0.000), better LOOCV",
+      "best_aic": "quadratic",
+      "best_bic": "quadratic"
     },
-    "data_source": "Representative/Published"
+    "data_source": "Bormann & Golder DES 5.0 (district magnitude vs ENEP, 1660 elections)"
   },
   {
     "name": "Zipf's Law (US Cities)",

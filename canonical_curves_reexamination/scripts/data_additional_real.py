@@ -170,6 +170,24 @@ def get_rahn_real():
     ), len(df)
 
 
+def get_duverger_real():
+    df = _load('duverger_real.csv')
+    if df is None:
+        return None
+    df = df.dropna(subset=['district_magnitude', 'enep'])
+    df = df[(df['district_magnitude'] > 0) & (df['enep'] > 0)]
+    labels = None
+    if 'country' in df.columns and 'year' in df.columns:
+        labels = [f"{c} {int(y)}" for c, y in zip(df['country'], df['year'])]
+    return CurveReexamination(
+        "Duverger's Law",
+        np.log(df['district_magnitude'].values + 1), df['enep'].values,
+        x_label="log(District Magnitude + 1)",
+        y_label="Effective Number of Parties",
+        country_labels=labels, category="Political Science", x_is_logged=True,
+    ), len(df)
+
+
 def get_kleiber_real():
     df = _load('kleiber_real.csv')
     if df is None:
@@ -390,6 +408,8 @@ ADDITIONAL_REAL = {
                      'Johnson & Raven (1973) Galapagos plant species (gala, N=30)'),
     'kleiber': (get_kleiber_real, "Kleiber's Law",
                 'AnAge / HAGR build (422 mammal species: body mass vs BMR)'),
+    'duverger': (get_duverger_real, "Duverger's Law",
+                 'Bormann & Golder DES 5.0 (district magnitude vs ENEP, 1660 elections)'),
 }
 
 

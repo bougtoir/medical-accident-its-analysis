@@ -635,6 +635,37 @@ def fetch_kleiber():
     return _save(out, 'kleiber_real.csv')
 
 
+def fetch_duverger():
+    """#45 Duverger's Law: district magnitude vs effective number of parties.
+
+    Source: Bormann & Golder, Democratic Electoral Systems (DES) 5.0
+    (Electoral Studies 2022; Open Research Europe 2024). Legislative elections
+    with tier-1 average district magnitude and effective number of electoral
+    parties (enep). Raw zip cached under data/cache/ (gitignored).
+    """
+    import zipfile
+    cache = os.path.join(DATA_DIR, 'cache')
+    os.makedirs(cache, exist_ok=True)
+    zpath = os.path.join(cache, 'des_v50.zip')
+    if not os.path.exists(zpath):
+        url = 'https://mattgolder.com/files/research/es_data-v50.zip'
+        with requests.get(url, timeout=TIMEOUT, headers=HEADERS) as r:
+            r.raise_for_status()
+            with open(zpath, 'wb') as f:
+                f.write(r.content)
+    with zipfile.ZipFile(zpath) as z:
+        name = [n for n in z.namelist()
+                if n.endswith('.csv') and not n.startswith('__MACOSX')][0]
+        df = pd.read_csv(io.BytesIO(z.read(name)), low_memory=False)
+    df = df.dropna(subset=['tier1_avemag', 'enep', 'legislative_type'])
+    df = df[(df['tier1_avemag'] > 0) & (df['enep'] > 0)].copy()
+    out = df[['country', 'year', 'tier1_avemag', 'enep']].rename(
+        columns={'tier1_avemag': 'district_magnitude'})
+    if len(out) < 100:
+        raise RuntimeError("Duverger: unexpected row count")
+    return _save(out, 'duverger_real.csv')
+
+
 def fetch_gravity(year=2019):
     """#10 Gravity Model of Trade: gravity index vs bilateral trade.
 
@@ -730,6 +761,7 @@ FETCHERS = {
     'gravity': fetch_gravity,
     'species_area': fetch_species_area,
     'kleiber': fetch_kleiber,
+    'duverger': fetch_duverger,
 }
 
 
