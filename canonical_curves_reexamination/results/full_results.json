@@ -1106,67 +1106,67 @@
   {
     "name": "Omran Epidemiological Transition",
     "category": "Public Health",
-    "n": 30,
+    "n": 183,
     "x_label": "Human Development Index",
-    "y_label": "NCD Deaths (% of total)",
+    "y_label": "NCD deaths (% of total)",
     "f_test": {
-      "f_stat": 9.368169604890202,
-      "p_value": 0.004948113572951773
+      "f_stat": 0.10317912446081506,
+      "p_value": 0.7484200710837557
     },
     "model_comparison": {
       "linear": {
-        "aic": 215.2259451921815,
-        "bic": 218.02833995550583,
-        "r2": 0.8368619568674838,
-        "r2_adj": 0.8310355981841796
+        "aic": 1361.6409131143064,
+        "bic": 1368.0598854199893,
+        "r2": 0.6951073590176076,
+        "r2_adj": 0.693422869288423
       },
       "quadratic": {
-        "aic": 208.29023325208647,
-        "bic": 212.49382539707292,
-        "r2": 0.8788851016580812,
-        "r2_adj": 0.869913627706828
+        "aic": 1363.5360443911868,
+        "bic": 1373.164502849711,
+        "r2": 0.6952820286481163,
+        "r2_adj": 0.6918962734108731
       },
       "log": {
-        "aic": 209.92452167868362,
-        "bic": 212.72691644200793,
-        "r2": 0.863287167104242,
-        "r2_adj": 0.8584045659293935
+        "aic": 1365.6931472401411,
+        "bic": 1372.112119545824,
+        "r2": 0.6882807092349859,
+        "r2_adj": 0.6865585032086599
       }
     },
     "loocv": {
-      "rmse_linear": 8.757476913671312,
-      "rmse_quadratic": 8.044334928005943
+      "rmse_linear": 9.96173775698376,
+      "rmse_quadratic": 9.998964437542432
     },
     "cooks_distance": {
-      "max": 0.2357799655888322,
-      "mean": 0.0355906791076549,
-      "n_influential": 2
+      "max": 0.04840648106200763,
+      "mean": 0.004154107877186131,
+      "n_influential": 4
     },
     "sensitivity": {
-      "f_full": 9.368169604890202,
-      "p_full": 0.004948113572951773,
-      "f_clean": 23.87574946329561,
-      "p_clean": 5.5466819741889495e-05,
+      "f_full": 0.10317912446081506,
+      "p_full": 0.7484200710837557,
+      "f_clean": 0.22876020369095132,
+      "p_clean": 0.6330348682691719,
       "removed_indices": [
-        24,
-        27,
-        25
+        21,
+        149,
+        159
       ],
       "removed_labels": [
-        "Kenya",
-        "Tanzania",
-        "Nigeria"
+        "Botswana",
+        "Solomon Islands",
+        "Syrian Arab Republic"
       ],
-      "n_full": 30,
-      "n_clean": 27
+      "n_full": 183,
+      "n_clean": 180
     },
     "verdict": {
-      "verdict": "ROBUST_NONLINEAR",
-      "explanation": "Nonlinearity is robust: significant F-test (p=0.005), survives outlier removal (p=0.000), better LOOCV",
-      "best_aic": "quadratic",
-      "best_bic": "quadratic"
+      "verdict": "NOT_SIGNIFICANT",
+      "explanation": "Nonlinear term not significant even with full data (p=0.748)",
+      "best_aic": "linear",
+      "best_bic": "linear"
     },
-    "data_source": "Representative/Published"
+    "data_source": "UNDP HDI + World Bank WDI (NCD mortality)"
   },
   {
     "name": "Wilkinson Curve",
@@ -2564,43 +2564,43 @@
     "x_label": "Year",
     "y_label": "log\u2081\u2080(Transistors)",
     "f_test": {
-      "f_stat": 6.319691113852455,
-      "p_value": 0.013604493875555734
+      "f_stat": 6.319691113872247,
+      "p_value": 0.013604493875413404
     },
     "model_comparison": {
       "linear": {
-        "aic": -3.322155043774643,
-        "bic": 1.8680846564945366,
-        "r2": 0.9797167010076024,
-        "r2_adj": 0.9795075948324231
+        "aic": -3.3221550437743588,
+        "bic": 1.8680846564948208,
+        "r2": 0.9797167010076023,
+        "r2_adj": 0.979507594832423
       },
       "quadratic": {
-        "aic": -7.633795794146494,
-        "bic": 0.15156375625727492,
-        "r2": 0.9809694821976789,
-        "r2_adj": 0.9805730130767972
+        "aic": -7.633795794165366,
+        "bic": 0.1515637562384029,
+        "r2": 0.9809694821976825,
+        "r2_adj": 0.9805730130768009
       },
       "log": {
-        "aic": -1.9213002799969843,
-        "bic": 3.2689394202721953,
+        "aic": -1.9213002799969274,
+        "bic": 3.268939420272252,
         "r2": 0.9794276511389475,
         "r2_adj": 0.9792155650682149
       }
     },
     "loocv": {
-      "rmse_linear": 0.2386082563777828,
-      "rmse_quadratic": 0.23180382958938386
+      "rmse_linear": 0.2386082563777827,
+      "rmse_quadratic": 0.23180382958897705
     },
     "cooks_distance": {
-      "max": 0.13096452901571626,
-      "mean": 0.011760656466074519,
+      "max": 0.13096452901571612,
+      "mean": 0.011760656466074491,
       "n_influential": 6
     },
     "sensitivity": {
-      "f_full": 6.319691113852455,
-      "p_full": 0.013604493875555734,
-      "f_clean": 3.5315613391396017,
-      "p_clean": 0.06334247661106018,
+      "f_full": 6.319691113872247,
+      "p_full": 0.013604493875413404,
+      "f_clean": 3.531561339145021,
+      "p_clean": 0.06334247661086134,
       "removed_indices": [
         4,
         7,
@@ -2621,67 +2621,67 @@
   {
     "name": "Lipset Hypothesis",
     "category": "Political Science",
-    "n": 45,
+    "n": 181,
     "x_label": "GDP per capita (PPP, $)",
-    "y_label": "Liberal Democracy Index (0-1)",
+    "y_label": "Democracy score (Freedom House, 0-1)",
     "f_test": {
-      "f_stat": 18.12032920195324,
-      "p_value": 0.0001138697930618271
+      "f_stat": 15.873266101000771,
+      "p_value": 9.86371195338398e-05
     },
     "model_comparison": {
       "linear": {
-        "aic": 15.419860369182032,
-        "bic": 19.03318534872267,
-        "r2": 0.14685864881916766,
-        "r2_adj": 0.1270181522800785
+        "aic": 50.384917664153136,
+        "bic": 56.78191172668479,
+        "r2": 0.15025205707144884,
+        "r2_adj": 0.14550486185955747
       },
       "quadratic": {
-        "aic": 1.2793313641457615,
-        "bic": 6.69931883345672,
-        "r2": 0.40399633160307413,
-        "r2_adj": 0.37561520453655384
+        "aic": 36.92369353625787,
+        "bic": 46.51918463005535,
+        "r2": 0.21982469845799268,
+        "r2_adj": 0.21105868383392512
       },
       "log": {
-        "aic": 10.000742059671637,
-        "bic": 13.614067039212276,
-        "r2": 0.24365290356286684,
-        "r2_adj": 0.2260634362038637
+        "aic": 38.258045495956026,
+        "bic": 44.65503955848768,
+        "r2": 0.20531924018190628,
+        "r2_adj": 0.20087968286448676
       }
     },
     "loocv": {
-      "rmse_linear": 0.29448096355890063,
-      "rmse_quadratic": 0.2474422022903379
+      "rmse_linear": 0.27930280551409065,
+      "rmse_quadratic": 0.26910577205370906
     },
     "cooks_distance": {
-      "max": 0.6596026412435281,
-      "mean": 0.03763186453963997,
-      "n_influential": 3
+      "max": 0.30404327099157447,
+      "mean": 0.007880324021170419,
+      "n_influential": 6
     },
     "sensitivity": {
-      "f_full": 18.12032920195324,
-      "p_full": 0.0001138697930618271,
-      "f_clean": 0.8159221056214514,
-      "p_clean": 0.37192081899930884,
+      "f_full": 15.873266101000771,
+      "p_full": 9.86371195338398e-05,
+      "f_clean": 6.424912446018665,
+      "p_clean": 0.012129557654788736,
       "removed_indices": [
-        36,
-        38,
-        37
+        41,
+        48,
+        36
       ],
       "removed_labels": [
-        "UAE",
-        "Singapore",
-        "Qatar"
+        "Saudi Arabia",
+        "Qatar",
+        "Singapore"
       ],
-      "n_full": 45,
-      "n_clean": 42
+      "n_full": 181,
+      "n_clean": 178
     },
     "verdict": {
-      "verdict": "OUTLIER_DEPENDENT",
-      "explanation": "Nonlinearity significant with full data (p=0.000) but NOT after removing top influential points (p=0.372)",
+      "verdict": "ROBUST_NONLINEAR",
+      "explanation": "Nonlinearity is robust: significant F-test (p=0.000), survives outlier removal (p=0.012), better LOOCV",
       "best_aic": "quadratic",
-      "best_bic": "quadratic"
+      "best_bic": "log"
     },
-    "data_source": "Representative/Published"
+    "data_source": "World Bank WDI + Freedom House (FIW)"
   },
   {
     "name": "Duverger's Law",

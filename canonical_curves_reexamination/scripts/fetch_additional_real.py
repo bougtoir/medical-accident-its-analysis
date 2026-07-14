@@ -152,12 +152,105 @@ def fetch_balassa_samuelson():
     raise RuntimeError("Balassa-Samuelson: insufficient PWT coverage")
 
 
+def _norm_country(s):
+    s = str(s).strip().lower()
+    repl = {
+        'united states of america': 'united states', 'usa': 'united states',
+        'united states': 'united states', 'russian federation': 'russia',
+        'korea, rep.': 'south korea', 'korea, dem. people\u2019s rep.': 'north korea',
+        'south korea': 'south korea', 'egypt, arab rep.': 'egypt',
+        'iran, islamic rep.': 'iran', 'venezuela, rb': 'venezuela',
+        'turkiye': 'turkey', 't\u00fcrkiye': 'turkey', 'czechia': 'czech republic',
+        'slovak republic': 'slovakia', 'kyrgyz republic': 'kyrgyzstan',
+        'lao pdr': 'laos', 'brunei darussalam': 'brunei',
+        'congo, dem. rep.': 'democratic republic of the congo',
+        'congo, rep.': 'republic of the congo', 'gambia, the': 'gambia',
+        'bahamas, the': 'bahamas', 'yemen, rep.': 'yemen',
+        'syrian arab republic': 'syria', 'viet nam': 'vietnam',
+        'hong kong sar, china': 'hong kong', 'cote d\u2019ivoire': "cote d'ivoire",
+        "c\u00f4te d'ivoire": "cote d'ivoire", 'cabo verde': 'cape verde',
+    }
+    return repl.get(s, s)
+
+
+def fetch_omran():
+    """#19 Omran Epidemiological Transition: HDI (development) vs NCD share.
+
+    x: UNDP Human Development Index (latest); y: World Bank WDI cause-of-death
+    by non-communicable diseases (% of total, SH.DTH.NCOM.ZS).
+    """
+    import wbgapi as wb
+    hdr = requests.get(
+        'https://hdr.undp.org/sites/default/files/2023-24_HDR/'
+        'HDR23-24_Composite_indices_complete_time_series.csv',
+        timeout=TIMEOUT, headers=HEADERS)
+    hdr.raise_for_status()
+    hdi = pd.read_csv(io.BytesIO(hdr.content), encoding='latin-1')
+    hdi_col = next((c for c in ['hdi_2022', 'hdi_2021'] if c in hdi.columns), None)
+    hdi = hdi[['iso3', 'country', hdi_col]].rename(columns={hdi_col: 'hdi'}).dropna()
+    for yr in range(2021, 2014, -1):
+        try:
+            ncd = wb.data.DataFrame('SH.DTH.NCOM.ZS', time=yr, labels=True,
+                                    skipBlanks=True)
+        except Exception:
+            continue
+        ncd = ncd.rename(columns={ncd.columns[-1]: 'ncd_share'})
+        ncd = ncd.reset_index().rename(columns={'economy': 'iso3'})
+        ncd = ncd[['iso3', 'ncd_share']].dropna()
+        df = hdi.merge(ncd, on='iso3', how='inner')
+        if len(df) >= 50:
+            df['ncd_year'] = yr
+            return _save(df, 'omran_real.csv')
+    raise RuntimeError("Omran: insufficient HDI/NCD overlap")
+
+
+def fetch_lipset():
+    """#44 Lipset Hypothesis: GDP per capita vs democracy level.
+
+    x: World Bank WDI GDP per capita PPP (NY.GDP.PCAP.PP.KD, latest);
+    y: Freedom House Freedom in the World aggregate score (Total/100).
+    """
+    import wbgapi as wb
+    fh = requests.get(
+        'https://freedomhouse.org/sites/default/files/2024-02/'
+        'Aggregate_Category_and_Subcategory_Scores_FIW_2003-2024.xlsx',
+        timeout=TIMEOUT, headers=HEADERS)
+    fh.raise_for_status()
+    fdf = pd.read_excel(io.BytesIO(fh.content), sheet_name='FIW06-24')
+    fdf = fdf[fdf['C/T?'] == 'c'] if 'C/T?' in fdf.columns else fdf
+    latest = fdf['Edition'].max()
+    fdf = fdf[fdf['Edition'] == latest][['Country/Territory', 'Total']].dropna()
+    fdf['key'] = fdf['Country/Territory'].map(_norm_country)
+    fdf['democracy'] = fdf['Total'] / 100.0
+
+    for yr in range(2022, 2016, -1):
+        try:
+            gdp = wb.data.DataFrame('NY.GDP.PCAP.PP.KD', time=yr, labels=True,
+                                    skipBlanks=True)
+        except Exception:
+            continue
+        gdp = gdp.rename(columns={'NY.GDP.PCAP.PP.KD': 'gdp_pc_ppp'})
+        gdp = gdp.reset_index().rename(columns={'economy': 'iso3'})
+        gdp = gdp[['iso3', 'Country', 'gdp_pc_ppp']].dropna()
+        gdp['key'] = gdp['Country'].map(_norm_country)
+        df = gdp.merge(fdf[['key', 'democracy', 'Country/Territory']], on='key',
+                       how='inner')
+        df = df[['Country', 'iso3', 'gdp_pc_ppp', 'democracy']].dropna()
+        if len(df) >= 50:
+            df['gdp_year'] = yr
+            df['fh_edition'] = int(latest)
+            return _save(df, 'lipset_real.csv')
+    raise RuntimeError("Lipset: insufficient GDP/Freedom House overlap")
+
+
 FETCHERS = {
     'ekc_co2': fetch_ekc_co2,
     'keeling': fetch_keeling,
     'gutenberg_richter': fetch_gutenberg_richter,
     'moores_law': fetch_moores_law,
     'balassa_samuelson': fetch_balassa_samuelson,
+    'omran': fetch_omran,
+    'lipset': fetch_lipset,
 }
 
 

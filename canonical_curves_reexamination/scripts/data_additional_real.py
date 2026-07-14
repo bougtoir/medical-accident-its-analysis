@@ -88,9 +88,40 @@ def get_moores_law_real():
     df = df[df['transistors_thousands'] > 0]
     return CurveReexamination(
         "Moore's Law",
-        df['year'].values, np.log10(df['transistors_thousands'].values),
+        df['year'].values, np.log10(df['transistors_thousands'].values * 1e3),
         x_label="Year", y_label="log\u2081\u2080(Transistors)",
         category="Physics",
+    ), len(df)
+
+
+def get_omran_real():
+    df = _load('omran_real.csv')
+    if df is None:
+        return None
+    df = df.dropna(subset=['hdi', 'ncd_share'])
+    df = df[(df['hdi'] > 0) & (df['ncd_share'] > 0)]
+    labels = df['country'].values if 'country' in df.columns else None
+    return CurveReexamination(
+        "Omran Epidemiological Transition",
+        df['hdi'].values, df['ncd_share'].values,
+        x_label="Human Development Index", y_label="NCD deaths (% of total)",
+        country_labels=labels, category="Public Health",
+    ), len(df)
+
+
+def get_lipset_real():
+    df = _load('lipset_real.csv')
+    if df is None:
+        return None
+    df = df.dropna(subset=['gdp_pc_ppp', 'democracy'])
+    df = df[df['gdp_pc_ppp'] > 0]
+    labels = df['Country'].values if 'Country' in df.columns else None
+    return CurveReexamination(
+        "Lipset Hypothesis",
+        df['gdp_pc_ppp'].values, df['democracy'].values,
+        x_label="GDP per capita (PPP, $)",
+        y_label="Democracy score (Freedom House, 0-1)",
+        country_labels=labels, category="Political Science",
     ), len(df)
 
 
@@ -122,6 +153,10 @@ ADDITIONAL_REAL = {
                    'Karl Rupp microprocessor-trend-data'),
     'balassa_samuelson': (get_balassa_samuelson_real, 'Balassa-Samuelson Effect',
                           'Penn World Table 10.01'),
+    'omran': (get_omran_real, 'Omran Epidemiological Transition',
+              'UNDP HDI + World Bank WDI (NCD mortality)'),
+    'lipset': (get_lipset_real, 'Lipset Hypothesis',
+               'World Bank WDI + Freedom House (FIW)'),
 }
 
 
