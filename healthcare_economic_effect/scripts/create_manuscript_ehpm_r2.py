@@ -52,6 +52,58 @@ def get_fig(name):
     return os.path.join(FIG, name)
 
 
+def _load_tempo_stats():
+    """Load the tempo model-selection statistics so every number the
+    manuscript reports is read from the reproducible pipeline output
+    (data/tempo_model_selection.json) rather than hard-coded."""
+    with open(os.path.join(DATA, "tempo_model_selection.json")) as fh:
+        d = json.load(fh)
+    m = d["models"]
+    k = d["key_findings"]
+
+    def r3(model, key):
+        return f"{m[model][key]:.3f}"
+
+    def r1(model, key):
+        return f"{m[model][key]:.1f}"
+
+    return {
+        "period": d["period"],
+        "n": d["n_countries"],
+        "m0_level": r3("M0_flow", "level_rmse_median"),
+        "m1_level": r3("M1_constant_lag", "level_rmse_median"),
+        "m2_level": r3("M2_tempo_lag", "level_rmse_median"),
+        "m0_change": r3("M0_flow", "change_rmse_median"),
+        "m1_change": r3("M1_constant_lag", "change_rmse_median"),
+        "m2_change": r3("M2_tempo_lag", "change_rmse_median"),
+        "m0_loocv": r3("M0_flow", "loocv_rmse_median"),
+        "m1_loocv": r3("M1_constant_lag", "loocv_rmse_median"),
+        "m2_loocv": r3("M2_tempo_lag", "loocv_rmse_median"),
+        "m0_aic": r1("M0_flow", "aic_median"),
+        "m1_aic": r1("M1_constant_lag", "aic_median"),
+        "m2_aic": r1("M2_tempo_lag", "aic_median"),
+        "m0_bic": r1("M0_flow", "bic_median"),
+        "m1_bic": r1("M1_constant_lag", "bic_median"),
+        "m2_bic": r1("M2_tempo_lag", "bic_median"),
+        "m1_beats_m0_aic": k["M1_beats_M0_aic_pct"],
+        "m1_beats_m0_bic": k["M1_beats_M0_bic_pct"],
+        "m1_beats_m0_loocv": k["M1_beats_M0_loocv_pct"],
+        "m2_beats_m1_aic": k["M2_beats_M1_aic_pct"],
+        "m2_beats_m1_bic": k["M2_beats_M1_bic_pct"],
+        "m2_beats_m1_loocv": k["M2_beats_M1_loocv_pct"],
+        "m1_beats_m0_level": k["M1_beats_M0_level_pct"],
+        "np_m0": d["n_params"]["M0"],
+        "np_m1": d["n_params"]["M1"],
+        "np_m2": d["n_params"]["M2"],
+        "mu_const": f"{m['M1_constant_lag']['mu_const_median_yr']:.1f}",
+        "mu_h1": (f"{m['M2_tempo_lag']['mu_H1_median_yr_per_yr']:+.2f}"
+                  .replace("-", "\u2212")),
+    }
+
+
+TEMPO = _load_tempo_stats()
+
+
 # ---------------------------------------------------------------------------
 # EHPM formatting helpers (unchanged from v0)
 # ---------------------------------------------------------------------------
@@ -390,11 +442,14 @@ def build_ehpm_manuscript_r1():
         "share 5-25%). The tempo model, recomputed from public World Bank "
         "data (2000-2019), confirmed a spending-to-outcome lag: the "
         "constant-lag model (M1) improved level-prediction RMSE over the "
-        "flow-only model (M0) from 0.253 to 0.208 years and LOOCV RMSE from "
-        "0.304 to 0.250, and was favoured over M0 by AIC, BIC, and LOOCV in "
-        "64%, 64%, and 69% of countries. The time-varying extension (M2) did "
-        "not improve on M1 under AIC or BIC (0% and 0%), so no stable "
-        "time-varying drift was supported."
+        f"flow-only model (M0) from {TEMPO['m0_level']} to {TEMPO['m1_level']} "
+        f"years and LOOCV RMSE from {TEMPO['m0_loocv']} to {TEMPO['m1_loocv']}, "
+        "and was favoured over M0 by AIC, BIC, and LOOCV in "
+        f"{TEMPO['m1_beats_m0_aic']}%, {TEMPO['m1_beats_m0_bic']}%, and "
+        f"{TEMPO['m1_beats_m0_loocv']}% of countries. The time-varying "
+        f"extension (M2) did not improve on M1 under AIC or BIC "
+        f"({TEMPO['m2_beats_m1_aic']}% and {TEMPO['m2_beats_m1_bic']}%), so no "
+        "stable time-varying drift was supported."
     )
 
     p = doc.add_paragraph()
@@ -878,23 +933,33 @@ def build_ehpm_manuscript_r1():
         "selection criteria, computed from public World Bank data "
         "(2000-2019). The introduction of a spending-to-outcome lag "
         "(M1 vs M0) produced a substantial and robust improvement across "
-        "all criteria: median level RMSE improved from 0.253 to 0.208 years "
-        "and median LOOCV RMSE from 0.304 to 0.250 years. M1 was favoured "
-        "over M0 by AIC in 64% of countries, by BIC in 64%, and by LOOCV in "
-        "69%. This confirms that a meaningful lag exists between healthcare "
+        f"all criteria: median level RMSE improved from {TEMPO['m0_level']} "
+        f"to {TEMPO['m1_level']} years "
+        f"and median LOOCV RMSE from {TEMPO['m0_loocv']} to "
+        f"{TEMPO['m1_loocv']} years. M1 was favoured "
+        f"over M0 by AIC in {TEMPO['m1_beats_m0_aic']}% of countries, by BIC "
+        f"in {TEMPO['m1_beats_m0_bic']}%, and by LOOCV in "
+        f"{TEMPO['m1_beats_m0_loocv']}%. This confirms that a meaningful lag "
+        "exists between healthcare "
         "spending and health outcomes and supports a stock-based view of "
         "health-capital investment."
     )
     add_para(doc,
         "The time-varying extension (M2 vs M1) did not yield a comparable "
-        "improvement. The median level RMSE was essentially unchanged (0.207 "
-        "vs 0.208 years) and, once the additional parameter was penalized, "
-        "M2 was favoured over M1 in 0% of countries by AIC and 0% by BIC "
-        "(median AIC -53.0 vs -54.8; median BIC -48.0 vs -50.8); its only "
-        "advantage was on LOOCV RMSE (72% of countries, but with a negligible "
+        f"improvement. The median level RMSE was essentially unchanged "
+        f"({TEMPO['m2_level']} "
+        f"vs {TEMPO['m1_level']} years) and, once the additional parameter "
+        "was penalized, "
+        f"M2 was favoured over M1 in {TEMPO['m2_beats_m1_aic']}% of countries "
+        f"by AIC and {TEMPO['m2_beats_m1_bic']}% by BIC "
+        f"(median AIC {TEMPO['m2_aic']} vs {TEMPO['m1_aic']}; median BIC "
+        f"{TEMPO['m2_bic']} vs {TEMPO['m1_bic']}); its only "
+        f"advantage was on LOOCV RMSE ({TEMPO['m2_beats_m1_loocv']}% of "
+        "countries, but with a negligible "
         "median difference of 0.001 years). The drift parameter \u03bc_H1 was "
         "not robustly identified across countries, with a grid-boundary-"
-        "dominated bimodal distribution and a median of \u22120.10 yr/yr. We "
+        f"dominated bimodal distribution and a median of {TEMPO['mu_h1']} "
+        "yr/yr. We "
         "therefore find no reliable evidence for a time-varying lag: the "
         "robust supply-side finding is the existence of a constant lag "
         "(M1 vs M0), not its time-variation (M2 vs M1). This corrects the "
@@ -906,26 +971,35 @@ def build_ehpm_manuscript_r1():
 
     # Table 3 -- with AIC/BIC/LOOCV, recomputed from public data
     poc_data = pd.DataFrame([
-        {"Model": "M0 (flow-only)", "Params": "3",
-         "Level RMSE": "0.253", "Change RMSE": "0.220",
-         "LOOCV RMSE": "0.304", "AIC": "-49.0", "BIC": "-46.0"},
-        {"Model": "M1 (constant lag)", "Params": "4",
-         "Level RMSE": "0.208", "Change RMSE": "0.224",
-         "LOOCV RMSE": "0.250", "AIC": "-54.8", "BIC": "-50.8"},
-        {"Model": "M2 (tempo lag)", "Params": "5",
-         "Level RMSE": "0.207", "Change RMSE": "0.224",
-         "LOOCV RMSE": "0.250", "AIC": "-53.0", "BIC": "-48.0"},
+        {"Model": "M0 (flow-only)", "Params": str(TEMPO["np_m0"]),
+         "Level RMSE": TEMPO["m0_level"], "Change RMSE": TEMPO["m0_change"],
+         "LOOCV RMSE": TEMPO["m0_loocv"], "AIC": TEMPO["m0_aic"],
+         "BIC": TEMPO["m0_bic"]},
+        {"Model": "M1 (constant lag)", "Params": str(TEMPO["np_m1"]),
+         "Level RMSE": TEMPO["m1_level"], "Change RMSE": TEMPO["m1_change"],
+         "LOOCV RMSE": TEMPO["m1_loocv"], "AIC": TEMPO["m1_aic"],
+         "BIC": TEMPO["m1_bic"]},
+        {"Model": "M2 (tempo lag)", "Params": str(TEMPO["np_m2"]),
+         "Level RMSE": TEMPO["m2_level"], "Change RMSE": TEMPO["m2_change"],
+         "LOOCV RMSE": TEMPO["m2_loocv"], "AIC": TEMPO["m2_aic"],
+         "BIC": TEMPO["m2_bic"]},
     ])
     add_table_from_df(doc, poc_data,
-                      "Table 3. Tempo model comparison (39 countries, 2000-2019)",
-                      legend="Median values across 39 countries, computed "
+                      f"Table 3. Tempo model comparison ({TEMPO['n']} "
+                      f"countries, {TEMPO['period']})",
+                      legend=f"Median values across {TEMPO['n']} countries, "
+                             "computed "
                              "from World Bank data and reproducible in the "
                              "public repository. RMSE in years. LOOCV = "
                              "leave-one-out cross-validation. AIC/BIC: lower "
                              "is better. M1 substantially and robustly "
-                             "outperforms M0 (AIC/BIC/LOOCV: 64%/64%/69% of "
+                             f"outperforms M0 (AIC/BIC/LOOCV: "
+                             f"{TEMPO['m1_beats_m0_aic']}%/"
+                             f"{TEMPO['m1_beats_m0_bic']}%/"
+                             f"{TEMPO['m1_beats_m0_loocv']}% of "
                              "countries). M2 does not improve on M1 under "
-                             "AIC or BIC (0%/0%).")
+                             f"AIC or BIC ({TEMPO['m2_beats_m1_aic']}%/"
+                             f"{TEMPO['m2_beats_m1_bic']}%).")
 
     add_heading(doc, "Preston Curve overfit analysis", level=2)
     add_para(doc,
@@ -1045,12 +1119,15 @@ def build_ehpm_manuscript_r1():
     add_para(doc,
         "Second, the spending-to-outcome lag in the tempo model (M1 vs "
         "M0) was robustly confirmed by all model selection criteria "
-        "(AIC, BIC, and LOOCV favoured M1 over M0 in 64%, 64%, and 69% "
+        f"(AIC, BIC, and LOOCV favoured M1 over M0 in {TEMPO['m1_beats_m0_aic']}"
+        f"%, {TEMPO['m1_beats_m0_bic']}%, and {TEMPO['m1_beats_m0_loocv']}% "
         "of countries), establishing that healthcare expenditure operates "
-        "through a stock-building mechanism with a median lag of "
-        "approximately 2 years. However, the time-varying extension (M2 vs "
+        f"through a stock-building mechanism with a median lag of "
+        f"approximately {TEMPO['mu_const']} years. However, the time-varying "
+        "extension (M2 vs "
         "M1) yielded no improvement once the additional parameter was "
-        "penalized (M2 was favoured over M1 in 0% of countries by both AIC "
+        f"penalized (M2 was favoured over M1 in {TEMPO['m2_beats_m1_aic']}% of "
+        "countries by both AIC "
         "and BIC), and the drift parameter was not robustly identified. We "
         "therefore do not claim a time-varying tempo drift; this corrects "
         "the previous round, where a positive drift was reported from a "
@@ -1523,15 +1600,19 @@ def build_response_to_reviewers():
             "shock. Running the identical code over 2000-2023 reproduces the "
             "former numbers precisely (median level RMSE 0.510/0.441/0.434 "
             "for M0/M1/M2, median drift +0.15 yr/yr), whereas the correct "
-            "2000-2019 run gives 0.253/0.208/0.207 and a boundary-dominated, "
-            "poorly identified drift with median -0.10 yr/yr. (4) The central, "
+            f"{TEMPO['period']} run gives {TEMPO['m0_level']}/"
+            f"{TEMPO['m1_level']}/{TEMPO['m2_level']} and a boundary-dominated, "
+            f"poorly identified drift with median {TEMPO['mu_h1']} yr/yr. "
+            "(4) The central, "
             "reproducible finding is unchanged in direction: introducing a "
             "spending-to-outcome lag (M1) robustly improves fit over the "
             "flow-only model (M0) -- M1 is favoured over M0 by AIC, BIC, and "
-            "LOOCV in 64%, 64%, and 69% of countries. However, the "
+            f"LOOCV in {TEMPO['m1_beats_m0_aic']}%, {TEMPO['m1_beats_m0_bic']}%, "
+            f"and {TEMPO['m1_beats_m0_loocv']}% of countries. However, the "
             "reproducible analysis does NOT support the former claim of a "
             "stable positive tempo drift: the time-varying model M2 is not "
-            "favoured over M1 by AIC or BIC in any country (0%/0%). We have "
+            "favoured over M1 by AIC or BIC in any country "
+            f"({TEMPO['m2_beats_m1_aic']}%/{TEMPO['m2_beats_m1_bic']}%). We have "
             "therefore withdrawn the +0.15 yr/yr drift claim, corrected all "
             "affected numbers in the Abstract, Methods, Results (Table 3), "
             "Discussion, Conclusions, and figure legends, and now describe M2 "
@@ -1710,10 +1791,13 @@ def build_response_to_reviewers():
             "and BIC for all three models in addition to level and change "
             "RMSE, all computed from public World Bank data. The results "
             "are revealing: M1 substantially and robustly outperforms M0 on "
-            "ALL criteria (favoured by AIC/BIC/LOOCV in 64%/64%/69% of "
+            f"ALL criteria (favoured by AIC/BIC/LOOCV in "
+            f"{TEMPO['m1_beats_m0_aic']}%/{TEMPO['m1_beats_m0_bic']}%/"
+            f"{TEMPO['m1_beats_m0_loocv']}% of "
             "countries), confirming the existence of a spending-to-outcome "
             "lag. However, M2 does NOT improve on M1 once the extra "
-            "parameter is penalized (favoured over M1 in 0% of countries by "
+            f"parameter is penalized (favoured over M1 in "
+            f"{TEMPO['m2_beats_m1_aic']}% of countries by "
             "both AIC and BIC). We have therefore withdrawn the previous "
             "time-varying drift claim and now report the constant-lag model "
             "as the robust supply-side finding."
@@ -2001,11 +2085,14 @@ def build_cover_letter_r1():
         "from a 2000-2023 sample that included the COVID-19 mortality shock. "
         "Table 3 and all dependent text now use the corrected values; the "
         "robust finding (a constant spending-to-outcome lag; M1 beats M0 by "
-        "AIC/BIC/LOOCV in 64%/64%/69%) is unchanged in direction "
+        f"AIC/BIC/LOOCV in {TEMPO['m1_beats_m0_aic']}%/"
+        f"{TEMPO['m1_beats_m0_bic']}%/{TEMPO['m1_beats_m0_loocv']}%) is "
+        "unchanged in direction "
         "(Reviewer 1).",
         "Withdrawal: the previously claimed +0.15 yr/yr time-varying tempo "
         "drift is withdrawn; the time-varying model (M2) is not favoured "
-        "over the constant-lag model (M1) by AIC or BIC (0%/0%) and is now "
+        f"over the constant-lag model (M1) by AIC or BIC "
+        f"({TEMPO['m2_beats_m1_aic']}%/{TEMPO['m2_beats_m1_bic']}%) and is now "
         "reported as exploratory (Reviewer 1).",
         "Deficit financing in Results: a new Results subsection and figure "
         "(Figure 4) present a deficit-adjusted fiscal-return ratio; for "
