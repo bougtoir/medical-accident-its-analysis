@@ -510,21 +510,6 @@
     "country_scope": "Global cross-section"
   },
   {
-    "id": 35,
-    "name": "Yerkes-Dodson Curve",
-    "category": "Psychology",
-    "original_paper": "Yerkes RM, Dodson JD (1908) J Comp Neurol Psychol 18:459-482",
-    "original_n": 40,
-    "original_period": "1908 (mice)",
-    "data_source": "Broadhurst (1957) replication; Diamond et al. (2007) Neural Plast review",
-    "current_n": 27,
-    "current_period": "Aggregated from experimental studies",
-    "x_variable": "Arousal level (standardized)",
-    "y_variable": "Performance (% of maximum)",
-    "claimed_form": "Inverted-U",
-    "country_scope": "Laboratory experiments"
-  },
-  {
     "id": 36,
     "name": "Ebbinghaus Forgetting Curve",
     "category": "Psychology",

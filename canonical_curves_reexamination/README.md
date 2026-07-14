@@ -122,9 +122,11 @@ Not all 52 curves currently use fully traceable real data. Status:
   #45 Duverger's Law (Bormann & Golder DES 5.0, 1660 elections).
 - **The remaining curves still use hard-coded arrays** in `scripts/data_*.py`
   and are being migrated to real, primary-source data. Until a curve appears in
-  the lists above, treat its values as provisional. #35 Yerkes-Dodson is
-  currently **synthetic** (generated with `numpy.random`) and must be replaced
-  with real data, dropped, or explicitly relabeled as a simulation.
+  the lists above, treat its values as provisional.
+- **#35 Yerkes-Dodson has been EXCLUDED** from the analysis: its former
+  implementation generated synthetic data with `numpy.random` and no traceable
+  primary dataset was available, so it is dropped rather than presented as
+  empirical. The analysis therefore covers **51** curves (originally 52).
 
 Each curve's claimed source is recorded in `data/source_metadata.json`.
 

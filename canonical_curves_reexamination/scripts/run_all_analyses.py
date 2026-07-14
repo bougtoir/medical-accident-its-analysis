@@ -1,5 +1,9 @@
 """
-Master script: Run all 52 curve re-examinations and generate summary.
+Master script: Run all curve re-examinations and generate summary.
+
+51 curves are analyzed: the original 52 minus #35 Yerkes-Dodson, which was
+excluded because its data was synthetic (numpy.random) with no traceable
+primary source.
 
 Uses real World Bank API data where available, falling back to representative
 data for curves without direct API access.
@@ -128,7 +132,7 @@ def _try_additional_real_substitution(all_results):
 def main():
     print("=" * 70)
     print("CANONICAL CURVES RE-EXAMINATION")
-    print("Modern statistical re-evaluation of 52 'established' curve relationships")
+    print("Modern statistical re-evaluation of 51 'established' curve relationships")
     print("=" * 70)
 
     all_results = []

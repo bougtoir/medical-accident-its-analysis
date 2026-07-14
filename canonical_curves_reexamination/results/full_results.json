@@ -2080,67 +2080,6 @@
     "data_source": "World Bank WDI (API)"
   },
   {
-    "name": "Yerkes-Dodson Curve",
-    "category": "Psychology",
-    "n": 27,
-    "x_label": "Arousal Level (1-10)",
-    "y_label": "Performance (% max)",
-    "f_test": {
-      "f_stat": 107.2171945017967,
-      "p_value": 2.478294236496481e-10
-    },
-    "model_comparison": {
-      "linear": {
-        "aic": 234.42319064791656,
-        "bic": 237.0148643799252,
-        "r2": 0.00011128841701768533,
-        "r2_adj": -0.039884260046301634
-      },
-      "quadratic": {
-        "aic": 190.5555881307352,
-        "bic": 194.4430987287482,
-        "r2": 0.817117496155102,
-        "r2_adj": 0.8018772875013604
-      },
-      "log": {
-        "aic": 232.78176423641193,
-        "bic": 235.3734379684206,
-        "r2": 0.05908725112988178,
-        "r2_adj": 0.02145074117507706
-      }
-    },
-    "loocv": {
-      "rmse_linear": 19.03473290541783,
-      "rmse_quadratic": 8.205550381735542
-    },
-    "cooks_distance": {
-      "max": 0.24571593525596405,
-      "mean": 0.05316424013648884,
-      "n_influential": 4
-    },
-    "sensitivity": {
-      "f_full": 107.2171945017967,
-      "p_full": 2.478294236496481e-10,
-      "f_clean": 60.548760295699715,
-      "p_clean": 1.2805600524412597e-07,
-      "removed_indices": [
-        18,
-        0,
-        9
-      ],
-      "removed_labels": null,
-      "n_full": 27,
-      "n_clean": 24
-    },
-    "verdict": {
-      "verdict": "ROBUST_NONLINEAR",
-      "explanation": "Nonlinearity is robust: significant F-test (p=0.000), survives outlier removal (p=0.000), better LOOCV",
-      "best_aic": "quadratic",
-      "best_bic": "quadratic"
-    },
-    "data_source": "Representative/Published"
-  },
-  {
     "name": "Ebbinghaus Forgetting Curve",
     "category": "Psychology",
     "n": 7,

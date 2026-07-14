@@ -433,14 +433,8 @@ def create_source_metadata():
          "x_variable": "GDP per capita PPP ($)", "y_variable": "Forest area (% of land)",
          "claimed_form": "U-shaped (deforestation then recovery)", "country_scope": "Global cross-section"},
 
-        # Psychology (35-39)
-        {"id": 35, "name": "Yerkes-Dodson Curve", "category": "Psychology",
-         "original_paper": "Yerkes RM, Dodson JD (1908) J Comp Neurol Psychol 18:459-482",
-         "original_n": 40, "original_period": "1908 (mice)",
-         "data_source": "Broadhurst (1957) replication; Diamond et al. (2007) Neural Plast review",
-         "current_n": 27, "current_period": "Aggregated from experimental studies",
-         "x_variable": "Arousal level (standardized)", "y_variable": "Performance (% of maximum)",
-         "claimed_form": "Inverted-U", "country_scope": "Laboratory experiments"},
+        # Psychology (36-39); #35 Yerkes-Dodson excluded (was synthetic
+        # numpy.random data; no traceable primary dataset available)
         {"id": 36, "name": "Ebbinghaus Forgetting Curve", "category": "Psychology",
          "original_paper": "Ebbinghaus H (1885) Über das Gedächtnis",
          "original_n": 1, "original_period": "1879-1880 (self-experimentation)",
