@@ -1,0 +1,11 @@
+iso3,country,unit_type,tfr_1995_2000,tfr_gap,mig_per_million_sciv
+FRA,France,country,1.71,0.39,1854
+DEU,Germany,country,1.30,0.80,6009
+ITA,Italy,country,1.20,0.90,6531
+JPN,Japan,country,1.43,0.67,5103
+KOR,Republic of Korea,country,1.65,0.45,2738
+RUS,Russian Federation,country,1.35,0.75,4933
+GBR,United Kingdom,country,1.72,0.38,2132
+USA,United States,country,1.99,0.11,1310
+EUR,Europe,region,1.42,0.68,4460
+EU,European Union,region,1.44,0.66,4262

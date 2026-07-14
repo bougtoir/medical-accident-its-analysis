@@ -7,26 +7,11 @@ import pandas as pd
 from core_analysis import CurveReexamination
 
 
-def get_yerkes_dodson_data():
-    """#35 Yerkes-Dodson Curve: Arousal vs Performance."""
-    # Meta-analysis of arousal-performance studies
-    # Arousal level (standardized, 1-10 scale)
-    arousal = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
-                        1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5,
-                        2, 4, 6, 8, 3, 5, 7, 9])
-    # Performance (% of maximum, with noise)
-    np.random.seed(42)
-    # True inverted-U with substantial noise
-    true_perf = -2.5 * (arousal - 5.5)**2 + 80
-    noise = np.random.normal(0, 8, len(arousal))
-    performance = true_perf + noise
-    performance = np.clip(performance, 20, 100)
-
-    return CurveReexamination(
-        "Yerkes-Dodson Curve", arousal, performance,
-        x_label="Arousal Level (1-10)", y_label="Performance (% max)",
-        category="Psychology"
-    )
+# NOTE: #35 Yerkes-Dodson has been EXCLUDED from the analysis. Its former
+# implementation generated synthetic data with numpy.random (an inverted-U plus
+# Gaussian noise), i.e. it was not empirical. No traceable primary dataset was
+# available, so per the research-integrity policy the curve is dropped rather
+# than presented as real data.
 
 
 def get_ebbinghaus_data():
@@ -101,7 +86,7 @@ def get_happiness_u_curve_data():
 def run_psychology_analysis():
     """Run all psychology curve analyses."""
     curves = [
-        get_yerkes_dodson_data(),    # 35
+        # #35 Yerkes-Dodson excluded (was synthetic numpy.random data)
         get_ebbinghaus_data(),       # 36
         get_weber_fechner_data(),    # 37
         get_dunning_kruger_data(),   # 38
