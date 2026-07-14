@@ -54,6 +54,22 @@ def get_laffer_real():
     ), len(df)
 
 
+def get_great_gatsby_real():
+    df = _load('great_gatsby_real.csv')
+    if df is None:
+        return None
+    df = df.dropna(subset=['gini', 'ige'])
+    df = df[(df['gini'] > 0) & (df['ige'] > 0)]
+    labels = df['iso3'].values if 'iso3' in df.columns else None
+    return CurveReexamination(
+        "Great Gatsby Curve",
+        df['gini'].values, df['ige'].values,
+        x_label="Gini Coefficient",
+        y_label="Intergenerational Income Elasticity",
+        country_labels=labels, category="Economics",
+    ), len(df)
+
+
 def get_ekc_co2_real():
     df = _load('ekc_co2_real.csv')
     if df is None:
@@ -385,6 +401,9 @@ ADDITIONAL_REAL = {
     'laffer': (get_laffer_real, 'Laffer Curve',
                'OECD Table I.7 (top PIT rate) + OECD Revenue Statistics '
                '(tax %GDP), 2022 cross-section'),
+    'great_gatsby': (get_great_gatsby_real, 'Great Gatsby Curve',
+                     'GDIM income mobility IGE (Munoz & van der Weide 2025) + '
+                     'OWID/World Bank Gini; reconstruction'),
     'ekc_co2': (get_ekc_co2_real, 'Environmental Kuznets Curve (CO2)',
                 'World Bank WDI (API)'),
     'keeling': (get_keeling_real, 'Keeling Curve (CO2)',

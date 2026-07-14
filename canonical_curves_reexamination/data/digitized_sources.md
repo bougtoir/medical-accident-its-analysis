@@ -72,3 +72,18 @@ WebPlotDigitizer. These are stored in `data/*_real.csv` and read by
   26 hand-transcribed OECD-2022 values (which mixed years/definitions, e.g. a
   central-only US top rate and older tax-revenue figures).
 - x = top marginal PIT rate (%); y = total tax revenue (% of GDP).
+
+## #11 Great Gatsby Curve — `great_gatsby_real.csv` (reconstruction)
+- This is a modern public-data RECONSTRUCTION, not a replication of Corak's
+  (2013) original figure. Matched on ISO3.
+  - y = intergenerational income elasticity (IGE, father-son): World Bank
+    Global Database on Intergenerational Mobility (GDIM), income mobility
+    dataset (Munoz, Ercio & Roy van der Weide 2025, "Intergenerational income
+    mobility around the world: A new database", WB Policy Research WP 11166),
+    file `IGE_Munoz_VanderWeide_June2025.dta` (87 economies). Downloaded from
+    the WB Development Data Hub (dataset 0066878).
+  - x = Gini index: Our World in Data `economic-inequality-gini-index`
+    (source: World Bank Poverty and Inequality Platform), most recent year
+    2000-2022 per country, rescaled to 0-100.
+- 83 economies with both variables. Replaces 23 hand-entered Gini/IGE values.
+- IGE per-country literature source is retained in the CSV (`ige_source`).

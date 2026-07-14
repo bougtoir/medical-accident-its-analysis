@@ -824,8 +824,58 @@ def fetch_laffer():
     return _save(out, 'laffer_real.csv')
 
 
+def fetch_great_gatsby():
+    """#11 Great Gatsby Curve: income inequality vs intergenerational (im)mobility.
+
+    Reconstruction (NOT the original Corak 2013 figure), matched on ISO3:
+      - y = intergenerational income elasticity (IGE, father-son): World Bank
+        Global Database on Intergenerational Mobility (GDIM) income mobility
+        dataset (Munoz & van der Weide 2025, WB Policy Research WP 11166),
+        file IGE_Munoz_VanderWeide_June2025.dta (87 economies).
+      - x = Gini index (income inequality): Our World in Data
+        'economic-inequality-gini-index' (World Bank Poverty & Inequality
+        Platform), most recent year 2000-2022 per country, rescaled to 0-100.
+    Higher IGE = less mobility. The GDIM .dta is cached under data/cache/
+    (gitignored). This is a modern public-data reconstruction of the Great
+    Gatsby relationship, not a replication of Corak's original point set.
+    """
+    cache = os.path.join(DATA_DIR, 'cache')
+    os.makedirs(cache, exist_ok=True)
+    dta = os.path.join(cache, 'gdim_ige_income.dta')
+    if not os.path.exists(dta):
+        url = ('https://datacatalogfiles.worldbank.org/ddh-published/0066878/'
+               'DR0095414/IGE_Munoz_VanderWeide_June2025.dta')
+        with requests.get(url, timeout=TIMEOUT * 2, headers=HEADERS) as r:
+            r.raise_for_status()
+            with open(dta, 'wb') as f:
+                f.write(r.content)
+    ige = pd.read_stata(dta)
+    ige = ige.dropna(subset=['IGE'])
+    g = _owid_csv('economic-inequality-gini-index')
+    g = g[(g['Year'] >= 2000) & (g['Year'] <= 2022)].dropna(
+        subset=['Gini coefficient'])
+    gini = {}
+    for code, grp in g.groupby('Code'):
+        rec = grp.sort_values('Year').iloc[-1]
+        val = float(rec['Gini coefficient'])
+        gini[code] = (int(rec['Year']), val * 100 if val <= 1 else val)
+    rows = []
+    for _, rec in ige.iterrows():
+        code = rec['code']
+        if code in gini:
+            yr, val = gini[code]
+            rows.append({'iso3': code, 'gini': round(val, 2),
+                         'gini_year': yr, 'ige': round(float(rec['IGE']), 4),
+                         'ige_source': rec['source']})
+    out = pd.DataFrame(rows).sort_values('gini')
+    if len(out) < 30:
+        raise RuntimeError("Great Gatsby: unexpected row count")
+    return _save(out, 'great_gatsby_real.csv')
+
+
 FETCHERS = {
     'laffer': fetch_laffer,
+    'great_gatsby': fetch_great_gatsby,
     'ekc_co2': fetch_ekc_co2,
     'keeling': fetch_keeling,
     'gutenberg_richter': fetch_gutenberg_richter,

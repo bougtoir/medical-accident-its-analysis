@@ -264,10 +264,12 @@ def create_source_metadata():
         {"id": 11, "name": "Great Gatsby Curve", "category": "Economics",
          "original_paper": "Corak M (2013) J Econ Perspect 27(3):79-102",
          "original_n": 22, "original_period": "~2010 cross-section",
-         "data_source": "OECD Income Distribution Database; Corak (2013) replication data",
-         "current_n": 23, "current_period": "Latest available",
-         "x_variable": "Gini coefficient", "y_variable": "Intergenerational earnings elasticity",
-         "claimed_form": "Positive (possibly convex)", "country_scope": "OECD + select developing"},
+         "data_source": ("Reconstruction: World Bank GDIM income mobility IGE "
+                         "(Munoz & van der Weide 2025, WP 11166) + OWID/World "
+                         "Bank Gini index (PIP). Not the original Corak figure."),
+         "current_n": None, "current_period": "Latest Gini per country (2000-2022)",
+         "x_variable": "Gini coefficient", "y_variable": "Intergenerational income elasticity (IGE)",
+         "claimed_form": "Positive (possibly convex)", "country_scope": "87-economy GDIM cross-section"},
         {"id": 12, "name": "Balassa-Samuelson Effect", "category": "Economics",
          "original_paper": "Balassa B (1964) J Political Economy 72:584-596",
          "original_n": 12, "original_period": "1960s cross-section",
