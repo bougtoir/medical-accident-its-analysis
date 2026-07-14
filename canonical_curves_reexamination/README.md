@@ -102,15 +102,15 @@ previous hard-coded values.
 
 Not all 52 curves currently use fully traceable real data. Status:
 
-- **19 curves use fetched real data** (World Bank WDI/FRED, NOAA Mauna Loa,
+- **20 curves use fetched real data** (World Bank WDI/FRED, NOAA Mauna Loa,
   USGS FDSN earthquake catalog, Penn World Table 10.01, Karl Rupp transistor
-  dataset, UNDP HDI, Freedom House FIW, US EIA Total Energy, US BLS, HMD):
-  #1 Phillips, #3 Kuznets, #4 Environmental Kuznets (CO2), #5 Beveridge, #6 Okun,
-  #12 Balassa-Samuelson, #13 Preston, #19 Omran, #23 & #28 Demographic Transition,
-  #25 Lee-Carter, #30 Hubbert Peak Oil, #31 Keeling, #33 Jevons,
-  #34 Forest Transition, #42 Gutenberg-Richter, #43 Moore's Law, #44 Lipset,
-  #50 Green Revolution.
-- **The remaining 33 curves still use hard-coded arrays** in `scripts/data_*.py`
+  dataset, UNDP HDI, Freedom House FIW, US EIA Total Energy, US BLS, HMD,
+  US Census): #1 Phillips, #3 Kuznets, #4 Environmental Kuznets (CO2),
+  #5 Beveridge, #6 Okun, #12 Balassa-Samuelson, #13 Preston, #19 Omran,
+  #23 & #28 Demographic Transition, #25 Lee-Carter, #30 Hubbert Peak Oil,
+  #31 Keeling, #33 Jevons, #34 Forest Transition, #42 Gutenberg-Richter,
+  #43 Moore's Law, #44 Lipset, #46 Zipf, #50 Green Revolution.
+- **The remaining 32 curves still use hard-coded arrays** in `scripts/data_*.py`
   and are being migrated to real, primary-source data. Until a curve appears in
   the list above, treat its values as provisional. #35 Yerkes-Dodson is
   currently **synthetic** (generated with `numpy.random`) and must be replaced

@@ -2745,57 +2745,57 @@
   {
     "name": "Zipf's Law (US Cities)",
     "category": "Political Science",
-    "n": 50,
+    "n": 100,
     "x_label": "log(Rank)",
-    "y_label": "log(Population, millions)",
+    "y_label": "log(Population)",
     "f_test": {
-      "f_stat": 2.183419654709833,
-      "p_value": 0.14617447714367315
+      "f_stat": 9.031356588677712,
+      "p_value": 0.0033778192899311943
     },
     "model_comparison": {
       "linear": {
-        "aic": -151.65220073452724,
-        "bic": -147.82815472367096,
-        "r2": 0.9942763334304445,
-        "r2_adj": 0.9941570903769121
+        "aic": -275.5752227852769,
+        "bic": -270.3648824133007,
+        "r2": 0.9918475540348388,
+        "r2_adj": 0.9917643658107045
       },
       "quadratic": {
-        "aic": -151.92264903969254,
-        "bic": -146.1865800234081,
-        "r2": 0.994530426500278,
-        "r2_adj": 0.9942976786917792
+        "aic": -282.47761165905865,
+        "bic": -274.6621011010944,
+        "r2": 0.992541949060519,
+        "r2_adj": 0.992388174814344
       }
     },
     "loocv": {
-      "rmse_linear": 0.05727476776979418,
-      "rmse_quadratic": 0.06874425404759532
+      "rmse_linear": 0.06504974918423169,
+      "rmse_quadratic": 0.0732095054890527
     },
     "cooks_distance": {
-      "max": 2.230852700200734,
-      "mean": 0.0688829269860942,
-      "n_influential": 5
+      "max": 3.830540498926717,
+      "mean": 0.048309861322319854,
+      "n_influential": 7
     },
     "sensitivity": {
-      "f_full": 2.183419654709833,
-      "p_full": 0.14617447714367315,
-      "f_clean": 4.69007750633029,
-      "p_clean": 0.03579922358790233,
+      "f_full": 9.031356588677712,
+      "p_full": 0.0033778192899311943,
+      "f_clean": 3.3443423244515014,
+      "p_clean": 0.07060745377022781,
       "removed_indices": [
+        9,
         4,
-        2,
         0
       ],
       "removed_labels": null,
-      "n_full": 50,
-      "n_clean": 47
+      "n_full": 100,
+      "n_clean": 97
     },
     "verdict": {
-      "verdict": "NOT_SIGNIFICANT",
-      "explanation": "Nonlinear term not significant even with full data (p=0.146)",
+      "verdict": "OUTLIER_DEPENDENT",
+      "explanation": "Nonlinearity significant with full data (p=0.003) but NOT after removing top influential points (p=0.071)",
       "best_aic": "quadratic",
-      "best_bic": "linear"
+      "best_bic": "quadratic"
     },
-    "data_source": "Representative/Published"
+    "data_source": "US Census 2020 Decennial (place populations)"
   },
   {
     "name": "Crime-Temperature Curve",
