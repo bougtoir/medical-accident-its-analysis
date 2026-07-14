@@ -96,8 +96,8 @@ def build_docx():
 
     t = doc.add_paragraph(); t.alignment = WD_ALIGN_PARAGRAPH.CENTER
     r = t.add_run("Divergent hazard shapes of tuberculosis treatment loss to follow-up: a "
-                  "reproducible re-analysis quantifying the heterogeneity that hinders a "
-                  "unified retention intervention")
+                  "reproducible analysis of published curves quantifying the heterogeneity "
+                  "that hinders a unified retention intervention")
     r.bold = True; r.font.size = Pt(15)
     sub = doc.add_paragraph(); sub.alignment = WD_ALIGN_PARAGRAPH.CENTER
     sub.add_run("Short communication").italic = True
@@ -223,11 +223,11 @@ def build_docx():
     heading(doc, "5. Limitations")
     para(doc,
          "Only two TB and two comparator curves met the bar of a genuinely time-resolved, "
-         "openly available dropout curve; earlier five-country claims could not be reproduced from "
-         "primary sources and are not made here. Estimates come from digitized aggregate curves, "
+         "openly available dropout curve, so the analysis is small and hypothesis-generating. "
+         "Estimates come from digitized aggregate curves, "
          "not individual patient data; the Ethiopian estimate is a competing-risk "
          "*subdistribution*-hazard shape; the antipsychotic cohort is small (n\u224842) and "
-         "illustrative; KM plateaus reflect administrative censoring. These results are "
+         "illustrative; KM plateaus reflect administrative censoring. The findings are "
          "hypothesis-generating, not confirmatory.")
 
     heading(doc, "6. Data and code availability")
