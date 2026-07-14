@@ -71,6 +71,10 @@ def color_mask(arr, kind):
         return (r > 175) & (g > 90) & (g < 195) & (b > 90) & (b < 185) & (r - g > 40) & (r - b > 40)
     if kind == "red":
         return (r > 150) & (g < 105) & (b < 105)
+    if kind == "blue":       # ART panel-A KM line (Stata blue)
+        return (b > 110) & (b - r > 25) & (b - g > 15) & (r < 190)
+    if kind == "dark":       # antipsychotic KM line (grey/black on white)
+        return (r < 110) & (g < 110) & (b < 110)
     raise ValueError(kind)
 
 
@@ -150,8 +154,52 @@ def do_ethiopia():
     return rows
 
 
+# --- Comparator KM survival curves (non-TB). Stored as F(t)=1-S(t). ---
+# ART: PMC12953970 Fig.1A "overall" KM (time to LTFU, months). Blue Stata line.
+ART_XPX = [32.0, 358.0]      # -> 0, 50 months (axis anchors read from figure)
+ART_XVAL = [0, 50]
+ART_YPX = [25.0, 208.0]      # -> 1.00, 0.00
+ART_YVAL = [1.00, 0.00]
+# Antipsychotic: PMC12437960 KM "Any antipsychotic" (time to discontinuation, days).
+AP_XPX = [93.0, 233.1, 374.8, 515.7, 659.4]   # -> 0,100,200,300,400 days
+AP_XVAL = [0, 100, 200, 300, 400]
+AP_YPX = [101.6, 174.6, 245.6, 318.8, 391.1]  # -> 1.00..0.00
+AP_YVAL = [1.00, 0.75, 0.50, 0.25, 0.00]
+
+
+def do_art():
+    p = os.path.join(FIGDIR, "art_PMC12953970_fig1_km_retention.jpg")
+    arr = np.asarray(Image.open(p).convert("RGB"))
+    x2px = piecewise(ART_XPX, ART_XVAL)
+    months = [round(m, 1) for m in np.arange(0, 52.001, 2)]
+    rows = extract_curve(arr, "blue", (35, 372, 18, 212), x2px, ART_YPX, ART_YVAL, months)
+    rows = [(m, (1.0 - v) if v == v else v) for m, v in rows]
+    hdr = ("# ART PMC12953970 Fig.1A overall KM (time to LTFU); digitized from pixels.\n"
+           "# retention S(t) read off; stored F(t)=1-S(t). x=months.\n")
+    save_csv(os.path.join(OUTDIR, "art_ltfu_cif.csv"), rows, hdr)
+    return rows
+
+
+def do_antipsychotic():
+    p = os.path.join(FIGDIR, "antipsychotic_PMC12437960_fig_km_survival.jpg")
+    arr = np.asarray(Image.open(p).convert("RGB"))
+    x2px = piecewise(AP_XPX, AP_XVAL)
+    days = [round(d, 0) for d in np.arange(0, 365.001, 15)]
+    # box excludes legend/title (y<95) and axis text
+    rows = extract_curve(arr, "dark", (66, 662, 95, 404), x2px, AP_YPX, AP_YVAL, days)
+    rows = [(d, (1.0 - v) if v == v else v) for d, v in rows]
+    hdr = ("# Antipsychotic PMC12437960 KM 'Any antipsychotic' (time to discontinuation);\n"
+           "# digitized from pixels. retention S(t); stored F(t)=1-S(t). x=days.\n")
+    save_csv(os.path.join(OUTDIR, "antipsychotic_ltfu_cif.csv"), rows, hdr)
+    return rows
+
+
 if __name__ == "__main__":
     rc = do_china()
     re = do_ethiopia()
+    ra = do_art()
+    rp = do_antipsychotic()
     print("\nChina F(t):", [(m, round(v, 3)) for m, v in rc])
     print("Ethiopia F(t):", [(m, round(v, 3)) for m, v in re])
+    print("ART F(t):", [(m, round(v, 3)) for m, v in ra])
+    print("Antipsychotic F(t):", [(m, round(v, 3)) for m, v in rp])

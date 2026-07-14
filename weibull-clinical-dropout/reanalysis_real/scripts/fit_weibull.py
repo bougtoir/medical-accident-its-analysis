@@ -88,8 +88,10 @@ def fit_one(t, f):
 
 def main():
     specs = [
-        ("Ethiopia", "ethiopia_ltfu_cif.csv", "PMC10290796 Fig.1a (competing-risk CIF, 6 mo)"),
-        ("China", "china_ltfu_cif.csv", "PMC10167013 Fig.3 (All-TB KM retention, 12 mo)"),
+        ("TB-Ethiopia", "ethiopia_ltfu_cif.csv", "PMC10290796 Fig.1a (competing-risk CIF, 6 mo)"),
+        ("TB-China", "china_ltfu_cif.csv", "PMC10167013 Fig.3 (All-TB KM retention, 12 mo)"),
+        ("ART/HIV", "art_ltfu_cif.csv", "PMC12953970 Fig.1A (retention KM, months)"),
+        ("Antipsychotic", "antipsychotic_ltfu_cif.csv", "PMC12437960 (time-to-discontinuation KM, days)"),
     ]
     rows = []
     for name, fn, src in specs:

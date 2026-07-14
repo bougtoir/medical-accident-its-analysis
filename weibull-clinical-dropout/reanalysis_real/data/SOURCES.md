@@ -28,6 +28,25 @@ figure images are stored under `data/figures/`.
   (source: frontiersin.org, open access, CC BY).
 - Extracted: `data/china_ltfu_cif.csv`.
 
+## Comparators (non-TB treatment dropout, real KM curves)
+
+### ART / HIV
+- Incidence & predictors of loss to follow-up among ART patients, *J Int Assoc
+  Provid AIDS Care* 2026. PMCID **PMC12953970**, DOI 10.1177/23259582261426232.
+- Figure **1A** "overall" Kaplan–Meier survival estimate (time to LTFU, months);
+  panel B (by cotrimoxazole) and panel C (pie) not used.
+- File: `data/figures/art_PMC12953970_fig1_km_retention.jpg`
+  (from SAGE supplementary package, open access). → `data/art_ltfu_cif.csv`.
+
+### Antipsychotic
+- Time to discontinuation of the initially prescribed antipsychotic in routine
+  practice, *Eur Psychiatry* 2025. PMCID **PMC12437960**,
+  DOI 10.1192/j.eurpsy.2025.… (Cambridge). Figure = KM "Any antipsychotic"
+  (time to discontinuation, days). **Small sample (n≈42, 38 events)** — real but
+  low-powered; treated as illustrative comparator.
+- File: `data/figures/antipsychotic_PMC12437960_fig_km_survival.jpg`
+  (Cambridge supplementary package). → `data/antipsychotic_ltfu_cif.csv`.
+
 ## Calibration
 - Axis calibration anchors (pixel↔data) in `scripts/digitize.py` were read from
   the tick marks of each figure and are cross-checked at runtime against
