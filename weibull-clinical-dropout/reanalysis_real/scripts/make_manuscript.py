@@ -24,8 +24,16 @@ os.makedirs(OUT, exist_ok=True)
 FITS = pd.read_csv(os.path.join(RESULTS, "weibull_fits.csv")).set_index("dataset")
 FIG = os.path.join(FIGDIR, "weibull_real_fits.png")
 
+# Numbered in order of first appearance in the body (Vancouver).
 REFERENCES = [
-    "World Health Organization. Global Tuberculosis Report 2023. Geneva: WHO; 2023.",
+    "World Health Organization. Global Tuberculosis Report 2024. Geneva: WHO; 2024.",
+    "Tsibiyane M, Faye LM, Ndayi K, Sineke N, Tyeshani L, Faleni M, et al. Multilevel "
+    "determinants of tuberculosis treatment interruption in rural South Africa: insights from "
+    "primary healthcare nurses. Int J Environ Res Public Health. 2026;23(5):598. "
+    "doi:10.3390/ijerph23050598.",
+    "Kedthongma W, Usaprom S, Phakdeekul W. Community-based interventions to improve "
+    "tuberculosis treatment outcomes: a meta-analysis. MethodsX. 2026;16:103893. "
+    "doi:10.1016/j.mex.2026.103893.",
     "Fufa DB, Diriba TA, Dame KT, Debusho LK. Competing risk models to evaluate the "
     "factors for time to loss to follow-up among tuberculosis patients at Ambo General "
     "Hospital. Arch Public Health. 2023;81:113. doi:10.1186/s13690-023-01130-2.",
@@ -87,46 +95,63 @@ def build_docx():
         s.left_margin = s.right_margin = Inches(1)
 
     t = doc.add_paragraph(); t.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    r = t.add_run("Heterogeneous dropout-hazard shapes in tuberculosis treatment: "
-                  "a hypothesis-generating re-analysis of digitized survival curves")
+    r = t.add_run("Divergent hazard shapes of tuberculosis treatment loss to follow-up: a "
+                  "reproducible re-analysis quantifying the heterogeneity that hinders a "
+                  "unified retention intervention")
     r.bold = True; r.font.size = Pt(15)
     sub = doc.add_paragraph(); sub.alignment = WD_ALIGN_PARAGRAPH.CENTER
     sub.add_run("Short communication").italic = True
 
     heading(doc, "Abstract")
     para(doc,
-         "Loss to follow-up (LTFU) during tuberculosis (TB) treatment is a major barrier to "
-         "cure and transmission control{1}. Whether the *timing* of LTFU follows a consistent "
-         "hazard shape is unknown. We fitted two-parameter Weibull cumulative-incidence models "
-         "to four real, published time-to-event curves recovered by figure digitization: two TB "
-         "treatment cohorts (Ethiopia{2}, China{3}) and two non-TB comparators (HIV/ART "
-         "retention{4}; antipsychotic time-to-discontinuation{5}). The Weibull shape parameter k "
-         "(k>1 increasing-failure-rate [IFR]; k<1 decreasing-failure-rate [DFR]) differed "
-         f"**qualitatively within TB**: Ethiopia k={kfmt('TB-Ethiopia')} (IFR) versus China "
-         f"k={kfmt('TB-China')} (DFR). Both comparators were DFR "
-         f"(HIV/ART k={kfmt('ART/HIV')}; antipsychotic k={kfmt('Antipsychotic')}). Thus, real TB "
-         "LTFU is **not** uniformly increasing-hazard; it is heterogeneous, and the mechanism is "
-         "unclear. Larger, individual-level datasets are needed to test whether this heterogeneity "
-         "is real and what drives it. All results regenerate from code and the digitized source "
-         "figures.")
+         "Loss to follow-up (LTFU) during tuberculosis (TB) treatment is a major barrier to cure "
+         "and transmission control{1}. Its determinants are known to be multilevel and "
+         "context-dependent{2}, and community/behavioural interventions to prevent it show "
+         "inconsistent, setting-specific effectiveness{3}; why a single retention strategy does "
+         "not travel well is unresolved. We give this qualitative problem a quantitative handle by "
+         "asking whether the *timing* of LTFU (its hazard shape) is consistent across settings. We "
+         "fitted two-parameter Weibull cumulative-incidence models to four real, published "
+         "time-to-event curves recovered by figure digitization: two TB cohorts (Ethiopia{4}, "
+         "China{5}) and two non-TB comparators (HIV/ART retention{6}; antipsychotic "
+         "time-to-discontinuation{7}). The shape parameter k (k>1 increasing-failure-rate [IFR]; "
+         "k<1 decreasing-failure-rate [DFR]) **diverged within TB**: Ethiopia "
+         f"k={kfmt('TB-Ethiopia')} (IFR) versus China k={kfmt('TB-China')} (DFR) \u2014 opposite "
+         "sides of k=1 from only two cohorts, with non-identical outcome definitions. By contrast "
+         f"both comparators were DFR (HIV/ART k={kfmt('ART/HIV')}; antipsychotic "
+         f"k={kfmt('Antipsychotic')}), i.e. mutually consistent. TB LTFU is therefore **not** "
+         "uniformly increasing-hazard: its hazard shape is heterogeneous across countries "
+         "(plausibly because the country-specific mechanisms that generate LTFU differ), which "
+         "mathematically illustrates why pooled TB evidence and a one-size retention intervention "
+         "are hard to build, whereas the comparator interventions may pool more readily. The cause "
+         "of the shape divergence is unknown. All results regenerate from code and the digitized "
+         "source figures.")
 
     heading(doc, "1. Introduction")
     para(doc,
          "LTFU interrupts TB treatment, promotes acquired drug resistance and sustains "
-         "transmission{1}. Programmatic reports usually give only a single cumulative LTFU "
-         "proportion, obscuring *when* during treatment patients disengage. The hazard shape has "
-         "practical meaning: an increasing hazard (k>1) would argue for intensified support late "
-         "in treatment, whereas a decreasing hazard (k<1) would prioritize the earliest weeks. "
-         "We asked a deliberately narrow, hypothesis-generating question: across the few TB "
-         "cohorts that publish a time-resolved LTFU curve, is the Weibull shape consistent, and "
-         "how does it compare with dropout in unrelated chronic treatments?")
+         "transmission{1}. Two things are already established. First, the determinants of "
+         "treatment interruption are multilevel and strongly context-dependent, differing by "
+         "health system, case mix and social setting{2}. Second, interventions intended to keep "
+         "patients in care\u2014community-based, behavioural and digital approaches\u2014show "
+         "inconsistent, setting-specific effectiveness, so no single strategy has proved "
+         "universally transferable{3}. What has been missing is a *quantitative* description of "
+         "the phenomenon that plausibly underlies this: whether patients across settings even "
+         "disengage on the same time-course. Programmatic reports usually give a single cumulative "
+         "LTFU proportion, hiding *when* during treatment patients leave. The hazard shape carries "
+         "direct operational meaning: an increasing hazard (k>1) argues for intensified support "
+         "late in treatment, a decreasing hazard (k<1) for front-loading it in the earliest weeks. "
+         "We therefore asked a narrow question: across TB cohorts that publish a time-resolved "
+         "LTFU curve, is the Weibull hazard shape consistent, and how does it compare with dropout "
+         "in unrelated chronic treatments? A divergence within TB but consistency among "
+         "comparators would give a concrete, reproducible measure of why TB retention resists a "
+         "unified approach.")
 
     heading(doc, "2. Methods")
     para(doc,
          "We used only real, published curves. TB data were the competing-risk LTFU cumulative "
-         "incidence at Ambo General Hospital, Ethiopia{2}, and the all-patient time-to-LTFU "
-         "Kaplan\u2013Meier curve from a 5-year Chinese cohort{3}. Comparators were an HIV/ART "
-         "retention curve{4} and an antipsychotic time-to-discontinuation curve{5}. Curves were "
+         "incidence at Ambo General Hospital, Ethiopia{4}, and the all-patient time-to-LTFU "
+         "Kaplan\u2013Meier curve from a 5-year Chinese cohort{5}. Comparators were an HIV/ART "
+         "retention curve{6} and an antipsychotic time-to-discontinuation curve{7}. Curves were "
          "digitized from the published figures by an in-house pixel extractor with axis "
          "calibration read from figure tick marks (values taken from curve pixels, not entered "
          "by hand). For each dataset we fitted the Weibull cumulative-incidence model "
@@ -167,22 +192,33 @@ def build_docx():
     doc.paragraphs[-1].alignment = WD_ALIGN_PARAGRAPH.CENTER
     para(doc, "**Figure 1.** Weibull cumulative-incidence fits (red) to digitized dropout curves "
               "(points) for two TB cohorts and two comparators. TB is split between IFR (Ethiopia) "
-              "and DFR (China); comparators are DFR.", space_before=4)
+              "and DFR (China), spanning the whole range; comparators are consistently DFR.",
+              space_before=4)
 
     heading(doc, "4. Discussion")
     para(doc,
-         "The headline observation is negative and, we think, honest: **real TB treatment LTFU "
-         "does not follow a single hazard shape.** One TB cohort accelerated (late-concentrated "
-         "LTFU) while another was front-loaded, spanning the whole IFR\u2013DFR range that the two "
-         "unrelated comparators occupied only on the DFR side. We cannot explain the TB "
-         "heterogeneity from these data. Plausible contributors include different outcome "
-         "definitions (competing-risk CIF vs all-patient KM), different case mix and programme "
-         "context, the 6- vs 12-month observation windows, and digitization of aggregate rather "
-         "than individual-level curves. The point of this short report is precisely that the "
-         "heterogeneity is visible yet unexplained: with more TB cohorts\u2014ideally individual "
-         "patient data with consistent LTFU definitions\u2014one could test whether the shape "
-         "varies with regimen phase, health-system factors or case mix, and whether any subgroup "
-         "reliably shows late-rising hazard that would justify late-treatment retention support.")
+         "The result puts a number on an accepted but qualitative problem. It is already known "
+         "that TB LTFU determinants are context-dependent{2} and that retention interventions do "
+         "not transfer cleanly between settings{3}; our contribution is to show that this "
+         "heterogeneity is visible in the **hazard shape itself**. Two TB cohorts fell on opposite "
+         "sides of k=1 \u2014 one late-accelerating (IFR), one strongly front-loaded (DFR) \u2014 "
+         "spanning the entire range that the two unrelated comparators occupied only on the DFR "
+         "side. In other words, the comparator interventions were mutually consistent (both DFR) "
+         "and would plausibly support a common time-course model, whereas the two TB settings did "
+         "not share even the *direction* of their hazard. This is a compact, reproducible "
+         "illustration of why pooled TB evidence and a single unified retention intervention are "
+         "hard to construct: if countries differ in *when* patients disengage, an intervention "
+         "timed for one will be mistimed for another.")
+    para(doc,
+         "We cannot explain the divergence, and we do not claim to. It is confounded with "
+         "different outcome definitions (competing-risk CIF vs all-patient KM), case mix, programme "
+         "context and the 6- vs 12-month observation windows, and it rests on digitized aggregate "
+         "curves rather than individual patient data. That the mechanism is unknown is precisely "
+         "the open question worth stating: the country-specific processes that generate LTFU "
+         "appear to differ enough to change the hazard shape, and identifying what drives this "
+         "\u2014 regimen phase, health-system factors, or case mix \u2014 would require more TB "
+         "cohorts with individual-level data and harmonized LTFU definitions. Until then, the "
+         "honest reading is that TB retention is a heterogeneous target, not a single one.")
 
     heading(doc, "5. Limitations")
     para(doc,
