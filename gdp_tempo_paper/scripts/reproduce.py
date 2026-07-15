@@ -6,6 +6,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+from validate_reproduction import required_artifacts
+
 ROOT = Path(__file__).resolve().parents[1]
 LOG_DIR = ROOT / "reproduction" / "logs"
 
@@ -36,6 +38,15 @@ def run_step(name: str, script: str) -> None:
         raise SystemExit(f"{name} failed; log: {log_path}\n" + "\n".join(tail))
 
 
+def clear_required_artifacts() -> None:
+    removed = 0
+    for artifact in required_artifacts():
+        if artifact.exists():
+            artifact.unlink()
+            removed += 1
+    print(f"Removed {removed} previously generated validation artifacts.", flush=True)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -45,6 +56,7 @@ def main() -> None:
     )
     args = parser.parse_args()
 
+    clear_required_artifacts()
     for name, script in ANALYSIS_STEPS:
         run_step(name, script)
     if not args.skip_documents:
