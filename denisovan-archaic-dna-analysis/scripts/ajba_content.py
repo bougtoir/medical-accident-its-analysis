@@ -495,26 +495,16 @@ RESULTS = [
         ["Figure 2"],
     ),
     (
-        "Schematic dispersal context",
-        (
-            "A Minard-style diagram places the analysis within broad "
-            "dispersal and archaic-introgression contexts (Figure 3). Band widths, "
-            "branch positions, and event placement are schematic and are not "
-            "estimates from the present pairwise analysis."
-        ),
-        ["Figure 3"],
-    ),
-    (
         "Robustness analyses",
         (
             "Negative distance correlations were examined across admixture "
             "exclusions, within-dataset subsets, minimum sample sizes, and regional "
-            "omissions. Figure 4 shows the effect of excluding designated recently "
-            "admixed populations, and Figure 5 shows window-size results at 250 kb, "
+            "omissions. Figure 3 shows the effect of excluding designated recently "
+            "admixed populations, and Figure 4 shows window-size results at 250 kb, "
             "500 kb, and 1 Mb. These analyses were treated as robustness checks rather "
             "than independent confirmatory tests."
         ),
-        ["Figure 4", "Figure 5"],
+        ["Figure 3", "Figure 4"],
     ),
     (
         "Residual outlier testing",
@@ -537,25 +527,29 @@ RESULTS = [
             "overlapped ABO and one Maya segment lay downstream within the wider "
             "interval. Both were Vindija-closest, but two segments among 41 represented "
             "individuals do not support a regional proportion or migration-route "
-            "inference (Figure 6; Table 2)."
+            "inference (Figure 5; Table 2)."
         ),
-        ["Figure 6", "Table 2"],
+        ["Figure 5", "Table 2"],
     ),
     (
-        "ABO-related and global contextual figures",
+        "Contextual and schematic displays",
         (
-            "The O2-defining allele and ABO-window carrier summaries use different "
-            "sources and are displayed descriptively rather than as an association "
-            "analysis (Figure 7). The Ancient North Eurasian pathway is retained as a "
-            "testable contextual hypothesis, not a route inferred from the two "
-            "Indigenous American segment records (Figure 8). Ancient and modern "
-            "ABO-window observations were produced by different pipelines and permit "
-            "no formal temporal comparison (Figure 9). A literature-derived global "
-            "bivariate map provides broad Neanderthal and Denisovan ancestry context; "
-            "its approximate values were not used in the statistical models "
-            "(Figure 10)."
+            "Several contextual and schematic displays are provided as supplementary "
+            "figures because they do not derive from the pairwise analysis. A "
+            "Minard-style schematic places the analysis within broad dispersal and "
+            "archaic-introgression contexts, with illustrative band widths and event "
+            "placement (Figure S2). The O2-defining allele and ABO-window carrier "
+            "summaries use different sources and are displayed descriptively rather "
+            "than as an association analysis (Figure S3). An Ancient North Eurasian "
+            "pathway is retained as a testable contextual hypothesis, not a route "
+            "inferred from the two Indigenous American segment records (Figure S4). "
+            "Ancient and modern ABO-window observations were produced by different "
+            "pipelines and permit no formal temporal comparison (Figure S5). A "
+            "literature-derived global bivariate map provides broad Neanderthal and "
+            "Denisovan ancestry context; its approximate values were not used in the "
+            "statistical models (Figure S6)."
         ),
-        ["Figure 7", "Figure 8", "Figure 9", "Figure 10"],
+        [],
     ),
 ]
 
@@ -648,54 +642,23 @@ FIGURES = {
         "The subset is displayed for legibility; all 66 populations were analyzed.",
     ),
     3: (
-        "fig3_minard_migration.png",
-        "Minard-style schematic of human dispersal and archaic "
-        "introgression. Band widths, branch positions, and event placement are "
-        "illustrative and do not estimate migration magnitude, ancestry proportion, "
-        "or a route supported by the present analysis.",
-    ),
-    4: (
         "fig4_sensitivity_admixed.png",
         "Sensitivity of the descriptive Neanderthal distance correlation to exclusion "
         "of designated recently admixed populations.",
     ),
-    5: (
+    4: (
         "fig5_window_sensitivity.png",
         "Descriptive geographic distance correlations at 250-kb, 500-kb, and 1-Mb "
         "window sizes. Quadratic assignment procedure results are tabulated in "
         "Supplementary Data.",
     ),
-    6: (
+    5: (
         "fig5_abo_sublineage.png",
         "ABO-centered analysis preserving the historical grouped-bar and segment-map "
         "layout. Equal maximum-similarity ties are excluded from the displayed "
         "three-reference proportions and retained in Supplementary Data. The Pima "
         "segment overlaps ABO; the Maya segment is within the wider interval but does "
         "not overlap the gene. Counts are segments, not regional frequencies.",
-    ),
-    7: (
-        "fig6_o2_introgression.png",
-        "O2 blood-group subtype-defining allele frequencies and ABO-window "
-        "segment-carrier frequencies. "
-        "The panels use different sources and are not an association analysis; "
-        "proximity does not establish that the O2 allele is Neanderthal-derived.",
-    ),
-    8: (
-        "fig7_ane_model.png",
-        "Ancient North Eurasian contextual hypothesis. Dashed arrows represent a "
-        "testable narrative, not evidence that either observed segment followed the "
-        "illustrated route.",
-    ),
-    9: (
-        "fig8_temporal_dynamics.png",
-        "Descriptive ancient and modern ABO-window summaries generated by different "
-        "pipelines; no formal temporal comparison is made.",
-    ),
-    10: (
-        "fig9_bivariate_world_map.png",
-        "Literature-derived global context. Circle size represents approximate "
-        "Neanderthal ancestry and color intensity represents approximate Denisovan "
-        "ancestry. Values were not used in the pairwise statistical models.",
     ),
 }
 
@@ -704,5 +667,36 @@ SUPPORTING_FIGURES = {
     1: (
         "figS1_full_heatmap.png",
         "Complete 66-population Neanderthal and Denisovan profile-similarity matrices.",
+    ),
+    2: (
+        "fig3_minard_migration.png",
+        "Minard-style schematic of human dispersal and archaic "
+        "introgression. Band widths, branch positions, and event placement are "
+        "illustrative and do not estimate migration magnitude, ancestry proportion, "
+        "or a route supported by the present analysis.",
+    ),
+    3: (
+        "fig6_o2_introgression.png",
+        "O2 blood-group subtype-defining allele frequencies and ABO-window "
+        "segment-carrier frequencies. "
+        "The panels use different sources and are not an association analysis; "
+        "proximity does not establish that the O2 allele is Neanderthal-derived.",
+    ),
+    4: (
+        "fig7_ane_model.png",
+        "Ancient North Eurasian contextual hypothesis. Dashed arrows represent a "
+        "testable narrative, not evidence that either observed segment followed the "
+        "illustrated route.",
+    ),
+    5: (
+        "fig8_temporal_dynamics.png",
+        "Descriptive ancient and modern ABO-window summaries generated by different "
+        "pipelines; no formal temporal comparison is made.",
+    ),
+    6: (
+        "fig9_bivariate_world_map.png",
+        "Literature-derived global context. Circle size represents approximate "
+        "Neanderthal ancestry and color intensity represents approximate Denisovan "
+        "ancestry. Values were not used in the pairwise statistical models.",
     ),
 }

@@ -6,10 +6,10 @@
 - `manuscript_ajhb_inline_review.docx`: internal review copy with figures and tables immediately after first mention
 - `Table_1_residual_outliers.docx` and `Table_2_abo_summary.docx`: individual editable tables
 - `tables_ajhb.docx`: combined editable Tables 1-2 for internal convenience
-- `supporting_information_ajhb.docx`: Supporting Figure S1 and data-file descriptions
-- `figures_tables_ajhb.pptx`: Figures 1-10, Figure S1, and Tables 1-2
+- `supporting_information_ajhb.docx`: Supporting Figures S1-S6 and data-file descriptions
+- `figures_tables_ajhb.pptx`: Figures 1-5, Figures S1-S6, and Tables 1-2
 - `cover_letter_ajhb.docx`: American Journal of Human Biology Original Research Article cover letter
-- `figures/Figure_1` through `Figure_10` and `Figure_S1`: separate PNG and TIFF files
+- `figures/Figure_1` through `Figure_5` and `Figure_S1` through `Figure_S6`: separate PNG and TIFF files
 - `supplementary_data/`: population metadata, complete pairwise results, model output, sensitivities, and provenance
 - `reproducibility_checklist.md`: data provenance, rebuild commands, expected checks, and package versions
 - `reference_validation.csv`: DOI/PubMed existence and title checks
@@ -18,7 +18,7 @@
 
 - References use author-date (author-year) style and are alphabetized.
 - Every listed reference is cited and every citation has a reference entry.
-- Figures 1-10, Figure S1, and Tables 1-2 are first mentioned sequentially.
+- Figures 1-5, Figures S1-S6, and Tables 1-2 are first mentioned sequentially.
 - The abstract is within 250 words.
 - The running title is under 48 characters.
 - Required title-page, availability, funding, conflict, ethics, and contribution statements are present.

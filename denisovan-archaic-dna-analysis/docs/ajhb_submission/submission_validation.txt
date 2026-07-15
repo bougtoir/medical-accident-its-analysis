@@ -4,8 +4,8 @@ AJHB SUBMISSION VALIDATION
 Abstract words: 231
 References: 24
 Uncited references: []
-First-appearance figure order: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-First-appearance supporting figure order: [1]
+First-appearance figure order: [1, 2, 3, 4, 5]
+First-appearance supporting figure order: [1, 2, 3, 4, 5, 6]
 First-appearance table order: [1, 2]
 
 PASS: Author-date citations
