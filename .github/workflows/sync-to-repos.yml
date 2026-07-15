@@ -189,6 +189,7 @@ jobs:
 
           # ── Discharged Secrets (scoping review and public-data audit) ──
           BRANCH_MAP["devin/1783957193-discharged-secrets-scoping-review"]="discharged-secrets-scoping-review"
+          BRANCH_MAP["devin/1784122193-luup-data-policy"]="discharged-secrets-scoping-review"
 
           # ── Subdirectory filter map ──
           # When a branch contains multiple project folders (e.g. branched from
@@ -251,6 +252,7 @@ jobs:
           SUBDIR_MAP["devin/1783365908-mnras-submission"]="threebody_pk_compartment"
           SUBDIR_MAP["devin/1783649000-ijcip-submission"]="discharged_secrets_ijcip"
           SUBDIR_MAP["devin/1783957193-discharged-secrets-scoping-review"]="discharged_secrets_ijcip"
+          SUBDIR_MAP["devin/1784122193-luup-data-policy"]="discharged_secrets_ijcip"
 
           # ── File exclusion map ──
           # Space-separated list of file paths (relative to subdir root if

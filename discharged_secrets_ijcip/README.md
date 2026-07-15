@@ -2,7 +2,7 @@
 
 ## Current revision track
 
-Following desk rejection of the conceptual IJCIP submission, the project was rebuilt as an empirical, reproducible package for submission to *Computers & Security* (Elsevier): a PRISMA-ScR scoping review, a global field audit of public GBFS vehicle feeds, and a structured disclosure audit of public operator privacy notices. `REVIEWER_REVIEW.md` records the pre-submission reviewer-perspective assessment and residual caveats.
+The project is an empirical, reproducible package: a PRISMA-ScR scoping review, a global field audit of public GBFS vehicle feeds, and a structured disclosure audit of public operator privacy notices. It was first prepared for *Computers & Security* (Elsevier); after desk rejection for scope mismatch it was reformatted for **Data & Policy** (Cambridge University Press) as a Research Article — author-date (Cambridge A) references, a Policy Significance Statement, single-blind (non-anonymized), ≤250-word abstract, and the journal's required disclosure statements. The next fallback target is *International Journal of Information Security*. `REVIEWER_REVIEW.md` records the pre-submission reviewer-perspective assessment and residual caveats.
 
 - `PROTOCOL.md`: prospective study protocol;
 - `REVISION_STRATEGY.md`: article redesign and claim boundaries;
@@ -76,23 +76,27 @@ python build_submission.py
 
 The build writes the complete submission package to `output/`, including:
 
-- anonymized manuscript (`Manuscript_CompSec.docx`) with five figures and five tables placed inline;
-- separate title page, cover letter, highlights (`.docx` and `.txt`), and submission checklist;
-- standalone editable tables (`Tables_CompSec_editable.docx`);
-- five standalone figures (`.png`, `.tiff`, `.pdf` at 600 dpi) and an editable `Figures_CompSec_editable.pptx` (one figure per slide);
+- the non-anonymized manuscript (`Manuscript_DataPolicy.docx`) with the abstract, a 120-word Policy Significance Statement, five figures and five tables placed inline, the required disclosure statements, and an alphabetised author-date reference list;
+- separate title/author page, cover letter, and submission checklist;
+- standalone editable tables (`Tables_DataPolicy_editable.docx`);
+- five standalone figures (`.png`, `.tiff`, `.pdf` at 600 dpi) and an editable `Figures_DataPolicy_editable.pptx` (one figure per slide);
 - PRISMA-ScR reporting-guideline statement;
-- citation first-appearance audit;
+- author-date citation audit;
 - reference-verification report (live DOI/URL resolution with offline fallback); and
-- `CompSec_submission_package.zip` containing the submission files.
+- `DataPolicy_submission_package.zip` containing the submission files.
 
 ## Validation
 
 The build fails if:
 
-- citations are not numbered in order of first appearance;
-- a citation is missing from the reference list or a reference is uncited;
+- any in-text citation does not resolve to a reference, or a reference is uncited (no orphan/phantom references);
+- the reference list is not alphabetised by author;
+- an unresolved `[[...]]` citation marker leaks into the rendered text;
 - a figure or table is absent from the manuscript text;
-- the abstract exceeds 300 words;
+- the abstract exceeds 250 words;
+- the Policy Significance Statement is not ~120 words;
+- more than five keywords are supplied;
+- a required disclosure statement (data availability, funding, competing interests) is missing;
 - all five figures or five tables are not present and cited; or
 - an undefined abbreviation is detected from the configured abbreviation list.
 

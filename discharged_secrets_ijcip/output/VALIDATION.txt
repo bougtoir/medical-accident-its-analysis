@@ -1,16 +1,23 @@
 Submission validation report
 ==============================
 
-word_count: 2331
+word_count: 2491
 abstract_words: 213
+policy_significance_words: 121
+keywords: 5
 references: 30
-citations_sequential: True
+all_citations_resolve: True
 no_orphan_or_phantom_refs: True
+references_alphabetical: True
+no_unresolved_markers: True
 figures_cited_in_text: True
 tables_cited_in_text: True
 five_figures_present: True
 five_tables_present: True
-abstract_within_300w: True
+abstract_within_250w: True
+policy_significance_120w: True
+keywords_at_most_five: True
+required_disclosures_present: True
 
 Figure files:
   Figure 1 png: Figure1.png

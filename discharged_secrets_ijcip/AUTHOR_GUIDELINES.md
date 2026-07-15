@@ -1,48 +1,80 @@
-# IJCIP submission requirements checked on 10 July 2026
+# Data & Policy submission requirements checked on 15 July 2026
+
+Target journal: **Data & Policy** (Cambridge University Press), an open-access
+journal on the interface of data science and governance. After desk rejection
+by *Computers & Security* (scope mismatch), the package was reformatted for
+Data & Policy; the next fallback target is *International Journal of Information
+Security*.
 
 ## Scope and article positioning
 
-The journal publishes scientific and policy papers across critical-infrastructure sectors, including transportation systems, government facilities, the defense industrial base, commercial facilities, and information technology. It explicitly welcomes work combining science, technology, law, and policy to produce practical protection measures.
+Data & Policy publishes research at the intersection of data (including data
+science, digital technologies, and open data) and its use, regulation, and
+governance. This manuscript is submitted as a **Research Article** under
+**Area 4: Ethics, Equity and Trustworthiness of Data**. It contributes:
 
-This manuscript is positioned as a full-length research/policy article. It contributes:
-
-1. a defined class of **serviced telemetry-emitting hardware**;
-2. a structured synthesis linking mobility, battery, lifecycle-custody, and supply-chain evidence;
-3. a lifecycle exposure model; and
-4. auditable procurement and decommissioning controls.
+1. a PRISMA-ScR evidence map of direct data-exposure evidence in shared
+   micromobility;
+2. a global, privacy-preserving audit of what public GBFS vehicle feeds
+   actually disclose;
+3. a structured audit of public operator lifecycle-disclosure documents; and
+4. a reproducible lifecycle exposure model linking evidence strength to
+   procurement, regulatory, and transparency choices.
 
 ## Format
 
-- Elsevier's **Your Paper Your Way** policy permits a single Word or PDF file at initial submission, provided the manuscript is readable and internally consistent.
-- A separate anonymized manuscript and title page are supplied to remain compatible with either single- or double-anonymized handling.
-- The abstract is concise, self-contained, and below 250 words.
-- Six indexing keywords are supplied.
-- References use the journal's numbered `elsarticle-num` convention: square-bracket citations in order of first appearance.
-- Highlights are supplied as a separate editable file: five bullets, each no more than 85 characters.
+- **Research Article**, approximately 8,000 words excluding references (a
+  guideline, not a hard limit); the current main text is well within this.
+- **Abstract** of no more than 250 words.
+- A **Policy Significance Statement** of ~120 words, in accessible language,
+  placed directly beneath the abstract.
+- Up to **five keywords**, separated by semicolons.
+- **Cambridge A (author-date) references**: in-text citations give author
+  surname and year with no intervening punctuation (e.g. `(Elzer et al. 2025)`);
+  three or more authors use `et al.`; multiple works are separated by
+  semicolons and ordered alphabetically by author; the reference list is
+  alphabetised (not numbered) and works by the same author are ordered
+  chronologically.
+- The manuscript is **not anonymized** (Data & Policy uses single-blind peer
+  review); a title/author page with ORCID is supplied.
+
+## Required disclosure statements
+
+Placed after the main text and before the references:
+
+- **Data availability statement** (required) — states where the registry
+  snapshot, screening decisions, coding sheets, results, and code are openly
+  available, and the restrictions on raw identifiers/coordinates;
+- **Funding statement** (required);
+- **Competing interests** (required).
+
+Additionally supplied as good practice: acknowledgements, author contributions,
+an ethical-standards statement, and a generative-AI use statement.
 
 ## Figures and tables
 
-- Figure 1 and Tables 1–2 are cited before their first appearance and placed immediately after that paragraph in the manuscript.
-- Figure 1 is also supplied separately as editable PowerPoint, PDF, 600-dpi PNG, and 1200-dpi TIFF.
-- Tables 1–2 are supplied in a separate editable Word file.
+- Five figures and five tables, each cited in the body before or at first
+  appearance and placed immediately after that paragraph.
+- Figures are also supplied separately as editable PowerPoint, plus 600-dpi
+  PNG, PDF, and TIFF; tables are supplied in a separate editable Word file.
+- Numbered consecutively in Arabic numerals with captions supplied.
+- Accessibility descriptions/alt text should be provided at the publication
+  stage.
 
-## Declarations
+## Reproducibility
 
-The package includes statements for:
-
-- competing interests;
-- funding;
-- ethics approval and consent;
-- consent for publication;
-- data availability;
-- author contribution; and
-- generative-artificial-intelligence disclosure.
+`build_submission.py` regenerates the whole package from the committed data,
+review, and results files. All reported counts, proportions, and confidence
+intervals are read from `results/`, `data/`, and `review/`; none are
+hard-coded. Source files are not required at initial submission but are
+retained and can be supplied if accepted.
 
 ## Sources
 
-- IJCIP aims and scope: <https://shop.elsevier.com/journals/international-journal-of-critical-infrastructure-protection/1874-5482>
-- Elsevier Your Paper Your Way guidance: <https://www.elsevier.com/subject/next/guide-for-authors>
-- Journal citation style (`elsarticle-num`): <https://paperpile.com/s/international-journal-of-critical-infrastructure-protection-citation-style/>
-- Elsevier artwork guidance: <https://www.elsevier.com/about/policies-and-standards/author/artwork-and-media-instructions>
+- Data & Policy information for authors:
+  <https://www.cambridge.org/core/journals/data-and-policy/information/instructions-contributors>
+- Cambridge author-date (Cambridge A) reference style guidance (via the
+  journal's instructions for contributors).
 
-Because ScienceDirect's journal-specific guide presented an automated-access challenge during verification, the package takes the conservative route: separate title page, anonymized manuscript, highlights, separate high-resolution artwork, editable source files, and complete declarations. The author should recheck the live Editorial Manager item list immediately before upload.
+The author should recheck the live submission-system item list and the exact
+Cambridge template immediately before upload.

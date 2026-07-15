@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
-"""Build the Computers & Security submission package for the shared-micromobility
-lifecycle data-exposure study (scoping review + global GBFS field audit +
-public-document disclosure audit).
+"""Build the Data & Policy (Cambridge University Press) submission package for
+the shared-micromobility lifecycle data-exposure study (scoping review +
+global GBFS field audit + public-document disclosure audit).
 
 The script is data-driven: quantitative claims are read from the committed
 analysis outputs (results/, data/, review/) so the manuscript, figures, and
-tables stay consistent with the underlying evidence. Citations are numbered by
-first appearance (Vancouver) by a resolver, guaranteeing sequential numbering
-with no orphan or phantom references.
+tables stay consistent with the underlying evidence. Citations use author-date
+(Cambridge A) style: internal ``[[label]]`` tokens are resolved to
+"(Author Year)" strings and the reference list is alphabetised, with no orphan
+or phantom references.
 """
 
 from __future__ import annotations
@@ -52,214 +53,306 @@ AUTHOR = "[Author name]"
 AFFILIATION = "[Department, institution, city, postal code, country]"
 EMAIL = "[Corresponding author email]"
 ORCID = "[ORCID]"
-JOURNAL = "Computers & Security"
-BUILD_DATE = "13 July 2026"
+JOURNAL = "Data & Policy"
+PUBLISHER = "Cambridge University Press"
+ARTICLE_TYPE = "Research Article"
+AREA_OF_INTEREST = "Area 4: Ethics, Equity and Trustworthiness of Data"
+PUBLIC_REPO_URL = "https://github.com/bougtoir/discharged-secrets-scoping-review"
+BUILD_DATE = "15 July 2026"
 
+# Data & Policy allows up to five keywords, separated by semicolons.
 KEYWORDS = [
     "shared micromobility",
     "location privacy",
-    "General Bikeshare Feed Specification",
-    "scoping review",
     "data lifecycle",
-    "connected-device security",
+    "open mobility data",
+    "data governance",
 ]
 
-HIGHLIGHTS = [
-    "Scoping review of 2,169 records yields 18 direct micromobility studies.",
-    "Global audit of 1,428 public GBFS systems maps disclosed vehicle fields.",
-    "Vehicle identifiers appear in 100% of 813 motorized micromobility feeds.",
-    "Operator privacy notices omit disposal and vulnerability-reporting details.",
-    "Findings are field-presence signals, not evidence of privacy harm.",
-]
+# Required by Data & Policy: a 120-word statement, in accessible language,
+# placed directly beneath the abstract.
+POLICY_SIGNIFICANCE = (
+    "Shared e-scooters and e-bikes are connected devices that cities and "
+    "residents use but neither own nor decommission. This study gives "
+    "policymakers an evidence-based map of what these systems actually "
+    "disclose. A global audit of public vehicle feeds shows that persistent "
+    "identifiers and precise locations are published almost universally, while "
+    "operator privacy notices rarely address device disposal or vulnerability "
+    "reporting. For regulators and procuring authorities, this indicates that "
+    "oversight focused only on real-time location understates lifecycle "
+    "exposure. We provide a transparent, reproducible lifecycle framework that "
+    "ties each stage to the strength of its evidence, helping agencies target "
+    "disclosure requirements, procurement clauses, and end-of-life "
+    "data-handling rules where public accountability is currently weakest. "
+    "The whole audit relies only on public data and open code."
+)
 
 # ---------------------------------------------------------------------------
-# References. Keyed by short label; final numbering is assigned by first
-# appearance in the manuscript body (see resolve_citations). Every reference
-# below was checked against a public identifier (DOI/URL) during preparation
-# and is recorded in output/Reference_Verification.csv.
+# References. Keyed by short label; rendered in author-date (Cambridge A)
+# style and alphabetised in the reference list (see resolve_citations). Every
+# reference below was checked against a public identifier (DOI/URL) during
+# preparation and is recorded in output/Reference_Verification.csv.
 # ---------------------------------------------------------------------------
 REFS: dict[str, str] = {
     "prisma_scr": (
-        "Tricco AC, Lillie E, Zarin W, O'Brien KK, Colquhoun H, Levac D, et al. "
-        "PRISMA Extension for Scoping Reviews (PRISMA-ScR): checklist and "
-        "explanation. Ann Intern Med. 2018;169(7):467-473. doi:10.7326/M18-0850."
+        "Tricco, A.C., Lillie, E., Zarin, W., O'Brien, K.K., Colquhoun, H., "
+        "Levac, D., et al. (2018) PRISMA Extension for Scoping Reviews "
+        "(PRISMA-ScR): checklist and explanation. Annals of Internal Medicine "
+        "169(7), 467-473. https://doi.org/10.7326/M18-0850."
     ),
     "grade_indirectness": (
-        "Guyatt GH, Oxman AD, Kunz R, Woodcock J, Brozek J, Helfand M, et al. "
-        "GRADE guidelines: 8. Rating the quality of evidence - indirectness. "
-        "J Clin Epidemiol. 2011;64(12):1303-1310. "
-        "doi:10.1016/j.jclinepi.2011.04.014."
+        "Guyatt, G.H., Oxman, A.D., Kunz, R., Woodcock, J., Brozek, J., "
+        "Helfand, M., et al. (2011) GRADE guidelines: 8. Rating the quality of "
+        "evidence - indirectness. Journal of Clinical Epidemiology 64(12), "
+        "1303-1310. https://doi.org/10.1016/j.jclinepi.2011.04.014."
     ),
     "arksey": (
-        "Arksey H, O'Malley L. Scoping studies: towards a methodological "
-        "framework. Int J Soc Res Methodol. 2005;8(1):19-32. "
-        "doi:10.1080/1364557032000119616."
+        "Arksey, H. and O'Malley, L. (2005) Scoping studies: towards a "
+        "methodological framework. International Journal of Social Research "
+        "Methodology 8(1), 19-32. https://doi.org/10.1080/1364557032000119616."
     ),
     "demontjoye": (
-        "de Montjoye Y-A, Hidalgo CA, Verleysen M, Blondel VD. Unique in the "
-        "crowd: the privacy bounds of human mobility. Sci Rep. 2013;3:1376. "
-        "doi:10.1038/srep01376."
+        "de Montjoye, Y.-A., Hidalgo, C.A., Verleysen, M. and Blondel, V.D. "
+        "(2013) Unique in the crowd: the privacy bounds of human mobility. "
+        "Scientific Reports 3, 1376. https://doi.org/10.1038/srep01376."
     ),
     "gdpr": (
-        "European Parliament and Council. Regulation (EU) 2016/679 (General Data "
-        "Protection Regulation). Off J Eur Union. 2016;L119:1-88."
+        "European Parliament and Council (2016) Regulation (EU) 2016/679 "
+        "(General Data Protection Regulation). Official Journal of the European "
+        "Union L119, 1-88."
     ),
     "elzer": (
-        "Elzer T, Ruben M, Classen J, Hollick M. They see me scooting: a "
-        "long-term real-world data analysis of shared micro-mobility services. "
-        "In: 2025 IEEE 10th European Symposium on Security and Privacy "
-        "(EuroS&P). IEEE; 2025. doi:10.1109/EuroSP63326.2025.00014."
+        "Elzer, T., Ruben, M., Classen, J. and Hollick, M. (2025) They see me "
+        "scooting: a long-term real-world data analysis of shared "
+        "micro-mobility services. In 2025 IEEE 10th European Symposium on "
+        "Security and Privacy (EuroS&P). IEEE. "
+        "https://doi.org/10.1109/EuroSP63326.2025.00014."
     ),
     "etrojans": (
-        "Casagrande M, Losiouk E, Conti M, Payer M, Antonioli D. E-Trojans: "
-        "ransomware, tracking, DoS, and data leaks on battery-powered embedded "
-        "systems. arXiv:2411.17184; 2024. doi:10.48550/arXiv.2411.17184."
+        "Casagrande, M., Losiouk, E., Conti, M., Payer, M. and Antonioli, D. "
+        "(2024) E-Trojans: ransomware, tracking, DoS, and data leaks on "
+        "battery-powered embedded systems. arXiv:2411.17184. "
+        "https://doi.org/10.48550/arXiv.2411.17184."
     ),
     "espoofer": (
-        "Casagrande M, Losiouk E, Conti M, Payer M, Antonioli D. E-Spoofer: "
-        "attacking and defending Xiaomi electric scooter ecosystem. In: "
-        "Proceedings of the 16th ACM Conference on Security and Privacy in "
-        "Wireless and Mobile Networks (WiSec). ACM; 2023. "
-        "doi:10.1145/3558482.3590176."
+        "Casagrande, M., Losiouk, E., Conti, M., Payer, M. and Antonioli, D. "
+        "(2023) E-Spoofer: attacking and defending Xiaomi electric scooter "
+        "ecosystem. In Proceedings of the 16th ACM Conference on Security and "
+        "Privacy in Wireless and Mobile Networks (WiSec). ACM. "
+        "https://doi.org/10.1145/3558482.3590176."
     ),
     "vinayaga2022": (
-        "Vinayaga-Sureshkanth N, Maiti A, Jadliwala M, Crager K, He J, Rathore "
-        "H. An investigative study on the privacy implications of mobile "
-        "e-scooter rental apps. In: Proceedings of the 15th ACM Conference on "
-        "Security and Privacy in Wireless and Mobile Networks (WiSec). ACM; "
-        "2022. doi:10.1145/3507657.3528551."
+        "Vinayaga-Sureshkanth, N., Maiti, A., Jadliwala, M., Crager, K., He, J. "
+        "and Rathore, H. (2022) An investigative study on the privacy "
+        "implications of mobile e-scooter rental apps. In Proceedings of the "
+        "15th ACM Conference on Security and Privacy in Wireless and Mobile "
+        "Networks (WiSec). ACM. https://doi.org/10.1145/3507657.3528551."
     ),
     "hilgert": (
-        "Hilgert J-N, Lambertz M, Rybalka M, Schell R, Vogt R. A forensic "
-        "analysis of micromobility solutions. Forensic Sci Int Digit Investig. "
-        "2021;38:301137. doi:10.1016/j.fsidi.2021.301137."
+        "Hilgert, J.-N., Lambertz, M., Rybalka, M., Schell, R. and Vogt, R. "
+        "(2021) A forensic analysis of micromobility solutions. Forensic "
+        "Science International: Digital Investigation 38, 301137. "
+        "https://doi.org/10.1016/j.fsidi.2021.301137."
     ),
     "isik": (
-        "Isik AB, Dag T, Ozkan K. E-scooter sharing platforms: understanding "
-        "their architecture and cybersecurity threats. In: 2023 IEEE 26th "
-        "International Conference on Intelligent Transportation Systems (ITSC). "
-        "IEEE; 2023. doi:10.1109/ITSC57777.2023.10421849."
+        "Isik, A.B., Dag, T. and Ozkan, K. (2023) E-scooter sharing platforms: "
+        "understanding their architecture and cybersecurity threats. In 2023 "
+        "IEEE 26th International Conference on Intelligent Transportation "
+        "Systems (ITSC). IEEE. https://doi.org/10.1109/ITSC57777.2023.10421849."
     ),
     "vinayaga2020": (
-        "Vinayaga-Sureshkanth N, Maiti A, Jadliwala M, Crager K, He J, Rathore "
-        "H. Security and privacy challenges in upcoming intelligent urban "
-        "micromobility transportation systems. In: Proceedings of the Second "
-        "ACM Workshop on Automotive and Aerial Vehicle Security (AutoSec). ACM; "
-        "2020. doi:10.1145/3375706.3380559."
+        "Vinayaga-Sureshkanth, N., Maiti, A., Jadliwala, M., Crager, K., He, J. "
+        "and Rathore, H. (2020) Security and privacy challenges in upcoming "
+        "intelligent urban micromobility transportation systems. In Proceedings "
+        "of the Second ACM Workshop on Automotive and Aerial Vehicle Security "
+        "(AutoSec). ACM. https://doi.org/10.1145/3375706.3380559."
     ),
     "petersen": (
-        "Petersen ML. Scoot over smart devices: the invisible costs of rental "
-        "scooters. Surveill Soc. 2019;17(1/2):267-273. "
-        "doi:10.24908/ss.v17i1/2.13112."
+        "Petersen, M.L. (2019) Scoot over smart devices: the invisible costs of "
+        "rental scooters. Surveillance & Society 17(1/2), 267-273. "
+        "https://doi.org/10.24908/ss.v17i1/2.13112."
     ),
     "sato": (
-        "Sato K, Fukushima N, Fujii K, Kitani T. Data acquisition framework for "
-        "micromobility vehicles toward driving risk prediction. IEEE Secur "
-        "Priv. 2025;23(1). doi:10.1109/MSEC.2024.3441731."
+        "Sato, K., Fukushima, N., Fujii, K. and Kitani, T. (2025) Data "
+        "acquisition framework for micromobility vehicles toward driving risk "
+        "prediction. IEEE Security & Privacy 23(1). "
+        "https://doi.org/10.1109/MSEC.2024.3441731."
     ),
     "yilmaz2022": (
-        "Yilmaz S, Karsligil ME. Analysis of location spoofing threats on "
-        "e-scooter sharing. In: 2022 30th Signal Processing and Communications "
-        "Applications Conference (SIU). IEEE; 2022. "
-        "doi:10.1109/SIU55565.2022.9864946."
+        "Yilmaz, S. and Karsligil, M.E. (2022) Analysis of location spoofing "
+        "threats on e-scooter sharing. In 2022 30th Signal Processing and "
+        "Communications Applications Conference (SIU). IEEE. "
+        "https://doi.org/10.1109/SIU55565.2022.9864946."
     ),
     "yilmaz2023": (
-        "Yilmaz S, Karsligil ME. Geo-location spoofing on e-scooters: threat "
-        "analysis and prevention framework. Balk J Electr Comput Eng. "
-        "2023;11(2). doi:10.17694/bajece.1231384."
+        "Yilmaz, S. and Karsligil, M.E. (2023) Geo-location spoofing on "
+        "e-scooters: threat analysis and prevention framework. Balkan Journal "
+        "of Electrical and Computer Engineering 11(2). "
+        "https://doi.org/10.17694/bajece.1231384."
     ),
     "li2020": (
-        "Li Y, Zhang X. Linking privacy concerns for traceable information and "
-        "information privacy protective responses. In: Proceedings of the 53rd "
-        "Hawaii International Conference on System Sciences (HICSS). 2020. "
-        "doi:10.24251/HICSS.2020.105."
+        "Li, Y. and Zhang, X. (2020) Linking privacy concerns for traceable "
+        "information and information privacy protective responses. In "
+        "Proceedings of the 53rd Hawaii International Conference on System "
+        "Sciences (HICSS). https://doi.org/10.24251/HICSS.2020.105."
     ),
     "hannemann": (
-        "Hannemann A, Buchholz E, Ziegler D. Is homomorphic encryption feasible "
-        "for smart mobility? In: Annals of Computer Science and Information "
-        "Systems, vol. 35 (FedCSIS). 2023. doi:10.15439/2023F695."
+        "Hannemann, A., Buchholz, E. and Ziegler, D. (2023) Is homomorphic "
+        "encryption feasible for smart mobility? In Annals of Computer Science "
+        "and Information Systems, vol. 35 (FedCSIS). "
+        "https://doi.org/10.15439/2023F695."
     ),
     "zhou": (
-        "Zhou Y. Data extraction in dockless bikeshare: an analysis from users' "
-        "perspective. Big Data Soc. 2024;11(4). doi:10.1177/20539517241299724."
+        "Zhou, Y. (2024) Data extraction in dockless bikeshare: an analysis "
+        "from users' perspective. Big Data & Society 11(4). "
+        "https://doi.org/10.1177/20539517241299724."
     ),
     "leaky": (
-        "Marchiori A, Losiouk E, Conti M, Antonioli D. Leaky batteries: a novel "
-        "set of side-channel attacks on electric vehicles. In: Computer "
-        "Security - ESORICS 2025. Lecture Notes in Computer Science. Springer; "
-        "2025. doi:10.1007/978-3-032-00624-0_16."
+        "Marchiori, A., Losiouk, E., Conti, M. and Antonioli, D. (2025) Leaky "
+        "batteries: a novel set of side-channel attacks on electric vehicles. "
+        "In Computer Security - ESORICS 2025, Lecture Notes in Computer "
+        "Science. Springer. https://doi.org/10.1007/978-3-032-00624-0_16."
     ),
     "iotreuse": (
-        "Liu Y, Zhou Z, Zhang J, et al. How IoT re-using threatens your "
-        "sensitive data: exploring the user-data disposal in used IoT devices. "
-        "In: 2023 IEEE Symposium on Security and Privacy (SP). IEEE; 2023. "
-        "doi:10.1109/SP46215.2023.10179294."
+        "Liu, Y., Zhou, Z., Zhang, J., et al. (2023) How IoT re-using threatens "
+        "your sensitive data: exploring the user-data disposal in used IoT "
+        "devices. In 2023 IEEE Symposium on Security and Privacy (SP). IEEE. "
+        "https://doi.org/10.1109/SP46215.2023.10179294."
     ),
     "bms": (
-        "Basic F, Gaertner M, Steger C. Secure data acquisition for battery "
-        "management systems. In: 2023 26th Euromicro Conference on Digital "
-        "System Design (DSD). IEEE; 2023. doi:10.1109/DSD60849.2023.00082."
+        "Basic, F., Gaertner, M. and Steger, C. (2023) Secure data acquisition "
+        "for battery management systems. In 2023 26th Euromicro Conference on "
+        "Digital System Design (DSD). IEEE. "
+        "https://doi.org/10.1109/DSD60849.2023.00082."
     ),
     "remanence": (
-        "Joshi A, Raval MS. Standards and techniques to remove data remanence "
-        "in cloud storage. In: 2018 IEEE Punecon. IEEE; 2018. "
-        "doi:10.1109/PUNECON.2018.8745370."
+        "Joshi, A. and Raval, M.S. (2018) Standards and techniques to remove "
+        "data remanence in cloud storage. In 2018 IEEE Punecon. IEEE. "
+        "https://doi.org/10.1109/PUNECON.2018.8745370."
     ),
     "gbfs_spec": (
-        "MobilityData. General Bikeshare Feed Specification (GBFS), version 3.0. "
-        "2024. Available from: https://gbfs.org/ (accessed 12 July 2026)."
+        "MobilityData (2024) General Bikeshare Feed Specification (GBFS), "
+        "version 3.0. Available at https://gbfs.org/ (accessed 12 July 2026)."
     ),
     "gbfs_registry": (
-        "MobilityData. GBFS systems catalogue (systems.csv). 2026. Available "
-        "from: https://github.com/MobilityData/gbfs (accessed 8 July 2026)."
+        "MobilityData (2026) GBFS systems catalogue (systems.csv). Available at "
+        "https://github.com/MobilityData/gbfs (accessed 8 July 2026)."
     ),
     "mds_privacy": (
-        "Open Mobility Foundation. MDS privacy guide for cities. 2021. "
-        "Available from: https://www.openmobilityfoundation.org/ (accessed 12 "
+        "Open Mobility Foundation (2021) MDS privacy guide for cities. "
+        "Available at https://www.openmobilityfoundation.org/ (accessed 12 "
         "July 2026)."
     ),
     "edpb_cv": (
-        "European Data Protection Board. Guidelines 01/2020 on processing "
+        "European Data Protection Board (2021) Guidelines 01/2020 on processing "
         "personal data in the context of connected vehicles and mobility "
-        "related applications, version 2.0. 2021."
+        "related applications, version 2.0."
     ),
     "nist88": (
-        "Kissel R, Regenscheid A, Scholl M, Stine K. NIST Special Publication "
-        "800-88 Revision 1: Guidelines for media sanitization. National "
-        "Institute of Standards and Technology; 2014. "
-        "doi:10.6028/NIST.SP.800-88r1."
+        "Kissel, R., Regenscheid, A., Scholl, M. and Stine, K. (2014) NIST "
+        "Special Publication 800-88 Revision 1: Guidelines for Media "
+        "Sanitization. National Institute of Standards and Technology. "
+        "https://doi.org/10.6028/NIST.SP.800-88r1."
     ),
     "nist161": (
-        "Boyens J, Smith A, Bartol N, Winkler K, Holbrook A, Fallon M. NIST "
-        "Special Publication 800-161 Revision 1: Cybersecurity supply chain "
-        "risk management practices for systems and organizations. National "
-        "Institute of Standards and Technology; 2022. "
-        "doi:10.6028/NIST.SP.800-161r1."
+        "Boyens, J., Smith, A., Bartol, N., Winkler, K., Holbrook, A. and "
+        "Fallon, M. (2022) NIST Special Publication 800-161 Revision 1: "
+        "Cybersecurity Supply Chain Risk Management Practices for Systems and "
+        "Organizations. National Institute of Standards and Technology. "
+        "https://doi.org/10.6028/NIST.SP.800-161r1."
     ),
     "eu_battery": (
-        "European Parliament and Council. Regulation (EU) 2023/1542 concerning "
-        "batteries and waste batteries. Off J Eur Union. 2023;L191:1-117."
+        "European Parliament and Council (2023) Regulation (EU) 2023/1542 "
+        "concerning batteries and waste batteries. Official Journal of the "
+        "European Union L191, 1-117."
     ),
 }
 
+# In-text author-date citation metadata (Cambridge A style). Each entry gives
+# the in-text author string, the year, and an alphabetical sort key (first
+# author surname / organisation) for ordering the reference list.
+CITEMETA: dict[str, tuple[str, str, str]] = {
+    "prisma_scr": ("Tricco et al.", "2018", "tricco"),
+    "grade_indirectness": ("Guyatt et al.", "2011", "guyatt"),
+    "arksey": ("Arksey and O'Malley", "2005", "arksey"),
+    "demontjoye": ("de Montjoye et al.", "2013", "de montjoye"),
+    "gdpr": ("European Parliament and Council", "2016", "european parliament and council"),
+    "elzer": ("Elzer et al.", "2025", "elzer"),
+    "etrojans": ("Casagrande et al.", "2024", "casagrande"),
+    "espoofer": ("Casagrande et al.", "2023", "casagrande"),
+    "vinayaga2022": ("Vinayaga-Sureshkanth et al.", "2022", "vinayaga-sureshkanth"),
+    "hilgert": ("Hilgert et al.", "2021", "hilgert"),
+    "isik": ("Isik et al.", "2023", "isik"),
+    "vinayaga2020": ("Vinayaga-Sureshkanth et al.", "2020", "vinayaga-sureshkanth"),
+    "petersen": ("Petersen", "2019", "petersen"),
+    "sato": ("Sato et al.", "2025", "sato"),
+    "yilmaz2022": ("Yilmaz and Karsligil", "2022", "yilmaz"),
+    "yilmaz2023": ("Yilmaz and Karsligil", "2023", "yilmaz"),
+    "li2020": ("Li and Zhang", "2020", "li"),
+    "hannemann": ("Hannemann et al.", "2023", "hannemann"),
+    "zhou": ("Zhou", "2024", "zhou"),
+    "leaky": ("Marchiori et al.", "2025", "marchiori"),
+    "iotreuse": ("Liu et al.", "2023", "liu"),
+    "bms": ("Basic et al.", "2023", "basic"),
+    "remanence": ("Joshi and Raval", "2018", "joshi"),
+    "gbfs_spec": ("MobilityData", "2024", "mobilitydata"),
+    "gbfs_registry": ("MobilityData", "2026", "mobilitydata"),
+    "mds_privacy": ("Open Mobility Foundation", "2021", "open mobility foundation"),
+    "edpb_cv": ("European Data Protection Board", "2021", "european data protection board"),
+    "nist88": ("Kissel et al.", "2014", "kissel"),
+    "nist161": ("Boyens et al.", "2022", "boyens"),
+    "eu_battery": ("European Parliament and Council", "2023", "european parliament and council"),
+}
+
+assert set(CITEMETA) == set(REFS), (
+    "CITEMETA and REFS must cover the same labels: "
+    f"{set(CITEMETA) ^ set(REFS)}"
+)
+
+
+def intext(label: str) -> str:
+    authors, year, _ = CITEMETA[label]
+    return f"{authors} {year}"
+
+
+def sortkey(label: str) -> tuple[str, str]:
+    _, year, srt = CITEMETA[label]
+    return (srt, year)
+
+# Disclosure statements required by Data & Policy, placed after the main text
+# and before the references. Data availability, funding, and competing
+# interests are mandatory; the remaining statements are included as good
+# practice and to preserve the ethics and generative-AI disclosures.
 DECLARATIONS = [
-    ("Funding", "This research received no external funding."),
-    ("Declaration of competing interest",
-     "The author declares no competing interests."),
-    ("Ethics",
-     "No human participants were recruited. The study analysed only publicly "
-     "accessible feeds and documents and did not attempt authentication, "
-     "access-control circumvention, or interaction with individual users."),
-    ("Data and code availability",
-     "The frozen registry snapshot, screening decisions, coding sheets, "
-     "analysis scripts, and figure-generation code are openly available in the "
-     "project repository. Raw vehicle identifiers, exact coordinates, and "
-     "vehicle-specific deep links were not retained."),
-    ("CRediT author statement",
-     "[Author name]: conceptualization, methodology, software, formal "
-     "analysis, data curation, writing - original draft, writing - review and "
+    ("Acknowledgements",
+     "The author thanks the maintainers of the public GBFS ecosystem and the "
+     "open bibliographic sources that made this audit possible."),
+    ("Data availability statement",
+     "The data and code that support the findings of this study are openly "
+     f"available in the project repository at {PUBLIC_REPO_URL}. This includes "
+     "the frozen GBFS registry snapshot and its checksum, the title/abstract "
+     "and full-text screening decisions, the disclosure-audit coding sheets "
+     "with verbatim locator quotations, the analysis results, and the figure- "
+     "and table-generation code. Raw vehicle identifiers, exact coordinates, "
+     "and vehicle-specific deep links were not retained. Every count, "
+     "proportion, and confidence interval reported in the article can be "
+     "regenerated from these materials with a single build command."),
+    ("Funding statement",
+     "This research received no specific grant from any funding agency, "
+     "commercial or not-for-profit sectors."),
+    ("Competing interests",
+     "The author declares none."),
+    ("Author contributions",
+     "[Author name]: conceptualization; methodology; software; formal "
+     "analysis; data curation; writing - original draft; writing - review and "
      "editing."),
-    ("Generative AI disclosure",
+    ("Ethical standards",
+     "The research meets all ethical guidelines, including adherence to the "
+     "legal requirements of the study jurisdiction. No human participants were "
+     "recruited. The study analysed only publicly accessible feeds and "
+     "documents and did not attempt authentication, access-control "
+     "circumvention, or interaction with individual users."),
+    ("Use of generative AI",
      "No generative AI tool was used to produce scientific content, analysis, "
      "or interpretation. Any use was limited to routine language editing and "
      "was reviewed by the author, who takes full responsibility for the text."),
@@ -620,7 +713,7 @@ def build_tables() -> dict[int, dict]:
         label = ref_by_id[e["record_id"]]
         short = e["citation"].split(".")[0]
         t2_rows.append([
-            f"{short} [[{label}]]",
+            f"{short} [[year:{label}]]",
             dist_label[e["evidence_distance"]],
             e["device_or_service"],
             textwrap.shorten(e["key_result"], width=180, placeholder="..."),
@@ -783,7 +876,7 @@ def body_blocks() -> list[tuple]:
         "(WP2), and a structured disclosure audit of public operator documents "
         "(WP3). The review component is reported in line with PRISMA-ScR "
         "[[prisma_scr]] and follows the scoping-review framework of Arksey and "
-        "O'Malley [[arksey]]. Eligibility criteria and data sources for all "
+        "O'Malley [[year:arksey]]. Eligibility criteria and data sources for all "
         "three components are summarized in Table 1. The protocol, screening "
         "rules, coding sheets, and analysis code are openly available so that "
         "the counts reported here can be regenerated.",
@@ -1041,13 +1134,28 @@ def iter_citation_texts(blocks: list[tuple], tables: dict[int, dict]):
 CITE_RX = re.compile(r"\[\[([^\]]+)\]\]")
 
 
+def _parse_label(raw: str) -> tuple[str, bool]:
+    """Return (label, year_only). A ``year:`` prefix requests a year-only
+    (narrative) citation, e.g. "Arksey and O'Malley (2005)"."""
+    raw = raw.strip()
+    if raw.startswith("year:"):
+        return raw[len("year:"):].strip(), True
+    return raw, False
+
+
 def resolve_citations(blocks: list[tuple], tables: dict[int, dict]):
+    """Author-date (Cambridge A) citation resolver.
+
+    Internal ``[[label]]`` tokens are replaced with "(Author Year)" strings.
+    Multiple labels in one token are sorted alphabetically by first author and
+    chronologically for the same author. The reference list is returned in
+    alphabetical order (not first-appearance order)."""
     order: list[str] = []
 
     def register(fragment: str) -> None:
         for m in CITE_RX.finditer(fragment):
-            for label in m.group(1).split(";"):
-                label = label.strip()
+            for raw in m.group(1).split(";"):
+                label, _ = _parse_label(raw)
                 if label not in order:
                     order.append(label)
 
@@ -1057,30 +1165,22 @@ def resolve_citations(blocks: list[tuple], tables: dict[int, dict]):
     unknown = [l for l in order if l not in REFS]
     if unknown:
         raise RuntimeError(f"Unknown citation labels: {unknown}")
-    numbering = {label: i + 1 for i, label in enumerate(order)}
+
+    ref_list = sorted(set(order), key=lambda l: (sortkey(l), l))
 
     def repl(fragment: str) -> str:
         def _sub(m: re.Match) -> str:
-            nums = sorted(numbering[l.strip()] for l in m.group(1).split(";"))
-            return "[" + collapse(nums) + "]"
+            parsed = [_parse_label(p) for p in m.group(1).split(";")]
+            year_only = all(yo for _, yo in parsed)
+            labels = sorted((lbl for lbl, _ in parsed), key=lambda l: (sortkey(l), l))
+            if year_only:
+                inner = "; ".join(CITEMETA[l][1] for l in labels)
+            else:
+                inner = "; ".join(intext(l) for l in labels)
+            return f"({inner})"
         return CITE_RX.sub(_sub, fragment)
 
-    return numbering, order, repl
-
-
-def collapse(nums: list[int]) -> str:
-    parts: list[str] = []
-    i = 0
-    while i < len(nums):
-        j = i
-        while j + 1 < len(nums) and nums[j + 1] == nums[j] + 1:
-            j += 1
-        if j - i >= 2:
-            parts.append(f"{nums[i]}-{nums[j]}")
-        else:
-            parts.extend(str(nums[k]) for k in range(i, j + 1))
-        i = j + 1
-    return ",".join(parts)
+    return order, ref_list, repl
 
 
 # ---------------------------------------------------------------------------
@@ -1247,11 +1347,14 @@ def build_manuscript(blocks, tables, figpaths, repl, references) -> Path:
     title = doc.add_paragraph(style="Title")
     title.alignment = WD_ALIGN_PARAGRAPH.CENTER
     title.add_run(TITLE).bold = True
-    sub = doc.add_paragraph()
-    sub.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    r = sub.add_run("Anonymized manuscript")
-    r.italic = True
-    r.font.size = Pt(10)
+    byline = doc.add_paragraph()
+    byline.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    byline.add_run(AUTHOR).bold = True
+    aff = doc.add_paragraph()
+    aff.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    ar = aff.add_run(f"{AFFILIATION}\nCorresponding author: {EMAIL}; ORCID {ORCID}")
+    ar.italic = True
+    ar.font.size = Pt(10)
 
     doc.add_heading("Abstract", level=1)
     for label, text in ABSTRACT_STRUCT:
@@ -1259,6 +1362,12 @@ def build_manuscript(blocks, tables, figpaths, repl, references) -> Path:
         p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
         p.add_run(f"{label}: ").bold = True
         p.add_run(text)
+
+    doc.add_heading("Policy Significance Statement", level=1)
+    ps = doc.add_paragraph()
+    ps.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+    ps.add_run(POLICY_SIGNIFICANCE)
+
     kw = doc.add_paragraph()
     kw.add_run("Keywords: ").bold = True
     kw.add_run("; ".join(KEYWORDS))
@@ -1275,23 +1384,23 @@ def build_manuscript(blocks, tables, figpaths, repl, references) -> Path:
         elif kind == "table":
             add_table(doc, tables[payload], repl)
 
-    doc.add_heading("Declarations", level=1)
     for label, value in DECLARATIONS:
         p = doc.add_paragraph()
+        p.paragraph_format.space_before = Pt(6)
         p.paragraph_format.space_after = Pt(4)
-        p.add_run(f"{label}: ").bold = True
+        p.add_run(f"{label}. ").bold = True
         p.add_run(value)
 
     doc.add_heading("References", level=1)
-    for number, label in enumerate(references, 1):
+    for label in references:
         p = doc.add_paragraph()
         p.paragraph_format.left_indent = Inches(0.28)
         p.paragraph_format.first_line_indent = Inches(-0.28)
         p.paragraph_format.line_spacing = 1.0
         p.paragraph_format.space_after = Pt(4)
-        p.add_run(f"[{number}] {REFS[label]}")
+        p.add_run(REFS[label])
 
-    path = OUTPUT / "Manuscript_CompSec.docx"
+    path = OUTPUT / "Manuscript_DataPolicy.docx"
     doc.save(path)
     return path
 
@@ -1310,12 +1419,18 @@ def build_title_page(word_count: int, n_refs: int) -> Path:
         p.alignment = WD_ALIGN_PARAGRAPH.CENTER
         p.add_run(text).bold = bold
     doc.add_paragraph()
+    ps_words = len(re.findall(r"\b[\w'-]+\b", POLICY_SIGNIFICANCE))
+    abstract_words = len(re.findall(r"\b[\w'-]+\b", build_abstract_text()))
     fields = [
         ("Full title", TITLE),
         ("Short title", SHORT_TITLE),
-        ("Article type", "Research paper"),
-        ("Target journal", JOURNAL),
-        ("Word count (title, abstract, body)", str(word_count)),
+        ("Article type", ARTICLE_TYPE),
+        ("Journal", f"{JOURNAL} ({PUBLISHER})"),
+        ("Area of interest", AREA_OF_INTEREST),
+        ("Peer review", "Single-blind; the manuscript is not anonymized"),
+        ("Abstract word count", str(abstract_words)),
+        ("Policy Significance Statement word count", str(ps_words)),
+        ("Main-text word count (excludes references)", str(word_count)),
         ("Figures", "5"),
         ("Tables", "5"),
         ("References", str(n_refs)),
@@ -1326,7 +1441,7 @@ def build_title_page(word_count: int, n_refs: int) -> Path:
         p = doc.add_paragraph()
         p.add_run(f"{label}: ").bold = True
         p.add_run(value)
-    path = OUTPUT / "Title_Page_CompSec.docx"
+    path = OUTPUT / "Title_Page_DataPolicy.docx"
     doc.save(path)
     return path
 
@@ -1340,34 +1455,41 @@ def build_cover_letter() -> Path:
     doc.add_paragraph()
     doc.add_paragraph("The Editors-in-Chief")
     doc.add_paragraph(JOURNAL)
-    doc.add_paragraph("Elsevier")
+    doc.add_paragraph(PUBLISHER)
     doc.add_paragraph()
     doc.add_paragraph("Dear Editors,")
     paras = [
         f"I submit the manuscript \u201c{TITLE}\u201d for consideration as a "
-        f"research paper in {JOURNAL}.",
+        f"Research Article in {JOURNAL}.",
         "Shared micromobility is a fully public, globally deployed class of "
-        "connected devices that organizations and citizens use but do not own "
-        "or decommission. The manuscript reports an empirical, reproducible "
-        "package: a PRISMA-ScR scoping review that identifies the direct "
-        "evidence for data exposure; a global audit of public GBFS feeds that "
-        "measures which vehicle fields operators actually publish; and a "
-        "structured audit of public operator privacy notices across 14 "
-        "disclosure domains.",
-        "The work fits the journal's scope in connected-device and data "
-        "security because it quantifies real, worldwide disclosure surfaces and "
-        "links them to a lifecycle model with auditable controls. Throughout, "
-        "we are careful to treat field presence and document silence as "
-        "disclosure signals rather than as evidence of harm, compromise, or "
-        "regulatory violation, and we state the effectiveness of proposed "
-        "controls conservatively as not yet validated.",
+        "connected devices that cities and citizens use but do not own or "
+        "decommission. The manuscript reports an empirical, reproducible "
+        "package at the intersection of data and policy: a PRISMA-ScR scoping "
+        "review that identifies the direct evidence for data exposure; a global "
+        "audit of public GBFS feeds that measures which vehicle fields "
+        "operators actually publish; and a structured audit of public operator "
+        "privacy notices across 14 disclosure domains.",
+        "The work fits the journal's Area 4 (Ethics, Equity and "
+        "Trustworthiness of Data) because it quantifies real, worldwide data "
+        "disclosure and connects it to procurement, regulation, and "
+        "transparency choices facing public authorities. A 120-word Policy "
+        "Significance Statement makes these implications explicit for a "
+        "policy audience. Throughout, we treat field presence and document "
+        "silence as disclosure and evidence signals rather than as proof of "
+        "harm, compromise, or regulatory violation, and we state the "
+        "effectiveness of proposed controls conservatively as not yet "
+        "validated.",
         "The study analysed only publicly accessible feeds and documents; it "
         "did not attempt authentication or access-control circumvention, did "
         "not interact with users, and retained no raw identifiers, exact "
-        "coordinates, or vehicle deep links. All data, coding sheets, and code "
-        "are openly available so that every reported count can be regenerated. "
-        "The manuscript is original, is not under consideration elsewhere, and "
-        "has no funding or competing interest to declare.",
+        "coordinates, or vehicle deep links. Consistent with the journal's "
+        "open-research expectations, all data, coding sheets, and code are "
+        "openly available so that every reported count can be regenerated with "
+        "a single command. The manuscript is original and is not under "
+        "consideration elsewhere; I understand that Data & Policy uses "
+        "single-blind peer review, so the submission is not anonymized. There "
+        "is no funding or competing interest to declare, and no generative AI "
+        "was used for scientific content.",
         "Thank you for considering this submission.",
     ]
     for text in paras:
@@ -1376,23 +1498,8 @@ def build_cover_letter() -> Path:
         p.add_run(text)
     doc.add_paragraph("Sincerely,")
     doc.add_paragraph(AUTHOR)
-    path = OUTPUT / "Cover_Letter_CompSec.docx"
+    path = OUTPUT / "Cover_Letter_DataPolicy.docx"
     doc.save(path)
-    return path
-
-
-def build_highlights() -> Path:
-    doc = Document()
-    configure_document(doc)
-    h = doc.add_paragraph(style="Title")
-    h.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    h.add_run("Highlights").bold = True
-    for item in HIGHLIGHTS:
-        doc.add_paragraph(item, style="List Bullet")
-    path = OUTPUT / "Highlights_CompSec.docx"
-    doc.save(path)
-    (OUTPUT / "Highlights_CompSec.txt").write_text(
-        "\n".join(f"- {i}" for i in HIGHLIGHTS) + "\n", encoding="utf-8")
     return path
 
 
@@ -1406,7 +1513,7 @@ def build_tables_docx(tables, repl) -> Path:
         add_table(doc, tables[i], repl)
         if i < 5:
             doc.add_section(WD_SECTION.NEW_PAGE)
-    path = OUTPUT / "Tables_CompSec_editable.docx"
+    path = OUTPUT / "Tables_DataPolicy_editable.docx"
     doc.save(path)
     return path
 
@@ -1443,7 +1550,7 @@ def build_figures_pptx(figpaths, repl) -> Path:
         cp = cf.paragraphs[0]
         cp.text = repl(FIG_CAPTIONS[num])
         cp.font.size = PptxPt(11)
-    path = OUTPUT / "Figures_CompSec_editable.pptx"
+    path = OUTPUT / "Figures_DataPolicy_editable.pptx"
     prs.save(path)
     return path
 
@@ -1457,7 +1564,7 @@ def build_reporting_guideline() -> Path:
     p = doc.add_paragraph()
     p.add_run(
         "The scoping-review component (WP1) follows the PRISMA-ScR checklist "
-        "[Tricco et al., 2018]. The field audit (WP2) and disclosure audit "
+        "(Tricco et al. 2018). The field audit (WP2) and disclosure audit "
         "(WP3) are cross-sectional observational studies of public artefacts "
         "and are reported with explicit denominators, confidence intervals, and "
         "open code. The table below maps each PRISMA-ScR item to its location.")
@@ -1466,7 +1573,7 @@ def build_reporting_guideline() -> Path:
         ("Abstract", "Structured summary", "Abstract"),
         ("Rationale", "Rationale in the context of what is known", "Section 1"),
         ("Objectives", "Research questions RQ1-RQ3", "Section 1"),
-        ("Protocol", "Protocol availability", "Data and code availability"),
+        ("Protocol", "Protocol availability", "Data availability statement"),
         ("Eligibility criteria", "Characteristics used as criteria", "Section 2.2; Table 1"),
         ("Information sources", "Sources searched", "Section 2.2; Table 1"),
         ("Selection of sources", "Screening process", "Section 2.2; Fig. 1"),
@@ -1507,10 +1614,10 @@ def resolve_identifier(ident: str) -> str:
         return "not_checked_offline"
 
 
-def build_reference_verification(order) -> Path:
+def build_reference_verification(refs) -> Path:
     path = OUTPUT / "Reference_Verification.csv"
     lines = ["Number,Label,Reference,Identifier,VerificationDate,Status"]
-    for i, label in enumerate(order, 1):
+    for i, label in enumerate(refs, 1):
         text = REFS[label]
         m = re.search(r"(doi:\S+|https?://\S+)", text)
         ident = m.group(1).rstrip(".") if m else "(no DOI; standard/regulation/registry)"
@@ -1521,8 +1628,8 @@ def build_reference_verification(order) -> Path:
     return path
 
 
-def build_citation_audit(blocks, tables, numbering, repl) -> Path:
-    first: dict[int, tuple[str, str]] = {}
+def build_citation_audit(blocks, tables, order, repl) -> Path:
+    first: dict[str, tuple[str, str]] = {}
     location = "Body"
     for kind, payload in blocks:
         if kind in ("h1", "h2"):
@@ -1536,16 +1643,16 @@ def build_citation_audit(blocks, tables, numbering, repl) -> Path:
             location = f"Table {payload}"
         for frag in frags:
             for m in CITE_RX.finditer(frag):
-                for label in m.group(1).split(";"):
-                    num = numbering[label.strip()]
-                    if num not in first:
-                        first[num] = (location, textwrap.shorten(repl(frag), 200, placeholder="..."))
+                for raw in m.group(1).split(";"):
+                    label, _ = _parse_label(raw)
+                    if label not in first:
+                        first[label] = (location, textwrap.shorten(repl(frag), 200, placeholder="..."))
     path = OUTPUT / "Citation_Audit.csv"
-    lines = ["Reference,First appearance,Context"]
-    for num in range(1, len(numbering) + 1):
-        loc, ctx = first[num]
+    lines = ["Citation,Year,First appearance,Context"]
+    for label in order:
+        loc, ctx = first[label]
         lines.append(",".join(f'"{v.replace(chr(34), chr(34)*2)}"'
-                              for v in [str(num), loc, ctx]))
+                              for v in [intext(label), CITEMETA[label][1], loc, ctx]))
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")
     return path
 
@@ -1558,14 +1665,16 @@ def word_count(blocks, repl) -> int:
     return len(re.findall(r"\b[\w'-]+\b", text))
 
 
-def validate(blocks, tables, numbering, order, repl) -> dict:
-    # citation sequentiality: numbering assigned by first appearance is 1..N
-    seq = list(numbering.values()) == list(range(1, len(numbering) + 1))
-    # all refs used, none orphan
-    used = set(numbering)
-    orphan = used ^ set(REFS.keys())
+def validate(blocks, tables, order, ref_list, repl) -> dict:
+    # every cited label resolves (resolve_citations already raises on unknown)
+    all_resolve = all(l in REFS for l in order)
+    # all refs used, none orphan or phantom
+    orphan = set(order) ^ set(REFS.keys())
+    # reference list is alphabetical by author (then year)
+    refs_alpha = ref_list == sorted(ref_list, key=lambda l: (sortkey(l), l))
     body = word_count(blocks, repl)
     abstract_words = len(re.findall(r"\b[\w'-]+\b", build_abstract_text()))
+    ps_words = len(re.findall(r"\b[\w'-]+\b", POLICY_SIGNIFICANCE))
     # figures/tables cited in text
     body_text = " ".join(repl(p) for k, p in blocks if k == "p")
     figs_cited = all(f"Fig. {i}" in body_text for i in range(1, 6))
@@ -1573,14 +1682,26 @@ def validate(blocks, tables, numbering, order, repl) -> dict:
     # figure/table blocks present and sequential
     fig_seq = [p for k, p in blocks if k == "fig"]
     tab_seq = [p for k, p in blocks if k == "table"]
+    # in-text markers must not leak into the rendered text
+    no_raw_markers = not any(CITE_RX.search(repl(p)) for k, p in blocks if k == "p")
+    # required Data & Policy disclosure statements
+    decl_labels = {lbl for lbl, _ in DECLARATIONS}
+    required_disclosures = {
+        "Data availability statement", "Funding statement", "Competing interests",
+    }.issubset(decl_labels)
     checks = {
-        "citations_sequential": seq,
+        "all_citations_resolve": all_resolve,
         "no_orphan_or_phantom_refs": not orphan,
+        "references_alphabetical": refs_alpha,
+        "no_unresolved_markers": no_raw_markers,
         "figures_cited_in_text": figs_cited,
         "tables_cited_in_text": tabs_cited,
         "five_figures_present": sorted(set(fig_seq)) == [1, 2, 3, 4, 5],
         "five_tables_present": sorted(set(tab_seq)) == [1, 2, 3, 4, 5],
-        "abstract_within_300w": abstract_words <= 300,
+        "abstract_within_250w": abstract_words <= 250,
+        "policy_significance_120w": 110 <= ps_words <= 130,
+        "keywords_at_most_five": len(KEYWORDS) <= 5,
+        "required_disclosures_present": required_disclosures,
     }
     failures = [k for k, v in checks.items() if not v]
     if failures:
@@ -1591,12 +1712,13 @@ def validate(blocks, tables, numbering, order, repl) -> dict:
         "GBFS": "General Bikeshare Feed Specification (GBFS)",
         "PRISMA-ScR": "Scoping Reviews (PRISMA-ScR)",
         "DOI": "digital object identifier (DOI)",
-        "GDPR": "General Data Protection Regulation [",
+        "GDPR": "General Data Protection Regulation",
     }.items():
         if abbr in joined and definition not in joined:
             raise RuntimeError(f"Undefined abbreviation at first use: {abbr}")
     return {"word_count": body, "abstract_words": abstract_words,
-            "references": len(order), **checks}
+            "policy_significance_words": ps_words, "keywords": len(KEYWORDS),
+            "references": len(ref_list), **checks}
 
 
 def build_validation_report(validation: dict, figpaths) -> Path:
@@ -1620,31 +1742,34 @@ def build_checklist(validation) -> Path:
     h.alignment = WD_ALIGN_PARAGRAPH.CENTER
     h.add_run("Submission checklist").bold = True
     rows = [
-        ["Cover letter", "Included", "Cover_Letter_CompSec.docx"],
-        ["Title page with author details", "Included", "Title_Page_CompSec.docx"],
-        ["Anonymized manuscript (figures/tables inline)", "Included", "Manuscript_CompSec.docx"],
-        ["Highlights (<=5, <=85 chars)", "Included", "Highlights_CompSec.docx"],
+        ["Cover letter", "Included", "Cover_Letter_DataPolicy.docx"],
+        ["Title page with author details", "Included", "Title_Page_DataPolicy.docx"],
+        ["Article file (figures/tables inline; non-anonymized)", "Included", "Manuscript_DataPolicy.docx"],
+        ["Abstract (<=250 words)", f"{validation['abstract_words']} words", "Manuscript"],
+        ["Policy Significance Statement (120 words)", f"{validation['policy_significance_words']} words", "Manuscript"],
+        ["Keywords (<=5, semicolon-separated)", f"{validation['keywords']}", "Manuscript"],
         ["Figures (PNG + TIFF + PDF, 600 dpi)", "Included", "figures/Figure1-5.*"],
-        ["Editable figures (one per slide)", "Included", "Figures_CompSec_editable.pptx"],
-        ["Editable tables", "Included", "Tables_CompSec_editable.docx"],
+        ["Editable figures (one per slide)", "Included", "Figures_DataPolicy_editable.pptx"],
+        ["Editable tables", "Included", "Tables_DataPolicy_editable.docx"],
         ["Reporting guideline (PRISMA-ScR)", "Included", "Reporting_Guideline_PRISMA-ScR.docx"],
-        ["Citation audit (first-appearance order)", "Included", "Citation_Audit.csv"],
+        ["Citation audit (author-date)", "Included", "Citation_Audit.csv"],
         ["Reference verification", "Included", "Reference_Verification.csv"],
-        [f"Word count (body incl. title/abstract): {validation['word_count']}",
-         "Reported", "Title_Page_CompSec.docx"],
-        ["Data/code availability statement", "Included", "Manuscript (Declarations)"],
-        ["Generative AI disclosure", "Included", "Manuscript (Declarations)"],
+        [f"Main-text word count (excl. references): {validation['word_count']}",
+         "Reported", "Title_Page_DataPolicy.docx"],
+        ["Data availability statement", "Included", "Manuscript"],
+        ["Funding statement", "Included", "Manuscript"],
+        ["Competing interests statement", "Included", "Manuscript"],
     ]
     add_table(doc, {"title": "Items included in the submission package",
                     "headers": ["Item", "Status", "File"], "rows": rows},
               lambda x: x)
-    path = OUTPUT / "Submission_Checklist_CompSec.docx"
+    path = OUTPUT / "Submission_Checklist_DataPolicy.docx"
     doc.save(path)
     return path
 
 
 def build_zip(figpaths) -> Path:
-    path = OUTPUT / "CompSec_submission_package.zip"
+    path = OUTPUT / "DataPolicy_submission_package.zip"
     with zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED) as zf:
         for item in sorted(OUTPUT.rglob("*")):
             if item.is_file() and item != path:
@@ -1657,26 +1782,26 @@ def main() -> None:
     FIGDIR.mkdir(parents=True, exist_ok=True)
     figpaths = build_figures()
     blocks = body_blocks()
-    numbering, order, repl = resolve_citations(blocks, TABLES)
-    validation = validate(blocks, TABLES, numbering, order, repl)
+    order, ref_list, repl = resolve_citations(blocks, TABLES)
+    validation = validate(blocks, TABLES, order, ref_list, repl)
 
-    build_manuscript(blocks, TABLES, figpaths, repl, order)
+    build_manuscript(blocks, TABLES, figpaths, repl, ref_list)
     wc = validation["word_count"]
-    build_title_page(wc, len(order))
+    build_title_page(wc, len(ref_list))
     build_cover_letter()
-    build_highlights()
     build_tables_docx(TABLES, repl)
     build_figures_pptx(figpaths, repl)
     build_reporting_guideline()
-    build_reference_verification(order)
-    build_citation_audit(blocks, TABLES, numbering, repl)
+    build_reference_verification(ref_list)
+    build_citation_audit(blocks, TABLES, order, repl)
     build_checklist(validation)
     build_validation_report(validation, figpaths)
     zip_path = build_zip(figpaths)
 
     print("Build complete.")
-    print(f"  references: {len(order)} (first-appearance order)")
-    print(f"  word count: {wc}; abstract words: {validation['abstract_words']}")
+    print(f"  references: {len(ref_list)} (alphabetical, author-date)")
+    print(f"  main-text words: {wc}; abstract words: {validation['abstract_words']}; "
+          f"policy significance words: {validation['policy_significance_words']}")
     print(f"  package: {zip_path.relative_to(ROOT)}")
     for k, v in validation.items():
         if isinstance(v, bool):
