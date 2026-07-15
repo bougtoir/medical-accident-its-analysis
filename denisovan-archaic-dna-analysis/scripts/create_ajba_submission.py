@@ -1,4 +1,4 @@
-"""Build the American Journal of Biological Anthropology submission package."""
+"""Build the American Journal of Human Biology submission package."""
 
 from __future__ import annotations
 
@@ -27,8 +27,11 @@ import ajba_content as revised_content
 PROJECT_DIR = Path(__file__).resolve().parents[1]
 DATA_DIR = PROJECT_DIR / "data"
 FIGURE_DIR = PROJECT_DIR / "figures"
-OUTPUT_DIR = PROJECT_DIR / "docs" / "ajba_submission"
+OUTPUT_DIR = PROJECT_DIR / "docs" / "ajhb_submission"
 OUTPUT_FIGURE_DIR = OUTPUT_DIR / "figures"
+JOURNAL = "American Journal of Human Biology"
+JOURNAL_SHORT = "AJHB"
+ARTICLE_TYPE = "Original Research Article"
 TITLE = (
     "Pairwise sharing of Neanderthal and Denisovan introgression across global "
     "populations: An exploratory geographic analysis"
@@ -608,7 +611,7 @@ def add_title_page(document: Document) -> None:
     run.font.size = Pt(16)
     paragraph = document.add_paragraph()
     paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    paragraph.add_run("Research Article").bold = True
+    paragraph.add_run(ARTICLE_TYPE).bold = True
     paragraph = document.add_paragraph()
     paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
     paragraph.add_run(AUTHOR).bold = True
@@ -812,7 +815,7 @@ def add_manuscript_body(document: Document, inline: bool) -> None:
     document.add_paragraph(
         "Analysis scripts, aggregate derived data, figures, and document-generation code "
         "are available at https://github.com/bougtoir/denisovan-archaic-dna-analysis "
-        "and will be fixed as release ajba-critical-revision-2026-07 before submission. "
+        "and will be fixed as release ajhb-submission-2026-07 before submission. "
         "The source hmmix segment calls are available from Zenodo record 14136628 "
         "(https://doi.org/10.5281/zenodo.14136628). Raw-file SHA-256 checksums and all "
         "analysis parameters are included in analysis_provenance.json."
@@ -956,33 +959,41 @@ def create_cover_letter(path: Path) -> None:
     document.styles["Normal"].paragraph_format.space_after = Pt(7)
     for text in [
         "Editor-in-Chief",
-        "American Journal of Biological Anthropology",
+        JOURNAL,
         "Wiley",
     ]:
         document.add_paragraph(text)
     document.add_paragraph()
     paragraph = document.add_paragraph()
-    run = paragraph.add_run("Re: Submission of a Research Article")
+    run = paragraph.add_run(f"Re: Submission of an {ARTICLE_TYPE}")
     run.bold = True
     document.add_paragraph("Dear Editor-in-Chief,")
     paragraphs = [
         (
-            f"I am pleased to submit “{TITLE}” for consideration as a Research "
-            "Article in the American Journal of Biological Anthropology."
+            f"I am pleased to submit “{TITLE}” for consideration as an "
+            f"{ARTICLE_TYPE} in the {JOURNAL}."
         ),
         (
-            "The manuscript evaluates pairwise similarity in the genomic distribution "
-            "of Neanderthal- and Denisovan-like segments across 66 populations. It "
-            "corrects duplicate haplotype-window contributions, uses population-label "
-            "quadratic assignment tests for dyadic dependence, and evaluates window, "
-            "metric, sample-size, dataset, and regional sensitivities."
+            "Focal-locus and special-connection interpretations of shared archaic "
+            "segments are common in human population biology, yet they are seldom "
+            "tested against a genome-wide baseline that respects the dependence "
+            "structure of pairwise data. Using publicly archived hmmix "
+            "archaic-introgression calls from 3,134 individuals in 66 populations "
+            "(1000 Genomes Project and Human Genome Diversity Project), we construct "
+            "such a baseline: population profiles are built so that window "
+            "frequencies remain within 0-1, distance and pair-level effects are "
+            "tested with population-label quadratic assignment permutations, and "
+            "multiple testing is controlled with the false-discovery rate."
         ),
         (
-            "The rebuilt analysis finds broad distance decay but no "
-            "non-admixed positive-residual pair that survives false-discovery-rate "
-            "correction. The manuscript therefore avoids claiming definitive evidence "
-            "for a migration route and presents the ABO-centered observations only as "
-            "a secondary hypothesis requiring independent validation."
+            "The analysis shows a broad geographic distance-decay pattern but no "
+            "population pair that survives false-discovery-rate correction and no "
+            "ABO-window signal beyond the genome-wide expectation. The contribution "
+            "is therefore a reusable, dependence-aware negative control against which "
+            "focal-locus and special-connection archaic claims can be judged, rather "
+            "than a new migration route. This methodologically oriented, "
+            "population-biology framing is intended to fit the analytical and "
+            "evolutionary scope of the Journal."
         ),
         (
             "The work is original, is not under consideration elsewhere, and uses "
@@ -1186,7 +1197,7 @@ def validate_content() -> list[str]:
         if value in "\n".join(body_texts)
     ]
     checks = [
-        ("Chicago author-date citations", not re.findall(r"\{\d", joined_body)),
+        ("Author-date citations", not re.findall(r"\{\d", joined_body)),
         ("Every reference cited", not uncited_references),
         ("References alphabetized", REFERENCES == sorted(REFERENCES)),
         ("Figure first-appearance order", figure_order == list(FIGURES)),
@@ -1211,7 +1222,7 @@ def validate_content() -> list[str]:
         ),
     ]
     lines = [
-        "AJBA SUBMISSION VALIDATION",
+        f"{JOURNAL_SHORT} SUBMISSION VALIDATION",
         "==========================",
         "",
         f"Abstract words: {len(ABSTRACT.split())}",
@@ -1230,17 +1241,17 @@ def validate_content() -> list[str]:
 
 
 def create_checklist(path: Path) -> None:
-    content = """# AJBA submission checklist
+    content = """# AJHB submission checklist
 
 ## Prepared files
 
-- `manuscript_ajba.docx`: AJBA-oriented manuscript with figure legends and no embedded figure bodies
-- `manuscript_ajba_inline_review.docx`: internal review copy with figures and tables immediately after first mention
+- `manuscript_ajhb.docx`: manuscript with figure legends and no embedded figure bodies
+- `manuscript_ajhb_inline_review.docx`: internal review copy with figures and tables immediately after first mention
 - `Table_1_residual_outliers.docx` and `Table_2_abo_summary.docx`: individual editable tables
-- `tables_ajba.docx`: combined editable Tables 1-2 for internal convenience
-- `supporting_information_ajba.docx`: Supporting Figure S1 and data-file descriptions
-- `figures_tables_ajba.pptx`: Figures 1-10, Figure S1, and Tables 1-2
-- `cover_letter_ajba.docx`: AJBA Research Article cover letter
+- `tables_ajhb.docx`: combined editable Tables 1-2 for internal convenience
+- `supporting_information_ajhb.docx`: Supporting Figure S1 and data-file descriptions
+- `figures_tables_ajhb.pptx`: Figures 1-10, Figure S1, and Tables 1-2
+- `cover_letter_ajhb.docx`: American Journal of Human Biology Original Research Article cover letter
 - `figures/Figure_1` through `Figure_10` and `Figure_S1`: separate PNG and TIFF files
 - `supplementary_data/`: population metadata, complete pairwise results, model output, sensitivities, and provenance
 - `reproducibility_checklist.md`: data provenance, rebuild commands, expected checks, and package versions
@@ -1248,7 +1259,7 @@ def create_checklist(path: Path) -> None:
 
 ## Automated checks
 
-- References use Chicago author-date style and are alphabetized.
+- References use author-date (author-year) style and are alphabetized.
 - Every listed reference is cited and every citation has a reference entry.
 - Figures 1-10, Figure S1, and Tables 1-2 are first mentioned sequentially.
 - The abstract is within 250 words.
@@ -1263,16 +1274,16 @@ def create_checklist(path: Path) -> None:
 - Confirm the conflict-of-interest statement.
 - Obtain or confirm an institutional determination for this secondary genomic analysis.
 - Review the explicit disclosure of no direct community engagement or return of results.
-- Confirm AJBA article type and current file-size limits in Wiley Research Exchange.
+- Confirm the AJHB article type and current file-size limits in the Wiley submission portal.
 - Upload the manuscript without embedded figures; upload each TIFF separately.
-- Upload `supporting_information_ajba.docx` and the supplementary CSV/JSON files.
+- Upload `supporting_information_ajhb.docx` and the supplementary CSV/JSON files.
 - Upload `Table_1_residual_outliers.docx` and `Table_2_abo_summary.docx` as editable table files.
 - Do not interpret nominal residuals, PEL-containing pairs, or the two Indigenous-American ABO-window segments as definitive migration evidence.
 
 ## Submission links
 
-- Author guidelines: https://onlinelibrary.wiley.com/page/journal/26927691/homepage/forauthors.html
-- New-submission portal: https://authors.wiley.com/journal/AJPA
+- Author guidelines: https://onlinelibrary.wiley.com/page/journal/15206300/homepage/forauthors.html
+- New-submission portal: https://onlinelibrary.wiley.com/journal/15206300
 """
     path.write_text(content, encoding="utf-8")
 
@@ -1361,14 +1372,14 @@ def main() -> None:
     for stale in ["Table_1_corrected_model.docx"]:
         (OUTPUT_DIR / stale).unlink(missing_ok=True)
     prepare_separate_figures()
-    manuscript = OUTPUT_DIR / "manuscript_ajba.docx"
-    review = OUTPUT_DIR / "manuscript_ajba_inline_review.docx"
-    tables = OUTPUT_DIR / "tables_ajba.docx"
+    manuscript = OUTPUT_DIR / "manuscript_ajhb.docx"
+    review = OUTPUT_DIR / "manuscript_ajhb_inline_review.docx"
+    tables = OUTPUT_DIR / "tables_ajhb.docx"
     table_1 = OUTPUT_DIR / "Table_1_residual_outliers.docx"
     table_2 = OUTPUT_DIR / "Table_2_abo_summary.docx"
-    supporting = OUTPUT_DIR / "supporting_information_ajba.docx"
-    cover = OUTPUT_DIR / "cover_letter_ajba.docx"
-    presentation = OUTPUT_DIR / "figures_tables_ajba.pptx"
+    supporting = OUTPUT_DIR / "supporting_information_ajhb.docx"
+    cover = OUTPUT_DIR / "cover_letter_ajhb.docx"
+    presentation = OUTPUT_DIR / "figures_tables_ajhb.pptx"
     checklist = OUTPUT_DIR / "submission_checklist.md"
     reproducibility = OUTPUT_DIR / "reproducibility_checklist.md"
     validation = OUTPUT_DIR / "submission_validation.txt"
@@ -1412,8 +1423,8 @@ def main() -> None:
     ]
     if reference_validation.exists():
         zip_files.append(reference_validation)
-    create_zip(OUTPUT_DIR / "AJBA_submission_package.zip", zip_files)
-    print(f"Created AJBA submission materials in {OUTPUT_DIR}")
+    create_zip(OUTPUT_DIR / "AJHB_submission_package.zip", zip_files)
+    print(f"Created {JOURNAL_SHORT} submission materials in {OUTPUT_DIR}")
 
 
 if __name__ == "__main__":

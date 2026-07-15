@@ -19,10 +19,10 @@ def value(statistics: dict[str, object], key: str, digits: int = 3) -> str:
 
 
 TITLE = (
-    "Geographic distance decay in population-level Neanderthal and Denisovan "
-    "segment profiles"
+    "Population structure, not special connections: a dependence-aware baseline "
+    "for archaic-segment sharing across 66 human populations"
 )
-RUNNING_TITLE = "Geography of archaic segment profiles"
+RUNNING_TITLE = "A dependence-aware archaic-sharing baseline"
 AUTHOR = "Onishi Tatsuki"
 AFFILIATION = "Data Science and AI Innovation Research Promotion Center"
 CORRESPONDENCE = (
@@ -30,33 +30,35 @@ CORRESPONDENCE = (
     "Email: bougtoir@gmail.com"
 )
 ABSTRACT = (
-    "Objectives: Archaic-like segments around the ABO blood-group locus have been "
-    "proposed as clues to blood-group history and human dispersal, but their "
-    "interpretation lacks a genome-wide geographic baseline. We tested whether "
-    "population-level genomic profiles of inferred Neanderthal- and Denisovan-like "
-    "segments become less similar with geographic distance. Materials and Methods: "
-    "High-confidence archaic-introgression calls from 3,134 individuals in 66 "
-    "populations were obtained using hmmix, a hidden Markov model-based detection "
-    "method, and summarized in 500-kilobase (kb) windows. Each "
-    "individual-haplotype-window contributed at most one presence, constraining "
-    "population frequencies to 0-1. Pearson similarity was calculated for 2,145 "
-    "population pairs. Distance associations were evaluated with population-label "
-    "quadratic assignment permutations, population-deletion analyses, and "
-    "sensitivities to window size, similarity metric, sample-size threshold, dataset, "
-    "zero-distance pairs, and regional omission. Results: Similarity declined with "
+    "Objectives: Archaic-like segments near focal loci such as the ABO "
+    "blood-group gene are frequently read as clues to blood-group history, "
+    "special population connections, or migration routes, yet such readings are "
+    "rarely tested against a genome-wide baseline that respects the dependence "
+    "structure of pairwise data. We build a reproducible, dependence-aware "
+    "baseline for population-level archaic-segment sharing and use it as a "
+    "negative control for exceptional-connection and focal-locus interpretations. "
+    "Materials and Methods: High-confidence archaic-introgression calls from "
+    "3,134 individuals in 66 populations were obtained using hmmix, a hidden "
+    "Markov model-based detection method, and summarized in 500-kilobase (kb) "
+    "windows. Each individual-haplotype-window contributed at most one presence, "
+    "constraining population frequencies to 0-1. Pearson similarity was "
+    "calculated for 2,145 population pairs. Distance associations and pair-level "
+    "residual outliers were evaluated with population-label quadratic assignment "
+    "permutations and false-discovery-rate control, with sensitivity to window "
+    "size, similarity metric, sample-size threshold, dataset, zero-distance "
+    "pairs, and regional omission. Results: Similarity declined with "
     f"distance for Neanderthal (raw r={value(NEANDERTHAL, 'raw_r')}) and Denisovan "
-    f"(raw r={value(DENISOVAN, 'raw_r')}) profiles. Expanded descriptive models that "
-    "also included designated recent-admixture involvement, same-continent status, "
-    f"and same-dataset status had partial distance correlations of "
-    f"{value(NEANDERTHAL, 'partial_r')} and {value(DENISOVAN, 'partial_r')}; "
-    f"population-label permutation P values for distance were "
+    f"(raw r={value(DENISOVAN, 'raw_r')}) profiles; expanded-model partial distance "
+    f"correlations were {value(NEANDERTHAL, 'partial_r')} and "
+    f"{value(DENISOVAN, 'partial_r')}, with population-label permutation P values of "
     f"{value(NEANDERTHAL, 'distance_qap_p', 4)} and "
-    f"{value(DENISOVAN, 'distance_qap_p', 4)}. No positive-residual non-admixed pair "
-    "met both z>2 and false-discovery-rate q<0.10. Conclusions: Archaic-segment "
-    "profile similarity contains a broad geographic distance-decay signal, but the "
-    "analysis does not identify exceptional population connections or demonstrate "
-    "specific migration routes. A secondary ABO-window analysis remains "
-    "hypothesis-generating."
+    f"{value(DENISOVAN, 'distance_qap_p', 4)}. No non-admixed pair met both z>2 and "
+    "false-discovery-rate q<0.10, and a prespecified ABO-window scan yielded no "
+    "route-level signal. Conclusions: Population-level archaic-segment sharing "
+    "reflects broad geographic structure, but under dependence-aware inference it "
+    "supports neither exceptional population pairs nor an ABO-mediated migration "
+    "narrative. The baseline provides a reusable standard against which "
+    "focal-locus archaic claims can be evaluated."
 )
 KEYWORDS = (
     "archaic introgression; Neanderthal; Denisovan; population genetics; "
@@ -216,12 +218,6 @@ REFERENCE_RECORDS = [
         "Introgression Using an Unadmixed Outgroup.” PLOS Genetics 14 (9): e1007641. "
         "https://doi.org/10.1371/journal.pgen.1007641.",
     ),
-    (
-        "Turner 2025",
-        "Turner, Trudy R. 2025. “Changes to Submissions to the AJBA.” American Journal "
-        "of Biological Anthropology 186: e70026. "
-        "https://doi.org/10.1002/ajpa.70026.",
-    ),
 ]
 REFERENCE_KEYS = [record[0] for record in REFERENCE_RECORDS]
 REFERENCES = [record[1] for record in REFERENCE_RECORDS]
@@ -234,34 +230,41 @@ INTRODUCTION = [
         "Reich et al. 2010). The amount and genomic distribution of introgressed "
         "sequence vary among populations because of demographic history, drift, "
         "selection, and multiple introgression histories (Sankararaman et al. 2014; "
-        "Sankararaman et al. 2016; Jacobs et al. 2019). Most summaries emphasize the "
-        "proportion of archaic ancestry within a population. A complementary question "
-        "is whether two populations carry inferred archaic segments in similar genomic "
-        "locations."
+        "Sankararaman et al. 2016; Jacobs et al. 2019). These differences invite a "
+        "recurring style of inference in which shared archaic segments, often at a "
+        "focal locus such as the ABO blood-group gene, are read as evidence of a "
+        "special connection between two populations or of a particular migration "
+        "route (Calafell et al. 2008; Halverson and Bolnick 2008; Condemi et al. "
+        "2021)."
     ),
     (
-        "Geographic gradients in archaic ancestry may reflect range expansions and "
-        "serial demographic processes rather than a single migration event (Quilodran "
-        "et al. 2023). Pairwise profile similarity offers a direct descriptive measure "
-        "of shared genomic distribution, but it creates dyadic data: every population "
-        "appears in many pair rows. Standard row-wise regression tests, bootstraps, or "
-        "response shuffles therefore do not preserve the population-level dependence "
-        "structure. Quadratic assignment procedures (QAP) address this problem by "
-        "permuting population labels on a complete matrix (Krackhardt 1988; Dekker, "
-        "Krackhardt, and Snijders 2007)."
+        "Such claims are difficult to evaluate because pairwise profile similarity is "
+        "dyadic: each of 66 populations appears in many pair rows, so the 2,145 pairs "
+        "are not independent observations. Standard row-wise regressions, bootstraps, "
+        "or response shuffles do not preserve this population-level dependence, and an "
+        "apparently exceptional pair can arise from broad structure alone. What is "
+        "generally missing is a genome-wide baseline that constructs population "
+        "profiles reproducibly, tests distance and pair-level effects under a "
+        "permutation scheme that respects the dependence structure, and applies "
+        "explicit multiple-testing control. Quadratic assignment procedures (QAP) "
+        "permute population labels on a complete matrix and provide exactly this kind "
+        "of dependence-aware test (Krackhardt 1988; Dekker, Krackhardt, and Snijders "
+        "2007)."
     ),
     (
-        "The primary objective was to test whether Neanderthal- and Denisovan-segment "
-        "profile similarity declines with great-circle distance across 66 populations "
-        "from the 1000 Genomes Project and Human Genome Diversity Project (HGDP). We also "
-        "tested robustness to alternative genomic windows, similarity metrics, "
-        "sample-size thresholds, datasets, co-located pairs, and regional omission. A "
-        "secondary analysis of the interval centered on the ABO blood-group locus was "
-        "retained because ABO has "
-        "an unusually deep allelic history and has motivated founder-effect and "
-        "archaic-background hypotheses (Calafell et al. 2008; Halverson and Bolnick "
-        "2008; Segurel et al. 2012; Condemi et al. 2021). This focal analysis was "
-        "prespecified as exploratory and was not used to infer a migration route."
+        "We build such a baseline and treat it as a negative control. Using "
+        "great-circle distance across 66 populations from the 1000 Genomes Project "
+        "and Human Genome Diversity Project (HGDP), we test whether Neanderthal- and "
+        "Denisovan-segment profile similarity declines with distance, whether any "
+        "population pair is a false-discovery-rate-supported residual outlier, and "
+        "whether a prespecified interval centered on the ABO blood-group locus, chosen "
+        "because ABO has an unusually deep allelic history and has motivated "
+        "founder-effect and archaic-background hypotheses (Segurel et al. 2012; "
+        "Calafell et al. 2008; Halverson and Bolnick 2008; Condemi et al. 2021), "
+        "shows anything beyond the genome-wide expectation. Robustness to alternative "
+        "windows, similarity metrics, sample-size thresholds, datasets, co-located "
+        "pairs, and regional omission is assessed throughout. The focal ABO analysis "
+        "is prespecified as exploratory and is not used to infer a migration route."
     ),
 ]
 
@@ -440,9 +443,9 @@ METHODS = [
                 "source-data description; locus-level observations were not generalized "
                 "to communities, and migration routes were not assigned from these data. "
                 "The public article, code, and derived aggregate results are the current "
-                "means of results availability. These disclosures follow the expanded "
-                "journal guidance on ethical review and stakeholder communication (Turner "
-                "2025)."
+                "means of results availability. These disclosures are made in the "
+                "interest of transparent ethical reporting for secondary genomic "
+                "analyses."
             ),
         ],
     ),
@@ -620,11 +623,14 @@ DISCUSSION = [
     ),
     (
         "In conclusion, population-level archaic-segment profiles show a broad "
-        "geographic distance-decay pattern under dependence-aware permutation tests. "
-        "The result supports a descriptive relationship between geography and the "
-        "genomic distribution of inferred archaic segments. It does not establish an "
-        "exceptional population pair, an ABO-mediated migration history, or a specific "
-        "route through Beringia or island Southeast Asia."
+        "geographic distance-decay pattern under dependence-aware permutation tests, "
+        "but the same analysis provides no support for an exceptional population pair, "
+        "an ABO-mediated migration history, or a specific route through Beringia or "
+        "island Southeast Asia. The contribution is therefore less a new signal than "
+        "a reproducible, dependence-aware baseline: by combining frequency-constrained "
+        "profile construction, population-label QAP inference, and explicit "
+        "false-discovery-rate control, it offers a reusable negative control against "
+        "which focal-locus and special-connection archaic claims can be judged."
     ),
 ]
 

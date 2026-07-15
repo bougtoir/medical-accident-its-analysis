@@ -1,4 +1,4 @@
-"""Rebuild the AJBA analysis, figures, and submission files from source data."""
+"""Rebuild the AJHB analysis, figures, and submission files from source data."""
 
 from __future__ import annotations
 

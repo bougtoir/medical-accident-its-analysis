@@ -55,9 +55,9 @@ python scripts/run_ajba_pipeline.py \
   --sensitivity-permutations 999
 ```
 
-The AJBA pipeline deduplicates individual-haplotype-window presence, validates
+The pipeline deduplicates individual-haplotype-window presence, validates
 that every population-window frequency is at most one, runs population-label
 QAP inference and sensitivity analyses, regenerates figures, validates
-references, and writes the submission package to `docs/ajba_submission/`.
+references, and writes the submission package to `docs/ajhb_submission/`.
 Raw source paths and SHA256 checksums are recorded in
 `data/analysis_provenance.json`.
