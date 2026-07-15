@@ -61,8 +61,8 @@ ABSTRACT = (
     "focal-locus archaic claims can be evaluated."
 )
 KEYWORDS = (
-    "archaic introgression; Neanderthal; Denisovan; population genetics; "
-    "geographic distance; quadratic assignment procedure; ABO"
+    "archaic introgression; Neanderthal; Denisovan; "
+    "quadratic assignment procedure; ABO"
 )
 
 

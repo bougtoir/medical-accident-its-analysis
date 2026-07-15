@@ -1210,6 +1210,10 @@ def validate_content() -> list[str]:
         ("Running title under 48 characters", len(RUNNING_TITLE) < 48),
         ("Abstract at most 250 words", len(ABSTRACT.split()) <= 250),
         (
+            "Three to five keywords",
+            3 <= len([k for k in KEYWORDS.split(";") if k.strip()]) <= 5,
+        ),
+        (
             "All figure source files present",
             all((FIGURE_DIR / filename).exists() for filename, _ in FIGURES.values()),
         ),

@@ -17,5 +17,6 @@ PASS: Table first-appearance order
 PASS: No placeholder strings
 PASS: Running title under 48 characters
 PASS: Abstract at most 250 words
+PASS: Three to five keywords
 PASS: All figure source files present
 PASS: All supporting figure source files present
