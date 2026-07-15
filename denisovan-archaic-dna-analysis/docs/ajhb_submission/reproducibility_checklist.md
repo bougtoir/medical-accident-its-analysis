@@ -29,6 +29,7 @@ python scripts/run_ajba_pipeline.py   --segments-1kg /path/to/hg38_1000g_segment
 - False discovery rate q<0.10 non-admixed outliers: 0 and 0
 - Neanderthal/Both segments in the 500-kb ABO interval: 834
 - Strict ABO-overlapping Neanderthal/Both segments: 129
+- Neanderthal/Both segments with tied maximum reference similarity: 247
 - Indigenous American window carriers: Pima 1/13, Maya 1/21, Colombian 0/7
 - Strict ABO overlap among those carriers: Pima only
 

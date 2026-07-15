@@ -5,6 +5,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pandas as pd
+
 
 PROJECT_DIR = Path(__file__).resolve().parents[1]
 STATISTICS = json.loads(
@@ -12,15 +14,38 @@ STATISTICS = json.loads(
 )
 NEANDERTHAL = STATISTICS["nean"]
 DENISOVAN = STATISTICS["deni"]
+PROVENANCE = json.loads(
+    (PROJECT_DIR / "data" / "analysis_provenance.json").read_text(encoding="utf-8")
+)
 
 
 def value(statistics: dict[str, object], key: str, digits: int = 3) -> str:
     return f"{float(statistics[key]):.{digits}f}"
 
 
+def _abo_counts() -> dict[str, int]:
+    segments = pd.read_csv(PROJECT_DIR / "data" / "abo_neanderthal_segments.csv")
+    populations = pd.read_csv(PROJECT_DIR / "data" / "abo_population_summary.csv")
+    indigenous = populations["analysis_group"] == "Indigenous Americas"
+    return {
+        "interval_segments": int(len(segments)),
+        "strict_overlap": int(segments["strict_overlap"].sum()),
+        "ties": int((segments["closest_reference"] == "Tie").sum()),
+        "indigenous_individuals": int(populations.loc[indigenous, "n_total"].sum()),
+    }
+
+
+ABO = _abo_counts()
+INDIVIDUALS = int(PROVENANCE["individuals"])
+POPULATIONS = int(PROVENANCE["included_populations"])
+PAIRS = int(PROVENANCE["population_pairs"])
+PRIMARY_PERMUTATIONS = int(STATISTICS["permutations"])
+SENSITIVITY_PERMUTATIONS = int(STATISTICS["sensitivity_permutations"])
+
+
 TITLE = (
     "Population structure, not special connections: a dependence-aware baseline "
-    "for archaic-segment sharing across 66 human populations"
+    f"for archaic-segment sharing across {POPULATIONS} human populations"
 )
 RUNNING_TITLE = "A dependence-aware archaic-sharing baseline"
 AUTHOR = "Onishi Tatsuki"
@@ -38,11 +63,12 @@ ABSTRACT = (
     "baseline for population-level archaic-segment sharing and use it as a "
     "negative control for exceptional-connection and focal-locus interpretations. "
     "Materials and Methods: High-confidence archaic-introgression calls from "
-    "3,134 individuals in 66 populations were obtained using hmmix, a hidden "
-    "Markov model-based detection method, and summarized in 500-kilobase (kb) "
-    "windows. Each individual-haplotype-window contributed at most one presence, "
-    "constraining population frequencies to 0-1. Pearson similarity was "
-    "calculated for 2,145 population pairs. Distance associations and pair-level "
+    f"{INDIVIDUALS:,} individuals in {POPULATIONS} populations were obtained using "
+    "hmmix, a hidden Markov model-based detection method, and summarized in "
+    "500-kilobase (kb) windows. Each individual-haplotype-window contributed at "
+    "most one presence, constraining population frequencies to 0-1. Pearson "
+    f"similarity was calculated for {PAIRS:,} population pairs. Distance "
+    "associations and pair-level "
     "residual outliers were evaluated with population-label quadratic assignment "
     "permutations and false-discovery-rate control, with sensitivity to window "
     "size, similarity metric, sample-size threshold, dataset, zero-distance "
@@ -239,7 +265,8 @@ INTRODUCTION = [
     ),
     (
         "Such claims are difficult to evaluate because pairwise profile similarity is "
-        "dyadic: each of 66 populations appears in many pair rows, so the 2,145 pairs "
+        f"dyadic: each of {POPULATIONS} populations appears in many pair rows, so the "
+        f"{PAIRS:,} pairs "
         "are not independent observations. Standard row-wise regressions, bootstraps, "
         "or response shuffles do not preserve this population-level dependence, and an "
         "apparently exceptional pair can arise from broad structure alone. What is "
@@ -287,7 +314,8 @@ METHODS = [
             (
                 "Segments with mean posterior probability below 0.8 were excluded. "
                 "Populations with fewer than seven represented individuals were "
-                "excluded, leaving 3,134 individuals in 66 populations. Source calls "
+                f"excluded, leaving {INDIVIDUALS:,} individuals in {POPULATIONS} "
+                "populations. Source calls "
                 "annotated as Neanderthal or Both entered the Neanderthal profile; "
                 "calls annotated as Denisova or Both entered the Denisovan profile."
             ),
@@ -309,8 +337,9 @@ METHODS = [
                 "For each population pair, Pearson correlation was calculated across "
                 "the union of windows with a nonzero frequency in either population. "
                 "Pairs required more than 100 union windows for Neanderthal and more "
-                "than 50 for Denisovan profiles. The 66-population matrices contained "
-                "2,145 unique off-diagonal pairs. Correlations describe profile "
+                "than 50 for Denisovan profiles. The "
+                f"{POPULATIONS}-population matrices contained {PAIRS:,} unique "
+                "off-diagonal pairs. Correlations describe profile "
                 "similarity and do not establish identity by descent. Spearman "
                 "correlation and cosine similarity were calculated as metric "
                 "sensitivities."
@@ -339,7 +368,8 @@ METHODS = [
                 "causal controls. Distance-only models were also fit."
             ),
             (
-                "Coefficient P values used 9,999 quadratic assignment permutations. "
+                f"Coefficient P values used {PRIMARY_PERMUTATIONS:,} quadratic "
+                "assignment permutations. "
                 "At each iteration, the response matrix was permuted by the same random "
                 "population-label order on rows and columns, after which the model was "
                 "refit. Two-sided P values were the proportion of permuted coefficient "
@@ -366,7 +396,8 @@ METHODS = [
                 "same-continent status, and same-dataset status. Positive residuals "
                 "were standardized by the residual standard deviation. For every pair, "
                 "a one-sided nominal P value was calculated from its own residual null "
-                "distribution across 9,999 population-label permutations. The "
+                f"distribution across {PRIMARY_PERMUTATIONS:,} population-label "
+                "permutations. The "
                 "Benjamini-Hochberg procedure was applied jointly to all non-admixed "
                 "pairs within each ancestry analysis to control the false discovery "
                 "rate (FDR) (Benjamini and Hochberg 1995). "
@@ -385,7 +416,8 @@ METHODS = [
                 "Genomes-only and HGDP-only subsets; exclusion of zero-distance pairs; "
                 "and leave-one-continent-out subsets. Full-window Pearson correlation "
                 "and presence-absence Jaccard similarity assessed sensitivity to the "
-                "nonzero-window union. Sensitivity tests used 999 "
+                "nonzero-window union. Sensitivity tests used "
+                f"{SENSITIVITY_PERMUTATIONS:,} "
                 "population-label permutations. No genome-wide callable mask was "
                 "available in the source release, so mask-adjusted profiles could not "
                 "be evaluated."
@@ -460,8 +492,8 @@ RESULTS = [
             "removed duplicate contributions that could otherwise make a nominal "
             "frequency exceed 1. In the rebuilt profiles, the maximum frequency was "
             "1.0 for both ancestry categories and no population-window frequency "
-            "exceeded 1. The analysis retained 66 populations, 3,134 individuals, and "
-            "2,145 unique population pairs."
+            f"exceeded 1. The analysis retained {POPULATIONS} populations, "
+            f"{INDIVIDUALS:,} individuals, and {PAIRS:,} unique population pairs."
         ),
         [],
     ),
@@ -520,12 +552,16 @@ RESULTS = [
     (
         "Secondary ABO-window observations",
         (
-            "The 500-kb ABO-centered scan identified 834 Neanderthal or Both source "
-            "segments, of which 129 overlapped the ABO gene. Of the 834 interval "
-            "segments, 335 had tied maximum reference similarity and were not forced "
+            f"The 500-kb ABO-centered scan identified {ABO['interval_segments']:,} "
+            "Neanderthal or Both source "
+            f"segments, of which {ABO['strict_overlap']} overlapped the ABO gene. Of "
+            f"the {ABO['interval_segments']:,} interval "
+            f"segments, {ABO['ties']} had tied maximum reference similarity and were "
+            "not forced "
             "to a lineage. In the Indigenous American HGDP subset, one Pima segment "
             "overlapped ABO and one Maya segment lay downstream within the wider "
-            "interval. Both were Vindija-closest, but two segments among 41 represented "
+            "interval. Both were Vindija-closest, but two segments among "
+            f"{ABO['indigenous_individuals']} represented "
             "individuals do not support a regional proportion or migration-route "
             "inference (Figure 5; Table 2)."
         ),
@@ -564,8 +600,9 @@ DISCUSSION = [
     ),
     (
         "The population-label permutation is central to interpretation. A dataset of "
-        "2,145 pairs does not contain 2,145 independent geographic comparisons because "
-        "each of 66 populations appears repeatedly. QAP preserves the complete matrix "
+        f"{PAIRS:,} pairs does not contain {PAIRS:,} independent geographic "
+        f"comparisons because each of {POPULATIONS} populations appears repeatedly. "
+        "QAP preserves the complete matrix "
         "while testing whether the observed distance coefficient is unusual under "
         "population relabeling (Krackhardt 1988; Dekker, Krackhardt, and Snijders "
         "2007). The expanded-model R-squared values remain descriptive; coarse "

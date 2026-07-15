@@ -978,7 +978,8 @@ def create_cover_letter(path: Path) -> None:
             "segments are common in human population biology, yet they are seldom "
             "tested against a genome-wide baseline that respects the dependence "
             "structure of pairwise data. Using publicly archived hmmix "
-            "archaic-introgression calls from 3,134 individuals in 66 populations "
+            f"archaic-introgression calls from {revised_content.INDIVIDUALS:,} "
+            f"individuals in {revised_content.POPULATIONS} populations "
             "(1000 Genomes Project and Human Genome Diversity Project), we construct "
             "such a baseline: population profiles are built so that window "
             "frequencies remain within 0-1, distance and pair-level effects are "
@@ -1333,18 +1334,19 @@ python scripts/run_ajba_pipeline.py \
 
 ## Expected primary checks
 
-- Individuals: 3,134
-- Populations: 66
-- Unique population pairs: 2,145
+- Individuals: {revised_content.INDIVIDUALS:,}
+- Populations: {revised_content.POPULATIONS}
+- Unique population pairs: {revised_content.PAIRS:,}
 - Every population-window frequency is between 0 and 1
 - Neanderthal raw distance r: {revised_content.NEANDERTHAL['raw_r']:.4f}
 - Denisovan raw distance r: {revised_content.DENISOVAN['raw_r']:.4f}
 - Neanderthal expanded descriptive R²: {revised_content.NEANDERTHAL['expanded_r_squared']:.4f}
 - Denisovan expanded descriptive R²: {revised_content.DENISOVAN['expanded_r_squared']:.4f}
 - Quadratic assignment procedure distance P: {revised_content.NEANDERTHAL['distance_qap_p']:.4f} and {revised_content.DENISOVAN['distance_qap_p']:.4f}
-- False discovery rate q<0.10 non-admixed outliers: 0 and 0
-- Neanderthal/Both segments in the 500-kb ABO interval: 834
-- Strict ABO-overlapping Neanderthal/Both segments: 129
+- False discovery rate q<0.10 non-admixed outliers: {revised_content.NEANDERTHAL['fdr_q_lt_0.10_positive_z_gt_2']} and {revised_content.DENISOVAN['fdr_q_lt_0.10_positive_z_gt_2']}
+- Neanderthal/Both segments in the 500-kb ABO interval: {revised_content.ABO['interval_segments']:,}
+- Strict ABO-overlapping Neanderthal/Both segments: {revised_content.ABO['strict_overlap']}
+- Neanderthal/Both segments with tied maximum reference similarity: {revised_content.ABO['ties']}
 - Indigenous American window carriers: Pima 1/13, Maya 1/21, Colombian 0/7
 - Strict ABO overlap among those carriers: Pima only
 
