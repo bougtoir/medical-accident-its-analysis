@@ -16,7 +16,7 @@ Data Science and AI Innovation Research Promotion Center, Shiga University
 
 *Consent to publish.* Not applicable.
 
-*Data and code availability.* Penn World Table 10.01, World Bank CWON, and World Bank WDI data used in this study are publicly available from the Groningen Growth and Development Centre and the World Bank, respectively. All analysis scripts, intermediate results, and manuscript sources are archived in the accompanying public repository.
+*Data and code availability.* Penn World Table 10.01, World Bank CWON, World Bank WDI, and OECD GFCF data used in this study are publicly available from their respective providers. Frozen source extracts, checksums, analysis scripts, intermediate results, and manuscript sources are archived at https://github.com/bougtoir/gdp-tempo.
 
 *Declaration of generative AI use.* The author used generative AI to assist with formatting the text, choosing words that suited the tone, and writing analysis code. The author reviewed and edited the content as needed and takes full responsibility for the content of the published article.
 

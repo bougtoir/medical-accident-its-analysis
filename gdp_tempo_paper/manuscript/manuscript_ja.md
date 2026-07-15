@@ -16,7 +16,7 @@
 
 *資金*: 本研究に対する外部資金の提供はない。
 
-*データ・コード公開*: 本研究で用いた Penn World Table 10.01、World Bank CWON、および World Bank WDI のデータは、それぞれ Groningen Growth and Development Centre および世界銀行から公開されている。解析スクリプト、中間結果、原稿ソースは付随する公開リポジトリにすべて保管されている。
+*データ・コード公開*: 本研究で用いた Penn World Table 10.01、World Bank CWON、World Bank WDI、および OECD GFCF のデータは各提供機関から公開されている。固定版のデータ抽出、チェックサム、解析スクリプト、中間結果、原稿ソースは https://github.com/bougtoir/gdp-tempo に保管されている。
 
 *生成AIの使用*: 著者は文面のフォーマット整形、文体に合う語彙の選択、および解析コードの作成補助の目的で生成 AI を使用した。著者は内容を必要に応じて確認・編集しており、公表される論文の内容について全責任を負う。
 
