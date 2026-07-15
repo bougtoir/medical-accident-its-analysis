@@ -26,6 +26,7 @@ from __future__ import annotations
 import os
 import re
 import json
+import shutil
 from dataclasses import dataclass
 
 import pandas as pd
@@ -753,9 +754,13 @@ def convert_docx_to_pdf(docx_path: str):
     requirement that all fonts be embedded in the PDF.
     """
     import subprocess
+    executable = shutil.which("libreoffice")
+    if executable is None:
+        print(f"SKIP: LibreOffice is unavailable; not rebuilding {docx_path[:-5]}.pdf")
+        return
     out_dir = os.path.dirname(docx_path)
     cmd = [
-        "libreoffice", "--headless", "--convert-to", "pdf",
+        executable, "--headless", "--convert-to", "pdf",
         "--outdir", out_dir, docx_path,
     ]
     result = subprocess.run(cmd, capture_output=True, text=True, timeout=120)

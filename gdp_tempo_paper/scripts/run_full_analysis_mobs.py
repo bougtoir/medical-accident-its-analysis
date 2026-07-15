@@ -26,6 +26,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+import data_sources
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, ".."))
 DATA = os.path.join(ROOT, "data")
@@ -35,10 +37,6 @@ os.makedirs(DATA, exist_ok=True)
 os.makedirs(FIG, exist_ok=True)
 os.makedirs(TAB, exist_ok=True)
 
-PWT_PATH = "/home/ubuntu/gdp_tempo_data/pwt1001.dta"
-RND_PATH = "/home/ubuntu/gdp_tempo_data/wb/rnd_gdp.json"
-CWON_DIR = "/home/ubuntu/gdp_tempo_data/wb/cwon"
-OECD_GFCF_PATH = "/home/ubuntu/gdp_tempo_data/oecd/gfcf_by_asset_full.csv"
 DELTA_I = 0.15
 
 ASSET_MU = {
@@ -236,34 +234,17 @@ def fit_joint(I, delta, K0, K_intan, logY, logL, alpha, ki, pca, lambda_w=0.3):
 
 
 # ── Data loaders ──────────────────────────────────────────────────────────
-def _unwrap_wb(data):
-    if isinstance(data, list) and len(data) == 2 and isinstance(data[0], dict):
-        return data[1]
-    return data
-
 def load_rnd():
-    with open(RND_PATH) as fh:
-        rows = _unwrap_wb(json.load(fh))
-    return pd.DataFrame([
-        {"iso3": r["countryiso3code"], "year": int(r["date"]), "rnd_gdp": r["value"]}
-        for r in rows if r.get("value") is not None
-    ])
+    return data_sources.load_rnd()
+
 
 def load_cwon(code):
-    with open(os.path.join(CWON_DIR, f"{code}.json")) as fh:
-        rows = _unwrap_wb(json.load(fh))
-    return {(r["countryiso3code"], int(r["date"])): float(r["value"])
-            for r in rows if r.get("value") is not None}
+    return data_sources.load_cwon(code)
+
 
 def load_oecd_gfcf():
-    df = pd.read_csv(OECD_GFCF_PATH)
-    df = df[df["REF_AREA"].isin(ISO3.values())]
-    df = df[["REF_AREA", "INSTR_ASSET", "TIME_PERIOD", "OBS_VALUE", "UNIT_MULT"]]
-    df.columns = ["iso3", "asset", "year", "value", "mult"]
-    df["year"] = df["year"].astype(int)
-    df["mult"] = df["mult"].fillna(0).astype(int)
-    df["value"] = df["value"].astype(float) * (10.0 ** df["mult"])
-    return df[["iso3", "asset", "year", "value"]]
+    df = data_sources.load_oecd_gfcf()
+    return df[df["iso3"].isin(ISO3.values())].copy()
 
 def compute_observable_mu(gfcf):
     rows = []
@@ -296,7 +277,7 @@ class Country:
     pca: np.ndarray; cwon_years: np.ndarray; mu_obs: np.ndarray
 
 def prepare_countries(mu_df):
-    pwt = pd.read_stata(PWT_PATH)
+    pwt = data_sources.load_pwt()
     pwt = pwt[pwt["country"].isin(COUNTRIES)].sort_values(["country", "year"])
     rnd = load_rnd()
     cwon_pca = load_cwon("NW.PCA.TO")

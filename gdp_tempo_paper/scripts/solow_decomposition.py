@@ -52,7 +52,7 @@ from run_paper_analyses import (
     pim_instant, pim_lagged, pim_lagged_tempo, build_intan_stock,
     geom_weights, load_cwon,
     fit_mu_const, fit_tempo, fit_beta_given_K, fit_joint,
-    DELTA_I, CWON_DIR,
+    DELTA_I,
 )
 
 

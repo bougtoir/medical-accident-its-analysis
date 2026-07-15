@@ -14,10 +14,9 @@ parameters on the full 1970-2019 sample; the manuscript needs:
       we let CWON PCA grow at rate gamma_price slower / faster than the
       PIM-implied reproducible-capital growth?
 
-Reads:
-  - /home/ubuntu/gdp_tempo_data/pwt1001.dta
-  - /home/ubuntu/gdp_tempo_data/wb/rnd_gdp.json
-  - /home/ubuntu/gdp_tempo_data/wb/cwon/{NW.PCA.TO,NW.HCA.TO,NW.TOW.TO}.json
+Reads the frozen public inputs under source_data/:
+  - pwt1001_selected.csv
+  - world_bank_indicators.csv
 
 Writes (under ./data/ and ./figures/ relative to this file's parent):
   - fair_eval.csv, fair_eval_summary.json
@@ -40,6 +39,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+import data_sources
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, ".."))
 DATA = os.path.join(ROOT, "data")
@@ -47,9 +48,6 @@ FIG = os.path.join(ROOT, "figures")
 os.makedirs(DATA, exist_ok=True)
 os.makedirs(FIG, exist_ok=True)
 
-PWT_PATH = "/home/ubuntu/gdp_tempo_data/pwt1001.dta"
-RND_PATH = "/home/ubuntu/gdp_tempo_data/wb/rnd_gdp.json"
-CWON_DIR = "/home/ubuntu/gdp_tempo_data/wb/cwon"
 DELTA_I = 0.15  # CHS intangible depreciation
 
 COUNTRIES = [
@@ -185,25 +183,11 @@ def test_A_levels_intan(logY, logK_tang, logK_intan, logL, alpha, beta):
 
 # ----- Loaders -----
 def load_rnd() -> pd.DataFrame:
-    with open(RND_PATH) as fh:
-        rows = json.load(fh)
-    return pd.DataFrame([
-        {"iso3": r["countryiso3code"], "year": int(r["date"]),
-         "rnd_gdp": r["value"]}
-        for r in rows if r.get("value") is not None
-    ])
+    return data_sources.load_rnd()
 
 
 def load_cwon(code: str) -> dict[tuple[str, int], float]:
-    path = os.path.join(CWON_DIR, f"{code}.json")
-    with open(path) as fh:
-        rows = json.load(fh)
-    out = {}
-    for r in rows:
-        if r.get("value") is None:
-            continue
-        out[(r["countryiso3code"], int(r["date"]))] = float(r["value"])
-    return out
+    return data_sources.load_cwon(code)
 
 
 def demean_logratio(hat, obs):
@@ -236,7 +220,7 @@ class Country:
 
 
 def prepare_countries() -> list[Country]:
-    pwt = pd.read_stata(PWT_PATH)
+    pwt = data_sources.load_pwt()
     pwt = pwt[pwt["country"].isin(COUNTRIES)].sort_values(["country", "year"])
     rnd = load_rnd()
     cwon_pca = load_cwon("NW.PCA.TO")
