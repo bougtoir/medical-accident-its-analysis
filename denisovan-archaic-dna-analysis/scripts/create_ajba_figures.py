@@ -41,8 +41,7 @@ def save_figure(figure: plt.Figure, stem: str) -> None:
 
 def create_figure_3() -> None:
     raise RuntimeError(
-        "Figure 3 must be generated with scripts/create_minard_figure.py and "
-        "restored with scripts/restore_historical_assets.py."
+        "Figure 3 must be generated with scripts/create_minard_figure.py."
     )
 
 

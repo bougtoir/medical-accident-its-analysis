@@ -583,9 +583,9 @@ RESULTS = [
             "inferred from the two Indigenous American segment records (Figure S4). "
             "Ancient and modern ABO-window observations were produced by different "
             "pipelines and permit no formal temporal comparison (Figure S5). A "
-            "literature-derived global bivariate map provides broad Neanderthal and "
-            "Denisovan ancestry context; its approximate values were not used in the "
-            "statistical models (Figure S6)."
+            "bivariate global map summarising each population's mean Neanderthal and "
+            "Denisovan segment coverage from the present profiles provides broad "
+            "geographic context and was not used in the statistical models (Figure S6)."
         ),
         [],
     ),
@@ -711,8 +711,13 @@ SUPPORTING_FIGURES = {
         "fig3_minard_migration.png",
         "Minard-style schematic of human dispersal and archaic "
         "introgression. Band widths, branch positions, and event placement are "
-        "illustrative and do not estimate migration magnitude, ancestry proportion, "
-        "or a route supported by the present analysis.",
+        "illustrative and do not estimate migration magnitude or a route supported "
+        "by the present analysis. The ABO sub-lineage compositions shown are "
+        "computed in this study from data/abo_sublineage_summary.csv (segments, not "
+        "individuals; ties excluded from the percentages) and the South Asian "
+        "Denisovan-segment count from data/abo_denisovan_segments.csv; broad "
+        "archaic-ancestry ranges are attributed on the figure to Pr\u00fcfer et al. "
+        "(2014), Vernot and Akey (2014), Reich et al. (2011), and Meyer et al. (2012).",
     ),
     3: (
         "fig6_o2_introgression.png",
@@ -734,8 +739,11 @@ SUPPORTING_FIGURES = {
     ),
     6: (
         "fig9_bivariate_world_map.png",
-        "Literature-derived global context. Circle size represents approximate "
-        "Neanderthal ancestry and color intensity represents approximate Denisovan "
-        "ancestry. Values were not used in the pairwise statistical models.",
+        "Bivariate global context computed in this study. Circle area encodes the "
+        "mean per-bin Neanderthal-segment coverage and colour encodes the mean "
+        "per-bin Denisovan-segment coverage for each population, both from "
+        "data/population_profiles_500kb.npz; coordinates are approximate sampling "
+        "locations from data/population_metadata.csv. These descriptive summaries "
+        "were not used in the pairwise statistical models.",
     ),
 }
