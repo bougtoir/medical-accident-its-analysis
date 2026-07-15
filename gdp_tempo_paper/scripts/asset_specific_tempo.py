@@ -14,11 +14,10 @@ where μ_a is a literature-based gestation period per asset type.
 
 Key test: does M_obs (zero free parameters) improve OOS prediction over M0?
 
-Reads:
-  - /home/ubuntu/gdp_tempo_data/pwt1001.dta
-  - /home/ubuntu/gdp_tempo_data/wb/rnd_gdp.json
-  - /home/ubuntu/gdp_tempo_data/wb/cwon/NW.PCA.TO.json
-  - /home/ubuntu/gdp_tempo_data/oecd/gfcf_by_asset_full.csv
+Reads the frozen public inputs under source_data/:
+  - pwt1001_selected.csv
+  - world_bank_indicators.csv
+  - oecd/gfcf_by_asset_full.csv
 
 Writes (under gdp_tempo_paper/data/ and gdp_tempo_paper/figures/):
   - asset_composition.csv
@@ -39,17 +38,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+import data_sources
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, ".."))
 DATA = os.path.join(ROOT, "data")
 FIG = os.path.join(ROOT, "figures")
 os.makedirs(DATA, exist_ok=True)
 os.makedirs(FIG, exist_ok=True)
-
-PWT_PATH = "/home/ubuntu/gdp_tempo_data/pwt1001.dta"
-RND_PATH = "/home/ubuntu/gdp_tempo_data/wb/rnd_gdp.json"
-CWON_DIR = "/home/ubuntu/gdp_tempo_data/wb/cwon"
-OECD_GFCF_PATH = "/home/ubuntu/gdp_tempo_data/oecd/gfcf_by_asset_full.csv"
 
 DELTA_I = 0.15
 
@@ -228,17 +224,8 @@ def fit_tempo(I, delta, K0, logY, logLH, alpha, years) -> tuple[float, float]:
 # ── OECD asset composition loader ────────────────────────────────────────
 def load_oecd_gfcf() -> pd.DataFrame:
     """Load OECD GFCF by asset type, return tidy DataFrame."""
-    df = pd.read_csv(OECD_GFCF_PATH)
-    df = df[df["REF_AREA"].isin(ISO3.values())]
-    df = df[["REF_AREA", "INSTR_ASSET", "TIME_PERIOD", "OBS_VALUE", "UNIT_MULT"]]
-    df = df.rename(columns={
-        "REF_AREA": "iso3", "INSTR_ASSET": "asset",
-        "TIME_PERIOD": "year", "OBS_VALUE": "value", "UNIT_MULT": "mult"
-    })
-    df["year"] = df["year"].astype(int)
-    df["mult"] = df["mult"].fillna(0).astype(int)
-    df["value"] = df["value"].astype(float) * (10.0 ** df["mult"])
-    return df[["iso3", "asset", "year", "value"]]
+    df = data_sources.load_oecd_gfcf()
+    return df[df["iso3"].isin(ISO3.values())].copy()
 
 
 def compute_observable_mu(gfcf: pd.DataFrame) -> pd.DataFrame:
@@ -292,30 +279,11 @@ def compute_observable_mu(gfcf: pd.DataFrame) -> pd.DataFrame:
 
 # ── PWT + WB loaders (from run_paper_analyses.py) ────────────────────────
 def load_rnd() -> pd.DataFrame:
-    with open(RND_PATH) as fh:
-        rows = json.load(fh)
-    # Handle WB API format: either list-of-dicts or [meta, data]
-    if isinstance(rows, list) and len(rows) == 2 and isinstance(rows[0], dict):
-        rows = rows[1]
-    return pd.DataFrame([
-        {"iso3": r["countryiso3code"], "year": int(r["date"]),
-         "rnd_gdp": r["value"]}
-        for r in rows if r.get("value") is not None
-    ])
+    return data_sources.load_rnd()
 
 
 def load_cwon(code: str) -> dict[tuple[str, int], float]:
-    path = os.path.join(CWON_DIR, f"{code}.json")
-    with open(path) as fh:
-        rows = json.load(fh)
-    if isinstance(rows, list) and len(rows) == 2 and isinstance(rows[0], dict):
-        rows = rows[1]
-    out = {}
-    for r in rows:
-        if r.get("value") is None:
-            continue
-        out[(r["countryiso3code"], int(r["date"]))] = float(r["value"])
-    return out
+    return data_sources.load_cwon(code)
 
 
 # ── Country data structure ────────────────────────────────────────────────
@@ -342,7 +310,7 @@ class Country:
 
 
 def prepare_countries(mu_df: pd.DataFrame) -> list[Country]:
-    pwt = pd.read_stata(PWT_PATH)
+    pwt = data_sources.load_pwt()
     pwt = pwt[pwt["country"].isin(COUNTRIES)].sort_values(["country", "year"])
     rnd = load_rnd()
     cwon_pca = load_cwon("NW.PCA.TO")
