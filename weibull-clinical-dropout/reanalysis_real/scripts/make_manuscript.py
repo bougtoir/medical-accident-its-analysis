@@ -103,7 +103,7 @@ def build_docx():
                   "that hinders a unified retention intervention")
     r.bold = True; r.font.size = Pt(15)
     sub = doc.add_paragraph(); sub.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    sub.add_run("Short communication").italic = True
+    sub.add_run("Brief Report").italic = True
 
     heading(doc, "Abstract")
     para(doc,
@@ -331,7 +331,7 @@ def build_title_page():
                   "reproducible analysis of published curves quantifying the heterogeneity "
                   "that hinders a unified retention intervention")
     r.bold = True; r.font.size = Pt(14)
-    para(doc, "Article type: Research article (short communication)", space_before=10)
+    para(doc, "Article type: Brief Report", space_before=10)
     heading(doc, "Authors")
     para(doc, "Tatsuki Onishi [AUTHOR ORDER / ADDITIONAL CO-AUTHORS TO BE CONFIRMED]")
     heading(doc, "Affiliations")
@@ -355,7 +355,7 @@ def build_cover_letter():
     para(doc, "Infectious Diseases of Poverty", space_before=2)
     para(doc, "Dear Professor Zhou and Editors,", space_before=12)
     para(doc,
-         "Please consider our short communication, \u201cDivergent hazard shapes of tuberculosis "
+         "Please consider our Brief Report, \u201cDivergent hazard shapes of tuberculosis "
          "treatment loss to follow-up: a reproducible analysis of published curves quantifying the "
          "heterogeneity that hinders a unified retention intervention\u201d, for publication in "
          "Infectious Diseases of Poverty.", space_before=8)
