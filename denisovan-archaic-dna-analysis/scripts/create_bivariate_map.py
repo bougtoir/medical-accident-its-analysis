@@ -31,7 +31,7 @@ FIGURE_DIR = PROJECT_DIR / "figures"
 
 def main() -> None:
     FIGURE_DIR.mkdir(parents=True, exist_ok=True)
-    profiles = np.load(DATA_DIR / "population_profiles_500kb.npz", allow_pickle=True)
+    profiles = np.load(DATA_DIR / "population_profiles_500kb.npz", allow_pickle=False)
     populations = [str(name) for name in profiles["populations"]]
     coverage = pd.DataFrame(
         {

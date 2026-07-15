@@ -91,6 +91,11 @@ def main() -> None:
     )
     if not args.skip_o2_download:
         run(project_root, ["scripts/fetch_o2_frequencies.py"])
+    if (args.iasi_segments is None) != (args.iasi_metadata is None):
+        sys.exit(
+            "ERROR: --iasi-segments and --iasi-metadata must both be provided "
+            "or both omitted."
+        )
     if args.iasi_segments is not None and args.iasi_metadata is not None:
         run(
             project_root,
