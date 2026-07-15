@@ -443,9 +443,11 @@ METHODS = [
                 "allele was summarized "
                 "from Ensembl/1000 Genomes frequencies and published Solomon Islands "
                 "frequencies (Ohashi et al. 2006). Ancient-window observations were "
-                "descriptively extracted from public outputs associated with Iasi et "
-                "al. (2024); ancient and modern calls were not directly compared "
-                "statistically."
+                "extracted by a documented, reproducible script from the public "
+                "Neanderthal-segment catalogue of Iasi et al. (2024), using the GRCh37 "
+                "ABO interval that corresponds to the GRCh38 window analysed here; "
+                "ancient and modern calls used different pipelines and were not "
+                "directly compared statistically."
             ),
         ],
     ),

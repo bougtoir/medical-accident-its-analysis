@@ -1,0 +1,28 @@
+{
+  "source_article_doi": "10.1126/science.adq3010",
+  "source_data_doi": "10.5061/dryad.zw3r228gg",
+  "reference_genome": "GRCh37/hg19",
+  "abo_gene_grch37": {
+    "chrom": 9,
+    "start": 136125788,
+    "end": 136150617
+  },
+  "abo_window_grch37": {
+    "chrom": 9,
+    "start": 135892510,
+    "end": 136392510
+  },
+  "sites_used": "All_diagnostic_sites",
+  "genetic_map": "Shared_map",
+  "ancient_individuals_assessed": 59,
+  "ancient_individuals_with_segment": 16,
+  "ancient_individuals_strict_abo_overlap": 8,
+  "segments_file": {
+    "file_name": "Neandertal_segments_matching_references_Shared_map.csv",
+    "sha256": "fff3e602b10804f45679a5857321561969cebf66b24c11eb2da87d9c76d25ab1"
+  },
+  "metadata_file": {
+    "file_name": "Meta_Data_individuals.csv",
+    "sha256": "8d59849324d38c450678417b5dc8e05ae10913bfed9cf25a2496750759397c43"
+  }
+}

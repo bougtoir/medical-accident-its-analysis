@@ -15,6 +15,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--permutations", type=int, default=9_999)
     parser.add_argument("--sensitivity-permutations", type=int, default=999)
     parser.add_argument("--skip-o2-download", action="store_true")
+    parser.add_argument(
+        "--iasi-segments",
+        type=Path,
+        default=None,
+        help="Optional Iasi et al. 2024 reference-matching segment file; "
+        "when given, the ancient ABO-window summary is regenerated from it.",
+    )
+    parser.add_argument("--iasi-metadata", type=Path, default=None)
     return parser.parse_args()
 
 
@@ -83,6 +91,21 @@ def main() -> None:
     )
     if not args.skip_o2_download:
         run(project_root, ["scripts/fetch_o2_frequencies.py"])
+    if args.iasi_segments is not None and args.iasi_metadata is not None:
+        run(
+            project_root,
+            [
+                "scripts/build_ancient_abo_summary.py",
+                "--iasi-segments",
+                str(args.iasi_segments.resolve()),
+                "--iasi-metadata",
+                str(args.iasi_metadata.resolve()),
+                "--output",
+                "data/ancient_abo_summary.csv",
+                "--provenance",
+                "data/ancient_abo_provenance.json",
+            ],
+        )
     run(project_root, ["scripts/create_core_figures.py"])
     run(project_root, ["scripts/create_ajba_figures.py"])
     run(project_root, ["scripts/create_minard_figure.py"])
