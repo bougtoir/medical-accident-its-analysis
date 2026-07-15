@@ -168,7 +168,9 @@ jobs:
           BRANCH_MAP["devin/1777989587-jcss-ssr-submission"]="jcss-ssr-submission"
           BRANCH_MAP["devin/1777989710-tatsuki-3journal-submission"]="tatsuki-3journal-submission"
           # ── Denisovan / archaic DNA analysis ──
-          BRANCH_MAP["devin/1783808542-ajba-critical-revision"]="denisovan-archaic-dna-analysis"
+          # NOTE: devin/1783808542-ajba-critical-revision superseded by
+          # devin/1784076815-ajhb-revision (same target repo, AJHB re-submission)
+          BRANCH_MAP["devin/1784076815-ajhb-revision"]="denisovan-archaic-dna-analysis"
 
           # ── Landmine transparent map (JoBS submission) ──
           BRANCH_MAP["devin/1782083347-landmine-transparent-map"]="landmine-transparent-map"
@@ -209,7 +211,7 @@ jobs:
           SUBDIR_MAP["devin/1776763216-healthcare-sustainable"]="healthcare_tempo_poc"
           SUBDIR_MAP["devin/1777844647-tatsuki-electoral-studies"]="tasuki-electoral-model"
           SUBDIR_MAP["devin/1777989587-jcss-ssr-submission"]="tasuki-electoral-model"
-          SUBDIR_MAP["devin/1783808542-ajba-critical-revision"]="denisovan-archaic-dna-analysis"
+          SUBDIR_MAP["devin/1784076815-ajhb-revision"]="denisovan-archaic-dna-analysis"
           SUBDIR_MAP["devin/1777989710-tatsuki-3journal-submission"]="tasuki-electoral-model"
           SUBDIR_MAP["devin/1777545460-medical-sapir-whorf-paper"]="medical_sapir_whorf"
           # SUBDIR_MAP["devin/1777545531-medical-sapir-whorf-formalization"]="medical_sapir_whorf"  # superseded
