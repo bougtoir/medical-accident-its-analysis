@@ -258,6 +258,26 @@ add_para_with_refs(
     "signal and therefore pulse pressure" + C.cite("gardner1981") + ".")
 
 add_para_with_refs(
+    "Zeroing nevertheless remains indispensable at the bedside, because these "
+    "offsets are installation- and time-dependent physics rather than a "
+    "factory-fixable device defect. The hydrostatic column depends on the "
+    "height of the transducer relative to the phlebostatic axis (about "
+    "7.5 mmHg per 10 cm) and changes whenever the patient or the transducer "
+    "is repositioned" + C.cite("gupta2025") + "; the atmospheric gauge "
+    "reference drifts with weather and altitude; and electrical or thermal "
+    "drift accumulates over time" + C.cite("mark1998", "mcghee2002") + ". "
+    "Crucially, detection is not correction, and the two operate at different "
+    "layers. Method-comparison analyses such as Bland\u2013Altman regression "
+    "are retrospective validation tools that require paired reference "
+    "measurements, which are not available in real time for the patient in "
+    "front of the clinician; zeroing is the only procedure that removes a "
+    "known, setup-specific offset a priori and without a reference. Even when "
+    "a regression reveals an offset, removing it still requires zeroing. "
+    "Zeroing therefore corrects offset operationally, whereas regression and "
+    "CCC decomposition detect residual gain and structure\u2014and neither can "
+    "substitute for the other.")
+
+add_para_with_refs(
     "Validation studies for arterial pressure and derived haemodynamic "
     "monitors overwhelmingly report the Bland\u2013Altman summary (mean bias "
     "and 95% limits of agreement) " + C.cite("blandaltman1986") +
@@ -506,6 +526,14 @@ add_para_with_refs(
     "because it is proportional to gain but independent of offset.")
 
 add_heading_styled("4.3. Implications for sensor design", level=2)
+add_para_with_refs(
+    "The reason zeroing is still performed today is that it corrects a "
+    "setup-specific offset in real time, a role that no retrospective "
+    "method-comparison statistic can fill. This also points to the way "
+    "forward: because zeroing addresses only the operational offset problem, "
+    "designing the offset sources out of the hardware removes the need to zero "
+    "at all, leaving gain and dynamic response as the residual design and "
+    "validation problems.")
 add_para_with_refs(
     "The offset that zeroing corrects can also be removed by design. "
     "Catheter-tip micro-electro-mechanical systems (MEMS) sensors abolish the "
