@@ -73,6 +73,7 @@ jobs:
           # ── Academic slides / zero-calibration ──
           BRANCH_MAP["devin/1775549411-anesthesiology-academic-roi-slides"]="anesthesiology-academic-roi-slides"
           BRANCH_MAP["devin/1775637899-pmea-zero-calibration"]="pmea-zero-calibration"
+          BRANCH_MAP["devin/1784242391-bpm-zero-calibration"]="bpm-zero-calibration"
 
           # ── Bland-Altman / BA series ──
           BRANCH_MAP["devin/1775690994-ba-plot-3d-simulation"]="ba-plot-3d-simulation"
@@ -246,6 +247,7 @@ jobs:
           SUBDIR_MAP["devin/1780039674-yago-cs-bleeding-analysis"]="yago_cs_bleeding"
           SUBDIR_MAP["devin/1780052155-yago-ionv-analysis"]="yago_ionv"
           SUBDIR_MAP["devin/1775637899-pmea-zero-calibration"]="zero_calibration_pmea"
+          SUBDIR_MAP["devin/1784242391-bpm-zero-calibration"]="zero_calibration_bpm"
           SUBDIR_MAP["stem-cell-seasonality"]="stem_cell_seasonality"
           SUBDIR_MAP["devin/denisovan-archaic-dna-analysis"]="denisovan-archaic-dna-analysis"
           SUBDIR_MAP["devin/1782083347-landmine-transparent-map"]="landmine_transparent_map"
