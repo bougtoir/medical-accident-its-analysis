@@ -11,9 +11,9 @@ import requests
 from ajba_content import REFERENCES
 
 
-OUTPUT_PATH = Path("docs/ajhb_submission/reference_validation.csv")
+OUTPUT_PATH = Path("docs/ahg_submission/reference_validation.csv")
 HEADERS = {
-    "User-Agent": "AJHB-reference-validation/1.0 (mailto:bougtoir@gmail.com)"
+    "User-Agent": "AHG-reference-validation/1.0 (mailto:bougtoir@gmail.com)"
 }
 
 

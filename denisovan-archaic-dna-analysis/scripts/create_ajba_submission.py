@@ -1,4 +1,4 @@
-"""Build the American Journal of Human Biology submission package."""
+"""Build the Annals of Human Genetics submission package."""
 
 from __future__ import annotations
 
@@ -27,11 +27,12 @@ import ajba_content as revised_content
 PROJECT_DIR = Path(__file__).resolve().parents[1]
 DATA_DIR = PROJECT_DIR / "data"
 FIGURE_DIR = PROJECT_DIR / "figures"
-OUTPUT_DIR = PROJECT_DIR / "docs" / "ajhb_submission"
+OUTPUT_DIR = PROJECT_DIR / "docs" / "ahg_submission"
 OUTPUT_FIGURE_DIR = OUTPUT_DIR / "figures"
-JOURNAL = "American Journal of Human Biology"
-JOURNAL_SHORT = "AJHB"
-ARTICLE_TYPE = "Original Research Article"
+JOURNAL = "Annals of Human Genetics"
+JOURNAL_SHORT = "AHG"
+ARTICLE_TYPE = "Original Article"
+EDITOR_IN_CHIEF = "Professor Rosemary Ekong"
 TITLE = (
     "Pairwise sharing of Neanderthal and Denisovan introgression across global "
     "populations: An exploratory geographic analysis"
@@ -816,7 +817,7 @@ def add_manuscript_body(document: Document, inline: bool) -> None:
     document.add_paragraph(
         "Analysis scripts, aggregate derived data, figures, and document-generation code "
         "are available at https://github.com/bougtoir/denisovan-archaic-dna-analysis "
-        "and will be fixed as release ajhb-submission-2026-07 before submission. "
+        "and will be fixed as release ahg-submission-2026-07 before submission. "
         "The source hmmix segment calls are available from Zenodo record 14136628 "
         "(https://doi.org/10.5281/zenodo.14136628). Raw-file SHA-256 checksums and all "
         "analysis parameters are included in analysis_provenance.json."
@@ -846,7 +847,7 @@ def add_manuscript_body(document: Document, inline: bool) -> None:
         "Onishi Tatsuki: Conceptualization, methodology, formal analysis, "
         "visualization, writing—original draft, and writing—review and editing."
     )
-    document.add_heading("Literature Cited", level=1)
+    document.add_heading("References", level=1)
     for reference in REFERENCES:
         paragraph = document.add_paragraph(reference)
         paragraph.paragraph_format.first_line_indent = Inches(-0.25)
@@ -959,16 +960,17 @@ def create_cover_letter(path: Path) -> None:
     document.styles["Normal"].paragraph_format.line_spacing = 1
     document.styles["Normal"].paragraph_format.space_after = Pt(7)
     for text in [
+        EDITOR_IN_CHIEF,
         "Editor-in-Chief",
         JOURNAL,
-        "Wiley",
+        "Wiley / University College London",
     ]:
         document.add_paragraph(text)
     document.add_paragraph()
     paragraph = document.add_paragraph()
     run = paragraph.add_run(f"Re: Submission of an {ARTICLE_TYPE}")
     run.bold = True
-    document.add_paragraph("Dear Editor-in-Chief,")
+    document.add_paragraph(f"Dear {EDITOR_IN_CHIEF},")
     paragraphs = [
         (
             f"I am pleased to submit “{TITLE}” for consideration as an "
@@ -993,9 +995,11 @@ def create_cover_letter(path: Path) -> None:
             "ABO-window signal beyond the genome-wide expectation. The contribution "
             "is therefore a reusable, dependence-aware negative control against which "
             "focal-locus and special-connection archaic claims can be judged, rather "
-            "than a new migration route. This methodologically oriented, "
-            "population-biology framing is intended to fit the analytical and "
-            "evolutionary scope of the Journal."
+            "than a new migration route. This methodological, reproducibility-focused "
+            "study fits the scope of Annals of Human Genetics in human population and "
+            "evolutionary genetics, the geographic distribution of genetic variation, "
+            "the interpretation of the human genome including archaic and ancient-DNA "
+            "signals, and statistical-genetic methodology applied to real data."
         ),
         (
             "The work is original, is not under consideration elsewhere, and uses "
@@ -1247,17 +1251,17 @@ def validate_content() -> list[str]:
 
 
 def create_checklist(path: Path) -> None:
-    content = """# AJHB submission checklist
+    content = """# AHG submission checklist
 
 ## Prepared files
 
-- `manuscript_ajhb.docx`: manuscript with figure legends and no embedded figure bodies
-- `manuscript_ajhb_inline_review.docx`: internal review copy with figures and tables immediately after first mention
+- `manuscript_ahg.docx`: manuscript with figure legends and no embedded figure bodies
+- `manuscript_ahg_inline_review.docx`: internal review copy with figures and tables immediately after first mention
 - `Table_1_residual_outliers.docx` and `Table_2_abo_summary.docx`: individual editable tables
-- `tables_ajhb.docx`: combined editable Tables 1-2 for internal convenience
-- `supporting_information_ajhb.docx`: Supporting Figures S1-S6 and data-file descriptions
-- `figures_tables_ajhb.pptx`: Figures 1-5, Figures S1-S6, and Tables 1-2
-- `cover_letter_ajhb.docx`: American Journal of Human Biology Original Research Article cover letter
+- `tables_ahg.docx`: combined editable Tables 1-2 for internal convenience
+- `supporting_information_ahg.docx`: Supporting Figures S1-S6 and data-file descriptions
+- `figures_tables_ahg.pptx`: Figures 1-5, Figures S1-S6, and Tables 1-2
+- `cover_letter_ahg.docx`: Annals of Human Genetics Original Article cover letter
 - `figures/Figure_1` through `Figure_5` and `Figure_S1` through `Figure_S6`: separate PNG and TIFF files
 - `supplementary_data/`: population metadata, complete pairwise results, model output, sensitivities, and provenance
 - `reproducibility_checklist.md`: data provenance, rebuild commands, expected checks, and package versions
@@ -1268,7 +1272,7 @@ def create_checklist(path: Path) -> None:
 - References use author-date (author-year) style and are alphabetized.
 - Every listed reference is cited and every citation has a reference entry.
 - Figures 1-5, Figures S1-S6, and Tables 1-2 are first mentioned sequentially.
-- The abstract is within 250 words.
+- The abstract is structured (Background/Methods/Results/Conclusion) and within 250 words.
 - The running title is under 48 characters.
 - Required title-page, availability, funding, conflict, ethics, and contribution statements are present.
 - No submission placeholder strings remain.
@@ -1280,16 +1284,16 @@ def create_checklist(path: Path) -> None:
 - Confirm the conflict-of-interest statement.
 - Obtain or confirm an institutional determination for this secondary genomic analysis.
 - Review the explicit disclosure of no direct community engagement or return of results.
-- Confirm the AJHB article type and current file-size limits in the Wiley submission portal.
+- Confirm the AHG article type and current file/word limits in the ScholarOne submission portal.
 - Upload the manuscript without embedded figures; upload each TIFF separately.
-- Upload `supporting_information_ajhb.docx` and the supplementary CSV/JSON files.
+- Upload `supporting_information_ahg.docx` and the supplementary CSV/JSON files.
 - Upload `Table_1_residual_outliers.docx` and `Table_2_abo_summary.docx` as editable table files.
 - Do not interpret nominal residuals, PEL-containing pairs, or the two Indigenous-American ABO-window segments as definitive migration evidence.
 
 ## Submission links
 
-- Author guidelines: https://onlinelibrary.wiley.com/page/journal/15206300/homepage/forauthors.html
-- New-submission portal: https://onlinelibrary.wiley.com/journal/15206300
+- Author guidelines: https://onlinelibrary.wiley.com/page/journal/14691809/homepage/forauthors.html
+- New-submission portal (ScholarOne): https://mc.manuscriptcentral.com/ahg
 """
     path.write_text(content, encoding="utf-8")
 
@@ -1388,14 +1392,14 @@ def main() -> None:
     for stale in ["Table_1_corrected_model.docx"]:
         (OUTPUT_DIR / stale).unlink(missing_ok=True)
     prepare_separate_figures()
-    manuscript = OUTPUT_DIR / "manuscript_ajhb.docx"
-    review = OUTPUT_DIR / "manuscript_ajhb_inline_review.docx"
-    tables = OUTPUT_DIR / "tables_ajhb.docx"
+    manuscript = OUTPUT_DIR / "manuscript_ahg.docx"
+    review = OUTPUT_DIR / "manuscript_ahg_inline_review.docx"
+    tables = OUTPUT_DIR / "tables_ahg.docx"
     table_1 = OUTPUT_DIR / "Table_1_residual_outliers.docx"
     table_2 = OUTPUT_DIR / "Table_2_abo_summary.docx"
-    supporting = OUTPUT_DIR / "supporting_information_ajhb.docx"
-    cover = OUTPUT_DIR / "cover_letter_ajhb.docx"
-    presentation = OUTPUT_DIR / "figures_tables_ajhb.pptx"
+    supporting = OUTPUT_DIR / "supporting_information_ahg.docx"
+    cover = OUTPUT_DIR / "cover_letter_ahg.docx"
+    presentation = OUTPUT_DIR / "figures_tables_ahg.pptx"
     checklist = OUTPUT_DIR / "submission_checklist.md"
     reproducibility = OUTPUT_DIR / "reproducibility_checklist.md"
     validation = OUTPUT_DIR / "submission_validation.txt"
@@ -1441,7 +1445,7 @@ def main() -> None:
     ]
     if reference_validation.exists():
         zip_files.append(reference_validation)
-    create_zip(OUTPUT_DIR / "AJHB_submission_package.zip", zip_files)
+    create_zip(OUTPUT_DIR / "AHG_submission_package.zip", zip_files)
     print(f"Created {JOURNAL_SHORT} submission materials in {OUTPUT_DIR}")
 
 

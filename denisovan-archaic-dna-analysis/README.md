@@ -47,7 +47,7 @@ python scripts/denisovan_map.py
 python scripts/denisovan_neanderthal_map.py
 python scripts/minard_migration.py
 
-# Rebuild the AJBA analysis and submission package from hmmix source files
+# Rebuild the AHG analysis and submission package from hmmix source files
 python scripts/run_ajba_pipeline.py \
   --segments-1kg /path/to/hg38_1000g_segments.txt \
   --segments-hgdp /path/to/hg38_HGDP_segments.txt \
@@ -58,6 +58,6 @@ python scripts/run_ajba_pipeline.py \
 The pipeline deduplicates individual-haplotype-window presence, validates
 that every population-window frequency is at most one, runs population-label
 QAP inference and sensitivity analyses, regenerates figures, validates
-references, and writes the submission package to `docs/ajhb_submission/`.
+references, and writes the submission package to `docs/ahg_submission/`.
 Raw source paths and SHA256 checksums are recorded in
 `data/analysis_provenance.json`.
