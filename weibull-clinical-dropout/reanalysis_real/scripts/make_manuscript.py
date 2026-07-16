@@ -284,6 +284,7 @@ def build_docx():
               "secondary analysis of aggregate, already-published, de-identified survival curves "
               "and involved no new human participants or individual-level data.")
     para(doc, "**Consent for publication** Not applicable.", space_before=4)
+    para(doc, "**Clinical trial number** Not applicable.", space_before=4)
     para(doc, "**Availability of data and materials** All source figures, digitized CSV datasets, "
               "analysis code and a one-command build that regenerates every reported number, "
               "Table 1 and Figure 1 are openly available in the project repository. No result is "
