@@ -64,21 +64,30 @@ para(
 
 para(
     "We further integrate the dynamic-response (damping) error that is "
-    "specific to fluid-filled arterial lines\u2014showing how under- and "
+    "specific to fluid-filled arterial lines, showing how under- and "
     "over-damping distort pulse pressure in ways that survive zeroing and are "
-    "diagnosed by the fast-flush test\u2014and we discuss the range-dependence "
-    "of the concordance correlation coefficient. We believe this scope is "
-    "well matched to the readership of Blood Pressure Monitoring, which "
-    "spans the measurement, methodology and clinical interpretation of "
-    "arterial pressure.")
+    "diagnosed by the fast-flush test, and we discuss the range-dependence "
+    "of the concordance correlation coefficient. This scope matches the "
+    "readership of Blood Pressure Monitoring, which spans the measurement, "
+    "methodology and clinical interpretation of arterial pressure.")
+
+para(
+    "We submit the manuscript as an Original Study. It contains four figures "
+    "and two tables (six items in total, within the journal limit), with two "
+    "further figures provided as Supplemental Digital Content, a structured "
+    "abstract of fewer than 250 words, and a main text within the 6000-word "
+    "limit. As disclosed in the Methods, the simulation and analysis code, "
+    "the figures, and drafts of the text were prepared with the assistance of "
+    "an AI coding assistant (Devin; Cognition AI); the authors verified all "
+    "code, results and statements and take full responsibility for the work.")
 
 para(
     "This is a simulation study; all data are clearly described as synthetic "
     "and no clinical or previously published measurements are presented as "
     "empirical results. To support transparency and reuse, the complete "
-    "pipeline\u2014data generation, analysis, figures, tables and the "
-    "manuscript itself\u2014is openly available, so that every number, table "
-    "and figure can be regenerated from a clean clone.")
+    "pipeline (data generation, analysis, figures, tables and the manuscript "
+    "itself) is openly available, so that every number, table and figure can "
+    "be regenerated from a clean clone.")
 
 para(
     "The manuscript is original, has not been published previously, and is "

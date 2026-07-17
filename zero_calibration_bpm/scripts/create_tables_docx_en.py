@@ -91,9 +91,9 @@ title("Table 2. Dynamic-response metrics for pulse pressure (PP) and "
       "systolic pressure (SBP).")
 h2 = ["System (f_n, zeta)", "PP ratio", "PP mean bias (mmHg)", "CCC (PP)",
       "v (PP)", "SBP mean bias (mmHg)"]
-dyn = {"optimal": "Optimal (25 Hz, 0.65)",
-       "underdamped": "Underdamped (10 Hz, 0.15)",
-       "overdamped": "Overdamped (8 Hz, 0.80)"}
+_ds = P["dyn_systems"]
+dyn = {k: f"{k.capitalize()} ({f1(_ds[k]['fn'])} Hz, {f2(_ds[k]['zeta'])})"
+       for k in ("optimal", "underdamped", "overdamped")}
 rows2 = []
 for k, label in dyn.items():
     pp = dy[f"{k}_pp"]; sbp = dy[f"{k}_sbp"]

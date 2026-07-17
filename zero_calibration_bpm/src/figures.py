@@ -25,6 +25,31 @@ HERE = os.path.dirname(__file__)
 DATA_DIR = os.path.join(HERE, "..", "data")
 RESULTS_DIR = os.path.join(HERE, "..", "results")
 
+# Mapping from generation stems to the submission figure numbering.
+# Blood Pressure Monitoring allows six figures/tables in total; two figures
+# are provided as Supplemental Digital Content and are numbered separately.
+SUBMISSION_MAP = {
+    "figure2_scenarios_concordance": "Figure1",
+    "figure3_detection_panel": "Figure2",
+    "figure4_ba_masked_gain": "Figure3",
+    "figure5_dynamic_response": "Figure4",
+    "figure1_signal_decomposition": "SupplementalDigitalContent1",
+    "figure6_range_dependence": "SupplementalDigitalContent2",
+}
+
+
+def _savefig(fig, outdir, stem):
+    """Save a PNG always; for the English figures also save a vector PDF.
+
+    Graphs are line-art, for which Blood Pressure Monitoring requires a vector
+    format (or >=1200 dpi). The vector PDF copies live in figures/pdf/.
+    """
+    fig.savefig(os.path.join(outdir, stem + ".png"))
+    if os.path.basename(os.path.normpath(outdir)) != "ja":
+        pdf_dir = os.path.join(outdir, "pdf")
+        os.makedirs(pdf_dir, exist_ok=True)
+        fig.savefig(os.path.join(pdf_dir, stem + ".pdf"))
+
 plt.rcParams.update({
     "font.size": 10,
     "axes.titlesize": 11,
@@ -163,7 +188,7 @@ def fig1_signal(lang, outdir):
 
     fig.suptitle(t["fig1_title"], fontsize=12, fontweight="bold")
     fig.tight_layout(rect=[0, 0, 1, 0.95])
-    fig.savefig(os.path.join(outdir, "figure1_signal_decomposition.png"))
+    _savefig(fig, outdir, "figure1_signal_decomposition")
     plt.close(fig)
 
 
@@ -191,7 +216,7 @@ def fig2_scenarios(lang, outdir):
         ax.legend(fontsize=8, loc="lower right")
     fig.suptitle(t["fig2_title"], fontsize=12, fontweight="bold")
     fig.tight_layout(rect=[0, 0, 1, 0.96])
-    fig.savefig(os.path.join(outdir, "figure2_scenarios_concordance.png"))
+    _savefig(fig, outdir, "figure2_scenarios_concordance")
     plt.close(fig)
 
 
@@ -217,7 +242,7 @@ def fig3_detection(lang, outdir):
     ax.set_xlabel(t["method"]); ax.set_ylabel(t["scenario"])
     ax.set_title(t["fig3_title"], fontsize=12, fontweight="bold")
     fig.tight_layout()
-    fig.savefig(os.path.join(outdir, "figure3_detection_panel.png"))
+    _savefig(fig, outdir, "figure3_detection_panel")
     plt.close(fig)
 
 
@@ -246,7 +271,7 @@ def fig4_ba(lang, outdir):
         ax.legend(fontsize=8, loc="upper left")
     fig.suptitle(t["fig4_title"], fontsize=12, fontweight="bold")
     fig.tight_layout(rect=[0, 0, 1, 0.95])
-    fig.savefig(os.path.join(outdir, "figure4_ba_masked_gain.png"))
+    _savefig(fig, outdir, "figure4_ba_masked_gain")
     plt.close(fig)
 
 
@@ -308,7 +333,7 @@ def fig5_dynamic(lang, outdir):
 
     fig.suptitle(t["fig5_title"], fontsize=12, fontweight="bold")
     fig.tight_layout(rect=[0, 0, 1, 0.94])
-    fig.savefig(os.path.join(outdir, "figure5_dynamic_response.png"))
+    _savefig(fig, outdir, "figure5_dynamic_response")
     plt.close(fig)
 
 
@@ -329,7 +354,7 @@ def fig6_range(lang, outdir):
     ax.set_title(t["fig6_title"], fontsize=12, fontweight="bold")
     ax.legend(fontsize=9)
     fig.tight_layout()
-    fig.savefig(os.path.join(outdir, "figure6_range_dependence.png"))
+    _savefig(fig, outdir, "figure6_range_dependence")
     plt.close(fig)
 
 
@@ -344,7 +369,15 @@ def _set_font(lang):
             except Exception:
                 continue
     else:
-        plt.rcParams["font.family"] = "DejaVu Sans"
+        chosen = "DejaVu Sans"
+        for cand in ("Arial", "Helvetica", "Liberation Sans", "Nimbus Sans"):
+            try:
+                matplotlib.font_manager.findfont(cand, fallback_to_default=False)
+                chosen = cand
+                break
+            except Exception:
+                continue
+        plt.rcParams["font.family"] = chosen
     plt.rcParams["axes.unicode_minus"] = False
 
 
@@ -385,10 +418,41 @@ def export_tiff(src_dir=None, dst_dir=None, dpi=300):
     print(f"[en] wrote {len(names)} TIFF figures to {dst_dir}")
 
 
+def export_submission(src_dir=None, dst_dir=None, dpi=600):
+    """Assemble separately-numbered submission figures.
+
+    Each English figure is copied to a file named for its submission number
+    (Figure1..Figure4 and SupplementalDigitalContent1..2), both as a
+    high-resolution TIFF and as the vector PDF, so that figure numbers and
+    file names correspond one-to-one for the Editorial Manager upload.
+    """
+    if src_dir is None:
+        src_dir = os.path.join(HERE, "..", "figures")
+    if dst_dir is None:
+        dst_dir = os.path.join(src_dir, "submission")
+    os.makedirs(dst_dir, exist_ok=True)
+    n = 0
+    for stem, target in SUBMISSION_MAP.items():
+        png = os.path.join(src_dir, stem + ".png")
+        if os.path.exists(png):
+            img = Image.open(png).convert("RGB")
+            img.save(os.path.join(dst_dir, target + ".tif"),
+                     format="TIFF", compression="tiff_lzw", dpi=(dpi, dpi))
+            n += 1
+        pdf = os.path.join(src_dir, "pdf", stem + ".pdf")
+        if os.path.exists(pdf):
+            with open(pdf, "rb") as fsrc:
+                data = fsrc.read()
+            with open(os.path.join(dst_dir, target + ".pdf"), "wb") as fdst:
+                fdst.write(data)
+    print(f"[en] wrote {n} submission figures to {dst_dir}")
+
+
 def main():
     generate("en")
     generate("ja")
     export_tiff()
+    export_submission()
 
 
 if __name__ == "__main__":

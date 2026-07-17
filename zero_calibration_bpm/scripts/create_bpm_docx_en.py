@@ -19,13 +19,14 @@ import os
 import re
 
 from docx import Document
-from docx.shared import Inches, Pt, Cm, RGBColor
+from docx.shared import Pt, Cm, RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.oxml import OxmlElement
+from docx.oxml.ns import qn
 
 from manuscript_common import REFDB, Citations, load_summary
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-FIGDIR = os.path.join(SCRIPT_DIR, "..", "figures")
 OUTDIR = os.path.join(SCRIPT_DIR, "..", "manuscripts")
 OUTPATH = os.path.join(OUTDIR, "BPM_ZeroFree_Manuscript_EN.docx")
 os.makedirs(OUTDIR, exist_ok=True)
@@ -82,8 +83,7 @@ def add_para_with_refs(text, bold=False, italic=False, alignment=None,
     p.paragraph_format.space_after = space_after
     for part in re.split(r"(\{[^}]+\})", text):
         if part.startswith("{") and part.endswith("}"):
-            run = p.add_run(part[1:-1])
-            run.font.superscript = True
+            run = p.add_run("[" + part[1:-1] + "]")
         else:
             run = p.add_run(part)
         run.font.name = "Times New Roman"
@@ -115,29 +115,40 @@ def add_eq(text):
     p.paragraph_format.space_after = Pt(6)
 
 
+# Figures are submitted as separate files (Blood Pressure Monitoring does not
+# permit figures embedded in the manuscript); only the legends appear here,
+# listed together after the tables. Two figures are provided as Supplemental
+# Digital Content and do not count toward the six-item figure/table limit.
 FIG_LEGENDS = []
+SDC_LIST = []
 
 
-def add_figure(filename, caption, width=Inches(6.2)):
+def add_figure(caption):
+    """Register a main-text figure legend (figure numbered in order of use)."""
     FIG_LEGENDS.append(caption)
-    path = os.path.join(FIGDIR, filename)
-    p = doc.add_paragraph()
-    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    if os.path.exists(path):
-        p.add_run().add_picture(path, width=width)
-    else:
-        p.add_run(f"[missing figure: {filename}]").italic = True
-    cap = doc.add_paragraph()
-    cap.paragraph_format.space_before = Pt(12)
-    cap.paragraph_format.space_after = Pt(12)
-    for part in re.split(r"(\{[^}]+\})", caption):
-        if part.startswith("{") and part.endswith("}"):
-            r = cap.add_run(part[1:-1]); r.font.superscript = True
-        else:
-            r = cap.add_run(part)
-        r.font.name = "Times New Roman"
-        r.font.size = Pt(10)
-        r.italic = True
+
+
+def add_sdc(caption):
+    """Register a Supplemental Digital Content item."""
+    SDC_LIST.append(caption)
+
+
+def horizontal_borders(table):
+    """Apply horizontal rules only (Blood Pressure Monitoring: no vertical rules)."""
+    tblPr = table._tbl.tblPr
+    borders = OxmlElement("w:tblBorders")
+    for edge in ("top", "bottom", "insideH"):
+        el = OxmlElement(f"w:{edge}")
+        el.set(qn("w:val"), "single")
+        el.set(qn("w:sz"), "4")
+        el.set(qn("w:space"), "0")
+        el.set(qn("w:color"), "000000")
+        borders.append(el)
+    for edge in ("left", "right", "insideV"):
+        el = OxmlElement(f"w:{edge}")
+        el.set(qn("w:val"), "none")
+        borders.append(el)
+    tblPr.append(borders)
 
 
 # ══════════════════════════════════════════════════════════════════
@@ -164,8 +175,12 @@ doc.add_paragraph()
 add_para("Corresponding author:", bold=True)
 add_para("[Name, address, email, ORCID]")
 doc.add_paragraph()
-add_para("Word count (main text): ~4,600")
-add_para("Tables: 2   Figures: 6   References: (numbered in order of appearance)")
+add_para("Word count (title page to last reference): ", space_after=Pt(0))
+wc_run = doc.paragraphs[-1].add_run("[computed]")
+wc_run.font.name = "Times New Roman"
+wc_run.font.size = Pt(12)
+add_para("Tables: 2   Figures: 4   Supplemental Digital Content: 2 figures   "
+         "References: numbered in order of appearance")
 doc.add_paragraph()
 add_para("Keywords: ", bold=True, space_after=Pt(0))
 kw = doc.paragraphs[-1]
@@ -175,6 +190,12 @@ kwr = kw.add_run(
     "response; fast-flush test; method comparison")
 kwr.font.name = "Times New Roman"
 kwr.font.size = Pt(12)
+doc.add_paragraph()
+add_para("Conflicts of Interest and Source of Funding:", bold=True,
+         space_after=Pt(0))
+add_para("[To be completed by the authors. State each author’s financial, "
+         "consultant, institutional and other relationships and all sources "
+         "of funding; if there are none, state “none declared”.]")
 doc.add_page_break()
 
 # ══════════════════════════════════════════════════════════════════
@@ -250,7 +271,7 @@ add_para_with_refs(
 
 add_para_with_refs(
     "Zeroing, however, is purely an offset correction: it does not verify the "
-    "gain (sensitivity) of the system\u2014the proportionality between a true "
+    "gain (sensitivity) of the system, that is, the proportionality between a true "
     "pressure change and the displayed value. If the gain is wrong, the "
     "waveform is scaled and the error persists after zeroing. A second, "
     "frequency-dependent gain error arises from the dynamic response of the "
@@ -266,7 +287,7 @@ add_para_with_refs(
     "is repositioned" + C.cite("gupta2025") + "; the atmospheric gauge "
     "reference drifts with weather and altitude; and electrical or thermal "
     "drift accumulates over time" + C.cite("mark1998", "mcghee2002") + ". "
-    "Crucially, detection is not correction, and the two operate at different "
+    "Detection is not the same as correction, and the two operate at different "
     "layers. Method-comparison analyses such as Bland\u2013Altman regression "
     "are retrospective validation tools that require paired reference "
     "measurements, which are not available in real time for the patient in "
@@ -274,7 +295,7 @@ add_para_with_refs(
     "known, setup-specific offset a priori and without a reference. Even when "
     "a regression reveals an offset, removing it still requires zeroing. "
     "Zeroing therefore corrects offset operationally, whereas regression and "
-    "CCC decomposition detect residual gain and structure\u2014and neither can "
+    "CCC decomposition detect residual gain and structure, and neither can "
     "substitute for the other.")
 
 add_para_with_refs(
@@ -291,16 +312,15 @@ add_para_with_refs(
 
 add_para_with_refs(
     "We do not claim that gain error is invisible to a properly conducted "
-    "Bland\u2013Altman analysis. Rather, we quantify\u2014using a reproducible "
-    "simulation\u2014which of the analyses actually reported in the literature "
+    "Bland\u2013Altman analysis. Rather, using a reproducible simulation, we "
+    "quantify which of the analyses actually reported in the literature "
     "detect a residual gain error after zeroing, and we position Lin\u2019s "
     "concordance correlation coefficient (CCC) and its scale-shift component "
     + C.cite("lin1989", "lin2000") + ", together with Deming " +
     C.cite("linnet1990") + " and Passing\u2013Bablok " +
     C.cite("passingbablok1983") + " regression, as complementary diagnostics. "
-    "We also integrate the dynamic-response (damping) error, which is "
-    "specifically clinically relevant to fluid-filled arterial lines, and "
-    "discuss the range-dependence of the CCC " +
+    "We also integrate the dynamic-response (damping) error, which is specific "
+    "to fluid-filled arterial lines, and discuss the range-dependence of the CCC " +
     C.cite("atkinson1997", "barnhart2007") + ".")
 
 # ══════════════════════════════════════════════════════════════════
@@ -315,21 +335,21 @@ add_para_with_refs(
     "alternating-current (AC) component driven by cardiac ejection. Pulse "
     "pressure (PP = systolic [SBP] \u2212 diastolic [DBP] pressure) is a pure AC "
     "quantity and is therefore independent of any additive DC offset but "
-    "proportional to sensor gain (Fig. 1). An offset shifts the baseline "
-    "without changing PP, whereas a gain error scales the whole waveform and "
-    "changes PP.")
-add_figure(
-    "figure1_signal_decomposition.png",
-    "Figure 1. Decomposition of the arterial pressure signal. (A) A DC offset "
-    "shifts the baseline but leaves pulse pressure unchanged. (B) A gain error "
-    "scales the entire waveform, so pulse pressure changes in proportion to "
-    "the gain. Zeroing corrects the offset in (A) but cannot correct the gain "
-    "error in (B).")
+    "proportional to sensor gain (see Figure, Supplemental Digital Content 1, "
+    "which decomposes the arterial pressure signal into its DC and AC "
+    "components). An offset shifts the baseline without changing PP, whereas a "
+    "gain error scales the whole waveform and changes PP.")
+add_sdc(
+    "Supplemental Digital Content 1. Decomposition of the arterial pressure "
+    "signal. (A) A DC offset shifts the baseline but leaves pulse pressure "
+    "unchanged. (B) A gain error scales the entire waveform, so pulse pressure "
+    "changes in proportion to the gain. Zeroing corrects the offset in (A) but "
+    "cannot correct the gain error in (B).")
 
 add_heading_styled("2.2. Statistical methods", level=2)
 add_para_with_refs(
     "For each paired dataset we computed: (i) the minimal Bland\u2013Altman "
-    "summary\u2014mean bias, 95% limits of agreement (mean bias \u00b1 1.96 SD) "
+    "summary, comprising mean bias, 95% limits of agreement (mean bias \u00b1 1.96 SD) "
     "and percentage error " + C.cite("critchley1999") + "; (ii) the "
     "Bland\u2013Altman regression of the differences on the mean, whose slope "
     "tests for proportional bias " + C.cite("blandaltman1999") + "; (iii) "
@@ -390,6 +410,16 @@ add_para_with_refs(
     "parameters and the full pipeline (simulate \u2192 analyse \u2192 figures "
     "\u2192 manuscript) are provided in the public repository so that a third "
     "party can regenerate every number, table and figure from a clean clone.")
+add_para_with_refs(
+    "Because all data are computer-generated, the study involved no human "
+    "participants and no animals; ethics committee approval and informed "
+    "consent were therefore not applicable.")
+add_para_with_refs(
+    "Use of artificial-intelligence tools: the simulation and analysis code, "
+    "the figures, and drafts of the text were prepared with the assistance of "
+    "an AI coding assistant (Devin; Cognition AI, San Francisco, California, "
+    "USA). The authors reviewed and verified all code, numerical results and "
+    "statements, and take full responsibility for the content of the article.")
 
 # ══════════════════════════════════════════════════════════════════
 # 3. RESULTS
@@ -398,7 +428,7 @@ add_heading_styled("3. Results", level=1)
 
 add_heading_styled("3.1. Static scenarios", level=2)
 add_para_with_refs(
-    f"Concordance plots for the four static scenarios are shown in Fig. 2 and "
+    f"Concordance plots for the four static scenarios are shown in Fig. 1 and "
     f"the full metrics in Table 1. Ideal zeroing (S2) gave near-perfect "
     f"agreement (mean bias {signed(st['S2_zeroed_ideal']['bias'])} mmHg, "
     f"CCC {f3(st['S2_zeroed_ideal']['ccc'])}, v "
@@ -407,16 +437,15 @@ add_para_with_refs(
     f"({signed(st['S3_gain_uncompensated']['bias'])} mmHg): gain error is not "
     "invisible to a Bland\u2013Altman analysis.")
 add_figure(
-    "figure2_scenarios_concordance.png",
-    "Figure 2. Device-versus-reference concordance for the four static "
+    "Figure 1. Device-versus-reference concordance for the four static "
     "scenarios (dashed line = identity). Each panel shows the CCC, the CCC "
     "scale shift v, and the Bland\u2013Altman mean bias. S4 has a near-zero mean "
     "bias despite a 10% gain error.")
 
 add_para_with_refs(
     f"The decisive case is S4, where a compensating offset makes the mean bias "
-    f"only {signed(st['S4_gain_masked']['bias'])} mmHg\u2014within the "
-    f"\u00b1{f1(P['bias_threshold'])} mmHg acceptance band\u2014so the minimal "
+    f"only {signed(st['S4_gain_masked']['bias'])} mmHg, within the "
+    f"\u00b1{f1(P['bias_threshold'])} mmHg acceptance band, so the minimal "
     "Bland\u2013Altman summary does not flag any problem. Every "
     "proportional-bias\u2013aware analysis nonetheless detects the hidden gain "
     f"error: the Bland\u2013Altman regression slope is "
@@ -427,22 +456,20 @@ add_para_with_refs(
     f"the Passing\u2013Bablok slope {f3(st['S4_gain_masked']['pb_slope'])} "
     f"(95% CI {ci(st['S4_gain_masked']['pb_lo'], st['S4_gain_masked']['pb_hi'])}), "
     f"and the CCC scale shift v = {f3(st['S4_gain_masked']['v'])}. The "
-    "detection pattern across all scenarios is summarised in Fig. 3, and the "
-    "difference-versus-mean plots for S2 and S4 in Fig. 4.")
+    "detection pattern across all scenarios is summarised in Fig. 2, and the "
+    "difference-versus-mean plots for S2 and S4 in Fig. 3.")
 add_figure(
-    "figure3_detection_panel.png",
-    "Figure 3. Which reported analysis detects the error in each scenario "
+    "Figure 2. Which reported analysis detects the error in each scenario "
     "(green = detected, grey = missed). In S4 the mean-bias summary misses the "
     "gain error that every proportional-bias\u2013aware analysis detects.")
 add_figure(
-    "figure4_ba_masked_gain.png",
-    "Figure 4. Bland\u2013Altman difference-versus-mean plots. In S2 the "
+    "Figure 3. Bland\u2013Altman difference-versus-mean plots. In S2 the "
     "regression slope is flat; in S4 the slope is clearly positive despite a "
     "near-zero mean bias, revealing the masked proportional (gain) error.")
 
 add_heading_styled("3.2. Dynamic-response scenarios", level=2)
 add_para_with_refs(
-    f"Dynamic-response metrics are given in Table 2 and illustrated in Fig. 5. "
+    f"Dynamic-response metrics are given in Table 2 and illustrated in Fig. 4. "
     f"The optimal system reproduced PP faithfully (PP ratio "
     f"{f2(dy['optimal_pp']['mean_ratio'])}). Under-damping produced systolic "
     f"overshoot and inflated PP by "
@@ -457,8 +484,7 @@ add_para_with_refs(
     "underlying the static regression statistics, which is why it is best "
     "characterised directly by the fast-flush test parameters (f_n, \u03b6).")
 add_figure(
-    "figure5_dynamic_response.png",
-    "Figure 5. Dynamic response of the catheter\u2013transducer system. (A) "
+    "Figure 4. Dynamic response of the catheter\u2013transducer system. (A) "
     "Frequency response of optimal, under-damped and over-damped systems with "
     "the arterial harmonics overlaid. (B) Example waveforms. (C) Measured "
     "versus true pulse pressure, with the mean PP ratio per system.")
@@ -469,15 +495,16 @@ add_para_with_refs(
     f"{f2(rg['ccc'][0])} when sampled over a narrow pressure range "
     f"({int(rg['range_width'][0])} mmHg wide) to {f2(rg['ccc'][-1])} over a "
     f"wide range ({int(rg['range_width'][-1])} mmHg), while the scale shift v "
-    "remained close to its true value (Fig. 6). The CCC therefore should be "
+    "remained close to its true value (see Figure, Supplemental Digital "
+    "Content 2, which shows the range-dependence of the CCC). The CCC "
+    "therefore should be "
     "reported together with the sampled pressure range; the structural "
     "components (C_b, v) are more transportable across studies " +
     C.cite("atkinson1997") + ".")
-add_figure(
-    "figure6_range_dependence.png",
-    "Figure 6. Range-dependence of the CCC. For one fixed device, the CCC and "
-    "C_b increase as the sampled pressure range widens, whereas the scale "
-    "shift v stays close to the true gain ratio.")
+add_sdc(
+    "Supplemental Digital Content 2. Range-dependence of the CCC. For one "
+    "fixed device, the CCC and C_b increase as the sampled pressure range "
+    "widens, whereas the scale shift v stays close to the true gain ratio.")
 
 # ══════════════════════════════════════════════════════════════════
 # 4. DISCUSSION
@@ -553,8 +580,8 @@ add_para_with_refs(
 add_heading_styled("4.4. Extension to derived haemodynamic monitors", level=2)
 add_para_with_refs(
     "The offset-versus-gain distinction extends to derived monitors whose "
-    "auto-calibration routines re-optimise a setpoint\u2014an offset "
-    "correction\u2014without correcting the gain of the pressure- or "
+    "auto-calibration routines re-optimise a setpoint (an offset correction) "
+    "without correcting the gain of the pressure- or "
     "impedance-to-flow conversion " +
     C.cite("chatterjee2009", "ameloot2015", "squara2007", "manecke2005") +
     ". Reporting the scale shift v for these devices would make their "
@@ -569,7 +596,7 @@ add_para_with_refs(
     "sensor linearity, and the dynamic model is a single second-order "
     "approximation. The value of the work is to make explicit, and "
     "reproducibly quantify, which reported analyses detect a residual gain "
-    "error\u2014a prelude to, not a replacement for, empirical validation.")
+    "error, a prelude to rather than a replacement for empirical validation.")
 
 # ══════════════════════════════════════════════════════════════════
 # 5. CONCLUSION
@@ -587,12 +614,11 @@ add_para_with_refs(
     "check.")
 
 # ══════════════════════════════════════════════════════════════════
-# DECLARATIONS
+# DECLARATIONS (conflicts of interest and funding are stated on the title
+# page, as required by Blood Pressure Monitoring)
 # ══════════════════════════════════════════════════════════════════
-add_heading_styled("Conflicts of interest", level=1)
-add_para("[To be completed by authors]")
-add_heading_styled("Funding", level=1)
-add_para("[To be completed by authors]")
+add_heading_styled("Acknowledgements", level=1)
+add_para("[To be completed by the authors, or state \u201cnone\u201d.]")
 add_heading_styled("Data availability", level=1)
 add_para(
     "All simulation code and generated data are openly available in the public "
@@ -603,7 +629,24 @@ add_para(
 doc.add_page_break()
 
 # ══════════════════════════════════════════════════════════════════
-# TABLE 1 — static metrics (built from summary)
+# REFERENCES (numbered in order of first appearance; in-text as [n])
+# ══════════════════════════════════════════════════════════════════
+add_heading_styled("References", level=1)
+missing = C.check_all_cited()
+for idx, ref in enumerate(C.ordered_references(), start=1):
+    p = doc.add_paragraph()
+    run = p.add_run(f"{idx}. {ref}")
+    run.font.name = "Times New Roman"
+    run.font.size = Pt(10)
+    p.paragraph_format.space_after = Pt(3)
+    p.paragraph_format.line_spacing = 1.5
+    p.paragraph_format.first_line_indent = Cm(-0.9)
+    p.paragraph_format.left_indent = Cm(0.9)
+
+doc.add_page_break()
+
+# ══════════════════════════════════════════════════════════════════
+# TABLE 1 — static metrics (built from summary; no vertical rules)
 # ══════════════════════════════════════════════════════════════════
 add_heading_styled("Table 1", level=1)
 add_para("Table 1. Method-comparison metrics for the four static scenarios "
@@ -620,7 +663,7 @@ scen_names = {
     "S4_gain_masked": "S4 gain masked",
 }
 table = doc.add_table(rows=1 + len(scen_names), cols=len(t1_headers))
-table.style = "Light Grid Accent 1"
+horizontal_borders(table)
 for i, h in enumerate(t1_headers):
     cell = table.rows[0].cells[i]
     cell.text = h
@@ -651,13 +694,13 @@ add_para(
     "BA = Bland\u2013Altman; CI = confidence interval; LoA = limits of agreement; "
     "PE = percentage error; P\u2013B = Passing\u2013Bablok; CCC = concordance "
     "correlation coefficient; C_b = bias-correction factor; v = scale shift. "
-    "S4 has a near-zero mean bias yet a clearly non-zero regression / Deming / "
+    "S4 has a near-zero mean bias yet a clearly non-zero regression, Deming and "
     "Passing\u2013Bablok slope and v > 1, i.e. a gain error hidden from the "
     "mean-bias summary.", italic=True)
 doc.add_page_break()
 
 # ══════════════════════════════════════════════════════════════════
-# TABLE 2 — dynamic metrics (built from summary)
+# TABLE 2 — dynamic metrics (built from summary; no vertical rules)
 # ══════════════════════════════════════════════════════════════════
 add_heading_styled("Table 2", level=1)
 add_para("Table 2. Dynamic-response metrics for pulse pressure (PP) and "
@@ -665,13 +708,14 @@ add_para("Table 2. Dynamic-response metrics for pulse pressure (PP) and "
 
 t2_headers = ["System (f_n, \u03b6)", "PP ratio", "PP mean bias\n(mmHg)",
               "CCC (PP)", "v (PP)", "SBP mean bias\n(mmHg)"]
+_ds = P["dyn_systems"]
 dyn_rows = {
-    "optimal": "Optimal (25 Hz, 0.65)",
-    "underdamped": "Underdamped (10 Hz, 0.15)",
-    "overdamped": "Overdamped (8 Hz, 0.80)",
+    "optimal": f"Optimal ({f1(_ds['optimal']['fn'])} Hz, {f2(_ds['optimal']['zeta'])})",
+    "underdamped": f"Underdamped ({f1(_ds['underdamped']['fn'])} Hz, {f2(_ds['underdamped']['zeta'])})",
+    "overdamped": f"Overdamped ({f1(_ds['overdamped']['fn'])} Hz, {f2(_ds['overdamped']['zeta'])})",
 }
 table2 = doc.add_table(rows=1 + len(dyn_rows), cols=len(t2_headers))
-table2.style = "Light Grid Accent 1"
+horizontal_borders(table2)
 for i, h in enumerate(t2_headers):
     cell = table2.rows[0].cells[i]
     cell.text = h
@@ -698,31 +742,33 @@ add_para(
 doc.add_page_break()
 
 # ══════════════════════════════════════════════════════════════════
-# FIGURE LEGENDS (also listed together for the LWW/Editorial Manager upload,
-# where figures are submitted as separate files)
+# FIGURE LEGENDS (figures are submitted as separate files)
 # ══════════════════════════════════════════════════════════════════
 add_heading_styled("Figure legends", level=1)
 for legend in FIG_LEGENDS:
     add_para(legend)
-doc.add_page_break()
 
 # ══════════════════════════════════════════════════════════════════
-# REFERENCES (Vancouver, order of appearance)
+# SUPPLEMENTAL DIGITAL CONTENT (separate files; not counted in the limit)
 # ══════════════════════════════════════════════════════════════════
-add_heading_styled("References", level=1)
-missing = C.check_all_cited()
-for idx, ref in enumerate(C.ordered_references(), start=1):
-    p = doc.add_paragraph()
-    run = p.add_run(f"{idx}. {ref}")
-    run.font.name = "Times New Roman"
-    run.font.size = Pt(10)
-    p.paragraph_format.space_after = Pt(3)
-    p.paragraph_format.line_spacing = 1.5
-    p.paragraph_format.first_line_indent = Cm(-0.9)
-    p.paragraph_format.left_indent = Cm(0.9)
+add_heading_styled("Supplemental Digital Content", level=1)
+for legend in SDC_LIST:
+    add_para(legend)
+
+# ---- finalise the title-page word count (title page to last reference;
+#      tables, figure legends and Supplemental Digital Content are excluded) --
+def _nwords(s):
+    return len(re.findall(r"[A-Za-z0-9][A-Za-z0-9'\-]*", s))
+
+
+_wc = sum(_nwords(_p.text) for _p in doc.paragraphs)
+_wc -= sum(_nwords(x) for x in FIG_LEGENDS + SDC_LIST)
+_wc -= _nwords("Figure legends") + _nwords("Supplemental Digital Content")
+wc_run.text = f"~{_wc}"
 
 doc.save(OUTPATH)
 print(f"English BPM manuscript saved: {OUTPATH}")
 print(f"References cited: {len(C.order)} / {len(REFDB)} in database")
+print(f"Main figures: {len(FIG_LEGENDS)}  SDC items: {len(SDC_LIST)}")
 if missing:
     print(f"WARNING: uncited references in database: {missing}")

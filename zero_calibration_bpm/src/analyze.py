@@ -24,6 +24,7 @@ import numpy as np
 import pandas as pd
 
 import methods as M
+import simulate as SIM
 
 RESULTS_DIR = os.path.join(os.path.dirname(__file__), "..", "results")
 DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "data")
@@ -135,10 +136,13 @@ def build_summary(static_df, dynamic_df, range_df) -> dict:
     summary = {
         "parameters": {
             "n_static": int(static_df["n"].iloc[0]),
-            "sbp_low": 80, "sbp_high": 180,
-            "noise_sd": 3.0, "offset_mmHg": 12.0, "gain": 1.10,
+            "sbp_low": SIM.SBP_LOW, "sbp_high": SIM.SBP_HIGH,
+            "noise_sd": SIM.NOISE_SD, "offset_mmHg": SIM.OFFSET,
+            "gain": SIM.GAIN,
             "bias_threshold": BIAS_THRESHOLD, "v_threshold": V_THRESHOLD,
-            "seed": 20260716,
+            "seed": SIM.SEED,
+            "dyn_systems": {k: {"fn": v[0], "zeta": v[1]}
+                            for k, v in SIM.DYN_SYSTEMS.items()},
         },
         "static": {},
         "dynamic": {},

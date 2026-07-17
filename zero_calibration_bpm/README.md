@@ -25,7 +25,7 @@ This regenerates, in order:
 
 1. `data/*.csv` — synthetic static, dynamic and range-dependence datasets
 2. `results/*.csv`, `results/summary.json` — machine-readable metrics
-3. `figures/*.png` (English) and `figures/ja/*.png` (Japanese); `figures/tiff/*.tif` (English, 300 dpi, for journal submission as separate files)
+3. `figures/*.png` (English) and `figures/ja/*.png` (Japanese); `figures/pdf/*.pdf` (English vector copies); `figures/tiff/*.tif` (English, 300 dpi); `figures/submission/` (separately-numbered submission files: `Figure1..4` and `SupplementalDigitalContent1..2`, as TIFF + vector PDF)
 4. `manuscripts/BPM_ZeroFree_Manuscript_EN.docx` / `_JA.docx`
 5. `manuscripts/BPM_Tables_EN.docx` — editable tables
 6. `manuscripts/BPM_Figures_EN.pptx` — editable figure deck
@@ -34,6 +34,21 @@ This regenerates, in order:
 Every number, table and figure in the manuscripts is read from
 `results/summary.json`; **no results are hard-coded** in the manuscript
 generators.
+
+## Blood Pressure Monitoring submission notes
+
+The English manuscript is formatted as an *Original Study* for *Blood Pressure
+Monitoring*: structured abstract under 250 words, main text within the
+6000-word limit, and six display items (four figures and two tables), with two
+further figures supplied as Supplemental Digital Content. In-text citations
+use bracketed Arabic numerals (`[1]`, `[1-3]`) numbered in order of first
+appearance; the reference list follows the journal's author-count and
+MEDLINE-abbreviation conventions. Figures are **not embedded** in the
+manuscript file: only the legends appear (after the tables), and each figure is
+submitted as a separate file from `figures/submission/`. Ethics status (no
+human/animal participants; synthetic data) and use of an AI coding assistant
+are disclosed in the Methods; conflicts of interest and funding appear on the
+title page.
 
 ## Layout
 
