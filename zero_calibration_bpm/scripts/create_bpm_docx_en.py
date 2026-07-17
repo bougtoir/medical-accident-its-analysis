@@ -321,7 +321,7 @@ add_para_with_refs(
     C.cite("passingbablok1983") + " regression, as complementary diagnostics. "
     "We also integrate the dynamic-response (damping) error, which is specific "
     "to fluid-filled arterial lines, and discuss the range-dependence of the CCC " +
-    C.cite("atkinson1997", "barnhart2007") + ".")
+    C.cite("nickerson1997", "barnhart2007") + ".")
 
 # ══════════════════════════════════════════════════════════════════
 # 2. METHODS
@@ -500,7 +500,7 @@ add_para_with_refs(
     "therefore should be "
     "reported together with the sampled pressure range; the structural "
     "components (C_b, v) are more transportable across studies " +
-    C.cite("atkinson1997") + ".")
+    C.cite("nickerson1997") + ".")
 add_sdc(
     "Supplemental Digital Content 2. Range-dependence of the CCC. For one "
     "fixed device, the CCC and C_b increase as the sampled pressure range "
@@ -530,7 +530,7 @@ add_para_with_refs(
     "slope with its CI (or, equivalently, a Deming or Passing\u2013Bablok "
     "slope); (ii) the CCC with its decomposition into r, C_b, u and v; and "
     "(iii) the sampled pressure range, because the CCC is range-dependent " +
-    C.cite("atkinson1997", "barnhart2007") + ". Notably, C_b alone is "
+    C.cite("nickerson1997", "barnhart2007") + ". Notably, C_b alone is "
     f"relatively insensitive to a pure gain error (in S4, C_b was "
     f"{f3(st['S4_gain_masked']['C_b'])} despite v = "
     f"{f3(st['S4_gain_masked']['v'])}); the scale shift v should be reported "

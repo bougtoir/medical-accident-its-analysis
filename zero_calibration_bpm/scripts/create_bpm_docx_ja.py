@@ -231,7 +231,7 @@ add_para_with_refs(
     "、および Deming" + C.cite("linnet1990") + "・Passing–Bablok" +
     C.cite("passingbablok1983") + "回帰を補完的診断として位置づける。さらに液体"
     "充填式動脈ラインに特に臨床的に重要な動的応答（制動）誤差を統合し、CCC の範囲"
-    "依存性" + C.cite("atkinson1997", "barnhart2007") + "を論じる。")
+    "依存性" + C.cite("nickerson1997", "barnhart2007") + "を論じる。")
 
 # ── 2. 方法 ──
 add_heading_styled("2. 方法", level=1)
@@ -358,7 +358,7 @@ add_para_with_refs(
     f"であったが、広い範囲（{int(rg['range_width'][-1])} mmHg）では "
     f"{f2(rg['ccc'][-1])} に上昇し、スケールシフト v は真値近傍にとどまった（図6）。"
     "したがって CCC は標本化した圧範囲とともに報告すべきであり、構造成分（C_b, v）"
-    "の方が研究間で移転可能性が高い" + C.cite("atkinson1997") + "。")
+    "の方が研究間で移転可能性が高い" + C.cite("nickerson1997") + "。")
 add_figure("figure6_range_dependence.png",
            "図6. CCC の範囲依存性。単一の固定機器において、標本圧範囲が広がると CCC "
            "と C_b は上昇するが、スケールシフト v は真のゲイン比の近傍にとどまる。")
@@ -380,7 +380,7 @@ add_para_with_refs(
     "は、平均バイアスと一致限界に加えて次を報告すべきである：(i) Bland–Altman 回帰"
     "の傾きとその CI（あるいは同等の Deming／Passing–Bablok の傾き）；(ii) r, C_b, "
     "u, v に分解した CCC；(iii) 標本化した圧範囲（CCC は範囲依存のため）" +
-    C.cite("atkinson1997", "barnhart2007") + "。特に C_b 単独では純粋なゲイン誤差に"
+    C.cite("nickerson1997", "barnhart2007") + "。特に C_b 単独では純粋なゲイン誤差に"
     f"比較的鈍感であり（S4 では v = {f3(st['S4_gain_masked']['v'])} にもかかわらず "
     f"C_b = {f3(st['S4_gain_masked']['C_b'])}）、スケールシフト v を明示的に報告すべき"
     "である。これらの追加は数行の解析で済み、規制当局や臨床医" + C.cite("odor2017") +

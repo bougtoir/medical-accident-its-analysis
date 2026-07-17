@@ -94,7 +94,7 @@ REFDB = {
     "kleinman1992": "Kleinman B, Powell S, Kumar P, Gardner RM. The fast flush test measures the dynamic response of the entire blood pressure monitoring system. Anesthesiology 1992; 77: 1215-1220.",
     "linnet1990": "Linnet K. Estimation of the linear relationship between the measurements of two methods with proportional errors. Stat Med 1990; 9: 1463-1473.",
     "passingbablok1983": "Passing H, Bablok W. A new biometrical procedure for testing the equality of measurements from two different analytical methods. J Clin Chem Clin Biochem 1983; 21: 709-720.",
-    "atkinson1997": "Atkinson G, Nevill A. Comment on the use of concordance correlation to assess the agreement between two variables. Biometrics 1997; 53: 775-777.",
+    "nickerson1997": "Nickerson CA. A note on \u201cA concordance correlation coefficient to evaluate reproducibility\u201d. Biometrics 1997; 53: 1503-1507.",
     "barnhart2007": "Barnhart HX, Haber MJ, Lin LI. An overview on assessing agreement with continuous measurements. J Biopharm Stat 2007; 17: 529-569.",
     "hasenkamp2012": "Hasenkamp W, Forchelet D, Pataky K, Villard J, van Lintel H, Bertsch A, et al. Polyimide/SU-8 catheter-tip MEMS gauge pressure sensor. Biomed Microdevices 2012; 14: 819-828.",
     "song2020": "Song P, Ma Z, Ma J, Yang L, Wei J, Zhao Y, et al. Recent progress of miniature MEMS pressure sensors. Micromachines (Basel) 2020; 11: 56.",
