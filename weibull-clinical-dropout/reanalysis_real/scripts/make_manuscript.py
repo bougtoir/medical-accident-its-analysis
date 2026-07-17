@@ -188,8 +188,9 @@ def build_docx():
          space_before=4)
     para(doc,
          f"**Results** Despite {hits} records, only {n_inf} infectious-disease curves from {n_std} "
-         f"studies qualified: two TB cohorts (Ethiopia{{4}}, China{{5}}) and five HIV/ART cohorts "
-         "(Ethiopia{6}, Maputo{7}, Malawi{8}, Gambella{9}); most reported only a final proportion. "
+         f"studies qualified: two TB cohorts (Ethiopia{{4}}, China{{5}}) and five HIV/ART curves "
+         "(Ethiopia{6}, Maputo (2 curves){7}, Malawi{8}, Gambella{9}); most reported only a final "
+         "proportion. "
          f"The shape parameter ranged k={ikmin:.2f}\u2013{ikmax:.2f} ({ni_ifr} IFR, {ni_dfr} DFR) and "
          f"diverged **within** diseases: the two TB cohorts fell on opposite sides of k=1, and the "
          f"HIV/ART cohorts likewise split. A non-infectious antipsychotic contrast{{10}} was also DFR.",
@@ -272,8 +273,10 @@ def build_docx():
     para(doc,
          f"**Yield of the search.** Although the search identified {hits} open-access records, "
          f"reproducibly digitizable, time-resolved dropout curves were rare: only {n_inf} "
-         f"infectious-disease curves from {n_std} studies met the eligibility criterion (two TB, "
-         "five HIV/ART). The dominant reason for ineligibility was that reports gave only a final "
+         f"infectious-disease curves from {n_std} studies met the eligibility criterion (two TB and "
+         f"five HIV/ART curves; the {n_inf} curves exceed the {n_std} studies because the Maputo "
+         "study contributed two curves, its After- and Before-Test-and-Treat cohorts). The dominant "
+         "reason for ineligibility was that reports gave only a final "
          "cumulative LTFU proportion, with no curve from which the timing of dropout could be "
          "recovered. This scarcity is itself a principal finding: the data needed to time retention "
          "support are, at present, seldom published in a usable form.")
