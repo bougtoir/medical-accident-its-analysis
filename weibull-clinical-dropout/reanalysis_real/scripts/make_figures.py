@@ -56,8 +56,8 @@ def main():
         ax.legend(fontsize=7.5, loc="best")
         ax.grid(alpha=0.3)
     fig.suptitle("Weibull fits to real, digitized treatment dropout curves\n"
-                 "(two TB cohorts and six comparators): hazard shape (k) is heterogeneous "
-                 "within TB and within HIV alike",
+                 "(seven infectious-disease curves + one non-infectious contrast): hazard shape "
+                 "(k) is heterogeneous within TB and within HIV alike",
                  fontsize=12)
     fig.tight_layout(rect=[0, 0, 1, 0.975])
     out = os.path.join(FIGDIR, "weibull_real_fits.png")

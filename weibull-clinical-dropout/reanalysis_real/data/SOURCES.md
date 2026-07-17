@@ -1,8 +1,26 @@
-# Data sources & provenance (A1-min, real data only)
+# Data sources & provenance (real data only)
 
 Every value in this sub-project is derived from published figures by the
 digitizer in `scripts/digitize.py`. No estimates are hard-coded. Original
 figure images are stored under `data/figures/`.
+
+## Scoping search & eligibility (reproducible)
+- Search tool: `scripts/search_scoping.py` queries the public Europe PMC REST
+  API and writes `results/scoping_search.csv` (hit count, search date, the exact
+  query string, and a transparency sample of records). Re-run with `make search`.
+- Snapshot: as recorded in `results/scoping_search.csv` (Europe PMC identified
+  ~7.6k open-access TB/HIV LTFU/retention records mentioning a time-to-event
+  curve on 2026-07-17).
+- **Eligibility criterion (deliberately unusual):** a study must present a
+  *time-resolved* treatment-dropout/retention curve as a single, cleanly
+  separable, digitizable line (Kaplan–Meier survivor or competing-risk
+  cumulative incidence) — not merely a final cumulative LTFU proportion.
+- Screening was pragmatic (single-reviewer against the criterion), **not** a
+  registered dual-reviewer scoping review; the count of eligible curves is a
+  lower bound. Seven infectious-disease curves (six studies) qualified: TB
+  Ethiopia, TB China, ART/HIV Ethiopia, HIV Maputo (ATT + BTT), HIV Malawi,
+  HIV Gambella. One non-infectious antipsychotic curve is kept separately as a
+  methodological contrast, outside the infectious-disease scope.
 
 ## Ethiopia
 - Citation: Ambo General Hospital DR-TB / TB treatment cohort, *Archives of
