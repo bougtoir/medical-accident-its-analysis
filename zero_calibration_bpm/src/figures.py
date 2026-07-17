@@ -17,6 +17,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from PIL import Image
 
 import methods as M
 
@@ -363,9 +364,31 @@ def generate(lang="en", outdir=None):
     print(f"[{lang}] wrote 6 figures to {outdir}")
 
 
+def export_tiff(src_dir=None, dst_dir=None, dpi=300):
+    """Write submission-ready TIFF copies of the English figures.
+
+    Blood Pressure Monitoring (Editorial Manager) requires each figure as a
+    separate file, preferably TIFF, not embedded in the manuscript. The PNGs
+    are kept for the inline reading copy of the manuscript.
+    """
+    if src_dir is None:
+        src_dir = os.path.join(HERE, "..", "figures")
+    if dst_dir is None:
+        dst_dir = os.path.join(src_dir, "tiff")
+    os.makedirs(dst_dir, exist_ok=True)
+    names = [f for f in sorted(os.listdir(src_dir)) if f.endswith(".png")]
+    for name in names:
+        img = Image.open(os.path.join(src_dir, name)).convert("RGB")
+        out = os.path.join(dst_dir, name[:-4] + ".tif")
+        img.save(out, format="TIFF", compression="tiff_lzw",
+                 dpi=(dpi, dpi))
+    print(f"[en] wrote {len(names)} TIFF figures to {dst_dir}")
+
+
 def main():
     generate("en")
     generate("ja")
+    export_tiff()
 
 
 if __name__ == "__main__":

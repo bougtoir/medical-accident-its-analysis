@@ -25,7 +25,7 @@ This regenerates, in order:
 
 1. `data/*.csv` — synthetic static, dynamic and range-dependence datasets
 2. `results/*.csv`, `results/summary.json` — machine-readable metrics
-3. `figures/*.png` (English) and `figures/ja/*.png` (Japanese)
+3. `figures/*.png` (English) and `figures/ja/*.png` (Japanese); `figures/tiff/*.tif` (English, 300 dpi, for journal submission as separate files)
 4. `manuscripts/BPM_ZeroFree_Manuscript_EN.docx` / `_JA.docx`
 5. `manuscripts/BPM_Tables_EN.docx` — editable tables
 6. `manuscripts/BPM_Figures_EN.pptx` — editable figure deck

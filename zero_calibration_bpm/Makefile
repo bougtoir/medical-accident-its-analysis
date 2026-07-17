@@ -21,6 +21,6 @@ docs: analyze figures
 
 clean:
 	rm -f data/*.csv results/*.csv results/*.json
-	rm -f figures/*.png figures/ja/*.png
+	rm -f figures/*.png figures/ja/*.png figures/tiff/*.tif
 	rm -f manuscripts/*.docx manuscripts/*.pptx manuscripts/*.pdf
 	rm -f cover_letter/*.docx
