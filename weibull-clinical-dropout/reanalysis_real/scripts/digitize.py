@@ -75,6 +75,10 @@ def color_mask(arr, kind):
         return (b > 110) & (b - r > 25) & (b - g > 15) & (r < 190)
     if kind == "dark":       # antipsychotic KM line (grey/black on white)
         return (r < 110) & (g < 110) & (b < 110)
+    if kind == "navy":       # Stata "navy" solid line (Maputo ATT / Malawi pre / Gambella)
+        return (b > 60) & (b < 175) & (b - r > 18) & (b - g > 8) & (r < 130)
+    if kind == "maroon":     # Stata "maroon"/dark-red line (Maputo BTT)
+        return (r > 110) & (r - g > 50) & (r - b > 50) & (g < 120)
     raise ValueError(kind)
 
 
@@ -194,12 +198,103 @@ def do_antipsychotic():
     return rows
 
 
+# --- Additional HIV/ART treatment-retention KM curves (comparators). ---
+# All calibration anchors below were read from each figure's tick marks and are
+# cross-checked at runtime by detect_axis()/xticks()/yticks() (printed).
+# Curve VALUES are extracted from coloured pixels, not entered by hand.
+
+# Maputo, Mozambique: PMC13037074 Fig.3, probability of retention, 0-80 months.
+# Two ART cohorts: ATT (navy, After Test-and-Treat) and BTT (maroon, Before).
+MAP_XPX = [333.5, 606.5, 880.5, 1153.5, 1426.5]   # -> 0,20,40,60,80 months
+MAP_XVAL = [0, 20, 40, 60, 80]
+MAP_YPX = [53.5, 214.5, 374.5, 535.5, 696.5]       # -> 1.00..0.00
+MAP_YVAL = [1.00, 0.75, 0.50, 0.25, 0.00]
+
+# Malawi: PMC13191892 Fig.1, probability of remaining in care, 0-12 months.
+# Pre-intervention cohort (navy solid). Post-intervention (orange dashed) not used.
+MAL_XPX = [152.0, 478.0, 807.0, 1133.0, 1462.0]    # -> 0,3,6,9,12 months
+MAL_XVAL = [0, 3, 6, 9, 12]
+MAL_YPX = [37.0, 234.0, 431.0, 627.5, 824.0]        # -> 1.00..0.00
+MAL_YVAL = [1.00, 0.75, 0.50, 0.25, 0.00]
+
+# Gambella, Ethiopia: PMC12903592 Fig.2, overall KM survivor function (navy),
+# 95% CI band (grey) not used. x-axis "analysis time" in YEARS (1-4), stored as
+# months (x12). Reported incidence 4.15/100 person-years, overall LTFU 11.5%.
+GAM_XPX = [126.0, 579.0, 1030.5, 1483.0]           # -> 1,2,3,4 years
+GAM_XVAL = [1, 2, 3, 4]
+GAM_YPX = [124.5, 305.5, 486.5, 667.5, 848.5]       # -> 1.00..0.00
+GAM_YVAL = [1.00, 0.75, 0.50, 0.25, 0.00]
+
+
+def _extract_survival(arr, kind, box, x2px, ypx, yval, xs):
+    """Extract retention S(t) at each x then convert to F(t)=1-S(t)."""
+    rows = extract_curve(arr, kind, box, x2px, ypx, yval, xs)
+    return [(x, (1.0 - v) if v == v else v) for x, v in rows]
+
+
+def do_maputo():
+    p = os.path.join(FIGDIR, "hiv_maputo_PMC13037074_fig3_km_retention.png")
+    arr = np.asarray(Image.open(p).convert("RGB"))
+    x2px = piecewise(MAP_XPX, MAP_XVAL)
+    months = [round(m, 1) for m in np.arange(3, 78.001, 3)]
+    box = (333, 1450, 40, 700)
+    att = _extract_survival(arr, "navy", box, x2px, MAP_YPX, MAP_YVAL, months)
+    btt = _extract_survival(arr, "maroon", box, x2px, MAP_YPX, MAP_YVAL, months)
+    ha = ("# HIV/ART Maputo PMC13037074 Fig.3 retention KM, ATT cohort (navy);\n"
+          "# digitized from pixels. retention S(t) read off; stored F(t)=1-S(t). x=months.\n")
+    hb = ("# HIV/ART Maputo PMC13037074 Fig.3 retention KM, BTT cohort (maroon);\n"
+          "# digitized from pixels. retention S(t) read off; stored F(t)=1-S(t). x=months.\n")
+    save_csv(os.path.join(OUTDIR, "hiv_maputo_att_ltfu_cif.csv"), att, ha)
+    save_csv(os.path.join(OUTDIR, "hiv_maputo_btt_ltfu_cif.csv"), btt, hb)
+    return att, btt
+
+
+def do_malawi():
+    p = os.path.join(FIGDIR, "hiv_malawi_PMC13191892_fig1_km_care.png")
+    arr = np.asarray(Image.open(p).convert("RGB"))
+    x2px = piecewise(MAL_XPX, MAL_XVAL)
+    # cap at 11.5 mo: a single terminal KM step to 0.59 at exactly 12 mo reflects
+    # the last event with very few at risk and is excluded as an artefact.
+    months = [round(m, 1) for m in np.arange(0.5, 11.501, 0.5)]
+    rows = _extract_survival(arr, "navy", (152, 1455, 25, 824), x2px,
+                             MAL_YPX, MAL_YVAL, months)
+    hdr = ("# HIV/ART Malawi PMC13191892 Fig.1 remaining-in-care KM, pre-intervention (navy);\n"
+           "# digitized from pixels. retention S(t); stored F(t)=1-S(t). x=months (capped 11.5).\n")
+    save_csv(os.path.join(OUTDIR, "hiv_malawi_pre_ltfu_cif.csv"), rows, hdr)
+    return rows
+
+
+def do_gambella():
+    p = os.path.join(FIGDIR, "hiv_gambella_PMC12903592_fig2_km_ltfu.png")
+    arr = np.asarray(Image.open(p).convert("RGB"))
+    x2px = piecewise(GAM_XPX, GAM_XVAL)
+    years = [round(y, 2) for y in np.arange(1, 4.001, 0.25)]
+    # box top at y=100 excludes the navy title text above the plot frame
+    rows = _extract_survival(arr, "navy", (126, 1495, 100, 855), x2px,
+                             GAM_YPX, GAM_YVAL, years)
+    # analysis time is in years -> store as months for a common time unit
+    rows = [(round(y * 12, 1), v) for y, v in rows]
+    hdr = ("# HIV/ART Gambella PMC12903592 Fig.2 overall LTFU KM survivor (navy);\n"
+           "# digitized from pixels. retention S(t); stored F(t)=1-S(t).\n"
+           "# x-axis 'analysis time' in years (1-4); stored as months (x12). Window is\n"
+           "# left-truncated at 1 year (first plotted time), so k describes the 12-48 mo range.\n")
+    save_csv(os.path.join(OUTDIR, "hiv_gambella_ltfu_cif.csv"), rows, hdr)
+    return rows
+
+
 if __name__ == "__main__":
     rc = do_china()
     re = do_ethiopia()
     ra = do_art()
     rp = do_antipsychotic()
+    matt, mbtt = do_maputo()
+    mpre = do_malawi()
+    gam = do_gambella()
     print("\nChina F(t):", [(m, round(v, 3)) for m, v in rc])
     print("Ethiopia F(t):", [(m, round(v, 3)) for m, v in re])
     print("ART F(t):", [(m, round(v, 3)) for m, v in ra])
     print("Antipsychotic F(t):", [(m, round(v, 3)) for m, v in rp])
+    print("Maputo-ATT F(t):", [(m, round(v, 3)) for m, v in matt])
+    print("Maputo-BTT F(t):", [(m, round(v, 3)) for m, v in mbtt])
+    print("Malawi-pre F(t):", [(m, round(v, 3)) for m, v in mpre])
+    print("Gambella F(t):", [(m, round(v, 3)) for m, v in gam])

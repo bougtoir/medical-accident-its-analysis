@@ -1,0 +1,18 @@
+# HIV/ART Gambella PMC12903592 Fig.2 overall LTFU KM survivor (navy);
+# digitized from pixels. retention S(t); stored F(t)=1-S(t).
+# x-axis 'analysis time' in years (1-4); stored as months (x12). Window is
+# left-truncated at 1 year (first plotted time), so k describes the 12-48 mo range.
+time_months,cum_ltfu_incidence
+12.0,0.0124
+15.0,0.0242
+18.0,0.0331
+21.0,0.0366
+24.0,0.0497
+27.0,0.0622
+30.0,0.0849
+33.0,0.0849
+36.0,0.1064
+39.0,0.1506
+42.0,0.1506
+45.0,0.1506
+48.0,0.1754

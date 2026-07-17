@@ -38,6 +38,40 @@ figure images are stored under `data/figures/`.
 - File: `data/figures/art_PMC12953970_fig1_km_retention.jpg`
   (from SAGE supplementary package, open access). → `data/art_ltfu_cif.csv`.
 
+### HIV/ART — Maputo, Mozambique
+- Mateus A, Waldman EA. Retention and predictors of loss-to-follow-up among ART
+  patients in the Test-and-Treat Era, Maputo. *BMC Infect Dis* 2026;26:667.
+  PMCID **PMC13037074**, DOI 10.1186/s12879-026-12949-9.
+- Figure **3**: two retention KM curves. **navy** solid = After-Test-and-Treat
+  (ATT); **maroon** = Before-Test-and-Treat (BTT). y-axis: retention S(t);
+  x-axis: 0–80 months. Stored as F(t)=1−S(t).
+- File: `data/figures/hiv_maputo_PMC13037074_fig3_km_retention.png`
+  (media.springernature.com, open access, CC BY). →
+  `data/hiv_maputo_att_ltfu_cif.csv`, `data/hiv_maputo_btt_ltfu_cif.csv`.
+
+### HIV — Malawi
+- Makonokaya L, et al. Retention in HIV care before and after a case-management
+  program in Malawi. *BMC Public Health* 2026;26:1615.
+  PMCID **PMC13191892**, DOI 10.1186/s12889-026-27295-3.
+- Figure **1**: **navy** solid = pre-intervention remaining-in-care KM (used);
+  orange dashed = post-intervention (NOT used). y-axis: remaining in care S(t);
+  x-axis: 0–12 months. Stored as F(t)=1−S(t). Extraction is **capped at 11.5 mo**:
+  a single terminal KM step at exactly 12 mo reflects the last event with very
+  few at risk and is excluded as an artefact.
+- File: `data/figures/hiv_malawi_PMC13191892_fig1_km_care.png`
+  (media.springernature.com, open access, CC BY). → `data/hiv_malawi_pre_ltfu_cif.csv`.
+
+### HIV — Gambella, Ethiopia (youth transitioning to adult care)
+- Dorgi A, et al. Incidence and predictors of LTFU among youth living with HIV
+  transitioning to adult care, Gambella. *BMC Infect Dis* 2026;26:336.
+  PMCID **PMC12903592**, DOI 10.1186/s12879-026-12596-0.
+- Figure **2**: overall **navy** KM survivor curve (time-to-LTFU). x-axis is
+  *analysis time* in **years (1–4)**; stored as months (×12). y-axis: survival
+  S(t). Stored as F(t)=1−S(t). The plot begins at 1 year, so the window is
+  **left-truncated** and the fit describes the 12–48 month range only.
+- File: `data/figures/hiv_gambella_PMC12903592_fig2_km_ltfu.png`
+  (media.springernature.com, open access, CC BY). → `data/hiv_gambella_ltfu_cif.csv`.
+
 ### Antipsychotic
 - Time to discontinuation of the initially prescribed antipsychotic in routine
   practice, *Eur Psychiatry* 2025. PMCID **PMC12437960**,

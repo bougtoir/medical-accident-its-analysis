@@ -31,27 +31,35 @@ def main():
     panels = [
         ("TB-Ethiopia", "ethiopia_ltfu_cif.csv", "Months"),
         ("TB-China", "china_ltfu_cif.csv", "Months"),
-        ("ART/HIV", "art_ltfu_cif.csv", "Months"),
+        ("ART/HIV-Ethiopia", "art_ltfu_cif.csv", "Months"),
+        ("HIV-Maputo-ATT", "hiv_maputo_att_ltfu_cif.csv", "Months"),
+        ("HIV-Maputo-BTT", "hiv_maputo_btt_ltfu_cif.csv", "Months"),
+        ("HIV-Malawi-pre", "hiv_malawi_pre_ltfu_cif.csv", "Months"),
+        ("HIV-Gambella", "hiv_gambella_ltfu_cif.csv", "Months"),
         ("Antipsychotic", "antipsychotic_ltfu_cif.csv", "Days"),
     ]
-    fig, axes = plt.subplots(2, 2, figsize=(11, 8.5))
+    fig, axes = plt.subplots(4, 2, figsize=(11, 15))
     for ax, (name, fn, unit) in zip(axes.ravel(), panels):
         df = load(fn)
         r = fits.loc[name]
+        tmin = df["time_months"].min()
         tmax = df["time_months"].max()
-        tt = np.linspace(0.01, tmax, 300)
-        ax.scatter(df["time_months"], df["cum_ltfu_incidence"], s=18, color="#333",
+        tt = np.linspace(max(0.01, tmin * 0.5), tmax, 300)
+        color = "#c0392b" if r["k"] > 1 else "#2c6fbb"
+        ax.scatter(df["time_months"], df["cum_ltfu_incidence"], s=16, color="#333",
                    label="Digitized data", zorder=3)
-        ax.plot(tt, weibull_cdf(tt, r["k"], r["lam"]), color="#c0392b", lw=2,
+        ax.plot(tt, weibull_cdf(tt, r["k"], r["lam"]), color=color, lw=2,
                 label=f"Weibull fit (k={r['k']:.2f}, 95%CI {r['k_lo']:.2f}-{r['k_hi']:.2f})")
-        ax.set_title(f"{name}  \u2014  {r['hazard_pattern']}", fontsize=11)
+        ax.set_title(f"{name}  \u2014  {r['hazard_pattern']}", fontsize=10.5)
         ax.set_xlabel(f"Time ({unit})")
-        ax.set_ylabel("Cumulative LTFU / discontinuation incidence")
-        ax.legend(fontsize=8, loc="best")
+        ax.set_ylabel("Cumulative LTFU incidence")
+        ax.legend(fontsize=7.5, loc="best")
         ax.grid(alpha=0.3)
-    fig.suptitle("Weibull fits to real, digitized treatment dropout curves (TB vs comparators)",
+    fig.suptitle("Weibull fits to real, digitized treatment dropout curves\n"
+                 "(two TB cohorts and six comparators): hazard shape (k) is heterogeneous "
+                 "within TB and within HIV alike",
                  fontsize=12)
-    fig.tight_layout(rect=[0, 0, 1, 0.97])
+    fig.tight_layout(rect=[0, 0, 1, 0.975])
     out = os.path.join(FIGDIR, "weibull_real_fits.png")
     fig.savefig(out, dpi=150)
     print("wrote", out)

@@ -90,7 +90,11 @@ def main():
     specs = [
         ("TB-Ethiopia", "ethiopia_ltfu_cif.csv", "PMC10290796 Fig.1a (competing-risk CIF, 6 mo)"),
         ("TB-China", "china_ltfu_cif.csv", "PMC10167013 Fig.3 (All-TB KM retention, 12 mo)"),
-        ("ART/HIV", "art_ltfu_cif.csv", "PMC12953970 Fig.1A (retention KM, months)"),
+        ("ART/HIV-Ethiopia", "art_ltfu_cif.csv", "PMC12953970 Fig.1A (retention KM, months)"),
+        ("HIV-Maputo-ATT", "hiv_maputo_att_ltfu_cif.csv", "PMC13037074 Fig.3 (ATT retention KM, 0-80 mo)"),
+        ("HIV-Maputo-BTT", "hiv_maputo_btt_ltfu_cif.csv", "PMC13037074 Fig.3 (BTT retention KM, 0-80 mo)"),
+        ("HIV-Malawi-pre", "hiv_malawi_pre_ltfu_cif.csv", "PMC13191892 Fig.1 (pre-intervention care KM, 0-12 mo)"),
+        ("HIV-Gambella", "hiv_gambella_ltfu_cif.csv", "PMC12903592 Fig.2 (overall LTFU KM, 12-48 mo)"),
         ("Antipsychotic", "antipsychotic_ltfu_cif.csv", "PMC12437960 (time-to-discontinuation KM, days)"),
     ]
     rows = []
