@@ -206,15 +206,16 @@ add_heading_styled("Abstract", level=1)
 add_para("Objective", bold=True, space_after=Pt(2))
 add_para(
     "Zero calibration of an invasive arterial pressure transducer removes the "
-    "direct-current (DC) offset but not sensor-gain (scale) error. We examined "
-    "which of the analyses commonly reported in device-validation studies "
-    "actually detect a residual gain error after zeroing, and how a "
-    "frequency-dependent dynamic-response error behaves.")
+    "direct-current (DC) offset but not sensor-gain (scale) error. Because "
+    "device validation and regulatory decisions often rest on the minimal "
+    "Bland\u2013Altman summary, we examined which reported analyses detect a "
+    "residual gain error after zeroing, and how a dynamic-response error "
+    "behaves.")
 
 add_para("Methods", bold=True, space_after=Pt(2))
 add_para(
     f"Using seeded simulations we generated paired device\u2013reference "
-    f"systolic pressures (n = {P['n_static']} per scenario) for four cases: "
+    f"systolic pressures (n = {P['n_static']}) for four cases: "
     "offset only, ideal zeroing, uncompensated gain error, and a gain error "
     "masked by a compensating offset. Each case was assessed with the minimal "
     "Bland\u2013Altman summary (mean bias, limits of agreement), Bland\u2013Altman "
@@ -227,8 +228,8 @@ add_para(
 add_para("Results", bold=True, space_after=Pt(2))
 add_para(
     f"When a 10% gain error was masked by a compensating offset, the mean "
-    f"bias was {signed(st['S4_gain_masked']['bias'])} mmHg (apparently "
-    "acceptable), yet the Bland\u2013Altman regression slope "
+    f"bias was {signed(st['S4_gain_masked']['bias'])} mmHg (acceptable), yet "
+    "the Bland\u2013Altman regression slope "
     f"({f3(st['S4_gain_masked']['prop_slope'])}), Deming slope "
     f"({f3(st['S4_gain_masked']['deming_slope'])}), Passing\u2013Bablok slope "
     f"({f3(st['S4_gain_masked']['pb_slope'])}) and CCC scale shift "
@@ -237,14 +238,16 @@ add_para(
     f"{round((dy['underdamped_pp']['mean_ratio']-1)*100)}% and overdamping "
     f"attenuated it by {round((1-dy['overdamped_pp']['mean_ratio'])*100)}%; "
     "these errors persist after zeroing and are diagnosed by the fast-flush "
-    "test. CCC rose with the sampled pressure range for one fixed device "
+    "test. CCC rose with the sampled range for one device "
     f"(from {f2(rg['ccc'][0])} to {f2(rg['ccc'][-1])}).")
 
 add_para("Conclusions", bold=True, space_after=Pt(2))
 add_para(
-    "A mean-bias limits-of-agreement summary can miss a clinically relevant "
-    "gain error; proportional-bias\u2013aware analyses and an explicit "
-    "dynamic-response check should be reported alongside it.")
+    "Read alone, a mean-bias limits-of-agreement summary can miss a clinically "
+    "relevant gain error. Validation and device-approval reports should add a "
+    "proportional-bias\u2013aware analysis, the CCC decomposition with the "
+    "sampled range, and a dynamic-response check, and define a design target "
+    "(scale shift \u2248 1 without calibration) for self-calibrating sensors.")
 doc.add_page_break()
 
 # ══════════════════════════════════════════════════════════════════
@@ -259,24 +262,59 @@ add_para_with_refs(
     "atmosphere at the level of the phlebostatic axis before monitoring "
     + C.cite("saugel2020", "saugelsessler2021") + ", and repeats zeroing "
     "whenever the height relationship between transducer and catheter changes "
-    + C.cite("gupta2025") + ".")
+    + C.cite("gupta2025") + ". In a fluid-filled line the external transducer "
+    "is coupled to the catheter tip by a saline column, which introduces "
+    "direct-current (DC) offsets: the hydrostatic pressure difference between "
+    "transducer and measurement site, the atmospheric reference of gauge "
+    "pressure, and slow transducer drift" + C.cite("mark1998", "mcghee2002") +
+    ". Zeroing removes all of these offsets at once, but it is purely an "
+    "offset correction: it does not verify the gain (sensitivity) of the "
+    "system, that is, the proportionality between a true pressure change and "
+    "the displayed value. If the gain is wrong, the waveform is scaled and the "
+    "error persists after zeroing. Our first question is therefore whether, "
+    "after correct zeroing, a residual gain (scale) error can remain.")
 
 add_para_with_refs(
-    "In a fluid-filled arterial line the external transducer is connected to "
-    "the catheter tip by a saline column, which introduces direct-current "
-    "(DC) offsets: the hydrostatic pressure difference between transducer and "
-    "measurement site, the atmospheric reference of gauge pressure, and slow "
-    "transducer drift" + C.cite("mark1998", "mcghee2002") + ". Zero "
-    "calibration removes all of these offsets at once.")
+    "A second, frequency-dependent gain error arises from the dynamic response "
+    "of the fluid-filled system: under- or over-damping distorts the pulsatile "
+    "signal and therefore pulse pressure" + C.cite("gardner1981") + ". This "
+    "pulsatile gain error also survives zeroing and, unlike a static scale "
+    "error, varies with heart rate; our second question is how it behaves and "
+    "how it should be checked at the bedside.")
 
 add_para_with_refs(
-    "Zeroing, however, is purely an offset correction: it does not verify the "
-    "gain (sensitivity) of the system, that is, the proportionality between a true "
-    "pressure change and the displayed value. If the gain is wrong, the "
-    "waveform is scaled and the error persists after zeroing. A second, "
-    "frequency-dependent gain error arises from the dynamic response of the "
-    "fluid-filled system: under- or over-damping distorts the pulsatile "
-    "signal and therefore pulse pressure" + C.cite("gardner1981") + ".")
+    "How agreement is judged is the third issue. Validation studies for "
+    "arterial pressure and derived haemodynamic monitors overwhelmingly report "
+    "the Bland\u2013Altman summary (mean bias and 95% limits of agreement) "
+    + C.cite("blandaltman1986") + " and the Critchley percentage error "
+    + C.cite("critchley1999") + ", with attention to the precision of the "
+    "reference method" + C.cite("cecconi2009") + ". In practice clinicians and "
+    "manufacturers often read this minimal summary as a complete statement of "
+    "agreement. Yet the original Bland\u2013Altman method also includes "
+    "regression of the differences on the mean to detect proportional bias "
+    + C.cite("blandaltman1999") + ", a step that is frequently omitted; when "
+    "an offset and a gain error partially cancel, the mean-bias summary alone "
+    "is misleading. Using a reproducible simulation, and without claiming that "
+    "gain error is invisible to a properly conducted Bland\u2013Altman "
+    "analysis, we ask which analyses actually reported in the literature "
+    "detect a residual gain error after zeroing, and we position Lin\u2019s "
+    "concordance correlation coefficient (CCC) and its scale-shift component "
+    + C.cite("lin1989", "lin2000") + ", together with Deming "
+    + C.cite("linnet1990") + " and Passing\u2013Bablok "
+    + C.cite("passingbablok1983") + " regression, as complementary "
+    "diagnostics, noting that the CCC depends on the sampled pressure range "
+    + C.cite("nickerson1997", "barnhart2007") + ".")
+
+add_para_with_refs(
+    "These choices matter beyond the individual study. Regulatory evaluation "
+    "of a new monitor rests on the same method-comparison statistics, so if "
+    "the reported summary cannot separate offset-corrected agreement from "
+    "genuine gain accuracy, the approval decision inherits that blind spot. We "
+    "therefore use the simulation to define a compact reporting framework, a "
+    "proportional-bias\u2013aware slope, the CCC decomposition and the sampled "
+    "pressure range, together with an explicit dynamic-response check, that is "
+    "meant to be usable both in validation papers and in device-approval "
+    "review.")
 
 add_para_with_refs(
     "Zeroing nevertheless remains indispensable at the bedside, because these "
@@ -288,40 +326,13 @@ add_para_with_refs(
     "reference drifts with weather and altitude; and electrical or thermal "
     "drift accumulates over time" + C.cite("mark1998", "mcghee2002") + ". "
     "Detection is not the same as correction, and the two operate at different "
-    "layers. Method-comparison analyses such as Bland\u2013Altman regression "
-    "are retrospective validation tools that require paired reference "
-    "measurements, which are not available in real time for the patient in "
-    "front of the clinician; zeroing is the only procedure that removes a "
-    "known, setup-specific offset a priori and without a reference. Even when "
-    "a regression reveals an offset, removing it still requires zeroing. "
-    "Zeroing therefore corrects offset operationally, whereas regression and "
-    "CCC decomposition detect residual gain and structure, and neither can "
-    "substitute for the other.")
-
-add_para_with_refs(
-    "Validation studies for arterial pressure and derived haemodynamic "
-    "monitors overwhelmingly report the Bland\u2013Altman summary (mean bias "
-    "and 95% limits of agreement) " + C.cite("blandaltman1986") +
-    " and the Critchley percentage error " + C.cite("critchley1999") +
-    ", with attention to the precision of the reference method "
-    + C.cite("cecconi2009") + ". The original Bland\u2013Altman method also "
-    "includes regression of the differences on the mean to detect "
-    "proportional bias " + C.cite("blandaltman1999") + ", but this step is "
-    "frequently omitted, and the mean-bias summary alone can be misleading "
-    "when an offset and a gain error partially cancel.")
-
-add_para_with_refs(
-    "We do not claim that gain error is invisible to a properly conducted "
-    "Bland\u2013Altman analysis. Rather, using a reproducible simulation, we "
-    "quantify which of the analyses actually reported in the literature "
-    "detect a residual gain error after zeroing, and we position Lin\u2019s "
-    "concordance correlation coefficient (CCC) and its scale-shift component "
-    + C.cite("lin1989", "lin2000") + ", together with Deming " +
-    C.cite("linnet1990") + " and Passing\u2013Bablok " +
-    C.cite("passingbablok1983") + " regression, as complementary diagnostics. "
-    "We also integrate the dynamic-response (damping) error, which is specific "
-    "to fluid-filled arterial lines, and discuss the range-dependence of the CCC " +
-    C.cite("nickerson1997", "barnhart2007") + ".")
+    "layers: method-comparison analyses are retrospective and need paired "
+    "reference measurements that are not available in real time, whereas "
+    "zeroing removes a known, setup-specific offset a priori and without a "
+    "reference. This also indicates the design horizon, because if the offset "
+    "sources are engineered out of the hardware the need to zero disappears, "
+    "leaving gain and dynamic response as the residual design and validation "
+    "targets, the same quantities our framework isolates.")
 
 # ══════════════════════════════════════════════════════════════════
 # 2. METHODS
@@ -603,15 +614,32 @@ add_para_with_refs(
 # ══════════════════════════════════════════════════════════════════
 add_heading_styled("5. Conclusion", level=1)
 add_para_with_refs(
-    "Zero calibration corrects offset but not gain. A mean-bias\u2013plus"
-    "\u2013limits-of-agreement summary can miss a residual gain error when an "
-    "offset masks it, whereas Bland\u2013Altman regression, Deming and "
-    "Passing\u2013Bablok regression, and the CCC scale shift detect it. Dynamic"
-    "-response error is a distinct, frequency-dependent gain error diagnosed "
-    "by the fast-flush test. We recommend that arterial pressure validation "
-    "studies report a proportional-bias\u2013aware analysis, the CCC "
-    "decomposition with the sampled range, and an explicit dynamic-response "
-    "check.")
+    "Zero calibration corrects offset but not gain, and a residual scale error "
+    "can persist after perfect zeroing.")
+add_para_with_refs(
+    "Dynamic-response error is a distinct, frequency-dependent gain error that "
+    "also survives zeroing and is diagnosed at the bedside by the fast-flush "
+    "test.")
+add_para_with_refs(
+    "Read on its own, a mean-bias\u2013plus\u2013limits-of-agreement summary "
+    "can miss such a gain error when an offset masks it, whereas Bland\u2013"
+    "Altman regression, Deming and Passing\u2013Bablok regression, and the CCC "
+    "scale shift all detect it. The message for clinicians and manufacturers "
+    "is not to abandon Bland\u2013Altman but to use it with its regression step "
+    "and these complementary analyses.")
+add_para_with_refs(
+    "We recommend that arterial pressure validation studies, and device-"
+    "approval evaluations, report a proportional-bias\u2013aware analysis, the "
+    "CCC decomposition with the sampled pressure range, and an explicit "
+    "dynamic-response check, so that offset-corrected agreement is not mistaken "
+    "for gain accuracy.")
+add_para_with_refs(
+    "Because zeroing addresses only the operational offset, designing the "
+    "offset sources out of the hardware would make zeroing unnecessary and "
+    "leave gain and dynamic response as the residual targets; expressing the "
+    "remaining systematic error as the scale shift v gives a concrete design "
+    "goal (v \u2248 1 without calibration) for the next generation of "
+    "self-calibrating arterial pressure sensors.")
 
 # ══════════════════════════════════════════════════════════════════
 # DECLARATIONS (conflicts of interest and funding are stated on the title
