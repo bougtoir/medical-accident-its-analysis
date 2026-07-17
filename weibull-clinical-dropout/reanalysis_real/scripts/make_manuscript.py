@@ -157,6 +157,7 @@ def build_docx():
         s.left_margin = s.right_margin = Inches(1)
 
     n_inf, n_std, ni_ifr, ni_dfr, ikmin, ikmax = inf_counts()
+    n_tb = int(sum(1 for d in FITS.index if str(d).startswith("TB-")))
     hits = SCOPING["europepmc_hit_count"] or "the identified"
     sdate = SCOPING["search_date"] or ""
 
@@ -362,6 +363,21 @@ def build_docx():
          "so neither an age-at-onset distribution nor an age-by-LTFU-timing interaction can be "
          "fitted here without inventing data. Testing it would require age-stratified time-to-LTFU "
          "curves or individual patient data.")
+    para(doc,
+         "Finally, this scarcity has an equity dimension that is central to the message of this "
+         "study. Sustainable care in settings with constrained health resources and limited access "
+         "depends on planning retention support and then verifying that it works; both require the "
+         "timing of dropout to be recorded and reported, not just its final total. Yet despite the "
+         "very large global burden of tuberculosis{1}, we could recover a reproducibly usable "
+         f"time-to-LTFU curve for only {n_tb} TB cohorts \u2014 from China and Ethiopia \u2014 with "
+         "no such curve available (or openly published) for the many other high-incidence settings, "
+         "which differ in health system, case mix and programme context. A hazard shape measured in "
+         "one country cannot simply be transplanted to another, so the near-absence of comparable "
+         "curves elsewhere means most programmes currently have no local basis on which to time "
+         "support or to test whether an intervention worked. Building and openly sharing "
+         "time-resolved dropout data across many more regions \u2014 for TB and for HIV alike \u2014 "
+         "is therefore not merely a research convenience but a prerequisite for evidence-based, "
+         "sustainable retention care where the need is greatest.")
 
     heading(doc, "Limitations")
     para(doc,
