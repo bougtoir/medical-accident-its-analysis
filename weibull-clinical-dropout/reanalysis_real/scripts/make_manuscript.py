@@ -166,55 +166,41 @@ def build_docx():
                   "tuberculosis and HIV treatment")
     r.bold = True; r.font.size = Pt(15)
     sub = doc.add_paragraph(); sub.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    sub.add_run("Short Communication (scoping study)").italic = True
+    sub.add_run("Original Research Article").italic = True
 
     heading(doc, "Abstract")
     para(doc,
-         "**Objectives** Loss to follow-up (LTFU) undermines tuberculosis (TB) and HIV treatment{1}. "
-         "Its determinants are multilevel and context-dependent{2} and retention interventions show "
-         "inconsistent, setting-specific effectiveness{3}, yet adherence support is often chosen by "
-         "clinical intuition rather than targeted to *when* patients actually disengage. Deciding "
-         "when to intensify support, and later verifying that it worked, requires the *timing* of "
-         "dropout \u2014 the hazard shape \u2014 to be visible in the published evidence. We asked "
-         "how often that timing is actually reported in a reproducibly usable form, and whether, "
-         "where it is, the hazard shape is consistent within and across diseases.")
+         "**Objectives** Loss to follow-up (LTFU) undermines tuberculosis (TB) and HIV treatment{1}; "
+         "its determinants are context-dependent{2} and retention interventions inconsistent{3}, yet "
+         "support is rarely targeted to *when* patients disengage. We asked how often dropout timing "
+         "(the hazard shape) is reported reproducibly and whether it is consistent within and across "
+         "diseases.")
     para(doc,
-         f"**Methods** We ran a reproducible Europe PMC search (open-access TB/HIV LTFU or "
-         f"retention reports mentioning a time-to-event curve; {hits} records"
-         f"{', ' + sdate if sdate else ''}). Our eligibility criterion was pragmatic and unusual: a "
-         "figure had to make dropout *visible over time* as a single, cleanly separable, digitizable "
-         "curve (Kaplan\u2013Meier survivor or competing-risk cumulative incidence), not merely a "
-         "final cumulative LTFU proportion. Eligible curves were digitized from figure pixels and "
-         "fitted with a two-parameter Weibull cumulative-incidence model "
-         "F(t)=1\u2212exp(\u2212(t/\u03bb)^k); the shape parameter k (k>1 increasing-failure-rate "
-         "[IFR], support best sustained late; k<1 decreasing-failure-rate [DFR], support best "
-         "front-loaded) was estimated with a bootstrap 95% confidence interval (CI) and compared "
-         "with exponential and log-normal fits by the Akaike information criterion (AIC).",
+         f"**Methods** A reproducible Europe PMC search (open-access TB/HIV reports mentioning a "
+         f"time-to-event curve; {hits} records{', ' + sdate if sdate else ''}) required a single, "
+         "digitizable dropout curve (Kaplan\u2013Meier or competing-risk cumulative incidence), not a "
+         "final proportion. Eligible curves were digitized and fitted "
+         "with a Weibull model F(t)=1\u2212exp(\u2212(t/\u03bb)^k); the shape k (k>1 "
+         "increasing-failure-rate [IFR]; k<1 decreasing-failure-rate [DFR]) was bootstrapped (95% "
+         "confidence interval [CI]) and compared with exponential and log-normal fits by the Akaike "
+         "information criterion (AIC).",
          space_before=4)
     para(doc,
-         f"**Results** Despite thousands of records, only {n_inf} infectious-disease curves from "
-         f"{n_std} studies met the eligibility criterion: two TB cohorts (Ethiopia{{4}}, China{{5}}) "
-         "and five HIV/ART cohorts (Ethiopia{6}, Maputo After- and Before-Test-and-Treat{7}, "
-         "Malawi{8}, Gambella youth{9}); the vast majority reported only a final proportion. Among "
-         f"the {n_inf} eligible curves the shape parameter ranged from k={ikmin:.2f} to k={ikmax:.2f} "
-         f"({ni_ifr} IFR, {ni_dfr} DFR), and heterogeneity appeared **within** as well as between "
-         f"diseases: the two TB cohorts fell on opposite sides of k=1 (Ethiopia k={kfmt('TB-Ethiopia')}, "
-         f"IFR; China k={kfmt('TB-China')}, DFR), and the HIV/ART cohorts likewise split (Maputo "
-         f"k={kfmt('HIV-Maputo-ATT')} and k={kfmt('HIV-Maputo-BTT')}, Gambella k={kfmt('HIV-Gambella')} "
-         f"increasing-hazard; Ethiopia-ART k={kfmt('ART/HIV-Ethiopia')} and Malawi "
-         f"k={kfmt('HIV-Malawi-pre')} decreasing-hazard). A non-infectious antipsychotic "
-         f"time-to-discontinuation curve{{10}} shown for contrast was also DFR (k={kfmt('Antipsychotic')}).",
+         f"**Results** Despite {hits} records, only {n_inf} infectious-disease curves from {n_std} "
+         f"studies qualified: two TB cohorts (Ethiopia{{4}}, China{{5}}) and five HIV/ART cohorts "
+         "(Ethiopia{6}, Maputo{7}, Malawi{8}, Gambella{9}); most reported only a final proportion. "
+         f"The shape parameter ranged k={ikmin:.2f}\u2013{ikmax:.2f} ({ni_ifr} IFR, {ni_dfr} DFR) and "
+         f"diverged **within** diseases: the two TB cohorts fell on opposite sides of k=1, and the "
+         f"HIV/ART cohorts likewise split. A non-infectious antipsychotic contrast{{10}} was also DFR.",
          space_before=4)
     para(doc,
          "**Conclusions** Reproducibly usable, time-resolved dropout curves are scarce, and where "
-         "they exist the hazard shape is heterogeneous within TB and within HIV alike. The timing of "
-         "retention support therefore cannot be assumed from the disease label or from intuition \u2014 "
-         "it must be located empirically from each setting's dropout hazard shape, which also makes "
-         "an intervention's effect verifiable. The core barrier is a reporting gap: routine "
-         "publication of time-to-LTFU curves (or individual patient data) is needed before "
-         "disease- or setting-specific dropout patterns, and the interventions timed to them, can be "
-         "established and tested.", space_before=4)
-    para(doc, "**Keywords** Tuberculosis; HIV; Loss to follow-up; Retention in care; Scoping review; "
+         "they exist the hazard shape is heterogeneous within TB and within HIV alike. Support timing "
+         "therefore cannot be assumed from the disease label but must be located "
+         "empirically, which also makes an intervention's effect verifiable. The core barrier is a "
+         "reporting gap: time-to-LTFU curves or individual patient data must be published routinely.",
+         space_before=4)
+    para(doc, "**Keywords** Tuberculosis; HIV; Loss to follow-up; Retention in care; Scoping search; "
               "Treatment adherence; Weibull; Hazard function; Survival analysis; Reporting", space_before=4)
 
     heading(doc, "Background")
@@ -461,7 +447,7 @@ def build_title_page():
                   "heterogeneous: a scoping search and Weibull analysis of loss to follow-up in "
                   "tuberculosis and HIV treatment")
     r.bold = True; r.font.size = Pt(14)
-    para(doc, "Article type: Short Communication (scoping study)", space_before=10)
+    para(doc, "Article type: Original Research Article", space_before=10)
     heading(doc, "Authors")
     para(doc, "Tatsuki Onishi [AUTHOR ORDER / ADDITIONAL CO-AUTHORS TO BE CONFIRMED]")
     heading(doc, "Affiliations")
@@ -485,7 +471,7 @@ def build_cover_letter():
     para(doc, "Tropical Medicine & International Health", space_before=2)
     para(doc, "Dear Editors,", space_before=12)
     para(doc,
-         "Please consider our Short Communication (scoping study), \u201cReproducibly digitizable "
+         "Please consider our Original Research Article, \u201cReproducibly digitizable "
          "dropout curves are scarce and their hazard shapes heterogeneous: a scoping search and "
          "Weibull analysis of loss to follow-up in tuberculosis and HIV treatment\u201d, "
          "for publication in Tropical Medicine & International Health.", space_before=8)
