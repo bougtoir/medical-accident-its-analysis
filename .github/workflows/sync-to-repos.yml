@@ -81,6 +81,9 @@ jobs:
           # ── Weibull clinical dropout (separate from weibull-clinical-trial-dropout) ──
           BRANCH_MAP["devin/1776116163-weibull-clinical-dropout"]="weibull-clinical-dropout"
 
+          # ── Weibull TB/HIV LTFU hazard-shape reanalysis (reproducible, real-data only) ──
+          BRANCH_MAP["devin/1784008417-weibull-tb-reproducible-data"]="weibull-tb-ltfu-heterogeneity"
+
           # ── Submissions / revisions ──
           BRANCH_MAP["devin/1776157392-pdr-submission-revision"]="pdr-submission-revision"
           BRANCH_MAP["devin/1776162271-germany-reunification-analysis"]="germany-reunification-analysis"
@@ -251,6 +254,8 @@ jobs:
           SUBDIR_MAP["devin/1783365908-mnras-submission"]="threebody_pk_compartment"
           SUBDIR_MAP["devin/1783649000-ijcip-submission"]="discharged_secrets_ijcip"
           SUBDIR_MAP["devin/1783957193-discharged-secrets-scoping-review"]="discharged_secrets_ijcip"
+          # Publish ONLY the clean, reproducible reanalysis folder (exclude tainted originals)
+          SUBDIR_MAP["devin/1784008417-weibull-tb-reproducible-data"]="weibull-clinical-dropout/reanalysis_real"
 
           # ── File exclusion map ──
           # Space-separated list of file paths (relative to subdir root if

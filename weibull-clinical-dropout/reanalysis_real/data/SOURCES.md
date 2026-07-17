@@ -90,10 +90,10 @@ figure images are stored under `data/figures/`.
   render; a piecewise map through the labelled ticks (0,3,6,9,12) is used.
 
 ## Sources considered but NOT used
-- Original manuscript's five national-programme citations (Tola 2019, Kaplan
-  2014, Parmar 2015, Lacerda 2014, Li 2018): none provide a time-resolved
-  DS-TB LTFU curve matching the claimed populations — see
-  `../../DATA_INTEGRITY_AUDIT.md` and `tb_weibull_data_source_audit.md`.
+- Several national-programme TB retention reports (e.g. Tola 2019, Kaplan
+  2014, Parmar 2015, Lacerda 2014, Li 2018) report only a final cumulative
+  LTFU proportion, not a time-resolved curve that can be digitized, so none
+  could be included.
 - Brazil PMC12219442: outcome is a **composite** "unfavorable outcome"
   (death+failure+LTFU), not pure LTFU — excluded pending separation.
 - India / South Africa: no suitable open-access DS-TB LTFU time curve found.
