@@ -171,8 +171,8 @@ def build_docx():
 
     heading(doc, "Abstract")
     para(doc,
-         "**Objectives** Loss to follow-up (LTFU) undermines tuberculosis (TB) and HIV treatment{1}; "
-         "its determinants are context-dependent{2} and retention interventions inconsistent{3}, yet "
+         "**Objectives** Loss to follow-up (LTFU) undermines tuberculosis (TB) and HIV treatment; "
+         "its determinants are context-dependent and retention interventions inconsistent, yet "
          "support is rarely targeted to *when* patients disengage. We asked how often dropout timing "
          "(the hazard shape) is reported reproducibly and whether it is consistent within and across "
          "diseases.")
@@ -188,12 +188,12 @@ def build_docx():
          space_before=4)
     para(doc,
          f"**Results** Despite {hits} records, only {n_inf} infectious-disease curves from {n_std} "
-         f"studies qualified: two TB cohorts (Ethiopia{{4}}, China{{5}}) and five HIV/ART curves "
-         "(Ethiopia{6}, Maputo (2 curves){7}, Malawi{8}, Gambella{9}); most reported only a final "
+         f"studies qualified: two TB cohorts (Ethiopia, China) and five HIV/ART curves "
+         "(Ethiopia, Maputo [2 curves], Malawi, Gambella); most reported only a final "
          "proportion. "
          f"The shape parameter ranged k={ikmin:.2f}\u2013{ikmax:.2f} ({ni_ifr} IFR, {ni_dfr} DFR) and "
          f"diverged **within** diseases: the two TB cohorts fell on opposite sides of k=1, and the "
-         f"HIV/ART cohorts likewise split. A non-infectious antipsychotic contrast{{10}} was also DFR.",
+         f"HIV/ART cohorts likewise split. A non-infectious antipsychotic contrast was also DFR.",
          space_before=4)
     para(doc,
          "**Conclusions** Reproducibly usable, time-resolved dropout curves are scarce, and where "
