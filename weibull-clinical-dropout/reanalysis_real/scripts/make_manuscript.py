@@ -171,20 +171,19 @@ def build_docx():
 
     heading(doc, "Abstract")
     para(doc,
-         "**Objectives** Loss to follow-up (LTFU) undermines tuberculosis (TB) and HIV treatment; "
-         "its determinants are context-dependent and retention interventions inconsistent, yet "
-         "support is rarely targeted to *when* patients disengage. We asked how often dropout timing "
-         "(the hazard shape) is reported reproducibly and whether it is consistent within and across "
-         "diseases.")
+         "**Objectives** Loss to follow-up (LTFU) undermines tuberculosis (TB) and HIV treatment, yet "
+         "support is rarely targeted to *when* patients disengage. The clinical question is whether "
+         "dropout is homogeneous enough for its timing to be inferred from the diagnosis. We "
+         "asked whether the hazard shape is consistent within and across diseases, "
+         "and how often it is reported in a reproducibly usable form.")
     para(doc,
          f"**Methods** A reproducible Europe PMC search (open-access TB/HIV reports mentioning a "
          f"time-to-event curve; {hits} records{', ' + sdate if sdate else ''}) required a single, "
          "digitizable dropout curve (Kaplan\u2013Meier or competing-risk cumulative incidence), not a "
          "final proportion. Eligible curves were digitized and fitted "
          "with a Weibull model F(t)=1\u2212exp(\u2212(t/\u03bb)^k); the shape k (k>1 "
-         "increasing-failure-rate [IFR]; k<1 decreasing-failure-rate [DFR]) was bootstrapped (95% "
-         "confidence interval [CI]) and compared with exponential and log-normal fits by the Akaike "
-         "information criterion (AIC).",
+         "increasing-failure-rate [IFR]; k<1 decreasing-failure-rate [DFR]) was bootstrapped and "
+         "compared with exponential and log-normal fits by the Akaike information criterion (AIC).",
          space_before=4)
     para(doc,
          f"**Results** Despite {hits} records, only {n_inf} infectious-disease curves from {n_std} "
@@ -193,11 +192,11 @@ def build_docx():
          "proportion. "
          f"The shape parameter ranged k={ikmin:.2f}\u2013{ikmax:.2f} ({ni_ifr} IFR, {ni_dfr} DFR) and "
          f"diverged **within** diseases: the two TB cohorts fell on opposite sides of k=1, and the "
-         f"HIV/ART cohorts likewise split. A non-infectious antipsychotic contrast was also DFR.",
+         f"HIV/ART cohorts likewise split.",
          space_before=4)
     para(doc,
          "**Conclusions** Reproducibly usable, time-resolved dropout curves are scarce, and where "
-         "they exist the hazard shape is heterogeneous within TB and within HIV alike. Support timing "
+         "they exist the hazard shape is heterogeneous within both TB and HIV. Support timing "
          "therefore cannot be assumed from the disease label but must be located "
          "empirically, which also makes an intervention's effect verifiable. The core barrier is a "
          "reporting gap: time-to-LTFU curves or individual patient data must be published routinely.",
@@ -222,7 +221,10 @@ def build_docx():
          "What has been missing is a *quantitative* description of the phenomenon that plausibly "
          "underlies this: whether patients across settings even disengage on the same time-course. "
          "Programmatic reports usually give a single cumulative LTFU proportion, which hides *when* "
-         "during treatment patients leave. The hazard shape carries direct operational meaning: an "
+         "during treatment patients leave. This raises the clinical question at the centre of this "
+         "study: is dropout homogeneous enough that the timing of retention support can be inferred "
+         "from the diagnosis, or must the hazard shape be measured in each setting? The hazard shape "
+         "carries direct operational meaning: an "
          "increasing hazard (k>1) argues for intensified support later in treatment, a decreasing "
          "hazard (k<1) for front-loading it in the earliest weeks. Making, and later verifying, such "
          "timing decisions requires the shape to be recoverable from the published evidence in the "
@@ -262,8 +264,9 @@ def build_docx():
          "extractor with axis calibration read from the figure tick marks (values taken from curve "
          "pixels, not entered by hand); the original figure images and digitized coordinates are in "
          "the public repository. For each dataset we fitted the Weibull cumulative-incidence model "
-         "F(t)=1\u2212exp(\u2212(t/\u03bb)^k) by nonlinear least squares, obtained a bootstrap 95% CI "
-         "for k, and compared the fit with exponential (k=1) and log-normal models by AIC. The shape "
+         "F(t)=1\u2212exp(\u2212(t/\u03bb)^k) by nonlinear least squares, obtained a bootstrap 95% "
+         "confidence interval (CI) for k, and compared the fit with exponential (k=1) and log-normal "
+         "models by the Akaike information criterion (AIC). The shape "
          "parameter k is unit-free, so mixed follow-up units (months, days) do not affect the "
          "cross-study comparison of shape. Data, code and a one-command build that regenerates every "
          "reported number, Table 1 and Figure 1 are openly available (Availability of data and "
@@ -325,34 +328,38 @@ def build_docx():
 
     heading(doc, "Discussion")
     para(doc,
-         "The analysis puts a number on an accepted but qualitative problem and turns it in a "
-         "practical direction. It is already known that treatment-interruption determinants are "
-         "context-dependent{2} and that retention interventions do not transfer cleanly between "
-         "settings{3}; our contribution is to show that this heterogeneity is visible in the "
-         "**hazard shape itself** and, importantly, that it is not confined to a single disease. "
-         "Both the two TB cohorts and the HIV/ART cohorts fell on opposite sides of k=1, so there "
-         "was no characteristic \u2018TB shape\u2019 or \u2018HIV shape\u2019: the direction of the "
-         "dropout hazard varied from cohort to cohort within the same disease. The direct "
-         "implication is that retention is not a matter of exhorting patients to try harder, and "
-         "the timing of support cannot be read off the diagnosis. Because the hazard shape encodes "
-         "*when* patients disengage, it maps onto the timing of adherence support: a front-loaded "
-         "(DFR) setting argues for concentrating counselling, financial or social support in the "
-         "earliest weeks, whereas a late-accelerating (IFR) setting argues for sustained or "
-         "intensified support later in treatment. A package optimized for one shape will be "
-         "mistimed in the other \u2014 a concrete, quantitative reason why globally standardized "
-         "adherence interventions have shown inconsistent effects{3}.")
+         "The clinical question posed at the outset was whether dropout is homogeneous enough for "
+         "the timing of retention support to be inferred from the diagnosis. Our results answer it "
+         "in the negative. Across the eligible curves the Weibull hazard shape was heterogeneous "
+         "not only between diseases but within them: both the two TB cohorts and the HIV/ART cohorts "
+         "fell on opposite sides of k=1, so there was no characteristic \u2018TB shape\u2019 or "
+         "\u2018HIV shape\u2019 and the direction of the dropout hazard varied from cohort to cohort "
+         "within the same disease. Dropout is therefore not homogeneous enough to read the timing of "
+         "support off the diagnostic label: retention is not simply a matter of exhorting patients "
+         "to try harder, and *when* to strengthen support cannot be assumed from the diagnosis. This "
+         "gives a concrete, quantitative mechanism for the already-established observations that "
+         "treatment-interruption determinants are context-dependent{2} and that retention "
+         "interventions do not transfer cleanly between settings{3}.")
     para(doc,
-         "This reframes retention design as a measurement problem before it is an intervention "
-         "problem. Choosing a support package because it seems sensible, without first locating a "
-         "setting's dropout hazard shape, risks both mistiming the support and losing the ability "
-         "to tell whether it worked: an effect concentrated in the wrong phase of treatment can be "
-         "invisible against the actual dropout dynamics. Estimating the shape first gives a "
-         "pre-specified, falsifiable target \u2014 shift the hazard at the phase where dropout "
-         "concentrates \u2014 against which an intervention can be evaluated. The Weibull "
-         "cumulative-incidence model used here is a compact and reproducible way to obtain that "
+         "The practical consequence follows directly. Because the hazard shape encodes *when* "
+         "patients disengage, it maps onto the timing of adherence support: a front-loaded (DFR) "
+         "setting argues for concentrating counselling, financial or social support in the earliest "
+         "weeks, whereas a late-accelerating (IFR) setting argues for sustained or intensified "
+         "support later in treatment. A package optimized for one shape will be mistimed in the "
+         "other \u2014 a concrete reason why globally standardized adherence interventions have shown "
+         "inconsistent effects{3}. This reframes retention design as a measurement problem before it "
+         "is an intervention problem: choosing a support package because it seems sensible, without "
+         "first locating a setting's dropout hazard shape, risks both mistiming the support and "
+         "losing the ability to tell whether it worked, because an effect concentrated in the wrong "
+         "phase of treatment can be invisible against the actual dropout dynamics. Estimating the "
+         "shape first gives a pre-specified, falsifiable target \u2014 shift the hazard at the phase "
+         "where dropout concentrates \u2014 against which an intervention can be evaluated; the "
+         "Weibull cumulative-incidence model used here is a compact, reproducible way to obtain that "
          "shape from a single published curve.")
     para(doc,
-         "We cannot explain why the shapes diverge, and we do not claim to. The divergence is "
+         "Beyond answering the question, why the shapes diverge is worth considering even though it "
+         "lies beyond what these data can establish. We cannot explain the divergence, and we do "
+         "not claim to. It is "
          "confounded with different outcome definitions (competing-risk cumulative incidence vs "
          "all-patient KM), case mix, programme context and unequal observation windows, and it "
          "rests on digitized aggregate curves rather than individual patient data. One candidate "
