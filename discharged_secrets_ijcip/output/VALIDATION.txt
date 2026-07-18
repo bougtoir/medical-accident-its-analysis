@@ -1,8 +1,8 @@
 Submission validation report
 ==============================
 
-word_count: 2491
-abstract_words: 213
+word_count: 2495
+abstract_words: 214
 policy_significance_words: 121
 keywords: 5
 references: 30

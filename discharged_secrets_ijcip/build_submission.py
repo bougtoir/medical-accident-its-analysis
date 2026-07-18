@@ -17,6 +17,7 @@ import csv
 import re
 import shutil
 import textwrap
+from collections import Counter
 import urllib.error
 import urllib.request
 import zipfile
@@ -332,9 +333,10 @@ DECLARATIONS = [
      f"available in the project repository at {PUBLIC_REPO_URL}. This includes "
      "the frozen GBFS registry snapshot and its checksum, the title/abstract "
      "and full-text screening decisions, the disclosure-audit coding sheets "
-     "with verbatim locator quotations, the analysis results, and the figure- "
-     "and table-generation code. Raw vehicle identifiers, exact coordinates, "
-     "and vehicle-specific deep links were not retained. Every count, "
+     "with verbatim locator quotations, the analysis scripts, the analysis "
+     "results, and the figure- and table-generation code. Raw vehicle "
+     "identifiers, exact coordinates, and vehicle-specific deep links were not "
+     "retained; only field presence or absence was recorded. Every count, "
      "proportion, and confidence interval reported in the article can be "
      "regenerated from these materials with a single build command."),
     ("Funding statement",
@@ -415,6 +417,62 @@ def domain_count(domain: str, status: str) -> int:
     return sum(1 for op, cells in DOCMATRIX.items() if cells.get(domain) == status)
 
 
+def load_screening_stats() -> dict[str, int]:
+    """Derive every PRISMA-flow count directly from the committed screening
+    sheet so that no flow number is hard-coded in the manuscript."""
+    rows = list(csv.DictReader(
+        (ROOT / "review" / "screening.csv").open(encoding="utf-8")))
+    ta = Counter(r["title_abstract_decision"] for r in rows)
+    excl = Counter(r["full_text_exclusion_reason"] for r in rows
+                   if r["full_text_decision"] == "exclude")
+    included = [r for r in rows if r["full_text_decision"] == "include"]
+    dist = Counter(r["evidence_distance"] for r in included)
+    second_pass = [r for r in rows if r["second_pass_decision"].strip()]
+    agree = sum(1 for r in second_pass
+                if r["second_pass_decision"].strip() ==
+                r["title_abstract_decision"].strip())
+    n_no_data_path = excl["F1_NO_RELEVANT_DATA_PATH"]
+    n_not_transferable = excl["F2_MECHANISM_NOT_TRANSFERABLE"]
+    return {
+        "identified": len(rows),
+        "ta_excluded": ta["exclude"],
+        "sought": ta["include"] + ta["uncertain"],
+        "not_retrieved": excl["F4_NOT_RETRIEVED"],
+        "no_data_path": n_no_data_path,
+        "not_transferable": n_not_transferable,
+        "excluded_fulltext": n_no_data_path + n_not_transferable,
+        "included": len(included),
+        "with_doi": sum(1 for r in rows if r["doi"].strip()),
+        "d4": dist["D4"], "d3": dist["D3"], "d2": dist["D2"],
+        "resample_n": len(second_pass),
+        "resample_agreement_pct":
+            round(100 * agree / len(second_pass)) if second_pass else 0,
+    }
+
+
+def _summary_int(stratum: str, metric: str, field: str) -> int:
+    return int(g(stratum, metric, field))
+
+
+SCR = load_screening_stats()
+
+# Audit totals, all read from the reproducible GBFS summary rather than typed.
+N_REGISTRY = _summary_int(
+    "all_registry_entries", "auto_discovery_reachable", "denominator")
+N_REACHABLE = _summary_int(
+    "all_registry_entries", "auto_discovery_reachable", "count")
+N_MOTOR_FEEDS = _summary_int(
+    "declared_motorized_micromobility_feeds", "has_vehicle_id", "denominator")
+N_OP_DOMAINS = _summary_int(
+    "declared_motorized_micromobility_operator_domains_any",
+    "has_vehicle_id", "denominator")
+
+
+def fmt(n: int) -> str:
+    """Render an integer with thousands separators (e.g. 2169 -> '2,169')."""
+    return f"{n:,}"
+
+
 # ---------------------------------------------------------------------------
 # Figures (English text only, per manuscript language rule)
 # ---------------------------------------------------------------------------
@@ -422,21 +480,22 @@ FIG_CAPTIONS = {
     1: ("Figure 1. PRISMA-ScR flow of record identification, title/abstract "
         "screening, full-text eligibility assessment, and inclusion. Counts are "
         "reproduced from the committed screening sheet."),
-    2: ("Figure 2. Evidence map of the 18 included direct studies by evidence "
-        "distance (D4 direct empirical, D3 direct documentary, D2 near-domain "
-        "empirical) and lifecycle stage addressed. A study that addresses more "
-        "than one stage is counted in each relevant stage, so row totals may "
-        "exceed the number of studies at that distance."),
-    3: ("Figure 3. Prevalence of disclosed fields in 813 successfully retrieved, "
-        "non-empty public vehicle-status feeds that declared motorized "
-        "micromobility. Bars show the point estimate; whiskers show the 95% "
-        "Wilson confidence interval. Field presence is a disclosure signal, not "
-        "evidence of a privacy harm."),
-    4: ("Figure 4. Disclosure-domain coding of public operator privacy notices "
-        "across 14 domains (n = 13 coded operators; 2 further operators were "
-        "unavailable for reproducible retrieval). Cells show explicit, partial, "
-        "or not-found coding; not-found denotes silence in the document, not "
-        "evidence that a practice is absent."),
+    2: (f"Figure 2. Evidence map of the {SCR['included']} included direct studies "
+        "by evidence distance (D4 direct empirical, D3 direct documentary, D2 "
+        "near-domain empirical) and lifecycle stage addressed. A study that "
+        "addresses more than one stage is counted in each relevant stage, so row "
+        "totals may exceed the number of studies at that distance."),
+    3: (f"Figure 3. Prevalence of disclosed fields in {fmt(N_MOTOR_FEEDS)} "
+        "successfully retrieved, non-empty public vehicle-status feeds that "
+        "declared motorized micromobility. Bars show the point estimate; "
+        "whiskers show the 95% Wilson confidence interval. Field presence is a "
+        "disclosure signal, not evidence of a privacy harm."),
+    4: (f"Figure 4. Disclosure-domain coding of public operator privacy notices "
+        f"across {len(DOMAINS)} domains (n = {N_CODED} coded operators; "
+        f"{N_OPERATORS - N_CODED} further operators were unavailable for "
+        "reproducible retrieval). Cells show explicit, partial, or not-found "
+        "coding; not-found denotes silence in the document, not evidence that a "
+        "practice is absent."),
     5: ("Figure 5. Lifecycle data-exposure model linking each stage to the "
         "evidence distance of its supporting sources and to a proposed, as-yet "
         "unvalidated control. Solid boxes denote stages with direct (D3-D4) "
@@ -459,11 +518,11 @@ PALETTE = {
 def fig1_prisma(ax) -> None:
     ax.axis("off")
     boxes = [
-        (0.5, 0.93, "Records identified from\nbibliographic sources (n = 2,169)"),
-        (0.5, 0.75, "Records screened on title/abstract\n(n = 2,169)"),
-        (0.5, 0.55, "Records sought for full-text\nassessment (n = 224)"),
-        (0.5, 0.33, "Full-text records assessed\nfor eligibility (n = 224)"),
-        (0.5, 0.11, "Direct studies included in\nsynthesis (n = 18)"),
+        (0.5, 0.93, f"Records identified from\nbibliographic sources (n = {fmt(SCR['identified'])})"),
+        (0.5, 0.75, f"Records screened on title/abstract\n(n = {fmt(SCR['identified'])})"),
+        (0.5, 0.55, f"Records sought for full-text\nassessment (n = {fmt(SCR['sought'])})"),
+        (0.5, 0.33, f"Full-text records assessed\nfor eligibility (n = {fmt(SCR['sought'])})"),
+        (0.5, 0.11, f"Direct studies included in\nsynthesis (n = {fmt(SCR['included'])})"),
     ]
     for x, y, text in boxes:
         ax.add_patch(FancyBboxPatch((x - 0.22, y - 0.055), 0.44, 0.11,
@@ -472,9 +531,11 @@ def fig1_prisma(ax) -> None:
         ax.text(x, y, text, ha="center", va="center", fontsize=8.5,
                 transform=ax.transAxes)
     excl = [
-        (0.80, 0.75, "Excluded on title/abstract\n(n = 1,945)"),
-        (0.80, 0.44, "Full text not retrieved\n(n = 79)"),
-        (0.80, 0.22, "Excluded at full text (n = 127):\nno relevant data path (n = 90);\nmechanism not transferable (n = 37)"),
+        (0.80, 0.75, f"Excluded on title/abstract\n(n = {fmt(SCR['ta_excluded'])})"),
+        (0.80, 0.44, f"Full text not retrieved\n(n = {fmt(SCR['not_retrieved'])})"),
+        (0.80, 0.22, f"Excluded at full text (n = {fmt(SCR['excluded_fulltext'])}):\n"
+                     f"no relevant data path (n = {fmt(SCR['no_data_path'])});\n"
+                     f"mechanism not transferable (n = {fmt(SCR['not_transferable'])})"),
     ]
     for x, y, text in excl:
         ax.add_patch(FancyBboxPatch((x - 0.18, y - 0.06), 0.36, 0.12,
@@ -558,8 +619,9 @@ def fig3_prevalence(ax) -> None:
     ax.set_xticklabels(labels, fontsize=8)
     ax.set_ylabel("Feeds disclosing the field (%)", fontsize=9)
     ax.set_ylim(0, 108)
-    ax.set_title("Disclosed fields in 813 motorized micromobility vehicle feeds",
-                 fontsize=9.5)
+    ax.set_title(
+        f"Disclosed fields in {fmt(N_MOTOR_FEEDS)} motorized micromobility vehicle feeds",
+        fontsize=9.5)
     ax.spines[["top", "right"]].set_visible(False)
 
 
@@ -682,7 +744,8 @@ def build_tables() -> dict[int, dict]:
             ["Scoping review (WP1)", "Study",
              "Peer-reviewed or archival works reporting a data path in or "
              "transferable to shared micromobility",
-             "Bibliographic search of 2,169 records [[prisma_scr;arksey]]"],
+             f"Bibliographic search of {fmt(SCR['identified'])} records "
+             "[[prisma_scr;arksey]]"],
             ["GBFS field audit (WP2)", "System/feed",
              "Public GBFS systems in the frozen registry with a reachable "
              "auto-discovery endpoint",
@@ -719,9 +782,10 @@ def build_tables() -> dict[int, dict]:
             textwrap.shorten(e["key_result"], width=180, placeholder="..."),
         ])
     t2 = {
-        "title": "Table 2. Included direct studies (n = 18), ordered by evidence "
-                 "distance. Key results are as reported by the source; this "
-                 "review did not reproduce the underlying experiments.",
+        "title": f"Table 2. Included direct studies (n = {len(t2_rows)}), ordered "
+                 "by evidence distance. Key results are as reported by the "
+                 "source; this review did not reproduce the underlying "
+                 "experiments.",
         "headers": ["Study", "Evidence distance", "Device or service",
                     "Reported key result"],
         "rows": t2_rows,
@@ -811,7 +875,8 @@ TABLES = build_tables()
 # are referenced as "Fig. n" / "Table n" and inserted at their first mention.
 # ---------------------------------------------------------------------------
 def body_blocks() -> list[tuple]:
-    n_id = "2,169"
+    n_id = fmt(SCR["identified"])
+    doi_pct = 100 * SCR["with_doi"] / SCR["identified"]
     reach = pct("all_registry_entries", "auto_discovery_reachable")
     reach_ci = ci("all_registry_entries", "auto_discovery_reachable")
     blocks: list[tuple] = []
@@ -884,18 +949,20 @@ def body_blocks() -> list[tuple]:
     blocks.append(("table", 1))
     blocks.append(("h2", "2.2. Scoping review (WP1)"))
     blocks += [("p", t) for t in [
-        "We compiled 2,169 records from programmatic searches of open "
-        "bibliographic metadata. Abstracts were retrieved automatically where a "
-        "digital object identifier (DOI) was available (1,539 of 2,116 DOI "
-        "records; 72.7%); the remaining records were screened on title and "
-        "available metadata only. Title/abstract screening applied a "
-        "deterministic rule set that combined target-domain relevance with the "
-        "presence of a described data path, and recorded a decision and reason "
-        "for every record. Because the rules are deterministic, we re-applied "
-        "them to a delayed 20% sample (n = 447) and reproduced every original "
-        "decision (100% agreement); this demonstrates computational "
-        "reproducibility rather than inter-rater reliability, as a single "
-        "reviewer conducted the screening.",
+        f"We compiled {n_id} records from programmatic searches of open "
+        "bibliographic metadata. A digital object identifier (DOI) was "
+        f"available for {fmt(SCR['with_doi'])} of {n_id} records ({doi_pct:.1f}%), "
+        "for which abstracts were retrieved automatically where possible; the "
+        "remaining records were screened on title and available metadata only. "
+        "Title/abstract screening applied a deterministic rule set that combined "
+        "target-domain relevance with the presence of a described data path, and "
+        "recorded a decision and reason for every record. Because the rules are "
+        "deterministic, we re-applied them to a delayed "
+        f"{round(100 * SCR['resample_n'] / SCR['identified'])}% sample "
+        f"(n = {fmt(SCR['resample_n'])}) and reproduced every original decision "
+        f"({SCR['resample_agreement_pct']}% agreement); this demonstrates "
+        "computational reproducibility rather than inter-rater reliability, as a "
+        "single reviewer conducted the screening.",
         "Records marked include or uncertain were sought for full-text "
         "assessment. Each retrieved study was classified by evidence distance: "
         "D4, direct target-domain empirical evidence; D3, direct target-domain "
@@ -930,7 +997,8 @@ def body_blocks() -> list[tuple]:
     blocks.append(("h2", "2.4. Public-document disclosure audit (WP3)"))
     blocks += [("p", t) for t in [
         "We selected operators from the audited GBFS population and retrieved "
-        "their public privacy notices. For each operator document we coded 14 "
+        f"their public privacy notices. For each operator document we coded "
+        f"{len(DOMAINS)} "
         "disclosure domains - location; trip and time data; vehicle "
         "identifiers; battery or diagnostic data; maintenance or repair "
         "records; account, payment, and device data; analytics or profiling; "
@@ -950,13 +1018,16 @@ def body_blocks() -> list[tuple]:
     blocks.append(("h1", "3. Results"))
     blocks.append(("h2", "3.1. Scoping review (RQ1)"))
     blocks += [("p", t) for t in [
-        f"Of {n_id} records screened, 1,945 were excluded at title/abstract and "
-        "224 were sought for full text (Fig. 1). Of these, 79 could not be "
-        "retrieved and were recorded as such rather than assessed; 127 "
-        "retrieved records were excluded because they contained no relevant "
-        "data path (90) or described a mechanism that did not transfer to the "
-        "target domain (37). Eighteen direct studies were included: 5 at "
-        "evidence distance D4, 9 at D3, and 4 at D2 (Fig. 2; Table 2).",
+        f"Of {n_id} records screened, {fmt(SCR['ta_excluded'])} were excluded at "
+        f"title/abstract and {fmt(SCR['sought'])} were sought for full text "
+        f"(Fig. 1). Of these, {fmt(SCR['not_retrieved'])} could not be retrieved "
+        f"and were recorded as such rather than assessed; "
+        f"{fmt(SCR['excluded_fulltext'])} retrieved records were excluded "
+        f"because they contained no relevant data path ({SCR['no_data_path']}) "
+        f"or described a mechanism that did not transfer to the target domain "
+        f"({SCR['not_transferable']}). {SCR['included']} direct studies were "
+        f"included: {SCR['d4']} at evidence distance D4, {SCR['d3']} at D3, and "
+        f"{SCR['d2']} at D2 (Fig. 2; Table 2).",
         "The included D4 studies provide the strongest evidence. A long-term "
         "real-world analysis reconstructed rider-relevant patterns from "
         "operator data [[elzer]]; investigative studies of rental applications "
@@ -978,14 +1049,14 @@ def body_blocks() -> list[tuple]:
     blocks.append(("table", 2))
     blocks.append(("h2", "3.2. Public GBFS field audit (RQ2)"))
     blocks += [("p", t) for t in [
-        f"Of 1,520 registry systems, {reach} (95% CI {reach_ci}; n = 1,428) "
-        "exposed a reachable auto-discovery endpoint, "
+        f"Of {fmt(N_REGISTRY)} registry systems, {reach} (95% CI {reach_ci}; "
+        f"n = {fmt(N_REACHABLE)}) exposed a reachable auto-discovery endpoint, "
         f"{pct('reachable_registry_entries', 'vehicle_feed_declared')} of "
         "reachable systems declared a vehicle-status feed, and "
         f"{pct('successful_vehicle_feeds', 'vehicle_feed_nonempty')} of "
         "successfully retrieved feeds contained at least one vehicle (Table 3). "
-        "Restricting to the 813 non-empty feeds that declared motorized "
-        "micromobility, a vehicle identifier was present in "
+        f"Restricting to the {fmt(N_MOTOR_FEEDS)} non-empty feeds that declared "
+        "motorized micromobility, a vehicle identifier was present in "
         f"{pct('declared_motorized_micromobility_feeds', 'has_vehicle_id')} of "
         "feeds and latitude/longitude in "
         f"{pct('declared_motorized_micromobility_feeds', 'has_location_fields')} "
@@ -999,8 +1070,9 @@ def body_blocks() -> list[tuple]:
         "and battery or fuel percentage in "
         f"{pct('declared_motorized_micromobility_feeds', 'has_battery_percent')}.",
         "The operator-domain sensitivity analysis indicates that these are not "
-        "artefacts of a few large operators. Across 147 eligible operator "
-        "domains, a vehicle identifier appeared in every eligible feed for "
+        f"artefacts of a few large operators. Across {fmt(N_OP_DOMAINS)} "
+        "eligible operator domains, a vehicle identifier appeared in every "
+        "eligible feed for "
         f"{pct('declared_motorized_micromobility_operator_domains_all', 'has_vehicle_id')} "
         "of domains and latitude/longitude for "
         f"{pct('declared_motorized_micromobility_operator_domains_any', 'has_location_fields')}, "
@@ -1015,12 +1087,12 @@ def body_blocks() -> list[tuple]:
     blocks.append(("table", 3))
     blocks.append(("h2", "3.3. Public-document disclosure audit (RQ3)"))
     exp_loc = domain_count("location_data", "explicit")
-    exp_ret = domain_count("retention", "explicit")
     nf_batt = domain_count("battery_or_diagnostic_data", "not_found")
     nf_vuln = domain_count("vulnerability_disclosure", "not_found")
     nf_disp = domain_count("return_recycling_disposal", "not_found")
     blocks += [("p", t) for t in [
-        f"We coded {N_CODED} operator privacy notices across 14 domains; two "
+        f"We coded {N_CODED} operator privacy notices across {len(DOMAINS)} "
+        f"domains; {N_OPERATORS - N_CODED} "
         "further operators could not be retrieved as reproducible text and were "
         "recorded as unavailable (Fig. 4; Table 4). Operational and "
         "account-level processing was disclosed almost universally: location "
@@ -1101,9 +1173,10 @@ def body_blocks() -> list[tuple]:
     blocks += [("p", t) for t in [
         "Shared micromobility offers a tractable, fully public setting in which "
         "to study lifecycle data exposure in connected devices that "
-        "organizations use but do not control. A scoping review of 2,169 "
-        "records identified 18 direct studies whose strongest evidence "
-        "concerns the operation stage; a global audit of 1,428 public GBFS "
+        f"organizations use but do not control. A scoping review of {n_id} "
+        f"records identified {SCR['included']} direct studies whose strongest "
+        f"evidence concerns the operation stage; a global audit of "
+        f"{fmt(N_REACHABLE)} public GBFS "
         "systems showed that persistent identifiers and precise positions are "
         "disclosed at high prevalence; and a disclosure audit showed that "
         f"operators document operational processing thoroughly but are silent "
@@ -1317,18 +1390,24 @@ ABSTRACT_STRUCT = [
      "assess how completely operators disclose lifecycle data handling."),
     ("Methods", "We combined a scoping review reported using the Preferred "
      "Reporting Items for Systematic Reviews and Meta-Analyses extension for "
-     "Scoping Reviews (PRISMA-ScR) of 2,169 records, a cross-sectional field "
-     "audit of public General Bikeshare Feed Specification (GBFS) feeds, and a "
-     "structured disclosure audit of public operator privacy notices across 14 "
-     "domains, using deterministic screening and explicit denominators with "
+     f"Scoping Reviews (PRISMA-ScR) of {fmt(SCR['identified'])} records, a "
+     "cross-sectional field audit of public General Bikeshare Feed "
+     "Specification (GBFS) feeds, and a structured disclosure audit of public "
+     f"operator privacy notices across {len(DOMAINS)} domains, using "
+     "deterministic screening and explicit denominators with "
      "95% Wilson confidence intervals (CIs)."),
-    ("Results", "Eighteen direct studies were included (5 direct-empirical, "
-     "9 direct-documentary, and 4 near-domain), with "
-     "the strongest evidence at the operation stage. Across 813 motorized "
-     "micromobility feeds, vehicle identifiers appeared in 100% and coordinates "
-     "in 99.4%, while battery percentage appeared in 68.9%. Operator notices "
-     "documented operational processing thoroughly but were silent on device "
-     "disposal and vulnerability reporting."),
+    ("Results", f"{SCR['included']} direct studies were included "
+     f"({SCR['d4']} direct-empirical, {SCR['d3']} direct-documentary, and "
+     f"{SCR['d2']} near-domain), with "
+     f"the strongest evidence at the operation stage. Across {fmt(N_MOTOR_FEEDS)} "
+     "motorized micromobility feeds, vehicle identifiers appeared in "
+     f"{pct('declared_motorized_micromobility_feeds', 'has_vehicle_id')} and "
+     f"coordinates in "
+     f"{pct('declared_motorized_micromobility_feeds', 'has_location_fields')}, "
+     "while battery percentage appeared in "
+     f"{pct('declared_motorized_micromobility_feeds', 'has_battery_percent')}. "
+     "Operator notices documented operational processing thoroughly but were "
+     "silent on device disposal and vulnerability reporting."),
     ("Conclusions", "Persistent identifiers and precise positions are widely "
      "disclosed, and lifecycle end-of-life handling is largely undocumented. "
      "These are disclosure and evidence signals, not demonstrations of harm; we "
@@ -1468,7 +1547,7 @@ def build_cover_letter() -> Path:
         "review that identifies the direct evidence for data exposure; a global "
         "audit of public GBFS feeds that measures which vehicle fields "
         "operators actually publish; and a structured audit of public operator "
-        "privacy notices across 14 disclosure domains.",
+        f"privacy notices across {len(DOMAINS)} disclosure domains.",
         "The work fits the journal's Area 4 (Ethics, Equity and "
         "Trustworthiness of Data) because it quantifies real, worldwide data "
         "disclosure and connects it to procurement, regulation, and "
