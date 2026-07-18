@@ -74,6 +74,26 @@ python -m pip install -r requirements.txt
 python build_submission.py
 ```
 
+### Review model and data-availability variants
+
+The same pipeline serves single-blind (default) and double-masked (double-blind) review, controlled by environment variables — no forked scripts:
+
+| Variable | Effect |
+| --- | --- |
+| `BLINDED=1` | Removes the author byline from the **main manuscript**, withholds identity-revealing acknowledgements/contributions, and switches the Data availability statement to an identity-free anonymized link (`ANON_REPO_URL`). The title page and cover letter are always non-anonymized (journals collect them separately and do not forward them to reviewers). A validation check (`no_identity_leak_when_blinded`) fails the build if any author-identifying token reaches the disclosures. |
+| `ANON_REPO_URL=<url>` | Identity-free review link (default: an `anonymous.4open.science` mirror). Used only when `BLINDED=1`. |
+| `ZENODO_DOI=<10.5281/zenodo.NNN>` | When set (single-blind/accepted), the Data availability statement cites the persistent Zenodo **concept DOI** (all versions) plus the development repository, instead of the bare repository URL. |
+
+```bash
+# double-masked submission (anonymized manuscript + anonymized data link)
+BLINDED=1 ANON_REPO_URL="https://anonymous.4open.science/r/xxxx" python build_submission.py
+
+# after acceptance / for archival, cite the minted DOI
+ZENODO_DOI="10.5281/zenodo.1234567" python build_submission.py
+```
+
+**Zenodo deposit (mint the DOI):** enable the repository under Zenodo → Settings → GitHub, create a GitHub Release; Zenodo archives the tagged snapshot and mints a DOI. `.zenodo.json` and `CITATION.cff` in this directory seed the archive metadata (fill in author details before minting). Cite the **concept DOI** so the statement never needs updating across versions.
+
 The build writes the complete submission package to `output/`, including:
 
 - the non-anonymized manuscript (`Manuscript_DataPolicy.docx`) with the abstract, a 120-word Policy Significance Statement, five figures and five tables placed inline, the required disclosure statements, and an alphabetised author-date reference list;
@@ -97,6 +117,7 @@ The build fails if:
 - the Policy Significance Statement is not ~120 words;
 - more than five keywords are supplied;
 - a required disclosure statement (data availability, funding, competing interests) is missing;
+- `BLINDED=1` but an author-identifying token still reaches the disclosures;
 - all five figures or five tables are not present and cited; or
 - an undefined abbreviation is detected from the configured abbreviation list.
 

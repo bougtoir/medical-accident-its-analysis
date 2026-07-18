@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+message: "If you use this data and code, please cite the archived release."
+title: "Lifecycle Data Exposure in Shared Micromobility: Scoping Review and Global GBFS/Operator-Disclosure Audit (data and code)"
+type: software
+authors:
+  - family-names: "[Family name]"
+    given-names: "[Given name]"
+    affiliation: "[Institution, city, country]"
+    orcid: "https://orcid.org/0000-0000-0000-0000"
+keywords:
+  - shared micromobility
+  - location privacy
+  - data lifecycle
+  - open mobility data
+  - data governance
+  - GBFS
+license: CC-BY-4.0
+repository-code: "https://github.com/bougtoir/discharged-secrets-scoping-review"
+# On acceptance, mint a Zenodo release and record the concept DOI below:
+# doi: 10.5281/zenodo.XXXXXXX

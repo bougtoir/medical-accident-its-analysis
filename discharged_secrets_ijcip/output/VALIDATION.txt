@@ -18,6 +18,7 @@ abstract_within_250w: True
 policy_significance_120w: True
 keywords_at_most_five: True
 required_disclosures_present: True
+no_identity_leak_when_blinded: True
 
 Figure files:
   Figure 1 png: Figure1.png

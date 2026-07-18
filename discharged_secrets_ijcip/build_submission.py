@@ -14,6 +14,7 @@ or phantom references.
 from __future__ import annotations
 
 import csv
+import os
 import re
 import shutil
 import textwrap
@@ -60,6 +61,27 @@ ARTICLE_TYPE = "Research Article"
 AREA_OF_INTEREST = "Area 4: Ethics, Equity and Trustworthiness of Data"
 PUBLIC_REPO_URL = "https://github.com/bougtoir/discharged-secrets-scoping-review"
 BUILD_DATE = "15 July 2026"
+
+# --- Review-model toggle -------------------------------------------------
+# The same pipeline serves single-blind (default) and double-masked review.
+# BLINDED=1 removes author-identifying content from the *main manuscript*
+# (byline, acknowledgements, and any identity-revealing repository URL) so the
+# manuscript file itself can be uploaded to a double-masked journal. The title
+# page and cover letter are always non-anonymized because journals collect them
+# separately and do not forward them to reviewers.
+BLINDED = os.environ.get("BLINDED", "0") == "1"
+
+# Persistent DOI for the archived deposit (e.g. Zenodo concept DOI covering all
+# versions). Set ZENODO_DOI once the archive is minted; the availability
+# statement then cites the DOI instead of the bare repository URL.
+ZENODO_DOI = os.environ.get("ZENODO_DOI", "").strip()
+
+# Identity-free link used *only* during double-masked review. anonymous.4open.science
+# mirrors a GitHub repository behind a temporary URL that does not reveal the
+# owner/organisation. Override per submission with ANON_REPO_URL.
+ANON_REPO_URL = os.environ.get(
+    "ANON_REPO_URL",
+    "https://anonymous.4open.science/r/discharged-secrets-scoping-review")
 
 # Data & Policy allows up to five keywords, separated by semicolons.
 KEYWORDS = [
@@ -320,45 +342,91 @@ def sortkey(label: str) -> tuple[str, str]:
     _, year, srt = CITEMETA[label]
     return (srt, year)
 
+# Contents of the archive, reused across every availability-statement variant.
+_ARCHIVE_CONTENTS = (
+    "the frozen GBFS registry snapshot and its checksum, the title/abstract "
+    "and full-text screening decisions, the disclosure-audit coding sheets "
+    "with verbatim locator quotations, the analysis scripts, the analysis "
+    "results, and the figure- and table-generation code. Raw vehicle "
+    "identifiers, exact coordinates, and vehicle-specific deep links were not "
+    "retained; only field presence or absence was recorded.")
+_REPRO_SENTENCE = (
+    " Every count, proportion, and confidence interval reported in the article "
+    "can be regenerated from these materials with a single build command.")
+
+
+def data_availability_statement() -> str:
+    """Return the availability statement matching the current review model.
+
+    - double-masked (BLINDED): identity-free anonymized link; DOI/URL added on
+      acceptance;
+    - single-blind + Zenodo DOI: cite the persistent DOI plus the repository;
+    - single-blind, no DOI yet: cite the public repository URL.
+    """
+    if BLINDED:
+        return (
+            "The data and code that support the findings of this study are "
+            f"available to reviewers via an anonymized repository at "
+            f"{ANON_REPO_URL}. The archive contains " + _ARCHIVE_CONTENTS +
+            " Upon acceptance, these materials will be deposited in a public "
+            "repository with a permanent DOI." + _REPRO_SENTENCE)
+    if ZENODO_DOI:
+        return (
+            "The data and code that support the findings of this study are "
+            f"openly archived on Zenodo at https://doi.org/{ZENODO_DOI} "
+            "(concept DOI, covering all versions), with ongoing development at "
+            f"{PUBLIC_REPO_URL}. The archive contains " + _ARCHIVE_CONTENTS +
+            _REPRO_SENTENCE)
+    return (
+        "The data and code that support the findings of this study are openly "
+        f"available in the project repository at {PUBLIC_REPO_URL}. This "
+        "includes " + _ARCHIVE_CONTENTS + _REPRO_SENTENCE)
+
+
 # Disclosure statements required by Data & Policy, placed after the main text
 # and before the references. Data availability, funding, and competing
 # interests are mandatory; the remaining statements are included as good
 # practice and to preserve the ethics and generative-AI disclosures.
-DECLARATIONS = [
-    ("Acknowledgements",
-     "The author thanks the maintainers of the public GBFS ecosystem and the "
-     "open bibliographic sources that made this audit possible."),
-    ("Data availability statement",
-     "The data and code that support the findings of this study are openly "
-     f"available in the project repository at {PUBLIC_REPO_URL}. This includes "
-     "the frozen GBFS registry snapshot and its checksum, the title/abstract "
-     "and full-text screening decisions, the disclosure-audit coding sheets "
-     "with verbatim locator quotations, the analysis scripts, the analysis "
-     "results, and the figure- and table-generation code. Raw vehicle "
-     "identifiers, exact coordinates, and vehicle-specific deep links were not "
-     "retained; only field presence or absence was recorded. Every count, "
-     "proportion, and confidence interval reported in the article can be "
-     "regenerated from these materials with a single build command."),
-    ("Funding statement",
-     "This research received no specific grant from any funding agency, "
-     "commercial or not-for-profit sectors."),
-    ("Competing interests",
-     "The author declares none."),
-    ("Author contributions",
-     "[Author name]: conceptualization; methodology; software; formal "
-     "analysis; data curation; writing - original draft; writing - review and "
-     "editing."),
-    ("Ethical standards",
-     "The research meets all ethical guidelines, including adherence to the "
-     "legal requirements of the study jurisdiction. No human participants were "
-     "recruited. The study analysed only publicly accessible feeds and "
-     "documents and did not attempt authentication, access-control "
-     "circumvention, or interaction with individual users."),
-    ("Use of generative AI",
-     "No generative AI tool was used to produce scientific content, analysis, "
-     "or interpretation. Any use was limited to routine language editing and "
-     "was reviewed by the author, who takes full responsibility for the text."),
-]
+def build_declarations() -> list[tuple[str, str]]:
+    acknowledgements = (
+        "Acknowledgements are withheld to preserve author anonymity for "
+        "double-masked peer review; they will be restored on acceptance."
+        if BLINDED else
+        "The author thanks the maintainers of the public GBFS ecosystem and "
+        "the open bibliographic sources that made this audit possible.")
+    contributions = (
+        "Author contributions are withheld to preserve author anonymity for "
+        "double-masked peer review; they will be restored on acceptance."
+        if BLINDED else
+        "[Author name]: conceptualization; methodology; software; formal "
+        "analysis; data curation; writing - original draft; writing - review "
+        "and editing.")
+    ai_use = (
+        "No generative AI tool was used to produce scientific content, "
+        "analysis, or interpretation. Any use was limited to routine language "
+        "editing and was reviewed by the author"
+        + (", who takes full responsibility for the text."
+           if not BLINDED else "s, who take full responsibility for the text."))
+    return [
+        ("Acknowledgements", acknowledgements),
+        ("Data availability statement", data_availability_statement()),
+        ("Funding statement",
+         "This research received no specific grant from any funding agency, "
+         "commercial or not-for-profit sectors."),
+        ("Competing interests",
+         "The author declares none."),
+        ("Author contributions", contributions),
+        ("Ethical standards",
+         "The research meets all ethical guidelines, including adherence to "
+         "the legal requirements of the study jurisdiction. No human "
+         "participants were recruited. The study analysed only publicly "
+         "accessible feeds and documents and did not attempt authentication, "
+         "access-control circumvention, or interaction with individual users."),
+        ("Use of generative AI", ai_use),
+    ]
+
+
+DECLARATIONS = build_declarations()
 
 
 # ---------------------------------------------------------------------------
@@ -1428,12 +1496,22 @@ def build_manuscript(blocks, tables, figpaths, repl, references) -> Path:
     title.add_run(TITLE).bold = True
     byline = doc.add_paragraph()
     byline.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    byline.add_run(AUTHOR).bold = True
-    aff = doc.add_paragraph()
-    aff.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    ar = aff.add_run(f"{AFFILIATION}\nCorresponding author: {EMAIL}; ORCID {ORCID}")
-    ar.italic = True
-    ar.font.size = Pt(10)
+    if BLINDED:
+        # Double-masked: the main manuscript carries no identifying byline; the
+        # author details travel on the separate, non-anonymized title page.
+        anon = byline.add_run(
+            "Author and affiliation details removed for double-masked peer "
+            "review")
+        anon.italic = True
+        anon.font.size = Pt(10)
+    else:
+        byline.add_run(AUTHOR).bold = True
+        aff = doc.add_paragraph()
+        aff.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        ar = aff.add_run(
+            f"{AFFILIATION}\nCorresponding author: {EMAIL}; ORCID {ORCID}")
+        ar.italic = True
+        ar.font.size = Pt(10)
 
     doc.add_heading("Abstract", level=1)
     for label, text in ABSTRACT_STRUCT:
@@ -1768,6 +1846,14 @@ def validate(blocks, tables, order, ref_list, repl) -> dict:
     required_disclosures = {
         "Data availability statement", "Funding statement", "Competing interests",
     }.issubset(decl_labels)
+    # double-masked guard: no author-identifying token may reach the disclosures
+    identity_tokens = [PUBLIC_REPO_URL, "bougtoir"]
+    for value in (AUTHOR, EMAIL, ORCID):
+        if value and "[" not in value:
+            identity_tokens.append(value)
+    decl_text = " ".join(v for _, v in DECLARATIONS)
+    no_identity_leak = (not BLINDED) or not any(
+        tok in decl_text for tok in identity_tokens)
     checks = {
         "all_citations_resolve": all_resolve,
         "no_orphan_or_phantom_refs": not orphan,
@@ -1781,6 +1867,7 @@ def validate(blocks, tables, order, ref_list, repl) -> dict:
         "policy_significance_120w": 110 <= ps_words <= 130,
         "keywords_at_most_five": len(KEYWORDS) <= 5,
         "required_disclosures_present": required_disclosures,
+        "no_identity_leak_when_blinded": no_identity_leak,
     }
     failures = [k for k, v in checks.items() if not v]
     if failures:
