@@ -3,10 +3,10 @@ message: "If you use this data and code, please cite the archived release."
 title: "Lifecycle Data Exposure in Shared Micromobility: Scoping Review and Global GBFS/Operator-Disclosure Audit (data and code)"
 type: software
 authors:
-  - family-names: "[Family name]"
-    given-names: "[Given name]"
-    affiliation: "[Institution, city, country]"
-    orcid: "https://orcid.org/0000-0000-0000-0000"
+  - family-names: "Onishi"
+    given-names: "Tatsuki"
+    affiliation: "Data Science and AI Innovation Research Promotion Center, Shiga University, Hikone, Japan"
+    orcid: "https://orcid.org/0000-0001-7261-9062"
 keywords:
   - shared micromobility
   - location privacy

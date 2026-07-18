@@ -51,10 +51,11 @@ TITLE = (
     "Global Audit of Public GBFS Vehicle Feeds and Operator Disclosures"
 )
 SHORT_TITLE = "Lifecycle data exposure in shared micromobility"
-AUTHOR = "[Author name]"
-AFFILIATION = "[Department, institution, city, postal code, country]"
-EMAIL = "[Corresponding author email]"
-ORCID = "[ORCID]"
+AUTHOR = "Onishi Tatsuki"
+AFFILIATION = ("Data Science and AI Innovation Research Promotion Center, "
+               "Shiga University, Hikone, Japan")
+EMAIL = "bougtoir@gmail.com"
+ORCID = "0000-0001-7261-9062"
 JOURNAL = "Data & Policy"
 PUBLISHER = "Cambridge University Press"
 ARTICLE_TYPE = "Research Article"
@@ -398,7 +399,7 @@ def build_declarations() -> list[tuple[str, str]]:
         "Author contributions are withheld to preserve author anonymity for "
         "double-masked peer review; they will be restored on acceptance."
         if BLINDED else
-        "[Author name]: conceptualization; methodology; software; formal "
+        f"{AUTHOR}: conceptualization; methodology; software; formal "
         "analysis; data curation; writing - original draft; writing - review "
         "and editing.")
     ai_use = (
