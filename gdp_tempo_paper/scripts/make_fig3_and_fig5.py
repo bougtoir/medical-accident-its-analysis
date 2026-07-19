@@ -10,7 +10,6 @@ from __future__ import annotations
 
 import json
 import os
-import shutil
 
 import matplotlib
 matplotlib.use("Agg")
@@ -19,6 +18,8 @@ import numpy as np
 import pandas as pd
 import matplotlib.patches as patches
 from matplotlib import font_manager
+
+from run_paper_analyses import build_intan_stock, pim_lagged, prepare_countries
 
 # Register a Japanese font so that JA figures render correctly.
 for path in ("/usr/share/fonts/opentype/ipafont-gothic/ipag.ttf",
@@ -36,15 +37,38 @@ DATA = os.path.join(ROOT, "data")
 os.makedirs(FIG, exist_ok=True)
 os.makedirs(TAB, exist_ok=True)
 
-CWON_TS = "/home/ubuntu/repos/wip_cwon/gdp_cwon_integration/data/cwon_integration_ts.json"
+def build_fig3_trajectories() -> pd.DataFrame:
+    """Rebuild the plotted M4/CWON trajectories from public inputs."""
+    estimates = pd.read_csv(os.path.join(DATA, "fair_eval.csv")).set_index("country")
+    rows = []
+    for country in prepare_countries():
+        if country.country not in estimates.index:
+            continue
+        estimate = estimates.loc[country.country]
+        tangible = pim_lagged(
+            country.I, country.delta, country.K0, float(estimate["mu_M4"])
+        )
+        intangible = build_intan_stock(country.Y, country.rnd_share)
+        if intangible is None:
+            continue
+        produced = tangible + float(estimate["beta_M4"]) * intangible
+        positions = {int(year): index for index, year in enumerate(country.years)}
+        for year, cwon_pca in zip(country.cwon_years, country.pca):
+            position = positions.get(int(year))
+            if position is not None:
+                rows.append({
+                    "country": country.country,
+                    "year": int(year),
+                    "pim_produced_plus_intan": float(produced[position]),
+                    "cwon_pca": float(cwon_pca),
+                })
+    trajectories = pd.DataFrame(rows)
+    trajectories.to_csv(os.path.join(DATA, "fig3_trajectories.csv"), index=False)
+    return trajectories
 
 
 def make_fig3(lang: str = "en"):
-    if not os.path.exists(CWON_TS):
-        print(f"skipping fig3 ({lang}): {CWON_TS} not found")
-        return
-    with open(CWON_TS) as fh:
-        ts = json.load(fh)
+    trajectories = build_fig3_trajectories()
     highlight = [
         "United States", "Japan", "Germany", "Republic of Korea",
         "Netherlands", "Israel",
@@ -67,13 +91,10 @@ def make_fig3(lang: str = "en"):
     }[lang]
     fig, axes = plt.subplots(2, 3, figsize=(12, 7), sharex=True)
     for ax, country in zip(axes.flat, highlight):
-        if country not in ts:
-            ax.set_visible(False)
-            continue
-        d = ts[country]
-        years = np.array(d["years"])
-        pim = np.array(d["pim_produced_plus_intan"], dtype=float)
-        pca = np.array(d["cwon_pca"], dtype=float)
+        data = trajectories[trajectories["country"] == country]
+        years = data["year"].to_numpy()
+        pim = data["pim_produced_plus_intan"].to_numpy(dtype=float)
+        pca = data["cwon_pca"].to_numpy(dtype=float)
         mask = np.isfinite(pim) & np.isfinite(pca) & (pim > 0) & (pca > 0)
         if mask.sum() < 3:
             ax.set_visible(False)

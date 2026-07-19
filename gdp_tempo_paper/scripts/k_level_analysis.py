@@ -14,6 +14,7 @@ Key identity:
 Produces:
   - k_level_diff.csv: per country-year K-level gap, TFP shift, labor-share shift
   - k_level_summary.json: cross-country summary
+  - table5_k_level.csv: country-level manuscript results table
   - fig10_k_divergence_{en,ja}.png: K-level divergence time series
   - fig11_tfp_consequence_{en,ja}.png: ΔK → ΔTFP scatter
   - fig12_labor_share_{en,ja}.png: implied labor-share correction bar chart
@@ -33,8 +34,10 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, ".."))
 DATA = os.path.join(ROOT, "data")
 FIG = os.path.join(ROOT, "figures")
+TAB = os.path.join(ROOT, "tables")
 os.makedirs(DATA, exist_ok=True)
 os.makedirs(FIG, exist_ok=True)
+os.makedirs(TAB, exist_ok=True)
 
 
 def compute_k_gap_from_tfp(solow: pd.DataFrame) -> pd.DataFrame:
@@ -118,6 +121,33 @@ def summarise_k_levels(kdf: pd.DataFrame) -> dict:
     }
 
     return summary
+
+
+def make_table_k_level(kdf: pd.DataFrame) -> pd.DataFrame:
+    """Build the country-level K measurement consequences table."""
+    recent = kdf[(kdf["year"] >= 2010) & (kdf["year"] <= 2019)]
+    by_country = recent.groupby("iso3").agg({
+        "country": "first",
+        "K_pct_diff": "mean",
+        "TFP_shift_pct": "mean",
+        "ls_shift_pp": "mean",
+    }).reset_index()
+    table = by_country.sort_values("K_pct_diff").rename(columns={
+        "country": "Country",
+        "iso3": "ISO3",
+        "K_pct_diff": "K gap (%)",
+        "TFP_shift_pct": "TFP shift (pp)",
+        "ls_shift_pp": "Labour-share shift (pp)",
+    })
+    value_columns = ["K gap (%)", "TFP shift (pp)", "Labour-share shift (pp)"]
+    table = table[["Country", "ISO3", *value_columns]]
+    table[value_columns] = table[value_columns].round(2)
+    median = {"Country": "Median", "ISO3": ""}
+    median.update({
+        column: round(float(table[column].median()), 2)
+        for column in value_columns
+    })
+    return pd.concat([table, pd.DataFrame([median])], ignore_index=True)
 
 
 def make_fig_k_divergence(kdf: pd.DataFrame, lang: str = "en"):
@@ -264,6 +294,12 @@ def main():
     with open(os.path.join(DATA, "k_level_summary.json"), "w") as f:
         json.dump(summary, f, indent=2)
     print(json.dumps(summary, indent=2))
+
+    print("\n--- Table 5 ---", flush=True)
+    table5 = make_table_k_level(kdf)
+    table5_path = os.path.join(TAB, "table5_k_level.csv")
+    table5.to_csv(table5_path, index=False)
+    print(f"  {len(table5)} rows written to {table5_path}", flush=True)
 
     print("\n--- Figures ---", flush=True)
     for lang in ("en", "ja"):

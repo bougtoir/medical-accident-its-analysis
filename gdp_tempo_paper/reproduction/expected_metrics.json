@@ -1,0 +1,35 @@
+{
+  "n_countries_full": 35,
+  "full_fair_B_rmse_median": {
+    "M0": 3.01793502858889,
+    "M1": 3.018982498981833,
+    "M2": 3.018982498981833,
+    "M3": 2.909542133619956,
+    "M4": 2.912380735403076,
+    "Mobs": 3.0969099728897853
+  },
+  "full_oos_mape_median": {
+    "M0": 4.604704417932623,
+    "M1": 4.408480823153312,
+    "M2": 3.985505019018865,
+    "M3": 4.7220678002742025,
+    "M4": 4.606208776338525,
+    "Mobs": 4.169108829472494
+  },
+  "k_level": {
+    "n_countries": 35,
+    "median_K_pct_diff": -4.29,
+    "median_TFP_shift_pct": -1.74,
+    "median_labor_share_shift_pp": 1.736,
+    "countries_K_lower_than_M0": 35,
+    "min_K_pct_diff": -9.17
+  },
+  "tfp_variance": {
+    "tempo_only_max_pct": 13.8,
+    "joint_max_pct": 29.7
+  },
+  "counterfactual_wealth": {
+    "produced_capital_gap_max_pct": 1.1,
+    "total_wealth_gap_max_pct": 0.3
+  }
+}
