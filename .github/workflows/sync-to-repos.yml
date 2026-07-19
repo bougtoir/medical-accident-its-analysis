@@ -270,6 +270,10 @@ jobs:
           EXCLUDE_MAP["devin/1780790605-ep-submission-prep"]="create_manuscript.py create_manuscript_latex.py create_cover_letter_and_checklist.py manuscript/generate_docx.py manuscript/generate_cover_letter_docx.py manuscript/generate_figures_pptx.py manuscript/manuscript.tex manuscript/references.bib manuscript/manuscript.docx manuscript/manuscript.pdf manuscript/cover_letter.docx manuscript/cover_letter.pdf manuscript/cover_letter.tex manuscript/figures_pptx.pptx manuscript/sn-basic.bst manuscript/sn-jnl.cls manuscript/strobe_checklist.docx manuscript/table_s1.docx manuscript/table_s1.pdf manuscript/table_s1.tex"
           EXCLUDE_MAP["sits9-sync"]="create_essay_docx.py create_leonardo_docx.py create_pachelbel_schemas.py output/sits9_essay.docx output/sits9_leonardo.docx output/sits9_figures.pptx"
           EXCLUDE_MAP["devin/1783365908-mnras-submission"]="MNRAS_checklist.txt submission_strategy.md"
+          # Keep the manuscript-body/cover-letter assembler and its prose-bearing
+          # outputs out of the public repo; reproduce.py (figures + in-text numbers)
+          # and the data/analysis code remain public for reproducibility.
+          EXCLUDE_MAP["devin/1784122193-luup-data-policy"]="build_submission.py output/Manuscript_DataPolicy.docx output/Cover_Letter_DataPolicy.docx output/Title_Page_DataPolicy.docx output/Submission_Checklist_DataPolicy.docx output/DataPolicy_submission_package.zip output/VALIDATION.txt output/Citation_Audit.csv output/Reference_Verification.csv output/Reporting_Guideline_PRISMA-ScR.docx"
 
           OWNER="bougtoir"
 
