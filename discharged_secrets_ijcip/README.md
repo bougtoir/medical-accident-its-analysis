@@ -67,47 +67,33 @@ Document coding is computer-assisted and single-reviewer. `not_found` denotes si
 
 The audit never writes raw vehicle identifiers, coordinates, or deep links. Field-presence results are aggregate observations at the registered-system level. The outputs do not establish trip reconstruction, identifier-rotation nonconformity, hidden backend collection, compromise, or operator intent.
 
-## Build
+## Reproduce the results
+
+Every count, proportion, confidence interval, figure, and table reported in the article is regenerated from the committed public data (`data/`, `results/`, `review/`) with a single command:
 
 ```bash
 python -m pip install -r requirements.txt
-python build_submission.py
+python reproduce.py
 ```
 
-### Review model and data-availability variants
+This writes to `output/`:
 
-The same pipeline serves single-blind (default) and double-masked (double-blind) review, controlled by environment variables — no forked scripts:
+- five figures (`figures/Figure1-5.png`, `.tiff`, `.pdf` at 600 dpi);
+- an editable `Figures_DataPolicy_editable.pptx` (one figure per slide);
+- editable tables (`Tables_DataPolicy_editable.docx`); and
+- `reproducibility_values.json` — every in-text count, proportion, and 95% Wilson confidence interval, plus the full GBFS and disclosure-audit summaries, so the article's numbers can be verified directly against the data.
 
-| Variable | Effect |
-| --- | --- |
-| `BLINDED=1` | Removes the author byline from the **main manuscript**, withholds identity-revealing acknowledgements/contributions, and switches the Data availability statement to an identity-free anonymized link (`ANON_REPO_URL`). The title page and cover letter are always non-anonymized (journals collect them separately and do not forward them to reviewers). A validation check (`no_identity_leak_when_blinded`) fails the build if any author-identifying token reaches the disclosures. |
-| `ANON_REPO_URL=<url>` | Identity-free review link (default: an `anonymous.4open.science` mirror). Used only when `BLINDED=1`. |
-| `ZENODO_DOI=<10.5281/zenodo.NNN>` | When set (single-blind/accepted), the Data availability statement cites the persistent Zenodo **concept DOI** (all versions) plus the development repository, instead of the bare repository URL. |
+The upstream data pipeline (screening, GBFS field audit, disclosure coding) is documented in the sections above and regenerates `results/*.csv` and `data/*.csv` from the frozen inputs.
 
-```bash
-# double-masked submission (anonymized manuscript + anonymized data link)
-BLINDED=1 ANON_REPO_URL="https://anonymous.4open.science/r/xxxx" python build_submission.py
+### Scope of this repository
 
-# after acceptance / for archival, cite the minted DOI
-ZENODO_DOI="10.5281/zenodo.1234567" python build_submission.py
-```
+This repository contains the data, the analysis code, and the figure-, table-, and number-generation code so that readers can reproduce the results independently. The manuscript-body, cover-letter, and title-page **generation script is intentionally not included here**: it carries the article prose and does not contribute to result reproducibility. The published article (open access under CC-BY at *Data & Policy*) remains the source for the narrative text.
 
-**Zenodo deposit (mint the DOI):** enable the repository under Zenodo → Settings → GitHub, create a GitHub Release; Zenodo archives the tagged snapshot and mints a DOI. `.zenodo.json` and `CITATION.cff` in this directory seed the archive metadata (fill in author details before minting). Cite the **concept DOI** so the statement never needs updating across versions.
+**Zenodo deposit (mint the DOI):** enable the repository under Zenodo → Settings → GitHub, create a GitHub Release; Zenodo archives the tagged snapshot and mints a DOI. `.zenodo.json` and `CITATION.cff` in this directory seed the archive metadata. Cite the **concept DOI** so the statement never needs updating across versions.
 
-The build writes the complete submission package to `output/`, including:
+## Manuscript validation (in the non-public assembler)
 
-- the non-anonymized manuscript (`Manuscript_DataPolicy.docx`) with the abstract, a 120-word Policy Significance Statement, five figures and five tables placed inline, the required disclosure statements, and an alphabetised author-date reference list;
-- separate title/author page, cover letter, and submission checklist;
-- standalone editable tables (`Tables_DataPolicy_editable.docx`);
-- five standalone figures (`.png`, `.tiff`, `.pdf` at 600 dpi) and an editable `Figures_DataPolicy_editable.pptx` (one figure per slide);
-- PRISMA-ScR reporting-guideline statement;
-- author-date citation audit;
-- reference-verification report (live DOI/URL resolution with offline fallback); and
-- `DataPolicy_submission_package.zip` containing the submission files.
-
-## Validation
-
-The build fails if:
+The manuscript assembler (not distributed here) fails the build if:
 
 - any in-text citation does not resolve to a reference, or a reference is uncited (no orphan/phantom references);
 - the reference list is not alphabetised by author;

@@ -6,3 +6,4 @@ output/manuscript_contact_preview.png
 data/test_*
 review/.abstract_cache.csv
 review/.doc_cache/
+output/reproducibility_values.json
