@@ -273,7 +273,7 @@ jobs:
           # Keep the manuscript-body/cover-letter assembler and its prose-bearing
           # outputs out of the public repo; reproduce.py (figures + in-text numbers)
           # and the data/analysis code remain public for reproducibility.
-          EXCLUDE_MAP["devin/1784122193-luup-data-policy"]="build_submission.py output/Manuscript_DataPolicy.docx output/Cover_Letter_DataPolicy.docx output/Title_Page_DataPolicy.docx output/Submission_Checklist_DataPolicy.docx output/DataPolicy_submission_package.zip"
+          EXCLUDE_MAP["devin/1784122193-luup-data-policy"]="build_submission.py output/Manuscript_DataPolicy.docx output/Cover_Letter_DataPolicy.docx output/Title_Page_DataPolicy.docx output/Submission_Checklist_DataPolicy.docx output/DataPolicy_submission_package.zip output/VALIDATION.txt output/Citation_Audit.csv output/Reference_Verification.csv output/Reporting_Guideline_PRISMA-ScR.docx"
 
           OWNER="bougtoir"
 
