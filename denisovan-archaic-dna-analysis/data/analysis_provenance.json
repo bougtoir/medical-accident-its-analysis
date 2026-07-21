@@ -1,0 +1,19 @@
+{
+  "analysis_release": "ajba-critical-revision-2026-07",
+  "analysis_code_commit": "1965618ded383a22a45c57497d0cd894d0f867af",
+  "segments_1kg": {
+    "file_name": "hg38_1000g_segments.txt",
+    "sha256": "d3ea9fe7ac6b5abacb176acecf4747bacdead89c0a35e1750a4f8ee71b2bb1d4"
+  },
+  "segments_hgdp": {
+    "file_name": "hg38_HGDP_segments.txt",
+    "sha256": "c222d44a05fed3f059b2907ca6e9deb8899c41ff8fd59bc629bd57c910a593ac"
+  },
+  "minimum_probability": 0.8,
+  "minimum_population_size": 7,
+  "bin_size": 500000,
+  "individuals": 3134,
+  "included_populations": 66,
+  "population_pairs": 2145,
+  "frequency_definition": "unique individual-haplotype presence per ancestry type and genomic bin, divided by twice the number of sampled individuals"
+}

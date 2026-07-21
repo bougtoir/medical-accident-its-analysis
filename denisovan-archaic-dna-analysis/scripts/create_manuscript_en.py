@@ -93,7 +93,7 @@ doc.add_paragraph()
 # Authors
 author_para = doc.add_paragraph()
 author_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
-run = author_para.add_run('Tatsuki Onishi')
+run = author_para.add_run('Onishi Tatsuki')
 run.font.size = Pt(12)
 run.font.name = 'Times New Roman'
 run2 = author_para.add_run('1')
@@ -108,7 +108,9 @@ doc.add_paragraph()
 # Affiliation
 affil = doc.add_paragraph()
 affil.alignment = WD_ALIGN_PARAGRAPH.CENTER
-run = affil.add_run('1 [Affiliation to be added]')
+run = affil.add_run(
+    '1 Data Science and AI Innovation Research Promotion Center'
+)
 run.font.size = Pt(10)
 run.font.name = 'Times New Roman'
 
@@ -117,7 +119,7 @@ doc.add_paragraph()
 # Corresponding author
 corr = doc.add_paragraph()
 corr.alignment = WD_ALIGN_PARAGRAPH.CENTER
-run = corr.add_run('*Corresponding author: Tatsuki Onishi (bougtoir@gmail.com)')
+run = corr.add_run('*Corresponding author: Onishi Tatsuki (bougtoir@gmail.com)')
 run.font.size = Pt(10)
 run.font.name = 'Times New Roman'
 
@@ -857,7 +859,10 @@ da = doc.add_paragraph(
 
 # ===== ACKNOWLEDGMENTS =====
 add_heading(doc, 'Acknowledgments', level=1)
-doc.add_paragraph('[To be added]')
+doc.add_paragraph(
+    'The author acknowledges the investigators and participants who generated '
+    'the publicly available genomic resources used in this study.'
+)
 
 # ===== CONFLICT OF INTEREST =====
 add_heading(doc, 'Conflict of interest', level=1)

@@ -15,12 +15,44 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from matplotlib.patches import FancyBboxPatch, Polygon
 import numpy as np
+import pandas as pd
 import os
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 BASE_DIR = os.path.dirname(SCRIPT_DIR)
 OUT_DIR = os.path.join(BASE_DIR, 'figures')
+DATA_DIR = os.path.join(BASE_DIR, 'data')
 os.makedirs(OUT_DIR, exist_ok=True)
+
+# ── Data-derived ABO sub-lineage composition (this study) ────────────
+# Every ABO composition annotation below is computed from the analysis
+# outputs rather than hand-entered, so the figure stays consistent with
+# data/abo_sublineage_summary.csv and data/abo_denisovan_segments.csv.
+_sub = pd.read_csv(os.path.join(DATA_DIR, 'abo_sublineage_summary.csv'))
+_deni = pd.read_csv(os.path.join(DATA_DIR, 'abo_denisovan_segments.csv'))
+
+
+def _abo_comp(group):
+    rows = _sub[(_sub['analysis_group'] == group)
+                & (_sub['closest_reference'] != 'Tie')]
+    total = int(rows['n_segments'].sum())
+    if not total:
+        return 'no classifiable segments'
+
+    def pct(ref):
+        r = rows[rows['closest_reference'] == ref]
+        count = int(r['n_segments'].iloc[0]) if len(r) else 0
+        return int(round(100 * count / total))
+
+    return f"Alt {pct('Altai')}% / Chag {pct('Chagyrskaya')}% / Vin {pct('Vindija')}%"
+
+
+_eastasia_comp = _abo_comp('East Asia')
+_europe_comp = _abo_comp('Europe')
+_oceania_comp = _abo_comp('Oceania')
+_indig_n = int(_sub[(_sub['analysis_group'] == 'Indigenous Americas')
+                    & (_sub['closest_reference'] != 'Tie')]['n_segments'].sum())
+_deni_sas = int((_deni['region'] == 'CENTRAL_SOUTH_ASIA').sum())
 
 fig, ax = plt.subplots(figsize=(16, 9))
 ax.set_xlim(-2, 100)
@@ -150,7 +182,7 @@ ax.annotate('Denisovan adm. 1\n~45 kya (Oceanians 3-5%)',
 # Denisovan interbreeding 2 (East Asia, minor)
 ax.plot(55, 28, '*', markersize=12, color='#9c27b0', zorder=10,
         markeredgecolor='white', markeredgewidth=0.3)
-ax.annotate('Denisovan adm. 2\n~30 kya (E. Asia ~0.06%)',
+ax.annotate('Denisovan adm. 2\n~30 kya (E. Asia trace)',
             (55, 28), fontsize=6.5, ha='left', va='bottom',
             xytext=(8, 5), textcoords='offset points',
             color='#9c27b0', fontweight='bold',
@@ -160,7 +192,7 @@ ax.annotate('Denisovan adm. 2\n~30 kya (E. Asia ~0.06%)',
 # Denisovan interbreeding 3 (South Asia, ABO-specific)
 ax.plot(38, 25, '*', markersize=12, color='#4a148c', zorder=10,
         markeredgecolor='white', markeredgewidth=0.3)
-ax.annotate('Denisovan adm. 3?\n(ABO: S. Asia only, 45 segs)',
+ax.annotate(f'Denisovan adm. 3?\n(ABO: S. Asia only, {_deni_sas} segs)',
             (38, 25), fontsize=6.5, ha='right', va='top',
             xytext=(-8, -5), textcoords='offset points',
             color='#4a148c', fontweight='bold',
@@ -175,8 +207,8 @@ ax.annotate('Wallace Line', xy=(48, 28.5), fontsize=7, color='#CC0000',
 
 # ── ABO sub-lineage annotations ──────────────────────────────────────
 
-# East Asia: 100% Chagyrskaya
-ax.annotate('ABO: 100% Chagyrskaya',
+# East Asia: data-derived composition (this study)
+ax.annotate(f'ABO (East Asia):\n{_eastasia_comp}',
             xy=(62, 33), fontsize=7.5, color='#1565C0', fontweight='bold',
             ha='center', va='bottom',
             bbox=dict(boxstyle='round,pad=0.3', fc='#E3F2FD', ec='#1565C0',
@@ -189,11 +221,11 @@ ax.annotate('ABO: Altai + Vindija\nsub-lineages',
             bbox=dict(boxstyle='round,pad=0.3', fc='#FFF8E1', ec=c_ane,
                       alpha=0.9, linewidth=1))
 
-# Beringia: mixing event → sub-lineage paradox
+# Indigenous Americas: data-derived, deliberately conservative
 ax.annotate(
-    'SUB-LINEAGE PARADOX\n'
-    'E. Asian (Chag 100%) + ANE (Alt/Vin)\n'
-    '→ Americas: Chag 52% / Alt 24% / Vin 24%',
+    'Indigenous Americas:\n'
+    f'only {_indig_n} ABO-window segments\n'
+    '(both Vindija-closest) — too few\nfor a composition estimate',
     xy=(82, 44), fontsize=7, color='#B71C1C', fontweight='bold',
     ha='center',
     bbox=dict(boxstyle='round,pad=0.4', fc='#FFEBEE', ec='#B71C1C',
@@ -206,8 +238,8 @@ ax.annotate('O2 paradox:\nSolomon Is. 5-16%\nE. Asia <0.01%',
             bbox=dict(boxstyle='round,pad=0.3', fc='#FFEBEE', ec='#D32F2F',
                       alpha=0.9))
 
-# Europe: mixed sub-lineages
-ax.annotate('ABO: Alt 46% / Chag 38%\n/ Vin 16%',
+# Europe: data-derived composition (this study)
+ax.annotate(f'ABO (Europe):\n{_europe_comp}',
             xy=(50, 46), fontsize=6.5, color=c_europe,
             ha='center',
             bbox=dict(boxstyle='round,pad=0.2', fc='#F1F8E9', ec=c_europe,
@@ -270,11 +302,12 @@ ax.legend(handles=legend_patches, loc='upper right', fontsize=7.5,
 
 # ── Archaic DNA summary box ─────────────────────────────────────────
 summary = (
-    "Archaic DNA retained:\n"
-    "Neanderthal: all non-Africans 1.0-1.8%\n"
-    "  E. Asia ~1.4% > Europe ~1.2%\n"
-    "Denisovan: Papuans 3-5% >> E. Asia ~0.06%\n"
-    "  S. Asia: unique ABO segments (3rd lineage?)"
+    "Archaic ancestry (published estimates):\n"
+    "Neanderthal: non-Africans ~1.5-2%,\n"
+    "  E. Asia > Europe (Pr\u00fcfer 2014; Vernot 2014)\n"
+    "Denisovan: Papuans ~3-5% >> mainland Asia\n"
+    "  (Reich 2011; Meyer 2012)\n"
+    f"S. Asia: {_deni_sas} Denisovan ABO segments (this study)"
 )
 ax.text(78, 52, summary, fontsize=6.5, va='top', ha='left',
         family='monospace',
@@ -289,10 +322,13 @@ ax.set_title(
 
 # ── Source note ──────────────────────────────────────────────────────
 fig.text(0.5, 0.01,
-         'Data: hmmix (Zenodo:14136628), 1000 Genomes, HGDP | '
-         'Band widths are schematic; ABO sub-lineage data from '
-         'Skov et al. 2018, Calafell et al. 2008, Irshaid et al. 2006',
-         ha='center', fontsize=6.5, color='#888')
+         'Segment calls: hmmix (Zenodo:14136628), 1000 Genomes, HGDP. '
+         'ABO sub-lineage composition: this study (data/abo_sublineage_summary.csv). '
+         'Band widths are schematic. Archaic-ancestry ranges from Pr\u00fcfer et al. 2014 '
+         '(doi:10.1038/nature12886), Vernot & Akey 2014 (doi:10.1126/science.1245938), '
+         'Reich et al. 2011 (doi:10.1016/j.ajhg.2011.09.005), '
+         'Meyer et al. 2012 (doi:10.1126/science.1224344).',
+         ha='center', fontsize=6, color='#888')
 
 plt.tight_layout(rect=[0, 0.03, 1, 0.97])
 out_path = os.path.join(OUT_DIR, 'fig3_minard_migration.png')
