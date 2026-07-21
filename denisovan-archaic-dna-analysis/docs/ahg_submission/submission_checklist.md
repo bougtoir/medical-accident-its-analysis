@@ -4,12 +4,12 @@
 
 - `manuscript_ahg.docx`: manuscript with figure legends and no embedded figure bodies
 - `manuscript_ahg_inline_review.docx`: internal review copy with figures and tables immediately after first mention
-- `Table_1_residual_outliers.docx` and `Table_2_abo_summary.docx`: individual editable tables
-- `tables_ahg.docx`: combined editable Tables 1-2 for internal convenience
-- `supporting_information_ahg.docx`: Supporting Figures S1-S6 and data-file descriptions
-- `figures_tables_ahg.pptx`: Figures 1-5, Figures S1-S6, and Tables 1-2
+- `Table_1_residual_outliers.docx`: main editable table; `Table_S1_abo_summary.docx`: supporting editable table
+- `tables_ahg.docx`: editable main Table 1 for internal convenience
+- `supporting_information_ahg.docx`: Supporting Figures S1-S5, supporting Table S1, and data-file descriptions
+- `figures_tables_ahg.pptx`: Figures 1-4, Figures S1-S5, Table 1, and Table S1
 - `cover_letter_ahg.docx`: Annals of Human Genetics Original Article cover letter
-- `figures/Figure_1` through `Figure_5` and `Figure_S1` through `Figure_S6`: separate PNG and TIFF files
+- `figures/Figure_1` through `Figure_4` and `Figure_S1` through `Figure_S5`: separate PNG and TIFF files
 - `supplementary_data/`: population metadata, complete pairwise results, model output, sensitivities, and provenance
 - `reproducibility_checklist.md`: data provenance, rebuild commands, expected checks, and package versions
 - `reference_validation.csv`: DOI/PubMed existence and title checks
@@ -18,7 +18,7 @@
 
 - References use author-date (author-year) style and are alphabetized.
 - Every listed reference is cited and every citation has a reference entry.
-- Figures 1-5, Figures S1-S6, and Tables 1-2 are first mentioned sequentially.
+- Figures 1-4, Figures S1-S5, and Table 1 are first mentioned sequentially.
 - The summary is unstructured and within 200 words.
 - The main text (Introduction-Discussion) is within 4,000 words, excluding references.
 - Three to six MeSH keywords are listed in alphabetical order.
@@ -38,7 +38,7 @@
 - Figures and tables may be embedded in the main file at initial submission; at revision they must be supplied as separate files.
 - Upload the manuscript without embedded figures; upload each TIFF separately.
 - Upload `supporting_information_ahg.docx` and the supplementary CSV/JSON files.
-- Upload `Table_1_residual_outliers.docx` and `Table_2_abo_summary.docx` as editable table files.
+- Upload `Table_1_residual_outliers.docx` as the editable main table and `Table_S1_abo_summary.docx` as the editable supporting table.
 - Do not interpret nominal residuals, PEL-containing pairs, or the two Indigenous-American ABO-window segments as definitive migration evidence.
 
 ## Submission links

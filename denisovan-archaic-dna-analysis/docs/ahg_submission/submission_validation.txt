@@ -1,13 +1,13 @@
 AHG SUBMISSION VALIDATION
 ==========================
 
-Summary words: 179
-Main-text words: 2298
+Summary words: 185
+Main-text words: 2352
 References: 24
 Uncited references: []
-First-appearance figure order: [1, 2, 3, 4, 5]
-First-appearance supporting figure order: [1, 2, 3, 4, 5, 6]
-First-appearance table order: [1, 2]
+First-appearance figure order: [1, 2, 3, 4]
+First-appearance supporting figure order: [1, 2, 3, 4, 5]
+First-appearance table order: [1]
 
 PASS: Author-date citations
 PASS: Every reference cited

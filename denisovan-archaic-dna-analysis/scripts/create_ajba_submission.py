@@ -97,7 +97,7 @@ def add_title_page(document: Document) -> None:
     paragraph.add_run(ARTICLE_TYPE).bold = True
     paragraph = document.add_paragraph()
     paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    paragraph.add_run(AUTHOR).bold = True
+    paragraph.add_run(AUTHOR.upper()).bold = True
     paragraph = document.add_paragraph()
     paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
     paragraph.add_run(AFFILIATION)
@@ -210,19 +210,22 @@ TABLES = {
         table_1_rows,
         "The prespecified family contains all non-admixed population pairs. No pair met both z>2 and Benjamini-Hochberg q<0.10; the Denisovan analysis likewise identified no qualifying pair. Complete nominal rankings and dependence-aware model results are provided in Supplementary Data.",
     ),
-    2: (
-        "ABO-window Neanderthal-reference composition",
+}
+
+SUPPORTING_TABLES = {
+    1: (
+        "Exploratory ABO-window Neanderthal-reference composition",
         table_2_rows,
-        "Counts are classifiable segments, not individuals. Percentages use the three-reference denominator shown by n. Equal maximum-similarity ties are excluded from these percentages but retained in Supplementary Data. The 2/2 Indigenous American value is not a regional frequency estimate; only one segment overlaps ABO.",
+        "Counts are classifiable segments, not individuals. Percentages use the three-reference denominator shown by n. Equal maximum-similarity ties are excluded from these percentages but retained in Supplementary Data. The 2/2 Indigenous American value is not a regional frequency estimate; only one segment overlaps ABO, and these counts are not interpreted as a migration route.",
     ),
 }
 
 
-def add_word_table(document: Document, table_number: int) -> None:
-    title, row_function, note = TABLES[table_number]
+def render_table(document: Document, label: str, spec: tuple) -> None:
+    title, row_function, note = spec
     paragraph = document.add_paragraph()
     paragraph.paragraph_format.space_before = Pt(14)
-    run = paragraph.add_run(f"Table {table_number}. {title}")
+    run = paragraph.add_run(f"{label}. {title}")
     run.bold = True
     rows = row_function()
     table = document.add_table(rows=len(rows), cols=len(rows[0]))
@@ -243,6 +246,14 @@ def add_word_table(document: Document, table_number: int) -> None:
     paragraph.paragraph_format.line_spacing = 1
     for run in paragraph.runs:
         run.font.size = Pt(9)
+
+
+def add_word_table(document: Document, table_number: int) -> None:
+    render_table(document, f"Table {table_number}", TABLES[table_number])
+
+
+def add_supporting_table(document: Document, table_number: int) -> None:
+    render_table(document, f"Table S{table_number}", SUPPORTING_TABLES[table_number])
 
 
 def add_inline_figure(document: Document, figure_number: int) -> None:
@@ -394,6 +405,13 @@ def create_single_table_document(path: Path, table_number: int) -> None:
     document.save(path)
 
 
+def create_single_supporting_table_document(path: Path, table_number: int) -> None:
+    document = Document()
+    configure_document(document)
+    add_supporting_table(document, table_number)
+    document.save(path)
+
+
 def create_supporting_information(path: Path) -> None:
     document = Document()
     configure_document(document)
@@ -414,8 +432,10 @@ def create_supporting_information(path: Path) -> None:
         image.add_run().add_picture(
             str(FIGURE_DIR / filename), width=Inches(6.35)
         )
-        if number != max(SUPPORTING_FIGURES):
-            document.add_page_break()
+        document.add_page_break()
+    for number in SUPPORTING_TABLES:
+        add_supporting_table(document, number)
+        document.add_page_break()
     document.add_heading("Supplementary Data Files", level=1)
     document.add_paragraph(
         "Supplementary Data 1: population_metadata.csv. Population, project, sample "
@@ -609,6 +629,11 @@ def create_presentation(path: Path) -> None:
         add_slide_title(slide, f"Table {number}. {title}")
         add_ppt_table(slide, row_function())
         add_slide_caption(slide, f"Note. {note}")
+    for number, (title, row_function, note) in SUPPORTING_TABLES.items():
+        slide = presentation.slides.add_slide(blank)
+        add_slide_title(slide, f"Table S{number}. {title}")
+        add_ppt_table(slide, row_function())
+        add_slide_caption(slide, f"Note. {note}")
     presentation.save(path)
 
 
@@ -749,12 +774,12 @@ def create_checklist(path: Path) -> None:
 
 - `manuscript_ahg.docx`: manuscript with figure legends and no embedded figure bodies
 - `manuscript_ahg_inline_review.docx`: internal review copy with figures and tables immediately after first mention
-- `Table_1_residual_outliers.docx` and `Table_2_abo_summary.docx`: individual editable tables
-- `tables_ahg.docx`: combined editable Tables 1-2 for internal convenience
-- `supporting_information_ahg.docx`: Supporting Figures S1-S6 and data-file descriptions
-- `figures_tables_ahg.pptx`: Figures 1-5, Figures S1-S6, and Tables 1-2
+- `Table_1_residual_outliers.docx`: main editable table; `Table_S1_abo_summary.docx`: supporting editable table
+- `tables_ahg.docx`: editable main Table 1 for internal convenience
+- `supporting_information_ahg.docx`: Supporting Figures S1-S5, supporting Table S1, and data-file descriptions
+- `figures_tables_ahg.pptx`: Figures 1-4, Figures S1-S5, Table 1, and Table S1
 - `cover_letter_ahg.docx`: Annals of Human Genetics Original Article cover letter
-- `figures/Figure_1` through `Figure_5` and `Figure_S1` through `Figure_S6`: separate PNG and TIFF files
+- `figures/Figure_1` through `Figure_4` and `Figure_S1` through `Figure_S5`: separate PNG and TIFF files
 - `supplementary_data/`: population metadata, complete pairwise results, model output, sensitivities, and provenance
 - `reproducibility_checklist.md`: data provenance, rebuild commands, expected checks, and package versions
 - `reference_validation.csv`: DOI/PubMed existence and title checks
@@ -763,7 +788,7 @@ def create_checklist(path: Path) -> None:
 
 - References use author-date (author-year) style and are alphabetized.
 - Every listed reference is cited and every citation has a reference entry.
-- Figures 1-5, Figures S1-S6, and Tables 1-2 are first mentioned sequentially.
+- Figures 1-4, Figures S1-S5, and Table 1 are first mentioned sequentially.
 - The summary is unstructured and within 200 words.
 - The main text (Introduction-Discussion) is within 4,000 words, excluding references.
 - Three to six MeSH keywords are listed in alphabetical order.
@@ -783,7 +808,7 @@ def create_checklist(path: Path) -> None:
 - Figures and tables may be embedded in the main file at initial submission; at revision they must be supplied as separate files.
 - Upload the manuscript without embedded figures; upload each TIFF separately.
 - Upload `supporting_information_ahg.docx` and the supplementary CSV/JSON files.
-- Upload `Table_1_residual_outliers.docx` and `Table_2_abo_summary.docx` as editable table files.
+- Upload `Table_1_residual_outliers.docx` as the editable main table and `Table_S1_abo_summary.docx` as the editable supporting table.
 - Do not interpret nominal residuals, PEL-containing pairs, or the two Indigenous-American ABO-window segments as definitive migration evidence.
 
 ## Submission links
@@ -886,14 +911,14 @@ def create_zip(path: Path, files: list[Path]) -> None:
 
 def main() -> None:
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    for stale in ["Table_1_corrected_model.docx"]:
+    for stale in ["Table_1_corrected_model.docx", "Table_2_abo_summary.docx"]:
         (OUTPUT_DIR / stale).unlink(missing_ok=True)
     prepare_separate_figures()
     manuscript = OUTPUT_DIR / "manuscript_ahg.docx"
     review = OUTPUT_DIR / "manuscript_ahg_inline_review.docx"
     tables = OUTPUT_DIR / "tables_ahg.docx"
     table_1 = OUTPUT_DIR / "Table_1_residual_outliers.docx"
-    table_2 = OUTPUT_DIR / "Table_2_abo_summary.docx"
+    table_s1 = OUTPUT_DIR / "Table_S1_abo_summary.docx"
     supporting = OUTPUT_DIR / "supporting_information_ahg.docx"
     cover = OUTPUT_DIR / "cover_letter_ahg.docx"
     presentation = OUTPUT_DIR / "figures_tables_ahg.pptx"
@@ -907,7 +932,7 @@ def main() -> None:
     create_manuscript(review, inline=True)
     create_tables_document(tables)
     create_single_table_document(table_1, 1)
-    create_single_table_document(table_2, 2)
+    create_single_supporting_table_document(table_s1, 1)
     create_supporting_information(supporting)
     create_cover_letter(cover)
     create_presentation(presentation)
@@ -930,7 +955,7 @@ def main() -> None:
     zip_files = [
         manuscript,
         table_1,
-        table_2,
+        table_s1,
         supporting,
         cover,
         presentation,
