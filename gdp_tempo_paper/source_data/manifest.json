@@ -1,0 +1,42 @@
+{
+  "research_vintage": "2026-06-18",
+  "files": [
+    {
+      "path": "pwt1001_selected.csv",
+      "sha256": "b8b60075d88071bda8208bb6232191408e9777801bb5f4b26b60963b7f0c385d",
+      "dataset": "Penn World Table 10.01",
+      "source_doi": "10.34894/QT5BCC",
+      "source_url": "https://cloud.r-project.org/src/contrib/pwt10_10.01-0.tar.gz",
+      "upstream_file": "pwt10/data/pwt10.01.rda",
+      "license": "CC BY 4.0 (underlying PWT data)",
+      "transformation": "Selected the 39 study economies and variables country, isocode, year, rgdpna, rnna, emp, avh, hc, labsh, csh_i, and delta; renamed isocode to iso3 and normalized the USA display name.",
+      "rows": 2730
+    },
+    {
+      "path": "world_bank_indicators.csv",
+      "sha256": "5d67706613e50aef1680eb1b271b3a9e9d3ef576d025560204435c273f2c5d7a",
+      "dataset": "World Development Indicators and Changing Wealth of Nations",
+      "source_url_template": "https://api.worldbank.org/v2/country/all/indicator/{indicator}?format=json&per_page=30000",
+      "indicators": [
+        "GB.XPD.RSDV.GD.ZS",
+        "NW.PCA.TO",
+        "NW.HCA.TO",
+        "NW.TOW.TO"
+      ],
+      "license": "World Bank Dataset Terms of Use",
+      "transformation": "Retained non-null observations for the 39 study economies and normalized them to indicator, iso3, year, value.",
+      "rows": 4040
+    },
+    {
+      "path": "oecd/gfcf_by_asset_full.csv",
+      "sha256": "2287b0a7a1d179f8a16a7817482d1da7eeef0e5628cd1f4e5edd5e16c2a88423",
+      "dataset": "OECD Annual National Accounts: expenditure, GFCF by asset",
+      "source_dataflow": "OECD.SDD.NAD,DSD_NAMAIN10@DF_TABLE1_EXPENDITURE_GFCF_ASSET",
+      "source_url": "https://sdmx.oecd.org/public/rest/v1/data/OECD.SDD.NAD,DSD_NAMAIN10@DF_TABLE1_EXPENDITURE_GFCF_ASSET,/.?startPeriod=1970",
+      "accessed": "2026-06-18",
+      "license": "OECD Terms and Conditions",
+      "transformation": "Retained REF_AREA, INSTR_ASSET, TIME_PERIOD and OBS_VALUE; applied UNIT_MULT as value = OBS_VALUE * 10^UNIT_MULT; renamed fields to iso3, asset, year, value. Source order and duplicate observations are retained because the published analysis selected the final observation for each asset-country-year.",
+      "rows": 36928
+    }
+  ]
+}

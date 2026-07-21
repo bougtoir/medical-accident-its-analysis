@@ -96,6 +96,8 @@ jobs:
           BRANCH_MAP["devin/1776765895-gdp-cwon-joint"]="gdp-cwon-joint"
           # devin/1776768797-gdp-tempo-paper superseded by jom-submission branch
           BRANCH_MAP["devin/1781676665-jom-submission"]="gdp-tempo-paper"
+          # Current Empirical Economics replication package
+          BRANCH_MAP["master"]="gdp-tempo"
 
           # ── Spectral causality ──
           BRANCH_MAP["devin/1777462980-spectral-causality-brainstorm"]="spectral-causality-brainstorm"
@@ -191,7 +193,9 @@ jobs:
           BRANCH_MAP["devin/1783649000-ijcip-submission"]="discharged-secrets-ijcip"
 
           # ── Discharged Secrets (scoping review and public-data audit) ──
-          BRANCH_MAP["devin/1783957193-discharged-secrets-scoping-review"]="discharged-secrets-scoping-review"
+          # NOTE: superseded by devin/1784122193-luup-data-policy (same target repo)
+          # BRANCH_MAP["devin/1783957193-discharged-secrets-scoping-review"]="discharged-secrets-scoping-review"
+          BRANCH_MAP["devin/1784122193-luup-data-policy"]="discharged-secrets-scoping-review"
 
           # ── Subdirectory filter map ──
           # When a branch contains multiple project folders (e.g. branched from
@@ -231,6 +235,7 @@ jobs:
           SUBDIR_MAP["devin/1777547587-pwv-vitaldb-analysis"]="pwv_vitaldb_analysis"
           # devin/1776768797-gdp-tempo-paper superseded by jom-submission branch
           SUBDIR_MAP["devin/1781676665-jom-submission"]="gdp_tempo_paper"
+          SUBDIR_MAP["master"]="gdp_tempo_paper"
           SUBDIR_MAP["devin/1779720458-sr-ancova-signal-processing"]="sr_ancova_framework"
           SUBDIR_MAP["devin/1779728490-dvs-jatis-submission"]="dvs_noise_inverse_problem"
           SUBDIR_MAP["devin/1781729486-measurement-integrated"]="dvs_noise_inverse_problem"
@@ -253,7 +258,9 @@ jobs:
           SUBDIR_MAP["devin/1782828801-anesthesia-record"]="anesthesia-record"
           SUBDIR_MAP["devin/1783365908-mnras-submission"]="threebody_pk_compartment"
           SUBDIR_MAP["devin/1783649000-ijcip-submission"]="discharged_secrets_ijcip"
-          SUBDIR_MAP["devin/1783957193-discharged-secrets-scoping-review"]="discharged_secrets_ijcip"
+          # NOTE: superseded by devin/1784122193-luup-data-policy (same target repo)
+          # SUBDIR_MAP["devin/1783957193-discharged-secrets-scoping-review"]="discharged_secrets_ijcip"
+          SUBDIR_MAP["devin/1784122193-luup-data-policy"]="discharged_secrets_ijcip"
           # Publish ONLY the clean, reproducible reanalysis folder (exclude tainted originals)
           SUBDIR_MAP["devin/1784008417-weibull-tb-reproducible-data"]="weibull-clinical-dropout/reanalysis_real"
 
@@ -268,6 +275,10 @@ jobs:
           EXCLUDE_MAP["devin/1780790605-ep-submission-prep"]="create_manuscript.py create_manuscript_latex.py create_cover_letter_and_checklist.py manuscript/generate_docx.py manuscript/generate_cover_letter_docx.py manuscript/generate_figures_pptx.py manuscript/manuscript.tex manuscript/references.bib manuscript/manuscript.docx manuscript/manuscript.pdf manuscript/cover_letter.docx manuscript/cover_letter.pdf manuscript/cover_letter.tex manuscript/figures_pptx.pptx manuscript/sn-basic.bst manuscript/sn-jnl.cls manuscript/strobe_checklist.docx manuscript/table_s1.docx manuscript/table_s1.pdf manuscript/table_s1.tex"
           EXCLUDE_MAP["sits9-sync"]="create_essay_docx.py create_leonardo_docx.py create_pachelbel_schemas.py output/sits9_essay.docx output/sits9_leonardo.docx output/sits9_figures.pptx"
           EXCLUDE_MAP["devin/1783365908-mnras-submission"]="MNRAS_checklist.txt submission_strategy.md"
+          # Keep the manuscript-body/cover-letter assembler and its prose-bearing
+          # outputs out of the public repo; reproduce.py (figures + in-text numbers)
+          # and the data/analysis code remain public for reproducibility.
+          EXCLUDE_MAP["devin/1784122193-luup-data-policy"]="build_submission.py output/Manuscript_DataPolicy.docx output/Cover_Letter_DataPolicy.docx output/Title_Page_DataPolicy.docx output/Submission_Checklist_DataPolicy.docx output/DataPolicy_submission_package.zip output/VALIDATION.txt output/Citation_Audit.csv output/Reference_Verification.csv output/Reporting_Guideline_PRISMA-ScR.docx"
 
           OWNER="bougtoir"
 

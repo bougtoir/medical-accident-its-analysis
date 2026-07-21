@@ -1,0 +1,2 @@
+-r requirements.txt
+pyreadr==0.5.6
