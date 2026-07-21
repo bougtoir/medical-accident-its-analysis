@@ -19,8 +19,10 @@
 - References use author-date (author-year) style and are alphabetized.
 - Every listed reference is cited and every citation has a reference entry.
 - Figures 1-5, Figures S1-S6, and Tables 1-2 are first mentioned sequentially.
-- The abstract is structured (Background/Methods/Results/Conclusion) and within 250 words.
-- The running title is under 48 characters.
+- The summary is unstructured and within 200 words.
+- The main text (Introduction-Discussion) is within 4,000 words, excluding references.
+- Three to six MeSH keywords are listed in alphabetical order.
+- The running title is under 70 characters and the title contains no abbreviations.
 - Required title-page, availability, funding, conflict, ethics, and contribution statements are present.
 - No submission placeholder strings remain.
 
@@ -31,7 +33,9 @@
 - Confirm the conflict-of-interest statement.
 - Obtain or confirm an institutional determination for this secondary genomic analysis.
 - Review the explicit disclosure of no direct community engagement or return of results.
-- Confirm the AHG article type and current file/word limits in the ScholarOne submission portal.
+- Provide an authenticated ORCID iD for the submitting author in the Research Exchange portal.
+- Confirm the AHG article type and current limits in the Research Exchange portal.
+- Figures and tables may be embedded in the main file at initial submission; at revision they must be supplied as separate files.
 - Upload the manuscript without embedded figures; upload each TIFF separately.
 - Upload `supporting_information_ahg.docx` and the supplementary CSV/JSON files.
 - Upload `Table_1_residual_outliers.docx` and `Table_2_abo_summary.docx` as editable table files.
@@ -40,4 +44,5 @@
 ## Submission links
 
 - Author guidelines: https://onlinelibrary.wiley.com/page/journal/14691809/homepage/forauthors.html
-- New-submission portal (ScholarOne): https://mc.manuscriptcentral.com/ahg
+- New-submission portal (Research Exchange): https://authors.wiley.com/journal/AHG
+- Editorial office / submission help: AHG.journal@wiley.com; Editor-in-Chief: ahgeditor@ucl.ac.uk

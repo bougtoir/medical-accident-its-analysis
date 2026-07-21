@@ -32,7 +32,7 @@ OUTPUT_FIGURE_DIR = OUTPUT_DIR / "figures"
 JOURNAL = "Annals of Human Genetics"
 JOURNAL_SHORT = "AHG"
 ARTICLE_TYPE = "Original Article"
-EDITOR_IN_CHIEF = "Professor Rosemary Ekong"
+EDITOR_IN_CHIEF = "Dr. Rosemary Ekong"
 TITLE = (
     "Pairwise sharing of Neanderthal and Denisovan introgression across global "
     "populations: An exploratory geographic analysis"
@@ -626,7 +626,7 @@ def add_title_page(document: Document) -> None:
     paragraph = document.add_paragraph()
     paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
     paragraph.add_run(f"Running title: {RUNNING_TITLE}")
-    document.add_heading("Abstract", level=1)
+    document.add_heading("Summary", level=1)
     paragraph = document.add_paragraph(ABSTRACT)
     paragraph.paragraph_format.line_spacing = 1.5
     paragraph = document.add_paragraph()
@@ -813,6 +813,10 @@ def add_manuscript_body(document: Document, inline: bool) -> None:
         "contributions made the 1000 Genomes, HGDP, hmmix, and ancient-genome resources "
         "available. Public availability does not remove obligations of respectful reuse."
     )
+    document.add_paragraph(
+        "Funding: This research received no specific grant from any funding agency in "
+        "the public, commercial, or not-for-profit sectors."
+    )
     document.add_heading("Data Availability", level=1)
     document.add_paragraph(
         "Analysis scripts, aggregate derived data, figures, and document-generation code "
@@ -822,12 +826,7 @@ def add_manuscript_body(document: Document, inline: bool) -> None:
         "(https://doi.org/10.5281/zenodo.14136628). Raw-file SHA-256 checksums and all "
         "analysis parameters are included in analysis_provenance.json."
     )
-    document.add_heading("Funding", level=1)
-    document.add_paragraph(
-        "This research received no specific grant from any funding agency in the "
-        "public, commercial, or not-for-profit sectors."
-    )
-    document.add_heading("Conflict of Interest", level=1)
+    document.add_heading("Conflict of Interest Statement", level=1)
     document.add_paragraph("The author declares no conflict of interest.")
     document.add_heading("Ethics Statement", level=1)
     document.add_paragraph(
@@ -961,9 +960,8 @@ def create_cover_letter(path: Path) -> None:
     document.styles["Normal"].paragraph_format.space_after = Pt(7)
     for text in [
         EDITOR_IN_CHIEF,
-        "Editor-in-Chief",
-        JOURNAL,
-        "Wiley / University College London",
+        "Editor-in-Chief, " + JOURNAL,
+        "University College London",
     ]:
         document.add_paragraph(text)
     document.add_paragraph()
@@ -1213,11 +1211,18 @@ def validate_content() -> list[str]:
         ),
         ("Table first-appearance order", table_order == list(TABLES)),
         ("No placeholder strings", not unresolved),
-        ("Running title under 48 characters", len(RUNNING_TITLE) < 48),
-        ("Abstract at most 250 words", len(ABSTRACT.split()) <= 250),
+        ("Running title under 70 characters", len(RUNNING_TITLE) < 70),
+        ("Title without abbreviations", not re.search(r"\b[A-Z]{2,}\b", TITLE)),
+        ("Summary at most 200 words", len(ABSTRACT.split()) <= 200),
+        ("Main text at most 4000 words", len(joined_body.split()) <= 4000),
         (
-            "Three to five keywords",
-            3 <= len([k for k in KEYWORDS.split(";") if k.strip()]) <= 5,
+            "Three to six keywords",
+            3 <= len([k for k in KEYWORDS.split(";") if k.strip()]) <= 6,
+        ),
+        (
+            "Keywords alphabetical",
+            [k.strip() for k in KEYWORDS.split(";") if k.strip()]
+            == sorted(k.strip() for k in KEYWORDS.split(";") if k.strip()),
         ),
         (
             "All figure source files present",
@@ -1235,7 +1240,8 @@ def validate_content() -> list[str]:
         f"{JOURNAL_SHORT} SUBMISSION VALIDATION",
         "==========================",
         "",
-        f"Abstract words: {len(ABSTRACT.split())}",
+        f"Summary words: {len(ABSTRACT.split())}",
+        f"Main-text words: {len(joined_body.split())}",
         f"References: {len(REFERENCES)}",
         f"Uncited references: {uncited_references}",
         f"First-appearance figure order: {figure_order}",
@@ -1272,8 +1278,10 @@ def create_checklist(path: Path) -> None:
 - References use author-date (author-year) style and are alphabetized.
 - Every listed reference is cited and every citation has a reference entry.
 - Figures 1-5, Figures S1-S6, and Tables 1-2 are first mentioned sequentially.
-- The abstract is structured (Background/Methods/Results/Conclusion) and within 250 words.
-- The running title is under 48 characters.
+- The summary is unstructured and within 200 words.
+- The main text (Introduction-Discussion) is within 4,000 words, excluding references.
+- Three to six MeSH keywords are listed in alphabetical order.
+- The running title is under 70 characters and the title contains no abbreviations.
 - Required title-page, availability, funding, conflict, ethics, and contribution statements are present.
 - No submission placeholder strings remain.
 
@@ -1284,7 +1292,9 @@ def create_checklist(path: Path) -> None:
 - Confirm the conflict-of-interest statement.
 - Obtain or confirm an institutional determination for this secondary genomic analysis.
 - Review the explicit disclosure of no direct community engagement or return of results.
-- Confirm the AHG article type and current file/word limits in the ScholarOne submission portal.
+- Provide an authenticated ORCID iD for the submitting author in the Research Exchange portal.
+- Confirm the AHG article type and current limits in the Research Exchange portal.
+- Figures and tables may be embedded in the main file at initial submission; at revision they must be supplied as separate files.
 - Upload the manuscript without embedded figures; upload each TIFF separately.
 - Upload `supporting_information_ahg.docx` and the supplementary CSV/JSON files.
 - Upload `Table_1_residual_outliers.docx` and `Table_2_abo_summary.docx` as editable table files.
@@ -1293,7 +1303,8 @@ def create_checklist(path: Path) -> None:
 ## Submission links
 
 - Author guidelines: https://onlinelibrary.wiley.com/page/journal/14691809/homepage/forauthors.html
-- New-submission portal (ScholarOne): https://mc.manuscriptcentral.com/ahg
+- New-submission portal (Research Exchange): https://authors.wiley.com/journal/AHG
+- Editorial office / submission help: AHG.journal@wiley.com; Editor-in-Chief: ahgeditor@ucl.ac.uk
 """
     path.write_text(content, encoding="utf-8")
 
