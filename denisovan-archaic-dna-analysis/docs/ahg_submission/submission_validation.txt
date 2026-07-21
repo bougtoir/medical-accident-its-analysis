@@ -2,7 +2,7 @@ AHG SUBMISSION VALIDATION
 ==========================
 
 Summary words: 179
-Main-text words: 2296
+Main-text words: 2298
 References: 24
 Uncited references: []
 First-appearance figure order: [1, 2, 3, 4, 5]

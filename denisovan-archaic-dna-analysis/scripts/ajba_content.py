@@ -244,7 +244,8 @@ REFERENCES = [record[1] for record in REFERENCE_RECORDS]
 
 INTRODUCTION = [
     (
-        "Genomic comparisons established gene flow from Neanderthals and Denisovans "
+        "Genomic comparisons established gene flow from Neanderthals "
+        "(Homo neanderthalensis) and Denisovans "
         "into ancestors of present-day populations outside Africa (Green et al. 2010; "
         "Reich et al. 2010). The amount and genomic distribution of introgressed "
         "sequence vary among populations because of demographic history, drift, "
