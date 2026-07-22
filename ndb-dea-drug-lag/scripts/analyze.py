@@ -7,12 +7,9 @@ data/hcv_product_timeseries.csv (produced by build_dataset.py) and written to
 results/summary.json so that the manuscript/report can read them rather than
 hard-coding values. No numeric literals describing results live here.
 
-Supplementary, clearly-labelled estimate: DAA "treatment courses" approximated by
-dividing each product's annual dispensed tablet/capsule quantity by a documented
-tablets-per-course figure (regimen duration x daily tablet count from each drug's
-Japanese package insert). This converts dispensed quantity into an approximate
-number of treated patients per year. Assumptions are stored in
-data/daa_course_assumptions.csv and are estimates, not NDB-reported counts.
+Formal trend models with uncertainty intervals (segmented / exponential
+regression with HAC and bootstrap 95% intervals) are computed separately in
+its_analysis.py and written to results/its_summary.json.
 """
 import json
 import os

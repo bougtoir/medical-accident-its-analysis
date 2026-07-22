@@ -42,7 +42,17 @@ Drug groups (identified from the real drug names present in the files):
   decision-makers reacted rapidly to approval/reimbursement, and anticipated demand
   was realized quickly.
 
-All numbers above are regenerated into `results/summary.json`; do not hard-code.
+Formal trend models with uncertainty intervals (`results/its_summary.json`): because
+NDB begins in FY2014 (coincident with IFN-free DAA launch) there is no internal
+pre-intervention baseline and a conventional pre/post interrupted time series is not
+identifiable, so with n=10 annual points we fit descriptive trend models. Peginterferon
+declined **~36%/yr** (95% CI ~24-47%), ribavirin **~76%/yr**, conventional IFN **~25%/yr**;
+total DAA dispensing fell **~25%/yr** after the FY2015 peak (segmented log-linear
+regression, post- vs pre-peak slope change P≈0.003). Intervals are Newey-West (HAC)
+and residual-bootstrap based.
+
+All numbers above are regenerated into `results/summary.json` and
+`results/its_summary.json`; do not hard-code.
 
 ## "News / announcement" side (`data/announcement_events.csv`)
 Primary intervention markers are official **NHI drug-price listings (薬価収載)** and
@@ -60,15 +70,20 @@ Primary intervention markers are official **NHI drug-price listings (薬価収�
 python3 scripts/download_ndb.py      # fetch raw NDB workbooks into data/ndb_raw/
 python3 scripts/build_dataset.py     # -> data/target_drugs_long.csv, hcv_timeseries.csv, hcv_product_timeseries.csv
 python3 scripts/analyze.py           # -> results/summary.json
+python3 scripts/its_analysis.py      # -> results/its_summary.json (trend models + 95% intervals)
 python3 scripts/make_figures.py --lang en
 python3 scripts/make_figures.py --lang ja
+python3 scripts/make_manuscript.py   # -> output/ JA+EN manuscript docx, table docx, figure pptx
 ```
 
 ## Limitations
 - NDB Open Data begins in FY2014, the same period IFN-free DAAs launched, so there is
   no pre-DAA IFN baseline *within* NDB; the FY2014 value already reflects decline from
   the pre-2014 peak.
-- The metric is dispensed quantity, not patient counts. DAA "treatment-course"
-  estimates (approximate patient counts) are derived separately and clearly labelled
-  as estimates.
-- Annual resolution only (no within-year interrupted time series).
+- The metric is dispensed quantity, not patient counts; units differ across products,
+  so summed DAA quantity is not a patient count.
+- Annual resolution only (no within-year interrupted time series); reported trend
+  rates carry wide uncertainty intervals given the small number of annual
+  observations (n=10), and there is no control condition or placebo event.
+- Descriptive evidence only: consistent with population-level anticipation, but does
+  not establish that media coverage caused individual treatment choices.

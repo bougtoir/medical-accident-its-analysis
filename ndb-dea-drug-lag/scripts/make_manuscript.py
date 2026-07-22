@@ -28,6 +28,7 @@ RES = os.path.join(BASE, "results")
 OUT = os.path.join(BASE, "output")
 
 S = json.load(open(os.path.join(RES, "summary.json"), encoding="utf-8"))
+ITS = json.load(open(os.path.join(RES, "its_summary.json"), encoding="utf-8"))
 TS = pd.read_csv(os.path.join(DATA, "hcv_timeseries.csv")).set_index("fy")
 EV = pd.read_csv(os.path.join(DATA, "announcement_events.csv"))
 
@@ -48,6 +49,25 @@ daa_fall = abs(S["daa_total"]["pct_change_peak_to_last"])
 daa_last_m = S["daa_total"]["fy_last"] / 1e6
 n_daa = S["n_distinct_daa_products"]
 
+
+def decline_ci(d, ci_key="annual_change_hac95"):
+    """Return (|annual %|, ci_low_magnitude, ci_high_magnitude) for a decay fit."""
+    r = abs(d["annual_change_pct"])
+    lo, hi = (abs(v) for v in d[ci_key])
+    return r, min(lo, hi), max(lo, hi)
+
+
+peg_r, peg_lo, peg_hi = decline_ci(ITS["peginterferon_decay"])
+rbv_r, rbv_lo, rbv_hi = decline_ci(ITS["ribavirin_decay"])
+conv_r, conv_lo, conv_hi = decline_ci(ITS["conventional_ifn_decay"])
+rbv_fy0, rbv_fy1 = ITS["ribavirin_decay"]["fy_used"]
+daa_knot = ITS["daa_segmented"]["knot_fy"]
+daa_post_r = abs(ITS["daa_segmented"]["post_peak_annual_rate_pct"])
+daa_post_ci = sorted(abs(v) for v in ITS["daa_segmented"]["post_peak_annual_rate_boot95"])
+daa_slope_p = ITS["daa_segmented"]["slope_change_p"]
+n_obs = ITS["n_annual_observations"]
+n_boot = ITS["bootstrap_resamples"]
+
 # ------------------------------------------------------------------------------
 # Reference text per source id (no fabricated citations; verifiable sources only).
 # Citation NUMBERS are assigned dynamically in order of first appearance (Vancouver),
@@ -63,6 +83,11 @@ REF_TEXT = {
         "nhi": "Ministry of Health, Labour and Welfare / Central Social Insurance "
                "Medical Council (Chuikyo). NHI drug-price listings of direct-acting "
                "antivirals for hepatitis C (2014-2017).",
+        "newey": "Newey WK, West KD. A simple, positive semi-definite, "
+                 "heteroskedasticity and autocorrelation consistent covariance "
+                 "matrix. Econometrica. 1987;55(3):703-708.",
+        "efron": "Efron B, Tibshirani RJ. An Introduction to the Bootstrap. "
+                 "New York: Chapman & Hall; 1993.",
     },
     "ja": {
         "ndb": "厚生労働省. NDBオープンデータ（第1〜10回）. "
@@ -74,6 +99,11 @@ REF_TEXT = {
                "2014年7月4日.",
         "nhi": "厚生労働省／中央社会保険医療協議会（中医協）. C型肝炎に対する"
                "直接作用型抗ウイルス薬の薬価基準収載（2014〜2017年）.",
+        "newey": "Newey WK, West KD. A simple, positive semi-definite, "
+                 "heteroskedasticity and autocorrelation consistent covariance "
+                 "matrix. Econometrica. 1987;55(3):703-708.",
+        "efron": "Efron B, Tibshirani RJ. An Introduction to the Bootstrap. "
+                 "New York: Chapman & Hall; 1993.",
     },
 }
 
@@ -232,8 +262,7 @@ def build_manuscript(lang):
                   "listing milestones")
         cite(p, ["bms", "nhi"], lang)
         p.add_run(" were used as intervention markers at fiscal-year resolution "
-                  "(Table 1). Analyses are descriptive; the full pipeline "
-                  "(download -> build -> analyze -> figures) is openly reproducible.")
+                  "(Table 1).")
     else:
         p.add_run(f"NDBオープンデータ第1〜10回（{Y0}〜{Y1}年度）")
         cite(p, ["ndb"], lang)
@@ -244,13 +273,46 @@ def build_manuscript(lang):
                   "カプセル、注射はシリンジ・バイアル）であり患者数ではなく、製剤ごとに経時比較する。"
                   "公式の承認・薬価収載イベント")
         cite(p, ["bms", "nhi"], lang)
-        p.add_run("を年度解像度の介入マーカーとした（表1）。解析は記述的であり、全パイプライン"
-                  "（download→build→analyze→figures）は公開・再現可能である。")
+        p.add_run("を年度解像度の介入マーカーとした（表1）。")
 
     add_caption(doc, ("Table 1. Official approval / NHI drug-price listing milestones "
                       "used as intervention markers." if lang == "en"
                       else "表1．介入マーカーとして用いた公式の承認・薬価収載イベント。"))
     add_events_table(doc, lang)
+
+    p = doc.add_paragraph()
+    if lang == "en":
+        p.add_run(f"Statistical analysis. Because NDB begins in FY{Y0}, coincident with "
+                  "IFN-free DAA availability, there is no pre-intervention baseline and a "
+                  "conventional pre/post interrupted time series is not identifiable; with "
+                  f"{n_obs} annual national observations we therefore fitted descriptive "
+                  "trend models. Total DAA dispensing was modelled by continuous segmented "
+                  "(broken-stick) log-linear regression with a knot at the observed peak "
+                  "fiscal year, estimating pre- and post-peak annual multiplicative rates "
+                  "of change; each IFN-based drug was modelled by exponential (log-linear) "
+                  "decay over fiscal years with positive dispensing. Uncertainty was "
+                  "expressed as heteroskedasticity- and autocorrelation-consistent "
+                  "(Newey-West, maxlags=1) 95% intervals")
+        cite(p, ["newey"], lang)
+        p.add_run(f", cross-checked by a residual bootstrap ({fmt(n_boot,0)} resamples)")
+        cite(p, ["efron"], lang)
+        p.add_run(". These quantify how fast dispensing changed and its uncertainty; they "
+                  "are not causal estimates. Analyses used Python (statsmodels); the full "
+                  "pipeline (download -> build -> analyze -> figures) is openly reproducible.")
+    else:
+        p.add_run(f"統計解析。NDBはFY{Y0}開始でIFNフリーDAA導入時期と重なるため、介入前の"
+                  "基準期間が存在せず従来型の前後比較（中断時系列）は同定できない。そこで"
+                  f"{n_obs}点の年次全国データに対し記述的なトレンドモデルを当てはめた。DAA合計は"
+                  "観測ピーク年度をノットとする連続分節（折れ線）対数線形回帰でモデル化し、"
+                  "ピーク前後の年次の乗法的変化率を推定した。各IFNベース薬は処方数量が正の"
+                  "年度に対する指数（対数線形）減衰でモデル化した。不確実性は不均一分散・"
+                  "自己相関に頑健な（Newey-West, maxlags=1）95%区間")
+        cite(p, ["newey"], lang)
+        p.add_run(f"として表し、残差ブートストラップ（{fmt(n_boot,0)}回）で相互確認した")
+        cite(p, ["efron"], lang)
+        p.add_run("。これらは変化の速さと不確実性を定量化するものであり因果推定ではない。"
+                  "解析はPython（statsmodels）で行い、全パイプライン"
+                  "（download→build→analyze→figures）は公開・再現可能である。")
 
     # ---- Results ----
     doc.add_heading(T["h_res"], level=1)
@@ -259,11 +321,20 @@ def build_manuscript(lang):
         p.add_run(f"The interferon-based standard therapy collapsed after IFN-free DAAs "
                   f"became available (Fig. 1). Peginterferon dispensing fell "
                   f"{fmt(peg_drop,1)}% from FY{Y0} to FY{Y1}, and ribavirin reached "
-                  f"near-zero by FY{rbv_zero_year}.")
+                  f"near-zero by FY{rbv_zero_year}. In the trend models this corresponded "
+                  f"to peginterferon declining {fmt(peg_r,0)}% per year "
+                  f"(95% CI {fmt(peg_lo,0)}-{fmt(peg_hi,0)}%), ribavirin "
+                  f"{fmt(rbv_r,0)}% per year (95% CI {fmt(rbv_lo,0)}-{fmt(rbv_hi,0)}%; "
+                  f"FY{rbv_fy0}-FY{rbv_fy1}), and conventional interferon {fmt(conv_r,0)}% "
+                  f"per year (95% CI {fmt(conv_lo,0)}-{fmt(conv_hi,0)}%).")
     else:
         p.add_run(f"IFNフリーDAAの登場後、インターフェロンベース標準治療は消失した（図1）。"
                   f"ペグインターフェロンの処方数量はFY{Y0}からFY{Y1}で{fmt(peg_drop,1)}%減少し、"
-                  f"リバビリンはFY{rbv_zero_year}までにほぼゼロとなった。")
+                  f"リバビリンはFY{rbv_zero_year}までにほぼゼロとなった。トレンドモデルでは、"
+                  f"ペグインターフェロンは年{fmt(peg_r,0)}%（95%CI {fmt(peg_lo,0)}〜{fmt(peg_hi,0)}%）、"
+                  f"リバビリンは年{fmt(rbv_r,0)}%（95%CI {fmt(rbv_lo,0)}〜{fmt(rbv_hi,0)}%、"
+                  f"FY{rbv_fy0}〜FY{rbv_fy1}）、従来型インターフェロンは年{fmt(conv_r,0)}%"
+                  f"（95%CI {fmt(conv_lo,0)}〜{fmt(conv_hi,0)}%）の減少率であった。")
     insert_fig(doc, os.path.join(OUT, f"fig1_ifn_collapse_{lang}.png"))
     add_caption(doc, ("Fig. 1. Collapse of interferon-based standard therapy "
                       "(indexed to FY%d = 100) with total DAA dispensed quantity and "
@@ -277,12 +348,19 @@ def build_manuscript(lang):
                   f"dispensing peaked in FY{daa_peak_fy} at {fmt(daa_peak_val_m,1)} million "
                   f"units (+{fmt(daa_rise,0)}% vs FY{Y0}) and then declined {fmt(daa_fall,0)}% "
                   f"to {fmt(daa_last_m,1)} million units by FY{Y1}, with successive products "
-                  "replacing earlier ones.")
+                  f"replacing earlier ones. In the segmented model, DAA dispensing declined "
+                  f"{fmt(daa_post_r,0)}% per year after the FY{daa_knot} peak "
+                  f"(95% CI {fmt(daa_post_ci[0],0)}-{fmt(daa_post_ci[1],0)}%), and the "
+                  f"post-peak slope differed significantly from the pre-peak slope "
+                  f"(P={daa_slope_p:.3f}).")
     else:
         p.add_run(f"DAAの利用自体は急増→減衰パターンを示した（図2）。DAA合計はFY{daa_peak_fy}に"
                   f"{fmt(daa_peak_val_m,1)}百万単位（FY{Y0}比+{fmt(daa_rise,0)}%）でピークに達し、"
                   f"その後FY{Y1}までに{fmt(daa_fall,0)}%減少し{fmt(daa_last_m,1)}百万単位となった。"
-                  "後発の製剤が先行製剤を置換した。")
+                  f"後発の製剤が先行製剤を置換した。分節モデルでは、DAA処方数量は"
+                  f"FY{daa_knot}のピーク後に年{fmt(daa_post_r,0)}%"
+                  f"（95%CI {fmt(daa_post_ci[0],0)}〜{fmt(daa_post_ci[1],0)}%）で減少し、"
+                  f"ピーク後の傾きはピーク前と有意に異なった（P={daa_slope_p:.3f}）。")
     insert_fig(doc, os.path.join(OUT, f"fig2_daa_wave_{lang}.png"))
     add_caption(doc, ("Fig. 2. The DAA wave: dispensed quantity by product." if lang == "en"
                       else "図2．DAAの波：製剤別処方数量。"))
@@ -314,14 +392,17 @@ def build_manuscript(lang):
                   "already reflects decline from the pre-2014 peak. The metric is dispensed "
                   "quantity, not patient counts, and units differ across products, so the "
                   "summed DAA quantity is not a patient count. Data are annual, precluding "
-                  "within-year interrupted time-series or formal causal estimation, and no "
-                  "control condition or placebo event is included.")
+                  "within-year interrupted time-series or formal causal estimation; the "
+                  "reported trend rates carry wide uncertainty intervals given the small "
+                  f"number of annual observations (n={n_obs}), and no control condition or "
+                  "placebo event is included.")
     else:
         p.add_run(f"NDBオープンデータはFY{Y0}開始であり、これはIFNフリーDAA導入時期と重なるため、"
                   f"NDB内にDAA前のインターフェロン基準値は存在しない（FY{Y0}値は既に2014年以前の"
                   "ピークからの減少を反映）。指標は処方数量であり患者数ではなく、製剤間で単位が"
                   "異なるためDAA数量の合計は患者数ではない。データは年次であり、年内の中断時系列や"
-                  "形式的因果推定はできず、対照条件・プラセボイベントも含まない。")
+                  f"形式的因果推定はできず、報告したトレンド率は年次観測数が少ない（n={n_obs}）ため"
+                  "広い不確実性区間を伴う。対照条件・プラセボイベントも含まない。")
 
     # ---- Conclusion ----
     doc.add_heading(T["h_conc"], level=1)
