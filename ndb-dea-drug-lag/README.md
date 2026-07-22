@@ -69,16 +69,20 @@ All numbers above are regenerated into `results/summary.json`,
 ## "News / announcement" side (`data/announcement_events.csv`)
 Primary intervention markers are official **NHI drug-price listings (薬価収載)** and
 **PMDA approvals**, supplemented by major press coverage:
-1. **2014-07** daclatasvir + asunaprevir approved — world-first all-oral,
-   IFN/ribavirin-free regimen for chronic hepatitis C (Bristol-Myers Squibb).
-2. **2015-05 / 2015-08** sofosbuvir (Sovaldi) / ledipasvir-sofosbuvir (Harvoni) —
-   the core anticipation moment.
-3. **2017-11** glecaprevir/pibrentasvir (Maviret), pangenotypic.
+1. **daclatasvir + asunaprevir** — approval **2014-07-04**, NHI listing **2014-09-02**
+   (launch 2014-09-03); world-first all-oral, IFN/ribavirin-free regimen for chronic
+   hepatitis C (Bristol-Myers Squibb).
+2. **sofosbuvir (Sovaldi)** — approval **2015-03-26**, NHI listing **2015-05-20**;
+   **ledipasvir/sofosbuvir (Harvoni)** — approval **2015-07-03**, NHI listing
+   **2015-08-31** — the core anticipation moment.
+3. **glecaprevir/pibrentasvir (Maviret)** — approval **2017-09-27**, NHI listing
+   **2017-11-22** (launch 2017-11-27), pangenotypic.
 
-Dates are given at **month precision** (only the 2014-07-04 BMS approval press
-release is day-precise). Exact approval/listing days against PMDA / Chuikyo records
-remain a publication-quality follow-up, and unsourced clinical claims (e.g. cure
-rates) are deliberately excluded until a citable source is documented.
+Dates are **day-precise**, verified against the products' Japanese package inserts /
+interview forms (承認年月日, 薬価基準収載日) and Chuikyo listing records, plus company
+press releases; per-event sources are recorded in `data/announcement_events.csv`.
+Unsourced clinical claims (e.g. cure rates) are deliberately excluded until a citable
+source is documented.
 
 ## Reproduce
 ```bash

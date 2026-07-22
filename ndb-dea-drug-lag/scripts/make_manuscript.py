@@ -566,9 +566,17 @@ def add_pds_statements(doc):
         p.add_run(t)
 
 
+def _event_date(e):
+    """Day-precise date from precision='day(YYYY-MM-DD)', else the month."""
+    prec = str(e["precision"])
+    if prec.startswith("day(") and prec.endswith(")"):
+        return prec[4:-1]
+    return str(e["event_month"])
+
+
 def add_events_table(doc, lang):
-    cols = (["FY", "Month", "Drug", "Milestone", "Source"] if lang == "en"
-            else ["年度", "時期", "薬剤", "イベント", "出所"])
+    cols = (["FY", "Date", "Drug", "Milestone", "Source"] if lang == "en"
+            else ["年度", "日付", "薬剤", "イベント", "出所"])
     t = doc.add_table(rows=1, cols=len(cols))
     t.style = "Table Grid"
     for j, c in enumerate(cols):
@@ -579,7 +587,7 @@ def add_events_table(doc, lang):
     for _, e in EV.iterrows():
         cells = t.add_row().cells
         cells[0].text = str(int(e["fy"]))
-        cells[1].text = str(e["event_month"])
+        cells[1].text = _event_date(e)
         cells[2].text = str(e[drug_col])
         cells[3].text = mile.get(e["milestone"], e["milestone"])
         cells[4].text = str(e["source"])
@@ -666,6 +674,161 @@ def build_pptx(lang):
     print("wrote", path)
 
 
+STROBE_ITEMS = [
+    # (No., section, item text, our response / location)
+    ("1", "Title and abstract",
+     "(a) Indicate the study design with a commonly used term in the title or the "
+     "abstract. (b) Provide in the abstract an informative and balanced summary of "
+     "what was done and what was found.",
+     "Title and structured abstract describe an observational, ecological (national "
+     "aggregate) drug-utilisation time-series analysis of NDB Open Data; the abstract "
+     "summarises design, data, methods and headline results."),
+    ("2", "Background/rationale",
+     "Explain the scientific background and rationale for the investigation being "
+     "reported.",
+     "Introduction frames new-treatment anticipation / practical drug lag and why a "
+     "near-complete substitution (HCV interferon -> interferon-free DAA) is an "
+     "informative natural test."),
+    ("3", "Objectives",
+     "State specific objectives, including any prespecified hypotheses.",
+     "Introduction states the hypothesis: if population-level anticipation is real, "
+     "dispensing of the prior standard therapy should fall sharply after the awaited "
+     "option arrives."),
+    ("4", "Study design",
+     "Present key elements of study design early in the paper.",
+     "Methods: ecological/descriptive analysis of national annual dispensed quantity "
+     "(FY2014-FY2023); no individual-level data; no pre-intervention baseline within "
+     "NDB, so descriptive trend models rather than a causal interrupted time series."),
+    ("5", "Setting",
+     "Describe the setting, locations, and relevant dates, including periods of "
+     "recruitment, exposure, follow-up, and data collection.",
+     "Methods: Japan, nationwide; NDB Open Data editions 1-10 mapped to fiscal years "
+     "2014-2023; approval/reimbursement milestones tabulated (Table 1)."),
+    ("6", "Participants",
+     "Give the eligibility criteria, and the sources and methods of selection of "
+     "participants (cross-sectional).",
+     "No individual participants: the unit is national aggregate dispensed quantity "
+     "per drug per fiscal year, extracted for all records of the target products. "
+     "Stated explicitly in Methods and Limitations (ecological data, not patient counts)."),
+    ("7", "Variables",
+     "Clearly define all outcomes, exposures, predictors, potential confounders, and "
+     "effect modifiers.",
+     "Methods: outcome = national dispensed quantity by drug group (peginterferon, "
+     "conventional IFN, ribavirin, first-generation IFN-based protease inhibitors, "
+     "interferon-free DAAs); 'exposure' = approval/reimbursement/reporting milestones; "
+     "potential secular confounders (e.g. COVID-19) noted in Limitations."),
+    ("8", "Data sources/measurement",
+     "For each variable of interest, give sources of data and details of methods of "
+     "assessment (measurement).",
+     "Methods and Data/code availability: MHLW NDB Open Data workbooks (sex/age x drug "
+     "quantity tables); metric is total dispensed quantity (tablets/capsules or "
+     "syringes/vials). Product classification listed; extraction code in the repository."),
+    ("9", "Bias",
+     "Describe any efforts to address potential sources of bias.",
+     "Methods/Limitations: first-generation IFN-based protease inhibitors separated "
+     "from interferon-free DAAs to avoid misclassification; units are not summed across "
+     "products with different dosage units; absence of a pre-2014 baseline and lack of "
+     "a control condition are stated as biases limiting causal inference."),
+    ("10", "Study size",
+     "Explain how the study size was arrived at.",
+     "Methods: the study uses the complete set of national annual observations available "
+     "in NDB Open Data (n=10 fiscal years); no sampling. Small n is flagged as a driver "
+     "of wide uncertainty intervals."),
+    ("11", "Quantitative variables",
+     "Explain how quantitative variables were handled in the analyses.",
+     "Methods: log-scale trend modelling; treatment-course sensitivity converts dispensed "
+     "quantity to approximate courses using documented daily dose x duration "
+     "(data/daa_course_assumptions.csv), counting one anchor product per two-drug regimen."),
+    ("12", "Statistical methods",
+     "(a) Describe all statistical methods, including those used to control for "
+     "confounding. (b) sensitivity analyses.",
+     "Methods: segmented (broken-stick) log-linear regression with a knot at the observed "
+     "DAA peak, exponential/log-linear decay for IFN groups, Newey-West (HAC) standard "
+     "errors and residual-bootstrap 95% intervals; duration-based sensitivity analysis "
+     "for course estimates. Analysis is explicitly descriptive/non-causal."),
+    ("13", "Participants (results)",
+     "(a) Report numbers of individuals at each stage. (b) reasons for non-participation. "
+     "(c) consider a flow diagram.",
+     "Not applicable at the individual level (aggregate open data). Results and Methods "
+     "report the data units: 10 fiscal years x drug groups; 9 distinct interferon-free "
+     "DAA products and 3 first-generation IFN-based protease inhibitors."),
+    ("14", "Descriptive data",
+     "(a) Give characteristics of study participants and information on exposures and "
+     "potential confounders. (b) missing data. (c) follow-up (cohort).",
+     "Results and Table 2: national dispensed quantity by group and fiscal year. Products "
+     "absent in a given year appear as zero/near-zero; no imputation. Milestones in Table 1."),
+    ("15", "Outcome data",
+     "Report numbers of outcome events or summary measures (cross-sectional).",
+     "Results, Table 2, Figures 1-2: annual dispensed quantities and their changes; Table 3 "
+     "reports estimated treatment courses (labelled estimates)."),
+    ("16", "Main results",
+     "(a) Give unadjusted and adjusted estimates and their precision. (b) category "
+     "boundaries. (c) translate relative to absolute risk if relevant.",
+     "Results: peginterferon -99.2% (FY2014->FY2023); ribavirin near-zero by FY2018; DAA "
+     "peak FY2015 (+188% vs FY2014) then -92%; annual decline rates with HAC/bootstrap 95% "
+     "intervals and a slope-change P value from segmented regression."),
+    ("17", "Other analyses",
+     "Report other analyses done (e.g. subgroups, interactions, sensitivity analyses).",
+     "Results: product-level DAA breakdown (Figure 2) and treatment-course sensitivity "
+     "under baseline vs longer-duration assumptions (Table 3, ~266k-298k courses)."),
+    ("18", "Key results",
+     "Summarise key results with reference to study objectives.",
+     "Discussion opens by restating that IFN-based standard therapy was replaced within "
+     "~2 years and the DAA surge-then-decay is consistent with realized pent-up demand."),
+    ("19", "Limitations",
+     "Discuss limitations, taking into account sources of potential bias or imprecision.",
+     "Limitations: no pre-2014 baseline within NDB; dispensed quantity != patient counts; "
+     "annual resolution precludes within-year ITS; small n; no control/placebo event; "
+     "COVID-19 and other FY2020+ secular changes cannot be separated from the DAA decline; "
+     "course figures are estimates dependent on regimen assumptions."),
+    ("20", "Interpretation",
+     "Give a cautious overall interpretation considering objectives, limitations, "
+     "multiplicity, and other relevant evidence.",
+     "Discussion/Conclusion: interpretation limited to within-NDB displacement speed; "
+     "'consistent with' anticipation, not a causal claim that media coverage drove "
+     "individual choices."),
+    ("21", "Generalisability",
+     "Discuss the generalisability (external validity) of the study results.",
+     "Discussion: the near-complete HCV substitution is a strong case; the same surge "
+     "pattern may not generalise to therapies with weaker anticipation or larger practical "
+     "constraints."),
+    ("22", "Funding",
+     "Give the source of funding and the role of the funders for the present study and, "
+     "if applicable, for the original study on which the present article is based.",
+     "Funding statement: no specific grant. Data are public NDB Open Data (MHLW)."),
+]
+
+
+def build_strobe():
+    """Filled STROBE checklist (cross-sectional/ecological) as a supplementary docx."""
+    doc = Document()
+    doc.styles["Normal"].font.size = Pt(9.5)
+    h = doc.add_paragraph()
+    r = h.add_run("STROBE Statement — checklist of items for reports of "
+                  "observational studies (cross-sectional / ecological adaptation)")
+    r.bold = True; r.font.size = Pt(12)
+    doc.add_paragraph(
+        "Strengthening the Reporting of Observational Studies in Epidemiology (STROBE). "
+        "This study analyses national aggregate drug-dispensing open data (no "
+        "individual-level records); items are answered accordingly, with locations given "
+        "by manuscript section rather than page number.")
+    tbl = doc.add_table(rows=1, cols=4)
+    tbl.style = "Table Grid"
+    hdr = tbl.rows[0].cells
+    for c, t in zip(hdr, ["Item No.", "Section", "STROBE recommendation",
+                          "Location / response in manuscript"]):
+        c.paragraphs[0].add_run(t).bold = True
+    for no, sec, rec, resp in STROBE_ITEMS:
+        cells = tbl.add_row().cells
+        cells[0].text = no
+        cells[1].text = sec
+        cells[2].text = rec
+        cells[3].text = resp
+    path = os.path.join(OUT, "strobe_checklist.docx")
+    doc.save(path)
+    print("wrote", path)
+
+
 if __name__ == "__main__":
     for lang in ("en", "ja"):
         build_manuscript(lang)
@@ -676,3 +839,5 @@ if __name__ == "__main__":
     # COI/funding statements. Figures remain inline (P&DS accepts free-format
     # submission).
     build_manuscript("en", journal="pds")
+    # Filled STROBE checklist (supplementary material for P&DS submission).
+    build_strobe()
