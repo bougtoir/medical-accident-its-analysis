@@ -87,7 +87,11 @@ def header_cols(ws):
 def main():
     rows = []
     for ed in range(1, 11):
-        for fn in sorted(glob.glob(os.path.join(ROOT, f"dai{ed}", "f0[0-4].xlsx"))):
+        # Read every workbook for the edition (not just f00-f04): additional
+        # medical/dental supplement files are harmless (they contain none of the
+        # target drugs) but scanning them all avoids silently dropping any file
+        # if the edition's file layout changes.
+        for fn in sorted(glob.glob(os.path.join(ROOT, f"dai{ed}", "f*.xlsx"))):
             wb = openpyxl.load_workbook(fn, read_only=True)
             for sh in wb.sheetnames:
                 ws = wb[sh]
