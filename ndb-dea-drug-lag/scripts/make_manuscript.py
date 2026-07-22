@@ -166,8 +166,11 @@ TXT = {
 }
 
 
-def build_manuscript(lang):
-    T = TXT[lang]
+def build_manuscript(lang, journal=None):
+    T = dict(TXT[lang])
+    if journal == "pds":
+        # Pharmacoepidemiology & Drug Safety structured-abstract heading.
+        T["abs_bg"] = "Background/Objectives: "
     CITE_ORDER.clear()
     doc = Document()
     st = doc.styles["Normal"].font
@@ -175,6 +178,9 @@ def build_manuscript(lang):
 
     ttl = doc.add_paragraph()
     r = ttl.add_run(T["title"]); r.bold = True; r.font.size = Pt(14)
+
+    if journal == "pds":
+        add_pds_titlepage(doc)
 
     # ---- Abstract ----
     doc.add_heading(T["h_abs"], level=1)
@@ -222,6 +228,10 @@ def build_manuscript(lang):
         ab.add_run("IFNベース標準治療は約2年で人口レベルに置換され、DAAの急増→減衰は、"
                    "長く待機していた患者集団が一括して治療された（待望＝pent-up demand）ことと"
                    "整合的であり、定常的な置換フローではないことを示す。")
+
+    if journal == "pds":
+        add_keywords(doc)
+        add_key_points(doc)
 
     # ---- Introduction ----
     doc.add_heading(T["h_intro"], level=1)
@@ -466,6 +476,9 @@ def build_manuscript(lang):
                   "本事例における人口レベルの新治療法待望の存在を支持する一方、待望が弱い、あるいは"
                   "実用的制約の大きい治療には同じパターンが一般化するとは限らないことに注意を要する。")
 
+    if journal == "pds":
+        add_pds_statements(doc)
+
     # ---- Data/code availability + references ----
     doc.add_heading(T["h_da"], level=1)
     p = doc.add_paragraph()
@@ -484,9 +497,73 @@ def build_manuscript(lang):
         rp.paragraph_format.first_line_indent = Inches(-0.3)
         rp.add_run(f"{i}. {REF_TEXT[lang][k]}")
 
-    path = os.path.join(OUT, f"manuscript_{lang}.docx")
+    suffix = f"_{journal}" if journal else ""
+    path = os.path.join(OUT, f"manuscript_{lang}{suffix}.docx")
     doc.save(path)
     print("wrote", path)
+
+
+def add_pds_titlepage(doc):
+    """Pharmacoepidemiology & Drug Safety title-page front matter (English)."""
+    meta = [
+        ("Article type", "Original Report (observational, national open-data study)"),
+        ("Running head", "Population-level HCV DAA uptake vs interferon therapy"),
+        ("Corresponding author", "[Name], [Affiliation], [Address], [Email]"),
+        ("Authors / affiliations", "[To be completed by the authors]"),
+    ]
+    for k, v in meta:
+        p = doc.add_paragraph()
+        p.add_run(f"{k}: ").bold = True
+        p.add_run(v)
+
+
+def add_keywords(doc):
+    p = doc.add_paragraph()
+    p.add_run("Keywords: ").bold = True
+    p.add_run("hepatitis C; direct-acting antivirals; interferon; pharmacoepidemiology; "
+              "prescription trends; drug utilization; NDB Open Data; Japan")
+
+
+def add_key_points(doc):
+    """P&DS 'Key Points' / take-home box."""
+    doc.add_heading("Key Points", level=2)
+    pts = [
+        "Whether population-level anticipation of a newly reimbursed therapy pulls "
+        "patients off the prior standard of care can be examined with national "
+        "drug-utilization open data.",
+        "In Japan, dispensing of interferon-based standard therapy for hepatitis C "
+        f"collapsed (peginterferon -{fmt(peg_drop,1)}%; ribavirin near-zero by "
+        f"FY{rbv_zero_year}) within ~2 years of interferon-free direct-acting "
+        "antivirals becoming available.",
+        f"Interferon-free DAA dispensing surged (+{fmt(daa_rise,0)}% to a FY{daa_peak_fy} "
+        f"peak) and then declined ({fmt(daa_fall,0)}%), a pattern consistent with "
+        "realized pent-up demand rather than steady substitution.",
+        "Findings are descriptive (national dispensed quantity, not patient counts) and "
+        "do not establish that media coverage caused individual treatment choices.",
+    ]
+    for t in pts:
+        p = doc.add_paragraph(style="List Bullet")
+        p.add_run(t)
+
+
+def add_pds_statements(doc):
+    """Ethics / consent / COI / funding / reporting-guideline statements."""
+    items = [
+        ("Ethics approval and consent",
+         "This study used only publicly available, aggregated national open data "
+         "(NDB Open Data) containing no individual-level or identifiable information; "
+         "ethics-committee approval and informed consent were therefore not required."),
+        ("Conflict of interest", "The authors declare no conflicts of interest."),
+        ("Funding", "This research received no specific grant from any funding agency."),
+        ("Reporting guideline",
+         "This observational study is reported in line with the STROBE guideline for "
+         "cross-sectional/ecological analyses of routinely collected aggregate data; a "
+         "completed STROBE checklist can be provided as supplementary material."),
+    ]
+    for h, t in items:
+        p = doc.add_paragraph()
+        p.add_run(f"{h}. ").bold = True
+        p.add_run(t)
 
 
 def add_events_table(doc, lang):
@@ -594,3 +671,8 @@ if __name__ == "__main__":
         build_manuscript(lang)
         build_tables_doc(lang)
         build_pptx(lang)
+    # Pharmacoepidemiology & Drug Safety submission variant (English):
+    # structured abstract, Key Points, title-page front matter, STROBE/ethics/
+    # COI/funding statements. Figures remain inline (P&DS accepts free-format
+    # submission).
+    build_manuscript("en", journal="pds")
