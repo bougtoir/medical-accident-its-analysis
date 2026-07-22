@@ -44,6 +44,7 @@ jobs:
           BRANCH_MAP["devin/1774690359-anesthesia-regional-variation-japan"]="anesthesia-regional-variation-japan"
           BRANCH_MAP["devin/1774690362-vaporizer-price-study"]="vaporizer-price-study"
           BRANCH_MAP["devin/1774690371-ndb-pain-regional-variation-japan"]="ndb-pain-regional-variation-japan"
+          BRANCH_MAP["devin/1784701921-ndb-dea-drug-lag"]="ndb-dea-drug-lag"
           BRANCH_MAP["scoping-review/hansens-disease-work-visa-screening"]="hansens-disease-work-visa-screening"
           BRANCH_MAP["tasuki-electoral-model"]="tasuki-electoral-model"
           BRANCH_MAP["devin/1772247034-mafb-analysis"]="mafb-population-projection"
@@ -206,6 +207,7 @@ jobs:
 
           # Problem B fixes (branches with unrelated folders mixed in)
           SUBDIR_MAP["devin/1783102664-jma-journal-manuscript"]="medical_accident_its_analysis"
+          SUBDIR_MAP["devin/1784701921-ndb-dea-drug-lag"]="ndb-dea-drug-lag"
           SUBDIR_MAP["devin/1778846737-flood-prediction-models"]="flood-prediction-review"
           SUBDIR_MAP["devin/1777462980-spectral-causality-brainstorm"]="spectral-causality-brainstorm"
           SUBDIR_MAP["devin/1777863337-spectral-causality-jmlr"]="spectral-causality-jmlr"
