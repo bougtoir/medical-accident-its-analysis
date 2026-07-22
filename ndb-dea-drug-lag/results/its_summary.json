@@ -4,26 +4,26 @@
   "bootstrap_resamples": 10000,
   "daa_segmented": {
     "knot_fy": 2015,
-    "pre_peak_annual_rate_pct": 53.10113565181953,
+    "pre_peak_annual_rate_pct": 71.31371447940069,
     "pre_peak_annual_rate_hac95": [
-      3.3523690210831347,
-      126.79652106566866
+      16.116454017241153,
+      152.74961259471397
     ],
     "pre_peak_annual_rate_boot95": [
-      -18.840449108499694,
-      139.30979574293815
+      -8.605104265370251,
+      166.77799071804247
     ],
-    "post_peak_annual_rate_pct": -24.99805319008618,
+    "post_peak_annual_rate_pct": -24.953560299980992,
     "post_peak_annual_rate_boot95": [
-      -29.270700934825292,
-      -20.486811074413026
+      -29.185348657434112,
+      -20.47897690343805
     ],
-    "slope_change_logunits": -0.7135846496839218,
+    "slope_change_logunits": -0.8253893453872507,
     "slope_change_hac95": [
-      -1.1777697726159801,
-      -0.24939952675186328
+      -1.284832671946073,
+      -0.3659460188284284
     ],
-    "slope_change_p": 0.0025865975086416877,
+    "slope_change_p": 0.00042980463498874306,
     "n_obs": 10
   },
   "peginterferon_decay": {

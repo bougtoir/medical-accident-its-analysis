@@ -3,7 +3,7 @@ fy,event_month,drug_ja,drug_en,milestone,precision,label_ja,label_en,source
 2014,2014-09,ダクルインザ＋スンベプラ,daclatasvir + asunaprevir,nhi_listing,month,薬価基準収載（保険償還開始）,NHI drug-price listing (reimbursement begins),MHLW/Chuikyo NHI drug-price listing FY2014
 2015,2015-03,ソバルディ,sofosbuvir,approval,month,ソホスブビル 製造販売承認,Sofosbuvir approved,PMDA new-drug approval / Gilead Sciences K.K. press release (2015-03)
 2015,2015-05,ソバルディ,sofosbuvir,nhi_listing,month,ソホスブビル 薬価基準収載,Sofosbuvir NHI-listed,MHLW/Chuikyo NHI drug-price listing (2015-05)
-2015,2015-07,ハーボニー,ledipasvir/sofosbuvir,approval,month,レジパスビル/ソホスブビル 製造販売承認（治癒率≈100%と広く報道）,Ledipasvir/sofosbuvir approved (widely reported near-100% cure),PMDA new-drug approval / Gilead Sciences K.K. press release (2015-07)
+2015,2015-07,ハーボニー,ledipasvir/sofosbuvir,approval,month,レジパスビル/ソホスブビル 製造販売承認,Ledipasvir/sofosbuvir approved,PMDA new-drug approval / Gilead Sciences K.K. press release (2015-07)
 2015,2015-08,ハーボニー,ledipasvir/sofosbuvir,nhi_listing,month,レジパスビル/ソホスブビル 薬価基準収載,Ledipasvir/sofosbuvir NHI-listed,MHLW/Chuikyo NHI drug-price listing (2015-08)
 2017,2017-09,マヴィレット,glecaprevir/pibrentasvir,approval,month,グレカプレビル/ピブレンタスビル 製造販売承認（パンジェノタイプ）,Glecaprevir/pibrentasvir approved (pangenotypic),PMDA new-drug approval / AbbVie GK press release (2017-09)
 2017,2017-11,マヴィレット,glecaprevir/pibrentasvir,nhi_listing,month,グレカプレビル/ピブレンタスビル 薬価基準収載,Glecaprevir/pibrentasvir NHI-listed,MHLW/Chuikyo NHI drug-price listing (2017-11)

@@ -29,6 +29,7 @@ OUT = os.path.join(BASE, "output")
 
 S = json.load(open(os.path.join(RES, "summary.json"), encoding="utf-8"))
 ITS = json.load(open(os.path.join(RES, "its_summary.json"), encoding="utf-8"))
+COURSE = json.load(open(os.path.join(RES, "course_estimate.json"), encoding="utf-8"))
 TS = pd.read_csv(os.path.join(DATA, "hcv_timeseries.csv")).set_index("fy")
 EV = pd.read_csv(os.path.join(DATA, "announcement_events.csv"))
 
@@ -67,6 +68,11 @@ daa_post_ci = sorted(abs(v) for v in ITS["daa_segmented"]["post_peak_annual_rate
 daa_slope_p = ITS["daa_segmented"]["slope_change_p"]
 n_obs = ITS["n_annual_observations"]
 n_boot = ITS["bootstrap_resamples"]
+
+# treatment-course sensitivity (estimate only; see data/daa_course_assumptions.csv)
+course_peak_fy = COURSE["peak_fy"]
+course_peak = COURSE["peak_estimated_courses"]
+course_total_lo, course_total_hi = sorted(COURSE["estimated_total_courses_fy2014_2023_range"])
 
 # ------------------------------------------------------------------------------
 # Reference text per source id (no fabricated citations; verifiable sources only).
@@ -254,7 +260,11 @@ def build_manuscript(lang):
                   "each drug from the sex- and age-stratified prescription-drug tables "
                   "(oral, topical, injectable). Drugs were classified by their actual "
                   f"product names into IFN-based standard therapy (peginterferon, "
-                  f"ribavirin) and {n_daa} interferon-free DAA products. Conventional "
+                  f"ribavirin) and {n_daa} interferon-free DAA products. Three "
+                  "first-generation NS3/4A protease inhibitors (simeprevir, telaprevir, "
+                  "vaniprevir), which were used together with peginterferon and ribavirin "
+                  "rather than as interferon-free regimens, were tabulated separately and "
+                  "excluded from the DAA group. Conventional "
                   "interferon is reported separately because it is not hepatitis-C-specific. "
                   "The metric is dispensed quantity (tablets/capsules for oral drugs, "
                   "syringes/vials for injections), not a patient count, and is compared "
@@ -268,7 +278,10 @@ def build_manuscript(lang):
         cite(p, ["ndb"], lang)
         p.add_run("を用い、処方薬の性年齢別薬効分類別数量表（内服・外用・注射）から各薬剤の全国"
                   "総計（処方数量）を抽出した。薬剤は実際の製品名からIFNベース標準治療（ペグ"
-                  f"インターフェロン、リバビリン）と{n_daa}製剤のIFNフリーDAAに分類した。従来型"
+                  f"インターフェロン、リバビリン）と{n_daa}製剤のIFNフリーDAAに分類した。第一世代の"
+                  "NS3/4Aプロテアーゼ阻害薬3剤（シメプレビル、テラプレビル、バニプレビル）は"
+                  "IFNフリーではなくペグインターフェロン＋リバビリンと併用されるため、別掲しDAA群から"
+                  "除外した。従来型"
                   "インターフェロンはC型肝炎特異的でないため別掲した。指標は処方数量（内服は錠・"
                   "カプセル、注射はシリンジ・バイアル）であり患者数ではなく、製剤ごとに経時比較する。"
                   "公式の承認・薬価収載イベント")
@@ -365,6 +378,27 @@ def build_manuscript(lang):
     add_caption(doc, ("Fig. 2. The DAA wave: dispensed quantity by product." if lang == "en"
                       else "図2．DAAの波：製剤別処方数量。"))
 
+    p = doc.add_paragraph()
+    if lang == "en":
+        p.add_run("To give a rough sense of the practical patient scale (dispensed "
+                  "quantity is not a patient count), we converted the dispensed quantity "
+                  "of each interferon-free DAA to approximate full treatment courses using "
+                  "documented per-course unit counts (daily dose x standard duration), "
+                  "counting one anchor component per two-drug regimen to avoid "
+                  "double-counting. This yields an estimated peak of about "
+                  f"{fmt(course_peak,0)} courses in FY{course_peak_fy} and an estimated "
+                  f"{fmt(course_total_lo,0)}-{fmt(course_total_hi,0)} courses over "
+                  f"FY{Y0}-FY{Y1} (duration-sensitivity range). These figures are "
+                  "explicit estimates dependent on the regimen assumptions and are not "
+                  "observed patient counts.")
+    else:
+        p.add_run("実用的な患者規模の目安を得るため（処方数量は患者数ではない）、各IFNフリーDAAの"
+                  "処方数量を、明示的な1コースあたり単位数（日用量×標準投与期間）を用いておおよその"
+                  "治療コース数に換算した（2剤レジメンは二重計上を避けるため代表成分（アンカー）を一つ"
+                  f"のみ計上）。推定ピークはFY{course_peak_fy}の約{fmt(course_peak,0)}コース、FY{Y0}〜"
+                  f"FY{Y1}の累計は約{fmt(course_total_lo,0)}〜{fmt(course_total_hi,0)}コース（投与期間の"
+                  "感度幅）であった。これらはレジメン仮定に依存する明示的な推定値であり、実測の患者数ではない。")
+
     # ---- Discussion ----
     doc.add_heading(T["h_disc"], level=1)
     p = doc.add_paragraph()
@@ -376,13 +410,19 @@ def build_manuscript(lang):
                   "long-waiting patients being cured in a burst (pent-up demand) rather "
                   "than a steady replacement flow. This is descriptive evidence supporting "
                   "the anticipation hypothesis; it does not by itself establish that media "
-                  "coverage caused individual treatment choices.")
+                  "coverage caused individual treatment choices. External pre-2014 "
+                  "utilization data (e.g. national hepatitis programmes or society "
+                  "statistics) would be needed to quantify the full pre-DAA interferon "
+                  "baseline and are outside NDB; our claim is therefore limited to the "
+                  "speed of within-NDB displacement.")
     else:
         p.add_run("C型肝炎DAAでは人口レベルの実用的ラグは認められなかった。標準治療は報道・収載から"
                   "約2年で置換され、治療選択の主体が迅速に反応したことを示す。DAAの急増→減衰は、長く"
                   "待機していた患者ストックが一括して治癒された（pent-up demand）ことと整合的であり、"
                   "定常的置換フローではない。これは待望論仮説を支持する記述的証拠であり、報道が個々の"
-                  "治療選択を引き起こしたことを単独で証明するものではない。")
+                  "治療選択を引き起こしたことを単独で証明するものではない。DAA前のインターフェロン利用の"
+                  "完全な基準を定量化するには、2014年以前の外部データ（国の肝炎対策事業や学会統計等）が"
+                  "必要だがNDB外であるため、本研究の主張はNDB内での置換の速さに限定される。")
 
     doc.add_heading(T["h_lim"], level=2)
     p = doc.add_paragraph()
@@ -395,14 +435,19 @@ def build_manuscript(lang):
                   "within-year interrupted time-series or formal causal estimation; the "
                   "reported trend rates carry wide uncertainty intervals given the small "
                   f"number of annual observations (n={n_obs}), and no control condition or "
-                  "placebo event is included.")
+                  "placebo event is included. Secular changes from FY2020 onward, "
+                  "including the COVID-19 pandemic's effect on outpatient visits and "
+                  "prescribing, may also have influenced later dispensing and cannot be "
+                  "separated from the ongoing DAA decline.")
     else:
         p.add_run(f"NDBオープンデータはFY{Y0}開始であり、これはIFNフリーDAA導入時期と重なるため、"
                   f"NDB内にDAA前のインターフェロン基準値は存在しない（FY{Y0}値は既に2014年以前の"
                   "ピークからの減少を反映）。指標は処方数量であり患者数ではなく、製剤間で単位が"
                   "異なるためDAA数量の合計は患者数ではない。データは年次であり、年内の中断時系列や"
                   f"形式的因果推定はできず、報告したトレンド率は年次観測数が少ない（n={n_obs}）ため"
-                  "広い不確実性区間を伴う。対照条件・プラセボイベントも含まない。")
+                  "広い不確実性区間を伴う。対照条件・プラセボイベントも含まない。またFY2020以降は"
+                  "COVID-19パンデミックによる外来受診・処方への影響などの外生的変化が重なり、"
+                  "DAAの減少傾向と分離できない。")
 
     # ---- Conclusion ----
     doc.add_heading(T["h_conc"], level=1)
@@ -479,10 +524,12 @@ def build_tables_doc(lang):
     add_caption(doc, ("Table 2. National dispensed quantity by drug group and fiscal year "
                       "(NDB Open Data)." if lang == "en"
                       else "表2．薬効グループ別・年度別の全国処方数量（NDBオープンデータ）。"))
-    groups = ["IFN_peg", "ribavirin", "IFN_conv", "DAA"]
-    head = (["Fiscal year", "Peginterferon", "Ribavirin", "Conventional IFN", "DAA total"]
+    groups = ["IFN_peg", "ribavirin", "IFN_conv", "PI_ifn", "DAA"]
+    head = (["Fiscal year", "Peginterferon", "Ribavirin", "Conventional IFN",
+             "First-gen PI (IFN-based)", "Interferon-free DAA total"]
             if lang == "en"
-            else ["年度", "ペグIFN", "リバビリン", "従来型IFN", "DAA合計"])
+            else ["年度", "ペグIFN", "リバビリン", "従来型IFN",
+                  "第一世代PI(IFN併用)", "IFNフリーDAA合計"])
     t = doc.add_table(rows=1, cols=len(head)); t.style = "Table Grid"
     for j, c in enumerate(head):
         rr = t.rows[0].cells[j].paragraphs[0].add_run(c); rr.bold = True
@@ -490,7 +537,28 @@ def build_tables_doc(lang):
         cells = t.add_row().cells
         cells[0].text = str(int(fy))
         for j, g in enumerate(groups, 1):
-            cells[j].text = fmt(row[g], 0)
+            cells[j].text = fmt(row[g], 0) if g in row else "0"
+
+    add_caption(doc, ("Table 3. Estimated interferon-free DAA treatment courses by fiscal "
+                      "year (ESTIMATE; dispensed quantity / documented units-per-course, "
+                      "one anchor product per regimen). Not observed patient counts."
+                      if lang == "en"
+                      else "表3．IFNフリーDAAの推定治療コース数（推定値；処方数量÷1コース単位数、"
+                           "レジメンごとに代表成分を1つ計上）。実測の患者数ではない。"))
+    ce = COURSE["estimated_courses_by_fy"]
+    ce_hi = COURSE["estimated_courses_by_fy_longer_duration"]
+    chead = (["Fiscal year", "Estimated courses (baseline)", "Estimated courses (longer duration)"]
+             if lang == "en"
+             else ["年度", "推定コース数（基準）", "推定コース数（長期投与）"])
+    t3 = doc.add_table(rows=1, cols=len(chead)); t3.style = "Table Grid"
+    for j, c in enumerate(chead):
+        rr = t3.rows[0].cells[j].paragraphs[0].add_run(c); rr.bold = True
+    for y in sorted(ce, key=lambda x: int(x)):
+        cells = t3.add_row().cells
+        cells[0].text = str(y)
+        cells[1].text = fmt(ce[y], 0)
+        cells[2].text = fmt(ce_hi[y], 0)
+
     path = os.path.join(OUT, f"tables_{lang}.docx")
     doc.save(path)
     print("wrote", path)

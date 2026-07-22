@@ -32,7 +32,7 @@ OUT = os.path.join(os.path.dirname(__file__), "..", "data")
 EDITION_FY = {1: 2014, 2: 2015, 3: 2016, 4: 2017, 5: 2018,
               6: 2019, 7: 2020, 8: 2021, 9: 2022, 10: 2023}
 
-# DAA products (brand-name substrings as they appear in NDB) -> INN label
+# Interferon-free DAA products (brand-name substrings as they appear in NDB) -> INN label
 DAA = {
     "ソバルディ": "sofosbuvir",
     "ハーボニー": "ledipasvir/sofosbuvir",
@@ -43,6 +43,11 @@ DAA = {
     "エレルサ": "elbasvir",
     "グラジナ": "grazoprevir",
     "ヴィキラックス": "ombitasvir/paritaprevir/ritonavir",
+}
+# First-generation NS3/4A protease inhibitors used *with* peginterferon+ribavirin
+# (interferon-BASED triple therapy, not interferon-free). Kept separate so the
+# DAA group cleanly represents interferon-free regimens.
+PI_IFN = {
     "テラビック": "telaprevir",
     "ソブリアード": "simeprevir",
     "バニヘップ": "vaniprevir",
@@ -56,6 +61,9 @@ def classify(name: str):
     for k, v in DAA.items():
         if k in name:
             return "DAA", v
+    for k, v in PI_IFN.items():
+        if k in name:
+            return "PI_ifn", v
     if any(k in name for k in IFN_PEG):
         return "IFN_peg", "peginterferon"
     if any(k in name for k in IFN_CONV):

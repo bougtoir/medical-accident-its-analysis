@@ -17,11 +17,11 @@
   },
   "daa_total": {
     "peak_fy": 2015,
-    "peak_value": 19547983.0,
-    "fy_first": 7563363.941199999,
+    "peak_value": 19374861.0,
+    "fy_first": 6736615.941199999,
     "fy_last": 1527987.0,
-    "pct_change_peak_to_last": -92.18340326979003,
-    "pct_change_first_to_peak": 158.45619954258777
+    "pct_change_peak_to_last": -92.11355890501615,
+    "pct_change_first_to_peak": 187.6052482301483
   },
-  "n_distinct_daa_products": 12
+  "n_distinct_daa_products": 9
 }

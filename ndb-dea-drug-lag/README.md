@@ -26,15 +26,19 @@ Drug groups (identified from the real drug names present in the files):
 - **IFN-based standard therapy** — peginterferon (ペガシス, ペグイントロン),
   ribavirin (レベトール, コペガス); conventional interferon (スミフェロン, フエロン,
   イントロンA) reported separately as it is not HCV-specific.
-- **DAAs** — 12 products: sofosbuvir, ledipasvir/sofosbuvir, daclatasvir,
-  asunaprevir, glecaprevir/pibrentasvir, sofosbuvir/velpatasvir, elbasvir,
-  grazoprevir, ombitasvir/paritaprevir/ritonavir, telaprevir, simeprevir, vaniprevir.
+- **Interferon-free DAAs** — 9 products: sofosbuvir, ledipasvir/sofosbuvir,
+  daclatasvir, asunaprevir, glecaprevir/pibrentasvir, sofosbuvir/velpatasvir,
+  elbasvir, grazoprevir, ombitasvir/paritaprevir/ritonavir.
+- **First-generation NS3/4A protease inhibitors (IFN-based)** — simeprevir,
+  telaprevir, vaniprevir. These were used *with* peginterferon+ribavirin (not
+  interferon-free), so they are tabulated as a separate group (`PI_ifn`) and
+  excluded from the interferon-free DAA total to keep that total clean.
 
 ## Headline findings
 - Peginterferon dispensing fell **-99.2%** from FY2014 to FY2023; ribavirin reached
   ~0 by **FY2018**. The IFN-based standard therapy effectively disappeared within
   ~2 years of interferon-free DAAs becoming available.
-- Total DAA dispensing **peaked in FY2015** (+158% vs FY2014), then fell **-92%** to
+- Total interferon-free DAA dispensing **peaked in FY2015** (+188% vs FY2014), then fell **-92%** to
   FY2023. This surge-then-decay is the signature of a finite stock of long-waiting
   patients being cured in a burst (pent-up demand / "待望論"), rather than a steady
   replacement flow.
@@ -51,19 +55,30 @@ total DAA dispensing fell **~25%/yr** after the FY2015 peak (segmented log-linea
 regression, post- vs pre-peak slope change P≈0.003). Intervals are Newey-West (HAC)
 and residual-bootstrap based.
 
-All numbers above are regenerated into `results/summary.json` and
-`results/its_summary.json`; do not hard-code.
+**Treatment-course sensitivity** (`results/course_estimate.json`, `data/daa_course_assumptions.csv`):
+because dispensed quantity is not a patient count, we also convert interferon-free DAA
+quantities to approximate treatment courses (daily dose x standard duration per the
+Japanese package inserts / JSH guideline), counting one anchor product per two-drug
+regimen to avoid double-counting. This gives an estimated peak of **~90,000 courses in
+FY2015** and **~266,000-298,000 courses over FY2014-FY2023** (duration-sensitivity range).
+These are explicit estimates, not observed patient counts.
+
+All numbers above are regenerated into `results/summary.json`,
+`results/its_summary.json` and `results/course_estimate.json`; do not hard-code.
 
 ## "News / announcement" side (`data/announcement_events.csv`)
 Primary intervention markers are official **NHI drug-price listings (薬価収載)** and
 **PMDA approvals**, supplemented by major press coverage:
 1. **2014-07** daclatasvir + asunaprevir approved — world-first all-oral,
    IFN/ribavirin-free regimen for chronic hepatitis C (Bristol-Myers Squibb).
-2. **2015-05 / 2015-08** sofosbuvir (Sovaldi) / ledipasvir-sofosbuvir (Harvoni),
-   widely reported as near-100%-cure regimens — the core anticipation moment.
+2. **2015-05 / 2015-08** sofosbuvir (Sovaldi) / ledipasvir-sofosbuvir (Harvoni) —
+   the core anticipation moment.
 3. **2017-11** glecaprevir/pibrentasvir (Maviret), pangenotypic.
 
-(Exact approval/listing dates are being finalized against PMDA / Chuikyo records.)
+Dates are given at **month precision** (only the 2014-07-04 BMS approval press
+release is day-precise). Exact approval/listing days against PMDA / Chuikyo records
+remain a publication-quality follow-up, and unsourced clinical claims (e.g. cure
+rates) are deliberately excluded until a citable source is documented.
 
 ## Reproduce
 ```bash
@@ -71,6 +86,7 @@ python3 scripts/download_ndb.py      # fetch raw NDB workbooks into data/ndb_raw
 python3 scripts/build_dataset.py     # -> data/target_drugs_long.csv, hcv_timeseries.csv, hcv_product_timeseries.csv
 python3 scripts/analyze.py           # -> results/summary.json
 python3 scripts/its_analysis.py      # -> results/its_summary.json (trend models + 95% intervals)
+python3 scripts/course_estimate.py   # -> results/course_estimate.json (treatment-course sensitivity, ESTIMATE)
 python3 scripts/make_figures.py --lang en
 python3 scripts/make_figures.py --lang ja
 python3 scripts/make_manuscript.py   # -> output/ JA+EN manuscript docx, table docx, figure pptx
@@ -87,3 +103,8 @@ python3 scripts/make_manuscript.py   # -> output/ JA+EN manuscript docx, table d
   observations (n=10), and there is no control condition or placebo event.
 - Descriptive evidence only: consistent with population-level anticipation, but does
   not establish that media coverage caused individual treatment choices.
+- Secular changes from FY2020 onward, including the COVID-19 pandemic's effect on
+  outpatient visits and prescribing, may also have influenced later dispensing and
+  cannot be separated from the ongoing DAA decline.
+- Treatment-course figures are estimates dependent on regimen/duration assumptions
+  (`data/daa_course_assumptions.csv`), not observed patient counts.
