@@ -14,6 +14,7 @@ from collections import defaultdict
 
 # Try to import statsmodels
 from statsmodels.regression.mixed_linear_model import MixedLM
+import statsmodels.formula.api as smf
 from scipy import stats
 
 print("=" * 80)
@@ -46,11 +47,16 @@ with open('/home/ubuntu/anesthesiologist_by_sma.csv', 'rb') as f:
 text2 = raw2.decode('utf-8', errors='replace')
 reader2 = csv.DictReader(io.StringIO(text2))
 for row in reader2:
-    ac = row.get('area_code', '').strip()
-    if ac:
+    # CSV columns are: code, name, total_physicians, anesthesiologist_count.
+    # The SCR CSV uses unpadded area codes (e.g. '101') while this CSV uses
+    # zero-padded 4-digit codes (e.g. '0101'); strip leading zeros so the
+    # lookup on area_codes (which are unpadded) succeeds for all 335 areas.
+    ac_raw = row.get('code', '').strip()
+    if ac_raw:
+        ac = ac_raw.lstrip('0') or '0'
         anes_data[ac] = {
             'total_physicians': float(row.get('total_physicians', 0) or 0),
-            'anesthesiologists': float(row.get('anesthesiologists', 0) or 0),
+            'anesthesiologists': float(row.get('anesthesiologist_count', 0) or 0),
         }
 
 # Load physician table for population data if available
@@ -319,16 +325,33 @@ for code_label in ['L008_general_anesthesia', 'L004_spinal', 'L002_epidural']:
             ai = area_info[ac]
             print(f"    {ac} ({ai['pref_name']}/{ai['area_name']}): SCR={v:.1f}, physicians={ai['total_physicians']:.0f}, anes={ai['anesthesiologists']:.0f}")
     
-    # Empirical Bayes shrinkage
-    # EB_i = (n_i * SCR_i + k * grand_mean) / (n_i + k)
-    # Since we don't have exact counts, we use the variance structure
-    # A simpler approach: shrink toward the prefecture mean
+    # Empirical Bayes shrinkage toward the prefecture mean (proper form).
+    #
+    # Model:   y_i | θ_i ~ N(θ_i, σ²)        θ_i ~ N(μ_pref, τ²_pref)
+    #
+    # Posterior mean:
+    #   θ̂_i = w_i * y_i + (1 - w_i) * μ_pref,     w_i = τ²_pref / (τ²_pref + σ²)
+    #
+    # σ² (within-prefecture residual variance) is estimated once per code
+    # from a null random-intercept mixed-effects model.  τ²_pref is estimated
+    # by the method of moments as max(Var(y within pref) − σ², 0).  A uniform
+    # σ² is used across areas in the absence of reported claim counts by area
+    # (the publicly available regional variation dataset does not publish the
+    # denominators).
     print(f"\n  Empirical Bayes shrinkage (toward prefecture mean):")
-    
+
+    # Fit a null mixed-effects model to obtain the within-prefecture
+    # residual variance σ² (used as the sampling variance).
+    df_eb = pd.DataFrame(
+        {'scr': [v for _, v in all_v],
+         'pref': [area_info[ac]['pref_num'] for ac, _ in all_v]})
+    null_m = smf.mixedlm('scr ~ 1', df_eb, groups=df_eb['pref']).fit(reml=True)
+    sigma2 = float(null_m.scale)
+
     pref_groups = defaultdict(list)
     for ac, v in all_v:
         pref_groups[area_info[ac]['pref_num']].append((ac, v))
-    
+
     eb_values = {}
     for pref, items in pref_groups.items():
         if len(items) < 2:
@@ -336,9 +359,10 @@ for code_label in ['L008_general_anesthesia', 'L004_spinal', 'L002_epidural']:
                 eb_values[ac] = v  # No shrinkage for single-area prefectures
             continue
         pref_mean = np.mean([v for _, v in items])
-        pref_var = np.var([v for _, v in items])
-        # Global variance as prior
-        shrink_factor = pref_var / (pref_var + sd_scr**2 / len(items)) if pref_var > 0 else 0.5
+        pref_var_obs = np.var([v for _, v in items], ddof=0)
+        # Method-of-moments: subtract sampling variance from observed variance.
+        tau2 = max(pref_var_obs - sigma2, 1e-6)
+        shrink_factor = tau2 / (tau2 + sigma2)
         for ac, v in items:
             eb_values[ac] = shrink_factor * v + (1 - shrink_factor) * pref_mean
     
@@ -350,10 +374,10 @@ for code_label in ['L008_general_anesthesia', 'L004_spinal', 'L002_epidural']:
     
     if len(raw_univ) > 2 and len(raw_non) > 2:
         raw_d = (np.mean(raw_univ) - np.mean(raw_non)) / np.sqrt(
-            ((np.std(raw_univ)**2 * (len(raw_univ)-1) + np.std(raw_non)**2 * (len(raw_non)-1)) / 
+            ((np.std(raw_univ, ddof=1)**2 * (len(raw_univ)-1) + np.std(raw_non, ddof=1)**2 * (len(raw_non)-1)) /
              (len(raw_univ) + len(raw_non) - 2)))
         eb_d = (np.mean(eb_univ) - np.mean(eb_non)) / np.sqrt(
-            ((np.std(eb_univ)**2 * (len(eb_univ)-1) + np.std(eb_non)**2 * (len(eb_non)-1)) / 
+            ((np.std(eb_univ, ddof=1)**2 * (len(eb_univ)-1) + np.std(eb_non, ddof=1)**2 * (len(eb_non)-1)) / 
              (len(eb_univ) + len(eb_non) - 2)))
         print(f"  Raw: Univ mean={np.mean(raw_univ):.1f}, Non-univ mean={np.mean(raw_non):.1f}, Cohen's d={raw_d:.3f}")
         print(f"  EB:  Univ mean={np.mean(eb_univ):.1f}, Non-univ mean={np.mean(eb_non):.1f}, Cohen's d={eb_d:.3f}")
@@ -398,7 +422,7 @@ if 'L008_general_anesthesia' in anesthesia_data and 'L004_spinal' in anesthesia_
     c_non = [combined[ac] for ac in combined if ac not in univ_area_codes]
     if len(c_univ) > 2 and len(c_non) > 2:
         c_d = (np.mean(c_univ) - np.mean(c_non)) / np.sqrt(
-            ((np.std(c_univ)**2 * (len(c_univ)-1) + np.std(c_non)**2 * (len(c_non)-1)) / 
+            ((np.std(c_univ, ddof=1)**2 * (len(c_univ)-1) + np.std(c_non, ddof=1)**2 * (len(c_non)-1)) / 
              (len(c_univ) + len(c_non) - 2)))
         print(f"\n  University effect on combined L008+L004:")
         print(f"    Univ mean={np.mean(c_univ):.1f}, Non-univ mean={np.mean(c_non):.1f}")
@@ -459,10 +483,13 @@ for code_label in ['L008_general_anesthesia', 'L004_spinal', 'L002_epidural',
     non_v = [vals[ac] for ac in vals if ac not in univ_area_codes]
     
     if len(univ_v) > 2 and len(non_v) > 2:
-        pooled_sd = np.sqrt(((np.std(univ_v)**2*(len(univ_v)-1) + np.std(non_v)**2*(len(non_v)-1)) / 
+        pooled_sd = np.sqrt(((np.std(univ_v, ddof=1)**2*(len(univ_v)-1) + np.std(non_v, ddof=1)**2*(len(non_v)-1)) / 
                              (len(univ_v)+len(non_v)-2)))
         d = (np.mean(univ_v) - np.mean(non_v)) / pooled_sd if pooled_sd > 0 else 0
-        t_stat, t_p = stats.ttest_ind(univ_v, non_v)
+        # Welch's t-test (equal_var=False) matches the methodology described
+        # in the manuscripts; the variances are typically unequal between
+        # university and non-university areas.
+        t_stat, t_p = stats.ttest_ind(univ_v, non_v, equal_var=False)
         # Mann-Whitney U for non-parametric
         u_stat, u_p = stats.mannwhitneyu(univ_v, non_v, alternative='two-sided')
         
