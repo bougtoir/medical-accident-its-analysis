@@ -50,7 +50,7 @@ FIGDIR = OUTPUT / "figures"
 
 
 # ---------------------------------------------------------------------------
-# References. Keyed by short label; rendered in author-date (Cambridge A)
+# References. Keyed by short label; rendered in author-date (Elsevier Harvard)
 # style and alphabetised in the reference list (see resolve_citations). Every
 # reference below was checked against a public identifier (DOI/URL) during
 # preparation and is recorded in output/Reference_Verification.csv.
@@ -58,179 +58,179 @@ FIGDIR = OUTPUT / "figures"
 REFS: dict[str, str] = {
     "prisma_scr": (
         "Tricco, A.C., Lillie, E., Zarin, W., O'Brien, K.K., Colquhoun, H., "
-        "Levac, D., et al. (2018) PRISMA Extension for Scoping Reviews "
+        "Levac, D., et al., 2018. PRISMA Extension for Scoping Reviews "
         "(PRISMA-ScR): checklist and explanation. Annals of Internal Medicine "
         "169(7), 467-473. https://doi.org/10.7326/M18-0850."
     ),
     "grade_indirectness": (
         "Guyatt, G.H., Oxman, A.D., Kunz, R., Woodcock, J., Brozek, J., "
-        "Helfand, M., et al. (2011) GRADE guidelines: 8. Rating the quality of "
+        "Helfand, M., et al., 2011. GRADE guidelines: 8. Rating the quality of "
         "evidence - indirectness. Journal of Clinical Epidemiology 64(12), "
         "1303-1310. https://doi.org/10.1016/j.jclinepi.2011.04.014."
     ),
     "arksey": (
-        "Arksey, H. and O'Malley, L. (2005) Scoping studies: towards a "
+        "Arksey, H. and O'Malley, L., 2005. Scoping studies: towards a "
         "methodological framework. International Journal of Social Research "
         "Methodology 8(1), 19-32. https://doi.org/10.1080/1364557032000119616."
     ),
     "demontjoye": (
-        "de Montjoye, Y.-A., Hidalgo, C.A., Verleysen, M. and Blondel, V.D. "
-        "(2013) Unique in the crowd: the privacy bounds of human mobility. "
+        "de Montjoye, Y.-A., Hidalgo, C.A., Verleysen, M. and Blondel, V.D."
+        ", 2013. Unique in the crowd: the privacy bounds of human mobility. "
         "Scientific Reports 3, 1376. https://doi.org/10.1038/srep01376."
     ),
     "gdpr": (
-        "European Parliament and Council (2016) Regulation (EU) 2016/679 "
+        "European Parliament and Council, 2016. Regulation (EU) 2016/679 "
         "(General Data Protection Regulation). Official Journal of the European "
         "Union L119, 1-88."
     ),
     "elzer": (
-        "Elzer, T., Ruben, M., Classen, J. and Hollick, M. (2025) They see me "
+        "Elzer, T., Ruben, M., Classen, J. and Hollick, M., 2025. They see me "
         "scooting: a long-term real-world data analysis of shared "
         "micro-mobility services. In 2025 IEEE 10th European Symposium on "
         "Security and Privacy (EuroS&P). IEEE. "
         "https://doi.org/10.1109/EuroSP63326.2025.00014."
     ),
     "etrojans": (
-        "Casagrande, M., Losiouk, E., Conti, M., Payer, M. and Antonioli, D. "
-        "(2024) E-Trojans: ransomware, tracking, DoS, and data leaks on "
+        "Casagrande, M., Losiouk, E., Conti, M., Payer, M. and Antonioli, D."
+        ", 2024. E-Trojans: ransomware, tracking, DoS, and data leaks on "
         "battery-powered embedded systems. arXiv:2411.17184. "
         "https://doi.org/10.48550/arXiv.2411.17184."
     ),
     "espoofer": (
-        "Casagrande, M., Losiouk, E., Conti, M., Payer, M. and Antonioli, D. "
-        "(2023) E-Spoofer: attacking and defending Xiaomi electric scooter "
+        "Casagrande, M., Losiouk, E., Conti, M., Payer, M. and Antonioli, D."
+        ", 2023. E-Spoofer: attacking and defending Xiaomi electric scooter "
         "ecosystem. In Proceedings of the 16th ACM Conference on Security and "
         "Privacy in Wireless and Mobile Networks (WiSec). ACM. "
         "https://doi.org/10.1145/3558482.3590176."
     ),
     "vinayaga2022": (
         "Vinayaga-Sureshkanth, N., Maiti, A., Jadliwala, M., Crager, K., He, J. "
-        "and Rathore, H. (2022) An investigative study on the privacy "
+        "and Rathore, H., 2022. An investigative study on the privacy "
         "implications of mobile e-scooter rental apps. In Proceedings of the "
         "15th ACM Conference on Security and Privacy in Wireless and Mobile "
         "Networks (WiSec). ACM. https://doi.org/10.1145/3507657.3528551."
     ),
     "hilgert": (
-        "Hilgert, J.-N., Lambertz, M., Rybalka, M., Schell, R. and Vogt, R. "
-        "(2021) A forensic analysis of micromobility solutions. Forensic "
+        "Hilgert, J.-N., Lambertz, M., Rybalka, M., Schell, R. and Vogt, R."
+        ", 2021. A forensic analysis of micromobility solutions. Forensic "
         "Science International: Digital Investigation 38, 301137. "
         "https://doi.org/10.1016/j.fsidi.2021.301137."
     ),
     "isik": (
-        "Isik, A.B., Dag, T. and Ozkan, K. (2023) E-scooter sharing platforms: "
+        "Isik, A.B., Dag, T. and Ozkan, K., 2023. E-scooter sharing platforms: "
         "understanding their architecture and cybersecurity threats. In 2023 "
         "IEEE 26th International Conference on Intelligent Transportation "
         "Systems (ITSC). IEEE. https://doi.org/10.1109/ITSC57777.2023.10421849."
     ),
     "vinayaga2020": (
         "Vinayaga-Sureshkanth, N., Maiti, A., Jadliwala, M., Crager, K., He, J. "
-        "and Rathore, H. (2020) Security and privacy challenges in upcoming "
+        "and Rathore, H., 2020. Security and privacy challenges in upcoming "
         "intelligent urban micromobility transportation systems. In Proceedings "
         "of the Second ACM Workshop on Automotive and Aerial Vehicle Security "
         "(AutoSec). ACM. https://doi.org/10.1145/3375706.3380559."
     ),
     "petersen": (
-        "Petersen, M.L. (2019) Scoot over smart devices: the invisible costs of "
+        "Petersen, M.L., 2019. Scoot over smart devices: the invisible costs of "
         "rental scooters. Surveillance & Society 17(1/2), 267-273. "
         "https://doi.org/10.24908/ss.v17i1/2.13112."
     ),
     "sato": (
-        "Sato, K., Fukushima, N., Fujii, K. and Kitani, T. (2025) Data "
+        "Sato, K., Fukushima, N., Fujii, K. and Kitani, T., 2025. Data "
         "acquisition framework for micromobility vehicles toward driving risk "
         "prediction. IEEE Security & Privacy 23(1). "
         "https://doi.org/10.1109/MSEC.2024.3441731."
     ),
     "yilmaz2022": (
-        "Yilmaz, S. and Karsligil, M.E. (2022) Analysis of location spoofing "
+        "Yilmaz, S. and Karsligil, M.E., 2022. Analysis of location spoofing "
         "threats on e-scooter sharing. In 2022 30th Signal Processing and "
         "Communications Applications Conference (SIU). IEEE. "
         "https://doi.org/10.1109/SIU55565.2022.9864946."
     ),
     "yilmaz2023": (
-        "Yilmaz, S. and Karsligil, M.E. (2023) Geo-location spoofing on "
+        "Yilmaz, S. and Karsligil, M.E., 2023. Geo-location spoofing on "
         "e-scooters: threat analysis and prevention framework. Balkan Journal "
         "of Electrical and Computer Engineering 11(2). "
         "https://doi.org/10.17694/bajece.1231384."
     ),
     "li2020": (
-        "Li, Y. and Zhang, X. (2020) Linking privacy concerns for traceable "
+        "Li, Y. and Zhang, X., 2020. Linking privacy concerns for traceable "
         "information and information privacy protective responses. In "
         "Proceedings of the 53rd Hawaii International Conference on System "
         "Sciences (HICSS). https://doi.org/10.24251/HICSS.2020.105."
     ),
     "hannemann": (
-        "Hannemann, A., Buchholz, E. and Ziegler, D. (2023) Is homomorphic "
+        "Hannemann, A., Buchholz, E. and Ziegler, D., 2023. Is homomorphic "
         "encryption feasible for smart mobility? In Annals of Computer Science "
         "and Information Systems, vol. 35 (FedCSIS). "
         "https://doi.org/10.15439/2023F695."
     ),
     "zhou": (
-        "Zhou, Y. (2024) Data extraction in dockless bikeshare: an analysis "
+        "Zhou, Y., 2024. Data extraction in dockless bikeshare: an analysis "
         "from users' perspective. Big Data & Society 11(4). "
         "https://doi.org/10.1177/20539517241299724."
     ),
     "leaky": (
-        "Marchiori, A., Losiouk, E., Conti, M. and Antonioli, D. (2025) Leaky "
+        "Marchiori, A., Losiouk, E., Conti, M. and Antonioli, D., 2025. Leaky "
         "batteries: a novel set of side-channel attacks on electric vehicles. "
         "In Computer Security - ESORICS 2025, Lecture Notes in Computer "
         "Science. Springer. https://doi.org/10.1007/978-3-032-00624-0_16."
     ),
     "iotreuse": (
-        "Liu, Y., Zhou, Z., Zhang, J., et al. (2023) How IoT re-using threatens "
+        "Liu, Y., Zhou, Z., Zhang, J., et al., 2023. How IoT re-using threatens "
         "your sensitive data: exploring the user-data disposal in used IoT "
         "devices. In 2023 IEEE Symposium on Security and Privacy (SP). IEEE. "
         "https://doi.org/10.1109/SP46215.2023.10179294."
     ),
     "bms": (
-        "Basic, F., Gaertner, M. and Steger, C. (2023) Secure data acquisition "
+        "Basic, F., Gaertner, M. and Steger, C., 2023. Secure data acquisition "
         "for battery management systems. In 2023 26th Euromicro Conference on "
         "Digital System Design (DSD). IEEE. "
         "https://doi.org/10.1109/DSD60849.2023.00082."
     ),
     "remanence": (
-        "Joshi, A. and Raval, M.S. (2018) Standards and techniques to remove "
+        "Joshi, A. and Raval, M.S., 2018. Standards and techniques to remove "
         "data remanence in cloud storage. In 2018 IEEE Punecon. IEEE. "
         "https://doi.org/10.1109/PUNECON.2018.8745370."
     ),
     "gbfs_spec": (
-        "MobilityData (2024) General Bikeshare Feed Specification (GBFS), "
+        "MobilityData, 2024. General Bikeshare Feed Specification (GBFS), "
         "version 3.0. Available at https://gbfs.org/ (accessed 12 July 2026)."
     ),
     "gbfs_registry": (
-        "MobilityData (2026) GBFS systems catalogue (systems.csv). Available at "
+        "MobilityData, 2026. GBFS systems catalogue (systems.csv). Available at "
         "https://github.com/MobilityData/gbfs (accessed 8 July 2026)."
     ),
     "mds_privacy": (
-        "Open Mobility Foundation (2021) MDS privacy guide for cities. "
+        "Open Mobility Foundation, 2021. MDS privacy guide for cities. "
         "Available at https://www.openmobilityfoundation.org/ (accessed 12 "
         "July 2026)."
     ),
     "edpb_cv": (
-        "European Data Protection Board (2021) Guidelines 01/2020 on processing "
+        "European Data Protection Board, 2021. Guidelines 01/2020 on processing "
         "personal data in the context of connected vehicles and mobility "
         "related applications, version 2.0."
     ),
     "nist88": (
-        "Kissel, R., Regenscheid, A., Scholl, M. and Stine, K. (2014) NIST "
+        "Kissel, R., Regenscheid, A., Scholl, M. and Stine, K., 2014. NIST "
         "Special Publication 800-88 Revision 1: Guidelines for Media "
         "Sanitization. National Institute of Standards and Technology. "
         "https://doi.org/10.6028/NIST.SP.800-88r1."
     ),
     "nist161": (
         "Boyens, J., Smith, A., Bartol, N., Winkler, K., Holbrook, A. and "
-        "Fallon, M. (2022) NIST Special Publication 800-161 Revision 1: "
+        "Fallon, M., 2022. NIST Special Publication 800-161 Revision 1: "
         "Cybersecurity Supply Chain Risk Management Practices for Systems and "
         "Organizations. National Institute of Standards and Technology. "
         "https://doi.org/10.6028/NIST.SP.800-161r1."
     ),
     "eu_battery": (
-        "European Parliament and Council (2023) Regulation (EU) 2023/1542 "
+        "European Parliament and Council, 2023. Regulation (EU) 2023/1542 "
         "concerning batteries and waste batteries. Official Journal of the "
         "European Union L191, 1-117."
     ),
 }
 
-# In-text author-date citation metadata (Cambridge A style). Each entry gives
+# In-text author-date citation metadata (Elsevier Harvard style). Each entry gives
 # the in-text author string, the year, and an alphabetical sort key (first
 # author surname / organisation) for ordering the reference list.
 CITEMETA: dict[str, tuple[str, str, str]] = {
@@ -274,7 +274,7 @@ assert set(CITEMETA) == set(REFS), (
 
 def intext(label: str) -> str:
     authors, year, _ = CITEMETA[label]
-    return f"{authors} {year}"
+    return f"{authors}, {year}"
 
 
 def sortkey(label: str) -> tuple[str, str]:
@@ -812,9 +812,9 @@ def _parse_label(raw: str) -> tuple[str, bool]:
 
 
 def resolve_citations(blocks: list[tuple], tables: dict[int, dict]):
-    """Author-date (Cambridge A) citation resolver.
+    """Author-date (Elsevier Harvard) citation resolver.
 
-    Internal ``[[label]]`` tokens are replaced with "(Author Year)" strings.
+    Internal ``[[label]]`` tokens are replaced with "(Author, Year)" strings.
     Multiple labels in one token are sorted alphabetically by first author and
     chronologically for the same author. The reference list is returned in
     alphabetical order (not first-appearance order)."""
@@ -945,7 +945,7 @@ def build_tables_docx(tables, repl) -> Path:
         add_table(doc, tables[i], repl)
         if i < 5:
             doc.add_section(WD_SECTION.NEW_PAGE)
-    path = OUTPUT / "Tables_DataPolicy_editable.docx"
+    path = OUTPUT / "Tables_TransportPolicy_editable.docx"
     doc.save(path)
     return path
 
@@ -981,7 +981,7 @@ def build_figures_pptx(figpaths, repl) -> Path:
         cp = cf.paragraphs[0]
         cp.text = repl(FIG_CAPTIONS[num])
         cp.font.size = PptxPt(11)
-    path = OUTPUT / "Figures_DataPolicy_editable.pptx"
+    path = OUTPUT / "Figures_TransportPolicy_editable.pptx"
     prs.save(path)
     return path
 
@@ -1046,8 +1046,8 @@ def main() -> None:
     values_path = dump_reproducibility_values()
     print("Reproduction complete.")
     print(f"  figures: {len(figpaths)} (PNG/TIFF/PDF at 600 dpi)")
-    print("  editable tables: output/Tables_DataPolicy_editable.docx")
-    print("  editable figures: output/Figures_DataPolicy_editable.pptx")
+    print("  editable tables: output/Tables_TransportPolicy_editable.docx")
+    print("  editable figures: output/Figures_TransportPolicy_editable.pptx")
     print(f"  in-text values: {values_path.relative_to(ROOT)}")
 
 

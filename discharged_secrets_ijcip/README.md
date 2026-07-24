@@ -2,7 +2,7 @@
 
 ## Current revision track
 
-The project is an empirical, reproducible package: a PRISMA-ScR scoping review, a global field audit of public GBFS vehicle feeds, and a structured disclosure audit of public operator privacy notices. It was first prepared for *Computers & Security* (Elsevier); after desk rejection for scope mismatch it was reformatted for **Data & Policy** (Cambridge University Press) as a Research Article — author-date (Cambridge A) references, a Policy Significance Statement, single-blind (non-anonymized), ≤250-word abstract, and the journal's required disclosure statements. The next fallback target is *International Journal of Information Security*. `REVIEWER_REVIEW.md` records the pre-submission reviewer-perspective assessment and residual caveats.
+The project is an empirical, reproducible package: a PRISMA-ScR scoping review, a global field audit of public GBFS vehicle feeds, and a structured disclosure audit of public operator privacy notices. It was first prepared for *Computers & Security* (Elsevier); after desk rejection for scope mismatch it was reformatted for *Data & Policy* (Cambridge University Press) and, following a desk rejection there, is now being prepared for **Transport Policy** (Elsevier) as a Full Article — author-date (Elsevier Harvard) references, 3-5 highlights, double-anonymized peer review, ≤250-word abstract, and the journal's required disclosure statements. `REVIEWER_REVIEW.md` records the pre-submission reviewer-perspective assessment and residual caveats.
 
 - `PROTOCOL.md`: prospective study protocol;
 - `REVISION_STRATEGY.md`: article redesign and claim boundaries;
@@ -87,7 +87,7 @@ The upstream data pipeline (screening, GBFS field audit, disclosure coding) is d
 
 ### Scope of this repository
 
-This repository contains the data, the analysis code, and the figure-, table-, and number-generation code so that readers can reproduce the results independently. The manuscript-body, cover-letter, and title-page **generation script is intentionally not included here**: it carries the article prose and does not contribute to result reproducibility. The published article (open access under CC-BY at *Data & Policy*) remains the source for the narrative text.
+This repository contains the data, the analysis code, and the figure-, table-, and number-generation code so that readers can reproduce the results independently. The manuscript-body, cover-letter, and title-page **generation script is intentionally not included here**: it carries the article prose and does not contribute to result reproducibility.
 
 **Zenodo deposit (mint the DOI):** enable the repository under Zenodo → Settings → GitHub, create a GitHub Release; Zenodo archives the tagged snapshot and mints a DOI. `.zenodo.json` and `CITATION.cff` in this directory seed the archive metadata. Cite the **concept DOI** so the statement never needs updating across versions.
 

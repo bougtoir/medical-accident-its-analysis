@@ -1,10 +1,10 @@
 Submission validation report
 ==============================
 
-word_count: 2495
-abstract_words: 214
-policy_significance_words: 121
-keywords: 5
+word_count: 2526
+abstract_words: 200
+highlights: 5
+keywords: 6
 references: 30
 all_citations_resolve: True
 no_orphan_or_phantom_refs: True
@@ -15,8 +15,9 @@ tables_cited_in_text: True
 five_figures_present: True
 five_tables_present: True
 abstract_within_250w: True
-policy_significance_120w: True
-keywords_at_most_five: True
+highlights_3_to_5: True
+highlights_max_85_chars: True
+keywords_at_most_seven: True
 required_disclosures_present: True
 no_identity_leak_when_blinded: True
 

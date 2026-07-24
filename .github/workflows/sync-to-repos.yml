@@ -190,9 +190,10 @@ jobs:
           BRANCH_MAP["devin/1783649000-ijcip-submission"]="discharged-secrets-ijcip"
 
           # ── Discharged Secrets (scoping review and public-data audit) ──
-          # NOTE: superseded by devin/1784122193-luup-data-policy (same target repo)
+          # NOTE: superseded by devin/1784904207-transport-policy (same target repo)
           # BRANCH_MAP["devin/1783957193-discharged-secrets-scoping-review"]="discharged-secrets-scoping-review"
-          BRANCH_MAP["devin/1784122193-luup-data-policy"]="discharged-secrets-scoping-review"
+          # BRANCH_MAP["devin/1784122193-luup-data-policy"]="discharged-secrets-scoping-review"
+          BRANCH_MAP["devin/1784904207-transport-policy"]="discharged-secrets-scoping-review"
 
           # ── Subdirectory filter map ──
           # When a branch contains multiple project folders (e.g. branched from
@@ -255,9 +256,10 @@ jobs:
           SUBDIR_MAP["devin/1782828801-anesthesia-record"]="anesthesia-record"
           SUBDIR_MAP["devin/1783365908-mnras-submission"]="threebody_pk_compartment"
           SUBDIR_MAP["devin/1783649000-ijcip-submission"]="discharged_secrets_ijcip"
-          # NOTE: superseded by devin/1784122193-luup-data-policy (same target repo)
+          # NOTE: superseded by devin/1784904207-transport-policy (same target repo)
           # SUBDIR_MAP["devin/1783957193-discharged-secrets-scoping-review"]="discharged_secrets_ijcip"
-          SUBDIR_MAP["devin/1784122193-luup-data-policy"]="discharged_secrets_ijcip"
+          # SUBDIR_MAP["devin/1784122193-luup-data-policy"]="discharged_secrets_ijcip"
+          SUBDIR_MAP["devin/1784904207-transport-policy"]="discharged_secrets_ijcip"
 
           # ── File exclusion map ──
           # Space-separated list of file paths (relative to subdir root if
@@ -273,7 +275,7 @@ jobs:
           # Keep the manuscript-body/cover-letter assembler and its prose-bearing
           # outputs out of the public repo; reproduce.py (figures + in-text numbers)
           # and the data/analysis code remain public for reproducibility.
-          EXCLUDE_MAP["devin/1784122193-luup-data-policy"]="build_submission.py output/Manuscript_DataPolicy.docx output/Cover_Letter_DataPolicy.docx output/Title_Page_DataPolicy.docx output/Submission_Checklist_DataPolicy.docx output/DataPolicy_submission_package.zip output/VALIDATION.txt output/Citation_Audit.csv output/Reference_Verification.csv output/Reporting_Guideline_PRISMA-ScR.docx"
+          EXCLUDE_MAP["devin/1784904207-transport-policy"]="build_submission.py output/Manuscript_TransportPolicy.docx output/Cover_Letter_TransportPolicy.docx output/Title_Page_TransportPolicy.docx output/Submission_Checklist_TransportPolicy.docx output/Highlights_TransportPolicy.docx output/Highlights_TransportPolicy.txt output/TransportPolicy_submission_package.zip output/VALIDATION.txt output/Citation_Audit.csv output/Reference_Verification.csv output/Reporting_Guideline_PRISMA-ScR.docx"
 
           OWNER="bougtoir"
 

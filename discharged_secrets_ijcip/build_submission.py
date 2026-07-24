@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
-"""Assemble the Data & Policy (Cambridge University Press) submission package
-(manuscript, title page, cover letter, checklist) for the shared-micromobility
-lifecycle data-exposure study.
+"""Assemble the Transport Policy (Elsevier) submission package
+(manuscript, title page, cover letter, highlights, checklist) for the
+shared-micromobility lifecycle data-exposure study.
 
 This is the manuscript-body / cover-letter generator. It is intentionally kept
 out of the public repository because it contains the article prose and does not
 contribute to result reproducibility. All quantitative claims are imported from
 ``reproduce`` (the public reproducibility engine), so the numbers, figures, and
 tables it embeds are exactly those regenerated from the committed public data.
-Citations use author-date (Cambridge A) style.
+Citations use author-date (Elsevier Harvard) style.
 """
 
 from __future__ import annotations
@@ -49,21 +49,20 @@ AFFILIATION = ("Data Science and AI Innovation Research Promotion Center, "
                "Shiga University, Hikone, Japan")
 EMAIL = "bougtoir@gmail.com"
 ORCID = "0000-0001-7261-9062"
-JOURNAL = "Data & Policy"
-PUBLISHER = "Cambridge University Press"
-ARTICLE_TYPE = "Research Article"
-AREA_OF_INTEREST = "Area 4: Ethics, Equity and Trustworthiness of Data"
+JOURNAL = "Transport Policy"
+PUBLISHER = "Elsevier"
+ARTICLE_TYPE = "Full Article"
 PUBLIC_REPO_URL = "https://github.com/bougtoir/discharged-secrets-scoping-review"
-BUILD_DATE = "15 July 2026"
+BUILD_DATE = "24 July 2026"
 
 # --- Review-model toggle -------------------------------------------------
 # The same pipeline serves single-blind (default) and double-masked review.
-# BLINDED=1 removes author-identifying content from the *main manuscript*
-# (byline, acknowledgements, and any identity-revealing repository URL) so the
-# manuscript file itself can be uploaded to a double-masked journal. The title
-# page and cover letter are always non-anonymized because journals collect them
-# separately and do not forward them to reviewers.
-BLINDED = os.environ.get("BLINDED", "0") == "1"
+# Transport Policy uses double-anonymized peer review, so the main manuscript is
+# built blinded by default. BLINDED=1 removes author-identifying content from the
+# *main manuscript* (byline, acknowledgements, and any identity-revealing
+# repository URL). The title page and cover letter are always non-anonymized
+# because journals collect them separately and do not forward them to reviewers.
+BLINDED = os.environ.get("BLINDED", "1") == "1"
 
 # Persistent DOI for the archived deposit (e.g. Zenodo concept DOI covering all
 # versions). Set ZENODO_DOI once the archive is minted; the availability
@@ -77,32 +76,26 @@ ANON_REPO_URL = os.environ.get(
     "ANON_REPO_URL",
     "https://anonymous.4open.science/r/discharged-secrets-scoping-review")
 
-# Data & Policy allows up to five keywords, separated by semicolons.
+# Transport Policy allows 1-7 keywords; avoid multi-word phrases containing
+# 'and' or 'of'.
 KEYWORDS = [
     "shared micromobility",
     "location privacy",
-    "data lifecycle",
-    "open mobility data",
     "data governance",
+    "GBFS",
+    "transport policy",
+    "lifecycle exposure",
 ]
 
-# Required by Data & Policy: a 120-word statement, in accessible language,
-# placed directly beneath the abstract.
-POLICY_SIGNIFICANCE = (
-    "Shared e-scooters and e-bikes are connected devices that cities and "
-    "residents use but neither own nor decommission. This study gives "
-    "policymakers an evidence-based map of what these systems actually "
-    "disclose. A global audit of public vehicle feeds shows that persistent "
-    "identifiers and precise locations are published almost universally, while "
-    "operator privacy notices rarely address device disposal or vulnerability "
-    "reporting. For regulators and procuring authorities, this indicates that "
-    "oversight focused only on real-time location understates lifecycle "
-    "exposure. We provide a transparent, reproducible lifecycle framework that "
-    "ties each stage to the strength of its evidence, helping agencies target "
-    "disclosure requirements, procurement clauses, and end-of-life "
-    "data-handling rules where public accountability is currently weakest. "
-    "The whole audit relies only on public data and open code."
-)
+# Elsevier-style highlights: 3-5 bullets, each no more than 85 characters
+# including spaces.
+HIGHLIGHTS = [
+    "Scoping review of 2,169 records yields 18 direct micromobility studies.",
+    "GBFS audit: persistent IDs and GPS are published in almost every feed.",
+    "Privacy notices rarely address battery data, vulnerability disclosure, or disposal.",
+    "A reproducible lifecycle model links evidence strength to policy controls.",
+    "Findings are disclosure signals, not evidence of privacy harm.",
+]
 
 # Contents of the archive, reused across every availability-statement variant.
 _ARCHIVE_CONTENTS = (
@@ -145,7 +138,7 @@ def data_availability_statement() -> str:
         "includes " + _ARCHIVE_CONTENTS + _REPRO_SENTENCE)
 
 
-# Disclosure statements required by Data & Policy, placed after the main text
+# Disclosure statements required by Transport Policy, placed after the main text
 # and before the references. Data availability, funding, and competing
 # interests are mandatory; the remaining statements are included as good
 # practice and to preserve the ethics and generative-AI disclosures.
@@ -226,7 +219,11 @@ def body_blocks() -> list[tuple]:
         "[[iotreuse;remanence]]. Battery and diagnostic channels, in "
         "particular, can leak activity patterns even when positioning is "
         "restricted [[leaky;bms]]. Whether operators disclose these lifecycle "
-        "practices to the public is largely unexamined.",
+        "practices to the public is largely unexamined. For transport and "
+        "data-protection regulators, this means procurement clauses and "
+        "oversight frameworks currently focus disproportionately on real-time "
+        "location while leaving data at rest and end-of-life handling largely "
+        "unaddressed.",
         "This article addresses both gaps with an empirical, reproducible "
         "package rather than a conceptual argument. We (i) conduct a scoping "
         "review, following the Preferred Reporting Items for Systematic Reviews "
@@ -486,6 +483,37 @@ def body_blocks() -> list[tuple]:
         "operator cooperation that were outside this study's scope.",
     ]]
 
+    blocks.append(("h2", "4.2. Policy implications"))
+    blocks += [("p", t) for t in [
+        "For procuring authorities and regulators, the findings point to three "
+        "actionable policy priorities. First, procurement clauses and concession "
+        "agreements for shared micromobility should require disclosure of the "
+        "vehicle fields that are published in open feeds, not only real-time "
+        "location. Identifiers, timestamps, range, and battery state are "
+        "collectively more enabling of re-identification and tracking than any "
+        "single field, and their prevalence means that procurement templates "
+        "focusing only on GPS coordinates understate exposure.",
+        "Second, operator accountability frameworks should close the lifecycle "
+        "gaps visible in the document audit. Battery and diagnostic data, "
+        "vulnerability disclosure channels, and device return or disposal "
+        "handling were rarely described in public notices. These omissions "
+        "matter because end-of-life custody changes are where data-remanence "
+        "and secondary-market risks are concentrated. Requiring operators to "
+        "publish plain statements on these domains - or to explain why they are "
+        "not applicable - would make the market easier to compare and "
+        "regulate without mandating specific technical architectures.",
+        "Third, standards and guidance can be targeted where evidence is "
+        "strongest. GBFS already exposes which fields are published, so feed-level "
+        "transparency can be improved by standardising the optional fields that "
+        "affect privacy, and by documenting the rationale for their inclusion. "
+        "For end-of-life handling, where only near-domain evidence exists, "
+        "regulators should treat disposal requirements as precautionary rather "
+        "than evidence-based until device-level empirical studies become "
+        "available. The lifecycle framework supplied in this article is "
+        "designed to make these gradations explicit so that policy can track "
+        "evidence rather than assume it.",
+    ]]
+
     blocks.append(("h1", "5. Conclusion"))
     blocks += [("p", t) for t in [
         "Shared micromobility offers a tractable, fully public setting in which "
@@ -547,41 +575,33 @@ def add_page_number(section) -> None:
 
 
 ABSTRACT_STRUCT = [
-    ("Background", "Shared micromobility produces continuous location, motion, "
-     "and battery telemetry, yet evidence on data exposure is scattered and the "
-     "device lifecycle beyond real-time position is rarely examined."),
-    ("Objective", "To map the direct evidence for micromobility data exposure, "
-     "to measure which vehicle fields operators publish worldwide, and to "
-     "assess how completely operators disclose lifecycle data handling."),
-    ("Methods", "We combined a scoping review reported using the Preferred "
-     "Reporting Items for Systematic Reviews and Meta-Analyses extension for "
-     f"Scoping Reviews (PRISMA-ScR) of {fmt(SCR['identified'])} records, a "
-     "cross-sectional field audit of public General Bikeshare Feed "
-     "Specification (GBFS) feeds, and a structured disclosure audit of public "
-     f"operator privacy notices across {len(DOMAINS)} domains, using "
-     "deterministic screening and explicit denominators with "
-     "95% Wilson confidence intervals (CIs)."),
-    ("Results", f"{SCR['included']} direct studies were included "
-     f"({SCR['d4']} direct-empirical, {SCR['d3']} direct-documentary, and "
-     f"{SCR['d2']} near-domain), with "
-     f"the strongest evidence at the operation stage. Across {fmt(N_MOTOR_FEEDS)} "
-     "motorized micromobility feeds, vehicle identifiers appeared in "
-     f"{pct('declared_motorized_micromobility_feeds', 'has_vehicle_id')} and "
-     f"coordinates in "
-     f"{pct('declared_motorized_micromobility_feeds', 'has_location_fields')}, "
-     "while battery percentage appeared in "
-     f"{pct('declared_motorized_micromobility_feeds', 'has_battery_percent')}. "
-     "Operator notices documented operational processing thoroughly but were "
-     "silent on device disposal and vulnerability reporting."),
-    ("Conclusions", "Persistent identifiers and precise positions are widely "
-     "disclosed, and lifecycle end-of-life handling is largely undocumented. "
-     "These are disclosure and evidence signals, not demonstrations of harm; we "
-     "propose a lifecycle model whose controls remain to be validated."),
+    ("Abstract", "Shared micromobility - dockless electric scooters and "
+     "bicycles rented via smartphone - is a globally deployed class of "
+     "connected devices that cities and citizens use but do not own or "
+     "decommission. This study maps the direct evidence for data exposure across "
+     "the device lifecycle, measures which vehicle fields operators publish "
+     "worldwide, and assesses how completely operators disclose lifecycle data "
+     "handling. A PRISMA-ScR scoping review of "
+     f"{fmt(SCR['identified'])} records yielded {SCR['included']} direct studies, "
+     f"with the strongest evidence at the operation stage. A cross-sectional "
+     f"audit of {fmt(N_REACHABLE)} public General Bikeshare Feed Specification "
+     "(GBFS) feeds found that persistent identifiers and precise positions are "
+     "published in almost every motorized feed, while battery and diagnostic "
+     "fields are published less uniformly. A disclosure audit of public operator "
+     "privacy notices showed that operational data handling is documented "
+     "thoroughly, but end-of-life handling and vulnerability reporting are "
+     "rarely addressed. We frame these findings as disclosure and evidence "
+     "signals, not demonstrations of harm, and provide a reproducible lifecycle "
+     "model that ties each stage to the strength of its evidence and to policy "
+     "controls. The results suggest that procurement and regulatory oversight "
+     "should move beyond real-time location and explicitly require "
+     "transparency on identifiers, timestamps, range, battery state, device "
+     "disposal, and vulnerability reporting."),
 ]
 
 
 def build_abstract_text() -> str:
-    return " ".join(f"{label}: {text}" for label, text in ABSTRACT_STRUCT)
+    return " ".join(text for _, text in ABSTRACT_STRUCT)
 
 
 
@@ -612,16 +632,15 @@ def build_manuscript(blocks, tables, figpaths, repl, references) -> Path:
         ar.font.size = Pt(10)
 
     doc.add_heading("Abstract", level=1)
-    for label, text in ABSTRACT_STRUCT:
-        p = doc.add_paragraph()
-        p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
-        p.add_run(f"{label}: ").bold = True
-        p.add_run(text)
+    _, abstract_text = ABSTRACT_STRUCT[0]
+    p = doc.add_paragraph()
+    p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+    p.add_run(abstract_text)
 
-    doc.add_heading("Policy Significance Statement", level=1)
-    ps = doc.add_paragraph()
-    ps.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
-    ps.add_run(POLICY_SIGNIFICANCE)
+    doc.add_heading("Highlights", level=1)
+    for bullet in HIGHLIGHTS:
+        p = doc.add_paragraph(style="List Bullet")
+        p.add_run(bullet)
 
     kw = doc.add_paragraph()
     kw.add_run("Keywords: ").bold = True
@@ -655,7 +674,7 @@ def build_manuscript(blocks, tables, figpaths, repl, references) -> Path:
         p.paragraph_format.space_after = Pt(4)
         p.add_run(REFS[label])
 
-    path = OUTPUT / "Manuscript_DataPolicy.docx"
+    path = OUTPUT / "Manuscript_TransportPolicy.docx"
     doc.save(path)
     return path
 
@@ -674,18 +693,17 @@ def build_title_page(word_count: int, n_refs: int) -> Path:
         p.alignment = WD_ALIGN_PARAGRAPH.CENTER
         p.add_run(text).bold = bold
     doc.add_paragraph()
-    ps_words = len(re.findall(r"\b[\w'-]+\b", POLICY_SIGNIFICANCE))
+    highlights_count = len(HIGHLIGHTS)
     abstract_words = len(re.findall(r"\b[\w'-]+\b", build_abstract_text()))
     fields = [
         ("Full title", TITLE),
         ("Short title", SHORT_TITLE),
         ("Article type", ARTICLE_TYPE),
         ("Journal", f"{JOURNAL} ({PUBLISHER})"),
-        ("Area of interest", AREA_OF_INTEREST),
-        ("Peer review", "Single-blind; the manuscript is not anonymized"),
+        ("Peer review", "Double-anonymized; the manuscript file is anonymized"),
         ("Abstract word count", str(abstract_words)),
-        ("Policy Significance Statement word count", str(ps_words)),
-        ("Main-text word count (excludes references)", str(word_count)),
+        ("Highlights", f"{highlights_count} bullets"),
+        ("Main-text word count (excludes title, abstract, references)", str(word_count)),
         ("Figures", "5"),
         ("Tables", "5"),
         ("References", str(n_refs)),
@@ -696,7 +714,7 @@ def build_title_page(word_count: int, n_refs: int) -> Path:
         p = doc.add_paragraph()
         p.add_run(f"{label}: ").bold = True
         p.add_run(value)
-    path = OUTPUT / "Title_Page_DataPolicy.docx"
+    path = OUTPUT / "Title_Page_TransportPolicy.docx"
     doc.save(path)
     return path
 
@@ -715,36 +733,40 @@ def build_cover_letter() -> Path:
     doc.add_paragraph("Dear Editors,")
     paras = [
         f"I submit the manuscript \u201c{TITLE}\u201d for consideration as a "
-        f"Research Article in {JOURNAL}.",
+        f"Full Article in {JOURNAL}.",
         "Shared micromobility is a fully public, globally deployed class of "
         "connected devices that cities and citizens use but do not own or "
         "decommission. The manuscript reports an empirical, reproducible "
-        "package at the intersection of data and policy: a PRISMA-ScR scoping "
-        "review that identifies the direct evidence for data exposure; a global "
-        "audit of public GBFS feeds that measures which vehicle fields "
-        "operators actually publish; and a structured audit of public operator "
-        f"privacy notices across {len(DOMAINS)} disclosure domains.",
-        "The work fits the journal's Area 4 (Ethics, Equity and "
-        "Trustworthiness of Data) because it quantifies real, worldwide data "
-        "disclosure and connects it to procurement, regulation, and "
-        "transparency choices facing public authorities. A 120-word Policy "
-        "Significance Statement makes these implications explicit for a "
-        "policy audience. Throughout, we treat field presence and document "
-        "silence as disclosure and evidence signals rather than as proof of "
-        "harm, compromise, or regulatory violation, and we state the "
-        "effectiveness of proposed controls conservatively as not yet "
-        "validated.",
+        "package at the intersection of transport policy, data governance, and "
+        "connected-device security: a PRISMA-ScR scoping review that maps the "
+        "direct evidence for data exposure; a global audit of public GBFS "
+        "feeds that measures which vehicle fields operators actually publish; "
+        "and a structured audit of public operator privacy notices across "
+        f"{len(DOMAINS)} disclosure domains.",
+        "The work fits Transport Policy because it quantifies real, worldwide "
+        "data disclosure practices and connects them to procurement, "
+        "regulatory, and standard-setting choices facing public authorities "
+        "and transport operators. It moves beyond methodological reporting by "
+        "tying each finding to the actors at risk, the policy instruments "
+        "that could address the risk, and the strength of the evidence "
+        "supporting those instruments. A set of Elsevier-style highlights "
+        "summarises the key messages for a policy audience. Throughout, we "
+        "treat field presence and document silence as disclosure and evidence "
+        "signals rather than as proof of harm, compromise, or regulatory "
+        "violation, and we state the effectiveness of proposed controls "
+        "conservatively as not yet validated.",
         "The study analysed only publicly accessible feeds and documents; it "
         "did not attempt authentication or access-control circumvention, did "
         "not interact with users, and retained no raw identifiers, exact "
         "coordinates, or vehicle deep links. Consistent with the journal's "
-        "open-research expectations, all data, coding sheets, and code are "
-        "openly available so that every reported count can be regenerated with "
-        "a single command. The manuscript is original and is not under "
-        "consideration elsewhere; I understand that Data & Policy uses "
-        "single-blind peer review, so the submission is not anonymized. There "
-        "is no funding or competing interest to declare, and no generative AI "
-        "was used for scientific content.",
+        "double-anonymized peer review, the manuscript file contains no "
+        "identifying information; the anonymised repository link and the "
+        "public repository URL will be disclosed on acceptance. All data, "
+        "coding sheets, and code are available so that every reported count "
+        "can be regenerated with a single command. The manuscript is original "
+        "and is not under consideration elsewhere. There is no funding or "
+        "competing interest to declare, and no generative AI was used for "
+        "scientific content.",
         "Thank you for considering this submission.",
     ]
     for text in paras:
@@ -753,9 +775,25 @@ def build_cover_letter() -> Path:
         p.add_run(text)
     doc.add_paragraph("Sincerely,")
     doc.add_paragraph(AUTHOR)
-    path = OUTPUT / "Cover_Letter_DataPolicy.docx"
+    path = OUTPUT / "Cover_Letter_TransportPolicy.docx"
     doc.save(path)
     return path
+
+
+def build_highlights() -> tuple[Path, Path]:
+    doc = Document()
+    configure_document(doc)
+    h = doc.add_paragraph(style="Title")
+    h.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    h.add_run("Highlights").bold = True
+    for bullet in HIGHLIGHTS:
+        p = doc.add_paragraph(style="List Bullet")
+        p.add_run(bullet)
+    docx_path = OUTPUT / "Highlights_TransportPolicy.docx"
+    doc.save(docx_path)
+    txt_path = OUTPUT / "Highlights_TransportPolicy.txt"
+    txt_path.write_text("\n".join(f"- {b}" for b in HIGHLIGHTS) + "\n", encoding="utf-8")
+    return docx_path, txt_path
 
 
 def build_reporting_guideline() -> Path:
@@ -767,13 +805,13 @@ def build_reporting_guideline() -> Path:
     p = doc.add_paragraph()
     p.add_run(
         "The scoping-review component (WP1) follows the PRISMA-ScR checklist "
-        "(Tricco et al. 2018). The field audit (WP2) and disclosure audit "
+        "(Tricco et al., 2018). The field audit (WP2) and disclosure audit "
         "(WP3) are cross-sectional observational studies of public artefacts "
         "and are reported with explicit denominators, confidence intervals, and "
         "open code. The table below maps each PRISMA-ScR item to its location.")
     items = [
         ("Title", "Identifies the report as a scoping review", "Title page"),
-        ("Abstract", "Structured summary", "Abstract"),
+        ("Abstract", "Summary", "Abstract"),
         ("Rationale", "Rationale in the context of what is known", "Section 1"),
         ("Objectives", "Research questions RQ1-RQ3", "Section 1"),
         ("Protocol", "Protocol availability", "Data availability statement"),
@@ -861,7 +899,8 @@ def build_citation_audit(blocks, tables, order, repl) -> Path:
 
 
 def word_count(blocks, repl) -> int:
-    text = TITLE + " " + build_abstract_text()
+    """Main-text word count excluding title, abstract, and references."""
+    text = ""
     for kind, payload in blocks:
         if kind == "p":
             text += " " + repl(payload)
@@ -877,7 +916,8 @@ def validate(blocks, tables, order, ref_list, repl) -> dict:
     refs_alpha = ref_list == sorted(ref_list, key=lambda l: (sortkey(l), l))
     body = word_count(blocks, repl)
     abstract_words = len(re.findall(r"\b[\w'-]+\b", build_abstract_text()))
-    ps_words = len(re.findall(r"\b[\w'-]+\b", POLICY_SIGNIFICANCE))
+    highlights_ok = 3 <= len(HIGHLIGHTS) <= 5
+    highlights_max_len = all(len(h) <= 85 for h in HIGHLIGHTS)
     # figures/tables cited in text
     body_text = " ".join(repl(p) for k, p in blocks if k == "p")
     figs_cited = all(f"Fig. {i}" in body_text for i in range(1, 6))
@@ -887,7 +927,7 @@ def validate(blocks, tables, order, ref_list, repl) -> dict:
     tab_seq = [p for k, p in blocks if k == "table"]
     # in-text markers must not leak into the rendered text
     no_raw_markers = not any(CITE_RX.search(repl(p)) for k, p in blocks if k == "p")
-    # required Data & Policy disclosure statements
+    # required Transport Policy disclosure statements
     decl_labels = {lbl for lbl, _ in DECLARATIONS}
     required_disclosures = {
         "Data availability statement", "Funding statement", "Competing interests",
@@ -910,8 +950,9 @@ def validate(blocks, tables, order, ref_list, repl) -> dict:
         "five_figures_present": sorted(set(fig_seq)) == [1, 2, 3, 4, 5],
         "five_tables_present": sorted(set(tab_seq)) == [1, 2, 3, 4, 5],
         "abstract_within_250w": abstract_words <= 250,
-        "policy_significance_120w": 110 <= ps_words <= 130,
-        "keywords_at_most_five": len(KEYWORDS) <= 5,
+        "highlights_3_to_5": highlights_ok,
+        "highlights_max_85_chars": highlights_max_len,
+        "keywords_at_most_seven": len(KEYWORDS) <= 7,
         "required_disclosures_present": required_disclosures,
         "no_identity_leak_when_blinded": no_identity_leak,
     }
@@ -929,7 +970,7 @@ def validate(blocks, tables, order, ref_list, repl) -> dict:
         if abbr in joined and definition not in joined:
             raise RuntimeError(f"Undefined abbreviation at first use: {abbr}")
     return {"word_count": body, "abstract_words": abstract_words,
-            "policy_significance_words": ps_words, "keywords": len(KEYWORDS),
+            "highlights": len(HIGHLIGHTS), "keywords": len(KEYWORDS),
             "references": len(ref_list), **checks}
 
 
@@ -954,20 +995,20 @@ def build_checklist(validation) -> Path:
     h.alignment = WD_ALIGN_PARAGRAPH.CENTER
     h.add_run("Submission checklist").bold = True
     rows = [
-        ["Cover letter", "Included", "Cover_Letter_DataPolicy.docx"],
-        ["Title page with author details", "Included", "Title_Page_DataPolicy.docx"],
-        ["Article file (figures/tables inline; non-anonymized)", "Included", "Manuscript_DataPolicy.docx"],
+        ["Cover letter", "Included", "Cover_Letter_TransportPolicy.docx"],
+        ["Title page with author details", "Included", "Title_Page_TransportPolicy.docx"],
+        ["Article file (figures/tables inline; anonymized)", "Included", "Manuscript_TransportPolicy.docx"],
+        ["Highlights (3-5 bullets, <=85 chars)", f"{validation['highlights']} bullets", "Highlights_TransportPolicy.docx/.txt"],
         ["Abstract (<=250 words)", f"{validation['abstract_words']} words", "Manuscript"],
-        ["Policy Significance Statement (120 words)", f"{validation['policy_significance_words']} words", "Manuscript"],
-        ["Keywords (<=5, semicolon-separated)", f"{validation['keywords']}", "Manuscript"],
+        ["Keywords (1-7, semicolon-separated)", f"{validation['keywords']}", "Manuscript"],
         ["Figures (PNG + TIFF + PDF, 600 dpi)", "Included", "figures/Figure1-5.*"],
-        ["Editable figures (one per slide)", "Included", "Figures_DataPolicy_editable.pptx"],
-        ["Editable tables", "Included", "Tables_DataPolicy_editable.docx"],
+        ["Editable figures (one per slide)", "Included", "Figures_TransportPolicy_editable.pptx"],
+        ["Editable tables", "Included", "Tables_TransportPolicy_editable.docx"],
         ["Reporting guideline (PRISMA-ScR)", "Included", "Reporting_Guideline_PRISMA-ScR.docx"],
         ["Citation audit (author-date)", "Included", "Citation_Audit.csv"],
         ["Reference verification", "Included", "Reference_Verification.csv"],
-        [f"Main-text word count (excl. references): {validation['word_count']}",
-         "Reported", "Title_Page_DataPolicy.docx"],
+        [f"Main-text word count (excl. title, abstract, references): {validation['word_count']}",
+         "Reported", "Title_Page_TransportPolicy.docx"],
         ["Data availability statement", "Included", "Manuscript"],
         ["Funding statement", "Included", "Manuscript"],
         ["Competing interests statement", "Included", "Manuscript"],
@@ -975,13 +1016,13 @@ def build_checklist(validation) -> Path:
     add_table(doc, {"title": "Items included in the submission package",
                     "headers": ["Item", "Status", "File"], "rows": rows},
               lambda x: x)
-    path = OUTPUT / "Submission_Checklist_DataPolicy.docx"
+    path = OUTPUT / "Submission_Checklist_TransportPolicy.docx"
     doc.save(path)
     return path
 
 
 def build_zip(figpaths) -> Path:
-    path = OUTPUT / "DataPolicy_submission_package.zip"
+    path = OUTPUT / "TransportPolicy_submission_package.zip"
     with zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED) as zf:
         for item in sorted(OUTPUT.rglob("*")):
             if item.is_file() and item != path:
@@ -1001,6 +1042,7 @@ def main() -> None:
     wc = validation["word_count"]
     build_title_page(wc, len(ref_list))
     build_cover_letter()
+    build_highlights()
     build_tables_docx(TABLES, repl)
     build_figures_pptx(figpaths, repl)
     build_reporting_guideline()
@@ -1013,7 +1055,7 @@ def main() -> None:
     print("Build complete.")
     print(f"  references: {len(ref_list)} (alphabetical, author-date)")
     print(f"  main-text words: {wc}; abstract words: {validation['abstract_words']}; "
-          f"policy significance words: {validation['policy_significance_words']}")
+          f"highlights: {validation['highlights']}")
     print(f"  package: {zip_path.relative_to(ROOT)}")
     for k, v in validation.items():
         if isinstance(v, bool):
