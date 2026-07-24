@@ -8,7 +8,7 @@ blocking were addressed in the manuscript before finalization; residual
 limitations that cannot be resolved with current data are stated openly in the
 text.
 
-Target journal: *Computers & Security* (Elsevier), research paper.
+Target journal: *Transport Policy* (Elsevier), Full Article.
 
 ## 1. Manuscript (novelty, focus, logic, method completeness)
 

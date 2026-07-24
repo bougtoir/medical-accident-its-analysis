@@ -1,16 +1,25 @@
 Submission validation report
 ==============================
 
-word_count: 2278
-abstract_words: 192
-references: 29
-citations_sequential: True
+word_count: 2526
+abstract_words: 200
+highlights: 5
+keywords: 6
+references: 30
+all_citations_resolve: True
 no_orphan_or_phantom_refs: True
+references_alphabetical: True
+no_unresolved_markers: True
 figures_cited_in_text: True
 tables_cited_in_text: True
 five_figures_present: True
 five_tables_present: True
-abstract_within_300w: True
+abstract_within_250w: True
+highlights_3_to_5: True
+highlights_max_85_chars: True
+keywords_at_most_seven: True
+required_disclosures_present: True
+no_identity_leak_when_blinded: True
 
 Figure files:
   Figure 1 png: Figure1.png

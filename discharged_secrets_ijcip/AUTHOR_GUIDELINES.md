@@ -1,48 +1,48 @@
-# IJCIP submission requirements checked on 10 July 2026
+# Transport Policy submission requirements checked on 24 July 2026
+
+Target journal: **Transport Policy** (Elsevier), hybrid open access, double-anonymized peer review.
 
 ## Scope and article positioning
 
-The journal publishes scientific and policy papers across critical-infrastructure sectors, including transportation systems, government facilities, the defense industrial base, commercial facilities, and information technology. It explicitly welcomes work combining science, technology, law, and policy to produce practical protection measures.
+Transport Policy publishes research on policy and strategy towards sustainable, safe, and efficient transport. This manuscript is submitted as a **Full Article**. It contributes:
 
-This manuscript is positioned as a full-length research/policy article. It contributes:
-
-1. a defined class of **serviced telemetry-emitting hardware**;
-2. a structured synthesis linking mobility, battery, lifecycle-custody, and supply-chain evidence;
-3. a lifecycle exposure model; and
-4. auditable procurement and decommissioning controls.
+1. a PRISMA-ScR evidence map of direct data-exposure evidence in shared micromobility;
+2. a global, privacy-preserving audit of what public GBFS vehicle feeds actually disclose;
+3. a structured audit of public operator lifecycle-disclosure documents; and
+4. a reproducible lifecycle exposure model linking evidence strength to procurement, regulatory, and transparency choices.
 
 ## Format
 
-- Elsevier's **Your Paper Your Way** policy permits a single Word or PDF file at initial submission, provided the manuscript is readable and internally consistent.
-- A separate anonymized manuscript and title page are supplied to remain compatible with either single- or double-anonymized handling.
-- The abstract is concise, self-contained, and below 250 words.
-- Six indexing keywords are supplied.
-- References use the journal's numbered `elsarticle-num` convention: square-bracket citations in order of first appearance.
-- Highlights are supplied as a separate editable file: five bullets, each no more than 85 characters.
+- **Full Article**, normally up to 8,000 words excluding references.
+- **Abstract** of no more than 250 words, unstructured.
+- **Highlights**: 3-5 bullets, each no more than 85 characters including spaces.
+- **1-7 keywords**, separated by semicolons; avoid multi-word keywords containing "and" or "of".
+- **Author-date (Harvard) references**: in-text citations give author surname(s) and year separated by a comma (e.g. `(Elzer et al., 2025)`); three or more authors use `et al.`; the reference list is alphabetised by first author and works by the same author are ordered chronologically.
+- The manuscript is **anonymized** (Transport Policy uses double-anonymized peer review); author details are supplied only on the separate title page and cover letter.
+
+## Required disclosure statements
+
+Placed after the main text and before the references:
+
+- **Data availability statement** (required) — states where the registry snapshot, screening decisions, coding sheets, results, and code are available to reviewers, and the restrictions on raw identifiers/coordinates;
+- **Funding statement** (required);
+- **Competing interests** (required).
+
+Additionally supplied as good practice: acknowledgements, author contributions, an ethical-standards statement, and a generative-AI use statement.
 
 ## Figures and tables
 
-- Figure 1 and Tables 1–2 are cited before their first appearance and placed immediately after that paragraph in the manuscript.
-- Figure 1 is also supplied separately as editable PowerPoint, PDF, 600-dpi PNG, and 1200-dpi TIFF.
-- Tables 1–2 are supplied in a separate editable Word file.
+- Five figures and five tables, each cited in the body before or at first appearance and placed immediately after that paragraph.
+- Figures are also supplied separately as editable PowerPoint, plus 600-dpi PNG, PDF, and TIFF; tables are supplied in a separate editable Word file.
+- Numbered consecutively in Arabic numerals with captions supplied.
 
-## Declarations
+## Reproducibility
 
-The package includes statements for:
-
-- competing interests;
-- funding;
-- ethics approval and consent;
-- consent for publication;
-- data availability;
-- author contribution; and
-- generative-artificial-intelligence disclosure.
+`build_submission.py` regenerates the whole package from the committed data, review, and results files. All reported counts, proportions, and confidence intervals are read from `results/`, `data/`, and `review/`; none are hard-coded. Source files are not required at initial submission but are retained and can be supplied if accepted.
 
 ## Sources
 
-- IJCIP aims and scope: <https://shop.elsevier.com/journals/international-journal-of-critical-infrastructure-protection/1874-5482>
-- Elsevier Your Paper Your Way guidance: <https://www.elsevier.com/subject/next/guide-for-authors>
-- Journal citation style (`elsarticle-num`): <https://paperpile.com/s/international-journal-of-critical-infrastructure-protection-citation-style/>
-- Elsevier artwork guidance: <https://www.elsevier.com/about/policies-and-standards/author/artwork-and-media-instructions>
+- Transport Policy guide for authors: <https://www.sciencedirect.com/journal/transport-policy/publish/guide-for-authors>
+- Transport Policy Elsevier Harvard reference style example (Paperpile): <https://paperpile.com/s/transport-policy-citation-style/>
 
-Because ScienceDirect's journal-specific guide presented an automated-access challenge during verification, the package takes the conservative route: separate title page, anonymized manuscript, highlights, separate high-resolution artwork, editable source files, and complete declarations. The author should recheck the live Editorial Manager item list immediately before upload.
+The author should recheck the live submission-system item list and the exact Transport Policy template immediately before upload.

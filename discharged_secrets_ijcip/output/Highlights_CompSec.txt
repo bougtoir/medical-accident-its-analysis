@@ -1,5 +1,0 @@
-- Scoping review of 2,169 records yields 18 direct micromobility studies.
-- Global audit of 1,428 public GBFS systems maps disclosed vehicle fields.
-- Vehicle identifiers appear in 100% of 813 motorized micromobility feeds.
-- Operator privacy notices omit disposal and vulnerability-reporting details.
-- Findings are field-presence signals, not evidence of privacy harm.

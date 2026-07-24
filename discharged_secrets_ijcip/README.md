@@ -2,7 +2,7 @@
 
 ## Current revision track
 
-Following desk rejection of the conceptual IJCIP submission, the project was rebuilt as an empirical, reproducible package for submission to *Computers & Security* (Elsevier): a PRISMA-ScR scoping review, a global field audit of public GBFS vehicle feeds, and a structured disclosure audit of public operator privacy notices. `REVIEWER_REVIEW.md` records the pre-submission reviewer-perspective assessment and residual caveats.
+The project is an empirical, reproducible package: a PRISMA-ScR scoping review, a global field audit of public GBFS vehicle feeds, and a structured disclosure audit of public operator privacy notices. It was first prepared for *Computers & Security* (Elsevier); after desk rejection for scope mismatch it was reformatted for *Data & Policy* (Cambridge University Press) and, following a desk rejection there, is now being prepared for **Transport Policy** (Elsevier) as a Full Article — author-date (Elsevier Harvard) references, 3-5 highlights, double-anonymized peer review, ≤250-word abstract, and the journal's required disclosure statements. `REVIEWER_REVIEW.md` records the pre-submission reviewer-perspective assessment and residual caveats.
 
 - `PROTOCOL.md`: prospective study protocol;
 - `REVISION_STRATEGY.md`: article redesign and claim boundaries;
@@ -67,32 +67,43 @@ Document coding is computer-assisted and single-reviewer. `not_found` denotes si
 
 The audit never writes raw vehicle identifiers, coordinates, or deep links. Field-presence results are aggregate observations at the registered-system level. The outputs do not establish trip reconstruction, identifier-rotation nonconformity, hidden backend collection, compromise, or operator intent.
 
-## Build
+## Reproduce the results
+
+Every count, proportion, confidence interval, figure, and table reported in the article is regenerated from the committed public data (`data/`, `results/`, `review/`) with a single command:
 
 ```bash
 python -m pip install -r requirements.txt
-python build_submission.py
+python reproduce.py
 ```
 
-The build writes the complete submission package to `output/`, including:
+This writes to `output/`:
 
-- anonymized manuscript (`Manuscript_CompSec.docx`) with five figures and five tables placed inline;
-- separate title page, cover letter, highlights (`.docx` and `.txt`), and submission checklist;
-- standalone editable tables (`Tables_CompSec_editable.docx`);
-- five standalone figures (`.png`, `.tiff`, `.pdf` at 600 dpi) and an editable `Figures_CompSec_editable.pptx` (one figure per slide);
-- PRISMA-ScR reporting-guideline statement;
-- citation first-appearance audit;
-- reference-verification report (live DOI/URL resolution with offline fallback); and
-- `CompSec_submission_package.zip` containing the submission files.
+- five figures (`figures/Figure1-5.png`, `.tiff`, `.pdf` at 600 dpi);
+- an editable `Figures_DataPolicy_editable.pptx` (one figure per slide);
+- editable tables (`Tables_DataPolicy_editable.docx`); and
+- `reproducibility_values.json` — every in-text count, proportion, and 95% Wilson confidence interval, plus the full GBFS and disclosure-audit summaries, so the article's numbers can be verified directly against the data.
 
-## Validation
+The upstream data pipeline (screening, GBFS field audit, disclosure coding) is documented in the sections above and regenerates `results/*.csv` and `data/*.csv` from the frozen inputs.
 
-The build fails if:
+### Scope of this repository
 
-- citations are not numbered in order of first appearance;
-- a citation is missing from the reference list or a reference is uncited;
+This repository contains the data, the analysis code, and the figure-, table-, and number-generation code so that readers can reproduce the results independently. The manuscript-body, cover-letter, and title-page **generation script is intentionally not included here**: it carries the article prose and does not contribute to result reproducibility.
+
+**Zenodo deposit (mint the DOI):** enable the repository under Zenodo → Settings → GitHub, create a GitHub Release; Zenodo archives the tagged snapshot and mints a DOI. `.zenodo.json` and `CITATION.cff` in this directory seed the archive metadata. Cite the **concept DOI** so the statement never needs updating across versions.
+
+## Manuscript validation (in the non-public assembler)
+
+The manuscript assembler (not distributed here) fails the build if:
+
+- any in-text citation does not resolve to a reference, or a reference is uncited (no orphan/phantom references);
+- the reference list is not alphabetised by author;
+- an unresolved `[[...]]` citation marker leaks into the rendered text;
 - a figure or table is absent from the manuscript text;
-- the abstract exceeds 300 words;
+- the abstract exceeds 250 words;
+- the Policy Significance Statement is not ~120 words;
+- more than five keywords are supplied;
+- a required disclosure statement (data availability, funding, competing interests) is missing;
+- `BLINDED=1` but an author-identifying token still reaches the disclosures;
 - all five figures or five tables are not present and cited; or
 - an undefined abbreviation is detected from the configured abbreviation list.
 

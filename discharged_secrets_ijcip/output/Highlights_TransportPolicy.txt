@@ -1,0 +1,5 @@
+- Scoping review of 2,169 records yields 18 direct micromobility studies.
+- GBFS audit: persistent IDs and GPS are published in almost every feed.
+- Privacy notices rarely address battery data, vulnerability disclosure, or disposal.
+- A reproducible lifecycle model links evidence strength to policy controls.
+- Findings are disclosure signals, not evidence of privacy harm.
