@@ -880,8 +880,11 @@ add_para(
     "epidural and continuous epidural anaesthesia, but not for spinal "
     "anaesthesia. The positive point estimate for spinal anaesthesia is, "
     "however, compatible with the same structural gradient operating in an "
-    "underpowered model, and suggests that unmeasured area-level factors still "
-    "contribute to variation.")
+    "underpowered model, and may partly reflect a countervailing tendency for "
+    "neuraxial anaesthesia to be used in settings where anaesthesiologists are "
+    "less available. The aggregate data cannot separate these opposing "
+    "mechanisms, so the adjusted spinal-anaesthesia coefficient is best "
+    "interpreted as an imprecise net effect.")
 
 add_subheading("Interpretation within the context of the wider literature")
 add_para(
