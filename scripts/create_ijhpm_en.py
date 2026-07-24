@@ -103,6 +103,7 @@ def build_flat(R):
     meta = R['metadata']
     F['n_areas'] = meta['n_areas']
     F['n_prefectures'] = meta['n_prefectures']
+    F['fiscal_year'] = meta.get('fiscal_year', 2022)
     F['n_univ_areas'] = meta['n_univ_areas']
     F['n_nonuniv_areas'] = meta['n_nonuniv_areas']
     F['n_univ_areas_pct'] = fmt_num(meta.get('n_univ_areas_pct', 100 * meta['n_univ_areas'] / meta['n_areas']))
@@ -175,7 +176,7 @@ def build_flat(R):
     F['audit_max_shift'] = fmt_num(R['audit_sensitivity']['max_ratio_shift_approx'], 2)
     for code in ['L008', 'L002', 'L003', 'L004']:
         if code in R['audit_sensitivity']:
-            F[f'audit_{code}_iqr_pct'] = fmt_num(R['audit_sensitivity'][code]['percent_of_iqr'], 1)
+            F[f'audit_{code}_iqr_pct'] = fmt_num(R['audit_sensitivity'][code]['percent_of_iqr'], 2)
 
     outlier_name_map = {
         ('安房', '千葉県'): ('Awa (Chiba)', 'Chiba'),
@@ -212,6 +213,43 @@ def add_run_with_refs(paragraph, text, italic=False, bold=False):
             inner = part[1:-1]
             run.text = inner
             run.font.superscript = True
+
+
+def renumber_references(doc, references):
+    """Determine first-appearance order from superscript citations and reorder.
+
+    Walks the document body (stops at the 'References' heading), records the
+    order in which each citation number first appears, builds an old->new
+    mapping, updates all superscript citation runs in place, and returns the
+    reference list reordered to match the new numbering.
+    """
+    first = {}
+    for p in doc.paragraphs:
+        txt = p.text.strip()
+        if txt.upper() == 'REFERENCES':
+            break
+        for run in p.runs:
+            if run.font.superscript:
+                for n in re.findall(r'\d+', run.text):
+                    n = int(n)
+                    if n not in first:
+                        first[n] = len(first) + 1
+    # Ensure every reference in the list is represented, even if missed
+    for old in range(1, len(references) + 1):
+        if old not in first:
+            first[old] = len(first) + 1
+    mapping = {old: new for new, old in enumerate(sorted(first, key=first.get), 1)}
+
+    def repl(m):
+        old = int(m.group(0))
+        return str(mapping.get(old, old))
+
+    for p in doc.paragraphs:
+        for run in p.runs:
+            if run.font.superscript:
+                run.text = re.sub(r'\d+', repl, run.text)
+
+    return [references[old - 1] for old in sorted(mapping, key=mapping.get)]
 
 
 def add_para(text, bold=False, italic=False, align=None, space_before=0, space_after=0):
@@ -317,8 +355,8 @@ add_para("[Corresponding author: name, postal address, telephone, email]",
 add_blank()
 
 add_para("Article type: Original research article", italic=True)
-add_para("Word count (main text, excluding abstract, references, tables and figures): approximately 3450 words", italic=True)
-add_para("Tables: 3   Figures: 2   References: 30", italic=True)
+add_para("Word count (main text, excluding abstract, references, tables and figures): approximately [calculated at build] words", italic=True)
+add_para("Tables: [n_tables]   Figures: [n_figures]   References: [n_references]", italic=True)
 add_para("Reporting guideline: STROBE checklist for cross-sectional studies (uploaded as supplementary material)", italic=True)
 add_para("Target journal: International Journal of Health Policy and Management", italic=True)
 
@@ -333,8 +371,8 @@ add_para(
     "anaesthesia practice is driven by structural capacity (notably university "
     "hospital presence) rather than by prefectural claims-audit intensity.")
 add_para(
-    "2. The four- to eight-fold variation in neuraxial and combined general-"
-    "epidural anaesthesia is a modifiable equity gap that workforce, training "
+    "2. Large variation in neuraxial and combined general-epidural "
+    "anaesthesia is a modifiable equity gap that workforce, training "
     "and monitoring policies can address without changing payment rates.")
 add_para(
     "3. The claims-audit hypothesis is quantitatively implausible as the main "
@@ -380,7 +418,7 @@ add_para(
 add_para(
     "Methods  Cross-sectional ecological study using age- and sex-standardised "
     "claim ratios (national average = 100) for six anaesthesia procedure codes "
-    "in fiscal year 2022. We fitted multilevel linear mixed models with "
+    "in fiscal year ${fiscal_year}. We fitted multilevel linear mixed models with "
     "prefecture random intercepts and three pre-specified sensitivity analyses "
     "to test differential auditing, plus empirical Bayes shrinkage.")
 
@@ -392,8 +430,8 @@ add_para(
     "within-prefecture variance (Cohen's d ${L008_d}), and was positive in all "
     "${n_prefectures} prefectures. Audit sensitivity analyses converged: the "
     "maximum audit-rate difference could shift ratios by at most ${audit_max_shift} "
-    "points, less than ${audit_L008_iqr_pct}% of the interquartile range for "
-    "general anaesthesia. Empirical Bayes shrinkage attenuated the university "
+    "points, less than 1% of the interquartile range for general anaesthesia. "
+    "Empirical Bayes shrinkage attenuated the university "
     "hospital effect but it remained statistically significant.")
 
 add_para(
@@ -422,8 +460,7 @@ add_para(
     "among the highest performing globally for effective service coverage{2} and "
     "is delivered through a hierarchical structure of ${n_prefectures} prefectural "
     "(tertiary) and ${n_areas} secondary medical areas, each designed to be self-"
-    "sufficient for inpatient care.{3} Cross-boundary patient movement is limited: "
-    "only 6.1% of inpatients receive care outside their home prefecture.{4} The "
+    "sufficient for inpatient care.{3} Cross-boundary patient movement is limited,{4} and the "
     "system was intended to ensure equitable access regardless of geography.")
 
 add_para(
@@ -447,9 +484,9 @@ add_para(
     "particularly epidural analgesia combined with general anaesthesia, may improve "
     "recurrence-free and overall survival in some cancer surgeries,{7,8} although "
     "results from randomised trials are mixed.{9} The 2026 revision of the "
-    "Japanese fee schedule renamed the general anaesthesia code to clarify "
-    "longstanding ambiguity in airway definitions, an ambiguity that could plausibly "
-    "have driven differential audit decisions.{10} Understanding whether observed "
+    "Japanese fee schedule renamed and redefined the L008 general-anaesthesia code "
+    "to make the required airway-device explicit, removing an ambiguity that "
+    "could plausibly have driven differential audit decisions.{10} Understanding whether observed "
     "regional variation is structural or administrative is therefore both timely "
     "and central to evaluating the equity of care under universal coverage.")
 
@@ -493,7 +530,7 @@ add_para(
 add_subheading("Data sources and standardised claim ratios")
 add_para(
     "We used three data sources. First, standardised claim ratios for fiscal "
-    "year 2022 published by the Cabinet Office under the 'Regional Variation "
+    "year ${fiscal_year} published by the Cabinet Office under the 'Regional Variation "
     "Visualisation' initiative.{12} Standardised claim ratios are computed by "
     "indirect standardisation: expected claim frequencies are calculated by applying "
     "national age- and sex-specific claim rates to the local population structure, "
@@ -503,7 +540,7 @@ add_para(
     "Patient travel for treatment therefore does not inflate the ratio of the "
     "receiving area. Areas with very few claims are masked by the data provider to "
     "protect privacy and appear as missing values. Second, we obtained physician "
-    "statistics from the 2022 Survey of Physicians, Dentists and "
+    "statistics from the ${fiscal_year} Survey of Physicians, Dentists and "
     "Pharmacists.{13} Third, geographic boundary data were obtained from the "
     "National Land Numerical Information dataset.{14}")
 
@@ -538,7 +575,7 @@ add_table_from_data(
         ["L100", "Nerve block, inpatient", "Indicator of pain-clinic activity"],
     ],
     note=("Source: Japanese fee schedule (shinryo houshu tensuhyo), fiscal "
-          "year 2022. L codes correspond to anaesthesia-related procedures. "
+          "year ${fiscal_year}. L codes correspond to anaesthesia-related procedures. "
           "Standardised claim ratios were computed for each code by indirect "
           "age- and sex-standardisation against the national average (= 100).")
 )
@@ -554,11 +591,14 @@ add_para(
     "intercept model was fitted first to estimate the intraclass correlation "
     "coefficient. Subsequent models added fixed effects for university hospital "
     "presence. Models were estimated by restricted maximum likelihood using the "
-    "Python statsmodels MixedLM implementation.{17} Marginal R² was calculated "
-    "as the proportional reduction in total variance from the null model. To "
-    "address potential instability of ratios in low-volume areas, we applied "
-    "empirical Bayes shrinkage estimation{18} and compared all main findings using "
-    "both raw and shrunken ratios.")
+    "Python statsmodels MixedLM implementation.{17} A small number of model fits "
+    "produced optimizer convergence warnings; the resulting point estimates were "
+    "numerically stable across repeated fits and across the three sensitivity "
+    "analyses, and are reported as mixed-model coefficients. Marginal R² was "
+    "calculated as the proportional reduction in total variance from the null "
+    "model. To address potential instability of ratios in low-volume areas, we "
+    "applied empirical Bayes shrinkage estimation{18} and compared all main "
+    "findings using both raw and shrunken ratios.")
 
 add_para(
     "Third, three pre-specified sensitivity analyses tested the null hypothesis "
@@ -571,7 +611,8 @@ add_para(
     "reclassification between general and spinal anaesthesia codes would produce "
     "negative correlations between them. (c) Quantitative audit-impact estimation: "
     "we calculated the maximum ratio shift attributable to the observed range of "
-    "prefectural audit rates. Combined ratios (general plus continuous epidural; "
+    "prefectural point-audit rates reported by the Social Insurance Medical Fee "
+    "Payment Fund.{6} Combined ratios (general plus continuous epidural; "
     "general plus spinal) were also examined, since combining substitutable codes "
     "should largely absorb any audit-driven reclassification. Patients were not "
     "involved in the design, conduct or reporting of this study.")
@@ -600,7 +641,7 @@ add_para(
 # Table 2 inline
 add_table_from_data(
     "Table 2. Distribution of standardised claim ratios across ${n_areas} secondary "
-    "medical areas (national average = 100), fiscal year 2022.",
+    "medical areas (national average = 100), fiscal year ${fiscal_year}.",
     ["Code", "n", "Mean (SD)", "Median (IQR)", "Min", "Max", "CV (%)"],
     [
         ["L008", "${L008_n}", "${L008_mean} (${L008_sd})",
@@ -631,7 +672,7 @@ add_table_from_data(
 add_figure_inline(
     os.path.join(FIG_DIR, 'rapm_fig1_en.png'),
     "Figure 1. Geographic distribution of anaesthesia standardised claim ratios "
-    "across ${n_areas} secondary medical areas of Japan, fiscal year 2022. "
+    "across ${n_areas} secondary medical areas of Japan, fiscal year ${fiscal_year}. "
     "(A) General anaesthesia (L008). (B) Spinal anaesthesia (L004). (C) Epidural "
     "anaesthesia as main anaesthetic (L002). (D) Continuous epidural infusion "
     "(L003). Choropleth maps shaded by quintile of the standardised claim ratio "
@@ -722,7 +763,7 @@ add_para(
     "driven reclassification and consistent with a common supply factor. Third, "
     "the maximum prefectural audit-rate difference of ${audit_max_shift} "
     "percentage points could produce a ratio shift of approximately "
-    "${audit_max_shift} points, which is less than ${audit_L008_iqr_pct}% of "
+    "${audit_max_shift} points, equivalent to approximately ${audit_L008_iqr_pct}% of "
     "the observed interquartile range for general anaesthesia and "
     "${audit_L002_iqr_pct}% for epidural anaesthesia. Combining general (L008) "
     "and spinal (L004) ratios produced an alternative audit-insensitive "
@@ -813,16 +854,15 @@ add_para(
     "Australia.{23} Our study extends this evidence by exploiting Japan's "
     "uniquely uniform fee schedule combined with prefecture-specific auditing "
     "to disentangle administrative and clinical sources of variation, and by "
-    "providing the first multilevel small-area analysis of anaesthesia technique "
-    "under universal coverage in East Asia. The university hospital effect we "
-    "report (Cohen's d = ${L008_d}) is unusually large compared with effect "
-    "sizes typically reported in this literature, plausibly reflecting the "
-    "influence of the ikyoku (university medical office) system on clinical "
-    "practice in affiliated hospitals.{24} The intraclass correlation "
-    "coefficient of ${L008_ml_icc} for general anaesthesia is also noticeably "
-    "lower than coefficients reported for surgical procedure rates in the United "
-    "States,{20} indicating that within-prefecture institutional factors "
-    "dominate over prefectural-level factors for this code.")
+    "providing, to our knowledge, the first multilevel small-area analysis of "
+    "anaesthesia technique under universal coverage in East Asia. The "
+    "university hospital effect we report (Cohen's d = ${L008_d}) is "
+    "substantial, plausibly reflecting the influence of the ikyoku (university "
+    "medical office) system on clinical practice in affiliated hospitals.{24} "
+    "The intraclass correlation coefficient of ${L008_ml_icc} for general "
+    "anaesthesia indicates that most variation occurs within prefectures, "
+    "consistent with institutional factors dominating over prefectural-level "
+    "factors for this code.")
 
 add_para(
     "Our findings and framework extend beyond Japan in four respects. First, the "
@@ -862,8 +902,8 @@ add_para(
     "regulators should not interpret regional variation in anaesthesia claims "
     "as prima facie evidence of differential coding accuracy or fraud. Japan's "
     "prefecture-specific auditing system is an important governance tool, but "
-    "its variation in intensity is too small to explain the observed four- to "
-    "eight-fold differences in neuraxial technique use. Redirecting enforcement "
+    "its variation in intensity is too small to explain the observed large "
+    "differences in neuraxial technique use. Redirecting enforcement "
     "resources toward coding audits in low-ratio areas is unlikely to reduce the "
     "gap and may even penalise providers who already lack specialist capacity.")
 
@@ -901,8 +941,9 @@ add_heading("Conclusions", level=1)
 add_para(
     "Regional variation in anaesthesia practice in Japan is large and "
     "predominantly structural rather than an artefact of insurance auditing. "
-    "University hospital presence is the dominant determinant, explaining more "
-    "than one third of total variance in general anaesthesia. The variation in "
+    "University hospital presence is the dominant measured structural "
+    "determinant, explaining more than one third of total variance in general "
+    "anaesthesia. The variation in "
     "epidural anaesthesia (L002) and continuous epidural infusion (L003) is of "
     "particular concern given emerging evidence of oncological benefit from "
     "regional techniques. Quality improvement, workforce policy and equity "
@@ -921,13 +962,13 @@ REFERENCES = [
     "Matsuda S. Health policy in Japan: current situation and future challenges. JMA J 2019;2:1-10.",
     "Ministry of Health, Labour and Welfare. Patient Survey 2008. Tokyo: MHLW, 2009.",
     "Hashimoto H, Ikegami N, Shibuya K, et al. Cost containment and quality of care in Japan: is there a trade-off? Lancet 2011;378:1174-82.",
-    "Cabinet Office. Indicators of regional variation in healthcare and long-term care: insurance auditing rates by prefecture. Tokyo: Cabinet Office, 2023.",
+    "Social Insurance Medical Fee Payment Fund. 審査状況（令和4年度）— 都道府県別医科歯科計審査状況（点数）. Tokyo: Social Insurance Medical Fee Payment Fund, 2023. https://www.ssk.or.jp/smph/tokeijoho/shinsatokei/shinsajokyo_r04.html (accessed 24 Jul 2026).",
     "Sessler DI, Pei L, Huang Y, et al. Recurrence of breast cancer after regional or general anaesthesia: a randomised controlled trial. Lancet 2019;394:1807-15.",
     "Chen WK, Miao CH. The effect of anesthetic technique on survival in human cancers: a meta-analysis of retrospective and prospective studies. PLoS One 2013;8:e56540.",
     "Weng M, Chen W, Hou W, et al. The effect of neuraxial anaesthesia on cancer recurrence and survival after cancer surgery: an updated meta-analysis. Oncotarget 2016;7:15262-73.",
-    "Ministry of Health, Labour and Welfare. 2026 revision of the medical fee schedule: notice on anaesthesia code revisions. Tokyo: MHLW, 2025.",
+    "Ministry of Health, Labour and Welfare. 2026 revision of the medical fee schedule: changes to the medical fee schedule master (R08). Tokyo: MHLW, 2026. https://shinryohoshu.mhlw.go.jp/shinryohoshu/file/info/smente260522.pdf (accessed 24 Jul 2026).",
     "Wennberg JE, Cooper MM, eds. The Dartmouth Atlas of Health Care. Chicago: American Hospital Publishing, 1999.",
-    "Cabinet Office. Regional variation visualisation (chiikisa no mieruka). https://www5.cao.go.jp/keizai-shimon/kaigi/special/reform/mieruka/ (accessed 10 Mar 2026).",
+    "Cabinet Office. Regional variation visualisation (chiikisa no mieruka). https://www5.cao.go.jp/keizai-shimon/kaigi/special/reform/mieruka/chiikisa/index.html (accessed 10 Mar 2026).",
     "Ministry of Health, Labour and Welfare. Survey of Physicians, Dentists and Pharmacists 2022 (e-Stat). https://www.e-stat.go.jp (accessed 12 Mar 2026).",
     "Ministry of Land, Infrastructure, Transport and Tourism. National Land Numerical Information download service. https://nlftp.mlit.go.jp (accessed 10 Mar 2026).",
     "Cohen J. Statistical Power Analysis for the Behavioral Sciences. 2nd ed. Hillsdale, NJ: Lawrence Erlbaum, 1988.",
@@ -937,7 +978,7 @@ REFERENCES = [
     "Greenland S. Ecologic versus individual-level sources of bias in ecologic estimates of contextual health effects. Int J Epidemiol 2001;30:1343-50.",
     "Wennberg JE, Fisher ES, Skinner JS. Geography and the debate over Medicare reform. Health Aff (Millwood) 2002;Suppl Web Exclusives:W96-114.",
     "NHS RightCare. The NHS Atlas of Variation in Healthcare. London: Public Health England, 2015.",
-    "Wengler A, Nimptsch U, Mansky T. Hip and knee replacement surgery (arthroplasty) and geographic variations in Germany. Dtsch Arztebl Int 2014;111:407-16.",
+    "Schäfer T, Pritzkuleit R, Jeszenszky C, et al. Trends and geographical variation of primary hip and knee joint replacement in Germany. Osteoarthritis Cartilage 2013;21:279-88.",
     "Australian Commission on Safety and Quality in Health Care. Australian Atlas of Healthcare Variation. Sydney: ACSQHC, 2015.",
     "Otsuka T. The ikyoku system of university orthopaedic surgery departments: an in-hospital organisational system unique to Japan. J Orthop Sci 2012;17:513-14.",
     "Cheng T-M. Taiwan's new national health insurance program: genesis and experience so far. Health Aff (Millwood) 2003;22:61-76.",
@@ -947,6 +988,9 @@ REFERENCES = [
     "Mainz J. Defining and classifying clinical indicators for quality improvement. Int J Qual Health Care 2003;15:523-30.",
     "von Elm E, Altman DG, Egger M, et al. The Strengthening the Reporting of Observational Studies in Epidemiology (STROBE) statement: guidelines for reporting observational studies. Lancet 2007;370:1453-7.",
 ]
+
+# Reorder references so their numbering matches first appearance in the body.
+REFERENCES = renumber_references(doc, REFERENCES)
 
 for i, ref in enumerate(REFERENCES, 1):
     p = doc.add_paragraph()
@@ -958,13 +1002,6 @@ for i, ref in enumerate(REFERENCES, 1):
     run = p.add_run(Template(ref).substitute(FLAT))
     run.font.name = 'Times New Roman'
     run.font.size = Pt(12)
-
-# ============================================================
-# Save
-# ============================================================
-out = os.path.join(OUTPUT_DIR, 'regional_anaesthesia_IJHPM_EN.docx')
-doc.save(out)
-print(f"Saved: {out}")
 
 # Body word count check (excluding title page, abstract, references, tables, figures)
 text_paras = []
@@ -985,3 +1022,33 @@ for p in doc.paragraphs:
 body = '\n'.join(text_paras)
 words = len(re.findall(r'\b\w+\b', body))
 print(f"Body word count (intro through conclusion): {words}")
+
+# Update title-page counts that were left as placeholders
+n_tables = 3
+n_figures = 2
+n_refs = len(REFERENCES)
+for p in doc.paragraphs:
+    if p.text.startswith('Tables:'):
+        p.text = f"Tables: {n_tables}   Figures: {n_figures}   References: {n_refs}"
+        for run in p.runs:
+            run.font.name = 'Times New Roman'
+            run.font.size = Pt(12)
+            run.italic = True
+        break
+
+# Update the word-count line on the title page
+for p in doc.paragraphs:
+    if p.text.startswith('Word count'):
+        p.text = f"Word count (main text, excluding abstract, references, tables and figures): approximately {words} words"
+        for run in p.runs:
+            run.font.name = 'Times New Roman'
+            run.font.size = Pt(12)
+            run.italic = True
+        break
+
+# ============================================================
+# Save
+# ============================================================
+out = os.path.join(OUTPUT_DIR, 'regional_anaesthesia_IJHPM_EN.docx')
+doc.save(out)
+print(f"Saved: {out}")

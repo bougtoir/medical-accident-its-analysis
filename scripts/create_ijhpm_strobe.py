@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Create STROBE checklist (cross-sectional studies) for IJHPM submission."""
+import json
 import os
 from docx import Document
 from docx.shared import Pt, Cm
@@ -7,6 +8,16 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__), '..', 'documents', 'IJHPM')
 os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+with open(os.path.join(REPO_ROOT, 'output', 'ijhpm_results.json')) as f:
+    R = json.load(f)
+
+meta = R['metadata']
+n_areas = meta['n_areas']
+n_prefectures = meta['n_prefectures']
+n_univ_areas = meta['n_univ_areas']
+fiscal_year = meta.get('fiscal_year', 2022)
 
 doc = Document()
 for s in doc.sections:
@@ -67,8 +78,8 @@ items = [
     ("Setting", "5",
      "Describe the setting, locations, and relevant dates, including "
      "periods of recruitment, exposure, follow-up, and data collection",
-     "Methods, 'Geographic units' and 'Data sources' (fiscal year 2022, 335 "
-     "secondary medical areas covering all 47 prefectures of Japan)"),
+     f"Methods, 'Geographic units' and 'Data sources' (fiscal year {fiscal_year}, {n_areas} "
+     f"secondary medical areas covering all {n_prefectures} prefectures of Japan)"),
     ("Participants", "6",
      "Give the eligibility criteria, and the sources and methods of "
      "selection of participants",
@@ -93,7 +104,7 @@ items = [
      "Discussion, 'Strengths and limitations'"),
     ("Study size", "10",
      "Explain how the study size was arrived at",
-     "Methods, 'Data sources' (all 335 areas — no sampling)"),
+     f"Methods, 'Data sources' (all {n_areas} areas — no sampling)"),
     ("Quantitative variables", "11",
      "Explain how quantitative variables were handled in the analyses. If "
      "applicable, describe which groupings were chosen and why",
@@ -123,8 +134,8 @@ items = [
     ("Results", "", "", ""),
     ("Participants", "13(a)",
      "Report numbers of individuals at each stage of study",
-     "Results, 'Study population' (335 areas, 47 prefectures, 64 "
-     "university-hospital areas)"),
+     f"Results, 'Study population' ({n_areas} areas, {n_prefectures} prefectures, {n_univ_areas} "
+     f"university-hospital areas)"),
     ("", "13(b)",
      "Give reasons for non-participation at each stage",
      "Results, 'Study population' (areas masked for low volume reported "

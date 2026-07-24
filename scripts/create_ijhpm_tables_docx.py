@@ -91,6 +91,7 @@ doc = Document()
 setup(doc)
 
 n_areas = R['metadata']['n_areas']
+fiscal_year = R['metadata'].get('fiscal_year', 2022)
 
 # Table 1: code definitions
 code_info = [
@@ -108,13 +109,13 @@ code_info = [
 
 add_title(doc,
           f"Table 1. Anaesthesia procedure codes analysed across {n_areas} "
-          "secondary medical areas of Japan, fiscal year 2022")
+          f"secondary medical areas of Japan, fiscal year {fiscal_year}")
 make_table(doc,
            ["Code", "Procedure", "Notes"],
            [[c, p, n] for c, p, n in code_info])
 add_footnote(doc,
              "Source: Japanese fee schedule (shinryo houshu tensuhyo), "
-             "fiscal year 2022. Standardised claim ratios (national average = 100) "
+             f"fiscal year {fiscal_year}. Standardised claim ratios (national average = 100) "
              "were computed for each code by indirect age- and sex-standardisation.")
 
 # Table 2: distribution
@@ -133,7 +134,7 @@ for code in ['L008', 'L004', 'L002', 'L003', 'L009', 'L100']:
 
 add_title(doc,
           f"Table 2. Distribution of standardised claim ratios across {n_areas} "
-          "secondary medical areas (national average = 100), fiscal year 2022")
+          f"secondary medical areas (national average = 100), fiscal year {fiscal_year}")
 make_table(doc,
            ["Code", "n", "Mean (SD)", "Median (IQR)", "Min", "Max", "CV (%)"],
            rows2)

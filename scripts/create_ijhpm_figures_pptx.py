@@ -20,6 +20,7 @@ with open(os.path.join(REPO_ROOT, 'output', 'ijhpm_results.json')) as f:
 meta = R['metadata']
 n_areas = meta['n_areas']
 n_univ = meta['n_univ_areas']
+fiscal_year = meta.get('fiscal_year', 2022)
 
 def build_deck(figures, out_path):
     prs = Presentation()
@@ -64,7 +65,7 @@ def build_deck(figures, out_path):
 figures_en = [
     (
         'rapm_fig1_en.png',
-        f'Figure 1. Geographic distribution of anaesthesia standardised claim ratios across {n_areas} secondary medical areas of Japan, fiscal year 2022.',
+        f'Figure 1. Geographic distribution of anaesthesia standardised claim ratios across {n_areas} secondary medical areas of Japan, fiscal year {fiscal_year}',
         '(A) General anaesthesia (L008). (B) Spinal anaesthesia (L004). '
         '(C) Epidural anaesthesia as main anaesthetic (L002). '
         '(D) Continuous epidural infusion (L003). Choropleth maps shaded '

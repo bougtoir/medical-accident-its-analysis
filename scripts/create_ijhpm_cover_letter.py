@@ -1,12 +1,35 @@
 #!/usr/bin/env python3
 """Create English cover letter for IJHPM submission."""
+import json
 import os
 from docx import Document
 from docx.shared import Pt, Cm
 from docx.enum.text import WD_ALIGN_PARAGRAPH
+from string import Template
 
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__), '..', 'documents', 'IJHPM')
 os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+with open(os.path.join(REPO_ROOT, 'output', 'ijhpm_results.json')) as f:
+    R = json.load(f)
+
+def fmt(x, d=1):
+    if x is None or (isinstance(x, float) and x != x):
+        return 'NA'
+    return f'{x:.{d}f}'
+
+FLAT = {
+    'n_areas': R['metadata']['n_areas'],
+    'n_prefectures': R['metadata']['n_prefectures'],
+    'fiscal_year': R['metadata'].get('fiscal_year', 2022),
+    'L008_cv': fmt(R['codes']['L008']['overall']['cv']),
+    'L002_cv': fmt(R['codes']['L002']['overall']['cv']),
+    'L008_ml_icc': fmt(R['codes']['L008']['multilevel']['icc_null'], 3),
+    'L008_vd_within': fmt(R['variance_decomposition']['L008']['within_prefecture_pct']),
+    'L008_ml_r2': fmt(R['codes']['L008']['multilevel']['marginal_r2'], 3),
+    'L008_d': fmt(R['empirical_bayes']['L008']['raw_cohens_d'], 2),
+}
 
 doc = Document()
 for section in doc.sections:
@@ -28,7 +51,7 @@ def add_para(text, italic=False, bold=False, align=None):
     p = doc.add_paragraph()
     if align is not None:
         p.alignment = align
-    run = p.add_run(text)
+    run = p.add_run(Template(text).substitute(FLAT))
     run.font.name = 'Times New Roman'
     run.font.size = Pt(12)
     run.italic = italic
@@ -73,14 +96,14 @@ add_para(
     "equity policy under universal coverage.")
 
 add_para(
-    "Key findings: We studied all 335 secondary medical areas of Japan. "
-    "Coefficients of variation across areas ranged from 53.7% (general "
-    "anaesthesia) to 87.2% (epidural anaesthesia). Multilevel modelling "
-    "showed that only 5.8% of general anaesthesia variance lay between "
-    "prefectures — where audit policy differs — while 85.5% occurred within "
+    "Key findings: We studied all ${n_areas} secondary medical areas of Japan. "
+    "Coefficients of variation across areas ranged from ${L008_cv}% (general "
+    "anaesthesia) to ${L002_cv}% (epidural anaesthesia). Multilevel modelling "
+    "showed that only ${L008_ml_icc} of general anaesthesia variance lay between "
+    "prefectures — where audit policy differs — while ${L008_vd_within}% occurred within "
     "prefectures where audit policy is uniform. University hospital presence "
-    "alone explained 35.8% of total variance and was positive in all 47 "
-    "prefectures, with a large effect size (Cohen's d 1.88). Three pre-"
+    "alone explained ${L008_ml_r2} of total variance and was positive in all ${n_prefectures} "
+    "prefectures, with a large effect size (Cohen's d ${L008_d}). Three pre-"
     "specified sensitivity analyses converged in rejecting differential auditing "
     "as a plausible explanation, and empirical Bayes shrinkage confirmed that "
     "the findings are robust to low-volume instability. We conclude that the "

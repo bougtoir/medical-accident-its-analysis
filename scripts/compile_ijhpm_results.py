@@ -18,6 +18,7 @@ import io
 import json
 import math
 import os
+import re
 import statistics
 from collections import defaultdict
 
@@ -76,10 +77,25 @@ def confidence_interval_mean(arr, conf=0.95):
 # ============================================================
 # 1. LOAD DATA
 # ============================================================
+def parse_fiscal_year(header_cell):
+    """Extract fiscal year from a Japanese era label in the CSV header."""
+    m = re.match(r'^(R|H)(\d+)', header_cell)
+    if not m:
+        return None
+    era, n = m.group(1), int(m.group(2))
+    if era == 'R':
+        return 2018 + n
+    if era == 'H':
+        return 1988 + n
+    return None
+
+
 scr_path = os.path.join(DATA_DIR, 'scr_n_kubun.csv')
 with open(scr_path, 'rb') as f:
     raw = f.read().decode('shift_jis', errors='replace')
 reader = list(csv.reader(io.StringIO(raw)))
+
+fiscal_year = parse_fiscal_year(reader[0][0])
 
 pref_nums = [x.strip() for x in reader[0][4:]]
 pref_names = [x.strip() for x in reader[1][4:]]
@@ -180,7 +196,7 @@ results = {
     'metadata': {
         'data_source': 'data/scr_n_kubun.csv',
         'univ_mapping': 'data/univ_hospital_mapping_v2.json',
-        'fiscal_year': 2022,
+        'fiscal_year': fiscal_year,
         'n_areas': n_areas,
         'n_prefectures': len(set(pref_nums)),
         'n_univ_areas': int(sum(1 for ac in area_codes if ac in univ_area_codes)),
@@ -448,15 +464,24 @@ for code in ['L008', 'L002', 'L004', 'L003']:
 # ============================================================
 # 8. AUDIT SENSITIVITY ESTIMATE
 # ============================================================
-# Published prefectural audit rates range from 0.07% to 0.28%.
-# The maximum audit-rate difference (percentage points) is used as a bound on
-# the ratio shift attributable to differential auditing. See ref 6.
-max_audit_diff_pp = 0.21  # percentage points (1 pp = 1 SCR unit since national mean = 100)
+# Load publicly reported prefectural point-audit rates for FY2022 (R04)
+# from the Social Insurance Medical Fee Payment Fund, derive the maximum
+# observed difference, and use it as a conservative bound on the SCR shift
+# attributable to differential auditing (1 percentage point = 1 SCR unit
+# because the national mean SCR is standardised to 100).
+audit_csv = os.path.join(DATA_DIR, 'audit_rates_r04.csv')
+audit_rates = pd.read_csv(audit_csv, comment='#')
+max_audit_rate_pp = float(audit_rates['audit_rate_pct'].max())
+min_audit_rate_pp = float(audit_rates['audit_rate_pct'].min())
+max_audit_diff_pp = max_audit_rate_pp - min_audit_rate_pp
 
 results['audit_sensitivity'] = {
+    'max_audit_rate_pp': max_audit_rate_pp,
+    'min_audit_rate_pp': min_audit_rate_pp,
     'max_audit_rate_difference_pp': max_audit_diff_pp,
     'max_ratio_shift_approx': float(max_audit_diff_pp),
-    'source': 'Cabinet Office (2023), see manuscript reference 6',
+    'source': 'Social Insurance Medical Fee Payment Fund. 審査状況（令和4年度）. https://www.ssk.or.jp/smph/tokeijoho/shinsatokei/shinsajokyo_r04.html',
+    'n_prefectures': int(len(audit_rates)),
 }
 
 # Express the bound as a percentage of each code's IQR and mean
