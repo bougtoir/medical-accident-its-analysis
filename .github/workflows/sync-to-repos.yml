@@ -81,6 +81,9 @@ jobs:
           # ── Weibull clinical dropout (separate from weibull-clinical-trial-dropout) ──
           BRANCH_MAP["devin/1776116163-weibull-clinical-dropout"]="weibull-clinical-dropout"
 
+          # ── Weibull TB/HIV LTFU hazard-shape reanalysis (reproducible, real-data only) ──
+          BRANCH_MAP["devin/1784008417-weibull-tb-reproducible-data"]="weibull-tb-ltfu-heterogeneity"
+
           # ── Submissions / revisions ──
           BRANCH_MAP["devin/1776157392-pdr-submission-revision"]="pdr-submission-revision"
           BRANCH_MAP["devin/1776162271-germany-reunification-analysis"]="germany-reunification-analysis"
@@ -169,10 +172,11 @@ jobs:
           BRANCH_MAP["devin/1777844647-tatsuki-electoral-studies"]="tatsuki-electoral-studies"
           BRANCH_MAP["devin/1777989587-jcss-ssr-submission"]="jcss-ssr-submission"
           BRANCH_MAP["devin/1777989710-tatsuki-3journal-submission"]="tatsuki-3journal-submission"
-          BRANCH_MAP["devin/1781893388-confounding-corrections"]="denisovan-archaic-dna-analysis"
-
           # ── Denisovan / archaic DNA analysis ──
-          BRANCH_MAP["devin/denisovan-archaic-dna-analysis"]="denisovan-archaic-dna-analysis"
+          # NOTE: devin/1783808542-ajba-critical-revision superseded by
+          # devin/1784076815-ajhb-revision, in turn superseded by
+          # devin/1784241695-ahg-revision (same target repo, AHG re-submission)
+          BRANCH_MAP["devin/1784241695-ahg-revision"]="denisovan-archaic-dna-analysis"
 
           # ── Landmine transparent map (JoBS submission) ──
           BRANCH_MAP["devin/1782083347-landmine-transparent-map"]="landmine-transparent-map"
@@ -222,7 +226,7 @@ jobs:
           SUBDIR_MAP["devin/1776763216-healthcare-sustainable"]="healthcare_tempo_poc"
           SUBDIR_MAP["devin/1777844647-tatsuki-electoral-studies"]="tasuki-electoral-model"
           SUBDIR_MAP["devin/1777989587-jcss-ssr-submission"]="tasuki-electoral-model"
-          SUBDIR_MAP["devin/1781893388-confounding-corrections"]="denisovan-archaic-dna-analysis"
+          SUBDIR_MAP["devin/1784241695-ahg-revision"]="denisovan-archaic-dna-analysis"
           SUBDIR_MAP["devin/1777989710-tatsuki-3journal-submission"]="tasuki-electoral-model"
           SUBDIR_MAP["devin/1777545460-medical-sapir-whorf-paper"]="medical_sapir_whorf"
           # SUBDIR_MAP["devin/1777545531-medical-sapir-whorf-formalization"]="medical_sapir_whorf"  # superseded
@@ -250,7 +254,6 @@ jobs:
           SUBDIR_MAP["devin/1780052155-yago-ionv-analysis"]="yago_ionv"
           SUBDIR_MAP["devin/1775637899-pmea-zero-calibration"]="zero_calibration_pmea"
           SUBDIR_MAP["stem-cell-seasonality"]="stem_cell_seasonality"
-          SUBDIR_MAP["devin/denisovan-archaic-dna-analysis"]="denisovan-archaic-dna-analysis"
           SUBDIR_MAP["devin/1782083347-landmine-transparent-map"]="landmine_transparent_map"
           SUBDIR_MAP["sits9-sync"]="sits9"
           SUBDIR_MAP["devin/1782828801-anesthesia-record"]="anesthesia-record"
@@ -258,8 +261,11 @@ jobs:
           SUBDIR_MAP["devin/1783649000-ijcip-submission"]="discharged_secrets_ijcip"
           # NOTE: superseded by devin/1784904207-transport-policy (same target repo)
           # SUBDIR_MAP["devin/1783957193-discharged-secrets-scoping-review"]="discharged_secrets_ijcip"
+          # NOTE: superseded by devin/1784904207-transport-policy (same target repo)
           # SUBDIR_MAP["devin/1784122193-luup-data-policy"]="discharged_secrets_ijcip"
           SUBDIR_MAP["devin/1784904207-transport-policy"]="discharged_secrets_ijcip"
+          # Publish ONLY the clean, reproducible reanalysis folder (exclude tainted originals)
+          SUBDIR_MAP["devin/1784008417-weibull-tb-reproducible-data"]="weibull-clinical-dropout/reanalysis_real"
 
           # ── File exclusion map ──
           # Space-separated list of file paths (relative to subdir root if

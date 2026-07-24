@@ -1,0 +1,26 @@
+AHG SUBMISSION VALIDATION
+==========================
+
+Summary words: 185
+Main-text words: 2352
+References: 24
+Uncited references: []
+First-appearance figure order: [1, 2, 3, 4]
+First-appearance supporting figure order: [1, 2, 3, 4, 5]
+First-appearance table order: [1]
+
+PASS: Author-date citations
+PASS: Every reference cited
+PASS: References alphabetized
+PASS: Figure first-appearance order
+PASS: Supporting figure first-appearance order
+PASS: Table first-appearance order
+PASS: No placeholder strings
+PASS: Running title under 70 characters
+PASS: Title without abbreviations
+PASS: Summary at most 200 words
+PASS: Main text at most 4000 words
+PASS: Three to six keywords
+PASS: Keywords alphabetical
+PASS: All figure source files present
+PASS: All supporting figure source files present

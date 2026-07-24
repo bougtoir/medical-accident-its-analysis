@@ -1,7 +1,7 @@
 # デニソワ人DNA痕跡と人類の移動に関する議論
 
 **日付**: 2026年6月19日  
-**参加者**: Tatsuki Onishi, Devin (Cognition AI)
+**参加者**: Onishi Tatsuki, Devin (Cognition AI)
 
 ---
 

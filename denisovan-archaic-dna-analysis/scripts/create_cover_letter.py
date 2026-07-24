@@ -105,10 +105,10 @@ doc.add_paragraph()
 
 # Author
 author = doc.add_paragraph()
-run = author.add_run('Tatsuki Onishi')
+run = author.add_run('Onishi Tatsuki')
 run.bold = True
 
-affil = doc.add_paragraph('[Affiliation to be added]')
+affil = doc.add_paragraph('Data Science and AI Innovation Research Promotion Center')
 for run in affil.runs:
     run.font.size = Pt(10)
 

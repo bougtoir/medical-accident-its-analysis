@@ -1,0 +1,60 @@
+individual,age_kya,population,region,closest_reference,altai_proportion,vindija_proportion,chagyrskaya_proportion,denisova_proportion,all_reads,segment_detected,strict_abo_overlap,source_doi,provenance_note
+AfanasievoFather,4.7,Yamnaya,CeAsSi,None,,,,,,False,False,10.1126/science.adq3010,No Neandertal segment in the ABO 500-kb interval
+AfanasievoMother,4.7,Yamnaya,CeAsSi,None,,,,,,False,False,10.1126/science.adq3010,No Neandertal segment in the ABO 500-kb interval
+AfanasievoSon1,4.6,Yamnaya,CeAsSi,None,,,,,,False,False,10.1126/science.adq3010,No Neandertal segment in the ABO 500-kb interval
+AfanasievoSon2,4.5,Yamnaya,CeAsSi,None,,,,,,False,False,10.1126/science.adq3010,No Neandertal segment in the ABO 500-kb interval
+AfontovaGora3,16.8,ANE,CeAsSi,None,,,,,,False,False,10.1126/science.adq3010,No Neandertal segment in the ABO 500-kb interval
+Anzick,12.6,Siberia&Americas,America,None,,,,,,False,False,10.1126/science.adq3010,No Neandertal segment in the ABO 500-kb interval
+BK1653,34.9,preLGM-WEurHG,WEurAs,None,,,,,,False,False,10.1126/science.adq3010,No Neandertal segment in the ABO 500-kb interval
+BKBB7240,44.7,EarlyOoA,WEurAs,Tie,0.897,0.862,0.897,0.207,29.0,True,True,10.1126/science.adq3010,Extracted from public Iasi et al. 2024 segment catalogue; exploratory use only
+BKCC7335,45.1,EarlyOoA,WEurAs,Altai,0.63,0.593,0.593,0.333,27.0,True,False,10.1126/science.adq3010,Extracted from public Iasi et al. 2024 segment catalogue; exploratory use only
+BKF6620,43.1,EarlyOoA,WEurAs,Tie,0.75,0.807,0.807,0.489,88.0,True,True,10.1126/science.adq3010,Extracted from public Iasi et al. 2024 segment catalogue; exploratory use only
+Bichon,13.7,postLGM-WEurHG,WEurAs,Altai,0.633,0.628,0.628,0.25,188.0,True,False,10.1126/science.adq3010,Extracted from public Iasi et al. 2024 segment catalogue; exploratory use only
+CNE1,2.7,EAS,SouAs,None,,,,,,False,False,10.1126/science.adq3010,No Neandertal segment in the ABO 500-kb interval
+ElMiron,18.8,postLGM-WEurHG,WEurAs,None,,,,,,False,False,10.1126/science.adq3010,No Neandertal segment in the ABO 500-kb interval
+KK1,9.7,Satsurblia,WEurAs,None,,,,,,False,False,10.1126/science.adq3010,No Neandertal segment in the ABO 500-kb interval
+KM4,2.4,EAS,SouAs,None,,,,,,False,False,10.1126/science.adq3010,No Neandertal segment in the ABO 500-kb interval
+KS20KS25,2.4,EAS,SouAs,None,,,,,,False,False,10.1126/science.adq3010,No Neandertal segment in the ABO 500-kb interval
+KS5,2.4,EAS,SouAs,None,,,,,,False,False,10.1126/science.adq3010,No Neandertal segment in the ABO 500-kb interval
+Karelia,8.3,postLGM-WEurHG,WEurAs,None,,,,,,False,False,10.1126/science.adq3010,No Neandertal segment in the ABO 500-kb interval
+Kolyma,9.8,Siberia&Americas,CeAsSi,None,,,,,,False,False,10.1126/science.adq3010,No Neandertal segment in the ABO 500-kb interval
+Kostenki14Shotgun,38.1,preLGM-WEurHG,CeAsSi,None,,,,,,False,False,10.1126/science.adq3010,No Neandertal segment in the ABO 500-kb interval
+LBK,7.1,WEur,WEurAs,Altai,0.67,0.574,0.581,0.296,781.0,True,True,10.1126/science.adq3010,Extracted from public Iasi et al. 2024 segment catalogue; exploratory use only
+LaBrana,7.8,postLGM-WEurHG,WEurAs,Altai,0.775,0.705,0.717,0.225,173.0,True,False,10.1126/science.adq3010,Extracted from public Iasi et al. 2024 segment catalogue; exploratory use only
+LeangPanninge,7.2,Oceania,Oceania,None,,,,,,False,False,10.1126/science.adq3010,No Neandertal segment in the ABO 500-kb interval
+Loschbour,8.0,postLGM-WEurHG,WEurAs,Vindija,0.523,0.538,0.523,0.292,65.0,True,False,10.1126/science.adq3010,Extracted from public Iasi et al. 2024 segment catalogue; exploratory use only
+M2113,2.3,EAS,SouAs,None,,,,,,False,False,10.1126/science.adq3010,No Neandertal segment in the ABO 500-kb interval
+M368,2.3,EAS,SouAs,None,,,,,,False,False,10.1126/science.adq3010,No Neandertal segment in the ABO 500-kb interval
+Malta,24.3,ANE,CeAsSi,None,,,,,,False,False,10.1126/science.adq3010,No Neandertal segment in the ABO 500-kb interval
+MotaHC,4.5,Sub-Sahara-Africa,Africa,None,,,,,,False,False,10.1126/science.adq3010,No Neandertal segment in the ABO 500-kb interval
+NE1,7.1,WEur,WEurAs,None,,,,,,False,False,10.1126/science.adq3010,No Neandertal segment in the ABO 500-kb interval
+NE5,7.1,WEur,WEurAs,None,,,,,,False,False,10.1126/science.adq3010,No Neandertal segment in the ABO 500-kb interval
+OaseNew,40.0,EarlyOoA,WEurAs,None,,,,,,False,False,10.1126/science.adq3010,No Neandertal segment in the ABO 500-kb interval
+Ostuni1,27.6,preLGM-WEurHG,WEurAs,None,,,,,,False,False,10.1126/science.adq3010,No Neandertal segment in the ABO 500-kb interval
+PM1,34.4,preLGM-WEurHG,WEurAs,None,,,,,,False,False,10.1126/science.adq3010,No Neandertal segment in the ABO 500-kb interval
+R11,11.9,postLGM-WEurHG,WEurAs,Tie,0.429,0.429,0.429,0.143,7.0,True,False,10.1126/science.adq3010,Extracted from public Iasi et al. 2024 segment catalogue; exploratory use only
+R15,9.1,postLGM-WEurHG,WEurAs,None,,,,,,False,False,10.1126/science.adq3010,No Neandertal segment in the ABO 500-kb interval
+R2R7,2.7,EAS,SouAs,None,,,,,,False,False,10.1126/science.adq3010,No Neandertal segment in the ABO 500-kb interval
+R7,10.7,postLGM-WEurHG,WEurAs,Tie,1.0,1.0,1.0,0.5,28.0,True,False,10.1126/science.adq3010,Extracted from public Iasi et al. 2024 segment catalogue; exploratory use only
+SF12,9.0,postLGM-WEurHG,WEurAs,None,,,,,,False,False,10.1126/science.adq3010,No Neandertal segment in the ABO 500-kb interval
+SalkhitArchAdm,34.9,AncientEAS,EastAsia,None,,,,,,False,False,10.1126/science.adq3010,No Neandertal segment in the ABO 500-kb interval
+SanTeodoro3,15.0,postLGM-WEurHG,WEurAs,None,,,,,,False,False,10.1126/science.adq3010,No Neandertal segment in the ABO 500-kb interval
+Satsurblia,13.3,Satsurblia,WEurAs,None,,,,,,False,False,10.1126/science.adq3010,No Neandertal segment in the ABO 500-kb interval
+SpiritCave,11.0,Siberia&Americas,America,None,,,,,,False,False,10.1126/science.adq3010,No Neandertal segment in the ABO 500-kb interval
+Sumidouro5,10.4,Siberia&Americas,America,None,,,,,,False,False,10.1126/science.adq3010,No Neandertal segment in the ABO 500-kb interval
+SunghirI,33.2,preLGM-WEurHG,CeAsSi,Altai,0.704,0.481,0.5,0.481,54.0,True,True,10.1126/science.adq3010,Extracted from public Iasi et al. 2024 segment catalogue; exploratory use only
+SunghirII,34.6,preLGM-WEurHG,CeAsSi,Altai,0.698,0.616,0.664,0.382,414.0,True,True,10.1126/science.adq3010,Extracted from public Iasi et al. 2024 segment catalogue; exploratory use only
+SunghirIII,34.5,preLGM-WEurHG,CeAsSi,Altai,0.699,0.643,0.665,0.312,1088.0,True,True,10.1126/science.adq3010,Extracted from public Iasi et al. 2024 segment catalogue; exploratory use only
+SunghirIV,34.3,preLGM-WEurHG,CeAsSi,None,,,,,,False,False,10.1126/science.adq3010,No Neandertal segment in the ABO 500-kb interval
+Tianyuan,39.6,AncientEAS,EastAsia,None,,,,,,False,False,10.1126/science.adq3010,No Neandertal segment in the ABO 500-kb interval
+UstIshim,44.4,EarlyOoA,CeAsSi,None,,,,,,False,False,10.1126/science.adq3010,No Neandertal segment in the ABO 500-kb interval
+Vestonice13,31.1,preLGM-WEurHG,WEurAs,None,,,,,,False,False,10.1126/science.adq3010,No Neandertal segment in the ABO 500-kb interval
+Vestonice16,31.2,preLGM-WEurHG,WEurAs,None,,,,,,False,False,10.1126/science.adq3010,No Neandertal segment in the ABO 500-kb interval
+Vestonice43,31.2,preLGM-WEurHG,WEurAs,None,,,,,,False,False,10.1126/science.adq3010,No Neandertal segment in the ABO 500-kb interval
+Villabruna,14.0,postLGM-WEurHG,WEurAs,Altai,0.976,0.679,0.798,0.167,84.0,True,True,10.1126/science.adq3010,Extracted from public Iasi et al. 2024 segment catalogue; exploratory use only
+WC1,9.2,SWA,WEurAs,None,,,,,,False,False,10.1126/science.adq3010,No Neandertal segment in the ABO 500-kb interval
+Yana1,31.9,ANS,CeAsSi,None,,,,,,False,False,10.1126/science.adq3010,No Neandertal segment in the ABO 500-kb interval
+Yana2,31.9,ANS,CeAsSi,Chagyrskaya,0.612,0.606,0.619,0.221,289.0,True,False,10.1126/science.adq3010,Extracted from public Iasi et al. 2024 segment catalogue; exploratory use only
+ZVEJ25,7.7,postLGM-WEurHG,WEurAs,Tie,0.481,0.487,0.487,0.319,160.0,True,False,10.1126/science.adq3010,Extracted from public Iasi et al. 2024 segment catalogue; exploratory use only
+ZVEJ31,5.9,postLGM-WEurHG,WEurAs,None,,,,,,False,False,10.1126/science.adq3010,No Neandertal segment in the ABO 500-kb interval
+ZlatyKunShotgun,45.0,EarlyOoA,WEurAs,Vindija,0.598,0.61,0.546,0.388,590.0,True,True,10.1126/science.adq3010,Extracted from public Iasi et al. 2024 segment catalogue; exploratory use only

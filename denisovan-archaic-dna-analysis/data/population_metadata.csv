@@ -1,0 +1,67 @@
+population,region,continent,dataset,n_individuals,latitude,longitude,coordinate_source,eur_admixture_fraction,recent_admixture_flag,included
+Adygei,EUROPE,EUR,HGDP,16,44.5,40.0,analysis metadata; verify against source sampling documentation,0.0,0,True
+BEB,CENTRAL_SOUTH_ASIA,SAS,1000 Genomes,131,23.7,90.4,analysis metadata; verify against source sampling documentation,0.0,0,True
+Balochi,CENTRAL_SOUTH_ASIA,SAS,HGDP,24,28.0,66.5,analysis metadata; verify against source sampling documentation,0.0,0,True
+Basque,EUROPE,EUR,HGDP,23,43.0,-2.0,analysis metadata; verify against source sampling documentation,0.0,0,True
+Bedouin,MIDDLE_EAST,WAS,HGDP,46,30.0,35.0,analysis metadata; verify against source sampling documentation,0.0,0,True
+BergamoItalian,EUROPE,EUR,HGDP,12,45.7,9.7,analysis metadata; verify against source sampling documentation,0.0,0,True
+Bougainville,OCEANIA,OCE,HGDP,11,-6.2,155.5,analysis metadata; verify against source sampling documentation,0.0,0,True
+Brahui,CENTRAL_SOUTH_ASIA,SAS,HGDP,25,28.0,66.0,analysis metadata; verify against source sampling documentation,0.0,0,True
+Burusho,CENTRAL_SOUTH_ASIA,SAS,HGDP,24,36.3,74.6,analysis metadata; verify against source sampling documentation,0.0,0,True
+CDX,EAST_ASIA,EAS,1000 Genomes,93,22.0,100.0,analysis metadata; verify against source sampling documentation,0.0,0,True
+CEU,EUROPE,EUR,1000 Genomes,179,49.0,8.0,analysis metadata; verify against source sampling documentation,0.0,0,True
+CHB,EAST_ASIA,EAS,1000 Genomes,103,39.9,116.4,analysis metadata; verify against source sampling documentation,0.0,0,True
+CHS,EAST_ASIA,EAS,1000 Genomes,163,23.1,113.3,analysis metadata; verify against source sampling documentation,0.0,0,True
+CLM,AMERICA,AMR,1000 Genomes,132,4.7,-74.1,analysis metadata; verify against source sampling documentation,0.57,1,True
+Cambodian,EAST_ASIA,EAS,HGDP,9,11.5,105.0,analysis metadata; verify against source sampling documentation,0.0,0,True
+Colombian,AMERICA,AMR,HGDP,7,2.0,-76.0,analysis metadata; verify against source sampling documentation,0.0,0,True
+Dai,EAST_ASIA,EAS,HGDP,9,21.0,100.0,analysis metadata; verify against source sampling documentation,0.0,0,True
+Daur,EAST_ASIA,EAS,HGDP,9,48.5,124.0,analysis metadata; verify against source sampling documentation,0.0,0,True
+Druze,MIDDLE_EAST,WAS,HGDP,42,32.5,35.5,analysis metadata; verify against source sampling documentation,0.0,0,True
+FIN,EUROPE,EUR,1000 Genomes,99,61.0,25.0,analysis metadata; verify against source sampling documentation,0.0,0,True
+French,EUROPE,EUR,HGDP,28,46.0,2.0,analysis metadata; verify against source sampling documentation,0.0,0,True
+GBR,EUROPE,EUR,1000 Genomes,91,51.5,-0.1,analysis metadata; verify against source sampling documentation,0.0,0,True
+GIH,CENTRAL_SOUTH_ASIA,SAS,1000 Genomes,103,23.0,72.6,analysis metadata; verify against source sampling documentation,0.0,0,True
+Han,EAST_ASIA,EAS,HGDP,33,39.9,116.4,analysis metadata; verify against source sampling documentation,0.0,0,True
+Hazara,CENTRAL_SOUTH_ASIA,SAS,HGDP,19,34.5,67.0,analysis metadata; verify against source sampling documentation,0.0,0,True
+Hezhen,EAST_ASIA,EAS,HGDP,9,47.7,132.0,analysis metadata; verify against source sampling documentation,0.0,0,True
+IBS,EUROPE,EUR,1000 Genomes,157,40.0,-4.0,analysis metadata; verify against source sampling documentation,0.0,0,True
+ITU,CENTRAL_SOUTH_ASIA,SAS,1000 Genomes,107,13.1,80.3,analysis metadata; verify against source sampling documentation,0.0,0,True
+JPT,EAST_ASIA,EAS,1000 Genomes,104,35.7,139.7,analysis metadata; verify against source sampling documentation,0.0,0,True
+Japanese,EAST_ASIA,EAS,HGDP,27,35.7,139.7,analysis metadata; verify against source sampling documentation,0.0,0,True
+KHV,EAST_ASIA,EAS,1000 Genomes,122,16.0,106.0,analysis metadata; verify against source sampling documentation,0.0,0,True
+Kalash,CENTRAL_SOUTH_ASIA,SAS,HGDP,22,35.7,71.5,analysis metadata; verify against source sampling documentation,0.0,0,True
+Karitiana,AMERICA,AMR,HGDP,12,-10.0,-63.0,analysis metadata; verify against source sampling documentation,0.0,0,True
+Lahu,EAST_ASIA,EAS,HGDP,8,22.5,100.5,analysis metadata; verify against source sampling documentation,0.0,0,True
+MXL,AMERICA,AMR,1000 Genomes,97,23.6,-102.6,analysis metadata; verify against source sampling documentation,0.48,1,True
+Makrani,CENTRAL_SOUTH_ASIA,SAS,HGDP,25,26.0,63.0,analysis metadata; verify against source sampling documentation,0.0,0,True
+Maya,AMERICA,AMR,HGDP,21,17.0,-89.0,analysis metadata; verify against source sampling documentation,0.0,0,True
+Miao,EAST_ASIA,EAS,HGDP,10,27.0,109.0,analysis metadata; verify against source sampling documentation,0.0,0,True
+Mongolian,EAST_ASIA,EAS,HGDP,9,47.0,107.0,analysis metadata; verify against source sampling documentation,0.0,0,True
+Mozabite,MIDDLE_EAST,WAS,HGDP,27,32.5,3.7,analysis metadata; verify against source sampling documentation,0.0,0,True
+Naxi,EAST_ASIA,EAS,HGDP,8,27.0,100.0,analysis metadata; verify against source sampling documentation,0.0,0,True
+NorthernHan,EAST_ASIA,EAS,HGDP,10,39.9,116.4,analysis metadata; verify against source sampling documentation,0.0,0,True
+Orcadian,EUROPE,EUR,HGDP,15,59.0,-3.0,analysis metadata; verify against source sampling documentation,0.0,0,True
+Oroqen,EAST_ASIA,EAS,HGDP,9,50.5,126.0,analysis metadata; verify against source sampling documentation,0.0,0,True
+PEL,AMERICA,AMR,1000 Genomes,122,-12.0,-77.0,analysis metadata; verify against source sampling documentation,0.16,1,True
+PJL,CENTRAL_SOUTH_ASIA,SAS,1000 Genomes,146,31.5,73.0,analysis metadata; verify against source sampling documentation,0.0,0,True
+PUR,AMERICA,AMR,1000 Genomes,139,18.2,-66.5,analysis metadata; verify against source sampling documentation,0.64,1,True
+Palestinian,MIDDLE_EAST,WAS,HGDP,46,31.9,35.2,analysis metadata; verify against source sampling documentation,0.0,0,True
+PapuanHighlands,OCEANIA,OCE,HGDP,9,-6.0,145.0,analysis metadata; verify against source sampling documentation,0.0,0,True
+PapuanSepik,OCEANIA,OCE,HGDP,8,-4.0,143.0,analysis metadata; verify against source sampling documentation,0.0,0,True
+Pathan,CENTRAL_SOUTH_ASIA,SAS,HGDP,24,34.0,71.5,analysis metadata; verify against source sampling documentation,0.0,0,True
+Pima,AMERICA,AMR,HGDP,13,28.0,-109.0,analysis metadata; verify against source sampling documentation,0.0,0,True
+Russian,EUROPE,EUR,HGDP,25,55.0,37.5,analysis metadata; verify against source sampling documentation,0.0,0,True
+STU,CENTRAL_SOUTH_ASIA,SAS,1000 Genomes,114,7.9,80.7,analysis metadata; verify against source sampling documentation,0.0,0,True
+Sardinian,EUROPE,EUR,HGDP,28,40.0,9.0,analysis metadata; verify against source sampling documentation,0.0,0,True
+She,EAST_ASIA,EAS,HGDP,10,27.0,119.0,analysis metadata; verify against source sampling documentation,0.0,0,True
+Sindhi,CENTRAL_SOUTH_ASIA,SAS,HGDP,24,25.4,68.4,analysis metadata; verify against source sampling documentation,0.0,0,True
+Surui,AMERICA,AMR,HGDP,8,-11.0,-61.0,analysis metadata; verify against source sampling documentation,0.0,0,True
+TSI,EUROPE,EUR,1000 Genomes,107,43.5,11.0,analysis metadata; verify against source sampling documentation,0.0,0,True
+Tu,EAST_ASIA,EAS,HGDP,10,36.5,102.0,analysis metadata; verify against source sampling documentation,0.0,0,True
+Tujia,EAST_ASIA,EAS,HGDP,9,29.0,109.0,analysis metadata; verify against source sampling documentation,0.0,0,True
+Tuscan,EUROPE,EUR,HGDP,8,43.3,11.3,analysis metadata; verify against source sampling documentation,0.0,0,True
+Uygur,CENTRAL_SOUTH_ASIA,SAS,HGDP,10,41.0,80.0,analysis metadata; verify against source sampling documentation,0.0,0,True
+Xibo,EAST_ASIA,EAS,HGDP,9,44.0,81.0,analysis metadata; verify against source sampling documentation,0.0,0,True
+Yakut,EAST_ASIA,EAS,HGDP,25,62.0,130.0,analysis metadata; verify against source sampling documentation,0.0,0,True
+Yi,EAST_ASIA,EAS,HGDP,10,27.0,102.0,analysis metadata; verify against source sampling documentation,0.0,0,True

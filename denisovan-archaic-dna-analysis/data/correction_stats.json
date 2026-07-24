@@ -1,0 +1,23 @@
+{
+  "nean": {
+    "raw_r": -0.49713856388371713,
+    "partial_r": -0.3687467607589482,
+    "distance_only_r_squared": 0.2471467517003645,
+    "expanded_r_squared": 0.5460841870363446,
+    "distance_qap_beta": -0.018920724794053205,
+    "distance_qap_p": 0.0001,
+    "fdr_q_lt_0.10_positive_z_gt_2": 0
+  },
+  "deni": {
+    "raw_r": -0.46166392962508196,
+    "partial_r": -0.3259058284512011,
+    "distance_only_r_squared": 0.21313358391687254,
+    "expanded_r_squared": 0.511287758415826,
+    "distance_qap_beta": -0.01918286102872772,
+    "distance_qap_p": 0.0002,
+    "fdr_q_lt_0.10_positive_z_gt_2": 0
+  },
+  "nonadmixed_pairs_tested": 1891,
+  "permutations": 9999,
+  "sensitivity_permutations": 999
+}
