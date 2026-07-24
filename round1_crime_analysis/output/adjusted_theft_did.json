@@ -1,0 +1,226 @@
+{
+  "Total Theft": {
+    "unadjusted": {
+      "coefficient": -6.051,
+      "std_error": 1.418,
+      "p_value": 0.0,
+      "ci_95": [
+        -8.831,
+        -3.271
+      ],
+      "n_obs": 9058
+    },
+    "adjusted": {
+      "coefficient": -1.929,
+      "std_error": 1.387,
+      "p_value": 0.1642,
+      "ci_95": [
+        -4.647,
+        0.789
+      ],
+      "n_obs": 9058,
+      "covariates": [
+        "pop_density",
+        "under15_ratio",
+        "elderly_ratio",
+        "per_capita_tax",
+        "unemployment_rate",
+        "foreign_ratio",
+        "single_hh_ratio",
+        "net_migration_rate"
+      ]
+    }
+  },
+  "Bicycle Theft": {
+    "unadjusted": {
+      "coefficient": -4.378,
+      "std_error": 1.0,
+      "p_value": 0.0,
+      "ci_95": [
+        -6.337,
+        -2.419
+      ],
+      "n_obs": 9058
+    },
+    "adjusted": {
+      "coefficient": -1.247,
+      "std_error": 1.023,
+      "p_value": 0.2227,
+      "ci_95": [
+        -3.252,
+        0.758
+      ],
+      "n_obs": 9058,
+      "covariates": [
+        "pop_density",
+        "under15_ratio",
+        "elderly_ratio",
+        "per_capita_tax",
+        "unemployment_rate",
+        "foreign_ratio",
+        "single_hh_ratio",
+        "net_migration_rate"
+      ]
+    }
+  },
+  "Car Break-in": {
+    "unadjusted": {
+      "coefficient": -0.561,
+      "std_error": 0.412,
+      "p_value": 0.1727,
+      "ci_95": [
+        -1.368,
+        0.245
+      ],
+      "n_obs": 9058
+    },
+    "adjusted": {
+      "coefficient": -0.387,
+      "std_error": 0.425,
+      "p_value": 0.3622,
+      "ci_95": [
+        -1.22,
+        0.446
+      ],
+      "n_obs": 9058,
+      "covariates": [
+        "pop_density",
+        "under15_ratio",
+        "elderly_ratio",
+        "per_capita_tax",
+        "unemployment_rate",
+        "foreign_ratio",
+        "single_hh_ratio",
+        "net_migration_rate"
+      ]
+    }
+  },
+  "Parts Theft": {
+    "unadjusted": {
+      "coefficient": -0.285,
+      "std_error": 0.265,
+      "p_value": 0.2819,
+      "ci_95": [
+        -0.803,
+        0.234
+      ],
+      "n_obs": 9058
+    },
+    "adjusted": {
+      "coefficient": -0.186,
+      "std_error": 0.272,
+      "p_value": 0.4943,
+      "ci_95": [
+        -0.72,
+        0.347
+      ],
+      "n_obs": 9058,
+      "covariates": [
+        "pop_density",
+        "under15_ratio",
+        "elderly_ratio",
+        "per_capita_tax",
+        "unemployment_rate",
+        "foreign_ratio",
+        "single_hh_ratio",
+        "net_migration_rate"
+      ]
+    }
+  },
+  "Motorcycle Theft": {
+    "unadjusted": {
+      "coefficient": -0.661,
+      "std_error": 0.23,
+      "p_value": 0.004,
+      "ci_95": [
+        -1.111,
+        -0.21
+      ],
+      "n_obs": 9058
+    },
+    "adjusted": {
+      "coefficient": -0.269,
+      "std_error": 0.235,
+      "p_value": 0.2527,
+      "ci_95": [
+        -0.729,
+        0.192
+      ],
+      "n_obs": 9058,
+      "covariates": [
+        "pop_density",
+        "under15_ratio",
+        "elderly_ratio",
+        "per_capita_tax",
+        "unemployment_rate",
+        "foreign_ratio",
+        "single_hh_ratio",
+        "net_migration_rate"
+      ]
+    }
+  },
+  "Purse Snatching": {
+    "unadjusted": {
+      "coefficient": -0.162,
+      "std_error": 0.038,
+      "p_value": 0.0,
+      "ci_95": [
+        -0.237,
+        -0.088
+      ],
+      "n_obs": 9058
+    },
+    "adjusted": {
+      "coefficient": -0.063,
+      "std_error": 0.034,
+      "p_value": 0.0635,
+      "ci_95": [
+        -0.13,
+        0.004
+      ],
+      "n_obs": 9058,
+      "covariates": [
+        "pop_density",
+        "under15_ratio",
+        "elderly_ratio",
+        "per_capita_tax",
+        "unemployment_rate",
+        "foreign_ratio",
+        "single_hh_ratio",
+        "net_migration_rate"
+      ]
+    }
+  },
+  "Car Theft": {
+    "unadjusted": {
+      "coefficient": 0.253,
+      "std_error": 0.138,
+      "p_value": 0.0669,
+      "ci_95": [
+        -0.018,
+        0.524
+      ],
+      "n_obs": 9058
+    },
+    "adjusted": {
+      "coefficient": 0.479,
+      "std_error": 0.188,
+      "p_value": 0.0111,
+      "ci_95": [
+        0.109,
+        0.848
+      ],
+      "n_obs": 9058,
+      "covariates": [
+        "pop_density",
+        "under15_ratio",
+        "elderly_ratio",
+        "per_capita_tax",
+        "unemployment_rate",
+        "foreign_ratio",
+        "single_hh_ratio",
+        "net_migration_rate"
+      ]
+    }
+  }
+}

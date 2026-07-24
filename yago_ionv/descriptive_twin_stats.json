@@ -1,0 +1,230 @@
+{
+  "n_raw": 366,
+  "n_excluded": 20,
+  "n_pre_anesthesia_excluded": 4,
+  "n_analysis": 342,
+  "exclusions": {
+    "General anesthesia": 2,
+    "Pre-anesthesia SBP < 90 mmHg": 1,
+    "Intrauterine fetal death": 9,
+    "Vanishing twin": 3,
+    "Triplet pregnancy": 0,
+    "No anesthesia data available": 1
+  },
+  "continuous_summary": {
+    "Age (years)": {
+      "n": 342,
+      "mean": 31.96,
+      "sd": 4.84,
+      "median": 32.0,
+      "q1": 29.0,
+      "q3": 35.0,
+      "min": 19.0,
+      "max": 45.0
+    },
+    "BMI (kg/m²)": {
+      "n": 341,
+      "mean": 25.65,
+      "sd": 4.03,
+      "median": 25.34,
+      "q1": 22.77,
+      "q3": 28.0,
+      "min": 17.1,
+      "max": 43.85
+    },
+    "Gestational age (weeks)": {
+      "n": 342,
+      "mean": 36.23,
+      "sd": 2.17,
+      "median": 37.0,
+      "q1": 36.14,
+      "q3": 37.29,
+      "min": 23.86,
+      "max": 38.29
+    },
+    "Surgery time (min)": {
+      "n": 342,
+      "mean": 45.65,
+      "sd": 11.05,
+      "median": 44.0,
+      "q1": 38.0,
+      "q3": 51.0,
+      "min": 23.0,
+      "max": 102.0
+    },
+    "Anesthesia time (min)": {
+      "n": 342,
+      "mean": 60.06,
+      "sd": 12.7,
+      "median": 58.0,
+      "q1": 51.0,
+      "q3": 67.75,
+      "min": 34.0,
+      "max": 119.0
+    },
+    "Estimated blood loss (mL)": {
+      "n": 342,
+      "mean": 1380.17,
+      "sd": 727.64,
+      "median": 1195.0,
+      "q1": 922.5,
+      "q3": 1670.0,
+      "min": 130.0,
+      "max": 5450.0
+    },
+    "Infusion volume (mL)": {
+      "n": 342,
+      "mean": 1080.13,
+      "sd": 405.31,
+      "median": 1050.0,
+      "q1": 800.0,
+      "q3": 1300.0,
+      "min": 300.0,
+      "max": 2700.0
+    },
+    "Hypotensive episodes (count)": {
+      "n": 342,
+      "mean": 1.35,
+      "sd": 2.44,
+      "median": 0.0,
+      "q1": 0.0,
+      "q3": 2.0,
+      "min": 0.0,
+      "max": 18.0
+    },
+    "Intrathecal bupivacaine (mg)": {
+      "n": 333,
+      "mean": 10.68,
+      "sd": 1.33,
+      "median": 10.0,
+      "q1": 10.0,
+      "q3": 11.0,
+      "min": 3.0,
+      "max": 25.0
+    },
+    "Intrathecal fentanyl (μg)": {
+      "n": 334,
+      "mean": 18.5,
+      "sd": 6.66,
+      "median": 20.0,
+      "q1": 15.0,
+      "q3": 20.0,
+      "min": 0.0,
+      "max": 50.0
+    },
+    "Intrathecal morphine (mg)": {
+      "n": 335,
+      "mean": 0.06,
+      "sd": 0.05,
+      "median": 0.1,
+      "q1": 0.0,
+      "q3": 0.1,
+      "min": 0.0,
+      "max": 0.2
+    },
+    "Ephedrine (mg)": {
+      "n": 342,
+      "mean": 2.08,
+      "sd": 4.97,
+      "median": 0.0,
+      "q1": 0.0,
+      "q3": 0.0,
+      "min": 0.0,
+      "max": 28.0
+    },
+    "Phenylephrine (mg)": {
+      "n": 341,
+      "mean": 0.19,
+      "sd": 0.25,
+      "median": 0.1,
+      "q1": 0.0,
+      "q3": 0.3,
+      "min": 0.0,
+      "max": 1.9
+    }
+  },
+  "categorical_summary": {
+    "Emergency CS": {
+      "n_N": "121/342",
+      "pct": 35.38,
+      "ci_lower": 30.5,
+      "ci_upper": 40.58
+    },
+    "Prior CS": {
+      "n_N": "40/342",
+      "pct": 11.7,
+      "ci_lower": 8.71,
+      "ci_upper": 15.54
+    },
+    "Hypertensive disorders of pregnancy": {
+      "n_N": "33/342",
+      "pct": 9.65,
+      "ci_lower": 6.95,
+      "ci_upper": 13.24
+    },
+    "Preoperative steroid (≤1 week)": {
+      "n_N": "25/342",
+      "pct": 7.31,
+      "ci_lower": 5.0,
+      "ci_upper": 10.57
+    },
+    "Epidural anesthesia": {
+      "n_N": "105/342",
+      "pct": 30.7,
+      "ci_lower": 26.05,
+      "ci_upper": 35.78
+    },
+    "Continuous vasopressor infusion": {
+      "n_N": "33/342",
+      "pct": 9.65,
+      "ci_lower": 6.95,
+      "ci_upper": 13.24
+    },
+    "Hypotension (SBP < 90 mmHg)": {
+      "n_N": "151/342",
+      "pct": 44.15,
+      "ci_lower": 38.98,
+      "ci_upper": 49.45
+    },
+    "Uterine exteriorization": {
+      "n_N": "73/74",
+      "pct": 98.65,
+      "ci_lower": 92.73,
+      "ci_upper": 99.76
+    },
+    "BMI ≥ 35 kg/m²": {
+      "n_N": "5/341",
+      "pct": 1.47,
+      "ci_lower": 0.63,
+      "ci_upper": 3.39
+    },
+    "Preoperative antiemetic (≤24 h)": {
+      "n_N": "1/341",
+      "pct": 0.29,
+      "ci_lower": 0.05,
+      "ci_upper": 1.64
+    }
+  },
+  "ionv_outcomes": {
+    "Primary: any IONV (anesthesia→exit)": {
+      "events": 58,
+      "N": 342,
+      "rate_pct": 16.96
+    },
+    "Secondary: IONV before delivery only": {
+      "events": 5,
+      "N": 342,
+      "rate_pct": 1.46
+    },
+    "Post-delivery IONV only": {
+      "events": 54,
+      "N": 342,
+      "rate_pct": 15.79
+    },
+    "5-HT3 antagonist use (Definition E)": {
+      "events": 8,
+      "N": 342,
+      "rate_pct": 2.34
+    }
+  }
+}

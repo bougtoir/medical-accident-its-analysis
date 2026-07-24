@@ -1,0 +1,19 @@
+population,group,frequency,sample_size,source,source_doi
+Munda,Solomon Islands,0.051,39,Ohashi et al. 2006,10.1007/s10038-006-0375-8
+Paradise,Solomon Islands,0.163,46,Ohashi et al. 2006,10.1007/s10038-006-0375-8
+Rawaki,Solomon Islands,0.141,46,Ohashi et al. 2006,10.1007/s10038-006-0375-8
+ACB,1000 Genomes Phase 3,0.0104166666666667,,Ensembl Variation,
+ASW,1000 Genomes Phase 3,0.0163934426229508,,Ensembl Variation,
+BEB,1000 Genomes Phase 3,0.0116279069767442,,Ensembl Variation,
+CEU,1000 Genomes Phase 3,0.00505050505050505,,Ensembl Variation,
+CLM,1000 Genomes Phase 3,0.0106382978723404,,Ensembl Variation,
+FIN,1000 Genomes Phase 3,0.0303030303030303,,Ensembl Variation,
+GBR,1000 Genomes Phase 3,0.0494505494505494,,Ensembl Variation,
+GIH,1000 Genomes Phase 3,0.0145631067961165,,Ensembl Variation,
+IBS,1000 Genomes Phase 3,0.0280373831775701,,Ensembl Variation,
+ITU,1000 Genomes Phase 3,0.00980392156862745,,Ensembl Variation,
+MXL,1000 Genomes Phase 3,0.0078125,,Ensembl Variation,
+PEL,1000 Genomes Phase 3,0.0117647058823529,,Ensembl Variation,
+PUR,1000 Genomes Phase 3,0.0336538461538462,,Ensembl Variation,
+STU,1000 Genomes Phase 3,0.00490196078431373,,Ensembl Variation,
+TSI,1000 Genomes Phase 3,0.0327102803738318,,Ensembl Variation,

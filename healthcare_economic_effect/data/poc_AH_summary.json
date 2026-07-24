@@ -1,33 +1,58 @@
 {
   "n_countries": 39,
-  "data_source": "World Bank WDI (SH.XPD.CHEX.PP.CD, SP.DYN.LE00.IN)",
+  "data_source": "World Bank WDI (SH.XPD.CHEX.PP.CD, SH.XPD.CHEX.GD.ZS, SP.DYN.LE00.IN)",
   "period": "2000-2019",
+  "delta_H": 0.1,
+  "n_params": {
+    "M0": 3,
+    "M1": 4,
+    "M2": 5
+  },
   "models": {
     "M0_flow": {
       "description": "Naive flow-only regression",
-      "level_rmse_median": 0.51,
-      "change_rmse_median": 0.455
+      "n_params": 3,
+      "level_rmse_median": 0.2526300221578559,
+      "change_rmse_median": 0.2202995467723634,
+      "loocv_rmse_median": 0.30377214708852357,
+      "aic_median": -49.03316894253611,
+      "bic_median": -46.04597212187414
     },
     "M1_constant_lag": {
       "description": "Constant lag mu_H (PIM)",
-      "level_rmse_median": 0.441,
-      "change_rmse_median": 0.403,
-      "mu_const_median_yr": 4.0
+      "n_params": 4,
+      "level_rmse_median": 0.20800200541696395,
+      "change_rmse_median": 0.22382710864404548,
+      "loocv_rmse_median": 0.25037208875486433,
+      "aic_median": -54.80830231598344,
+      "bic_median": -50.82537322176748,
+      "mu_const_median_yr": 2.0
     },
     "M2_tempo_lag": {
       "description": "Time-varying mu_H(t) = mu0 + mu1*(year-t0)",
-      "level_rmse_median": 0.434,
-      "change_rmse_median": 0.405,
-      "mu_H1_median_yr_per_yr": 0.15
+      "n_params": 5,
+      "level_rmse_median": 0.20700125616052267,
+      "change_rmse_median": 0.22378284055234324,
+      "loocv_rmse_median": 0.24963219074233944,
+      "aic_median": -53.00121669307434,
+      "bic_median": -48.02255532530439,
+      "mu_H0_median_yr": 2.0,
+      "mu_H1_median_yr_per_yr": -0.1
     }
   },
   "key_findings": {
-    "M1_beats_M0_level_pct": 69,
-    "M2_beats_M0_level_pct": 77,
-    "M2_beats_M0_change_pct": 87,
-    "M2_beats_M1_pct": 95,
-    "M0_to_M1_rmse_reduction_pct": 14,
-    "M0_to_M2_rmse_reduction_pct": 15
+    "M1_beats_M0_level_pct": 72,
+    "M2_beats_M0_level_pct": 72,
+    "M2_beats_M0_change_pct": 67,
+    "M2_beats_M1_level_pct": 77,
+    "M1_beats_M0_aic_pct": 64,
+    "M1_beats_M0_bic_pct": 64,
+    "M1_beats_M0_loocv_pct": 69,
+    "M2_beats_M1_aic_pct": 0,
+    "M2_beats_M1_bic_pct": 0,
+    "M2_beats_M1_loocv_pct": 72,
+    "M0_to_M1_rmse_reduction_pct": 18,
+    "M0_to_M2_rmse_reduction_pct": 18
   },
-  "interpretation": "M2 beats M1 in 95% of countries, confirming that the spending-to-outcome lag is not constant but drifts over time. Median drift mu_H1 = +0.15 yr/yr means the lag lengthens by ~1.5 years per decade, consistent with the shift from acute to chronic disease management and longer R&D-to-outcome cycles."
+  "interpretation": "M1 (constant lag) substantially and robustly outperforms M0 (flow-only) across every criterion (level RMSE, LOOCV RMSE, AIC, BIC): M1 beats M0 by AIC in 64% of countries, by BIC in 64%, and by LOOCV in 69%. This confirms that a spending-to-outcome lag exists, supporting a stock-based view of health-capital investment. The time-varying extension M2 does not improve on M1: M2 is favoured over M1 by AIC in only 0% of countries and by BIC in 0%, and the median level-RMSE difference is negligible (0.208 vs 0.207). The drift parameter mu_H1 is not robustly identified (bimodal, boundary-dominated across countries). We therefore find no reliable evidence for a time-varying lag; the robust finding is the existence of a constant lag (M1 vs M0), not its time-variation (M2 vs M1)."
 }

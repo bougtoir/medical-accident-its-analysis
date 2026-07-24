@@ -14,10 +14,9 @@ parameters on the full 1970-2019 sample; the manuscript needs:
       we let CWON PCA grow at rate gamma_price slower / faster than the
       PIM-implied reproducible-capital growth?
 
-Reads:
-  - /home/ubuntu/gdp_tempo_data/pwt1001.dta
-  - /home/ubuntu/gdp_tempo_data/wb/rnd_gdp.json
-  - /home/ubuntu/gdp_tempo_data/wb/cwon/{NW.PCA.TO,NW.HCA.TO,NW.TOW.TO}.json
+Reads the frozen public inputs under source_data/:
+  - pwt1001_selected.csv
+  - world_bank_indicators.csv
 
 Writes (under ./data/ and ./figures/ relative to this file's parent):
   - fair_eval.csv, fair_eval_summary.json
@@ -40,6 +39,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
+import data_sources
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, ".."))
 DATA = os.path.join(ROOT, "data")
@@ -47,9 +48,6 @@ FIG = os.path.join(ROOT, "figures")
 os.makedirs(DATA, exist_ok=True)
 os.makedirs(FIG, exist_ok=True)
 
-PWT_PATH = "/home/ubuntu/gdp_tempo_data/pwt1001.dta"
-RND_PATH = "/home/ubuntu/gdp_tempo_data/wb/rnd_gdp.json"
-CWON_DIR = "/home/ubuntu/gdp_tempo_data/wb/cwon"
 DELTA_I = 0.15  # CHS intangible depreciation
 
 COUNTRIES = [
@@ -185,25 +183,11 @@ def test_A_levels_intan(logY, logK_tang, logK_intan, logL, alpha, beta):
 
 # ----- Loaders -----
 def load_rnd() -> pd.DataFrame:
-    with open(RND_PATH) as fh:
-        rows = json.load(fh)
-    return pd.DataFrame([
-        {"iso3": r["countryiso3code"], "year": int(r["date"]),
-         "rnd_gdp": r["value"]}
-        for r in rows if r.get("value") is not None
-    ])
+    return data_sources.load_rnd()
 
 
 def load_cwon(code: str) -> dict[tuple[str, int], float]:
-    path = os.path.join(CWON_DIR, f"{code}.json")
-    with open(path) as fh:
-        rows = json.load(fh)
-    out = {}
-    for r in rows:
-        if r.get("value") is None:
-            continue
-        out[(r["countryiso3code"], int(r["date"]))] = float(r["value"])
-    return out
+    return data_sources.load_cwon(code)
 
 
 def demean_logratio(hat, obs):
@@ -236,7 +220,7 @@ class Country:
 
 
 def prepare_countries() -> list[Country]:
-    pwt = pd.read_stata(PWT_PATH)
+    pwt = data_sources.load_pwt()
     pwt = pwt[pwt["country"].isin(COUNTRIES)].sort_values(["country", "year"])
     rnd = load_rnd()
     cwon_pca = load_cwon("NW.PCA.TO")
@@ -733,7 +717,7 @@ def run_delta_sensitivity(countries: list[Country],
                          ) -> pd.DataFrame:
     """For each country, re-fit mu (M1 constant lag) under adjusted delta.
 
-    Addresses Inklaar's critique: if delta drifts, some of what is attributed
+    Tests depreciation sensitivity: if delta drifts, some of what is attributed
     to mu(t) may instead belong to delta(t). Reports mu_hat for each
     delta_factor."""
     rows = []
@@ -764,6 +748,258 @@ def run_delta_sensitivity(countries: list[Country],
               f"mu(d*1.2)={hi_mu:.2f}",
               flush=True)
     return pd.DataFrame(rows)
+
+
+# ----- Analysis 8: conditional OOS (interior-solution subsample) -----
+def run_conditional_oos(oos: pd.DataFrame,
+                        fair: pd.DataFrame) -> dict:
+    """Re-compute OOS statistics restricted to countries with interior mu_M1.
+
+    Interior solutions are those where mu_M1 is not at the grid boundary
+    (0.01 or 6.0).  These are the countries for which the tempo correction
+    is genuinely informative; boundary-solution countries are effectively M0.
+    """
+    mu = fair.set_index("country")["mu_M1"]
+    interior = mu[(mu > 0.02) & (mu < 5.9)].index.tolist()
+    boundary = mu[~mu.index.isin(interior)].index.tolist()
+
+    oos_int = oos[oos["country"].isin(interior)]
+    oos_bnd = oos[oos["country"].isin(boundary)]
+
+    result: dict = {"interior_countries": interior,
+                    "boundary_countries": boundary,
+                    "n_interior": len(oos_int),
+                    "n_boundary": len(oos_bnd)}
+    for subset_name, subset_df in [("interior", oos_int),
+                                   ("boundary", oos_bnd),
+                                   ("all", oos)]:
+        for model in ("M0", "M1", "M2", "M3", "M4"):
+            col = f"{model}_oos_mape"
+            if col in subset_df.columns:
+                vals = subset_df[col].dropna()
+                result[f"{subset_name}_{model}_median"] = float(vals.median())
+                result[f"{subset_name}_{model}_mean"] = float(vals.mean())
+    print(f"  [cond_oos] interior={len(oos_int)}, boundary={len(oos_bnd)}",
+          flush=True)
+    for model in ("M0", "M1", "M2", "M4"):
+        k = f"interior_{model}_median"
+        v = result.get(k, "N/A")
+        fmt = f"{v:.2f}" if isinstance(v, (int, float)) else str(v)
+        print(f"    {model} interior median={fmt}", flush=True)
+    return result
+
+
+# ----- Analysis 9: extended OOS metrics -----
+def run_extended_oos(countries: list[Country]) -> pd.DataFrame:
+    """Compute additional OOS metrics beyond MAPE:
+    - direction accuracy (fraction of years with correct GDP growth sign)
+    - CWON trajectory RMSE (how well PIM K tracks CWON PCA)
+    """
+    rows = []
+    for c in countries:
+        mask_train = c.years <= 2014
+        mask_test = np.isin(c.years, OOS_TEST_YEARS)
+        if mask_test.sum() < 3 or mask_train.sum() < 20:
+            continue
+        I_train = c.I[mask_train]
+        delta_train = c.delta[mask_train]
+        years_train = c.years[mask_train]
+        Y_train = c.Y[mask_train]
+        emp_t = c.emp[mask_train]; avh_t = c.avh[mask_train]
+        hc_t = c.hc[mask_train]
+        L_train = emp_t * avh_t * hc_t
+        L_full = c.emp * c.avh * c.hc
+        logY_train = np.log(Y_train); logLH_train = np.log(L_train)
+        logL_train = np.log(emp_t * avh_t)
+        alpha = 1 - float(np.clip(np.mean(c.labsh[mask_train]), 0.40, 0.75))
+        K0 = c.K0
+
+        K_intan_full = build_intan_stock(c.Y, c.rnd_share)
+        if K_intan_full is None:
+            continue
+        K_intan_train = K_intan_full[mask_train]
+
+        mu1_tr = fit_mu_const(I_train, delta_train, K0, logY_train,
+                              logLH_train, alpha)
+        mu0_tr, mu1e_tr = fit_tempo(I_train, delta_train, K0, logY_train,
+                                    logLH_train, alpha, years_train)
+        K_M3_train = pim_instant(I_train, delta_train, K0)
+        beta3_tr = fit_beta_given_K(K_M3_train, K_intan_train,
+                                    logY_train, logL_train, alpha)
+        idx_map = {int(y): ii for ii, y in enumerate(c.years)}
+        ki = []
+        for y in c.cwon_years:
+            ii = idx_map.get(int(y), None)
+            ki.append(ii if (ii is not None and int(y) <= 2014) else None)
+        mu4_tr, beta4_tr, _, _ = fit_joint(
+            I_train, delta_train, K0, K_intan_train, logY_train,
+            logL_train, alpha, ki[:len(np.arange(1995, 2015))],
+            c.pca[c.cwon_years <= 2014])
+
+        K_full = {
+            "M0": pim_instant(c.I, c.delta, K0),
+            "M1": pim_lagged(c.I, c.delta, K0, mu1_tr),
+            "M2": pim_lagged_tempo(c.I, c.delta, K0, mu0_tr, mu1e_tr,
+                                   c.years),
+            "M3": pim_instant(c.I, c.delta, K0),
+            "M4": pim_lagged(c.I, c.delta, K0, mu4_tr) if np.isfinite(mu4_tr)
+            else None,
+        }
+        beta_by = {"M0": 0.0, "M1": 0.0, "M2": 0.0, "M3": beta3_tr,
+                   "M4": beta4_tr if np.isfinite(beta4_tr) else 0.0}
+
+        def forecast_level(Ktang_full, beta):
+            logK = np.log(np.where(Ktang_full > 0, Ktang_full, 1e-6))
+            if beta > 0:
+                logI = np.log(np.where(K_intan_full > 0, K_intan_full, 1e-6))
+                logL_full = np.log(c.emp * c.avh)
+                w_L = 1 - alpha - beta
+                raw_tfp = np.log(c.Y) - alpha * logK - beta * logI - w_L * logL_full
+            else:
+                logLH = np.log(L_full)
+                raw_tfp = np.log(c.Y) - alpha * logK - (1 - alpha) * logLH
+            train_dec_mask = (c.years >= 2005) & (c.years <= 2014)
+            if train_dec_mask.sum() == 0:
+                return None
+            tfp_proj = float(np.mean(raw_tfp[train_dec_mask]))
+            if beta > 0:
+                pred_logY = (alpha * logK + beta * logI +
+                             w_L * np.log(c.emp * c.avh) + tfp_proj)
+            else:
+                pred_logY = (alpha * logK + (1 - alpha) * np.log(L_full)
+                             + tfp_proj)
+            return pred_logY
+
+        out = {"country": c.country, "iso3": c.iso}
+        actual_logY = np.log(c.Y)
+        actual_growth = np.diff(actual_logY)
+
+        for name, K in K_full.items():
+            if K is None:
+                out[f"{name}_dir_acc"] = np.nan
+                out[f"{name}_cwon_rmse"] = np.nan
+                continue
+            pred_logY = forecast_level(K, beta_by[name])
+            if pred_logY is None:
+                out[f"{name}_dir_acc"] = np.nan
+                out[f"{name}_cwon_rmse"] = np.nan
+                continue
+
+            # Direction accuracy on test years
+            pred_growth = np.diff(pred_logY)
+            test_idx = np.where(mask_test)[0]
+            if len(test_idx) > 1:
+                # growth indices are offset by 1
+                growth_idx = [ti - 1 for ti in test_idx if ti > 0
+                              and ti - 1 < len(actual_growth)
+                              and ti - 1 < len(pred_growth)]
+                if growth_idx:
+                    signs_match = np.sign(actual_growth[growth_idx]) == \
+                        np.sign(pred_growth[growth_idx])
+                    out[f"{name}_dir_acc"] = float(np.mean(signs_match) * 100)
+                else:
+                    out[f"{name}_dir_acc"] = np.nan
+            else:
+                out[f"{name}_dir_acc"] = np.nan
+
+            # CWON trajectory RMSE: how well does model K track CWON PCA
+            # on overlapping test years (2015-2019)
+            K_total = K.copy()
+            if beta_by[name] > 0:
+                K_total = K + beta_by[name] * K_intan_full
+            # demeaned log comparison on CWON overlap
+            cwon_test_mask = (c.cwon_years >= 2015) & (c.cwon_years <= 2019)
+            cwon_test_years = c.cwon_years[cwon_test_mask]
+            cwon_test_vals = c.pca[cwon_test_mask]
+            if len(cwon_test_years) < 2:
+                out[f"{name}_cwon_rmse"] = np.nan
+                continue
+            pim_at_cwon = []
+            for cy in cwon_test_years:
+                j = idx_map.get(int(cy))
+                if j is not None and K_total[j] > 0:
+                    pim_at_cwon.append(np.log(K_total[j]))
+                else:
+                    pim_at_cwon.append(np.nan)
+            pim_at_cwon = np.array(pim_at_cwon)
+            log_cwon = np.log(np.where(cwon_test_vals > 0, cwon_test_vals,
+                                       np.nan))
+            valid = np.isfinite(pim_at_cwon) & np.isfinite(log_cwon)
+            if valid.sum() < 2:
+                out[f"{name}_cwon_rmse"] = np.nan
+                continue
+            # demean both
+            lp = pim_at_cwon[valid] - pim_at_cwon[valid].mean()
+            lc = log_cwon[valid] - log_cwon[valid].mean()
+            out[f"{name}_cwon_rmse"] = float(np.sqrt(np.mean((lp - lc) ** 2)))
+
+        rows.append(out)
+        print(f"  [ext_oos] {c.country:22s}  "
+              f"M0_dir={out['M0_dir_acc']:.0f}%  "
+              f"M4_dir={out['M4_dir_acc']:.0f}%  "
+              f"M0_cwon={out['M0_cwon_rmse']:.4f}  "
+              f"M4_cwon={out['M4_cwon_rmse']:.4f}",
+              flush=True)
+    return pd.DataFrame(rows)
+
+
+# ----- Analysis 10: cross-sectional regression of rho2 -----
+def run_rho2_regression(rpim: pd.DataFrame,
+                        countries: list[Country]) -> dict:
+    """Regress rho2 (under M0 and M4) on R&D intensity and other
+    asset-composition proxies across countries.
+
+    This addresses the reviewer criticism about lack of engagement with
+    asset-specific profiles by showing that rho2 variation is systematically
+    related to observable asset-composition differences.
+    """
+    # Build cross-section of country-level R&D intensity (mean over sample)
+    rnd_by_country = {}
+    for c in countries:
+        rnd_mean = float(np.nanmean(c.rnd_share))
+        if np.isfinite(rnd_mean):
+            rnd_by_country[c.country] = rnd_mean
+
+    merged = rpim.copy()
+    merged["rnd_intensity"] = merged["country"].map(rnd_by_country)
+    merged = merged.dropna(subset=["rnd_intensity", "M0_rho2", "M4_rho2"])
+
+    result: dict = {"n_countries": len(merged)}
+
+    for model in ("M0", "M4"):
+        y = merged[f"{model}_rho2"].values
+        x = merged["rnd_intensity"].values
+        if len(y) < 5:
+            continue
+        X = np.column_stack([np.ones_like(x), x])
+        params, _, _, _ = np.linalg.lstsq(X, y, rcond=None)
+        y_hat = X @ params
+        ss_res = float(np.sum((y - y_hat) ** 2))
+        ss_tot = float(np.sum((y - y.mean()) ** 2))
+        r2 = 1.0 - ss_res / ss_tot if ss_tot > 0 else np.nan
+        # t-statistic for slope
+        n = len(y)
+        se = np.sqrt(ss_res / (n - 2)) if n > 2 else np.nan
+        se_x = np.sqrt(np.sum((x - x.mean()) ** 2))
+        se_beta = se / se_x if se_x > 0 else np.nan
+        t_stat = params[1] / se_beta if np.isfinite(se_beta) and se_beta > 0 \
+            else np.nan
+        result[f"{model}_intercept"] = float(params[0])
+        result[f"{model}_slope"] = float(params[1])
+        result[f"{model}_R2"] = float(r2)
+        result[f"{model}_t_stat"] = float(t_stat)
+        result[f"{model}_n"] = n
+        print(f"  [rho2_reg] {model}: slope={params[1]:.4f} "
+              f"R2={r2:.3f} t={t_stat:.2f} n={n}", flush=True)
+
+    # Also store the data for plotting
+    result["countries"] = merged["country"].tolist()
+    result["iso3"] = merged["iso3"].tolist()
+    result["rnd_intensity"] = merged["rnd_intensity"].tolist()
+    result["M0_rho2"] = merged["M0_rho2"].tolist()
+    result["M4_rho2"] = merged["M4_rho2"].tolist()
+
+    return result
 
 
 # ----- Figures -----
@@ -917,6 +1153,32 @@ def main():
     with open(os.path.join(DATA, "delta_sensitivity_summary.json"), "w") as fh:
         json.dump(dsens_summary, fh, indent=2)
 
+    print("\n--- Analysis 8: conditional OOS ---", flush=True)
+    cond_oos = run_conditional_oos(oos, fair)
+    with open(os.path.join(DATA, "conditional_oos.json"), "w") as fh:
+        json.dump(cond_oos, fh, indent=2)
+
+    print("\n--- Analysis 9: extended OOS metrics ---", flush=True)
+    ext_oos = run_extended_oos(countries)
+    ext_oos.to_csv(os.path.join(DATA, "extended_oos.csv"), index=False)
+    ext_oos_summary = {}
+    for model in ("M0", "M1", "M2", "M3", "M4"):
+        dc = f"{model}_dir_acc"
+        cr = f"{model}_cwon_rmse"
+        if dc in ext_oos.columns:
+            ext_oos_summary[f"{model}_dir_acc_median"] = float(
+                ext_oos[dc].dropna().median())
+        if cr in ext_oos.columns:
+            ext_oos_summary[f"{model}_cwon_rmse_median"] = float(
+                ext_oos[cr].dropna().median())
+    with open(os.path.join(DATA, "extended_oos_summary.json"), "w") as fh:
+        json.dump(ext_oos_summary, fh, indent=2)
+
+    print("\n--- Analysis 10: rho2 cross-sectional regression ---", flush=True)
+    rho2_reg = run_rho2_regression(rpim, countries)
+    with open(os.path.join(DATA, "rho2_regression.json"), "w") as fh:
+        json.dump(rho2_reg, fh, indent=2)
+
     print("\n--- Figures ---", flush=True)
     make_figures(fair, oos, boot, gamma)
 
@@ -925,6 +1187,13 @@ def main():
     print("OOS medians:", json.dumps(oos_summary, indent=2))
     print("RPIM summary:", json.dumps(rpim_summary, indent=2))
     print("Delta-mu sensitivity:", json.dumps(dsens_summary, indent=2))
+    print("Conditional OOS:", json.dumps(
+        {k: v for k, v in cond_oos.items()
+         if not isinstance(v, list)}, indent=2))
+    print("Extended OOS:", json.dumps(ext_oos_summary, indent=2))
+    print("Rho2 regression:", json.dumps(
+        {k: v for k, v in rho2_reg.items()
+         if not isinstance(v, list)}, indent=2))
 
 
 if __name__ == "__main__":

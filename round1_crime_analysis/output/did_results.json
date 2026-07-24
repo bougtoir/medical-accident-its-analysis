@@ -1,0 +1,90 @@
+{
+  "Violent Crime": {
+    "coefficient": -16.681,
+    "std_error": 18.231,
+    "p_value": 0.3602,
+    "ci_95": [
+      -52.412,
+      19.051
+    ],
+    "significant": false,
+    "n_obs": 765
+  },
+  "Property Crime": {
+    "coefficient": -124.13,
+    "std_error": 71.542,
+    "p_value": 0.0827,
+    "ci_95": [
+      -264.35,
+      16.091
+    ],
+    "significant": false,
+    "n_obs": 765
+  },
+  "Murder": {
+    "coefficient": -0.344,
+    "std_error": 0.203,
+    "p_value": 0.0901,
+    "ci_95": [
+      -0.741,
+      0.054
+    ],
+    "significant": false,
+    "n_obs": 765
+  },
+  "Robbery": {
+    "coefficient": -4.719,
+    "std_error": 9.262,
+    "p_value": 0.6104,
+    "ci_95": [
+      -22.872,
+      13.434
+    ],
+    "significant": false,
+    "n_obs": 765
+  },
+  "Assault": {
+    "coefficient": -11.671,
+    "std_error": 10.803,
+    "p_value": 0.28,
+    "ci_95": [
+      -32.843,
+      9.502
+    ],
+    "significant": false,
+    "n_obs": 765
+  },
+  "Burglary": {
+    "coefficient": -35.696,
+    "std_error": 24.784,
+    "p_value": 0.1498,
+    "ci_95": [
+      -84.272,
+      12.881
+    ],
+    "significant": false,
+    "n_obs": 765
+  },
+  "Larceny": {
+    "coefficient": -67.203,
+    "std_error": 49.622,
+    "p_value": 0.1756,
+    "ci_95": [
+      -164.46,
+      30.054
+    ],
+    "significant": false,
+    "n_obs": 765
+  },
+  "Motor Vehicle Theft": {
+    "coefficient": -21.195,
+    "std_error": 22.361,
+    "p_value": 0.3432,
+    "ci_95": [
+      -65.023,
+      22.632
+    ],
+    "significant": false,
+    "n_obs": 765
+  }
+}

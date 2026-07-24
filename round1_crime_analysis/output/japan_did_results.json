@@ -1,0 +1,13 @@
+{
+  "Total Offenses": {
+    "coefficient": 14199.137,
+    "std_error": 7408.14,
+    "p_value": 0.0553,
+    "ci_95": [
+      -320.551,
+      28718.825
+    ],
+    "significant": false,
+    "n_obs": 1034
+  }
+}

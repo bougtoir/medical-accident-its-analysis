@@ -1,0 +1,3 @@
+# MediaPipe model (downloaded at runtime)
+*.task
+pose_alignment_tool/__pycache__/

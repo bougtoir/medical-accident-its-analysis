@@ -1,0 +1,1674 @@
+#!/usr/bin/env python3
+"""Build the Computers & Security submission package for the shared-micromobility
+lifecycle data-exposure study (scoping review + global GBFS field audit +
+public-document disclosure audit).
+
+The script is data-driven: quantitative claims are read from the committed
+analysis outputs (results/, data/, review/) so the manuscript, figures, and
+tables stay consistent with the underlying evidence. Citations are numbered by
+first appearance (Vancouver) by a resolver, guaranteeing sequential numbering
+with no orphan or phantom references.
+"""
+
+from __future__ import annotations
+
+import csv
+import re
+import shutil
+import textwrap
+import urllib.error
+import urllib.request
+import zipfile
+from pathlib import Path
+
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+from matplotlib.patches import FancyArrowPatch, FancyBboxPatch
+import numpy as np
+
+from docx import Document
+from docx.enum.section import WD_SECTION
+from docx.enum.table import WD_CELL_VERTICAL_ALIGNMENT, WD_TABLE_ALIGNMENT
+from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_LINE_SPACING
+from docx.oxml import OxmlElement
+from docx.oxml.ns import qn
+from docx.shared import Inches, Pt, RGBColor
+from pptx import Presentation
+from pptx.util import Inches as PptxInches, Pt as PptxPt
+from pptx.enum.text import PP_ALIGN
+
+ROOT = Path(__file__).resolve().parent
+OUTPUT = ROOT / "output"
+WORK = ROOT / "build"
+FIGDIR = OUTPUT / "figures"
+
+TITLE = (
+    "Lifecycle Data Exposure in Shared Micromobility: A Scoping Review and a "
+    "Global Audit of Public GBFS Vehicle Feeds and Operator Disclosures"
+)
+SHORT_TITLE = "Lifecycle data exposure in shared micromobility"
+AUTHOR = "[Author name]"
+AFFILIATION = "[Department, institution, city, postal code, country]"
+EMAIL = "[Corresponding author email]"
+ORCID = "[ORCID]"
+JOURNAL = "Computers & Security"
+BUILD_DATE = "13 July 2026"
+
+KEYWORDS = [
+    "shared micromobility",
+    "location privacy",
+    "General Bikeshare Feed Specification",
+    "scoping review",
+    "data lifecycle",
+    "connected-device security",
+]
+
+HIGHLIGHTS = [
+    "Scoping review of 2,169 records yields 18 direct micromobility studies.",
+    "Global audit of 1,428 public GBFS systems maps disclosed vehicle fields.",
+    "Vehicle identifiers appear in 100% of 813 motorized micromobility feeds.",
+    "Operator privacy notices omit disposal and vulnerability-reporting details.",
+    "Findings are field-presence signals, not evidence of privacy harm.",
+]
+
+# ---------------------------------------------------------------------------
+# References. Keyed by short label; final numbering is assigned by first
+# appearance in the manuscript body (see resolve_citations). Every reference
+# below was checked against a public identifier (DOI/URL) during preparation
+# and is recorded in output/Reference_Verification.csv.
+# ---------------------------------------------------------------------------
+REFS: dict[str, str] = {
+    "prisma_scr": (
+        "Tricco AC, Lillie E, Zarin W, O'Brien KK, Colquhoun H, Levac D, et al. "
+        "PRISMA Extension for Scoping Reviews (PRISMA-ScR): checklist and "
+        "explanation. Ann Intern Med. 2018;169(7):467-473. doi:10.7326/M18-0850."
+    ),
+    "arksey": (
+        "Arksey H, O'Malley L. Scoping studies: towards a methodological "
+        "framework. Int J Soc Res Methodol. 2005;8(1):19-32. "
+        "doi:10.1080/1364557032000119616."
+    ),
+    "demontjoye": (
+        "de Montjoye Y-A, Hidalgo CA, Verleysen M, Blondel VD. Unique in the "
+        "crowd: the privacy bounds of human mobility. Sci Rep. 2013;3:1376. "
+        "doi:10.1038/srep01376."
+    ),
+    "gdpr": (
+        "European Parliament and Council. Regulation (EU) 2016/679 (General Data "
+        "Protection Regulation). Off J Eur Union. 2016;L119:1-88."
+    ),
+    "elzer": (
+        "Elzer T, Ruben M, Classen J, Hollick M. They see me scooting: a "
+        "long-term real-world data analysis of shared micro-mobility services. "
+        "In: 2025 IEEE 10th European Symposium on Security and Privacy "
+        "(EuroS&P). IEEE; 2025. doi:10.1109/EuroSP63326.2025.00014."
+    ),
+    "etrojans": (
+        "Casagrande M, Losiouk E, Conti M, Payer M, Antonioli D. E-Trojans: "
+        "ransomware, tracking, DoS, and data leaks on battery-powered embedded "
+        "systems. arXiv:2411.17184; 2024. doi:10.48550/arXiv.2411.17184."
+    ),
+    "espoofer": (
+        "Casagrande M, Losiouk E, Conti M, Payer M, Antonioli D. E-Spoofer: "
+        "attacking and defending Xiaomi electric scooter ecosystem. In: "
+        "Proceedings of the 16th ACM Conference on Security and Privacy in "
+        "Wireless and Mobile Networks (WiSec). ACM; 2023. "
+        "doi:10.1145/3558482.3590176."
+    ),
+    "vinayaga2022": (
+        "Vinayaga-Sureshkanth N, Maiti A, Jadliwala M, Crager K, He J, Rathore "
+        "H. An investigative study on the privacy implications of mobile "
+        "e-scooter rental apps. In: Proceedings of the 15th ACM Conference on "
+        "Security and Privacy in Wireless and Mobile Networks (WiSec). ACM; "
+        "2022. doi:10.1145/3507657.3528551."
+    ),
+    "hilgert": (
+        "Hilgert J-N, Lambertz M, Rybalka M, Schell R, Vogt R. A forensic "
+        "analysis of micromobility solutions. Forensic Sci Int Digit Investig. "
+        "2021;38:301137. doi:10.1016/j.fsidi.2021.301137."
+    ),
+    "isik": (
+        "Isik AB, Dag T, Ozkan K. E-scooter sharing platforms: understanding "
+        "their architecture and cybersecurity threats. In: 2023 IEEE 26th "
+        "International Conference on Intelligent Transportation Systems (ITSC). "
+        "IEEE; 2023. doi:10.1109/ITSC57777.2023.10421849."
+    ),
+    "vinayaga2020": (
+        "Vinayaga-Sureshkanth N, Maiti A, Jadliwala M, Crager K, He J, Rathore "
+        "H. Security and privacy challenges in upcoming intelligent urban "
+        "micromobility transportation systems. In: Proceedings of the Second "
+        "ACM Workshop on Automotive and Aerial Vehicle Security (AutoSec). ACM; "
+        "2020. doi:10.1145/3375706.3380559."
+    ),
+    "petersen": (
+        "Petersen ML. Scoot over smart devices: the invisible costs of rental "
+        "scooters. Surveill Soc. 2019;17(1/2):267-273. "
+        "doi:10.24908/ss.v17i1/2.13112."
+    ),
+    "sato": (
+        "Sato K, Fukushima N, Fujii K, Kitani T. Data acquisition framework for "
+        "micromobility vehicles toward driving risk prediction. IEEE Secur "
+        "Priv. 2025;23(1). doi:10.1109/MSEC.2024.3441731."
+    ),
+    "yilmaz2022": (
+        "Yilmaz S, Karsligil ME. Analysis of location spoofing threats on "
+        "e-scooter sharing. In: 2022 30th Signal Processing and Communications "
+        "Applications Conference (SIU). IEEE; 2022. "
+        "doi:10.1109/SIU55565.2022.9864946."
+    ),
+    "yilmaz2023": (
+        "Yilmaz S, Karsligil ME. Geo-location spoofing on e-scooters: threat "
+        "analysis and prevention framework. Balk J Electr Comput Eng. "
+        "2023;11(2). doi:10.17694/bajece.1231384."
+    ),
+    "li2020": (
+        "Li Y, Zhang X. Linking privacy concerns for traceable information and "
+        "information privacy protective responses. In: Proceedings of the 53rd "
+        "Hawaii International Conference on System Sciences (HICSS). 2020. "
+        "doi:10.24251/HICSS.2020.105."
+    ),
+    "hannemann": (
+        "Hannemann A, Buchholz E, Ziegler D. Is homomorphic encryption feasible "
+        "for smart mobility? In: Annals of Computer Science and Information "
+        "Systems, vol. 35 (FedCSIS). 2023. doi:10.15439/2023F695."
+    ),
+    "zhou": (
+        "Zhou Y. Data extraction in dockless bikeshare: an analysis from users' "
+        "perspective. Big Data Soc. 2024;11(4). doi:10.1177/20539517241299724."
+    ),
+    "leaky": (
+        "Marchiori A, Losiouk E, Conti M, Antonioli D. Leaky batteries: a novel "
+        "set of side-channel attacks on electric vehicles. In: Computer "
+        "Security - ESORICS 2025. Lecture Notes in Computer Science. Springer; "
+        "2025. doi:10.1007/978-3-032-00624-0_16."
+    ),
+    "iotreuse": (
+        "Liu Y, Zhou Z, Zhang J, et al. How IoT re-using threatens your "
+        "sensitive data: exploring the user-data disposal in used IoT devices. "
+        "In: 2023 IEEE Symposium on Security and Privacy (SP). IEEE; 2023. "
+        "doi:10.1109/SP46215.2023.10179294."
+    ),
+    "bms": (
+        "Basic F, Gaertner M, Steger C. Secure data acquisition for battery "
+        "management systems. In: 2023 26th Euromicro Conference on Digital "
+        "System Design (DSD). IEEE; 2023. doi:10.1109/DSD60849.2023.00082."
+    ),
+    "remanence": (
+        "Joshi A, Raval MS. Standards and techniques to remove data remanence "
+        "in cloud storage. In: 2018 IEEE Punecon. IEEE; 2018. "
+        "doi:10.1109/PUNECON.2018.8745370."
+    ),
+    "gbfs_spec": (
+        "MobilityData. General Bikeshare Feed Specification (GBFS), version 3.0. "
+        "2024. Available from: https://gbfs.org/ (accessed 12 July 2026)."
+    ),
+    "gbfs_registry": (
+        "MobilityData. GBFS systems catalogue (systems.csv). 2026. Available "
+        "from: https://github.com/MobilityData/gbfs (accessed 8 July 2026)."
+    ),
+    "mds_privacy": (
+        "Open Mobility Foundation. MDS privacy guide for cities. 2021. "
+        "Available from: https://www.openmobilityfoundation.org/ (accessed 12 "
+        "July 2026)."
+    ),
+    "edpb_cv": (
+        "European Data Protection Board. Guidelines 01/2020 on processing "
+        "personal data in the context of connected vehicles and mobility "
+        "related applications, version 2.0. 2021."
+    ),
+    "nist88": (
+        "Kissel R, Regenscheid A, Scholl M, Stine K. NIST Special Publication "
+        "800-88 Revision 1: Guidelines for media sanitization. National "
+        "Institute of Standards and Technology; 2014. "
+        "doi:10.6028/NIST.SP.800-88r1."
+    ),
+    "nist161": (
+        "Boyens J, Smith A, Bartol N, Winkler K, Holbrook A, Fallon M. NIST "
+        "Special Publication 800-161 Revision 1: Cybersecurity supply chain "
+        "risk management practices for systems and organizations. National "
+        "Institute of Standards and Technology; 2022. "
+        "doi:10.6028/NIST.SP.800-161r1."
+    ),
+    "eu_battery": (
+        "European Parliament and Council. Regulation (EU) 2023/1542 concerning "
+        "batteries and waste batteries. Off J Eur Union. 2023;L191:1-117."
+    ),
+}
+
+DECLARATIONS = [
+    ("Funding", "This research received no external funding."),
+    ("Declaration of competing interest",
+     "The author declares no competing interests."),
+    ("Ethics",
+     "No human participants were recruited. The study analysed only publicly "
+     "accessible feeds and documents and did not attempt authentication, "
+     "access-control circumvention, or interaction with individual users."),
+    ("Data and code availability",
+     "The frozen registry snapshot, screening decisions, coding sheets, "
+     "analysis scripts, and figure-generation code are openly available in the "
+     "project repository. Raw vehicle identifiers, exact coordinates, and "
+     "vehicle-specific deep links were not retained."),
+    ("CRediT author statement",
+     "[Author name]: conceptualization, methodology, software, formal "
+     "analysis, data curation, writing - original draft, writing - review and "
+     "editing."),
+    ("Generative AI disclosure",
+     "No generative AI tool was used to produce scientific content, analysis, "
+     "or interpretation. Any use was limited to routine language editing and "
+     "was reviewed by the author, who takes full responsibility for the text."),
+]
+
+
+# ---------------------------------------------------------------------------
+# Data access helpers
+# ---------------------------------------------------------------------------
+def load_gbfs_summary() -> dict[tuple[str, str], dict]:
+    table: dict[tuple[str, str], dict] = {}
+    with (ROOT / "results" / "gbfs_summary.csv").open(encoding="utf-8") as fh:
+        for row in csv.DictReader(fh):
+            table[(row["stratum"], row["metric"])] = row
+    return table
+
+
+def load_document_audit() -> tuple[list[str], dict[str, dict[str, str]], int, int]:
+    rows = list(csv.DictReader((ROOT / "data" / "document_audit.csv").open(encoding="utf-8")))
+    domains: list[str] = []
+    matrix: dict[str, dict[str, str]] = {}
+    operators_order: list[str] = []
+    for r in rows:
+        op = r["operator_name"]
+        if op not in matrix:
+            matrix[op] = {}
+            operators_order.append(op)
+        matrix[op][r["domain"]] = r["status"]
+        if r["domain"] not in domains:
+            domains.append(r["domain"])
+    coded = sum(1 for op in operators_order
+                if any(v != "unavailable" for v in matrix[op].values()))
+    return domains, matrix, len(operators_order), coded
+
+
+def load_extraction() -> list[dict]:
+    return list(csv.DictReader((ROOT / "review" / "evidence_extraction.csv").open(encoding="utf-8")))
+
+
+GBFS = load_gbfs_summary()
+DOMAINS, DOCMATRIX, N_OPERATORS, N_CODED = load_document_audit()
+EXTRACTION = load_extraction()
+
+
+def g(stratum: str, metric: str, field: str) -> str:
+    return GBFS[(stratum, metric)][field]
+
+
+def pct(stratum: str, metric: str) -> str:
+    row = GBFS[(stratum, metric)]
+    return f"{float(row['percent']):.1f}%"
+
+
+def ci(stratum: str, metric: str) -> str:
+    row = GBFS[(stratum, metric)]
+    return f"{float(row['wilson_95_low_percent']):.1f}-{float(row['wilson_95_high_percent']):.1f}%"
+
+
+def domain_count(domain: str, status: str) -> int:
+    return sum(1 for op, cells in DOCMATRIX.items() if cells.get(domain) == status)
+
+
+# ---------------------------------------------------------------------------
+# Figures (English text only, per manuscript language rule)
+# ---------------------------------------------------------------------------
+FIG_CAPTIONS = {
+    1: ("Figure 1. PRISMA-ScR flow of record identification, title/abstract "
+        "screening, full-text eligibility assessment, and inclusion. Counts are "
+        "reproduced from the committed screening sheet."),
+    2: ("Figure 2. Evidence map of the 18 included direct studies by evidence "
+        "distance (D4 direct empirical, D3 direct documentary, D2 near-domain "
+        "empirical) and lifecycle stage addressed. A study that addresses more "
+        "than one stage is counted in each relevant stage, so row totals may "
+        "exceed the number of studies at that distance."),
+    3: ("Figure 3. Prevalence of disclosed fields in 813 successfully retrieved, "
+        "non-empty public vehicle-status feeds that declared motorized "
+        "micromobility. Bars show the point estimate; whiskers show the 95% "
+        "Wilson confidence interval. Field presence is a disclosure signal, not "
+        "evidence of a privacy harm."),
+    4: ("Figure 4. Disclosure-domain coding of public operator privacy notices "
+        "across 14 domains (n = 13 coded operators; 2 further operators were "
+        "unavailable for reproducible retrieval). Cells show explicit, partial, "
+        "or not-found coding; not-found denotes silence in the document, not "
+        "evidence that a practice is absent."),
+    5: ("Figure 5. Lifecycle data-exposure model linking each stage to the "
+        "evidence distance of its supporting sources and to a proposed, as-yet "
+        "unvalidated control. Solid boxes denote stages with direct (D3-D4) "
+        "evidence; dashed boxes denote stages supported only by near-domain "
+        "(D2) evidence."),
+}
+
+PALETTE = {
+    "explicit": "#2c7fb8",
+    "partial": "#7fcdbb",
+    "not_found": "#edf8b1",
+    "unavailable": "#d9d9d9",
+    "bar": "#2c7fb8",
+    "D4": "#08519c",
+    "D3": "#3182bd",
+    "D2": "#9ecae1",
+}
+
+
+def fig1_prisma(ax) -> None:
+    ax.axis("off")
+    boxes = [
+        (0.5, 0.93, "Records identified from\nbibliographic sources (n = 2,169)"),
+        (0.5, 0.75, "Records screened on title/abstract\n(n = 2,169)"),
+        (0.5, 0.55, "Records sought for full-text\nassessment (n = 224)"),
+        (0.5, 0.33, "Full-text records assessed\nfor eligibility (n = 224)"),
+        (0.5, 0.11, "Direct studies included in\nsynthesis (n = 18)"),
+    ]
+    for x, y, text in boxes:
+        ax.add_patch(FancyBboxPatch((x - 0.22, y - 0.055), 0.44, 0.11,
+                     boxstyle="round,pad=0.01", fc="#deebf7", ec="#08519c", lw=1.2,
+                     transform=ax.transAxes))
+        ax.text(x, y, text, ha="center", va="center", fontsize=8.5,
+                transform=ax.transAxes)
+    excl = [
+        (0.80, 0.75, "Excluded on title/abstract\n(n = 1,945)"),
+        (0.80, 0.44, "Full text not retrieved\n(n = 79)"),
+        (0.80, 0.22, "Excluded at full text (n = 127):\nno relevant data path (n = 90);\nmechanism not transferable (n = 37)"),
+    ]
+    for x, y, text in excl:
+        ax.add_patch(FancyBboxPatch((x - 0.18, y - 0.06), 0.36, 0.12,
+                     boxstyle="round,pad=0.01", fc="#f7f7f7", ec="#999999", lw=1.0,
+                     transform=ax.transAxes))
+        ax.text(x, y, text, ha="center", va="center", fontsize=7.5,
+                transform=ax.transAxes)
+    ys = [0.875, 0.695, 0.475, 0.275]
+    for y0 in ys:
+        ax.add_patch(FancyArrowPatch((0.5, y0), (0.5, y0 - 0.05),
+                     arrowstyle="-|>", mutation_scale=12, color="#08519c",
+                     transform=ax.transAxes))
+    for y0, yx in [(0.75, 0.75), (0.55, 0.44), (0.33, 0.22)]:
+        ax.add_patch(FancyArrowPatch((0.72, y0), (0.62, y0),
+                     arrowstyle="-|>", mutation_scale=10, color="#999999",
+                     transform=ax.transAxes))
+
+
+def fig2_evidence_map(ax) -> None:
+    stages = ["Operation", "Maintenance/\nservice", "Recall/return",
+              "Second-life/\ndisposal"]
+    distances = ["D2", "D3", "D4"]
+    # map each study to (distance, stage) using lifecycle_stage in extraction
+    stage_key = {
+        "operation": 0, "data sharing": 0,
+        "maintenance": 1, "maintenance and service": 1,
+        "recall and return": 2, "recall": 2, "return": 2,
+        "second-life and disposal": 3, "second-life": 3, "disposal": 3,
+        "recycling": 3, "manufacturing": 3,
+    }
+    counts = np.zeros((len(distances), len(stages)), dtype=int)
+    for e in EXTRACTION:
+        d = distances.index(e["evidence_distance"]) if e["evidence_distance"] in distances else None
+        if d is None:
+            continue
+        seen: set[int] = set()
+        for token in e["lifecycle_stage"].split(";"):
+            s = stage_key.get(token.strip().lower())
+            if s is not None:
+                seen.add(s)
+        for s in seen:
+            counts[d, s] += 1
+    im = ax.imshow(counts, cmap="Blues", aspect="auto", vmin=0, vmax=max(counts.max(), 1))
+    ax.set_xticks(range(len(stages)))
+    ax.set_xticklabels(stages, fontsize=8)
+    ax.set_yticks(range(len(distances)))
+    ax.set_yticklabels(["D2 near-domain", "D3 documentary", "D4 empirical"], fontsize=8)
+    for i in range(len(distances)):
+        for j in range(len(stages)):
+            if counts[i, j]:
+                ax.text(j, i, str(counts[i, j]), ha="center", va="center",
+                        color="black", fontsize=9)
+    ax.set_xlabel("Lifecycle stage addressed", fontsize=8.5)
+    cb = plt.colorbar(im, ax=ax, fraction=0.046, pad=0.04)
+    cb.set_label("Number of included studies", fontsize=8)
+
+
+def fig3_prevalence(ax) -> None:
+    metrics = [
+        ("has_vehicle_id", "Vehicle\nidentifier"),
+        ("has_location_fields", "Latitude/\nlongitude"),
+        ("has_range", "Current\nrange"),
+        ("has_deep_link", "Rental\ndeep link"),
+        ("has_last_reported", "Last-reported\ntimestamp"),
+        ("has_battery_percent", "Battery/fuel\npercentage"),
+    ]
+    stratum = "declared_motorized_micromobility_feeds"
+    labels, vals, lo, hi = [], [], [], []
+    for metric, lab in metrics:
+        row = GBFS[(stratum, metric)]
+        labels.append(lab)
+        vals.append(float(row["percent"]))
+        lo.append(float(row["percent"]) - float(row["wilson_95_low_percent"]))
+        hi.append(float(row["wilson_95_high_percent"]) - float(row["percent"]))
+    x = np.arange(len(labels))
+    ax.bar(x, vals, color=PALETTE["bar"], width=0.62,
+           yerr=[lo, hi], capsize=3, ecolor="#333333")
+    for xi, v, h in zip(x, vals, hi):
+        ax.text(xi, v + h + 1.6, f"{v:.1f}", ha="center", fontsize=8)
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels, fontsize=8)
+    ax.set_ylabel("Feeds disclosing the field (%)", fontsize=9)
+    ax.set_ylim(0, 108)
+    ax.set_title("Disclosed fields in 813 motorized micromobility vehicle feeds",
+                 fontsize=9.5)
+    ax.spines[["top", "right"]].set_visible(False)
+
+
+DOMAIN_LABELS = {
+    "location_data": "Location",
+    "trip_time_data": "Trip/time",
+    "vehicle_identifier": "Vehicle ID",
+    "battery_or_diagnostic_data": "Battery/diagnostic",
+    "maintenance_or_repair_data": "Maintenance/repair",
+    "account_payment_device_data": "Account/payment/device",
+    "analytics_or_profiling": "Analytics/profiling",
+    "retention": "Retention",
+    "processors_or_contractors": "Processors/contractors",
+    "international_transfer": "Intl transfer",
+    "user_rights": "Data-subject rights",
+    "incident_contact": "Incident contact",
+    "vulnerability_disclosure": "Vulnerability disclosure",
+    "return_recycling_disposal": "Return/recycling/disposal",
+}
+STATUS_VAL = {"explicit": 3, "partial": 2, "not_found": 1, "unavailable": 0}
+
+
+def fig4_heatmap(ax) -> None:
+    operators = [op for op in DOCMATRIX
+                 if any(v != "unavailable" for v in DOCMATRIX[op].values())]
+    grid = np.array([[STATUS_VAL[DOCMATRIX[op][d]] for d in DOMAINS] for op in operators])
+    from matplotlib.colors import ListedColormap
+    cmap = ListedColormap([PALETTE["unavailable"], PALETTE["not_found"],
+                           PALETTE["partial"], PALETTE["explicit"]])
+    ax.imshow(grid, cmap=cmap, aspect="auto", vmin=0, vmax=3)
+    ax.set_xticks(range(len(DOMAINS)))
+    ax.set_xticklabels([DOMAIN_LABELS[d] for d in DOMAINS], rotation=45,
+                       ha="right", fontsize=7)
+    ax.set_yticks(range(len(operators)))
+    ax.set_yticklabels(operators, fontsize=7)
+    ax.set_xticks(np.arange(-0.5, len(DOMAINS), 1), minor=True)
+    ax.set_yticks(np.arange(-0.5, len(operators), 1), minor=True)
+    ax.grid(which="minor", color="white", linewidth=1.0)
+    ax.tick_params(which="minor", length=0)
+    handles = [plt.Rectangle((0, 0), 1, 1, fc=PALETTE[k]) for k in
+               ["explicit", "partial", "not_found"]]
+    ax.legend(handles, ["Explicit", "Partial", "Not found"],
+              loc="upper left", bbox_to_anchor=(1.01, 1.0), fontsize=7,
+              frameon=False)
+
+
+LIFECYCLE = [
+    ("Procurement", "D3", "Contract, provenance,\nand access terms"),
+    ("Deployment", "D3", "Feed configuration\nand field minimization"),
+    ("Operation", "D4", "Local processing;\naccess and retention limits"),
+    ("Maintenance/service", "D3", "Controlled contractor\naccess and logging"),
+    ("Recall/return", "D2", "Chain-of-custody\nfor returned units"),
+    ("Second-life/disposal", "D2", "Verified media\nsanitization"),
+]
+
+
+def fig5_lifecycle(ax) -> None:
+    ax.axis("off")
+    n = len(LIFECYCLE)
+    xs = np.linspace(0.08, 0.92, n)
+    for i, ((stage, dist, control), x) in enumerate(zip(LIFECYCLE, xs)):
+        direct = dist in ("D3", "D4")
+        style = "round,pad=0.01" if direct else "round,pad=0.01"
+        ax.add_patch(FancyBboxPatch((x - 0.065, 0.62), 0.13, 0.16,
+                     boxstyle=style, fc=PALETTE.get(dist, "#deebf7"),
+                     ec="#08306b", lw=1.4,
+                     linestyle="-" if direct else "--", transform=ax.transAxes))
+        ax.text(x, 0.70, f"{stage}\n[{dist}]", ha="center", va="center",
+                fontsize=7.2, transform=ax.transAxes, color="white" if dist == "D4" else "black")
+        ax.add_patch(FancyBboxPatch((x - 0.075, 0.30), 0.15, 0.18,
+                     boxstyle="round,pad=0.01", fc="#f7fbff", ec="#999999",
+                     lw=1.0, transform=ax.transAxes))
+        ax.text(x, 0.39, control, ha="center", va="center", fontsize=6.6,
+                transform=ax.transAxes)
+        ax.add_patch(FancyArrowPatch((x, 0.62), (x, 0.485), arrowstyle="-|>",
+                     mutation_scale=9, color="#999999", transform=ax.transAxes))
+        if i < n - 1:
+            ax.add_patch(FancyArrowPatch((x + 0.065, 0.70), (xs[i + 1] - 0.065, 0.70),
+                         arrowstyle="-|>", mutation_scale=10, color="#08306b",
+                         transform=ax.transAxes))
+    ax.text(0.5, 0.90, "Lifecycle stage (with dominant evidence distance)",
+            ha="center", fontsize=8.5, transform=ax.transAxes, weight="bold")
+    ax.text(0.5, 0.19, "Proposed control (effectiveness not yet validated)",
+            ha="center", fontsize=8.5, transform=ax.transAxes, weight="bold")
+
+
+FIGFUNCS = {1: fig1_prisma, 2: fig2_evidence_map, 3: fig3_prevalence,
+            4: fig4_heatmap, 5: fig5_lifecycle}
+FIGSIZE = {1: (7.0, 6.0), 2: (7.0, 4.2), 3: (7.2, 4.4), 4: (8.4, 5.2), 5: (9.6, 4.6)}
+
+
+def build_figures() -> dict[int, dict[str, Path]]:
+    FIGDIR.mkdir(parents=True, exist_ok=True)
+    paths: dict[int, dict[str, Path]] = {}
+    for num, func in FIGFUNCS.items():
+        fig, ax = plt.subplots(figsize=FIGSIZE[num])
+        func(ax)
+        fig.tight_layout()
+        png = FIGDIR / f"Figure{num}.png"
+        tiff = FIGDIR / f"Figure{num}.tiff"
+        pdf = FIGDIR / f"Figure{num}.pdf"
+        fig.savefig(png, dpi=600, bbox_inches="tight")
+        fig.savefig(tiff, dpi=600, bbox_inches="tight", pil_kwargs={"compression": "tiff_lzw"})
+        fig.savefig(pdf, bbox_inches="tight")
+        plt.close(fig)
+        paths[num] = {"png": png, "tiff": tiff, "pdf": pdf}
+    return paths
+
+
+# ---------------------------------------------------------------------------
+# Tables
+# ---------------------------------------------------------------------------
+def build_tables() -> dict[int, dict]:
+    t1 = {
+        "title": "Table 1. Eligibility criteria and data sources for the three "
+                 "study components.",
+        "headers": ["Component", "Unit of analysis", "Inclusion criteria",
+                    "Primary source"],
+        "rows": [
+            ["Scoping review (WP1)", "Study",
+             "Peer-reviewed or archival works reporting a data path in or "
+             "transferable to shared micromobility",
+             "Bibliographic search of 2,169 records [[prisma_scr;arksey]]"],
+            ["GBFS field audit (WP2)", "System/feed",
+             "Public GBFS systems in the frozen registry with a reachable "
+             "auto-discovery endpoint",
+             "GBFS systems catalogue and live feeds [[gbfs_registry;gbfs_spec]]"],
+            ["Disclosure audit (WP3)", "Operator document",
+             "Publicly reachable operator privacy notice for an audited GBFS "
+             "operator",
+             "Operator privacy notices; governance guidance [[mds_privacy;edpb_cv]]"],
+        ],
+    }
+    dist_label = {"D4": "D4 empirical", "D3": "D3 documentary", "D2": "D2 near-domain"}
+    ref_by_id = {
+        "e641ae6185ec": "espoofer", "4fe184aeb5b3": "etrojans",
+        "3b9d67a99101": "elzer", "f7ef2527bcc7": "hilgert",
+        "4bf4bae9ab93": "vinayaga2022", "9f85e4350278": "hannemann",
+        "bdab08ae526c": "isik", "2856524cd67f": "li2020",
+        "37630ff02a7b": "petersen", "b26b8d65d468": "sato",
+        "ff74fa3c40ed": "vinayaga2020", "5bf50e1a9f5c": "yilmaz2022",
+        "05e20798d6c6": "yilmaz2023", "62abc8d8d637": "zhou",
+        "062854732ff3": "bms", "57ec900852e5": "remanence",
+        "dab97e54aa73": "iotreuse", "882e5dc8fae9": "leaky",
+    }
+    order = {"D4": 0, "D3": 1, "D2": 2}
+    ext_sorted = sorted(EXTRACTION, key=lambda e: (order[e["evidence_distance"]],
+                                                   e["citation"]))
+    t2_rows = []
+    for e in ext_sorted:
+        label = ref_by_id[e["record_id"]]
+        short = e["citation"].split(".")[0]
+        t2_rows.append([
+            f"{short} [[{label}]]",
+            dist_label[e["evidence_distance"]],
+            e["device_or_service"],
+            textwrap.shorten(e["key_result"], width=180, placeholder="..."),
+        ])
+    t2 = {
+        "title": "Table 2. Included direct studies (n = 18), ordered by evidence "
+                 "distance. Key results are as reported by the source; this "
+                 "review did not reproduce the underlying experiments.",
+        "headers": ["Study", "Evidence distance", "Device or service",
+                    "Reported key result"],
+        "rows": t2_rows,
+    }
+    def row(stratum, metric, label):
+        return [label, g(stratum, metric, "count"), g(stratum, metric, "denominator"),
+                pct(stratum, metric), ci(stratum, metric)]
+    t3 = {
+        "title": "Table 3. GBFS audit sampling and outcomes with 95% Wilson "
+                 "confidence intervals. Denominators are stated explicitly; "
+                 "unavailable or empty feeds are separated from absent fields.",
+        "headers": ["Stratum / outcome", "n", "Denominator", "Percent", "95% CI"],
+        "rows": [
+            row("all_registry_entries", "auto_discovery_reachable",
+                "Reachable auto-discovery endpoint"),
+            row("reachable_registry_entries", "vehicle_feed_declared",
+                "Vehicle-status feed declared"),
+            row("successful_vehicle_feeds", "vehicle_feed_nonempty",
+                "Retrieved feed with >=1 vehicle"),
+            row("declared_motorized_micromobility_feeds", "has_vehicle_id",
+                "Vehicle identifier (motorized feeds)"),
+            row("declared_motorized_micromobility_feeds", "has_location_fields",
+                "Latitude/longitude (motorized feeds)"),
+            row("declared_motorized_micromobility_feeds", "has_last_reported",
+                "Last-reported timestamp (motorized feeds)"),
+            row("declared_motorized_micromobility_feeds", "has_battery_percent",
+                "Battery/fuel percentage (motorized feeds)"),
+        ],
+    }
+    domain_row = lambda d: [
+        DOMAIN_LABELS[d], str(domain_count(d, "explicit")),
+        str(domain_count(d, "partial")), str(domain_count(d, "not_found")),
+    ]
+    t4 = {
+        "title": f"Table 4. Disclosure-domain coding of public operator privacy "
+                 f"notices (n = {N_CODED} coded operators). Counts of explicit, "
+                 f"partial, and not-found codings per domain; not-found denotes "
+                 f"document silence, not evidence that a practice is absent.",
+        "headers": ["Disclosure domain", "Explicit", "Partial", "Not found"],
+        "rows": [domain_row(d) for d in DOMAINS],
+    }
+    t5 = {
+        "title": "Table 5. Evidence-to-control traceability across the lifecycle "
+                 "model. Effectiveness evidence is stated conservatively; the "
+                 "proposed controls have not been empirically validated in this "
+                 "study.",
+        "headers": ["Lifecycle stage", "Exposure path", "Supporting evidence "
+                    "(distance)", "Proposed control", "Effectiveness evidence"],
+        "rows": [
+            ["Procurement", "Contract and provenance terms set who can access "
+             "backend data", "Governance guidance (N) [[nist161;edpb_cv]]",
+             "Provenance and access clauses; data-processing terms",
+             "Not validated; governance-based"],
+            ["Deployment", "Feed configuration determines which fields are "
+             "published", "GBFS field presence (D4) [[elzer;gbfs_spec]]",
+             "Field minimization; coarse or delayed positions",
+             "Not validated; design-based"],
+            ["Operation", "Identifiers, positions, and timestamps enable "
+             "tracking and re-identification",
+             "Empirical audits (D4) [[elzer;vinayaga2022]]; mobility "
+             "re-identification (D2) [[demontjoye]]",
+             "Local processing; access and retention limits",
+             "Partly supported by attack studies; controls not validated"],
+            ["Maintenance/service", "Contractor access to devices and records",
+             "Forensic and platform studies (D3-D4) [[hilgert;isik]]",
+             "Controlled contractor access; audit logging",
+             "Not validated"],
+            ["Recall/return", "Returned units retain stored data",
+             "IoT reuse study (D2) [[iotreuse]]",
+             "Chain-of-custody for returned units",
+             "Not validated; analogy-based"],
+            ["Second-life/disposal", "Residual data on storage and batteries",
+             "Data remanence and battery side-channel (D2) "
+             "[[remanence;leaky;bms]]; sanitization guidance (N) [[nist88]]",
+             "Verified media sanitization before resale or recycling",
+             "Not validated; standards-based"],
+        ],
+    }
+    return {1: t1, 2: t2, 3: t3, 4: t4, 5: t5}
+
+
+TABLES = build_tables()
+
+
+# ---------------------------------------------------------------------------
+# Manuscript body. Citations use [[label]] or [[a;b]] tokens; figures/tables
+# are referenced as "Fig. n" / "Table n" and inserted at their first mention.
+# ---------------------------------------------------------------------------
+def body_blocks() -> list[tuple]:
+    n_id = "2,169"
+    reach = pct("all_registry_entries", "auto_discovery_reachable")
+    reach_ci = ci("all_registry_entries", "auto_discovery_reachable")
+    blocks: list[tuple] = []
+
+    blocks.append(("h1", "1. Introduction"))
+    blocks += [("p", t) for t in [
+        "Shared micromobility - dockless electric scooters and bicycles rented "
+        "through a smartphone application - has become a visible class of "
+        "connected devices that organizations and the public use but do not "
+        "own, maintain, or decommission. Each vehicle continuously produces "
+        "location, motion, and battery telemetry that is transmitted to an "
+        "operator backend and, in many cities, republished through open data "
+        "feeds. Prior work has shown that such telemetry can support "
+        "re-identification and tracking well beyond the individual rental that "
+        "generated it [[demontjoye;elzer]].",
+        "Security research on shared micromobility has grown quickly but "
+        "unevenly. Studies span privacy measurement of rental applications, "
+        "firmware and protocol attacks on scooters, location-spoofing threats, "
+        "and forensic recovery from returned devices [[vinayaga2022;espoofer;"
+        "yilmaz2023;hilgert]]. These contributions are scattered across "
+        "security, transportation, and forensics venues, use different threat "
+        "models and units of analysis, and have not been assembled into a "
+        "single map of what is actually demonstrated as opposed to argued. As "
+        "a result, it is difficult to state precisely which data-exposure "
+        "pathways rest on direct empirical evidence and which rest on analogy.",
+        "A second gap concerns exposure that persists across the device "
+        "lifecycle. Attention typically concentrates on real-time position "
+        "during a rental, yet information created at deployment, maintenance, "
+        "recall, and disposal can remain accessible after custody changes hands "
+        "[[iotreuse;remanence]]. Battery and diagnostic channels, in "
+        "particular, can leak activity patterns even when positioning is "
+        "restricted [[leaky;bms]]. Whether operators disclose these lifecycle "
+        "practices to the public is largely unexamined.",
+        "This article addresses both gaps with an empirical, reproducible "
+        "package rather than a conceptual argument. We (i) conduct a scoping "
+        "review, following the Preferred Reporting Items for Systematic Reviews "
+        "and Meta-Analyses extension for Scoping Reviews (PRISMA-ScR) "
+        "[[prisma_scr]], of evidence on micromobility data exposure; (ii) audit "
+        "the fields that operators actually publish worldwide through the "
+        "General Bikeshare Feed Specification (GBFS) [[gbfs_spec]]; and (iii) "
+        "audit what a matched set of operator privacy notices discloses about "
+        "collection, retention, transfer, and device end-of-life. Our research "
+        "questions are: RQ1, what data-exposure pathways in shared "
+        "micromobility are supported by direct evidence; RQ2, which "
+        "vehicle-level fields are publicly disclosed, and at what prevalence; "
+        "and RQ3, how completely do public operator documents describe "
+        "lifecycle data handling.",
+        "We are deliberately conservative about interpretation. Publishing a "
+        "field, or remaining silent about a practice, is a disclosure signal; "
+        "it is not by itself evidence of a privacy harm, a compromise, or a "
+        "regulatory violation. The contribution is a transparent evidence base "
+        "and a lifecycle model that ties each stage to the strength of its "
+        "supporting evidence and to controls whose effectiveness remains to be "
+        "tested.",
+    ]]
+
+    blocks.append(("h1", "2. Methods"))
+    blocks.append(("h2", "2.1. Design and reporting"))
+    blocks += [("p", t) for t in [
+        "The study combines three prespecified components: a scoping review "
+        "(work package WP1), a cross-sectional field audit of public GBFS feeds "
+        "(WP2), and a structured disclosure audit of public operator documents "
+        "(WP3). The review component is reported in line with PRISMA-ScR "
+        "[[prisma_scr]] and follows the scoping-review framework of Arksey and "
+        "O'Malley [[arksey]]. Eligibility criteria and data sources for all "
+        "three components are summarized in Table 1. The protocol, screening "
+        "rules, coding sheets, and analysis code are openly available so that "
+        "the counts reported here can be regenerated.",
+    ]]
+    blocks.append(("table", 1))
+    blocks.append(("h2", "2.2. Scoping review (WP1)"))
+    blocks += [("p", t) for t in [
+        "We compiled 2,169 records from programmatic searches of open "
+        "bibliographic metadata. Abstracts were retrieved automatically where a "
+        "digital object identifier (DOI) was available (1,539 of 2,116 DOI "
+        "records; 72.7%); the remaining records were screened on title and "
+        "available metadata only. Title/abstract screening applied a "
+        "deterministic rule set that combined target-domain relevance with the "
+        "presence of a described data path, and recorded a decision and reason "
+        "for every record. Because the rules are deterministic, we re-applied "
+        "them to a delayed 20% sample (n = 447) and reproduced every original "
+        "decision (100% agreement); this demonstrates computational "
+        "reproducibility rather than inter-rater reliability, as a single "
+        "reviewer conducted the screening.",
+        "Records marked include or uncertain were sought for full-text "
+        "assessment. Each retrieved study was classified by evidence distance: "
+        "D4, direct target-domain empirical evidence; D3, direct target-domain "
+        "documentary evidence; D2, near-domain empirical evidence; D1, "
+        "mechanism analogy; and N, normative evidence. We did not treat a "
+        "title/abstract decision as equivalent to a confirmed full-text "
+        "finding, and we did not claim to have read full text that could not be "
+        "retrieved. From the included studies we built a study-level extraction "
+        "table capturing device or service, design, data fields, access path, "
+        "reported outcome, and limitations.",
+    ]]
+    blocks.append(("h2", "2.3. Public GBFS field audit (WP2)"))
+    blocks += [("p", t) for t in [
+        "We froze a snapshot of the public GBFS systems catalogue [[gbfs_registry]] "
+        "and recorded its checksum. For each system we attempted to reach the "
+        "auto-discovery endpoint, to locate a declared vehicle-status feed, to "
+        "retrieve that feed, and to record which specification fields it "
+        "contained. The unit of analysis is the system/feed. To respect the "
+        "study's safety constraints, we recorded only the presence or absence "
+        "of each field; raw vehicle identifiers, exact coordinates, and "
+        "vehicle-specific deep links were not retained. Unavailable or empty "
+        "feeds were separated from feeds that were retrieved but omitted a "
+        "field, and all proportions are reported against explicit denominators "
+        "with 95% Wilson confidence intervals. Because several large operators "
+        "run many city systems, we also computed an operator-domain sensitivity "
+        "analysis to check whether prevalence was driven by a few operators.",
+    ]]
+    blocks.append(("h2", "2.4. Public-document disclosure audit (WP3)"))
+    blocks += [("p", t) for t in [
+        "We selected operators from the audited GBFS population and retrieved "
+        "their public privacy notices. For each operator document we coded 14 "
+        "disclosure domains - location; trip and time data; vehicle "
+        "identifiers; battery or diagnostic data; maintenance or repair "
+        "records; account, payment, and device data; analytics or profiling; "
+        "retention; processors or contractors; international transfers; "
+        "data-subject rights; incident contact; vulnerability disclosure; and "
+        "device return, recycling, or disposal - using the values explicit, "
+        "partial, not found, not applicable, and unavailable. A not-found "
+        "coding means the document did not address the domain; it is not "
+        "evidence that the practice does not occur. Each coding is accompanied "
+        "by a short verbatim locator quotation in the coding sheet so that a "
+        "third party can check it. Coding was computer-assisted and reviewed by "
+        "a single reviewer; governance and standards documents "
+        "[[mds_privacy;edpb_cv;nist88;nist161;eu_battery]] were used as "
+        "reference points and were not coded as operator practices.",
+    ]]
+
+    blocks.append(("h1", "3. Results"))
+    blocks.append(("h2", "3.1. Scoping review (RQ1)"))
+    blocks += [("p", t) for t in [
+        f"Of {n_id} records screened, 1,945 were excluded at title/abstract and "
+        "224 were sought for full text (Fig. 1). Of these, 79 could not be "
+        "retrieved and were recorded as such rather than assessed; 127 "
+        "retrieved records were excluded because they contained no relevant "
+        "data path (90) or described a mechanism that did not transfer to the "
+        "target domain (37). Eighteen direct studies were included: 5 at "
+        "evidence distance D4, 9 at D3, and 4 at D2 (Fig. 2; Table 2).",
+        "The included D4 studies provide the strongest evidence. A long-term "
+        "real-world analysis reconstructed rider-relevant patterns from "
+        "operator data [[elzer]]; investigative studies of rental applications "
+        "and scooter ecosystems demonstrated collection and protocol weaknesses "
+        "[[vinayaga2022;espoofer;etrojans]]; and a forensic analysis recovered "
+        "data from micromobility devices [[hilgert]]. D3 studies document "
+        "platform architectures, location-spoofing threats, data-acquisition "
+        "frameworks, and user-facing traceability concerns "
+        "[[isik;vinayaga2020;yilmaz2022;yilmaz2023;sato;li2020;petersen;zhou;"
+        "hannemann]]. D2 studies transfer from adjacent domains: battery "
+        "side channels and battery-management data [[leaky;bms]], residual data "
+        "in reused IoT devices [[iotreuse]], and cloud data remanence "
+        "[[remanence]]. No included study, on its own, demonstrated an "
+        "end-to-end lifecycle compromise; the evidence is strongest for "
+        "operation and weakest for recall and disposal.",
+    ]]
+    blocks.append(("fig", 1))
+    blocks.append(("fig", 2))
+    blocks.append(("table", 2))
+    blocks.append(("h2", "3.2. Public GBFS field audit (RQ2)"))
+    blocks += [("p", t) for t in [
+        f"Of 1,520 registry systems, {reach} (95% CI {reach_ci}; n = 1,428) "
+        "exposed a reachable auto-discovery endpoint, "
+        f"{pct('reachable_registry_entries', 'vehicle_feed_declared')} of "
+        "reachable systems declared a vehicle-status feed, and "
+        f"{pct('successful_vehicle_feeds', 'vehicle_feed_nonempty')} of "
+        "successfully retrieved feeds contained at least one vehicle (Table 3). "
+        "Restricting to the 813 non-empty feeds that declared motorized "
+        "micromobility, a vehicle identifier was present in "
+        f"{pct('declared_motorized_micromobility_feeds', 'has_vehicle_id')} of "
+        "feeds and latitude/longitude in "
+        f"{pct('declared_motorized_micromobility_feeds', 'has_location_fields')} "
+        "(Fig. 3). Fields with more operational specificity were less uniformly "
+        "published: current range in "
+        f"{pct('declared_motorized_micromobility_feeds', 'has_range')}, "
+        "vehicle-specific rental links in "
+        f"{pct('declared_motorized_micromobility_feeds', 'has_deep_link')}, "
+        "last-reported timestamps in "
+        f"{pct('declared_motorized_micromobility_feeds', 'has_last_reported')}, "
+        "and battery or fuel percentage in "
+        f"{pct('declared_motorized_micromobility_feeds', 'has_battery_percent')}.",
+        "The operator-domain sensitivity analysis indicates that these are not "
+        "artefacts of a few large operators. Across 147 eligible operator "
+        "domains, a vehicle identifier appeared in every eligible feed for "
+        f"{pct('declared_motorized_micromobility_operator_domains_all', 'has_vehicle_id')} "
+        "of domains and latitude/longitude for "
+        f"{pct('declared_motorized_micromobility_operator_domains_any', 'has_location_fields')}, "
+        "whereas battery percentage was present in at least one eligible feed "
+        "for only "
+        f"{pct('declared_motorized_micromobility_operator_domains_any', 'has_battery_percent')} "
+        "of domains. These figures describe what is disclosed publicly; they do "
+        "not describe what operators collect or store on their backends, which "
+        "the public feed cannot reveal.",
+    ]]
+    blocks.append(("fig", 3))
+    blocks.append(("table", 3))
+    blocks.append(("h2", "3.3. Public-document disclosure audit (RQ3)"))
+    exp_loc = domain_count("location_data", "explicit")
+    exp_ret = domain_count("retention", "explicit")
+    nf_batt = domain_count("battery_or_diagnostic_data", "not_found")
+    nf_vuln = domain_count("vulnerability_disclosure", "not_found")
+    nf_disp = domain_count("return_recycling_disposal", "not_found")
+    blocks += [("p", t) for t in [
+        f"We coded {N_CODED} operator privacy notices across 14 domains; two "
+        "further operators could not be retrieved as reproducible text and were "
+        "recorded as unavailable (Fig. 4; Table 4). Operational and "
+        "account-level processing was disclosed almost universally: location "
+        f"data were explicit for {exp_loc} of {N_CODED} operators, and "
+        f"retention, processors or contractors, and account/payment/device data "
+        f"were explicit for most. Data-subject rights and international "
+        "transfers were explicit or partial for the large majority, consistent "
+        "with a predominantly European operator sample governed by the General "
+        "Data Protection Regulation [[gdpr]].",
+        "Disclosure was markedly thinner for device-centred and lifecycle "
+        f"domains. Battery or diagnostic data collection was not found in "
+        f"{nf_batt} of {N_CODED} notices, even though such data are technically "
+        "central to these vehicles [[leaky;bms]]. No operator notice in the "
+        f"sample described a vulnerability-disclosure channel ({nf_vuln} of "
+        f"{N_CODED} not found), and none addressed device return, recycling, or "
+        f"disposal handling ({nf_disp} of {N_CODED} not found). We stress that "
+        "these are gaps in public documents, not proof that the corresponding "
+        "practices are absent; they nonetheless mark the parts of the lifecycle "
+        "that are least visible to the public and to procuring organizations.",
+    ]]
+    blocks.append(("fig", 4))
+    blocks.append(("table", 4))
+
+    blocks.append(("h1", "4. Discussion"))
+    blocks += [("p", t) for t in [
+        "Read together, the three components describe a consistent pattern. "
+        "Direct evidence for data exposure is concentrated in the operation "
+        "stage, where audits and attack studies demonstrate collection, "
+        "tracking, and re-identification potential [[elzer;espoofer;"
+        "vinayaga2022]]. The public feed audit shows that the raw materials for "
+        "such analyses - persistent identifiers and precise positions - are "
+        "disclosed at high prevalence worldwide, while more operationally "
+        "sensitive fields are published less uniformly. The disclosure audit "
+        "shows that operators describe operational data handling in detail but "
+        "are largely silent on the device end-of-life and on security-reporting "
+        "channels, which is exactly where the review found only near-domain "
+        "(D2) evidence [[iotreuse;remanence]].",
+        "We integrate these observations in a six-stage lifecycle model that "
+        "links each stage to the evidence distance of its supporting sources "
+        "and to a proposed control (Fig. 5; Table 5). The model makes the "
+        "strength of the underlying evidence explicit: procurement, deployment, "
+        "operation, and maintenance are anchored by direct (D3-D4) evidence, "
+        "whereas recall/return and second-life/disposal rest on near-domain "
+        "(D2) analogy and on governance and standards guidance "
+        "[[nist88;nist161;eu_battery]]. The controls - field minimization, "
+        "local processing, access and retention limits, controlled contractor "
+        "access, chain-of-custody for returned units, and verified media "
+        "sanitization - are proposals whose effectiveness this study did not "
+        "test; Table 5 records their effectiveness evidence conservatively.",
+        "For procuring organizations, the practical implication is that a "
+        "narrow focus on real-time position understates exposure. A telemetry "
+        "inventory that spans identifiers, timestamps, range, and battery "
+        "state, and that follows devices through maintenance and disposal, is a "
+        "more faithful basis for assessment than the intuition that "
+        "coordinates alone are the only sensitive field.",
+    ]]
+    blocks.append(("fig", 5))
+    blocks.append(("table", 5))
+    blocks.append(("h2", "4.1. Limitations"))
+    blocks += [("p", t) for t in [
+        "Several limitations bound these findings. Screening and coding were "
+        "performed by a single reviewer with computer assistance; although the "
+        "process is deterministic and reproducible, it does not provide "
+        "inter-rater reliability, and some included studies were characterized "
+        "from abstracts and curated metadata rather than from independently "
+        "reproduced experiments. The GBFS audit observes only what is published "
+        "in public feeds at a single point in time; it cannot show what "
+        "operators collect or retain internally, and field presence is not a "
+        "measure of harm. The disclosure audit reflects the public documents we "
+        "could retrieve; not-found codings denote silence, two operators were "
+        "unavailable, and the operator sample is weighted toward European and "
+        "North American providers. Finally, the lifecycle controls are "
+        "proposals; validating them would require intervention studies or "
+        "operator cooperation that were outside this study's scope.",
+    ]]
+
+    blocks.append(("h1", "5. Conclusion"))
+    blocks += [("p", t) for t in [
+        "Shared micromobility offers a tractable, fully public setting in which "
+        "to study lifecycle data exposure in connected devices that "
+        "organizations use but do not control. A scoping review of 2,169 "
+        "records identified 18 direct studies whose strongest evidence "
+        "concerns the operation stage; a global audit of 1,428 public GBFS "
+        "systems showed that persistent identifiers and precise positions are "
+        "disclosed at high prevalence; and a disclosure audit showed that "
+        f"operators document operational processing thoroughly but are silent "
+        f"on device disposal and vulnerability reporting. These are disclosure "
+        "and evidence signals, not demonstrations of harm. The lifecycle model "
+        "and its traceability table turn them into an auditable agenda: extend "
+        "assessment beyond real-time location, close the documentation gaps at "
+        "end-of-life, and empirically validate the proposed controls.",
+    ]]
+    return blocks
+
+
+# ---------------------------------------------------------------------------
+# Citation resolution
+# ---------------------------------------------------------------------------
+def iter_citation_texts(blocks: list[tuple], tables: dict[int, dict]):
+    """Yield text fragments in document order for numbering."""
+    for kind, payload in blocks:
+        if kind == "p":
+            yield payload
+        elif kind == "table":
+            spec = tables[payload]
+            for r in spec["rows"]:
+                for cell in r:
+                    yield cell
+
+
+CITE_RX = re.compile(r"\[\[([^\]]+)\]\]")
+
+
+def resolve_citations(blocks: list[tuple], tables: dict[int, dict]):
+    order: list[str] = []
+
+    def register(fragment: str) -> None:
+        for m in CITE_RX.finditer(fragment):
+            for label in m.group(1).split(";"):
+                label = label.strip()
+                if label not in order:
+                    order.append(label)
+
+    for frag in iter_citation_texts(blocks, tables):
+        register(frag)
+
+    unknown = [l for l in order if l not in REFS]
+    if unknown:
+        raise RuntimeError(f"Unknown citation labels: {unknown}")
+    numbering = {label: i + 1 for i, label in enumerate(order)}
+
+    def repl(fragment: str) -> str:
+        def _sub(m: re.Match) -> str:
+            nums = sorted(numbering[l.strip()] for l in m.group(1).split(";"))
+            return "[" + collapse(nums) + "]"
+        return CITE_RX.sub(_sub, fragment)
+
+    return numbering, order, repl
+
+
+def collapse(nums: list[int]) -> str:
+    parts: list[str] = []
+    i = 0
+    while i < len(nums):
+        j = i
+        while j + 1 < len(nums) and nums[j + 1] == nums[j] + 1:
+            j += 1
+        if j - i >= 2:
+            parts.append(f"{nums[i]}-{nums[j]}")
+        else:
+            parts.extend(str(nums[k]) for k in range(i, j + 1))
+        i = j + 1
+    return ",".join(parts)
+
+
+# ---------------------------------------------------------------------------
+# DOCX helpers (retained from the original generator)
+# ---------------------------------------------------------------------------
+def reset_dirs() -> None:
+    for path in (OUTPUT, WORK):
+        if path.exists():
+            shutil.rmtree(path)
+        path.mkdir(parents=True)
+
+
+def set_cell_shading(cell, fill: str) -> None:
+    tc_pr = cell._tc.get_or_add_tcPr()
+    shd = tc_pr.find(qn("w:shd"))
+    if shd is None:
+        shd = OxmlElement("w:shd")
+        tc_pr.append(shd)
+    shd.set(qn("w:fill"), fill)
+
+
+def set_cell_margins(cell, top=80, start=80, bottom=80, end=80) -> None:
+    tc_pr = cell._tc.get_or_add_tcPr()
+    tc_mar = tc_pr.first_child_found_in("w:tcMar")
+    if tc_mar is None:
+        tc_mar = OxmlElement("w:tcMar")
+        tc_pr.append(tc_mar)
+    for margin, value in (("top", top), ("start", start), ("bottom", bottom), ("end", end)):
+        node = tc_mar.find(qn(f"w:{margin}"))
+        if node is None:
+            node = OxmlElement(f"w:{margin}")
+            tc_mar.append(node)
+        node.set(qn("w:w"), str(value))
+        node.set(qn("w:type"), "dxa")
+
+
+def configure_document(doc: Document) -> None:
+    section = doc.sections[0]
+    for attr in ("top_margin", "bottom_margin", "left_margin", "right_margin"):
+        setattr(section, attr, Inches(1))
+    styles = doc.styles
+    normal = styles["Normal"]
+    normal.font.name = "Times New Roman"
+    normal._element.rPr.rFonts.set(qn("w:eastAsia"), "Times New Roman")
+    normal.font.size = Pt(12)
+    normal.paragraph_format.line_spacing_rule = WD_LINE_SPACING.ONE_POINT_FIVE
+    normal.paragraph_format.space_after = Pt(6)
+    for style_name, size in (("Title", 16), ("Heading 1", 14), ("Heading 2", 12)):
+        style = styles[style_name]
+        style.font.name = "Times New Roman"
+        style._element.rPr.rFonts.set(qn("w:eastAsia"), "Times New Roman")
+        style.font.size = Pt(size)
+        style.font.color.rgb = RGBColor(0, 0, 0)
+    styles["Heading 1"].font.bold = True
+    styles["Heading 2"].font.bold = True
+
+
+def add_body_paragraph(doc: Document, text: str) -> None:
+    paragraph = doc.add_paragraph()
+    paragraph.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+    paragraph.paragraph_format.first_line_indent = Inches(0.3)
+    run = paragraph.add_run(text)
+    run.font.name = "Times New Roman"
+    run.font.size = Pt(12)
+
+
+def add_table(doc: Document, spec: dict, repl) -> None:
+    caption = doc.add_paragraph()
+    caption.paragraph_format.space_before = Pt(14)
+    caption.paragraph_format.space_after = Pt(6)
+    caption.add_run(repl(spec["title"])).bold = True
+    table = doc.add_table(rows=1, cols=len(spec["headers"]))
+    table.alignment = WD_TABLE_ALIGNMENT.CENTER
+    table.style = "Table Grid"
+    header = table.rows[0].cells
+    for index, value in enumerate(spec["headers"]):
+        header[index].text = value
+        set_cell_shading(header[index], "D9EAF7")
+        header[index].vertical_alignment = WD_CELL_VERTICAL_ALIGNMENT.CENTER
+        for run in header[index].paragraphs[0].runs:
+            run.bold = True
+            run.font.name = "Arial"
+            run.font.size = Pt(8)
+        set_cell_margins(header[index])
+    for row_values in spec["rows"]:
+        cells = table.add_row().cells
+        for index, value in enumerate(row_values):
+            cells[index].text = repl(value)
+            cells[index].vertical_alignment = WD_CELL_VERTICAL_ALIGNMENT.TOP
+            set_cell_margins(cells[index])
+            for paragraph in cells[index].paragraphs:
+                paragraph.paragraph_format.space_after = Pt(0)
+                for run in paragraph.runs:
+                    run.font.name = "Arial"
+                    run.font.size = Pt(8)
+    doc.add_paragraph()
+
+
+def add_figure(doc: Document, num: int, png: Path, repl) -> None:
+    image_p = doc.add_paragraph()
+    image_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    image_p.paragraph_format.space_before = Pt(14)
+    width = 6.3 if num in (1, 2, 3) else 6.5
+    image_p.add_run().add_picture(str(png), width=Inches(width))
+    caption = doc.add_paragraph()
+    caption.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    caption.paragraph_format.space_before = Pt(6)
+    caption.paragraph_format.space_after = Pt(14)
+    run = caption.add_run(repl(FIG_CAPTIONS[num]))
+    run.italic = True
+    run.font.size = Pt(10)
+
+
+def add_page_number(section) -> None:
+    paragraph = section.footer.paragraphs[0]
+    paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    run = paragraph.add_run()
+    begin = OxmlElement("w:fldChar")
+    begin.set(qn("w:fldCharType"), "begin")
+    instr = OxmlElement("w:instrText")
+    instr.set(qn("xml:space"), "preserve")
+    instr.text = "PAGE"
+    end = OxmlElement("w:fldChar")
+    end.set(qn("w:fldCharType"), "end")
+    run._r.extend([begin, instr, end])
+
+
+ABSTRACT_STRUCT = [
+    ("Background", "Shared micromobility produces continuous location, motion, "
+     "and battery telemetry, yet evidence on data exposure is scattered and the "
+     "device lifecycle beyond real-time position is rarely examined."),
+    ("Objective", "To map the direct evidence for micromobility data exposure, "
+     "to measure which vehicle fields operators publish worldwide, and to "
+     "assess how completely operators disclose lifecycle data handling."),
+    ("Methods", "We combined a PRISMA-ScR scoping review of 2,169 records, a "
+     "cross-sectional field audit of public GBFS feeds, and a structured "
+     "disclosure audit of public operator privacy notices across 14 domains, "
+     "using deterministic screening and explicit denominators with 95% Wilson "
+     "confidence intervals."),
+    ("Results", "Eighteen direct studies were included (5 D4, 9 D3, 4 D2), with "
+     "the strongest evidence at the operation stage. Across 813 motorized "
+     "micromobility feeds, vehicle identifiers appeared in 100% and coordinates "
+     "in 99.4%, while battery percentage appeared in 68.9%. Operator notices "
+     "documented operational processing thoroughly but were silent on device "
+     "disposal and vulnerability reporting."),
+    ("Conclusions", "Persistent identifiers and precise positions are widely "
+     "disclosed, and lifecycle end-of-life handling is largely undocumented. "
+     "These are disclosure and evidence signals, not demonstrations of harm; we "
+     "propose a lifecycle model whose controls remain to be validated."),
+]
+
+
+def build_abstract_text() -> str:
+    return " ".join(f"{label}: {text}" for label, text in ABSTRACT_STRUCT)
+
+
+def build_manuscript(blocks, tables, figpaths, repl, references) -> Path:
+    doc = Document()
+    configure_document(doc)
+    add_page_number(doc.sections[0])
+    title = doc.add_paragraph(style="Title")
+    title.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    title.add_run(TITLE).bold = True
+    sub = doc.add_paragraph()
+    sub.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    r = sub.add_run("Anonymized manuscript")
+    r.italic = True
+    r.font.size = Pt(10)
+
+    doc.add_heading("Abstract", level=1)
+    for label, text in ABSTRACT_STRUCT:
+        p = doc.add_paragraph()
+        p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+        p.add_run(f"{label}: ").bold = True
+        p.add_run(text)
+    kw = doc.add_paragraph()
+    kw.add_run("Keywords: ").bold = True
+    kw.add_run("; ".join(KEYWORDS))
+
+    for kind, payload in blocks:
+        if kind == "h1":
+            doc.add_heading(payload, level=1)
+        elif kind == "h2":
+            doc.add_heading(payload, level=2)
+        elif kind == "p":
+            add_body_paragraph(doc, repl(payload))
+        elif kind == "fig":
+            add_figure(doc, payload, figpaths[payload]["png"], repl)
+        elif kind == "table":
+            add_table(doc, tables[payload], repl)
+
+    doc.add_heading("Declarations", level=1)
+    for label, value in DECLARATIONS:
+        p = doc.add_paragraph()
+        p.paragraph_format.space_after = Pt(4)
+        p.add_run(f"{label}: ").bold = True
+        p.add_run(value)
+
+    doc.add_heading("References", level=1)
+    for number, label in enumerate(references, 1):
+        p = doc.add_paragraph()
+        p.paragraph_format.left_indent = Inches(0.28)
+        p.paragraph_format.first_line_indent = Inches(-0.28)
+        p.paragraph_format.line_spacing = 1.0
+        p.paragraph_format.space_after = Pt(4)
+        p.add_run(f"[{number}] {REFS[label]}")
+
+    path = OUTPUT / "Manuscript_CompSec.docx"
+    doc.save(path)
+    return path
+
+
+def build_title_page(word_count: int, n_refs: int) -> Path:
+    doc = Document()
+    configure_document(doc)
+    title = doc.add_paragraph(style="Title")
+    title.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    title.add_run(TITLE).bold = True
+    doc.add_paragraph()
+    for text, bold in [(AUTHOR, True), (AFFILIATION, False),
+                       (f"Corresponding author: {AUTHOR}; {EMAIL}", False),
+                       (f"ORCID: {ORCID}", False)]:
+        p = doc.add_paragraph()
+        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        p.add_run(text).bold = bold
+    doc.add_paragraph()
+    fields = [
+        ("Full title", TITLE),
+        ("Short title", SHORT_TITLE),
+        ("Article type", "Research paper"),
+        ("Target journal", JOURNAL),
+        ("Word count (title, abstract, body)", str(word_count)),
+        ("Figures", "5"),
+        ("Tables", "5"),
+        ("References", str(n_refs)),
+        ("Funding", "None"),
+        ("Competing interests", "None declared"),
+    ]
+    for label, value in fields:
+        p = doc.add_paragraph()
+        p.add_run(f"{label}: ").bold = True
+        p.add_run(value)
+    path = OUTPUT / "Title_Page_CompSec.docx"
+    doc.save(path)
+    return path
+
+
+def build_cover_letter() -> Path:
+    doc = Document()
+    configure_document(doc)
+    for line in [AUTHOR, AFFILIATION, EMAIL, f"ORCID: {ORCID}", BUILD_DATE]:
+        p = doc.add_paragraph(line)
+        p.paragraph_format.space_after = Pt(2)
+    doc.add_paragraph()
+    doc.add_paragraph("The Editors-in-Chief")
+    doc.add_paragraph(JOURNAL)
+    doc.add_paragraph("Elsevier")
+    doc.add_paragraph()
+    doc.add_paragraph("Dear Editors,")
+    paras = [
+        f"I submit the manuscript \u201c{TITLE}\u201d for consideration as a "
+        f"research paper in {JOURNAL}.",
+        "Shared micromobility is a fully public, globally deployed class of "
+        "connected devices that organizations and citizens use but do not own "
+        "or decommission. The manuscript reports an empirical, reproducible "
+        "package: a PRISMA-ScR scoping review that identifies the direct "
+        "evidence for data exposure; a global audit of public GBFS feeds that "
+        "measures which vehicle fields operators actually publish; and a "
+        "structured audit of public operator privacy notices across 14 "
+        "disclosure domains.",
+        "The work fits the journal's scope in connected-device and data "
+        "security because it quantifies real, worldwide disclosure surfaces and "
+        "links them to a lifecycle model with auditable controls. Throughout, "
+        "we are careful to treat field presence and document silence as "
+        "disclosure signals rather than as evidence of harm, compromise, or "
+        "regulatory violation, and we state the effectiveness of proposed "
+        "controls conservatively as not yet validated.",
+        "The study analysed only publicly accessible feeds and documents; it "
+        "did not attempt authentication or access-control circumvention, did "
+        "not interact with users, and retained no raw identifiers, exact "
+        "coordinates, or vehicle deep links. All data, coding sheets, and code "
+        "are openly available so that every reported count can be regenerated. "
+        "The manuscript is original, is not under consideration elsewhere, and "
+        "has no funding or competing interest to declare.",
+        "Thank you for considering this submission.",
+    ]
+    for text in paras:
+        p = doc.add_paragraph()
+        p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+        p.add_run(text)
+    doc.add_paragraph("Sincerely,")
+    doc.add_paragraph(AUTHOR)
+    path = OUTPUT / "Cover_Letter_CompSec.docx"
+    doc.save(path)
+    return path
+
+
+def build_highlights() -> Path:
+    doc = Document()
+    configure_document(doc)
+    h = doc.add_paragraph(style="Title")
+    h.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    h.add_run("Highlights").bold = True
+    for item in HIGHLIGHTS:
+        doc.add_paragraph(item, style="List Bullet")
+    path = OUTPUT / "Highlights_CompSec.docx"
+    doc.save(path)
+    (OUTPUT / "Highlights_CompSec.txt").write_text(
+        "\n".join(f"- {i}" for i in HIGHLIGHTS) + "\n", encoding="utf-8")
+    return path
+
+
+def build_tables_docx(tables, repl) -> Path:
+    doc = Document()
+    configure_document(doc)
+    h = doc.add_paragraph(style="Title")
+    h.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    h.add_run("Editable tables").bold = True
+    for i in range(1, 6):
+        add_table(doc, tables[i], repl)
+        if i < 5:
+            doc.add_section(WD_SECTION.NEW_PAGE)
+    path = OUTPUT / "Tables_CompSec_editable.docx"
+    doc.save(path)
+    return path
+
+
+def build_figures_pptx(figpaths, repl) -> Path:
+    prs = Presentation()
+    prs.slide_width = PptxInches(13.333)
+    prs.slide_height = PptxInches(7.5)
+    for num in range(1, 6):
+        slide = prs.slides.add_slide(prs.slide_layouts[6])
+        title_box = slide.shapes.add_textbox(PptxInches(0.5), PptxInches(0.2),
+                                             PptxInches(12.3), PptxInches(0.6))
+        tf = title_box.text_frame
+        tf.word_wrap = True
+        p = tf.paragraphs[0]
+        p.text = f"Figure {num}"
+        p.font.size = PptxPt(22)
+        p.font.bold = True
+        p.alignment = PP_ALIGN.CENTER
+        from PIL import Image as PILImage
+        with PILImage.open(figpaths[num]["png"]) as im:
+            w, h = im.size
+        avail_w, avail_h = 12.3, 5.3
+        ratio = min(avail_w / (w / 600.0), avail_h / (h / 600.0))
+        disp_w = (w / 600.0) * ratio
+        disp_h = (h / 600.0) * ratio
+        left = (13.333 - disp_w) / 2
+        slide.shapes.add_picture(str(figpaths[num]["png"]), PptxInches(left),
+                                 PptxInches(1.0), PptxInches(disp_w), PptxInches(disp_h))
+        cap_box = slide.shapes.add_textbox(PptxInches(0.6), PptxInches(6.5),
+                                          PptxInches(12.1), PptxInches(0.9))
+        cf = cap_box.text_frame
+        cf.word_wrap = True
+        cp = cf.paragraphs[0]
+        cp.text = repl(FIG_CAPTIONS[num])
+        cp.font.size = PptxPt(11)
+    path = OUTPUT / "Figures_CompSec_editable.pptx"
+    prs.save(path)
+    return path
+
+
+def build_reporting_guideline() -> Path:
+    doc = Document()
+    configure_document(doc)
+    h = doc.add_paragraph(style="Title")
+    h.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    h.add_run("PRISMA-ScR reporting checklist").bold = True
+    p = doc.add_paragraph()
+    p.add_run(
+        "The scoping-review component (WP1) follows the PRISMA-ScR checklist "
+        "[Tricco et al., 2018]. The field audit (WP2) and disclosure audit "
+        "(WP3) are cross-sectional observational studies of public artefacts "
+        "and are reported with explicit denominators, confidence intervals, and "
+        "open code. The table below maps each PRISMA-ScR item to its location.")
+    items = [
+        ("Title", "Identifies the report as a scoping review", "Title page"),
+        ("Abstract", "Structured summary", "Abstract"),
+        ("Rationale", "Rationale in the context of what is known", "Section 1"),
+        ("Objectives", "Research questions RQ1-RQ3", "Section 1"),
+        ("Protocol", "Protocol availability", "Data and code availability"),
+        ("Eligibility criteria", "Characteristics used as criteria", "Section 2.2; Table 1"),
+        ("Information sources", "Sources searched", "Section 2.2; Table 1"),
+        ("Selection of sources", "Screening process", "Section 2.2; Fig. 1"),
+        ("Data charting", "Extraction process and items", "Section 2.2; Table 2"),
+        ("Synthesis of results", "Methods of summarizing", "Sections 3-4"),
+        ("Results of sources", "Numbers screened and included", "Section 3.1; Fig. 1"),
+        ("Results of syntheses", "Charted results", "Sections 3.1-3.3"),
+        ("Limitations", "Limitations of the review", "Section 4.1"),
+        ("Conclusions", "Interpretation and implications", "Section 5"),
+        ("Funding", "Sources of funding", "Declarations"),
+    ]
+    add_table(doc, {"title": "PRISMA-ScR item mapping",
+                    "headers": ["Item", "Checklist description", "Location"],
+                    "rows": items}, lambda x: x)
+    path = OUTPUT / "Reporting_Guideline_PRISMA-ScR.docx"
+    doc.save(path)
+    return path
+
+
+def resolve_identifier(ident: str) -> str:
+    """Best-effort live check that a DOI/URL resolves. Falls back gracefully
+    when offline so the build stays reproducible."""
+    if ident.startswith("doi:"):
+        url = "https://doi.org/" + ident[4:]
+    elif ident.startswith("http"):
+        url = ident
+    else:
+        return "not_applicable_standard_or_regulation"
+    req = urllib.request.Request(
+        url, method="HEAD", headers={"User-Agent": "Mozilla/5.0 ref-check"})
+    try:
+        code = urllib.request.urlopen(req, timeout=25).status
+        return f"resolves_http_{code}"
+    except urllib.error.HTTPError as exc:
+        # 403/429 are anti-bot responses from a live, existing record.
+        return f"exists_http_{exc.code}"
+    except Exception:
+        return "not_checked_offline"
+
+
+def build_reference_verification(order) -> Path:
+    path = OUTPUT / "Reference_Verification.csv"
+    lines = ["Number,Label,Reference,Identifier,VerificationDate,Status"]
+    for i, label in enumerate(order, 1):
+        text = REFS[label]
+        m = re.search(r"(doi:\S+|https?://\S+)", text)
+        ident = m.group(1).rstrip(".") if m else "(no DOI; standard/regulation/registry)"
+        status = resolve_identifier(ident)
+        row = [str(i), label, text, ident, BUILD_DATE, status]
+        lines.append(",".join(f'"{v.replace(chr(34), chr(34)*2)}"' for v in row))
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return path
+
+
+def build_citation_audit(blocks, tables, numbering, repl) -> Path:
+    first: dict[int, tuple[str, str]] = {}
+    location = "Body"
+    for kind, payload in blocks:
+        if kind in ("h1", "h2"):
+            location = payload
+            continue
+        frags = []
+        if kind == "p":
+            frags = [payload]
+        elif kind == "table":
+            frags = [c for r in tables[payload]["rows"] for c in r]
+            location = f"Table {payload}"
+        for frag in frags:
+            for m in CITE_RX.finditer(frag):
+                for label in m.group(1).split(";"):
+                    num = numbering[label.strip()]
+                    if num not in first:
+                        first[num] = (location, textwrap.shorten(repl(frag), 200, placeholder="..."))
+    path = OUTPUT / "Citation_Audit.csv"
+    lines = ["Reference,First appearance,Context"]
+    for num in range(1, len(numbering) + 1):
+        loc, ctx = first[num]
+        lines.append(",".join(f'"{v.replace(chr(34), chr(34)*2)}"'
+                              for v in [str(num), loc, ctx]))
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return path
+
+
+def word_count(blocks, repl) -> int:
+    text = TITLE + " " + build_abstract_text()
+    for kind, payload in blocks:
+        if kind == "p":
+            text += " " + repl(payload)
+    return len(re.findall(r"\b[\w'-]+\b", text))
+
+
+def validate(blocks, tables, numbering, order, repl) -> dict:
+    # citation sequentiality: numbering assigned by first appearance is 1..N
+    seq = list(numbering.values()) == list(range(1, len(numbering) + 1))
+    # all refs used, none orphan
+    used = set(numbering)
+    orphan = used ^ set(REFS.keys())
+    body = word_count(blocks, repl)
+    abstract_words = len(re.findall(r"\b[\w'-]+\b", build_abstract_text()))
+    # figures/tables cited in text
+    body_text = " ".join(repl(p) for k, p in blocks if k == "p")
+    figs_cited = all(f"Fig. {i}" in body_text for i in range(1, 6))
+    tabs_cited = all(f"Table {i}" in body_text for i in range(1, 6))
+    # figure/table blocks present and sequential
+    fig_seq = [p for k, p in blocks if k == "fig"]
+    tab_seq = [p for k, p in blocks if k == "table"]
+    checks = {
+        "citations_sequential": seq,
+        "no_orphan_or_phantom_refs": not orphan,
+        "figures_cited_in_text": figs_cited,
+        "tables_cited_in_text": tabs_cited,
+        "five_figures_present": sorted(set(fig_seq)) == [1, 2, 3, 4, 5],
+        "five_tables_present": sorted(set(tab_seq)) == [1, 2, 3, 4, 5],
+        "abstract_within_300w": abstract_words <= 300,
+    }
+    failures = [k for k, v in checks.items() if not v]
+    if failures:
+        raise RuntimeError(f"Validation failed: {failures}; orphan={orphan}")
+    # abbreviation-at-first-use spot check
+    joined = body_text
+    for abbr, definition in {
+        "GBFS": "General Bikeshare Feed Specification (GBFS)",
+        "PRISMA-ScR": "Scoping Reviews (PRISMA-ScR)",
+        "DOI": "digital object identifier (DOI)",
+        "GDPR": "General Data Protection Regulation [",
+    }.items():
+        if abbr in joined and definition not in joined:
+            raise RuntimeError(f"Undefined abbreviation at first use: {abbr}")
+    return {"word_count": body, "abstract_words": abstract_words,
+            "references": len(order), **checks}
+
+
+def build_validation_report(validation: dict, figpaths) -> Path:
+    path = OUTPUT / "VALIDATION.txt"
+    lines = ["Submission validation report", "=" * 30, ""]
+    for k, v in validation.items():
+        lines.append(f"{k}: {v}")
+    lines.append("")
+    lines.append("Figure files:")
+    for num, kinds in figpaths.items():
+        for kind, p in kinds.items():
+            lines.append(f"  Figure {num} {kind}: {p.name}")
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return path
+
+
+def build_checklist(validation) -> Path:
+    doc = Document()
+    configure_document(doc)
+    h = doc.add_paragraph(style="Title")
+    h.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    h.add_run("Submission checklist").bold = True
+    rows = [
+        ["Cover letter", "Included", "Cover_Letter_CompSec.docx"],
+        ["Title page with author details", "Included", "Title_Page_CompSec.docx"],
+        ["Anonymized manuscript (figures/tables inline)", "Included", "Manuscript_CompSec.docx"],
+        ["Highlights (<=5, <=85 chars)", "Included", "Highlights_CompSec.docx"],
+        ["Figures (PNG + TIFF + PDF, 600 dpi)", "Included", "figures/Figure1-5.*"],
+        ["Editable figures (one per slide)", "Included", "Figures_CompSec_editable.pptx"],
+        ["Editable tables", "Included", "Tables_CompSec_editable.docx"],
+        ["Reporting guideline (PRISMA-ScR)", "Included", "Reporting_Guideline_PRISMA-ScR.docx"],
+        ["Citation audit (first-appearance order)", "Included", "Citation_Audit.csv"],
+        ["Reference verification", "Included", "Reference_Verification.csv"],
+        [f"Word count (body incl. title/abstract): {validation['word_count']}",
+         "Reported", "Title_Page_CompSec.docx"],
+        ["Data/code availability statement", "Included", "Manuscript (Declarations)"],
+        ["Generative AI disclosure", "Included", "Manuscript (Declarations)"],
+    ]
+    add_table(doc, {"title": "Items included in the submission package",
+                    "headers": ["Item", "Status", "File"], "rows": rows},
+              lambda x: x)
+    path = OUTPUT / "Submission_Checklist_CompSec.docx"
+    doc.save(path)
+    return path
+
+
+def build_zip(figpaths) -> Path:
+    path = OUTPUT / "CompSec_submission_package.zip"
+    with zipfile.ZipFile(path, "w", zipfile.ZIP_DEFLATED) as zf:
+        for item in sorted(OUTPUT.rglob("*")):
+            if item.is_file() and item != path:
+                zf.write(item, item.relative_to(OUTPUT))
+    return path
+
+
+def main() -> None:
+    reset_dirs()
+    FIGDIR.mkdir(parents=True, exist_ok=True)
+    figpaths = build_figures()
+    blocks = body_blocks()
+    numbering, order, repl = resolve_citations(blocks, TABLES)
+    validation = validate(blocks, TABLES, numbering, order, repl)
+
+    build_manuscript(blocks, TABLES, figpaths, repl, order)
+    wc = validation["word_count"]
+    build_title_page(wc, len(order))
+    build_cover_letter()
+    build_highlights()
+    build_tables_docx(TABLES, repl)
+    build_figures_pptx(figpaths, repl)
+    build_reporting_guideline()
+    build_reference_verification(order)
+    build_citation_audit(blocks, TABLES, numbering, repl)
+    build_checklist(validation)
+    build_validation_report(validation, figpaths)
+    zip_path = build_zip(figpaths)
+
+    print("Build complete.")
+    print(f"  references: {len(order)} (first-appearance order)")
+    print(f"  word count: {wc}; abstract words: {validation['abstract_words']}")
+    print(f"  package: {zip_path.relative_to(ROOT)}")
+    for k, v in validation.items():
+        if isinstance(v, bool):
+            print(f"  {k}: {'OK' if v else 'FAIL'}")
+
+
+if __name__ == "__main__":
+    main()

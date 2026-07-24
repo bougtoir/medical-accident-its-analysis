@@ -1,0 +1,243 @@
+{
+  "title": "La Marseillaise — 行進曲の激情",
+  "description": "フランス国歌「ラ・マルセイエーズ」をSITS9で記述。\n大きなFWD/RET振幅、高TENSION、急角度CROSS（±45°）が\n行進曲の劇的ダイナミクスを反映。",
+  "bpm": 120,
+  "key_root": 60,
+  "stitch_unit_mm": 3.0,
+  "cards": [
+    {
+      "name": "Allons enfants",
+      "instructions": [
+        {
+          "op": "ANCHOR"
+        },
+        {
+          "op": "TENSION",
+          "value": 0.6
+        }
+      ],
+      "repeat": 1,
+      "loom_hint": "力強い玉結び",
+      "tone_hint": "I: 行進曲の号令",
+      "chord_label": "C",
+      "scale_degree": "I",
+      "root_midi": 60,
+      "chord_notes_midi": [
+        60,
+        64,
+        67
+      ],
+      "stitch_type": "running"
+    },
+    {
+      "name": "de la Patrie",
+      "instructions": [
+        {
+          "op": "TENSION",
+          "value": 0.75
+        },
+        {
+          "op": "FWD",
+          "n": 5
+        },
+        {
+          "op": "CROSS",
+          "angle": 45.0,
+          "depth": 1.0,
+          "wrap": false
+        }
+      ],
+      "repeat": 1,
+      "loom_hint": "5目前進 — 突撃",
+      "tone_hint": "V: ドミナント跳躍",
+      "chord_label": "G",
+      "scale_degree": "V",
+      "root_midi": 67,
+      "chord_notes_midi": [
+        67,
+        71,
+        62
+      ],
+      "stitch_type": "running"
+    },
+    {
+      "name": "Le jour de gloire",
+      "instructions": [
+        {
+          "op": "TENSION",
+          "value": 0.9
+        },
+        {
+          "op": "FWD",
+          "n": 4
+        },
+        {
+          "op": "CROSS",
+          "angle": -45.0,
+          "depth": 1.0,
+          "wrap": false
+        }
+      ],
+      "repeat": 1,
+      "loom_hint": "4目前進 — 高揚",
+      "tone_hint": "vi: 短調への転換、緊張最大",
+      "chord_label": "Am",
+      "scale_degree": "vi",
+      "root_midi": 69,
+      "chord_notes_midi": [
+        69,
+        60,
+        64
+      ],
+      "stitch_type": "running"
+    },
+    {
+      "name": "est arrive!",
+      "instructions": [
+        {
+          "op": "TENSION",
+          "value": 0.5
+        },
+        {
+          "op": "RET",
+          "n": 7
+        },
+        {
+          "op": "CROSS",
+          "angle": 45.0,
+          "depth": 1.0,
+          "wrap": false
+        }
+      ],
+      "repeat": 1,
+      "loom_hint": "7目回帰 — 劇的な帰還",
+      "tone_hint": "IV: サブドミナント急降下",
+      "chord_label": "F",
+      "scale_degree": "IV",
+      "root_midi": 65,
+      "chord_notes_midi": [
+        65,
+        69,
+        60
+      ],
+      "stitch_type": "back_stitch"
+    },
+    {
+      "name": "Contre nous",
+      "instructions": [
+        {
+          "op": "TENSION",
+          "value": 0.85
+        },
+        {
+          "op": "FWD",
+          "n": 6
+        },
+        {
+          "op": "CROSS",
+          "angle": -45.0,
+          "depth": 1.0,
+          "wrap": false
+        }
+      ],
+      "repeat": 1,
+      "loom_hint": "6目前進 — 再突撃",
+      "tone_hint": "ii: 敵への対峙",
+      "chord_label": "Dm",
+      "scale_degree": "ii",
+      "root_midi": 62,
+      "chord_notes_midi": [
+        62,
+        65,
+        69
+      ],
+      "stitch_type": "running"
+    },
+    {
+      "name": "de la tyrannie",
+      "instructions": [
+        {
+          "op": "TENSION",
+          "value": 0.7
+        },
+        {
+          "op": "RET",
+          "n": 3
+        },
+        {
+          "op": "CROSS",
+          "angle": 45.0,
+          "depth": 1.0,
+          "wrap": false
+        }
+      ],
+      "repeat": 1,
+      "loom_hint": "3目半返し — 怒りの振動",
+      "tone_hint": "V: 不安定なドミナント",
+      "chord_label": "G",
+      "scale_degree": "V",
+      "root_midi": 67,
+      "chord_notes_midi": [
+        67,
+        71,
+        62
+      ],
+      "stitch_type": "back_stitch"
+    },
+    {
+      "name": "Aux armes!",
+      "instructions": [
+        {
+          "op": "TENSION",
+          "value": 0.95
+        },
+        {
+          "op": "FWD",
+          "n": 7
+        },
+        {
+          "op": "CROSS",
+          "angle": -45.0,
+          "depth": 1.0,
+          "wrap": false
+        }
+      ],
+      "repeat": 1,
+      "loom_hint": "7目前進 — 最大の跳躍",
+      "tone_hint": "I: ff、武器を取れ！",
+      "chord_label": "C",
+      "scale_degree": "I",
+      "root_midi": 60,
+      "chord_notes_midi": [
+        60,
+        64,
+        67
+      ],
+      "stitch_type": "running"
+    },
+    {
+      "name": "Marchons!",
+      "instructions": [
+        {
+          "op": "ANCHOR"
+        },
+        {
+          "op": "TENSION",
+          "value": 0.8
+        }
+      ],
+      "repeat": 1,
+      "loom_hint": "玉留め — 行進の固定",
+      "tone_hint": "I: 行進リズムの確立",
+      "chord_label": "C",
+      "scale_degree": "I",
+      "root_midi": 60,
+      "chord_notes_midi": [
+        60,
+        64,
+        67
+      ],
+      "stitch_type": "running"
+    }
+  ]
+}

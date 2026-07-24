@@ -1,0 +1,216 @@
+{
+  "iv_2sls": {
+    "first_stage": {
+      "coef_geo": 0.19221554602078136,
+      "t_geo": 0.7628401606946231,
+      "p_geo": 0.44755357842317056,
+      "R2": 0.3660704009121579,
+      "F": 10.394320167255328,
+      "partial_F_geo": 0.5819251107685984,
+      "weak_instrument": true
+    },
+    "reduced_form": {
+      "coef_geo": -0.15125184682566398,
+      "p_geo": 0.43915493971331965
+    },
+    "second_stage_manual": {
+      "coef_closure": -0.7868866486444948,
+      "p_closure": 0.4391549397133187,
+      "R2": 0.6010342980635226
+    },
+    "iv2sls_linearmodels": {
+      "coef": -0.7868866486443835,
+      "se": 1.7149619050125258,
+      "p": 0.6463517781497323,
+      "ci_lo": -4.148150217327135,
+      "ci_hi": 2.574376920038368
+    },
+    "hausman": {
+      "ols_coef": 0.10445776266775514,
+      "iv_coef": -0.7868866486444948,
+      "diff": -0.89134441131225
+    }
+  },
+  "psm": {
+    "ps_distribution": {
+      "open_mean": 0.2414948726688398,
+      "closed_mean": 0.5975425688172163,
+      "overlap_region": [
+        0.12131560111464015,
+        0.859465602327805
+      ]
+    },
+    "matching": {
+      "n_treated": 36,
+      "n_matched": 34,
+      "n_unmatched": 2,
+      "caliper": 0.31391171246423166
+    },
+    "att": {
+      "estimate": -0.11764705882352933,
+      "se": 0.0981555406707123,
+      "ci_lo": -0.2941176470588235,
+      "ci_hi": 0.05882352941176472,
+      "p": 0.302,
+      "n_matched_pairs": 34
+    },
+    "balance": {
+      "geo_barrier": {
+        "smd_before": 0.22547559169430365,
+        "smd_after": -0.07236124908790113,
+        "improved": "True"
+      },
+      "external_threat": {
+        "smd_before": 0.13757017435077268,
+        "smd_after": -0.3490177771426688,
+        "improved": "False"
+      },
+      "tech_position": {
+        "smd_before": -1.0810749707317404,
+        "smd_after": 0.15250743709682205,
+        "improved": "True"
+      },
+      "institutional_quality": {
+        "smd_before": -0.6615925175007884,
+        "smd_after": 0.26899305521618294,
+        "improved": "True"
+      },
+      "era_code": {
+        "smd_before": 0.9374751328579057,
+        "smd_after": 0.2876369981913019,
+        "improved": "True"
+      },
+      "relative_pop": {
+        "smd_before": -0.2232620391675142,
+        "smd_after": -0.029106878298799238,
+        "improved": "True"
+      }
+    }
+  },
+  "natural_experiment": {
+    "tech_vs_open": {
+      "tech_rate": 1.0,
+      "open_rate": 0.6226415094339622,
+      "or": Infinity,
+      "p_fisher": 0.04827350064053747,
+      "n_tech": 7,
+      "n_open": 53
+    },
+    "tech_vs_policy": {
+      "tech_rate": 1.0,
+      "policy_rate": 0.6666666666666666,
+      "or": Infinity,
+      "p_fisher": 0.16299334094957585
+    },
+    "covariate_balance": {
+      "geo_barrier": {
+        "tech_mean": 0.3571428571428572,
+        "open_mean": 0.47547169811320755,
+        "diff": -0.11832884097035035,
+        "p_mw": 0.12409940576510443
+      },
+      "external_threat": {
+        "tech_mean": 0.7285714285714285,
+        "open_mean": 0.660377358490566,
+        "diff": 0.06819407008086253,
+        "p_mw": 0.38144868332662696
+      },
+      "relative_pop": {
+        "tech_mean": 0.3714285714285714,
+        "open_mean": 0.3437735849056604,
+        "diff": 0.027654986522910985,
+        "p_mw": 0.501782503643716
+      },
+      "tech_position": {
+        "tech_mean": 0.5,
+        "open_mean": 0.639622641509434,
+        "diff": -0.13962264150943404,
+        "p_mw": 0.06883241527231862
+      },
+      "institutional_quality": {
+        "tech_mean": 0.4428571428571429,
+        "open_mean": 0.5622641509433962,
+        "diff": -0.11940700808625332,
+        "p_mw": 0.10228413941127028
+      },
+      "regime_duration_yrs": {
+        "tech_mean": 353.57142857142856,
+        "open_mean": 252.88679245283018,
+        "diff": 100.68463611859838,
+        "p_mw": 0.11346955150363436
+      },
+      "era_code": {
+        "tech_mean": 1.1428571428571428,
+        "open_mean": 1.9433962264150944,
+        "diff": -0.8005390835579516,
+        "p_mw": 0.1950429053810313
+      },
+      "has_external_patron": {
+        "tech_mean": 0.0,
+        "open_mean": 0.16981132075471697,
+        "diff": -0.16981132075471697,
+        "p_mw": 0.24847991849610873
+      }
+    },
+    "dose_response": {
+      "rates": [
+        0.6226415094339622,
+        0.6666666666666666,
+        1.0
+      ],
+      "z_trend": 1.6067912949858039,
+      "p_trend": 0.05405007923594651
+    }
+  },
+  "robustness": {
+    "e_value": {
+      "or_observed": 1.7741935483870968,
+      "e_value_point": 2.9461872338441903,
+      "e_value_ci": 1.0,
+      "or_ci_lo": 0.7451652415344763
+    },
+    "permutation": {
+      "observed_diff": 0.12549019607843137,
+      "p_perm": 0.1391,
+      "n_perm": 10000
+    },
+    "loo": {
+      "full_or": 1.7741935483870968,
+      "loo_or_range": [
+        1.685483870967742,
+        1.935483870967742
+      ],
+      "loo_or_mean": 1.7764896953405016,
+      "loo_p_range": [
+        0.10454107115391054,
+        0.1693132293122101
+      ],
+      "sign_changes": 0,
+      "always_sig": false
+    },
+    "alt_outcome_overtaken": {
+      "or": 1.7741935483870968,
+      "p": 0.13895128017550717
+    },
+    "alt_outcome_survived": {
+      "or": 0.6495726495726496,
+      "p": 0.8951617400668803
+    },
+    "bootstrap_or": {
+      "median": 1.7959183673469388,
+      "ci_lo": 0.7620325215151338,
+      "ci_hi": 4.570042482718892,
+      "n_boot": 5000
+    },
+    "vif": {
+      "geo_barrier": 1.572097845729294,
+      "external_threat": 1.271612050403415,
+      "relative_pop": 1.3620665430390806,
+      "tech_position": 2.2481568624908155,
+      "institutional_quality": 2.8663080442903697,
+      "regime_duration_yrs": 2.031819473541043,
+      "era_code": 2.7600912053935884,
+      "has_external_patron": 1.6519416629890962
+    }
+  }
+}

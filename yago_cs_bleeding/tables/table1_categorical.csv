@@ -1,0 +1,22 @@
+Variable,n,Percentage
+Emergency CS: 0,1598,54.1%
+Emergency CS: 1,1357,45.9%
+ASA-PS: 1.0,1079,37.2%
+ASA-PS: 2.0,1708,59.0%
+ASA-PS: 3.0,110,3.8%
+Prior cesarean: 0,1589,54.8%
+Prior cesarean: 1,1308,45.2%
+Hypertensive disorders of pregnancy: 0,2643,91.3%
+Hypertensive disorders of pregnancy: 1,251,8.7%
+Placenta previa/low-lying placenta: 0,2693,91.1%
+Placenta previa/low-lying placenta: 1,262,8.9%
+Epidural anesthesia: 0.0,1974,68.1%
+Epidural anesthesia: 1.0,923,31.9%
+Continuous vasopressor infusion: 0.0,2642,91.2%
+Continuous vasopressor infusion: 1.0,255,8.8%
+Intraoperative antiemetic: 0.0,2349,81.1%
+Intraoperative antiemetic: 1.0,548,18.9%
+Transfusion: 0,2827,95.7%
+Transfusion: 1,128,4.3%
+Massive hemorrhage (>=1500 mL): 0,2719,93.6%
+Massive hemorrhage (>=1500 mL): 1,185,6.4%

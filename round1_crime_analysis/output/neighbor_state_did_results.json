@@ -1,0 +1,57 @@
+{
+  "Violent Crime": {
+    "coefficient": -12.903,
+    "std_error": 16.3,
+    "p_value": 0.4286,
+    "ci_95": [
+      -44.851,
+      19.045
+    ],
+    "significant": false,
+    "n_obs": 675
+  },
+  "Property Crime": {
+    "coefficient": -47.86,
+    "std_error": 64.282,
+    "p_value": 0.4566,
+    "ci_95": [
+      -173.851,
+      78.131
+    ],
+    "significant": false,
+    "n_obs": 675
+  },
+  "Murder": {
+    "coefficient": -0.305,
+    "std_error": 0.181,
+    "p_value": 0.0914,
+    "ci_95": [
+      -0.66,
+      0.049
+    ],
+    "significant": false,
+    "n_obs": 675
+  },
+  "Robbery": {
+    "coefficient": -7.533,
+    "std_error": 6.132,
+    "p_value": 0.2192,
+    "ci_95": [
+      -19.551,
+      4.484
+    ],
+    "significant": false,
+    "n_obs": 675
+  },
+  "Burglary": {
+    "coefficient": -14.864,
+    "std_error": 23.15,
+    "p_value": 0.5208,
+    "ci_95": [
+      -60.237,
+      30.509
+    ],
+    "significant": false,
+    "n_obs": 675
+  }
+}

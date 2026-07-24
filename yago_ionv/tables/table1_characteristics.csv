@@ -1,0 +1,20 @@
+Variable,Type,Singleton,Twin,P-value
+Age (years),continuous,34.0 [30.0–37.0],32.0 [29.0–35.2],8.799039140814956e-07
+BMI (kg/m²),continuous,24.8 [22.5–27.8],25.4 [22.8–28.0],0.16860162510528987
+Gestational age (weeks),continuous,38.0 [37.0–38.6],37.0 [36.1–37.3],1.9319605333054925e-54
+Surgery time (min),continuous,47.5 [40.0–57.0],44.0 [38.0–51.0],4.754113822986394e-09
+Anesthesia time (min),continuous,64.0 [55.0–76.0],58.0 [51.0–68.0],4.012606517421575e-13
+Estimated blood loss (mL),continuous,650.0 [450.0–930.0],1190.0 [915.0–1672.5],8.287235433642612e-78
+Infusion volume (mL),continuous,1000.0 [750.0–1250.0],1050.0 [800.0–1300.0],0.06220724360817038
+Hypotensive episodes (count),continuous,1.0 [0.0–2.0],0.0 [0.0–2.0],0.002644964411155147
+Intrathecal bupivacaine (mg),continuous,10.0 [10.0–11.0],10.0 [10.0–11.0],0.1977974257133297
+Intrathecal fentanyl (μg),continuous,20.0 [20.0–25.0],20.0 [15.0–20.0],0.17605521939932545
+Emergency CS,categorical,1320/2824 (46.7%),121/340 (35.6%),9.555077161862679e-05
+Prior CS,categorical,1272/2824 (45.0%),40/340 (11.8%),5.790273643328158e-32
+Hypertensive disorders of pregnancy,categorical,279/2824 (9.9%),33/340 (9.7%),0.9191490346763758
+Preoperative steroid (≤1 week),categorical,204/2817 (7.2%),25/340 (7.4%),0.9404766498963927
+Epidural anesthesia,categorical,894/2824 (31.7%),103/340 (30.3%),0.609250708373609
+Continuous vasopressor infusion,categorical,253/2824 (9.0%),33/340 (9.7%),0.6499774388636103
+Hypotension (SBP < 90 mmHg),categorical,1494/2823 (52.9%),151/340 (44.4%),0.003002450922983595
+Uterine exteriorization,categorical,563/607 (92.8%),73/74 (98.6%),0.07689929266671564
+BMI ≥ 35 kg/m²,categorical,114/2793 (4.1%),5/339 (1.5%),0.01775740735211917

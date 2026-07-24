@@ -1,0 +1,65 @@
+store_id,code,name,city,state,county,open_year,source
+001,PHM,Puente Hills Mall,City of Industry,CA,Los Angeles,2010,Round1 Group corporate history (Aug 2010)
+002,MVM,Moreno Valley Mall,Moreno Valley,CA,Riverside,2012,Spinoso REG press release (2012)
+003,LWM,Lakewood Center Mall,Lakewood,CA,Los Angeles,2013,RE Business (existing by Apr 2015); store order
+004,APM,Arlington Parks Mall,Arlington,TX,Tarrant,2014,"Arcade Heroes (Dec 20, 2014)"
+005,NRS,North Riverside Park Mall,North Riverside,IL,Cook,2014,RE Business (existing by Apr 2015); estimated
+006,MPM,Main Place Mall,Santa Ana,CA,Orange,2015,RE Business (Apr 2015)
+007,SCM,Westfield Southcenter,Tukwila,WA,King,2015,RE Business (Apr 2015)
+008,ESC,Eastridge Shopping Center,San Jose,CA,Santa Clara,2015,RE Business (Apr 2015)
+009,SSM,Stratford Square Mall,Bloomingdale,IL,DuPage,2015,"Malls Wiki (opened 2015, closed 2020)"
+010,EXM,Exton Square Mall,Exton,PA,Chester,2015,"RE Business (PA location, 2015)"
+011,SVM,Sunvalley Mall,Concord,CA,Contra Costa,2015,Store number / wave estimate
+012,SCG,Silver City Galleria,Taunton,MA,Bristol,2015,"WBSM (Dec 26, 2015)"
+013,GVM,Grapevine Mills,Grapevine,TX,Tarrant,2016,Store number estimate
+014,GLC,Great Lakes Crossing,Auburn Hills,MI,Oakland,2016,Store number estimate
+015,FSM,Four Seasons Town Centre,Greensboro,NC,Guilford,2016,Store number estimate
+016,STC,Shops at South Town,Sandy,UT,Salt Lake,2016,Store number estimate
+017,SWP,Southwest Plaza,Littleton,CO,Jefferson,2016,Store number estimate
+018,BWM,Broadway Mall,Hicksville,NY,Nassau,2016,Store number estimate
+019,GLM,Great Lakes Mall,Mentor,OH,Lake,2016,Store number estimate
+020,CCM,Coronado Center,Albuquerque,NM,Bernalillo,2016,Store number estimate
+021,FVM,Fox Valley Mall,Aurora,IL,Kane,2017,Malls Wiki (opened 2017)
+022,MCM,Millcreek Mall,Erie,PA,Erie,2017,Store number estimate
+023,NWD,Northwoods Mall,Peoria,IL,Peoria,2017,"Malls Wiki (Nov 18, 2017)"
+024,FFC,Fairfield Commons,Beavercreek,OH,Greene,2017,Store number estimate
+025,MEM,Maine Mall,South Portland,ME,Cumberland,2017,Store number estimate
+026,LAS,Meadows Mall,Las Vegas,NV,Clark,2017,Store number estimate
+027,RNO,Meadowood Mall,Reno,NV,Washoe,2017,Store number estimate
+028,GWM,Gateway Mall,Lincoln,NE,Lancaster,2017,Store number estimate
+029,SRM,Southridge Mall,Greendale,WI,Milwaukee,2018,Store number estimate
+030,NRM,Northridge Mall,Salinas,CA,Monterey,2018,Store number estimate
+031,TTC,Towson Town Center,Towson,MD,Baltimore,2018,Store number estimate
+032,HYM,Holyoke Mall,Holyoke,MA,Hampden,2018,Store number estimate
+033,SLM,Southland Mall,Hayward,CA,Alameda,2018,Store number estimate
+034,PPM,Park Place Mall,Tucson,AZ,Pima,2018,Store number estimate
+035,RVM,Galleria at Roseville,Roseville,CA,Placer,2018,Store number estimate
+036,VRC,Valley River Center,Eugene,OR,Lane,2018,Store number estimate
+037,QSM,Quail Springs Mall,Oklahoma City,OK,Oklahoma,2019,Store number estimate
+038,SHM,South Hill Mall,Puyallup,WA,Pierce,2019,Store number estimate
+039,VCM,Vancouver Mall,Vancouver,WA,Clark,2019,Store number estimate
+040,NSM,North Star Mall,San Antonio,TX,Bexar,2019,Store number estimate
+041,BTC,Burbank Town Center,Burbank,CA,Los Angeles,2019,Store number estimate
+042,TES,Town East Square,Wichita,KS,Sedgwick,2019,Store number estimate
+043,DFM,Deptford Mall,Deptford,NJ,Gloucester,2019,Store number estimate
+044,PCC,Park City Center,Lancaster,PA,Lancaster,2019,Store number estimate
+045,PMM,Potomac Mills,Woodbridge,VA,Prince William,2019,Store number estimate
+046,CLM,Cumberland Mall,Atlanta,GA,Cobb,2019,Store number estimate
+047,PLM,Pembroke Lakes Mall,Pembroke Pines,FL,Broward,2019,Store number estimate
+048,FDP,Fashion District Philadelphia,Philadelphia,PA,Philadelphia,2019,Store number estimate
+049,TMP,Promenade Temecula,Temecula,CA,Riverside,2019,Store number estimate
+050,CRG,Galleria at Crystal Run,Middletown,NY,Orange,2021,Store number estimate (COVID gap)
+051,WLB,Willowbrook Mall,Houston,TX,Harris,2021,Store number estimate
+052,DBK,Deerbrook Mall,Humble,TX,Harris,2022,Store number estimate
+053,ATC,Arrowhead Towne Center,Glendale,AZ,Maricopa,2022,Store number estimate
+054,JFM,Jefferson Mall,Louisville,KY,Jefferson,2022,Store number estimate
+055,LVO,Las Vegas South Premium Outlets,Las Vegas,NV,Clark,2023,Store number estimate
+056,PBO,Westfield Plaza Bonita,National City,CA,San Diego,2023,Store number estimate
+057,STM,Mall at Stonecrest,Stonecrest,GA,DeKalb,2023,Store number estimate
+058,MVJ,Shops at Mission Viejo,Mission Viejo,CA,Orange,2023,Store number estimate
+059,STG,Stonestown Galleria,San Francisco,CA,San Francisco,2023,Store number estimate
+060,CHF,Chandler Fashion Center,Chandler,AZ,Maricopa,2023,Store number estimate
+061,DBF,Danbury Fair,Danbury,CT,Fairfield,2024,"Round1 IR (Mar 9, 2024)"
+062,GUR,Gurnee Mills,Gurnee,IL,Lake,2024,"Malls Wiki (Aug 31, 2024)"
+063,JSG,Mills at Jersey Gardens,Elizabeth,NJ,Union,2024,Store number estimate
+064,MLP,Menlo Park Mall,Edison,NJ,Middlesex,2024,Store number estimate

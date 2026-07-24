@@ -1,101 +1,126 @@
-# Healthcare Expenditure as Economic Effect
+# Evaluating Healthcare Expenditure Sustainability in Japan
 
-A neutral sustainability framework that reframes healthcare spending from
-"cost to be contained" to "investment with measurable economic returns."
+A dual-return framework that reframes healthcare spending from a "cost to be
+contained" to an activity with measurable, but bounded, economic returns.
+This repository contains the complete, executable analysis code and input
+data underlying the manuscript submitted to *Environmental Health and
+Preventive Medicine* (EHPM-D-26-00106R1) and **supersedes the earlier
+minimum proof-of-concept**: every quantitative result in the manuscript can
+be regenerated from a clean clone.
 
-## Core Thesis
+## Core framework
 
-Healthcare expenditure is simultaneously a **cost** and an **economic effect**.
-This project integrates five analytical lenses:
+Healthcare expenditure is simultaneously a **cost** and an **economic
+effect**. The analysis integrates:
 
-1. **Input-Output (I-O) Multipliers** -- healthcare spending as demand stimulus
-   (Japan: 2.78x, OECD range: 1.7-2.9x)
-2. **Health-Led Growth Hypothesis (HLGH)** -- bidirectional causality between
-   health spending and GDP growth (confirmed across 38 OECD countries)
-3. **Health-Capital Tempo Effect** -- deferred supply-side returns from
-   health-capital stock accumulation (from `healthcare_tempo_poc`)
-4. **Three-Layer Tempo Analogy** -- the Bongaarts-Feeney quantum-tempo
-   decomposition ported from Population to GDP to Healthcare, showing that
-   healthcare exhibits the largest tempo drift (+0.15 yr/yr vs GDP +0.04)
-5. **Equipment Stock & Import Leakage** -- Japan's diagnostic imaging density
-   (170.9 CT+MRI/million, 4x OECD median) as health capital asset; import
-   leakage (~5% CHE) reducing effective I-O multiplier
+1. **Input-Output (I-O) multipliers** -- healthcare spending as demand
+   stimulus. We distinguish **output multipliers** (total output per unit of
+   final demand; upper bound) from **value-added multipliers** (GDP
+   contribution; conservative lower bound).
+2. **Fiscal return ratio** -- FR = (tau * m) / pf, the induced tax revenue
+   from the demand-side multiplier relative to the public financing share,
+   reported under progressively conservative treatments (import leakage,
+   deficit financing, value added).
+3. **Health-capital tempo model** -- a spending-to-outcome lag estimated from
+   public World Bank data (39 countries, 2000-2019), with full model
+   selection (level RMSE, change RMSE, LOOCV RMSE, AIC, BIC).
+4. **Equipment stock & import leakage** -- Japan's diagnostic imaging density
+   (~170.9 CT+MRI/million) as a health-capital asset, and import leakage
+   reducing the effective multiplier.
 
-## Key Results
+## Key results (reproducible)
 
-- The **fiscal return ratio** tau*m / pf exceeds 1.0 in 5 of 13 countries on the
-  demand side alone (France 1.18, Italy 1.13, Japan 1.09, Sweden 1.04, Finland 1.04),
-  with the remaining countries recovering 76-96% of public costs.
-- The **tempo model (M2)** outperforms the constant-lag model (M1) in **95% of
-  39 countries** (mu_H1 = +0.15 yr/yr), confirming that flow-only evaluation
-  systematically underestimates returns.
-- The **three-layer analogy** (Population -> GDP -> Healthcare) reveals that
-  healthcare has the largest tempo drift among all three domains, making it
-  the field where tempo correction matters most.
-- **Counterfactual analysis**: reducing Japan's equipment density to OECD average
-  drops fiscal return to 0.98 (unsustainable); domestic manufacturing raises it
-  to 1.09. High equipment density is a sustainability component, not excess.
+- **Fiscal return, Japan.** Under the gross output multiplier the ratio is
+  **1.09**; import-leakage-adjusted **1.04**; **deficit-adjusted 0.67**
+  (crediting only the non-deficit part of the return against full public
+  cost, delta = 0.35); value-added **0.60**. The economic return is
+  **material and near break-even**, robust in direction, but does not by
+  itself prove unconditional self-financing under conservative treatments.
+- **Tempo lag (robust).** Introducing a spending-to-outcome lag (M1) improves
+  fit over the flow-only model (M0): median level RMSE 0.253 -> 0.208, LOOCV
+  0.304 -> 0.250; M1 is favoured over M0 by AIC/BIC/LOOCV in **64%/64%/69%**
+  of countries. Median constant lag ~2 years.
+- **No stable tempo drift.** The time-varying model (M2) is **not** favoured
+  over M1 by AIC or BIC in any country (**0%/0%**); the drift parameter is
+  poorly identified (grid-boundary dominated, median -0.10 yr/yr). M2 is
+  reported as exploratory only.
 
-## Country Selection
+> **Correction note (R2).** A previous revision reported RMSE values of
+> 0.510/0.441/0.434 and a positive drift of +0.15 yr/yr. Those values were
+> traced to a 2000-2023 sample that inadvertently included the 2020-2022
+> COVID-19 mortality shock; running the identical code over 2000-2023
+> reproduces them exactly. The manuscript specifies the 2000-2019
+> pre-pandemic period, and all results here use that period.
 
-Countries are included based on published I-O multiplier evidence:
-- **(a)** Direct I-O study of the healthcare sector in a peer-reviewed journal
-  or official government report.
-- **(b)** Backward-linkage coefficient from the EU-28 I-O framework study
-  (Gutierrez-Hernandez & Abasolo-Alesson 2021).
+## Reproduce
 
-13 countries with multiplier evidence + OECD synthesis average.
+```bash
+cd healthcare_economic_effect
+pip install numpy pandas matplotlib python-docx python-pptx
+
+# 1. (optional) refresh the World Bank inputs from the live API.
+#    A committed subset already ships in data/wb, so this is only needed
+#    to update the data; the analysis runs offline without it.
+python scripts/fetch_wb_health.py
+
+# 2. compute the tempo model-selection statistics (writes
+#    data/tempo_model_selection.json and _bycountry.csv)
+python scripts/tempo_model_selection.py
+
+# 3. run the full economic-effect analysis (fiscal return, deficit cascade,
+#    equipment/leakage, figures) -- consumes the JSON from step 2
+python scripts/analyze_healthcare_economic_effect.py
+
+# 4. build the manuscript, response letter, cover letter, and figure PPTX
+python scripts/create_manuscript_ehpm_r2.py
+```
+
+`tempo_model_selection.py` resolves its World Bank cache in this order:
+`$WB_DIR` if set, otherwise the committed `data/wb/`.
 
 ## Structure
 
 ```
 healthcare_economic_effect/
   scripts/
-    analyze_healthcare_economic_effect.py   # Data + figures (8 figs, bilingual)
-    create_manuscript_ja.py                 # Japanese manuscript (docx + pptx)
-    create_manuscript_en.py                 # English manuscript (docx + pptx)
-  data/                                     # CSV + JSON outputs
+    fetch_wb_health.py                      # Download WB indicators -> data/wb
+    tempo_model_selection.py                # M0/M1/M2 fit + AIC/BIC/LOOCV
+    analyze_healthcare_economic_effect.py   # Fiscal return, deficit cascade, figures
+    create_manuscript_ehpm_r2.py            # Manuscript + response + cover + PPTX
+  data/
+    wb/                                     # Committed World Bank input subset
+    tempo_model_selection.json              # Computed model-selection summary
+    neutral_sustainability.csv              # Fiscal-return table (Table 2)
+    ...                                     # Other CSV/JSON outputs
   output/
-    docx/     # Manuscripts (JA/EN)
-    pptx/     # Editable figures (1 slide per figure, JA/EN)
-    figures/  # PNG figures (8 EN + 4 JA variants)
+    docx/     # Manuscript, response-to-reviewers, cover letter
+    pptx/     # Editable English figures (1 slide per figure)
+    figures/  # PNG figures (10 EN + JA variants)
   README.md
 ```
 
-## Reproduce
+## Data sources
 
-```bash
-cd healthcare_economic_effect
-pip install python-docx python-pptx numpy pandas matplotlib
-python scripts/analyze_healthcare_economic_effect.py
-python scripts/create_manuscript_ja.py
-python scripts/create_manuscript_en.py
-```
+- **World Bank World Development Indicators** (SH.XPD.CHEX.PP.CD,
+  SH.XPD.CHEX.GD.ZS, SP.DYN.LE00.IN): committed subset in `data/wb/`;
+  refreshable via `fetch_wb_health.py`.
+- **OECD Health at a Glance 2023**: CT/MRI density, workforce, financing.
+- **Published I-O studies**: healthcare-sector output multipliers per country
+  (see manuscript references).
 
-## Connection to Companion Papers
+## Model selection (methods summary)
 
-This project integrates findings from three companion analyses:
+For each country the life-expectancy production function
+`LE(t) = a + b*ln H(t) + c*ln GDPpc(t) + e(t)` is fit under three nested
+specifications of the health-capital stock `H(t)` (perpetual inventory,
+delta_H = 0.10, geometric lag weights):
 
-| Paper | Repository Location | Key Contribution |
-|---|---|---|
-| Population tempo (Onishi 2026a) | `population_tempo_paper/` | Bongaarts-Feeney framework + sigma |
-| GDP tempo (Onishi 2026b) | `gdp_tempo_paper/` | Time-to-build mu, intangible K beta |
-| Healthcare PoC (Onishi 2026c) | `healthcare_tempo_poc/` | Candidate A-H: mu_H drift +0.15 yr/yr |
-| **This paper** | `healthcare_economic_effect/` | I-O + tempo dual-return sustainability |
+| Model | Lag structure | Params |
+|---|---|---:|
+| M0 | flow only (`H = E`) | 3 |
+| M1 | constant lag `mu*` (grid 0-19 yr) | 4 |
+| M2 | time-varying lag `mu0 + mu1*(year - t0)` (grid) | 5 |
 
-The GDP paper's Section 6.4 previews the healthcare companion. The three-layer
-analogy (Figure 2) connects all four papers into a unified programme.
-
-## References
-
-Key sources (24 total in manuscripts):
-- Yamada & Imanaka (2015) *Environ Health Prev Med* -- Japan I-O multiplier 2.78
-- Dupor & Guerrero (2021) *Econ Inq* -- US Medicare multiplier 1.7
-- Gutierrez-Hernandez & Abasolo-Alesson (2021) *Cost Eff Resour Alloc* -- EU-28 I-O framework
-- Ertugrul et al. (2024) *Front Public Health* -- HLGH in 38 OECD countries
-- Bongaarts & Feeney (1998) *Popul Dev Rev* -- Tempo effect origin
-- Goldstein, Lutz & Scherbov (2003) *Popul Dev Rev* -- Forgotten parameter sigma
-- Onishi (2026) Working Papers -- GDP tempo + healthcare PoC companion papers
-- OECD (2023) *Health at a Glance* -- CT/MRI density data
-- MHLW (2021) Pharmaceutical production statistics -- Japan trade data
-- Preston (1975) *Popul Stud* -- Original Preston Curve (overfit demonstrated)
+LOOCV RMSE is exact for the linear model conditional on the full-sample-
+selected lag structure; it is not a fully nested re-estimation of the
+nonlinear lag selection inside each fold (stated as a limitation in Methods).

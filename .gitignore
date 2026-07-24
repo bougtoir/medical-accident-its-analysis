@@ -1,5 +1,13 @@
+canonical_curves_reexamination/data/hmd/
+canonical_curves_reexamination/data/cache/
 medical_sapir_whorf/scripts/__pycache__/
 canonical_curves_reexamination/scripts/__pycache__/
+landmine_transparent_map/scripts/__pycache__/
+anesthesia-record/build/
+anesthesia-record/dist/
+anesthesia-record/*.spec
+anesthesia-record/test-plan.md
+anesthesia-record/test-report.md
 __pycache__/
 *.pyc
 *.pyo
@@ -19,4 +27,3 @@ output/*.json
 .pytest_cache/
 .mypy_cache/
 .DS_Store
-

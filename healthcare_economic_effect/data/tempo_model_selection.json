@@ -1,0 +1,49 @@
+{
+  "n_countries": 39,
+  "data_source": "World Bank WDI (SH.XPD.CHEX.PP.CD, SH.XPD.CHEX.GD.ZS, SP.DYN.LE00.IN)",
+  "period": "2000-2019",
+  "delta_H": 0.1,
+  "n_params": {
+    "M0": 3,
+    "M1": 4,
+    "M2": 5
+  },
+  "models": {
+    "M0_flow": {
+      "level_rmse_median": 0.2526300221578559,
+      "change_rmse_median": 0.2202995467723634,
+      "loocv_rmse_median": 0.30377214708852357,
+      "aic_median": -49.03316894253611,
+      "bic_median": -46.04597212187414
+    },
+    "M1_constant_lag": {
+      "level_rmse_median": 0.20800200541696395,
+      "change_rmse_median": 0.22382710864404548,
+      "loocv_rmse_median": 0.25037208875486433,
+      "aic_median": -54.80830231598344,
+      "bic_median": -50.82537322176748,
+      "mu_const_median_yr": 2.0
+    },
+    "M2_tempo_lag": {
+      "level_rmse_median": 0.20700125616052267,
+      "change_rmse_median": 0.22378284055234324,
+      "loocv_rmse_median": 0.24963219074233944,
+      "aic_median": -53.00121669307434,
+      "bic_median": -48.02255532530439,
+      "mu_H0_median_yr": 2.0,
+      "mu_H1_median_yr_per_yr": -0.1
+    }
+  },
+  "key_findings": {
+    "M1_beats_M0_level_pct": 72,
+    "M2_beats_M0_level_pct": 72,
+    "M2_beats_M0_change_pct": 67,
+    "M2_beats_M1_level_pct": 77,
+    "M1_beats_M0_aic_pct": 64,
+    "M1_beats_M0_bic_pct": 64,
+    "M1_beats_M0_loocv_pct": 69,
+    "M2_beats_M1_aic_pct": 0,
+    "M2_beats_M1_bic_pct": 0,
+    "M2_beats_M1_loocv_pct": 72
+  }
+}

@@ -1,0 +1,168 @@
+{
+  "definitions": {
+    "A": {
+      "label": "Primary: before delivery",
+      "col": "ionv_primary",
+      "singleton_n": 54,
+      "singleton_pct": 1.9121813031161474,
+      "twin_n": 5,
+      "twin_pct": 1.4705882352941175
+    },
+    "B": {
+      "label": "Secondary: any IONV (anesthesia→exit)",
+      "col": "ionv_secondary",
+      "singleton_n": 501,
+      "singleton_pct": 17.740793201133144,
+      "twin_n": 58,
+      "twin_pct": 17.058823529411764
+    },
+    "C": {
+      "label": "Post-delivery only",
+      "col": "ionv_C",
+      "singleton_n": 447,
+      "singleton_pct": 15.828611898016998,
+      "twin_n": 53,
+      "twin_pct": 15.588235294117647
+    },
+    "D": {
+      "label": "Severe (≥2 drugs)",
+      "col": "ionv_D",
+      "singleton_n": 31,
+      "singleton_pct": 1.0977337110481586,
+      "twin_n": 4,
+      "twin_pct": 1.1764705882352942
+    },
+    "E": {
+      "label": "5-HT3 antagonist",
+      "col": "ionv_E",
+      "singleton_n": 25,
+      "singleton_pct": 0.8852691218130312,
+      "twin_n": 8,
+      "twin_pct": 2.3529411764705883
+    },
+    "F": {
+      "label": "Excl. dexamethasone-only",
+      "col": "ionv_F",
+      "singleton_n": 54,
+      "singleton_pct": 1.9121813031161474,
+      "twin_n": 5,
+      "twin_pct": 1.4705882352941175
+    }
+  },
+  "regression": [
+    {
+      "Definition": "A",
+      "Label": "Primary: before delivery",
+      "n": 3129,
+      "Events": 58,
+      "twin_OR": 0.813308409390646,
+      "twin_CI_lower": 0.3085365465142227,
+      "twin_CI_upper": 2.1438969751191226,
+      "twin_P": 0.676051476446499,
+      "AIC": 583.4625364730048,
+      "reduced_model": false
+    },
+    {
+      "Definition": "B",
+      "Label": "Secondary: any IONV (anesthesia→exit)",
+      "n": 3129,
+      "Events": 553,
+      "twin_OR": 0.9223740734150708,
+      "twin_CI_lower": 0.6728830023791611,
+      "twin_CI_upper": 1.2643712626120256,
+      "twin_P": 0.6155486562421344,
+      "AIC": 2898.5844202190056,
+      "reduced_model": false
+    },
+    {
+      "Definition": "C",
+      "Label": "Post-delivery only",
+      "n": 3129,
+      "Events": 495,
+      "twin_OR": 0.9409667730214497,
+      "twin_CI_lower": 0.6786552774283822,
+      "twin_CI_upper": 1.3046660025771888,
+      "twin_P": 0.7151598074596928,
+      "AIC": 2723.1921739042273,
+      "reduced_model": false
+    },
+    {
+      "Definition": "D",
+      "Label": "Severe (≥2 drugs)",
+      "n": 3129,
+      "Events": 35,
+      "twin_OR": 1.1513547632908694,
+      "twin_CI_lower": 0.39020769654074455,
+      "twin_CI_upper": 3.3972107744270383,
+      "twin_P": 0.7984932410559432,
+      "AIC": 395.42149974845984,
+      "reduced_model": false
+    },
+    {
+      "Definition": "E",
+      "Label": "5-HT3 antagonist",
+      "n": 3129,
+      "Events": 33,
+      "twin_OR": 3.0203629966560777,
+      "twin_CI_lower": 1.211445446794175,
+      "twin_CI_upper": 7.530337132150874,
+      "twin_P": 0.0177168342051417,
+      "AIC": 342.2729948497821,
+      "reduced_model": false
+    },
+    {
+      "Definition": "F",
+      "Label": "Excl. dexamethasone-only",
+      "n": 3129,
+      "Events": 58,
+      "twin_OR": 0.813308409390646,
+      "twin_CI_lower": 0.3085365465142227,
+      "twin_CI_upper": 2.1438969751191226,
+      "twin_P": 0.676051476446499,
+      "AIC": 583.4625364730048,
+      "reduced_model": false
+    },
+    {
+      "Definition": "G",
+      "Label": "Drug count (Poisson)",
+      "n": 3129,
+      "Events": 594,
+      "twin_OR": 1.0224116798232195,
+      "twin_CI_lower": 0.7830541416362977,
+      "twin_CI_upper": 1.3349340581413536,
+      "twin_P": 0.8706184801257753,
+      "AIC": 3195.1278112072537
+    }
+  ],
+  "stratified": [
+    {
+      "Stratum": "Hypotension (+)",
+      "n": 1630,
+      "Events": 38,
+      "singleton_rate": 2.476572958500669,
+      "twin_rate": 1.3245033112582782,
+      "twin_OR": 0.6096091315266927,
+      "twin_CI_lower": 0.13759647049862822,
+      "twin_CI_upper": 2.700819954858024,
+      "twin_P": 0.5145910056684704
+    },
+    {
+      "Stratum": "Hypotension (−)",
+      "n": 1499,
+      "Events": 20,
+      "singleton_rate": 1.2791572610985704,
+      "twin_rate": 1.5873015873015872,
+      "twin_OR": 1.0546194087121705,
+      "twin_CI_lower": 0.2838297669624287,
+      "twin_CI_upper": 3.918623860828649,
+      "twin_P": 0.9367063002597222
+    }
+  ],
+  "drug_count": {
+    "singleton_mean": 0.18873937677053823,
+    "singleton_std": 0.4201790655260889,
+    "twin_mean": 0.19705882352941176,
+    "twin_std": 0.42695691693538096,
+    "p_mannwhitney": 0.718349706411837
+  }
+}

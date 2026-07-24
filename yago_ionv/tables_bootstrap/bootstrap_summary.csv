@@ -1,0 +1,9 @@
+Cohort,Outcome,Events,aOR,Wald_CI,Wald_P,Boot_Pct_CI,Boot_BCa_CI,Boot_Median,Convergence
+Full cohort,A-Primary,562,0.9242,0.67–1.27,0.6238,0.66–1.24,0.68–1.26,0.9236,100.0%
+Full cohort,A-Secondary,59,0.8172,0.31–2.15,0.6832,0.18–1.82,0.30–2.29,0.7891,100.0%
+Full cohort,E-Primary,33,3.1823,1.38–7.36,0.0068,1.23–7.01,1.23–7.01,3.2875,100.0%
+Full cohort,E-Secondary,9,3.4817,0.81–15.06,0.0949,N/A,N/A,4.1903,99.8%
+Low-risk subgroup,A-Primary,132,0.649,0.40–1.06,0.0856,0.38–1.05,0.39–1.06,0.6481,100.0%
+Low-risk subgroup,A-Secondary,18,0.6977,0.22–2.26,0.5488,0.12–2.35,0.15–2.72,0.6943,100.0%
+Low-risk subgroup,E-Primary,8,13.587,1.74–106.04,0.0128,2.67–107706046001.96,N/A,16.7155,99.8%
+Low-risk subgroup,E-Secondary,4,14.1418,0.72–277.39,0.0810,2.49–130642366834842512.00,3.14–255816293283844409338852540416.00,16.2308,91.5%

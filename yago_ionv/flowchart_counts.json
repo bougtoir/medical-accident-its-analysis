@@ -1,0 +1,127 @@
+{
+  "total_raw": {
+    "n": 3479,
+    "n_s": 3113,
+    "n_t": 366
+  },
+  "out_of_period": {
+    "n": 72,
+    "n_s": 70,
+    "n_t": 2
+  },
+  "total": {
+    "n": 3407,
+    "n_s": 3043,
+    "n_t": 364
+  },
+  "exclusion_steps": [
+    {
+      "reason": "General anesthesia",
+      "reason_ja": "全身麻酔",
+      "n": 142,
+      "n_s": 136,
+      "n_t": 6
+    },
+    {
+      "reason": "SBP < 90 mmHg at admission",
+      "reason_ja": "入室時SBP 90 mmHg未満",
+      "n": 12,
+      "n_s": 11,
+      "n_t": 1
+    },
+    {
+      "reason": "Intrauterine fetal death (IUFD)",
+      "reason_ja": "子宮内胎児死亡（IUFD）",
+      "n": 13,
+      "n_s": 4,
+      "n_t": 9
+    },
+    {
+      "reason": "Vanishing twin",
+      "reason_ja": "Vanishing twin",
+      "n": 3,
+      "n_s": 0,
+      "n_t": 3
+    },
+    {
+      "reason": "Triplet pregnancy",
+      "reason_ja": "品胎",
+      "n": 5,
+      "n_s": 5,
+      "n_t": 0
+    },
+    {
+      "reason": "Non-cesarean delivery",
+      "reason_ja": "帝王切開以外の分娩",
+      "n": 2,
+      "n_s": 2,
+      "n_t": 0
+    },
+    {
+      "reason": "Cardiac arrest",
+      "reason_ja": "心肺停止",
+      "n": 1,
+      "n_s": 1,
+      "n_t": 0
+    },
+    {
+      "reason": "Missing anesthesia data",
+      "reason_ja": "麻酔データ欠損",
+      "n": 10,
+      "n_s": 9,
+      "n_t": 1
+    }
+  ],
+  "total_excluded": {
+    "n": 188,
+    "n_s": 168,
+    "n_t": 20
+  },
+  "eligible": {
+    "n": 3219,
+    "n_s": 2875,
+    "n_t": 344
+  },
+  "preop_antiemetic": {
+    "n": 55,
+    "n_s": 51,
+    "n_t": 4
+  },
+  "primary_analysis": {
+    "n": 3164,
+    "n_s": 2824,
+    "n_t": 340
+  },
+  "exclusion_sensitivity": {
+    "Emergency CS": {
+      "n": 1441,
+      "n_s": 1320,
+      "n_t": 121
+    },
+    "Prior CS": {
+      "n": 1312,
+      "n_s": 1272,
+      "n_t": 40
+    },
+    "HDP": {
+      "n": 312,
+      "n_s": 279,
+      "n_t": 33
+    },
+    "Preoperative steroid": {
+      "n": 229,
+      "n_s": 204,
+      "n_t": 25
+    }
+  },
+  "exclusion_sensitivity_total": {
+    "n": 2506,
+    "n_s": 2348,
+    "n_t": 158
+  },
+  "subgroup_analysis": {
+    "n": 658,
+    "n_s": 476,
+    "n_t": 182
+  }
+}
