@@ -144,6 +144,18 @@ def build_flat(R):
         F[f'{code}_ml_p'] = fmt_p(m.get('p'))
         F[f'{code}_ml_r2'] = fmt_num(m.get('marginal_r2'), 3)
 
+        mc = c.get('multilevel_covariate')
+        if mc:
+            F[f'{code}_mlc_coef'] = fmt_num(mc.get('coef_univ'))
+            F[f'{code}_mlc_ci_low'] = fmt_num(mc.get('ci_low'))
+            F[f'{code}_mlc_ci_high'] = fmt_num(mc.get('ci_high'))
+            F[f'{code}_mlc_p'] = fmt_p(mc.get('p'))
+            F[f'{code}_mlc_r2'] = fmt_num(mc.get('marginal_r2'), 3)
+            F[f'{code}_mlc_popd_coef'] = fmt_num(mc['log_pop_density_z'].get('coef'))
+            F[f'{code}_mlc_popd_p'] = fmt_p(mc['log_pop_density_z'].get('p'))
+            F[f'{code}_mlc_anes_coef'] = fmt_num(mc['anes_pct_z'].get('coef'))
+            F[f'{code}_mlc_anes_p'] = fmt_p(mc['anes_pct_z'].get('p'))
+
         if code in R.get('variance_decomposition', {}):
             vd = R['variance_decomposition'][code]
             for json_key, flat_key in vd_key_map.items():
@@ -541,8 +553,9 @@ add_para(
     "receiving area. Areas with very few claims are masked by the data provider to "
     "protect privacy and appear as missing values. Second, we obtained physician "
     "statistics from the ${fiscal_year} Survey of Physicians, Dentists and "
-    "Pharmacists.{13} Third, geographic boundary data were obtained from the "
-    "National Land Numerical Information dataset.{14}")
+    "Pharmacists.{13} Third, secondary medical area boundaries, land area and "
+    "population density were obtained from the National Land Numerical "
+    "Information medical-area dataset (A38-20).{14}")
 
 add_subheading("Anaesthesia procedure codes and university hospital mapping")
 add_para(
@@ -590,14 +603,16 @@ add_para(
     "within prefectures (level 2, n = ${n_prefectures}).{16} A null random-"
     "intercept model was fitted first to estimate the intraclass correlation "
     "coefficient. Subsequent models added fixed effects for university hospital "
-    "presence. Models were estimated by restricted maximum likelihood using the "
-    "Python statsmodels MixedLM implementation.{17} A small number of model fits "
-    "produced optimizer convergence warnings; the resulting point estimates were "
-    "numerically stable across repeated fits and across the three sensitivity "
-    "analyses, and are reported as mixed-model coefficients. Marginal R² was "
-    "calculated as the proportional reduction in total variance from the null "
-    "model. To address potential instability of ratios in low-volume areas, we "
-    "applied empirical Bayes shrinkage estimation{18} and compared all main "
+    "presence; a covariate-adjusted sensitivity model further added the natural "
+    "logarithm of population density and the anaesthesiologist share of all "
+    "physicians (both standardised).{14,15} Models were estimated by restricted "
+    "maximum likelihood using the Python statsmodels MixedLM implementation.{17} A "
+    "small number of model fits produced optimizer convergence warnings; the "
+    "resulting point estimates were numerically stable across repeated fits and "
+    "across the sensitivity analyses, and are reported as mixed-model coefficients. "
+    "Marginal R² was calculated as the proportional reduction in total variance from "
+    "the null model. To address potential instability of ratios in low-volume areas, "
+    "we applied empirical Bayes shrinkage estimation{18} and compared all main "
     "findings using both raw and shrunken ratios.")
 
 add_para(
@@ -735,6 +750,26 @@ add_table_from_data(
           "restricted maximum likelihood.")
 )
 
+add_para(
+    "A covariate-adjusted sensitivity model added the natural logarithm of "
+    "population density and the anaesthesiologist share of all physicians (both "
+    "standardised). The university hospital coefficient was attenuated but remained "
+    "positive and statistically significant for general anaesthesia (β = "
+    "+${L008_mlc_coef}, 95% CI ${L008_mlc_ci_low} to ${L008_mlc_ci_high}, P "
+    "${L008_mlc_p}), epidural anaesthesia (β = +${L002_mlc_coef}, 95% CI "
+    "${L002_mlc_ci_low} to ${L002_mlc_ci_high}, P ${L002_mlc_p}) and "
+    "continuous epidural infusion (β = +${L003_mlc_coef}, 95% CI "
+    "${L003_mlc_ci_low} to ${L003_mlc_ci_high}, P ${L003_mlc_p}). For spinal "
+    "anaesthesia the point estimate was positive but no longer statistically "
+    "significant (β = +${L004_mlc_coef}, 95% CI ${L004_mlc_ci_low} to "
+    "${L004_mlc_ci_high}, P ${L004_mlc_p}). Population density was positively "
+    "associated with general anaesthesia ratios (β = ${L008_mlc_popd_coef}, P "
+    "${L008_mlc_popd_p}) but not with the other three codes. The anaesthesiologist "
+    "share was positively associated with general, epidural, continuous epidural and "
+    "spinal anaesthesia (P ${L008_mlc_anes_p}, ${L002_mlc_anes_p}, "
+    "${L003_mlc_anes_p} and ${L004_mlc_anes_p}, respectively)."
+)
+
 add_figure_inline(
     os.path.join(FIG_DIR, 'rapm_fig2_en.png'),
     "Figure 2. University hospital presence and the combined general-anaesthesia "
@@ -839,10 +874,12 @@ add_para(
     "would be required to measure the true rate of combined general-epidural "
     "anaesthesia. We therefore used L002 (epidural as main technique) and L003 "
     "(continuous epidural infusion) as the publicly reported proxies for "
-    "regional technique use. Multilevel models included only university hospital "
-    "presence as a structural fixed effect; future work should add additional "
-    "area-level covariates such as urbanisation, bed density and case-mix "
-    "indicators.")
+    "regional technique use. A covariate-adjusted sensitivity model added "
+    "population density and anaesthesiologist supply; the university hospital "
+    "coefficient remained positive and statistically significant for general, "
+    "epidural and continuous epidural anaesthesia, but not for spinal "
+    "anaesthesia, suggesting that unmeasured area-level factors still "
+    "contribute to variation.")
 
 add_subheading("Interpretation within the context of the wider literature")
 add_para(

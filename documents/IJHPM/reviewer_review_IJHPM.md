@@ -7,7 +7,7 @@
 ## Methods and statistics
 - **High priority**: The ecological (area-level) design is explicitly noted in the Limitations, and causal language is avoided ("predominantly structural", "associated with"). Good.
 - **Medium priority**: `statsmodels` `MixedLM` emits convergence warnings during fitting. The point estimates are stable across the three sensitivity analyses, but a short Methods note on convergence/optimizer stability would reassure reviewers. Consider reporting that models were run with the default restricted maximum-likelihood optimizer and that coefficient signs/magnitudes were unchanged across sensitivity checks.
-- **Medium priority**: The multilevel model includes only university-hospital presence. Reviewers may ask about population density, bed density or case mix. These are acknowledged as unmeasured confounders in the Limitations; adding even a single proxy (e.g., population density) would strengthen the structural-versus-audit contrast but is not essential for the current claim.
+- **Resolved**: A covariate-adjusted sensitivity model was added, including the natural logarithm of population density and the anaesthesiologist share of all physicians (both standardised) from public MLIT and MHLW data. The university-hospital coefficient remained positive and statistically significant for general, epidural and continuous-epidural anaesthesia; it was attenuated and no longer significant for spinal anaesthesia. This addresses the most likely omitted-variable concern without exceeding the IJHPM table limit.
 
 ## Data and reproducibility
 - **High priority**: All empirical numbers in the manuscript, tables, figures, cover letter and STROBE checklist are generated from `output/ijhpm_results.json`, which is produced by `scripts/compile_ijhpm_results.py` from the CSVs in `data/`. No hand-typed estimates remain in the IJHPM scripts.
@@ -32,11 +32,10 @@
 - **Medium priority**: The Discussion compares Japan with Taiwan, South Korea, Germany, France and the NHS. These are reasonable illustrations of transferability but should be read as such, not as empirically tested cross-country comparisons. The current phrasing is appropriately cautious.
 
 ## Final priority ranking
-1. **MixedLM convergence note** (low effort, high reviewer-confidence return).
-2. **Final reference-format scrub** (en-dashes, issue numbers) before Editorial Manager submission; does not block the PR.
-3. **Optional: add one covariate** (population density or bed density) to the multilevel model to preempt reviewer questions about omitted variables.
-4. **Figure resolution check** before final upload.
-5. **Optional Introduction lead revision** to put the governance/equity framing first.
+1. **Final reference-format scrub** (en-dashes, issue numbers) before Editorial Manager submission; does not block the PR.
+2. **Figure resolution check** before final upload.
+3. **Optional Introduction lead revision** to put the governance/equity framing first.
+4. **MixedLM convergence note** is already included in Methods.
 
 ## Overall assessment
 The IJHPM package meets the journal's structural and policy requirements, stays within word, figure and reference limits, and is now fully reproducible from public data and committed code. After the minor polishing items above, it is ready for submission.

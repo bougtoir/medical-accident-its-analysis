@@ -117,6 +117,34 @@ for i, ac in enumerate(area_codes):
         'has_univ': 1 if ac in univ_area_codes else 0,
     }
 
+# Add structural covariates by secondary medical area
+anes_df = pd.read_csv(os.path.join(DATA_DIR, 'anesthesiologist_by_sma.csv'))
+pop_df = pd.read_csv(os.path.join(DATA_DIR, 'secondary_medical_area_population_2020.csv'), comment='#')
+anes_df['code_str'] = anes_df['code'].astype(str)
+pop_df['code_str'] = pop_df['area_code'].astype(str)
+
+for ac in area_codes:
+    arow = anes_df[anes_df['code_str'] == ac]
+    prow = pop_df[pop_df['code_str'] == ac]
+    if not arow.empty:
+        total_phys = int(arow.iloc[0]['total_physicians'])
+        anes_count = int(arow.iloc[0]['anesthesiologist_count'])
+        area_info[ac]['total_physicians'] = total_phys
+        area_info[ac]['anesthesiologist_count'] = anes_count
+        area_info[ac]['anes_share'] = float(anes_count / total_phys) if total_phys > 0 else 0.0
+    else:
+        area_info[ac]['total_physicians'] = None
+        area_info[ac]['anesthesiologist_count'] = None
+        area_info[ac]['anes_share'] = None
+    if not prow.empty:
+        area_info[ac]['population'] = int(prow.iloc[0]['population'])
+        area_info[ac]['area_km2'] = float(prow.iloc[0]['area_km2'])
+        area_info[ac]['population_density'] = float(prow.iloc[0]['population_density'])
+    else:
+        area_info[ac]['population'] = None
+        area_info[ac]['area_km2'] = None
+        area_info[ac]['population_density'] = None
+
 # Target procedure codes (inpatient/outpatient flag = 1)
 target_codes = {
     ('L', '8', '1'):  'L008',
@@ -196,6 +224,8 @@ results = {
     'metadata': {
         'data_source': 'data/scr_n_kubun.csv',
         'univ_mapping': 'data/univ_hospital_mapping_v2.json',
+        'physician_data': 'data/anesthesiologist_by_sma.csv',
+        'population_data': 'data/secondary_medical_area_population_2020.csv',
         'fiscal_year': fiscal_year,
         'n_areas': n_areas,
         'n_prefectures': len(set(pref_nums)),
@@ -271,14 +301,23 @@ for code in analysis_codes:
     for ac, v in values.items():
         if ac not in area_info:
             continue
+        info = area_info[ac]
+        if info.get('population_density') is None or info.get('anes_share') is None:
+            continue
         records.append({
             'scr': v,
-            'has_univ': area_info[ac]['has_univ'],
-            'pref_num': area_info[ac]['pref_num'],
+            'has_univ': info['has_univ'],
+            'pref_num': info['pref_num'],
+            'log_pop_density': math.log(info['population_density']) if info['population_density'] > 0 else float('nan'),
+            'anes_pct': info['anes_share'] * 100,
         })
     df = pd.DataFrame(records)
     if len(df) < 30 or df['has_univ'].nunique() < 2:
         continue
+
+    # Standardise continuous covariates for stable estimation and comparability
+    df['log_pop_density_z'] = (df['log_pop_density'] - df['log_pop_density'].mean()) / df['log_pop_density'].std()
+    df['anes_pct_z'] = (df['anes_pct'] - df['anes_pct'].mean()) / df['anes_pct'].std()
 
     # Null model (random intercept only)
     try:
@@ -302,6 +341,45 @@ for code in analysis_codes:
     except Exception as e:
         coef = pval = ci_low = ci_high = r2 = float('nan')
 
+    # Covariate-adjusted model (population density + anaesthesiologist share)
+    covariate_results = {}
+    try:
+        m2 = MixedLM.from_formula('scr ~ has_univ + log_pop_density_z + anes_pct_z',
+                                  groups='pref_num', data=df).fit(reml=True)
+        coef2 = float(m2.fe_params.get('has_univ', np.nan))
+        pval2 = float(m2.pvalues.get('has_univ', np.nan))
+        ci2 = m2.conf_int().loc['has_univ'] if 'has_univ' in m2.conf_int().index else [np.nan, np.nan]
+        ci_low2, ci_high2 = float(ci2.iloc[0]), float(ci2.iloc[1])
+        var_pref2 = float(m2.cov_re.iloc[0, 0]) if hasattr(m2.cov_re, 'iloc') else float(m2.cov_re)
+        var_resid2 = float(m2.scale)
+        r2_cov = 1 - (var_pref2 + var_resid2) / (var_pref + var_resid) if (var_pref + var_resid) > 0 else 0
+        # covariate coefficients for reporting
+        def _cov_coef(name):
+            c = float(m2.fe_params.get(name, np.nan))
+            p = float(m2.pvalues.get(name, np.nan))
+            return {'coef': c, 'p': p}
+        covariate_results = {
+            'n': len(df),
+            'coef_univ': float(coef2) if not np.isnan(coef2) else 0,
+            'ci_low': float(ci_low2) if not np.isnan(ci_low2) else 0,
+            'ci_high': float(ci_high2) if not np.isnan(ci_high2) else 0,
+            'p': float(pval2) if not np.isnan(pval2) else 1,
+            'marginal_r2': float(r2_cov) if not np.isnan(r2_cov) else 0,
+            'log_pop_density_z': _cov_coef('log_pop_density_z'),
+            'anes_pct_z': _cov_coef('anes_pct_z'),
+        }
+    except Exception as e:
+        covariate_results = {
+            'n': len(df),
+            'coef_univ': float('nan'),
+            'ci_low': float('nan'),
+            'ci_high': float('nan'),
+            'p': float('nan'),
+            'marginal_r2': float('nan'),
+            'log_pop_density_z': {'coef': float('nan'), 'p': float('nan')},
+            'anes_pct_z': {'coef': float('nan'), 'p': float('nan')},
+        }
+
     results['codes'][code]['multilevel'] = {
         'n': len(df),
         'icc_null': float(icc),
@@ -311,6 +389,7 @@ for code in analysis_codes:
         'p': float(pval) if not np.isnan(pval) else 1,
         'marginal_r2': float(r2) if not np.isnan(r2) else 0,
     }
+    results['codes'][code]['multilevel_covariate'] = covariate_results
 
 # ============================================================
 # 4. COMBINED L008 + L003 MEASURE
