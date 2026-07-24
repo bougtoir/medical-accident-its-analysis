@@ -879,7 +879,7 @@ add_para(
     "premise of Japan's universal coverage. Quality improvement responses could "
     "include targeted education, specialist outreach from university centres, "
     "and monitoring anaesthesia technique distribution as a system-level quality "
-    "indicator,{27,28} aligned with international standards for safe practice "
+    "indicator,{27-29} aligned with international standards for safe practice "
     "of anaesthesia.")
 
 add_para(
