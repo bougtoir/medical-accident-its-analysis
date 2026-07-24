@@ -878,7 +878,9 @@ add_para(
     "population density and anaesthesiologist supply; the university hospital "
     "coefficient remained positive and statistically significant for general, "
     "epidural and continuous epidural anaesthesia, but not for spinal "
-    "anaesthesia, suggesting that unmeasured area-level factors still "
+    "anaesthesia. The positive point estimate for spinal anaesthesia is, "
+    "however, compatible with the same structural gradient operating in an "
+    "underpowered model, and suggests that unmeasured area-level factors still "
     "contribute to variation.")
 
 add_subheading("Interpretation within the context of the wider literature")
