@@ -880,7 +880,7 @@ add_para(
     "include targeted education, specialist outreach from university centres, "
     "and monitoring anaesthesia technique distribution as a system-level quality "
     "indicator,{27,28} aligned with international standards for safe practice "
-    "of anaesthesia.{28}")
+    "of anaesthesia.")
 
 add_para(
     "Third, the within-prefecture variance decomposition and multilevel "
