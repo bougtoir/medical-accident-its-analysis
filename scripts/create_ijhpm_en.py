@@ -388,7 +388,7 @@ add_para(
     "Results  Coefficients of variation ranged from ${L008_cv}% (general "
     "anaesthesia) to ${L002_cv}% (epidural). Only ${L008_ml_icc} of general "
     "anaesthesia variance lay between prefectures; university hospital presence "
-    "explained ${L008_ml_r2} of total variance and ${L008_vd_univ_within} of "
+    "explained ${L008_ml_r2} of total variance and ${L008_vd_univ_within}% of "
     "within-prefecture variance (Cohen's d ${L008_d}), and was positive in all "
     "${n_prefectures} prefectures. Audit sensitivity analyses converged: the "
     "maximum audit-rate difference could shift ratios by at most ${audit_max_shift} "
