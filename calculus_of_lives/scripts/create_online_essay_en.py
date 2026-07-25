@@ -114,6 +114,22 @@ BODY = [
 "the innocent as a means to your ends is murder, and no accumulation of good "
 "consequences turns murder into something else.{3}",
 
+"A related blindness deserves naming here. It is often said that Japan is the "
+"world\u2019s only atomic-bombed nation. In the narrow sense\u2014the only "
+"country attacked with nuclear weapons in war\u2014that is true, and I say it "
+"as a Japanese writer who has no wish to trade on national grievance. But if "
+"we judge by what was actually done to human bodies, rather than by the "
+"grammar of war, the atomic age has far more victims than Hiroshima and "
+"Nagasaki: the Marshall Islanders exposed by the Castle Bravo test, the "
+"Kazakhs downwind of Semipalatinsk, Aboriginal Australians at Maralinga, "
+"Algerians in the French Sahara, Polynesians at Moruroa, and the downwinders "
+"of New Mexico and Nevada. Most of them were colonized, indigenous, or "
+"otherwise without political standing\u2014the very people a calculus in the "
+"taking way can treat as an empty margin. That they are so seldom counted "
+"among \u201Cthe bombed\u201D is itself an instance of the argument I am "
+"making: whose death gets named depends on who was granted a place on the "
+"scale to begin with.",
+
 "So who appointed us the accountants? There is a long modern habit of "
 "treating whole populations as quantities to be managed, and of deciding "
 "whose lives fall outside the circle it is a crime to kill. Strategic "
