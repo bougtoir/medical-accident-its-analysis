@@ -56,15 +56,16 @@ def add_plain_para(doc, text, bold=False, italic=False, align=None):
 
 
 def apply_text_replacements(doc, replacements, raise_missing=True):
-    """Replace run.text when an old snippet is found.  Each replacement is a
-    tuple (old_snippet, new_full_text).  The first run whose text contains the
-    snippet is updated in full."""
+    """Replace only the matched snippet within a run.  Each replacement is a
+    tuple (old_snippet, new_text).  This preserves the rest of the paragraph
+    (e.g., preceding/succeeding sentences in the same run) so only the targeted
+    wording is changed."""
     for old_snippet, new_text in replacements:
         found = False
         for p in doc.paragraphs:
             for run in p.runs:
                 if old_snippet in run.text:
-                    run.text = new_text
+                    run.text = run.text.replace(old_snippet, new_text)
                     found = True
                     break
             if found:
