@@ -138,6 +138,9 @@ jobs:
           # ── Flood prediction / subsurface flood control ──
           BRANCH_MAP["devin/1778846737-flood-prediction-models"]="flood-prediction-review"
 
+          # ── ONISHI reproducible integration pipeline (public code+data) ──
+          BRANCH_MAP["devin/1785221135-three-children-repro"]="three-children-methods-one-family-framework"
+
           # ── Beyond-GDP / national power (E&P submission) ──
           BRANCH_MAP["devin/1780790605-ep-submission-prep"]="beyond-gdp-national-power"
 
@@ -266,6 +269,7 @@ jobs:
           SUBDIR_MAP["devin/1784904207-transport-policy"]="discharged_secrets_ijcip"
           # Publish ONLY the clean, reproducible reanalysis folder (exclude tainted originals)
           SUBDIR_MAP["devin/1784008417-weibull-tb-reproducible-data"]="weibull-clinical-dropout/reanalysis_real"
+          SUBDIR_MAP["devin/1785221135-three-children-repro"]="three-children-methods-one-family-framework"
 
           # ── File exclusion map ──
           # Space-separated list of file paths (relative to subdir root if
