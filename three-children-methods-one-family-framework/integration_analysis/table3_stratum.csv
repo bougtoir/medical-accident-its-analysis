@@ -1,0 +1,5 @@
+level,id,n,event_rate,aspirin_OR,logOR_se,ICR_pca_reg,power_at_pooledOR
+stratum,s0,4613,0.0444,0.941,0.143,2.3e-05,0.142
+stratum,s1,4612,0.1151,0.843,0.092,3.2e-05,0.3
+stratum,s2,4613,0.233,0.97,0.07,0.000183,0.534
+stratum,s3,4613,0.509,0.949,0.059,0.000736,0.859
