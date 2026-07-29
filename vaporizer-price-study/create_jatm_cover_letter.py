@@ -40,40 +40,29 @@ def write_cover_letter():
 
     # Body
     doc.add_paragraph(
-        'We are pleased to submit our manuscript entitled "Targeted environmental regulation '
-        'without observable collateral market damage: the EU desflurane ban and secondary '
-        'market vaporizer prices" for consideration as an Article in the '
-        'Journal of Anesthesia and Translational Medicine.')
+        'We are resubmitting our revised manuscript entitled "Targeted environmental regulation '
+        'and secondary market vaporizer prices: an observational analysis of the EU desflurane '
+        'phase-out" (Manuscript Number JATMED-D-26-00064) for reconsideration as an Article in '
+        'the Journal of Anesthesia and Translational Medicine.')
 
     doc.add_paragraph(
-        'Environmental regulation of anesthetic agents is accelerating globally, yet the '
-        'downstream economic consequences for clinical equipment markets remain largely '
-        'unknown. Using three years of eBay completed sale data (March 2023 to March 2026) '
-        'spanning the full EU desflurane regulatory timeline, we provide the first empirical '
-        'evidence on this question. We found that desflurane vaporizer prices showed a '
-        'progressive, statistically significant decline (Spearman \u03c1=\u22120.28, P<0.001), '
-        'while sevoflurane and isoflurane vaporizer prices remained stable throughout the '
-        'study period. Between-agent effect size comparison confirmed the agent-specificity '
-        'of this decline (P=0.043). These findings suggest that the EU\u2019s targeted '
-        'regulation achieved its intended market-level effects without observable '
-        'destabilization of the broader anesthetic equipment market.')
-
-    doc.add_paragraph(
-        'We believe this work is particularly relevant to the readership of your journal '
-        'for several reasons. First, as the official journal of the Chinese Society of '
-        'Anesthesiology, JATM reaches a broad international audience of anesthesiologists '
-        'and perioperative physicians who are navigating similar regulatory transitions '
-        'worldwide. Second, the translational implications of our findings\u2014bridging '
-        'environmental policy and clinical equipment economics\u2014align well with the '
-        'journal\u2019s emphasis on translational medicine in anesthesiology. Third, the '
-        'finding that secondary market values depreciate well before formal prohibition dates '
-        'has direct implications for capital asset management and transition planning in '
-        'anesthesia departments globally, including in regions considering similar regulations.')
+        'We thank the Editor and the two reviewers for their constructive feedback. In this '
+        'revision we have (1) added sensitivity and control-series analyses including bootstrap '
+        'resampling, post-hoc power simulation, a comparative interrupted time-series model, and '
+        'a transaction-level difference-in-differences analysis; (2) softened the causal '
+        'interpretation throughout and replaced "ban/prohibited" with accurate wording about a '
+        'restriction on routine use with documented clinical exceptions; (3) expanded the '
+        'clinical and environmental context, including desflurane pharmacokinetic advantages, '
+        'the debate over GWP100 for short-lived anesthetics, and the importance of anesthetic '
+        'diversity for supply-chain resilience; and (4) strengthened the limitations section '
+        'regarding confounders, eBay generalizability, EU/non-EU transaction uncertainty, and '
+        'the small post-restriction sample. A detailed point-by-point response to reviewers is '
+        'enclosed.')
 
     doc.add_paragraph(
         'The manuscript has not been published previously and is not under consideration by '
-        'any other journal. All authors have approved the manuscript and agree with its '
-        'submission to the Journal of Anesthesia and Translational Medicine.')
+        'any other journal. All authors have approved the revised manuscript and agree with '
+        'its resubmission to the Journal of Anesthesia and Translational Medicine.')
 
     doc.add_paragraph(
         'We confirm that this study complies with the STROBE guidelines for observational '
