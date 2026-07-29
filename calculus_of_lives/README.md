@@ -27,7 +27,8 @@ Three deliverables, from the same argument:
   (hybrid; subscription route = no APC); *Ethics & International Affairs*
   Feature (Gold OA; post-acceptance waiver) as secondary. Eight sections
   including a dedicated §7 "Objections and Replies." Chicago-style
-  numbered endnotes, numbered in order of first appearance.
+  numbered endnotes, numbered in order of first appearance. The JME submission
+  package is built by `scripts/build_submission_jme.py`.
 - **Essay (English, ~2,700 words, 8 endnotes, 1 figure)** — condensed from
   the same core argument for the *Ethics & International Affairs* "Essays"
   (non-refereed) category: fast, editor-only review, likely no APC. Title:
@@ -48,6 +49,7 @@ scripts/
   create_essay_ja.py       # essay_ja.docx (Japanese general-audience version)
   build_submission_eia.py  # assembles the E&IA Essay submission package (+ zip)
   build_submission_eia_feature.py  # assembles the E&IA Feature submission package (+ zip)
+  build_submission_jme.py  # assembles the Journal of Military Ethics submission package (+ zip)
 output/
   manuscript_en.docx, title_page_en.docx
   essay_en.docx
@@ -66,6 +68,7 @@ python create_manuscript_en.py
 python create_essay_en.py
 python create_figures_pptx.py
 python create_essay_ja.py
+python build_submission_jme.py
 ```
 
 ## Figures
