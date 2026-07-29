@@ -18,7 +18,7 @@ for para in doc.paragraphs:
         continue
     # Check if heading
     if para.style.name.startswith('Heading'):
-        if current_text:
+        if current_text or current_section not in sections:
             sections[current_section] = ' '.join(current_text)
         current_section = text
         current_text = []
