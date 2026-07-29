@@ -1172,8 +1172,9 @@ def write_jatm_paper():
         'only by education and removal of the vaporisers \u2013 a before-and-after-trial. '
         'BMC Anesthesiol. 2025;25:108.',
         # 17
-        'Rauchenwald V, Heuss-Azeez R, Ganter MT, et al. Sevoflurane versus desflurane\u2014'
-        'an economic analysis. BMC Anesthesiol. 2020;20:272.',
+        'Feldman JM, Lo C, Hendrickx J. Estimating the impact of carbon dioxide absorbent '
+        'performance differences on absorbent cost during low-flow anesthesia. Anesth Analg. '
+        '2020;130(2):374\u201381. doi:10.1213/ANE.0000000000004059.',
         # 18
         'Beard J, Kennedy R, Philip J, et al. Environmental and economic impacts of end-tidal '
         'control of volatile anesthetics: a scoping review and analysis. Open Anesthesiol J. '
