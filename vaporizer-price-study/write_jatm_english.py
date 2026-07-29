@@ -53,6 +53,15 @@ except FileNotFoundError:
     asking_results = None
     asking_df = None
 
+# Load revision sensitivity analyses (bootstrap, power, ITS/DiD)
+try:
+    with open(os.path.join(data_dir, 'revision_sensitivity.json'), 'r') as f:
+        revision_results = json.load(f)
+    has_revision_sensitivity = True
+except FileNotFoundError:
+    revision_results = None
+    has_revision_sensitivity = False
+
 # Key dates
 reg_date = pd.Timestamp('2026-01-01')
 proposal_date = pd.Timestamp('2022-04-05')
@@ -147,6 +156,22 @@ def fmt_p(p):
     if p < 0.001:
         return '<0.001'
     return f'{p:.3f}'
+
+
+def fmt_ci(lo, hi):
+    return f'{lo:.0f} to {hi:.0f}'
+
+
+def get_rev(key, sub=None, default=float('nan')):
+    if not has_revision_sensitivity:
+        return default
+    try:
+        v = revision_results[key]
+        if sub:
+            v = v[sub]
+        return v
+    except Exception:
+        return default
 
 
 def fmt_stat(val):
@@ -380,8 +405,8 @@ def write_jatm_paper():
     title_p = doc.add_paragraph()
     title_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
     run = title_p.add_run(
-        'Targeted environmental regulation without observable collateral market damage: '
-        'the EU desflurane ban and secondary market vaporizer prices')
+        'Targeted environmental regulation and secondary market vaporizer prices: '
+        'an observational analysis of the EU desflurane phase-out')
     run.bold = True
     run.font.size = Pt(14)
 
@@ -402,7 +427,7 @@ def write_jatm_paper():
 
     # Word counts
     add_para(doc, 'Abstract word count: ~280 (max 300)', size=Pt(10))
-    add_para(doc, 'Number of references: 19', size=Pt(10))
+    add_para(doc, 'Number of references: 22', size=Pt(10))
     add_para(doc, 'Number of tables: 2 (+1 supplementary)', size=Pt(10))
     add_para(doc, 'Number of figures: 6', size=Pt(10))
 
@@ -428,10 +453,11 @@ def write_jatm_paper():
     p = doc.add_paragraph()
     add_run_styled(p, 'Background: ', bold=True)
     add_run_styled(p,
-        'The European Union prohibited desflurane\u2014the volatile anesthetic with the '
-        'highest global warming potential (GWP \u2248 2540 CO\u2082 equivalents)\u2014for '
-        'routine use from 1 January 2026 under Regulation (EU) 2024/573. Whether this '
-        'targeted environmental regulation produced collateral economic effects on '
+        'The European Union restricted desflurane\u2014the volatile anesthetic with the '
+        'highest commonly reported 100-year global warming potential (GWP100 \u2248 2540 '
+        'CO\u2082 equivalents)\u2014for routine use from 1 January 2026 under Regulation (EU) '
+        '2024/573, with exemptions for clinically necessary cases. Whether this targeted '
+        'environmental regulation was associated with collateral economic effects on '
         'non-targeted anesthetic equipment markets has not been examined. We investigated '
         'whether the EU desflurane regulation was associated with changes in secondary '
         'market prices of anesthetic vaporizers, and whether any such changes were '
@@ -446,7 +472,10 @@ def write_jatm_paper():
         '(March 2023 to March 2026), spanning the full EU regulatory timeline. '
         'Temporal trends were assessed using Spearman rank correlation and Kendall \u03c4 '
         'across ordered regulatory phases. Pre-/post-ban comparison used the '
-        'Mann\u2013Whitney U test with Cohen\u2019s d effect size.')
+        'Mann\u2013Whitney U test with Cohen\u2019s d effect size. Sensitivity analyses '
+        'included bootstrap resampling (10,000 iterations), post-hoc power simulation under '
+        'observed lognormal parameters, and a comparative interrupted time-series (CITS) '
+        'model of monthly median prices with sevoflurane and isoflurane as controls.')
 
     # Results
     p = doc.add_paragraph()
@@ -470,10 +499,11 @@ def write_jatm_paper():
     p = doc.add_paragraph()
     add_run_styled(p, 'Conclusions: ', bold=True)
     add_run_styled(p,
-        'The EU desflurane regulation was associated with an agent-specific decline in '
-        'secondary market vaporizer prices, beginning during the legislative process. '
-        'Non-regulated agents remained stable, suggesting that this targeted regulation '
-        'did not observably destabilize the broader anesthetic equipment market.')
+        'Desflurane vaporizer prices on eBay showed an agent-specific decline over the '
+        'study period; non-regulated agents remained stable. These observational findings '
+        'are consistent with, but do not prove, an effect of the EU regulation; they '
+        'should be interpreted as hypothesis-generating given the single-platform design, '
+        'unmeasured confounders, and the small post-ban sample.')
 
     doc.add_page_break()
 
@@ -484,43 +514,52 @@ def write_jatm_paper():
 
     add_para_with_refs(doc,
         'Environmental regulation of healthcare products is accelerating. The European Union '
-        'prohibited desflurane\u2014the volatile anesthetic with the highest global warming '
-        'potential (GWP \u2248 2540 CO\u2082 equivalents){1\u20135}\u2014for routine use from '
-        '1 January 2026 under Regulation (EU) 2024/573.{2} The American Society of '
-        'Anesthesiologists has recommended deactivation of central nitrous oxide piping on '
-        'environmental grounds.{6} NHS England and NHS Scotland have independently '
-        'decommissioned desflurane.{7,8} Each of these measures targets a specific agent or '
-        'delivery system, yet whether such targeted restrictions produce collateral economic '
-        'effects on non-targeted equipment markets has not been empirically examined.')
+        'restricted desflurane\u2014the volatile anesthetic with the highest commonly reported '
+        '100-year global warming potential (GWP100 \u2248 2540 CO\u2082 equivalents){1,2,5\u20137}'
+        '\u2014for routine use from 1 January 2026 under Regulation (EU) 2024/573, while '
+        'permitting documented clinical exceptions.{2} The choice of GWP metric and time '
+        'horizon remains debated for short-lived halogenated anesthetics such as desflurane '
+        '(atmospheric lifetime \u2248 14 years), because GWP100 may not reflect their '
+        'instantaneous radiative forcing or steady-state atmospheric concentrations.{3} '
+        'Desflurane also has recognized pharmacokinetic advantages, including faster '
+        'emergence and extubation than sevoflurane in selected surgical populations.{4} The '
+        'American Society of Anesthesiologists has recommended deactivation of central '
+        'nitrous oxide piping on environmental grounds.{8} NHS England and NHS Scotland '
+        'have independently decommissioned desflurane.{9,10} Each of these measures targets '
+        'a specific agent or delivery system, yet whether such targeted restrictions are '
+        'associated with collateral economic effects on non-targeted equipment markets '
+        'has not been empirically examined.')
 
     add_para_with_refs(doc,
-        'The EU desflurane ban provides an opportunity to address this question as a natural '
-        'experiment. First, only a single agent is targeted; sevoflurane (GWP \u2248 130) '
-        'and isoflurane (GWP \u2248 510){9,10} remain in unrestricted use and serve as natural '
-        'controls. Second, the regulatory process advanced through clearly dated milestones '
-        '\u2014 European Commission proposal (April 2022), European Parliament plenary vote '
-        '(March 2023), trilogue provisional agreement (October 2023), formal adoption '
-        '(February 2024), and prohibition (January 2026) \u2014 enabling time-series analysis '
-        'across successive phases. Third, anesthetic vaporizers are agent-specific capital '
-        'assets with typical lifespans of 10\u201315 years, so the economic consequences of '
-        'regulation may be reflected in secondary market values.')
+        'The EU desflurane restriction provides an opportunity to address this question as a '
+        'natural experiment. First, only a single agent is targeted for routine use; '
+        'sevoflurane (GWP \u2248 130) and isoflurane (GWP \u2248 510){11,12} remain in '
+        'unrestricted use and serve as natural controls. Second, the regulatory process '
+        'advanced through clearly dated milestones \u2014 European Commission proposal (April '
+        '2022), European Parliament plenary vote (March 2023), trilogue provisional agreement '
+        '(October 2023), formal adoption (February 2024), and the 2026 restriction on '
+        'routine use (January 2026) \u2014 enabling time-series analysis across successive '
+        'phases. Third, anesthetic vaporizers are agent-specific capital assets with typical '
+        'lifespans of 10\u201315 years, so the economic consequences of regulation may be '
+        'reflected in secondary market values.')
 
     add_para_with_refs(doc,
         'Previous studies have addressed the financial rationale for discontinuing '
-        'desflurane,{11} the clinical and policy implications of decommissioning '
-        'programs,{12,13} the effectiveness of vaporizer removal at the institutional '
-        'level,{14} and the cost savings from reduced volatile anesthetic '
-        'consumption.{15,16} The secondary market for pre-owned medical equipment has been '
-        'characterized for other device categories.{17} However, to our knowledge, no study '
-        'has examined whether environmental regulation of a single anesthetic agent produces '
-        'targeted economic effects or whether it destabilizes the broader equipment market.')
+        'desflurane,{13} the clinical and policy implications of decommissioning '
+        'programs,{14,15} the effectiveness of vaporizer removal at the institutional '
+        'level,{16} and the cost savings from reduced volatile anesthetic '
+        'consumption.{17,18} The secondary market for pre-owned medical equipment has been '
+        'characterized for other device categories.{19} However, to our knowledge, no study '
+        'has examined whether environmental regulation of a single anesthetic agent is '
+        'associated with targeted secondary-market effects or whether it destabilizes the '
+        'broader equipment market.')
 
     add_para_with_refs(doc,
         'We hypothesized that (1) the EU desflurane regulation would be associated with a '
         'progressive decline in secondary market prices of desflurane vaporizers, and '
         '(2) this decline would be agent-specific\u2014sevoflurane and isoflurane vaporizer '
-        'prices would remain stable, suggesting that the regulation produced targeted '
-        'economic effects without observable collateral market damage.')
+        'prices would remain stable\u2014suggesting that any market-level changes were '
+        'concentrated in the regulated agent.')
 
     # ============================================================
     # MATERIALS AND METHODS (JATM: "Materials and Methods")
@@ -539,7 +578,7 @@ def write_jatm_paper():
     add_para_with_refs(doc,
         'This study is reported in accordance with the Strengthening the Reporting of '
         'Observational Studies in Epidemiology (STROBE) guidelines for cross-sectional '
-        'studies.{18} The completed STROBE checklist is provided as supplementary material.')
+        'studies.{20} The completed STROBE checklist is provided as supplementary material.')
 
     add_heading_styled(doc, 'Study design and data source', level=2)
     doc.add_paragraph(
@@ -601,6 +640,19 @@ def write_jatm_paper():
         'pre-/post-ban price change differed between agent types, pairwise z-tests for independent '
         'Cohen\u2019s d values were performed using the large-sample variance approximation.')
     doc.add_paragraph(
+        'Sensitivity analyses were performed to assess robustness and to address causal '
+        'interpretation. First, we used bootstrap resampling (10,000 iterations) of the pre- and '
+        'post-ban samples to derive non-parametric 95% confidence intervals for the difference in '
+        'mean and median prices and to obtain bootstrap P values for the Mann\u2013Whitney U and '
+        'Welch tests. Second, we estimated post-hoc statistical power for the pre-/post-ban '
+        'Mann\u2013Whitney U test and Welch t-test by simulating 10,000 datasets from lognormal '
+        'distributions parameterized by the observed pre- and post-ban means and standard '
+        'deviations. Third, we fitted a comparative interrupted time-series (CITS) model to '
+        'monthly median prices, with sevoflurane and isoflurane as concurrent controls, to '
+        'estimate any desflurane-specific level or slope change at the 2026 restriction. A '
+        'difference-in-differences (DiD) model on log-transformed individual transaction prices '
+        'was also fitted as a further sensitivity check.')
+    doc.add_paragraph(
         'Descriptive statistics included mean, standard deviation (SD), median, interquartile range '
         '(IQR), and range for each agent type and regulatory period. '
         'The Kruskal\u2013Wallis test was used for multi-period comparisons across regulatory phases. '
@@ -656,6 +708,12 @@ def write_jatm_paper():
             (fmt_p(tr['quarterly_p']), WD_ALIGN_PARAGRAPH.CENTER),
         ]
         add_table_data_row(t1, data)
+    p_t1fn = doc.add_paragraph()
+    add_run_styled(p_t1fn, 'Note: ', bold=True, size=Pt(9))
+    add_run_styled(p_t1fn, 'The Spearman correlation for isoflurane reached nominal '
+        'significance (P=0.044), but the magnitude was small (\u03c1=0.081) and the '
+        'quarterly median trend was not significant; this is therefore not interpreted '
+        'as a clinically meaningful temporal trend.', size=Pt(9), italic=True)
     doc.add_paragraph()
 
     # Inline Table 2 (pre-/post-ban comparison)
@@ -726,6 +784,26 @@ def write_jatm_paper():
     add_run_styled(p_fn, '; '.join(footnote_parts) + '.', italic=True, size=Pt(8))
     doc.add_paragraph()
 
+    # Bootstrap and power footnote
+    if has_revision_sensitivity:
+        des_boot = get_rev('bootstrap_pre_post', 'Desflurane')
+        des_pow = get_rev('power_simulation', 'Desflurane')
+        if isinstance(des_boot, dict):
+            p_fn2 = doc.add_paragraph()
+            add_run_styled(p_fn2, 'Sensitivity: ', bold=True, italic=True, size=Pt(8))
+            mean_lo, mean_hi = des_boot['mean_diff_ci95']
+            med_lo, med_hi = des_boot['median_diff_ci95']
+            boot_text = (
+                f"Bootstrap 95% CI for the desflurane pre-/post-ban mean difference: "
+                f"US${mean_lo:.0f} to US${mean_hi:.0f}; median difference: "
+                f"US${med_lo:.0f} to US${med_hi:.0f}. Post-hoc power (lognormal simulation, "
+                f"n={des_pow['n_pre']}/{des_pow['n_post']}): Mann\u2013Whitney U "
+                f"{des_pow['power_mannwhitney']*100:.1f}%, Welch t "
+                f"{des_pow['power_welch_t']*100:.1f}%."
+            )
+            add_run_styled(p_fn2, boot_text, italic=True, size=Pt(8))
+        doc.add_paragraph()
+
     # Results narrative - trend
     des_pct_val = (des['post_mean'] - des['pre_mean']) / des['pre_mean'] * 100
     doc.add_paragraph(
@@ -776,11 +854,12 @@ def write_jatm_paper():
     doc.add_paragraph(
         f'Isoflurane vaporizer prices were similarly stable. Although Spearman correlation '
         f'reached nominal significance (\u03c1={iso_tr["spearman_rho"]:.2f}, '
-        f'P={fmt_p(iso_tr["spearman_p"])}), the magnitude was small and the quarterly '
-        f'median trend was not significant (\u03c1={iso_tr["quarterly_rho"]:.2f}, '
-        f'P={fmt_p(iso_tr["quarterly_p"])}). '
-        f'The pre-/post-ban comparison showed a non-significant {abs(iso_pct):.0f}% decline '
-        f'(P={fmt_p(iso_u_pval)}, Mann\u2013Whitney U) (Fig. 6).')
+        f'P={fmt_p(iso_tr["spearman_p"])}), the magnitude was very small and the '
+        f'quarterly median trend was not significant (\u03c1={iso_tr["quarterly_rho"]:.2f}, '
+        f'P={fmt_p(iso_tr["quarterly_p"])}). A single P value below 0.05 in one of several '
+        f'trend tests is expected under multiple testing and does not indicate a consistent '
+        f'directional trend. The pre-/post-ban comparison showed a non-significant '
+        f'{abs(iso_pct):.0f}% decline (P={fmt_p(iso_u_pval)}, Mann\u2013Whitney U) (Fig. 6).')
 
     # Insert Fig. 6 inline
     insert_inline_figure(doc, FIGURE_MAP[5])
@@ -804,6 +883,27 @@ def write_jatm_paper():
         f'did not reach statistical significance '
         f'(\u0394d={des_vs_iso["diff"]:.2f}, z={des_vs_iso["z"]:.2f}, '
         f'P={fmt_p(des_vs_iso["p"])}).')
+
+    # Sensitivity: DiD / CITS
+    if has_revision_sensitivity:
+        did_tx = get_rev('did_transaction_level')
+        cits = get_rev('cits_monthly_medians')
+        if isinstance(did_tx, dict) and 'error' not in did_tx:
+            doc.add_paragraph(
+                f'Sensitivity analyses with control series were consistent with the primary '
+                f'time-series findings. In a comparative interrupted time-series model of '
+                f'monthly median prices, desflurane showed a desflurane-specific level decline '
+                f'at the restriction (log-price coefficient={cits["desflurane_level_change_coef"]:.2f}, '
+                f'P<0.001) and a post-restriction slope difference '
+                f'(coefficient={cits["desflurane_slope_change_coef"]:.2f}, P<0.001), whereas '
+                f'isoflurane did not (level-change P={fmt_p(cits["isoflurane_level_change_p"])}). '
+                f'In a transaction-level difference-in-differences model the desflurane '
+                f'post-restriction coefficient was not significant '
+                f'(log-price coefficient={did_tx["desflurane_post_coef"]:.3f}, '
+                f'P={fmt_p(did_tx["desflurane_post_p"])}), partly because a significant '
+                f'pre-existing trend difference was present (P={fmt_p(did_tx["desflurane_trend_p"])}), '
+                f'violating the parallel-trend assumption. These models support '
+                f'agent-specificity but do not establish causality.')
 
     # Supplementary analysis
     if has_asking_data:
@@ -831,68 +931,84 @@ def write_jatm_paper():
     # ============================================================
     add_heading_styled(doc, 'Discussion', level=1)
     doc.add_paragraph(
-        'This study provides the first empirical evidence that environmental regulation of a '
-        'single anesthetic agent is associated with agent-specific effects on the secondary '
-        'equipment market. Using three years of eBay completed sale data and complementary '
-        'statistical approaches, we found that desflurane vaporizer prices declined '
-        'progressively over the study period, with the decline apparently accelerating through '
-        'successive regulatory milestones. Sevoflurane and isoflurane vaporizer prices remained '
-        'stable throughout\u2014despite being traded on the same marketplace and subject to the '
-        'same macroeconomic conditions. The convergence of evidence from Spearman rank '
-        f'correlation (P={fmt_p(des_tr["spearman_p"])} for desflurane, '
-        f'P={fmt_p(sevo_tr["spearman_p"])} for sevoflurane), Kendall \u03c4 '
-        f'(P={fmt_p(des_tr["kendall_p"])} vs P={fmt_p(sevo_tr["kendall_p"])}), '
-        f'and the between-agent effect size comparison (P={fmt_p(des_vs_sevo["p"])}) '
-        'suggests a progressive and agent-specific price decline.')
+        'This observational study provides the first empirical evidence that environmental '
+        'regulation of a single anesthetic agent is associated with agent-specific effects '
+        'on the secondary equipment market. Using three years of eBay completed sale data and '
+        'complementary statistical approaches, we found that desflurane vaporizer prices '
+        'declined progressively over the study period. Sevoflurane and isoflurane vaporizer '
+        'prices remained comparatively stable throughout\u2014despite being traded on the same '
+        'marketplace and subject to the same macroeconomic conditions. The convergence of '
+        'evidence from Spearman rank correlation, Kendall \u03c4, and the between-agent effect '
+        f'size comparison (P={fmt_p(des_vs_sevo["p"])}) '
+        'suggests a progressive and agent-specific desflurane price pattern. However, the '
+        'single-platform, observational design precludes causal inference; the observed '
+        'association may be partly or wholly attributable to concurrent secular trends.')
 
     sevo_vs_iso = es_comparisons['Sevoflurane_vs_Isoflurane']
     doc.add_paragraph(
-        'The stability of non-regulated agent prices is noteworthy. One concern sometimes '
-        'raised about targeted regulation is that restricting a single product might '
-        'destabilize the broader market\u2014through supply-chain disruption, panic purchasing of '
-        'alternatives, or generalized loss of confidence in equipment longevity. Our data '
-        'suggest that these concerns did not materialize for the EU desflurane ban: '
-        'between-agent comparison showed a significant difference only between the regulated '
-        'agent and sevoflurane '
-        f'(\u0394d={des_vs_sevo["diff"]:.2f}, P={fmt_p(des_vs_sevo["p"])}), '
-        'while the two non-regulated agents were '
-        f'indistinguishable from each other (\u0394d={sevo_vs_iso["diff"]:+.2f}, '
-        f'P={fmt_p(sevo_vs_iso["p"])}). '
-        'However, several alternative explanations should be considered. The stability of '
-        'sevoflurane prices could partly reflect a concurrent shift toward total intravenous '
-        'anesthesia (TIVA), which might have offset any increase in sevoflurane demand following '
-        'desflurane removal. Additionally, institutional stock reallocation\u2014whereby '
-        'facilities redistributed existing non-desflurane vaporizers internally rather than '
-        'purchasing on the secondary market\u2014may have dampened market effects.')
+        'The stability of non-regulated agent prices is noteworthy, but it does not '
+        'demonstrate that the EU regulation caused the desflurane decline. Several '
+        'alternative explanations should be considered. NHS England and NHS Scotland '
+        'decommissioned desflurane before the EU restriction took effect, so part of the '
+        'price decline may reflect UK policy signals rather than EU regulation. A '
+        'concurrent shift toward total intravenous anesthesia (TIVA) and the growing use of '
+        'low-flow anesthesia and end-tidal control technologies reduce volatile anesthetic '
+        'consumption generally, but should affect all agents rather than desflurane alone. '
+        'Equipment-specific factors\u2014age, model year, service history, cosmetic condition, '
+        'and calibration certificates\u2014are major determinants of vaporizer pricing and '
+        'could produce compositional changes that mimic a regulatory effect. Macroeconomic '
+        'trends and institutional stock reallocation\u2014whereby facilities redistributed '
+        'existing non-desflurane vaporizers internally rather than purchasing on the '
+        'secondary market\u2014may also have dampened market effects. The comparators '
+        '(sevoflurane and isoflurane) are not perfect counterfactuals, but their stability '
+        'on the same marketplace weakens broad-market explanations.')
+    doc.add_paragraph(
+        'Generalizability is also limited. eBay is a global consumer-to-consumer and small-business '
+        'marketplace; transactions by large hospital systems are more likely to occur on '
+        'specialized business-to-business platforms (e.g., DOTmed, Bimedis) or through private '
+        'dealer networks, which we could not study. Because eBay does not disclose buyer or '
+        'seller location, we could not determine whether observed transactions involved EU '
+        'participants; if a substantial share were outside the EU, the price decline could '
+        'represent a global reassessment of desflurane\u2019s long-term viability rather than a '
+        'response confined to EU jurisdiction. Finally, the sample of post-restriction '
+        'transactions was small, and the bootstrap median-difference confidence interval for '
+        'desflurane included zero, underscoring the uncertainty of the pre-/post comparison.')
 
     add_para_with_refs(doc,
         'To our knowledge, no previous study has examined the secondary market impact of '
-        'environmental regulation on anesthetic equipment. Lehmann et al.{14} demonstrated '
+        'environmental regulation on anesthetic equipment. Lehmann et al.{16} demonstrated '
         'that combining education with physical removal of desflurane vaporizers reduced '
         'desflurane-attributable CO\u2082 equivalent emissions by 86%, but their study '
-        'measured drug consumption rather than equipment resale values. Meyer{11} and Mohammed '
-        'and Metta{13} articulated the global and financial rationale for desflurane '
-        'discontinuation, while Moonesinghe{12} discussed the broader implications of '
+        'measured drug consumption rather than equipment resale values. Meyer{13} and Mohammed '
+        'and Metta{15} articulated the global and financial rationale for desflurane '
+        'discontinuation, while Moonesinghe{14} discussed the broader implications of '
         'decommissioning programs, but none examined downstream effects on the secondary '
         'equipment market. Our findings are consistent with the broader literature on '
-        'environment-related stranded assets,{19} where anticipated regulatory restrictions '
-        'are associated with anticipatory declines in asset values.')
+        'environment-related stranded assets,{21} where anticipated regulatory restrictions '
+        'are associated with anticipatory declines in asset values. The clinical and '
+        'environmental trade-offs of restricting desflurane\u2014including its pharmacokinetic '
+        'advantages, the contested suitability of GWP100 for short-lived anesthetics, and '
+        'the risk of reducing anesthetic diversity amid recurring propofol and sevoflurane '
+        'shortages\u2014 underscore the need for cautious, evidence-based policy and for '
+        'market studies that do not rely on a single sales channel.{3,4,22}')
 
     doc.add_paragraph(
         'The timing of the price decline may have practical implications. A substantial '
-        'proportion of the depreciation appears to have occurred before '
-        'the ban took effect, during the legislative process itself. For anesthesia '
-        'departments, this observation suggests that early compliance with well-designed '
-        'regulation may not only be a legal obligation but also an economic advantage: '
-        'institutions that transitioned away from desflurane during the consultative or '
-        'legislative phase\u2014rather than waiting for formal prohibition\u2014would '
-        'potentially have achieved better cost recovery on the secondary market.')
+        'proportion of the depreciation appears to have occurred before the 2026 '
+        'restriction took effect, during the legislative process itself. Because NHS '
+        'England and NHS Scotland had already announced decommissioning, the pre-2026 '
+        'pattern may partly reflect UK policy signals rather than EU law alone. For '
+        'anesthesia departments, this observation suggests that early planning for '
+        'equipment transition\u2014rather than waiting for formal prohibition\u2014may '
+        'improve cost recovery on the secondary market, although this inference is '
+        'observational and cannot be translated directly to all jurisdictions.')
 
     doc.add_paragraph(
         'Strengths of this study include the use of actual completed sale prices (rather than '
         'asking prices), a three-year observation window spanning both the legislative process '
-        'and ban implementation, the use of multiple complementary statistical approaches '
-        '(Spearman correlation, Kendall \u03c4 trend test, pre-/post-ban comparison), '
+        'and restriction implementation, the use of multiple complementary statistical approaches '
+        '(Spearman correlation, Kendall \u03c4 trend test, pre-/post-ban comparison, '
+        'bootstrap resampling, post-hoc power estimation, and CITS/DiD sensitivity analyses), '
         'the availability of natural comparator groups (sevoflurane and isoflurane), '
         'and the use of a standardized data source (eBay Terapeak). '
         'By restricting our analysis to a single marketplace, we avoided the risk of duplicate '
@@ -902,49 +1018,60 @@ def write_jatm_paper():
         f'This study has several important limitations. First, this is an observational study '
         f'of secondary market data; no causal inference can be drawn. The association between '
         f'regulatory milestones and price changes may be confounded by unmeasured factors, '
-        f'including changes in clinical practice patterns, technological evolution of anesthesia '
-        f'delivery systems, or broader economic conditions. Second, eBay represents only one '
-        f'segment of the secondary medical equipment market. Prices on specialized platforms '
-        f'(e.g., DOTmed, Bimedis) or private dealer networks may behave differently, and our '
-        f'findings may not generalize to those channels. Third, we could not control for '
-        f'equipment age, model year, service history, cosmetic condition, or the presence of '
-        f'manufacturer calibration certificates\u2014factors that substantially influence '
-        f'vaporizer pricing. Fourth, the post-ban period (January\u2013March 2026) comprised '
-        f'only {des["post_n"]} desflurane, {sevo["post_n"]} sevoflurane, and '
+        f'including changes in clinical practice patterns (e.g., increasing use of total '
+        f'intravenous anesthesia), technological evolution of anesthesia delivery systems '
+        f'(e.g., low-flow and end-tidal control systems), NHS decommissioning announcements '
+        f'that pre-dated the 2026 EU restriction, or broader macroeconomic conditions. Second, '
+        f'eBay represents only one segment of the secondary medical equipment market. Prices '
+        f'on specialized platforms (e.g., DOTmed, Bimedis) or private dealer networks may '
+        f'behave differently, and our findings may not generalize to those channels. Third, we '
+        f'could not control for equipment age, model year, service history, cosmetic condition, '
+        f'or the presence of manufacturer calibration certificates\u2014factors that '
+        f'substantially influence vaporizer pricing and could create compositional effects. '
+        f'Fourth, the post-restriction period (January\u2013March 2026) comprised only '
+        f'{des["post_n"]} desflurane, {sevo["post_n"]} sevoflurane, and '
         f'{iso["post_n"]} isoflurane transactions, limiting statistical power for the '
-        f'pre-/post-ban comparison. Although the time-series trend analyses (which use all '
-        f'data points) suggest a progressive decline, the pre-/post-ban comparison should be '
-        f'considered exploratory. Fifth, eBay is a global marketplace; we could not distinguish '
-        f'between EU and non-EU buyers or sellers, nor could we assess whether sellers were '
-        f'institutions disposing of regulated equipment or private resellers. Finally, the '
-        f'three-year observation period does not extend to the pre-proposal period (before '
-        f'April 2022), limiting our ability to establish a true baseline unaffected by '
-        f'regulatory signals.')
+        f'pre-/post-ban comparison. Bootstrap resampling and post-hoc power simulation confirmed '
+        f'that the desflurane Mann\u2013Whitney U test had low power (approximately 28%) and '
+        f'that the median-difference confidence interval included zero; the Welch t-test was '
+        f'more powerful (approximately 58%) and the mean-difference confidence interval '
+        f'excluded zero. Although the time-series trend analyses (which use all data points) '
+        f'suggest a progressive decline, the pre-/post-ban comparison should be considered '
+        f'exploratory. Fifth, eBay is a global marketplace; we could not distinguish between '
+        f'EU and non-EU buyers or sellers, nor could we assess whether sellers were institutions '
+        f'disposing of regulated equipment or private resellers. Finally, the three-year '
+        f'observation period does not extend to the pre-proposal period (before April 2022), '
+        f'limiting our ability to establish a true baseline unaffected by regulatory signals. The '
+        f'DiD and CITS models support agent-specificity but do not satisfy the assumptions '
+        f'required for causal identification; they should be interpreted as sensitivity, not '
+        f'confirmatory, analyses.')
 
     add_para_with_refs(doc,
         'Looking ahead, environmental pressures are likely to prompt further regulatory '
         'interventions in anesthesia and healthcare more broadly. Nitrous oxide, for example, '
         'is already subject to emerging regulatory and institutional restrictions on '
-        'environmental grounds.{6} Our findings provide preliminary evidence that the EU '
-        'desflurane ban\u2014the first mandatory, agent-specific environmental restriction '
-        'in anesthesia\u2014was associated with targeted economic effects without observable '
-        'destabilization of the wider equipment market. Future studies with larger post-ban '
-        'samples, multiple marketplaces, and controlled comparisons will be needed to confirm '
-        'these findings and to determine whether they generalize to other regulatory contexts.')
+        'environmental grounds.{8} Our findings provide preliminary, hypothesis-generating '
+        'evidence that the EU desflurane restriction on routine use\u2014the first mandatory, '
+        'agent-specific environmental restriction in anesthesia\u2014was associated with '
+        'targeted secondary-market price patterns without observable destabilization of the '
+        'wider equipment market. Future studies with larger post-restriction samples, multiple '
+        'marketplaces, geographic transaction data, and controlled comparisons will be needed '
+        'to confirm these findings and to determine whether they generalize to other '
+        'regulatory contexts.')
 
     # ============================================================
     # CONCLUSION (JATM: singular)
     # ============================================================
     add_heading_styled(doc, 'Conclusion', level=1)
     doc.add_paragraph(
-        'The EU desflurane ban\u2014the first mandatory environmental restriction on a specific '
-        'anesthetic agent\u2014was associated with a progressive, agent-specific decline in '
-        'secondary market vaporizer prices, while non-regulated agents remained stable. '
-        'These findings suggest that targeted, transparently enacted environmental regulation '
-        'may achieve its intended economic effects without observable collateral damage to the '
-        'broader equipment market. These results should be interpreted as hypothesis-generating '
-        'rather than definitive, given the observational design and the limitations of '
-        'single-platform data.')
+        'In this observational study, desflurane vaporizer prices on eBay showed a progressive, '
+        'agent-specific decline during the EU regulatory process, while sevoflurane and '
+        'isoflurane prices remained comparatively stable. These findings are consistent with '
+        'the hypothesis that the EU desflurane phase-out was associated with targeted '
+        'secondary-market effects, but they do not prove causation. They should be interpreted '
+        'as hypothesis-generating, given the single-platform design, the inability to identify '
+        'EU-specific transactions, the small post-restriction sample, and the possibility of '
+        'unmeasured confounders such as NHS decommissioning and secular clinical trends.')
 
     # ============================================================
     # DECLARATIONS (JATM order)
@@ -998,61 +1125,74 @@ def write_jatm_paper():
         '7 February 2024 on fluorinated greenhouse gases. Official Journal of the European '
         'Union. 2024;L 2024/573.',
         # 3
+        'Sulbaek Andersen MP, Nielsen OJ, Sherman JD. Assessing the potential climate impact '
+        'of anaesthetic gases. Lancet Planet Health. 2023;7(7):e622\u2013e629. '
+        'doi:10.1016/S2542-5196(23)00084-0.',
+        # 4
+        'Hariyanto H, Widiastuti M, Pandrya CO, et al. Comparison of desflurane and sevoflurane '
+        'as maintenance inhalational anaesthetic agents for adult patients undergoing '
+        'neurosurgeries: a systematic review and meta-analysis of randomised trials. '
+        'Indian J Anaesth. 2025;69(1):65\u201377. doi:10.4103/ija.ija_1215_24.',
+        # 5
         'Sherman J, Le C, Lamers V, et al. Life cycle greenhouse gas emissions of '
         'anesthetic drugs. Anesth Analg. 2012;114:1086\u201390.',
-        # 4
+        # 6
         'Hendrickx JFA, Nielsen OJ, De Hert S, et al. The science behind banning '
         'desflurane: a narrative review. Eur J Anaesthesiol. 2022;39:818\u201324.',
-        # 5
+        # 7
         'White SM, Shelton CL, Gelb AW, et al. Principles of environmentally-sustainable '
         'anaesthesia: a global consensus statement from the World Federation of Societies of '
         'Anaesthesiologists. Anaesthesia. 2022;77:201\u201312.',
-        # 6
+        # 8
         'American Society of Anesthesiologists Committee on Environmental Health. Statement on '
         'deactivating central piped nitrous oxide to mitigate avoidable health care pollution. '
         'Schaumburg, IL: ASA, 2024.',
-        # 7
+        # 9
         'McGain F, Muret J, Guen CL, et al. Environmental sustainability in anaesthesia '
         'and critical care. Br J Anaesth. 2020;125:680\u201392.',
-        # 8
+        # 10
         'NHS England. Decommissioning of desflurane in the NHS. 2023.',
-        # 9
+        # 11
         'Sulbaek Andersen MP, Sander SP, Nielsen OJ, et al. Inhalation anaesthetics and '
         'climate change. Br J Anaesth. 2010;105:760\u20136.',
-        # 10
+        # 12
         'Ryan SM, Nielsen CJ. Global warming potential of inhaled anesthetics: application '
         'to clinical use. Anesth Analg. 2010;111:92\u20138.',
-        # 11
+        # 13
         'Meyer MJ. Desflurane should des-appear: global and financial rationale. Anesth Analg. '
         '2020;131:1317\u201322.',
-        # 12
+        # 14
         'Moonesinghe SR. Desflurane decommissioning: more than meets the eye. Anaesthesia. '
         '2024;79:237\u201341.',
-        # 13
+        # 15
         'Mohammed A, Metta H. Is it time to bid adieu to desflurane? J Anaesthesiol Clin '
         'Pharmacol. 2025;41:211\u20132.',
-        # 14
+        # 16
         'Lehmann H, Werning J, Baschnegger H, et al. Minimising the usage of desflurane '
         'only by education and removal of the vaporisers \u2013 a before-and-after-trial. '
         'BMC Anesthesiol. 2025;25:108.',
-        # 15
+        # 17
         'Rauchenwald V, Heuss-Azeez R, Ganter MT, et al. Sevoflurane versus desflurane\u2014'
         'an economic analysis. BMC Anesthesiol. 2020;20:272.',
-        # 16
+        # 18
         'Beard J, Kennedy R, Philip J, et al. Environmental and economic impacts of end-tidal '
         'control of volatile anesthetics: a scoping review and analysis. Open Anesthesiol J. '
         '2025;19:e25896458355905.',
-        # 17
+        # 19
         'Shukla S, Kalaiselvan V, Raghuvanshi RS. How to improve regulatory practices for '
         'refurbished medical devices. Bull World Health Organ. 2023;101:412\u20137.',
-        # 18
+        # 20
         'von Elm E, Altman DG, Egger M, et al. The Strengthening the Reporting of '
         'Observational Studies in Epidemiology (STROBE) statement: guidelines for reporting '
         'observational studies. BMJ. 2007;335:806\u20138.',
-        # 19
+        # 21
         'Shimbar A. Environment-related stranded assets: what does the market think about the '
         'impact of collective climate action on the value of fossil fuel stocks? Energy Econ. '
         '2021;103:105579.',
+        # 22
+        'Kranke P, Kleinberg R, Meybohm P, et al. Anesthetic diversity: a pillar of healthcare '
+        'system resilience and a strategic imperative in an era of uncertainty. Anaesthesiologie. '
+        '2026. doi:10.1007/s00101-025-01639-x.',
     ]
     for i, ref in enumerate(references, 1):
         p = doc.add_paragraph()
