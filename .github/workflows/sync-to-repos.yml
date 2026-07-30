@@ -279,6 +279,10 @@ jobs:
           SUBDIR_MAP["devin/1784008417-weibull-tb-reproducible-data"]="weibull-clinical-dropout/reanalysis_real"
           SUBDIR_MAP["devin/1785221135-three-children-repro"]="three-children-methods-one-family-framework"
 
+          # ── ToMMo taste receptor pharmacogenomics (2025-0057) ──
+          BRANCH_MAP["devin/1785420517-taste-drug-analysis"]="tommo-taste-receptor-2025-0057"
+          SUBDIR_MAP["devin/1785420517-taste-drug-analysis"]="tommo_taste_receptor_2025-0057"
+
           # ── File exclusion map ──
           # Space-separated list of file paths (relative to subdir root if
           # SUBDIR_MAP is set, or repo root otherwise) to exclude from sync.
