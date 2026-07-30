@@ -144,6 +144,9 @@ jobs:
           # ── Beyond-GDP / national power (E&P submission) ──
           BRANCH_MAP["devin/1780790605-ep-submission-prep"]="beyond-gdp-national-power"
 
+          # ── Network exclusion / state collapse 96-case reclassification ──
+          BRANCH_MAP["devin/1751230600-network-exclusion-reclass"]="network-exclusion-reclass"
+
           # ── Biwa archaeological prospection ──
           BRANCH_MAP["devin/1778845403-biwa-archaeological-prospection"]="biwa-archaeological-prospection"
 
@@ -251,6 +254,7 @@ jobs:
 
           # New project syncs
           SUBDIR_MAP["devin/1780790605-ep-submission-prep"]="beyond-gdp-national-power"
+          SUBDIR_MAP["devin/1751230600-network-exclusion-reclass"]="network-exclusion-reclass"
           SUBDIR_MAP["devin/1778845403-biwa-archaeological-prospection"]="biwa_archaeological_prospection"
           SUBDIR_MAP["devin/1778901415-clinical-noise-inverse-problem"]="clinical_noise_inverse_problem"
           SUBDIR_MAP["devin/1778748159-meeting-slides"]="meeting-slides"
