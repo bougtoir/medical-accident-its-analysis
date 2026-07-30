@@ -1,0 +1,2 @@
+# Pure-Python validation script; no third-party packages required.
+# Future analysis scripts may add pandas, numpy, scipy, statsmodels, etc.
