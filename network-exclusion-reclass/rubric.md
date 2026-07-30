@@ -11,8 +11,8 @@ specific source URL or canonical printed source and a quoted passage**.
    information about the polity's geography, trade routes, and policies up to the
    start of the period. Do not use conquest/survival as a criterion.
 2. **One source per case minimum**: Every non-empty classification must cite a
-   source URL or standard reference work with a quoted passage in
-   `rater_source_quote`.
+   source URL (`rater_source_url`) or standard printed reference
+   (`rater_source_ref`) with a quoted passage in `rater_source_quote`.
 3. **Confidence**: `high` = multiple independent sources agree and the case is
    unambiguous; `medium` = one good source or minor ambiguity; `low` = contested
    or sparse evidence.
@@ -63,5 +63,6 @@ These outcomes are recorded for analysis only and must not influence Step 3 abov
 ## Sub-sample for sensitivity analysis
 
 After all 96 cases are coded, identify 20–30 cases with `rater_confidence = high`
-and at least two independent source citations. That subset becomes the primary
-sensitivity-analysis sample.
+and at least two independent source citations (URL in `rater_source_url` plus a
+printed reference in `rater_source_ref`, or two distinct references). That subset
+becomes the primary sensitivity-analysis sample.

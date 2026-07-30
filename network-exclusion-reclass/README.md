@@ -18,7 +18,8 @@ pre-specified, source-anchored, blind-applied classification rubric.
 - `data/variable_metadata.csv` — description of each column in the legacy dataset.
 - `data/classification_template.csv` — editable template for the new blind
   reclassification. Add `rater_closure_type`, `rater_confidence`, `rater_source_url`,
-  `rater_source_quote`, and `rater_notes` for each case.
+  `rater_source_ref` (printed canonical reference), `rater_source_quote`, and
+  `rater_notes` for each case.
 - `scripts/validate_classifications.py` — checks completeness and valid values in
   `data/classification_template.csv`.
 
@@ -26,8 +27,8 @@ pre-specified, source-anchored, blind-applied classification rubric.
 
 1. Read `rubric.md`.
 2. Fill in `data/classification_template.csv` row by row. Cite a specific source
-   (URL or canonical printed work) and quote the passage that justifies the
-   classification. Do not look at the `outcome` column while coding.
+   (`rater_source_url` and/or `rater_source_ref`) and quote the passage that
+   justifies the classification. Do not look at the `outcome` column while coding.
 3. Run `python scripts/validate_classifications.py` to check for missing or
    invalid entries.
 4. Once all 96 cases are coded, run the script with `--summary` to identify the
