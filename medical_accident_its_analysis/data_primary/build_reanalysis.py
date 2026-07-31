@@ -67,6 +67,16 @@ def load_jmsr():
     return df.loc[CORE]
 
 
+def load_media():
+    """Nikkei Telecom 21 annual article counts (keywords: 医療事故 + 医療過誤),
+    2004-2018. These are total national newspaper coverage, not specialty-specific."""
+    path = os.path.join(os.path.dirname(HERE), "data",
+                        "nikkei_media_counts_2004_2018.csv")
+    df = pd.read_csv(path)
+    df = df.set_index("year")
+    return df["total_articles"].astype(float)
+
+
 def phys_frame(interpolate=False):
     P = load("physicians_by_specialty.csv")
     if interpolate:
@@ -264,6 +274,88 @@ def jmsr_hospital_sensitivity():
     }
 
 
+def media_lit_correlation(lit, media):
+    """Correlation between total annual newspaper coverage and (a) total
+    litigation counts and (b) the lagged specialty-specific litigation rate
+    in the 2009-2018 window for which media data are available."""
+    years = sorted(set(lit.columns) & set(media.index) & set(range(2008, 2019)))
+    # total counts
+    total_lit = lit[years].sum(axis=0)
+    r_total, p_total = stats.pearsonr(media.loc[years].values, total_lit.values)
+
+    # within-panel correlation: lagged litrate vs media (next year)
+    Pint = phys_frame(interpolate=True)
+    litrate_vals, media_vals = [], []
+    for s in CORE:
+        for y in years:
+            if pd.isna(Pint.loc[s, y]) or pd.isna(lit.loc[s, y]) or pd.isna(media.loc[y]):
+                continue
+            litrate_vals.append(1000.0 * lit.loc[s, y] / Pint.loc[s, y])
+            media_vals.append(media.loc[y])
+    r_panel, p_panel = stats.pearsonr(litrate_vals, media_vals)
+    return {
+        "years": years,
+        "total_r": float(r_total),
+        "total_p": float(p_total),
+        "panel_r": float(r_panel),
+        "panel_p": float(p_panel),
+        "n_total": len(years),
+        "n_panel": len(litrate_vals),
+    }
+
+
+def media_hospital_sensitivity():
+    """Annual hospital growth 2009-2018 with lagged litigation rate and total
+    newspaper article counts (per 1,000 national articles). Because total media
+    coverage is a national yearly variable, it is collinear with full year fixed
+    effects; the sensitivity therefore uses specialty fixed effects plus a
+    linear time trend."""
+    Pint = phys_frame(interpolate=True)
+    L = load("litigation_by_specialty.csv")
+    H = load("facilities_hospital_by_specialty.csv")
+    M = load_media()
+    years = list(range(2009, 2019))
+    rows = []
+    for s in CORE:
+        for y in years:
+            prev = y - 1
+            if prev not in Pint.columns or y not in H.columns \
+                    or prev not in L.columns or prev not in M.index:
+                continue
+            p_prev = Pint.loc[s, prev]
+            h_prev = H.loc[s, prev]
+            h_now = H.loc[s, y]
+            l_prev = L.loc[s, prev]
+            m_prev = M.loc[prev]
+            if pd.isna(p_prev) or pd.isna(h_prev) or pd.isna(h_now) \
+                    or pd.isna(l_prev) or pd.isna(m_prev):
+                continue
+            rows.append({
+                "specialty": s,
+                "year": y,
+                "dlog_hosp": np.log(h_now) - np.log(h_prev),
+                "litrate": 1000.0 * l_prev / p_prev,
+                "media": m_prev / 1000.0,  # per 1,000 articles
+            })
+    d = pd.DataFrame(rows)
+    m = smf.ols("dlog_hosp ~ litrate + media + C(specialty) + year",
+                data=d).fit(cov_type="cluster", cov_kwds={"groups": d["specialty"]})
+    return {
+        "label": "Media-adjusted annual hospital growth (2009-2018) ~ lit rate + media count",
+        "outcome": "dlog_hosp",
+        "n_obs": int(d.shape[0]),
+        "n_specialties": int(d.specialty.nunique()),
+        "n_waves": int(d.year.nunique()),
+        "lit_coef": float(m.params["litrate"]),
+        "lit_se": float(m.bse["litrate"]),
+        "lit_p": float(m.pvalues["litrate"]),
+        "media_coef": float(m.params["media"]),
+        "media_se": float(m.bse["media"]),
+        "media_p": float(m.pvalues["media"]),
+        "r_lit_media": float(d[["litrate", "media"]].corr().iloc[0, 1]),
+    }
+
+
 def main():
     res = {"grid": {}, "descriptive": {}, "primary": [], "sensitivity": []}
 
@@ -339,6 +431,11 @@ def main():
                                                    load_jmsr())
     res["sensitivity"].append(jmsr_hospital_sensitivity())
 
+    # ---- SENSITIVITY (d): media coverage control (annual hospital 2009-2018) ----
+    res["media_correlation"] = media_lit_correlation(load("litigation_by_specialty.csv"),
+                                                     load_media())
+    res["sensitivity"].append(media_hospital_sensitivity())
+
     with open(os.path.join(RES, "reanalysis_results.json"), "w") as f:
         json.dump(res, f, ensure_ascii=False, indent=2)
 
@@ -357,9 +454,12 @@ def main():
                 t["margin"] * 100, t["p_tost"], t["equivalent"]))
     print("\nSENSITIVITY:")
     for r in res["sensitivity"]:
-        if "lit_coef" in r:
-            print("  %s: lit coef=%.5f p=%.4f; med coef=%.5f p=%.4f n=%s" % (
+        if "lit_coef" in r and "media_coef" not in r:
+            print("  %s: lit coef=%.5f p=%.4f; jmsr coef=%.5f p=%.4f n=%s" % (
                 r["label"], r["lit_coef"], r["lit_p"], r["med_coef"], r["med_p"], r["n_obs"]))
+        elif "lit_coef" in r and "media_coef" in r:
+            print("  %s: lit coef=%.5f p=%.4f; media coef=%.5f p=%.4f n=%s" % (
+                r["label"], r["lit_coef"], r["lit_p"], r["media_coef"], r["media_p"], r["n_obs"]))
         else:
             print("  %s: coef=%.5f p=%.4f n=%s" % (r["label"], r.get("coef", np.nan),
                   r.get("p", np.nan), r["n_obs"]))
@@ -367,6 +467,10 @@ def main():
     c = res["jmsr_correlation"]
     print("  pooled r=%.3f p=%.4f; detrended r=%.3f p=%.4f" % (
         c["pooled_r"], c["pooled_p"], c["detrended_r"], c["detrended_p"]))
+    print("\nMEDIA-LITIGATION CORRELATION:")
+    m = res["media_correlation"]
+    print("  total media vs total litigation r=%.3f p=%.4f; panel litrate vs media r=%.3f p=%.4f" % (
+        m["total_r"], m["total_p"], m["panel_r"], m["panel_p"]))
 
 
 if __name__ == "__main__":
