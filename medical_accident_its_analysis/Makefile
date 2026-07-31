@@ -19,5 +19,8 @@ manuscript: analysis
 	$(PY) manuscript/build_manuscript_en.py
 	$(PY) manuscript/build_package_en.py
 
+hp_submission: manuscript
+	$(PY) manuscript/build_hp_submission.py
+
 clean:
 	rm -rf data_primary/__pycache__ manuscript/__pycache__
