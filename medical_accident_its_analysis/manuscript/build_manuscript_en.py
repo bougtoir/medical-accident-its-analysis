@@ -406,9 +406,15 @@ def build():
          "across specialties, but residual power constraints remain and the equivalence margins "
          "are a judgement. Specialty-specific litigation could be recovered only from 2008; "
          "earlier specialty tables were not retrievable from primary sources. Clinic counts by "
-         "specialty are published only every three years and were used descriptively. Finally, "
-         "litigation counts are assigned to a principal specialty and, by the Court's own note, "
-         "do not measure intrinsic specialty risk.{court}")
+         "specialty are published only every three years and were used descriptively. "
+         "Litigation counts are assigned to a principal specialty and, by the Court's own note, "
+         "do not measure intrinsic specialty risk.{court} Finally, these findings are embedded in "
+         "Japan's particular legal, cultural and institutional context—including its no-fault "
+         "obstetric compensation scheme, its fee-for-service reimbursement structure and its "
+         "comparatively low-volume malpractice-litigation culture—so physician responses to "
+         "litigation risk may differ in health systems with different liability regimes, "
+         "compensation mechanisms or professional norms; the results should not be assumed to "
+         "generalise across cultural spheres.")
     head("Conclusions", 1)
     para("Across 2008–2024, specialty-level malpractice-litigation risk in Japan was not "
          "associated with physician or hospital decline, and the effect was statistically "
