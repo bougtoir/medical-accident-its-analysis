@@ -121,6 +121,19 @@ REFS = {
     "mais": "Act on the Promotion of Medical Safety; Medical Accident Investigation System (2015). Tokyo: MHLW.",
     "angrist": "Angrist JD, Pischke JS. Mostly Harmless Econometrics. Princeton: Princeton University Press; 2009.",
     "strobe": "von Elm E, Altman DG, Egger M, et al. The STROBE statement. Lancet. 2007;370(9596):1453-1457.",
+    "matsa2007": "Matsa DA. Does malpractice liability keep the doctor away? Evidence from tort reform damage caps. J Legal Stud. 2007;36(S2):S143-S182.",
+    "hyman2015": "Hyman DA, Silver C, Black B, Paik M. Does tort reform affect physician supply? Evidence from Texas. Int Rev Law Econ. 2015;42:203-218.",
+    "frakes2020": "Frakes MD, Frank MB, Seabury SA. The effect of malpractice law on physician supply: Evidence from negligence-standard reforms. J Health Econ. 2020;70:1-16.",
+    "kessler1996": "Kessler DP, McClellan MB. Do doctors practice defensive medicine?. Q J Econ. 1996;111(2):353-390.",
+    "sloan2008": "Sloan FA, Shadle JH. Is there empirical evidence for \"Defensive Medicine\"? A reassessment. J Health Econ. 2008;27(2):481-491.",
+    "taniguchi2023": "Taniguchi K, Watari T, Nagoshi K. Characteristics and trends of medical malpractice claims in Japan between 2006 and 2021. PLoS One. 2023;18(12):e0296155.",
+    "hasegawa2016": "Hasegawa J, Toyokawa S, Ikenoue T, et al. Relevant obstetric factors for cerebral palsy: from the Nationwide Obstetric Compensation System in Japan. PLoS One. 2016;11(1):e0148122.",
+    "morita2018": "Morita H. Criminal prosecution and physician supply. Int Rev Law Econ. 2018;55:1-11.",
+    "helland2015": "Helland E, Seabury SA. Tort reform and physician labor supply: a review of the evidence. Int Rev Law Econ. 2015;42:192-202.",
+    "bismark2006": "Bismark M, Paterson R. No-fault compensation in New Zealand: harmonizing injury compensation, provider accountability, and patient safety. Health Aff. 2006;25(1):278-286.",
+    "mello2011": "Mello MM, Kachalia A, Studdert DM. Administrative compensation for medical injuries: lessons from three foreign systems. New York: The Commonwealth Fund; 2011.",
+    "kamijo2025": "Kamijo K, Wada Y, Ishida K, Warsof SL, Saade G, Kawakita T. Medical-legal claims in obstetrics and gynecology: Japan versus the United States. J Healthc Risk Manag. 2025;44(4):5-11.",
+    "lin2022": "Lin PL, Huang JP, Fujii T, Cho EH, Huang MC. A survey of specialty choice among obstetrics and gynecology residents in Japan, Korea, and Taiwan. J Obstet Gynaecol Res. 2022;48(7):1968-1977.",
 }
 _CITE_ORDER = []
 BODY_TEXTS = []
@@ -502,6 +515,13 @@ def build_manuscript():
          f"systematically abandon high-litigation specialties\u2014is not supported by {SPAN} "
          "years of official data.")
     body(doc,
+         "A null result is not merely a failure to detect an effect. The narrow "
+         "confidence intervals and pre-specified equivalence margins allow us to say "
+         "that, if litigation risk does influence specialty-level workforce growth, "
+         "the magnitude is too small to matter for workforce planning. This is an "
+         "important distinction for policy debates that treat malpractice pressure as "
+         "a major driver of physician distribution.")
+    body(doc,
          "The raw-count sensitivity in our study did not recover a negative association, "
          "indicating that size confounding and interpolation are sufficient to produce "
          "spurious negative findings. This is a cautionary example for workforce research "
@@ -509,15 +529,119 @@ def build_manuscript():
          "measured-only designs are preferable when testing litigation-workforce "
          "hypotheses.")
     body(doc,
-         "Why might the workforce be so insensitive to litigation risk? A plausible "
-         "interpretation is that structural incentives offset it. The Japan Obstetric "
-         "Compensation System for Cerebral Palsy (2009) introduced no-fault compensation "
-         "that reduced adversarial litigation pressure in obstetrics, and our data show "
-         "a concurrent obstetric facility signal.{jocscp} Other structural incentives, "
-         "including the fee-for-service remuneration of high-acuity procedures, may also "
-         "play a role, although our data cannot isolate their effects from other institutional "
-         "factors. Under this view, maldistribution is better addressed through payment "
-         "design and no-fault compensation than through litigation-avoidance messaging.")
+         "International evidence on tort reform and physician supply is consistent "
+         "with a small or context-specific effect. Matsa found that U.S. state damage "
+         "caps increased the supply of frontier rural specialists by 10-12 percent, "
+         "but did not affect physician supply for the average resident.{matsa2007} "
+         "Hyman and colleagues, examining the 2003 Texas reforms, found no measurable "
+         "increase in physician supply for high-malpractice-risk specialties, primary "
+         "care, or rural physicians.{hyman2015} Frakes and co-workers showed that "
+         "negligence-standard reforms could shift the composition of the physician "
+         "workforce toward surgery in some regions, yet the effect was localized and "
+         "modest.{frakes2020} Against this backdrop, a null effect of civil litigation "
+         "risk on Japanese specialty supply is not surprising, especially in a system "
+         "with comparatively low litigation volume and predictable damages.")
+    body(doc,
+         "Even when litigation risk does not change the number of physicians, it may "
+         "alter clinical behaviour through defensive medicine. Kessler and McClellan "
+         "showed that U.S. malpractice reforms reduced medical expenditures for elderly "
+         "heart-disease patients without increasing mortality or complications, "
+         "suggesting that defensive practice is one margin of adjustment to liability "
+         "pressure.{kessler1996} Subsequent reassessments have debated the magnitude "
+         "and robustness of this effect, but the conceptual point remains: physicians "
+         "can respond to liability risk by changing how they practise rather than by "
+         "exiting a specialty.{sloan2008} In Japan, fee-for-service reimbursement "
+         "rewards the high-acuity procedural work that also carries litigation "
+         "exposure, so the financial return to remaining in surgery, obstetrics, or "
+         "interventional specialties may dominate any deterrent from civil claims.")
+    body(doc,
+         "Japan's litigation environment itself dampens the likelihood of a "
+         "flight-from-risk response. Taniguchi and colleagues analysed all closed "
+         "malpractice claims reported by the Supreme Court from 2006 to 2021 and "
+         "found that more than half ended in settlement, plaintiffs won only about a "
+         "quarter of judgments, and the number of claims has been declining, "
+         "especially in obstetrics and gynaecology.{taniguchi2023} The Court data we "
+         "use therefore describe a civil system that is low-volume, settlement-prone, "
+         "and comparatively favourable to physicians. This context makes it unlikely "
+         "that routine civil litigation risk alone would drive physicians out of "
+         "high-risk fields.")
+    body(doc,
+         "The Japan Obstetric Compensation System for Cerebral Palsy (2009) illustrates "
+         "a different mechanism. It was introduced partly because of a shortage of "
+         "young obstetricians and regional gaps in maternity care, and it combined "
+         "no-fault compensation with investigation and prevention.{hasegawa2016} Our "
+         "hospital-level JOCS-CP indicator is associated with obstetric hospital growth, "
+         "suggesting that removing adversarial litigation pressure can support "
+         "facility supply, although we cannot isolate the compensation effect from "
+         "concurrent obstetric policies. Civil litigation exposure is also distinct "
+         "from criminal prosecution. Morita exploited the 2004 Fukushima obstetrician "
+         "prosecution and found a 13 percent decline in obstetricians, with some "
+         "switching to gynaecology.{morita2018} Criminal cases and their media coverage "
+         "may be far more salient to career decisions than routine closed civil claims, "
+         "and our data do not capture that channel.")
+    body(doc,
+         "The obstetrics and gynaecology case is the most discussed example of the "
+         "litigation-workforce nexus, and it is consistent with our interpretation. "
+         "A recent comparison of Japanese and U.S. medical-legal claims in OB/GYN "
+         "found that the proportion of malpractice claims in this specialty fell from "
+         "15.1 percent in 2004 to 5.2 percent in 2022, and that claims per 100 OB/GYN "
+         "physicians fell from 0.9 in 2007 to 0.4 in 2016, while maternal and neonatal "
+         "mortality also declined.{kamijo2025} The authors attribute this to heightened "
+         "awareness after a wrongful criminal charge, the JOCS-CP no-fault scheme, "
+         "standardised clinical guidelines, and the adverse-event investigation system. "
+         "This is not evidence that lowering litigation risk caused the workforce to "
+         "grow; it is evidence that obstetric litigation, workforce support, and safety "
+         "interventions moved together. Surveys of OB/GYN residents in Japan, Korea, "
+         "and Taiwan likewise show that litigation is reported as a negative factor, "
+         "but that its perceived importance is smaller where no-fault compensation exists "
+         "and that workload, lifestyle, and professional interest remain dominant.{lin2022} "
+         "These findings echo our specialty-level result: litigation may matter for "
+         "perceptions, but it is not the binding constraint on supply.")
+    body(doc,
+         "What do these findings imply for policy? Reducing civil malpractice "
+         "litigation is unlikely to be a powerful lever for correcting specialty "
+         "maldistribution in Japan. Structural incentives are more promising: "
+         "no-fault compensation can de-risk high-acuity specialties, and payment "
+         "design can reward service in underserved settings and activities. The "
+         "JOCS-CP experience supports the former; Japan's fee-for-service schedule "
+         "and rural/urban payment adjustments illustrate the latter. This is not to "
+         "say that malpractice reform is irrelevant: it may influence defensive "
+         "medicine, patient compensation, and provider-patient trust. But our evidence "
+         "does not support the claim that lowering litigation risk will retain "
+         "physicians in high-risk specialties, and litigation-avoidance messaging "
+         "should not be the centrepiece of workforce policy.")
+    body(doc,
+         "International experience with no-fault compensation is consistent with this "
+         "policy orientation. New Zealand replaced tort-based medical-injury "
+         "compensation with a government-funded no-fault scheme in 1974 and, after "
+         "2005 reforms, extended coverage to all treatment injuries; this separated "
+         "compensation from negligence findings and largely barred malpractice "
+         "litigation.{bismark2006} Sweden and Denmark operate similar administrative "
+         "systems in which neutral experts evaluate claims without requiring proof of "
+         "provider fault, improving injured patients' access to redress while "
+         "controlling liability costs and generating patient-safety learning.{mello2011} "
+         "The JOCS-CP is narrower in scope\u2014it covers only obstetric cerebral palsy\u2014"
+         "but it moves in the same direction: it provides compensation and cause "
+         "analysis without a protracted adversarial process. Extending such an "
+         "approach more broadly would be a structural alternative to repeated calls to "
+         "reduce malpractice litigation as a workforce strategy.")
+    body(doc,
+         "Several questions remain for future research. We cannot observe individual "
+         "physicians' risk perceptions, career intentions, or responses to media "
+         "coverage of high-profile cases. The closed-claim rate is an objective "
+         "exposure measure, but it may not capture the perceived risk that drives "
+         "specialty choice, especially when criminal prosecutions or sensational media "
+         "coverage shape beliefs. Helland and Seabury's review concludes that tort "
+         "reform effects on physician supply are heterogeneous across states and "
+         "specialties, and that more granular, state-specific designs are needed to "
+         "settle the question in the U.S. context.{helland2015} Applying similar "
+         "logic in Japan would require individual-level or prefecture-level career "
+         "data linked to local litigation, media, and reimbursement environments. "
+         "Until then, the present specialty-level rate analysis provides the most "
+         "systematic evidence available on the central policy question: whether "
+         "malpractice litigation risk drives physicians away from high-risk "
+         "specialties. The answer is that it does not, at least not in a way that is "
+         f"detectable or policy-relevant in {SPAN} years of national data.")
 
     head(doc, "Limitations", level=2)
     body(doc,
