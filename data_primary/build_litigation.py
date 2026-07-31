@@ -16,8 +16,15 @@ Specialty rows appear in a fixed order:
   泌尿器科 / 産婦人科 / 眼科 / 耳鼻咽喉科 / 歯科 / 麻酔科 / その他 / 合計
 We keep the 12 core clinical specialties (drop 歯科, その他, 合計).
 
-Overlapping years across sources are cross-checked; a fatal error is raised on
-any disagreement so no silently-wrong value enters the dataset.
+Overlapping years across text sources are cross-checked. Any disagreement is
+printed and recorded in provenance_litigation.json (source, value) rather than
+silently dropped; the value used is then taken from the highest-priority source
+(lower priority number wins). The one known disagreement is 2017 internal
+medicine (179 in the 2022/2024/2025 statistics vs 181 in the 2017 committee
+minutes); the current released figure 179 is used and the mismatch is retained
+in provenance. The 2008-2010 scanned tables are digitised (image_transcription
+.csv) and validated against the 2011 text overlap, which must match exactly or
+the build aborts.
 """
 import os, re, json, hashlib, subprocess
 import pdfplumber
