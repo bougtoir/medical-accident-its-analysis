@@ -18,7 +18,9 @@ defensible with interpolated biennial data):
   * JOCS-CP (Japan Obstetric Compensation System, launched Jan-2009) entered as
     an obstetrics-specific post-2009 indicator (structural confounder).
   * Sensitivity: (a) annual hospital panel 2008-2024; (b) linear-interpolation
-    annual physician panel with df = measured waves (not the interpolated n);
+    annual physician panel. Inference uses standard errors clustered by
+    specialty, so the degrees of freedom are the number of clusters minus one
+    (12 - 1 = 11); the interpolated observation count does NOT inflate them.
     (c) counts-vs-rates contrast.
 All numbers are written to results/reanalysis_results.json for the manuscript.
 """
@@ -222,9 +224,11 @@ def main():
     dp = add_changes(long_panel(ann, P=Pint), 1)
     fit_interp = panel_fit(dp, "dlog_phys", "litrate_lag",
                            "SENSITIVITY interpolated-annual physician growth ~ lag rate")
-    fit_interp["note"] = ("physicians linearly interpolated between biennial waves; "
-                          "effective df governed by the %d measured waves, not the "
-                          "interpolated n" % len(bien))
+    fit_interp["note"] = ("physicians linearly interpolated between the %d measured "
+                          "biennial waves; standard errors are clustered by specialty so "
+                          "inference df = clusters - 1 = %d and the interpolated "
+                          "observation count does not inflate the degrees of freedom"
+                          % (len(bien), dp["specialty"].nunique() - 1))
     res["sensitivity"].append(fit_interp)
 
     with open(os.path.join(RES, "reanalysis_results.json"), "w") as f:

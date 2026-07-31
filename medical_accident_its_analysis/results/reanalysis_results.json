@@ -267,7 +267,7 @@
       "direction": "negative",
       "jocscp_coef": -0.008606695866408085,
       "jocscp_p": 0.12251844439207196,
-      "note": "physicians linearly interpolated between biennial waves; effective df governed by the 9 measured waves, not the interpolated n"
+      "note": "physicians linearly interpolated between the 9 measured biennial waves; standard errors are clustered by specialty so inference df = clusters - 1 = 11 and the interpolated observation count does not inflate the degrees of freedom"
     }
   ],
   "equivalence": [

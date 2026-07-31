@@ -100,13 +100,14 @@ def first_data_col(grid, start_col, label_rows, min_val=0):
 
 def label_rows(grid):
     out = {}
+    seen = set()
     for r, row in enumerate(grid):
         for v in row:
             n = norm(v)
-            if n in LABELMAP and LABELMAP[n] not in out.values() or n in LABELMAP:
-                # store first occurrence of each label row
-                if n in LABELMAP and r not in out:
-                    out[r] = LABELMAP[n]
+            # store the first occurrence of each label (one row per core specialty)
+            if n in LABELMAP and r not in out and LABELMAP[n] not in seen:
+                out[r] = LABELMAP[n]
+                seen.add(LABELMAP[n])
     return out
 
 
