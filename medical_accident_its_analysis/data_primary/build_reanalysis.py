@@ -26,6 +26,7 @@ import os, json
 import numpy as np
 import pandas as pd
 import statsmodels.formula.api as smf
+from scipy import stats
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 RES = os.path.join(os.path.dirname(HERE), "results")
@@ -113,6 +114,39 @@ def panel_fit(d, outcome, predictor, label, year_fe=True):
     }
 
 
+def equivalence_tost(d, outcome, margins=(0.01, 0.02)):
+    """TOST equivalence test on the effect of a 1-SD higher lagged litigation
+    rate on `outcome` (biennial log-change). Exposure standardised so the
+    coefficient = expected log-change per +1 SD of litigation rate; margins are
+    interpretable as fractional workforce change (0.01 = 1%). df = clusters-1
+    (conservative for cluster-robust SE)."""
+    dd = d.dropna(subset=[outcome, "litrate_lag"]).copy()
+    dd["z"] = (dd["litrate_lag"] - dd["litrate_lag"].mean()) / dd["litrate_lag"].std()
+    rhs = "z + C(specialty) + C(year)"
+    if dd["jocscp_lag"].nunique() > 1:
+        rhs += " + jocscp_lag"
+    m = smf.ols(f"{outcome} ~ {rhs}", data=dd).fit(
+        cov_type="cluster", cov_kwds={"groups": dd["specialty"]})
+    coef, se = float(m.params["z"]), float(m.bse["z"])
+    df = dd["specialty"].nunique() - 1
+    tcrit = stats.t.ppf(0.95, df)
+    ci90 = (coef - tcrit * se, coef + tcrit * se)
+    out = {"outcome": outcome, "coef_per_SD": coef, "se": se, "df": df,
+           "ci90_low": ci90[0], "ci90_high": ci90[1],
+           "sd_litrate": float(dd["litrate_lag"].std()), "tests": []}
+    for mg in margins:
+        p_low = stats.t.sf((coef + mg) / se, df)      # H0: coef <= -mg
+        p_high = stats.t.cdf((coef - mg) / se, df)     # H0: coef >= +mg
+        p_tost = max(p_low, p_high)
+        out["tests"].append({
+            "margin": mg, "p_tost": float(p_tost),
+            "equivalent": bool(ci90[0] > -mg and ci90[1] < mg),
+            "interpretation": f"a 1-SD higher litigation rate shifts biennial "
+                              f"{'physician' if 'phys' in outcome else 'facility'} "
+                              f"growth by <{int(mg*100)}%"})
+    return out
+
+
 def per_specialty_corr(d):
     """Descriptive Spearman corr: litigation rate level vs physician growth."""
     from scipy.stats import spearmanr
@@ -154,6 +188,10 @@ def main():
                                     "Biennial physician growth ~ lagged litigation rate"))
     res["primary"].append(panel_fit(dbi, "dlog_hosp", "litrate_lag",
                                     "Biennial hospital growth ~ lagged litigation rate"))
+
+    # EQUIVALENCE (TOST): is the litigation-rate effect equivalent to null?
+    res["equivalence"] = [equivalence_tost(dbi, "dlog_phys"),
+                          equivalence_tost(dbi, "dlog_hosp")]
 
     # counts-vs-rates contrast (same design, raw count exposure)
     res["sensitivity"].append(panel_fit(dbi, "dlog_phys", "lit_lag",
@@ -198,6 +236,13 @@ def main():
         print(" ", r["label"])
         print("    coef=%.5f p=%.4f n=%s" % (r.get("coef", float("nan")),
               r.get("p", float("nan")), r.get("n_obs")))
+    print("\nEQUIVALENCE (TOST, per +1 SD litigation rate):")
+    for e in res["equivalence"]:
+        print("  %s: coef/SD=%+.4f 90%%CI[%+.4f,%+.4f]" % (
+            e["outcome"], e["coef_per_SD"], e["ci90_low"], e["ci90_high"]))
+        for t in e["tests"]:
+            print("     margin +-%.0f%%: p_TOST=%.4f equivalent=%s" % (
+                t["margin"] * 100, t["p_tost"], t["equivalent"]))
     print("\nSENSITIVITY:")
     for r in res["sensitivity"]:
         print("  %s: coef=%.5f p=%.4f n=%s" % (r["label"], r["coef"], r["p"],

@@ -269,5 +269,53 @@
       "jocscp_p": 0.12251844439207196,
       "note": "physicians linearly interpolated between biennial waves; effective df governed by the 9 measured waves, not the interpolated n"
     }
+  ],
+  "equivalence": [
+    {
+      "outcome": "dlog_phys",
+      "coef_per_SD": -0.0021275312590198414,
+      "se": 0.0035043490526513997,
+      "df": 11,
+      "ci90_low": -0.008420938522115074,
+      "ci90_high": 0.004165876004075392,
+      "sd_litrate": 2.273580857063443,
+      "tests": [
+        {
+          "margin": 0.01,
+          "p_tost": 0.023086759083317067,
+          "equivalent": true,
+          "interpretation": "a 1-SD higher litigation rate shifts biennial physician growth by <1%"
+        },
+        {
+          "margin": 0.02,
+          "p_tost": 0.00017200152253692722,
+          "equivalent": true,
+          "interpretation": "a 1-SD higher litigation rate shifts biennial physician growth by <2%"
+        }
+      ]
+    },
+    {
+      "outcome": "dlog_hosp",
+      "coef_per_SD": 0.0007017018207886232,
+      "se": 0.0054851674793530095,
+      "df": 11,
+      "ci90_low": -0.009149027183428518,
+      "ci90_high": 0.010552430825005765,
+      "sd_litrate": 2.273580857063443,
+      "tests": [
+        {
+          "margin": 0.01,
+          "p_tost": 0.05906440811982301,
+          "equivalent": false,
+          "interpretation": "a 1-SD higher litigation rate shifts biennial facility growth by <1%"
+        },
+        {
+          "margin": 0.02,
+          "p_tost": 0.0024065393386384537,
+          "equivalent": true,
+          "interpretation": "a 1-SD higher litigation rate shifts biennial facility growth by <2%"
+        }
+      ]
+    }
   ]
 }
