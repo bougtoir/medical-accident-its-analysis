@@ -5,6 +5,7 @@ Inputs (all reproducible, provenance-tracked):
   physicians_by_specialty.csv   biennial 2004-2024 (measured, 主たる診療科別)
   litigation_by_specialty.csv   annual 2008-2024 (Supreme Court closed cases)
   facilities_hospital_by_specialty.csv  annual 2008-2024 (一般+精神科病院)
+  medsafe_accidents_by_specialty.csv   annual 2015-2025 (JMSR/MAIS report counts)
 
 Design (agreed with author; supersedes the annual VAR/Granger which was not
 defensible with interpolated biennial data):
@@ -18,10 +19,12 @@ defensible with interpolated biennial data):
   * JOCS-CP (Japan Obstetric Compensation System, launched Jan-2009) entered as
     an obstetrics-specific post-2009 indicator (structural confounder).
   * Sensitivity: (a) annual hospital panel 2008-2024; (b) linear-interpolation
-    annual physician panel. Inference uses standard errors clustered by
+    annual physician panel; (c) counts-vs-rates contrast; (d) annual hospital
+    model 2016-2024 additionally controlling for the JMSR report rate, to test
+    whether litigation findings are confounded by or collinear with broader
+    medical accident reporting. Inference uses standard errors clustered by
     specialty, so the degrees of freedom are the number of clusters minus one
     (12 - 1 = 11); the interpolated observation count does NOT inflate them.
-    (c) counts-vs-rates contrast.
 All numbers are written to results/reanalysis_results.json for the manuscript.
 """
 import os, json
@@ -47,6 +50,19 @@ CORE_EN = {"内科": "Internal medicine", "外科": "Surgery",
 def load(name):
     df = pd.read_csv(os.path.join(HERE, name))
     df = df.set_index("specialty")
+    df.columns = [int(c) for c in df.columns]
+    return df.loc[CORE]
+
+
+def load_jmsr():
+    """JMSR/MAIS medical-accident report counts by specialty (2015 onward).
+    The released CSV already contains broad core-specialty rows."""
+    path = os.path.join(os.path.dirname(HERE), "data",
+                        "medsafe_accidents_by_specialty.csv")
+    df = pd.read_csv(path)
+    df = df[df["specialty"].isin(CORE)].set_index("specialty")
+    year_cols = [c for c in df.columns if str(c).isdigit()]
+    df = df[year_cols].astype(float)
     df.columns = [int(c) for c in df.columns]
     return df.loc[CORE]
 
@@ -161,6 +177,93 @@ def per_specialty_corr(d):
     return out
 
 
+def jmsr_lit_correlation(lit, jmsr):
+    """Correlation between litigation counts and JMSR report counts over the
+    overlapping 2015-2024 window, both pooled and within-specialty detrended."""
+    years = sorted(set(lit.columns) & set(jmsr.columns))
+    x_raw, y_raw = [], []
+    for s in CORE:
+        for y in years:
+            if pd.isna(lit.loc[s, y]) or pd.isna(jmsr.loc[s, y]):
+                continue
+            x_raw.append(float(lit.loc[s, y]))
+            y_raw.append(float(jmsr.loc[s, y]))
+    r_raw, p_raw = stats.pearsonr(x_raw, y_raw)
+
+    resid_x, resid_y = [], []
+    for s in CORE:
+        vals_x = [float(lit.loc[s, y]) for y in years
+                  if not pd.isna(lit.loc[s, y]) and not pd.isna(jmsr.loc[s, y])]
+        vals_y = [float(jmsr.loc[s, y]) for y in years
+                  if not pd.isna(lit.loc[s, y]) and not pd.isna(jmsr.loc[s, y])]
+        if len(vals_x) >= 4:
+            t = np.arange(len(vals_x))
+            x_d = np.array(vals_x) - np.polyval(np.polyfit(t, vals_x, 1), t)
+            y_d = np.array(vals_y) - np.polyval(np.polyfit(t, vals_y, 1), t)
+            resid_x.extend(x_d.tolist())
+            resid_y.extend(y_d.tolist())
+    r_det, p_det = stats.pearsonr(resid_x, resid_y)
+    return {
+        "years": years,
+        "n_specialty_years": len(x_raw),
+        "pooled_r": float(r_raw),
+        "pooled_p": float(p_raw),
+        "detrended_r": float(r_det),
+        "detrended_p": float(p_det),
+    }
+
+
+def jmsr_hospital_sensitivity():
+    """Annual hospital growth 2016-2024, controlling for both litigation rate
+    and JMSR report rate (rates per 1,000 physicians). Tests whether the
+    litigation result is confounded by or collinear with broader accident
+    reporting; uses the interpolated physician denominator for both rates."""
+    Pint = phys_frame(interpolate=True)
+    L = load("litigation_by_specialty.csv")
+    H = load("facilities_hospital_by_specialty.csv")
+    M = load_jmsr()
+    years = list(range(2016, 2025))
+    rows = []
+    for s in CORE:
+        for y in years:
+            prev = y - 1
+            if prev not in Pint.columns or y not in H.columns \
+                    or prev not in L.columns or prev not in M.columns:
+                continue
+            p_prev = Pint.loc[s, prev]
+            h_prev = H.loc[s, prev]
+            h_now = H.loc[s, y]
+            l_prev = L.loc[s, prev]
+            m_prev = M.loc[s, prev]
+            if pd.isna(p_prev) or pd.isna(h_prev) or pd.isna(h_now) \
+                    or pd.isna(l_prev) or pd.isna(m_prev):
+                continue
+            rows.append({
+                "specialty": s,
+                "year": y,
+                "dlog_hosp": np.log(h_now) - np.log(h_prev),
+                "litrate": 1000.0 * l_prev / p_prev,
+                "medrate": 1000.0 * m_prev / p_prev,
+            })
+    d = pd.DataFrame(rows)
+    m = smf.ols("dlog_hosp ~ litrate + medrate + C(specialty) + C(year)",
+                data=d).fit(cov_type="cluster", cov_kwds={"groups": d["specialty"]})
+    return {
+        "label": "JMSR-adjusted annual hospital growth (2016-2024) ~ lit rate + JMSR rate",
+        "outcome": "dlog_hosp",
+        "n_obs": int(d.shape[0]),
+        "n_specialties": int(d.specialty.nunique()),
+        "n_waves": int(d.year.nunique()),
+        "lit_coef": float(m.params["litrate"]),
+        "lit_se": float(m.bse["litrate"]),
+        "lit_p": float(m.pvalues["litrate"]),
+        "med_coef": float(m.params["medrate"]),
+        "med_se": float(m.bse["medrate"]),
+        "med_p": float(m.pvalues["medrate"]),
+        "r_lit_med": float(d[["litrate", "medrate"]].corr().iloc[0, 1]),
+    }
+
+
 def main():
     res = {"grid": {}, "descriptive": {}, "primary": [], "sensitivity": []}
 
@@ -231,6 +334,11 @@ def main():
                           % (len(bien), dp["specialty"].nunique() - 1))
     res["sensitivity"].append(fit_interp)
 
+    # ---- SENSITIVITY (c): JMSR report-rate control (annual hospital 2016-2024) ----
+    res["jmsr_correlation"] = jmsr_lit_correlation(load("litigation_by_specialty.csv"),
+                                                   load_jmsr())
+    res["sensitivity"].append(jmsr_hospital_sensitivity())
+
     with open(os.path.join(RES, "reanalysis_results.json"), "w") as f:
         json.dump(res, f, ensure_ascii=False, indent=2)
 
@@ -249,8 +357,16 @@ def main():
                 t["margin"] * 100, t["p_tost"], t["equivalent"]))
     print("\nSENSITIVITY:")
     for r in res["sensitivity"]:
-        print("  %s: coef=%.5f p=%.4f n=%s" % (r["label"], r["coef"], r["p"],
-              r["n_obs"]))
+        if "lit_coef" in r:
+            print("  %s: lit coef=%.5f p=%.4f; med coef=%.5f p=%.4f n=%s" % (
+                r["label"], r["lit_coef"], r["lit_p"], r["med_coef"], r["med_p"], r["n_obs"]))
+        else:
+            print("  %s: coef=%.5f p=%.4f n=%s" % (r["label"], r.get("coef", np.nan),
+                  r.get("p", np.nan), r["n_obs"]))
+    print("\nJMSR-LITIGATION CORRELATION (2015-2024):")
+    c = res["jmsr_correlation"]
+    print("  pooled r=%.3f p=%.4f; detrended r=%.3f p=%.4f" % (
+        c["pooled_r"], c["pooled_p"], c["detrended_r"], c["detrended_p"]))
 
 
 if __name__ == "__main__":

@@ -187,14 +187,14 @@
       "n_obs": 96,
       "n_specialties": 12,
       "n_waves": 8,
-      "coef": -0.0009357623030693519,
-      "se": 0.0015413346931402623,
-      "ci_low": -0.003956722789746361,
-      "ci_high": 0.002085198183607658,
-      "p": 0.5437767958912523,
+      "coef": -0.0009357623030693467,
+      "se": 0.0015413346931402673,
+      "ci_low": -0.003956722789746367,
+      "ci_high": 0.0020851981836076732,
+      "p": 0.5437767958912558,
       "direction": "negative",
-      "jocscp_coef": -0.014736850310984807,
-      "jocscp_p": 0.22315187302649053
+      "jocscp_coef": -0.014736850310984808,
+      "jocscp_p": 0.22315187302649309
     },
     {
       "label": "Biennial hospital growth ~ lagged litigation rate",
@@ -203,18 +203,18 @@
       "n_obs": 96,
       "n_specialties": 12,
       "n_waves": 8,
-      "coef": 0.0003086328857004326,
-      "se": 0.002412567585758818,
-      "ci_low": -0.004419912692655599,
-      "ci_high": 0.005037178464056465,
-      "p": 0.8982066281692003,
+      "coef": 0.00030863288570044363,
+      "se": 0.0024125675857588186,
+      "ci_low": -0.004419912692655589,
+      "ci_high": 0.005037178464056477,
+      "p": 0.8982066281691967,
       "direction": "positive",
-      "jocscp_coef": 0.02420831078525671,
-      "jocscp_p": 0.003161323918611562
+      "jocscp_coef": 0.024208310785256745,
+      "jocscp_p": 0.00316132391861155
     },
     {
       "label": "Reverse: change in litigation rate ~ lagged log physicians",
-      "coef": 0.09652733126370006,
+      "coef": 0.09652733126369917,
       "p": 0.846386308330943,
       "n_obs": 96
     }
@@ -227,14 +227,14 @@
       "n_obs": 96,
       "n_specialties": 12,
       "n_waves": 8,
-      "coef": 0.0002077527039920845,
-      "se": 0.00030210124532096215,
-      "ci_low": -0.00038435485652170084,
-      "ci_high": 0.0007998602645058699,
-      "p": 0.49164656209818824,
+      "coef": 0.00020775270399208247,
+      "se": 0.0003021012453209574,
+      "ci_low": -0.00038435485652169347,
+      "ci_high": 0.0007998602645058584,
+      "p": 0.4916465620981857,
       "direction": "positive",
-      "jocscp_coef": -0.004877828792654939,
-      "jocscp_p": 0.37040848671292925
+      "jocscp_coef": -0.0048778287926549285,
+      "jocscp_p": 0.3704084867129239
     },
     {
       "label": "Annual hospital growth ~ lagged litigation rate (2008-2024)",
@@ -243,14 +243,14 @@
       "n_obs": 192,
       "n_specialties": 12,
       "n_waves": 16,
-      "coef": 1.3417699138745863e-05,
-      "se": 0.0017397204526948588,
-      "ci_low": -0.003396371731310896,
-      "ci_high": 0.003423207129588388,
-      "p": 0.9938463281084338,
+      "coef": 1.3417699138745538e-05,
+      "se": 0.0017397204526948566,
+      "ci_low": -0.003396371731310892,
+      "ci_high": 0.003423207129588383,
+      "p": 0.9938463281084339,
       "direction": "positive",
-      "jocscp_coef": 0.003110365748127137,
-      "jocscp_p": 0.6560750782316542
+      "jocscp_coef": 0.0031103657481271344,
+      "jocscp_p": 0.6560750782316531
     },
     {
       "label": "SENSITIVITY interpolated-annual physician growth ~ lag rate",
@@ -259,36 +259,50 @@
       "n_obs": 192,
       "n_specialties": 12,
       "n_waves": 16,
-      "coef": -0.000967207920774703,
-      "se": 0.0010788872979515427,
-      "ci_low": -0.0030817881681374612,
-      "ci_high": 0.0011473723265880554,
-      "p": 0.36999297582112445,
+      "coef": -0.0009672079207747033,
+      "se": 0.0010788872979515434,
+      "ci_low": -0.003081788168137463,
+      "ci_high": 0.0011473723265880563,
+      "p": 0.3699929758211248,
       "direction": "negative",
-      "jocscp_coef": -0.008606695866408085,
-      "jocscp_p": 0.12251844439207196,
+      "jocscp_coef": -0.008606695866408057,
+      "jocscp_p": 0.12251844439207095,
       "note": "physicians linearly interpolated between the 9 measured biennial waves; standard errors are clustered by specialty so inference df = clusters - 1 = 11 and the interpolated observation count does not inflate the degrees of freedom"
+    },
+    {
+      "label": "JMSR-adjusted annual hospital growth (2016-2024) ~ lit rate + JMSR rate",
+      "outcome": "dlog_hosp",
+      "n_obs": 108,
+      "n_specialties": 12,
+      "n_waves": 9,
+      "lit_coef": 0.0021078718819725357,
+      "lit_se": 0.0018683004319022568,
+      "lit_p": 0.2592229587311491,
+      "med_coef": -0.00094463105072919,
+      "med_se": 0.0021183031247939904,
+      "med_p": 0.6556423076565263,
+      "r_lit_med": 0.21370199719387165
     }
   ],
   "equivalence": [
     {
       "outcome": "dlog_phys",
-      "coef_per_SD": -0.0021275312590198414,
-      "se": 0.0035043490526513997,
+      "coef_per_SD": -0.002127531259019852,
+      "se": 0.003504349052651417,
       "df": 11,
-      "ci90_low": -0.008420938522115074,
-      "ci90_high": 0.004165876004075392,
+      "ci90_low": -0.008420938522115116,
+      "ci90_high": 0.0041658760040754125,
       "sd_litrate": 2.273580857063443,
       "tests": [
         {
           "margin": 0.01,
-          "p_tost": 0.023086759083317067,
+          "p_tost": 0.023086759083317615,
           "equivalent": true,
           "interpretation": "a 1-SD higher litigation rate shifts biennial physician growth by <1%"
         },
         {
           "margin": 0.02,
-          "p_tost": 0.00017200152253692722,
+          "p_tost": 0.00017200152253693472,
           "equivalent": true,
           "interpretation": "a 1-SD higher litigation rate shifts biennial physician growth by <2%"
         }
@@ -296,26 +310,45 @@
     },
     {
       "outcome": "dlog_hosp",
-      "coef_per_SD": 0.0007017018207886232,
-      "se": 0.0054851674793530095,
+      "coef_per_SD": 0.0007017018207886175,
+      "se": 0.005485167479353014,
       "df": 11,
-      "ci90_low": -0.009149027183428518,
-      "ci90_high": 0.010552430825005765,
+      "ci90_low": -0.00914902718342853,
+      "ci90_high": 0.010552430825005767,
       "sd_litrate": 2.273580857063443,
       "tests": [
         {
           "margin": 0.01,
-          "p_tost": 0.05906440811982301,
+          "p_tost": 0.059064408119823046,
           "equivalent": false,
           "interpretation": "a 1-SD higher litigation rate shifts biennial facility growth by <1%"
         },
         {
           "margin": 0.02,
-          "p_tost": 0.0024065393386384537,
+          "p_tost": 0.0024065393386384633,
           "equivalent": true,
           "interpretation": "a 1-SD higher litigation rate shifts biennial facility growth by <2%"
         }
       ]
     }
-  ]
+  ],
+  "jmsr_correlation": {
+    "years": [
+      2015,
+      2016,
+      2017,
+      2018,
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024
+    ],
+    "n_specialty_years": 120,
+    "pooled_r": 0.8150124315997399,
+    "pooled_p": 9.714279758380036e-30,
+    "detrended_r": -0.020025348031789382,
+    "detrended_p": 0.8281363640103732
+  }
 }

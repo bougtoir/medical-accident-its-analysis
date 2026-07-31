@@ -22,6 +22,7 @@ import os
 import json
 import re
 import shutil
+import zipfile
 import pandas as pd
 from docx import Document
 from docx.shared import Inches, Pt, Cm, RGBColor
@@ -77,6 +78,14 @@ n_sig = sum(1 for v in SP.values() if v["p"] < 0.05)
 BIEN = RES["grid"]["biennial_years"]
 YEARS = f"{BIEN[0]}\u2013{BIEN[-1]}"
 N_SPEC = len(CORE)
+PER = 1000  # rate scale (cases per 1,000 physicians)
+MARGIN1 = int(RES["equivalence"][0]["tests"][0]["margin"] * 100)
+MARGIN2 = int(RES["equivalence"][1]["tests"][1]["margin"] * 100)
+
+# JMSR/MAIS sensitivity (report counts added as a control)
+JMSR = sens("JMSR")
+JMSR_CORR = RES["jmsr_correlation"]
+JMSR_START = JMSR_CORR["years"][0] + 1  # outcome years start one year after first JMSR lag
 
 # Load primary dataframes for year ranges/resolution (used in supplementary table and limitations)
 PHYS_DF = load("physicians_by_specialty.csv")
@@ -106,6 +115,11 @@ SURG = DESCR[EN["外科"]]
 SURG_PCT = 100 * (SURG["phys_last"] / SURG["phys_first"] - 1)
 SPAN = BIEN[-1] - BIEN[0]
 SURG_DESC = f"general surgery, which changed by {SURG_PCT:+.1f}%"
+
+# Useful helpers
+_per = f"{PER:,}"
+def _fmt_pct(x):
+    return f"{x:+.2f}"
 
 
 REFS = {
@@ -299,19 +313,19 @@ def build_manuscript():
         "whether specialty-level litigation risk predicts later physician and "
         f"hospital decline. Using national primary data for {len(CORE)} specialties "
         f"({BIEN[0]}\u2013{BIEN[-1]}), we measured exposure as closed malpractice "
-        "claims per 1,000 physicians (rate, not count) and regressed biennial "
+        f"claims per {_per} physicians (rate, not count) and regressed biennial "
         "log-change in physicians and hospitals on the lagged litigation rate in "
         "a panel with specialty and wave fixed effects, cluster-robust errors, "
         f"equivalence tests and sensitivity analyses. The workforce grew in {GREW} of "
         f"{len(CORE)} specialties; {SURG_DESC}, was the exception. Litigation rate was not "
         f"associated with physician growth (coefficient {fmt(PHYS['coef'],4)} per "
-        f"claim per 1,000 physicians; 95% CI {fmt(PHYS['ci_low'],4)} to "
+        f"claim per {_per} physicians; 95% CI {fmt(PHYS['ci_low'],4)} to "
         f"{fmt(PHYS['ci_high'],4)}; p={PHYS['p']:.2f}) or hospital growth "
         f"(p={HOSP['p']:.2f}). A one-standard-deviation higher litigation rate "
-        f"changed physician growth by less than \u00b11% (TOST p={EQP['tests'][0]['p_tost']:.3f}) "
-        f"and hospital growth by less than \u00b12% (p={EQH['tests'][1]['p_tost']:.3f}); "
+        f"changed physician growth by less than \u00b1{MARGIN1}% (TOST p={EQP['tests'][0]['p_tost']:.3f}) "
+        f"and hospital growth by less than \u00b1{MARGIN2}% (p={EQH['tests'][1]['p_tost']:.3f}); "
         "sensitivity analyses were unchanged and per-specialty rank correlations "
-        f"were mostly positive ({n_pos}/12) and none significant. Specialty-level "
+        f"were mostly positive ({n_pos}/{N_SPEC}) and none significant. Specialty-level "
         "litigation risk in Japan is not associated with workforce decline and is "
         "statistically equivalent to a null effect within a small, policy-relevant "
         "margin. The belief that physicians flee high-litigation specialties is "
@@ -374,13 +388,15 @@ def build_manuscript():
     body(doc,
          "We report this observational study following the STROBE guidance.{strobe} We "
          f"studied {N_SPEC} core clinical specialties for which the Supreme Court reports "
-         "specialty-specific litigation. Three official primary series were used: "
-         "physician counts by specialty from the biennial Statistics of Physicians, "
-         "Dentists and Pharmacists{phys}; closed malpractice claims by specialty from "
-         "the Supreme Court of Japan{court}; and hospital counts by specialty from the "
-         "annual Survey of Medical Institutions{facil}. The full extraction pipeline "
-         "(with source identifiers and SHA-256 checksums) is documented in the "
-         "accompanying repository.")
+         "specialty-specific litigation. Three official primary series drove the main "
+         "analysis: physician counts by specialty from the biennial Statistics of "
+         "Physicians, Dentists and Pharmacists{phys}; closed malpractice claims by "
+         "specialty from the Supreme Court of Japan{court}; and hospital counts by "
+         "specialty from the annual Survey of Medical Institutions{facil}. A fourth series, "
+         "annual medical accident investigation reports by specialty from the Japan "
+         "Medical Safety Research Organisation (JMSR, 2015-2025), was used in a "
+         "sensitivity analysis.{mais} The full extraction pipeline (with source identifiers "
+         "and SHA-256 checksums) is documented in the accompanying repository.")
     body(doc,
          "Physician counts use the principal-specialty (\u4e3b\u305f\u308b\u8a3a\u7597\u79d1) "
          "classification; broad categories were matched to the Supreme Court's "
@@ -396,7 +412,7 @@ def build_manuscript():
 
     head(doc, "Statistical analysis", level=2)
     body(doc,
-         "The exposure was the litigation rate, defined as closed claims per 1,000 "
+         f"The exposure was the litigation rate, defined as closed claims per {_per} "
          "physicians in each specialty-year, which removes specialty-size confounding. "
          f"The primary analysis used the {len(BIEN)} measured biennial physician waves "
          f"({BIEN[0]}\u2013{BIEN[-1]}). For each specialty we computed the biennial "
@@ -409,14 +425,17 @@ def build_manuscript():
     body(doc,
          "We assessed equivalence to a null effect using two one-sided tests "
          "(TOST).{lakens,schuir} The exposure was standardised so the coefficient is the "
-         "expected log-change per 1-SD increase in litigation rate; we pre-specified "
-         "equivalence margins of \u00b11% and \u00b12% biennial workforce change and used the "
-         "number of specialty clusters minus one as the degrees of freedom. An indicator "
-         "for obstetrics and gynaecology from 2009 onward captured the JOCS-CP "
-         "period.{jocscp} Sensitivity analyses repeated the models on (i) the annual "
-         "hospital series, (ii) a linearly interpolated annual physician series (with "
-         "degrees of freedom governed by the measured waves, not the interpolated n), "
-         "and (iii) raw counts instead of rates. Because the primary analyses are "
+         f"expected log-change per 1-SD increase in litigation rate; we pre-specified "
+         f"equivalence margins of \u00b1{MARGIN1}% and \u00b1{MARGIN2}% biennial workforce change "
+         "and used the number of specialty clusters minus one as the degrees of freedom. "
+         "An indicator for obstetrics and gynaecology from 2009 onward captured the "
+         "JOCS-CP period.{jocscp} Sensitivity analyses repeated the models on (i) the "
+         "annual hospital series, (ii) a linearly interpolated annual physician series "
+         "(with degrees of freedom governed by the measured waves, not the interpolated n), "
+         "(iii) raw counts instead of rates, and (iv) the annual hospital series 2016-2024 "
+         f"additionally controlling for the JMSR report rate (reports per {_per} physicians). "
+         "This last test evaluates whether the litigation coefficient is confounded by or "
+         "collinear with broader medical accident reporting. Because the primary analyses are "
          "confirmatory and null, we did not adjust for multiplicity and interpret the "
          "single secondary association (the JOCS-CP indicator) as exploratory. Analyses "
          "used Python (statsmodels); code and data are openly available.")
@@ -425,7 +444,7 @@ def build_manuscript():
     head(doc, "Results", level=1)
     head(doc, "Workforce and litigation trends", level=2)
     body(doc,
-         f"Litigation rates per 1,000 physicians varied several-fold across "
+         f"Litigation rates per {_per} physicians varied several-fold across "
          f"specialties and fell over time in {FELL} of {len(CORE)} fields (Supplementary Figure 1). "
          f"Over the same period the physician workforce grew in {GREW} of {len(CORE)} specialties "
          "(Supplementary Figure 2; Table 1); the only exception was general surgery, "
@@ -443,7 +462,7 @@ def build_manuscript():
            f"Lit. rate {BIEN[0]}", f"Lit. rate {BIEN[-1]}",
            f"Hospitals {BIEN[0]}", f"Hospitals {BIEN[-1]}"],
           rows,
-          "Table 1. Physicians, litigation rate (per 1,000 physicians) and hospitals by "
+          f"Table 1. Physicians, litigation rate (per {_per} physicians) and hospitals by "
           "specialty, first and last waves.")
 
     head(doc, "Primary association and equivalence", level=2)
@@ -453,15 +472,15 @@ def build_manuscript():
          f"{fmt(PHYS['ci_high'],4)}; p={PHYS['p']:.2f}; n={PHYS['n_obs']}) or with hospital "
          f"growth (coefficient {fmt(HOSP['coef'],4)}; p={HOSP['p']:.2f}). Equivalence "
          f"testing (Figure 1; Table 2) showed that a 1-SD higher litigation rate "
-         f"changed biennial physician growth by less than \u00b11% (TOST p={EQP['tests'][0]['p_tost']:.3f}; "
+         f"changed biennial physician growth by less than \u00b1{MARGIN1}% (TOST p={EQP['tests'][0]['p_tost']:.3f}; "
          f"point estimate {fmt(EQP['coef_per_SD']*100,2)}% with 90% CI "
          f"{fmt(EQP['ci90_low']*100,2)}% to {fmt(EQP['ci90_high']*100,2)}%), and hospital "
-         f"growth by less than \u00b12% (p={EQH['tests'][1]['p_tost']:.3f}). Thus the data are "
+         f"growth by less than \u00b1{MARGIN2}% (p={EQH['tests'][1]['p_tost']:.3f}). Thus the data are "
          "consistent with, and statistically support, the absence of a policy-relevant "
          "effect. Detailed TOST results by margin are reported in Supplementary Table 2.")
     figure(doc, "hp_Figure_1.png",
-           "Figure 1. Equivalence (TOST) of the litigation-rate effect against \u00b11% and \u00b12% "
-           "margins; horizontal bars are 90% confidence intervals.")
+           f"Figure 1. Equivalence (TOST) of the litigation-rate effect against \u00b1{MARGIN1}% and "
+           f"\u00b1{MARGIN2}% margins; horizontal bars are 90% confidence intervals.")
     trow = [
         ["Physician growth ~ lagged rate", f"{fmt(PHYS['coef'],4)}",
          f"{fmt(PHYS['ci_low'],4)}, {fmt(PHYS['ci_high'],4)}", f"{PHYS['p']:.2f}", PHYS['n_obs']],
@@ -502,6 +521,19 @@ def build_manuscript():
          f"A reverse specification (change in litigation rate regressed on lagged "
          f"log physicians) was also null (coefficient {fmt(REV['coef'],3)}, p={REV['p']:.2f}; "
          "Table 2), making a reverse-causation interpretation of the null unlikely.")
+    body(doc,
+         f"We also evaluated the JMSR medical accident investigation report counts as a "
+         f"potential confounder or competing exposure.{{mais}} Over {JMSR_CORR['years'][0]}-"
+         f"{JMSR_CORR['years'][-1]}, raw litigation and JMSR report counts were strongly "
+         f"correlated across specialties (Pearson r={JMSR_CORR['pooled_r']:.2f}), because large "
+         "specialties generate more of both; however, after removing specialty-specific "
+         f"levels and trends the within-specialty correlation was negligible (r={JMSR_CORR['detrended_r']:.2f}). "
+         f"A model of annual hospital growth for {JMSR_START}-2024 that included both the "
+         "lagged litigation rate and the lagged JMSR report rate left the litigation "
+         f"coefficient essentially unchanged (coefficient {fmt(JMSR['lit_coef'],4)}; p={JMSR['lit_p']:.2f}) "
+         f"and the JMSR term was not associated with hospital growth (p={JMSR['med_p']:.2f}; "
+         "Supplementary Table 3). Thus, the null litigation result is not explained by, nor "
+         "masked by, broader medical accident reporting.")
 
     # Discussion
     head(doc, "Discussion", level=1)
@@ -652,9 +684,11 @@ def build_manuscript():
          "remain and the equivalence margins are a judgement. Specialty-specific "
          f"litigation counts could be recovered only from {BIEN[0]}; pre-{BIEN[0]} specialty tables were "
          "not retrievable from primary sources. Clinic counts by specialty are "
-         f"published only every {CLINIC_RES} years and were used descriptively. Litigation "
-         "counts are assigned to a principal specialty and, by the Court's own note, "
-         "do not measure intrinsic specialty risk.{court} Finally, these findings are "
+         f"published only every {CLINIC_RES} years and were used descriptively. JMSR "
+         f"report counts are available only from {JMSR_CORR['years'][0]} and were used in a "
+         f"{JMSR_START}-2024 sensitivity. Litigation counts are assigned to a principal specialty "
+         "and, by the Court's own note, do not measure intrinsic specialty risk.{court} "
+         "Finally, these findings are "
          "embedded in Japan's particular legal, cultural and institutional "
          "context\u2014including its no-fault obstetric compensation scheme, its "
          "fee-for-service reimbursement structure and its comparatively low-volume "
@@ -790,7 +824,7 @@ def build_cover_letter():
         f"specialties. Using national primary data for {N_SPEC} clinical specialties, we test "
         "whether malpractice-litigation risk is associated with subsequent decline in "
         "the physician workforce and in hospitals offering each specialty.",
-        "Crucially, we express exposure as a rate (closed claims per 1,000 physicians) "
+        f"Crucially, we express exposure as a rate (closed claims per {_per} physicians) "
         "to remove specialty-size confounding, analyse only measured biennial physician "
         "observations rather than interpolated annual values, and apply equivalence "
         "(TOST) testing. We find no association between litigation risk and workforce or "
@@ -830,8 +864,8 @@ def build_supplementary():
     doc = _setup_doc()
     head(doc, "Supplementary material", level=1)
 
-    para(doc, "Supplementary Figure 1. Closed malpractice claims per 1,000 physicians by "
-              "specialty, 2008\u20132024 (rates, not counts).")
+    para(doc, f"Supplementary Figure 1. Closed malpractice claims per {_per} physicians by "
+              f"specialty, 2008\u20132024 (rates, not counts).")
     p = doc.add_paragraph()
     p.alignment = WD_ALIGN_PARAGRAPH.CENTER
     img = os.path.join(OUT, "hp_Supplementary_Figure_1.png")
@@ -858,7 +892,9 @@ def build_supplementary():
            ["Hospitals by specialty", "MHLW Survey of Medical Institutions", res_words.get(HOSP_RES, f"Every {HOSP_RES} years"),
             _year_label(HOSP_DF.columns), "Outcome"],
            ["Clinics by specialty", "MHLW Survey (static)", res_words.get(CLINIC_RES, f"Every {CLINIC_RES} years"),
-            _year_label(CLINIC_DF.columns), "Descriptive only"]],
+            _year_label(CLINIC_DF.columns), "Descriptive only"],
+           ["JMSR report counts", "JMSR / MAIS", "Annual",
+            _year_label(JMSR_CORR['years']), "Sensitivity (2016-2024)"]],
           "Supplementary Table 1. Primary data sources and their resolution.")
 
     # Supplementary Table 2: TOST details
@@ -879,6 +915,14 @@ def build_supplementary():
           rows,
           "Supplementary Table 2. Equivalence (TOST) results (effect per +1 SD litigation rate).")
 
+    # Supplementary Table 3: JMSR-adjusted hospital model
+    table(doc,
+          ["Exposure", "Coefficient", "p", "n"],
+          [["Lagged litigation rate", fmt(JMSR["lit_coef"], 4), f"{JMSR['lit_p']:.2f}", JMSR["n_obs"]],
+           ["Lagged JMSR report rate", fmt(JMSR["med_coef"], 4), f"{JMSR['med_p']:.2f}", JMSR["n_obs"]]],
+          f"Supplementary Table 3. JMSR-adjusted annual hospital growth model "
+          f"({JMSR_START}-2024) with both exposures entered simultaneously.")
+
     out = os.path.join(BASE, "hp_supplementary.docx")
     doc.save(out)
     print("wrote", out)
@@ -892,14 +936,14 @@ def build_figure_pptx():
 
     main_figs = [
         ("hp_Figure_1.png", "Figure 1",
-         "Equivalence (TOST) of the litigation-rate effect against \u00b11% and \u00b12% margins; "
-         "horizontal bars are 90% confidence intervals."),
+         f"Equivalence (TOST) of the litigation-rate effect against \u00b1{MARGIN1}% and "
+         f"\u00b1{MARGIN2}% margins; horizontal bars are 90% confidence intervals."),
         ("hp_Figure_2.png", "Figure 2",
          "Biennial physician growth against lagged litigation exposure measured as (a) counts and (b) rates."),
     ]
     supp_figs = [
         ("hp_Supplementary_Figure_1.png", "Supplementary Figure 1",
-         "Closed malpractice claims per 1,000 physicians by specialty, 2008\u20132024 (rates, not counts)."),
+         f"Closed malpractice claims per {_per} physicians by specialty, 2008\u20132024 (rates, not counts)."),
         ("hp_Supplementary_Figure_2.png", "Supplementary Figure 2",
          "Physician workforce by specialty, indexed to 2008 (=100)."),
     ]
@@ -954,6 +998,31 @@ def copy_figures():
             raise SystemExit(f"missing figure source: {s}")
 
 
+def create_submission_zip():
+    """Bundle all generated Health Policy submission files into one archive."""
+    zip_path = os.path.join(OUT, "hp_submission.zip")
+    files = [
+        os.path.join(BASE, "hp_manuscript_en.docx"),
+        os.path.join(BASE, "hp_title_page.docx"),
+        os.path.join(BASE, "hp_cover_letter.docx"),
+        os.path.join(BASE, "hp_highlights.docx"),
+        os.path.join(BASE, "hp_supplementary.docx"),
+        os.path.join(BASE, "hp_figures.pptx"),
+        os.path.join(BASE, "hp_supplementary_figures.pptx"),
+        os.path.join(OUT, "hp_Figure_1.png"),
+        os.path.join(OUT, "hp_Figure_2.png"),
+        os.path.join(OUT, "hp_Supplementary_Figure_1.png"),
+        os.path.join(OUT, "hp_Supplementary_Figure_2.png"),
+        __file__,
+    ]
+    with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as z:
+        for path in files:
+            if not os.path.exists(path):
+                raise SystemExit(f"submission zip missing file: {path}")
+            z.write(path, arcname=os.path.basename(path))
+    print("wrote", zip_path)
+
+
 def main():
     copy_figures()
     main_wc, abs_wc = build_manuscript()
@@ -962,6 +1031,7 @@ def main():
     build_cover_letter()
     build_supplementary()
     build_figure_pptx()
+    create_submission_zip()
 
 
 if __name__ == "__main__":
