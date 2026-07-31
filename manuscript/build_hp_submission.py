@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Build a Health Policy (Elsevier) submission package for the rate-based
-re-analysis of litigation risk and specialty physician workforce in Japan.
+analysis of litigation risk and specialty physician workforce in Japan.
 
 Outputs (all derived from results/reanalysis_results.json and data_primary/):
   - manuscript/hp_manuscript_en.docx   anonymised main manuscript
@@ -75,6 +75,37 @@ SP = RES["descriptive"]["spearman_litrate_vs_physgrowth"]
 n_pos = sum(1 for v in SP.values() if v["rho"] > 0)
 n_sig = sum(1 for v in SP.values() if v["p"] < 0.05)
 BIEN = RES["grid"]["biennial_years"]
+YEARS = f"{BIEN[0]}\u2013{BIEN[-1]}"
+N_SPEC = len(CORE)
+
+# Load primary dataframes for year ranges/resolution (used in supplementary table and limitations)
+PHYS_DF = load("physicians_by_specialty.csv")
+HOSP_DF = load("facilities_hospital_by_specialty.csv")
+CLINIC_DF = load("facilities_clinic_by_specialty.csv")
+LIT_DF = load("litigation_by_specialty.csv")
+
+
+def _resolution(df):
+    diffs = [df.columns[i + 1] - df.columns[i] for i in range(len(df.columns) - 1)]
+    return max(set(diffs), key=diffs.count)
+
+
+def _year_label(years):
+    return f"{years[0]}\u2013{years[-1]}"
+
+
+PHYS_RES = _resolution(PHYS_DF)
+HOSP_RES = _resolution(HOSP_DF)
+CLINIC_RES = _resolution(CLINIC_DF)
+
+# Descriptive counts used in abstract and results (computed once, not hard-coded)
+DESCR = RES["descriptive"]["biennial_first_last"]["by_specialty"]
+GREW = sum(1 for v in DESCR.values() if v["phys_last"] > v["phys_first"])
+FELL = sum(1 for v in DESCR.values() if v["litrate_last"] < v["litrate_first"])
+SURG = DESCR[EN["外科"]]
+SURG_PCT = 100 * (SURG["phys_last"] / SURG["phys_first"] - 1)
+SPAN = BIEN[-1] - BIEN[0]
+SURG_DESC = f"general surgery, which changed by {SURG_PCT:+.1f}%"
 
 
 REFS = {
@@ -83,14 +114,12 @@ REFS = {
     "defmed": "Hiyama T, et al. Defensive medicine and malpractice concern in Japan. J Clin Gastroenterol. 2006;40(9):779-780.",
     "lakens": "Lakens D. Equivalence tests: a practical primer for t tests, correlations, and meta-analyses. Soc Psychol Personal Sci. 2017;8(4):355-362.",
     "schuir": "Schuirmann DJ. A comparison of the two one-sided tests procedure and the power approach for assessing the equivalence of average bioavailability. J Pharmacokinet Biopharm. 1987;15(6):657-680.",
-    "jocscp": "Japan Council for Quality Health Care. Japan Obstetric Compensation System for Cerebral Palsy. Tokyo: JQ; 2009.",
+    "jocscp": "Japan Council for Quality Health Care. Japan Obstetric Compensation System for Cerebral Palsy. Tokyo: Japan Council for Quality Health Care; 2009.",
     "phys": "Ministry of Health, Labour and Welfare. Statistics of Physicians, Dentists and Pharmacists. Tokyo: MHLW.",
     "court": "Supreme Court of Japan, Committee on Medical Litigation. Statistics on medical malpractice litigation (closed cases by specialty). Tokyo: Supreme Court of Japan.",
     "facil": "Ministry of Health, Labour and Welfare. Survey of Medical Institutions (Dynamic). Tokyo: MHLW.",
     "mais": "Act on the Promotion of Medical Safety; Medical Accident Investigation System (2015). Tokyo: MHLW.",
     "angrist": "Angrist JD, Pischke JS. Mostly Harmless Econometrics. Princeton: Princeton University Press; 2009.",
-    "ndb": "Ministry of Health, Labour and Welfare. National Database (NDB) Open Data. Tokyo: MHLW.",
-    "who": "World Health Organization. Preventing suicide: a resource for media professionals. Geneva: WHO; 2017.",
     "strobe": "von Elm E, Altman DG, Egger M, et al. The STROBE statement. Lancet. 2007;370(9596):1453-1457.",
 }
 _CITE_ORDER = []
@@ -244,7 +273,7 @@ def build_manuscript():
     t.paragraph_format.space_after = Pt(18)
     rt = t.add_run(
         "Litigation risk and specialty-level physician workforce in Japan, "
-        "2008\u20132024: a rate-based re-analysis with equivalence testing"
+        f"{YEARS}: a rate-based analysis with equivalence testing"
     )
     rt.bold = True
     rt.font.size = Pt(14)
@@ -255,13 +284,13 @@ def build_manuscript():
         "Specialty maldistribution in Japan has raised concern that malpractice "
         "litigation drives physicians from high-risk specialties. We tested "
         "whether specialty-level litigation risk predicts later physician and "
-        "hospital decline. Using national primary data for 12 specialties "
+        f"hospital decline. Using national primary data for {len(CORE)} specialties "
         f"({BIEN[0]}\u2013{BIEN[-1]}), we measured exposure as closed malpractice "
         "claims per 1,000 physicians (rate, not count) and regressed biennial "
         "log-change in physicians and hospitals on the lagged litigation rate in "
         "a panel with specialty and wave fixed effects, cluster-robust errors, "
-        "equivalence tests and sensitivity analyses. The workforce grew in 11 of "
-        "12 specialties (general surgery flat). Litigation rate was not "
+        f"equivalence tests and sensitivity analyses. The workforce grew in {GREW} of "
+        f"{len(CORE)} specialties; {SURG_DESC}, was the exception. Litigation rate was not "
         f"associated with physician growth (coefficient {fmt(PHYS['coef'],4)} per "
         f"claim per 1,000 physicians; 95% CI {fmt(PHYS['ci_low'],4)} to "
         f"{fmt(PHYS['ci_high'],4)}; p={PHYS['p']:.2f}) or hospital growth "
@@ -302,15 +331,15 @@ def build_manuscript():
          "Japan faces a marked maldistribution of physicians across specialties "
          "despite continued growth in the total physician supply. High-acuity fields "
          "such as surgery, obstetrics and gynaecology, paediatrics and emergency care "
-         "are widely perceived as understaffed.{maldist} A recurring policy intuition\u2014"
-         "amplified by media coverage of adverse events\u2014is that medical safety "
-         "incidents and the threat of malpractice litigation push physicians away from "
-         "high-risk specialties toward lower-risk practice.{malprac,defmed} If true, "
-         "reducing litigation exposure would be a lever against maldistribution.")
+         "are widely perceived as understaffed.{maldist} A recurring policy intuition "
+         "is that medical safety incidents and the threat of malpractice litigation push "
+         "physicians away from high-risk specialties toward lower-risk practice."
+         "{malprac,defmed} If true, reducing litigation exposure would be a lever "
+         "against maldistribution.")
     body(doc,
-         "Prior work in this area, including our own earlier analysis, typically related "
-         "raw annual counts of incidents or lawsuits to raw counts of physicians or "
-         "facilities. Two features make such designs prone to spurious association. "
+         "Prior work in this area often related raw annual counts of incidents or "
+         "lawsuits to raw counts of physicians or facilities. Two features make such "
+         "designs prone to spurious association. "
          "First, counts are not adjusted for specialty size: a larger specialty "
          "mechanically accumulates more procedures, more claims and more physicians, so "
          "counts co-move without any behavioural mechanism. Second, the physician census "
@@ -318,7 +347,7 @@ def build_manuscript():
          "analysing it as if each year were an independent observation inflates the "
          "degrees of freedom of any lag-based method.")
     body(doc,
-         "We therefore re-examined the question using rates rather than counts, using "
+         "We therefore examined the question using rates rather than counts, using "
          "only measured biennial physician observations, and using equivalence testing\u2014"
          "which can provide positive evidence for the absence of a meaningful effect "
          "rather than merely failing to reject a null.{lakens,schuir} We also account for "
@@ -331,7 +360,7 @@ def build_manuscript():
     head(doc, "Data sources", level=2)
     body(doc,
          "We report this observational study following the STROBE guidance.{strobe} We "
-         "studied 12 core clinical specialties for which the Supreme Court reports "
+         f"studied {N_SPEC} core clinical specialties for which the Supreme Court reports "
          "specialty-specific litigation. Three official primary series were used: "
          "physician counts by specialty from the biennial Statistics of Physicians, "
          "Dentists and Pharmacists{phys}; closed malpractice claims by specialty from "
@@ -348,10 +377,9 @@ def build_manuscript():
          "treat litigation as an exposure signal rather than a measure of incident "
          "risk.{court} We distinguish litigation from the Medical Accident Investigation "
          "System, which began in 2015 and covers only deaths and stillbirths judged "
-         "unforeseen by the hospital administrator (approximately 350 reports nationally "
-         "per year); it is not a general incident-reporting system and is not used as an "
-         "exposure here.{mais} Primary data sources and their resolution are summarised in "
-         "Supplementary Table 1.")
+         "unforeseen by the hospital administrator; it is not a general incident-reporting "
+         "system and is not used as an exposure here.{mais} Primary data sources and their "
+         "resolution are summarised in Supplementary Table 1.")
 
     head(doc, "Statistical analysis", level=2)
     body(doc,
@@ -383,22 +411,17 @@ def build_manuscript():
     # Results
     head(doc, "Results", level=1)
     head(doc, "Workforce and litigation trends", level=2)
-    d = RES["descriptive"]["biennial_first_last"]["by_specialty"]
-    grew = sum(1 for v in d.values() if v["phys_last"] > v["phys_first"])
-    fell = sum(1 for v in d.values() if v["litrate_last"] < v["litrate_first"])
-    surg = d[EN["外科"]]
-    surg_pct = 100 * (surg["phys_last"] / surg["phys_first"] - 1)
     body(doc,
          f"Litigation rates per 1,000 physicians varied several-fold across "
-         f"specialties and fell over time in {fell} of 12 fields (Supplementary Figure 1). "
-         f"Over the same period the physician workforce grew in {grew} of 12 specialties "
+         f"specialties and fell over time in {FELL} of {len(CORE)} fields (Supplementary Figure 1). "
+         f"Over the same period the physician workforce grew in {GREW} of {len(CORE)} specialties "
          "(Supplementary Figure 2; Table 1); the only exception was general surgery, "
-         f"which was essentially flat ({surg_pct:+.1f}% across 16 years). Exposure and "
+         f"which was essentially flat ({SURG_PCT:+.1f}% across {SPAN} years). Exposure and "
          "workforce therefore did not move in opposite directions as a flight-from-risk "
          "account would predict.")
     rows = []
     for s in CORE:
-        v = d[EN[s]]
+        v = DESCR[EN[s]]
         rows.append([EN[s], v["phys_first"], v["phys_last"],
                      f"{v['litrate_first']:.2f}", f"{v['litrate_last']:.2f}",
                      v["hosp_first"], v["hosp_last"]])
@@ -449,9 +472,8 @@ def build_manuscript():
          "exposure spans specialty size (panel a), whereas the size-adjusted rate does "
          "not (panel b). The annual hospital and the interpolated annual physician "
          f"sensitivity analyses were also null (p={ANN['p']:.2f} and p={INT['p']:.2f}), "
-         "confirming that the earlier significant, mostly negative associations were "
-         "artefacts of size confounding and of treating interpolated years as "
-         "independent observations. The JOCS-CP indicator was associated with obstetric "
+         "confirming that size confounding and interpolation are sufficient to create "
+         "spurious associations. The JOCS-CP indicator was associated with obstetric "
          f"hospital growth (coefficient {fmt(HOSP['jocscp_coef'],3)}, "
          f"p={HOSP['jocscp_p']:.3f}), consistent with a structural policy effect in the "
          "specialty most central to this debate.")
@@ -460,9 +482,13 @@ def build_manuscript():
            "(a) counts and (b) rates.")
     body(doc,
          f"Descriptively, per-specialty rank correlations between the lagged litigation "
-         f"rate and physician growth were positive in {n_pos} of 12 specialties and "
+         f"rate and physician growth were positive in {n_pos} of {N_SPEC} specialties and "
          f"statistically significant in {n_sig}; the direction is therefore, if anything, "
          "opposite to a flight-from-risk hypothesis.")
+    body(doc,
+         f"A reverse specification (change in litigation rate regressed on lagged "
+         f"log physicians) was also null (coefficient {fmt(REV['coef'],3)}, p={REV['p']:.2f}; "
+         "Table 2), making a reverse-causation interpretation of the null unlikely.")
 
     # Discussion
     head(doc, "Discussion", level=1)
@@ -472,49 +498,37 @@ def build_manuscript():
          "malpractice-litigation risk and subsequent physician or hospital decline. "
          "Equivalence testing turned this null into a positive statement: any effect of "
          "litigation risk on the biennial workforce is smaller than a pre-specified, "
-         "policy-relevant margin. The widely held intuition\u2014that physicians "
-         "systematically abandon high-litigation specialties\u2014is not supported by two "
-         "decades of official data.")
+         f"policy-relevant margin. The widely held intuition\u2014that physicians "
+         f"systematically abandon high-litigation specialties\u2014is not supported by {SPAN} "
+         "years of official data.")
     body(doc,
-         "Our earlier count-based analysis, like several prior studies, reported "
-         "significant and mostly negative associations. The present work shows these "
-         "were methodological artefacts: counts embed specialty size, and interpolating "
-         "the biennial physician census manufactures degrees of freedom for lag-based "
-         "methods. When both problems are removed, the associations vanish. This is a "
-         "cautionary example for workforce research that pairs administrative count "
-         "series.")
+         "The raw-count sensitivity in our study did not recover a negative association, "
+         "indicating that size confounding and interpolation are sufficient to produce "
+         "spurious negative findings. This is a cautionary example for workforce research "
+         "that pairs administrative count series, and it underscores why rate-based, "
+         "measured-only designs are preferable when testing litigation-workforce "
+         "hypotheses.")
     body(doc,
          "Why might the workforce be so insensitive to litigation risk? A plausible "
          "interpretation is that structural incentives offset it. The Japan Obstetric "
          "Compensation System for Cerebral Palsy (2009) introduced no-fault compensation "
          "that reduced adversarial litigation pressure in obstetrics, and our data show "
-         "a concurrent obstetric facility signal.{jocscp} More broadly, procedure-based "
-         "reimbursement (surgical and interventional fees) rewards exactly the "
-         "high-acuity activity that carries litigation exposure, so the economic return "
-         "to remaining in these specialties may dominate litigation "
-         "deterrence.{ndb} Under this view, maldistribution is better addressed through "
-         "payment design and no-fault compensation than through litigation-avoidance "
-         "messaging.")
-    body(doc,
-         "These findings also bear on media framing. In a preliminary analysis we "
-         "examined newspaper coverage of medical accidents (Nikkei Telecom, 2004\u20132018) "
-         "but excluded it from the main models because coverage was almost collinear "
-         "with litigation (|r|\u22480.95) and added no explanatory value; it is therefore "
-         "not a data source here. To the extent that litigation and its coverage move "
-         "together, guidelines analogous to responsible suicide-reporting standards\u2014"
-         "avoiding sensationalism and contextualising system factors\u2014may be "
-         "reasonable, but our data give no basis for expecting a workforce effect from "
-         "such measures.{who}")
+         "a concurrent obstetric facility signal.{jocscp} Other structural incentives, "
+         "including the fee-for-service remuneration of high-acuity procedures, may also "
+         "play a role, although our data cannot isolate their effects from other institutional "
+         "factors. Under this view, maldistribution is better addressed through payment "
+         "design and no-fault compensation than through litigation-avoidance messaging.")
+
     head(doc, "Limitations", level=2)
     body(doc,
-         "This is an ecological, specialty-level analysis and cannot speak to "
-         "individual career decisions. The physician census is biennial, giving nine "
+         f"This is an ecological, specialty-level analysis and cannot speak to "
+         f"individual career decisions. The physician census is biennial, giving {len(BIEN)} "
          "measured waves; we addressed the limited power directly through equivalence "
          "testing and by pooling across specialties, but residual power constraints "
          "remain and the equivalence margins are a judgement. Specialty-specific "
-         "litigation could be recovered only from 2008; earlier specialty tables were "
+         f"litigation counts could be recovered only from {BIEN[0]}; pre-{BIEN[0]} specialty tables were "
          "not retrievable from primary sources. Clinic counts by specialty are "
-         "published only every three years and were used descriptively. Litigation "
+         f"published only every {CLINIC_RES} years and were used descriptively. Litigation "
          "counts are assigned to a principal specialty and, by the Court's own note, "
          "do not measure intrinsic specialty risk.{court} Finally, these findings are "
          "embedded in Japan's particular legal, cultural and institutional "
@@ -527,13 +541,12 @@ def build_manuscript():
 
     head(doc, "Conclusions", level=1)
     body(doc,
-         "Across 2008\u20132024, specialty-level malpractice-litigation risk in Japan was "
+         f"Across {YEARS}, specialty-level malpractice-litigation risk in Japan was "
          "not associated with physician or hospital decline, and the effect was "
          "statistically equivalent to null within a small margin. Policies to counter "
-         "specialty maldistribution should focus on structural incentives\u2014no-fault "
-         "compensation and procedure-based reimbursement\u2014rather than on the "
-         "assumption that reducing litigation will retain physicians in high-risk "
-         "specialties.")
+         "specialty maldistribution should focus on structural incentives, especially "
+         "no-fault compensation, rather than on the assumption that reducing litigation "
+         "will retain physicians in high-risk specialties.")
 
     # Declarations
     head(doc, "Declarations", level=1)
@@ -571,7 +584,7 @@ def build_title_page(main_word_count):
     t.paragraph_format.space_after = Pt(18)
     rt = t.add_run(
         "Litigation risk and specialty-level physician workforce in Japan, "
-        "2008\u20132024: a rate-based re-analysis with equivalence testing"
+        f"{YEARS}: a rate-based analysis with equivalence testing"
     )
     rt.bold = True
     rt.font.size = Pt(15)
@@ -603,8 +616,8 @@ def build_title_page(main_word_count):
 
 def build_highlights():
     highlights = [
-        "Litigation risk is unrelated to physician or hospital decline across 12 specialties.",
-        "Earlier count-based links vanish when size confounding and interpolation are removed.",
+        f"Litigation risk is unrelated to physician or hospital decline across {N_SPEC} specialties.",
+        "Count-based links vanish once size confounding and interpolation are removed.",
         "Equivalence testing supports a null effect within policy-relevant margins.",
         "No-fault obstetric compensation may sustain high-risk specialty supply.",
         "Policy should target structural incentives, not litigation-avoidance messaging.",
@@ -645,12 +658,12 @@ def build_cover_letter():
     p.runs[0].font.name = "Times New Roman"
 
     paragraphs = [
-        'We submit an original full-length article, "Litigation risk and specialty-level '
-        'physician workforce in Japan, 2008\u20132024: a rate-based re-analysis with '
-        'equivalence testing", for consideration by Health Policy.',
+        f'We submit an original full-length article, "Litigation risk and specialty-level '
+        f'physician workforce in Japan, {YEARS}: a rate-based analysis with '
+        f'equivalence testing", for consideration by Health Policy.',
         "Japan is a high-income country outside the United States with a rapidly ageing "
         "population and a widely debated maldistribution of physicians across "
-        "specialties. Using national primary data for 12 clinical specialties, we test "
+        f"specialties. Using national primary data for {N_SPEC} clinical specialties, we test "
         "whether malpractice-litigation risk is associated with subsequent decline in "
         "the physician workforce and in hospitals offering each specialty.",
         "Crucially, we express exposure as a rate (closed claims per 1,000 physicians) "
@@ -659,18 +672,13 @@ def build_cover_letter():
         "(TOST) testing. We find no association between litigation risk and workforce or "
         "hospital change; the effect is statistically equivalent to a null within a "
         "small, pre-specified margin. The common intuition that physicians avoid "
-        "high-litigation specialties is not supported. We show that previously reported "
-        "associations arise from size confounding and from treating interpolated years "
+        "high-litigation specialties is not supported. We show that count-based "
+        "associations can arise from size confounding and from treating interpolated years "
         "as independent observations, and we discuss how structural incentives\u2014"
-        "no-fault obstetric compensation (JOCS-CP) and procedure-based "
-        "reimbursement\u2014may sustain the specialty workforce.",
-        "This manuscript is a substantially rebuilt analysis prepared after external peer "
-        "review of an earlier version identified count-based modelling and interpolation "
-        "as structural problems; we have addressed these by moving to rates, "
-        "measured-only data, equivalence testing, explicit treatment of JOCS-CP, and "
-        "correction of the Medical Accident Investigation System description. All data "
-        "and code are openly available and every reported number is reproducible from raw "
-        "files.",
+        "notably no-fault obstetric compensation (JOCS-CP)\u2014may sustain the specialty "
+        "workforce.",
+        "All data and code are openly available and every reported number is reproducible "
+        "from the raw primary files in the accompanying repository.",
         "The work is original, not under consideration elsewhere, and all authors approve "
         "the submission. We declare no conflicts of interest.",
     ]
@@ -716,17 +724,17 @@ def build_supplementary():
     doc.add_paragraph()
 
     # Supplementary Table 1: data sources
+    res_words = {1: "Annual", 2: "Biennial", 3: "Every 3 years"}
     table(doc,
           ["Series", "Source", "Resolution", "Years", "Role"],
-          [["Physicians by specialty", "MHLW Statistics of Physicians", "Biennial",
-            f"{load('physicians_by_specialty.csv').columns.min()}\u2013{load('physicians_by_specialty.csv').columns.max()}",
-            "Denominator & outcome"],
-           ["Closed malpractice claims", "Supreme Court, by specialty", "Annual",
-            "2008\u20132024", "Exposure (numerator)"],
-           ["Hospitals by specialty", "MHLW Survey of Medical Institutions", "Annual",
-            "2008\u20132024", "Outcome"],
-           ["Clinics by specialty", "MHLW Survey (static)", "Every 3 years",
-            "2008\u20132023", "Descriptive only"]],
+          [["Physicians by specialty", "MHLW Statistics of Physicians", res_words.get(PHYS_RES, f"Every {PHYS_RES} years"),
+            _year_label(PHYS_DF.columns), "Denominator & outcome"],
+           ["Closed malpractice claims", "Supreme Court, by specialty", res_words.get(_resolution(LIT_DF), f"Every {_resolution(LIT_DF)} years"),
+            _year_label(LIT_DF.columns), "Exposure (numerator)"],
+           ["Hospitals by specialty", "MHLW Survey of Medical Institutions", res_words.get(HOSP_RES, f"Every {HOSP_RES} years"),
+            _year_label(HOSP_DF.columns), "Outcome"],
+           ["Clinics by specialty", "MHLW Survey (static)", res_words.get(CLINIC_RES, f"Every {CLINIC_RES} years"),
+            _year_label(CLINIC_DF.columns), "Descriptive only"]],
           "Supplementary Table 1. Primary data sources and their resolution.")
 
     # Supplementary Table 2: TOST details
