@@ -87,6 +87,12 @@ JMSR = sens("JMSR")
 JMSR_CORR = RES["jmsr_correlation"]
 JMSR_START = JMSR_CORR["years"][0] + 1  # outcome years start one year after first JMSR lag
 
+# Nikkei Telecom media coverage sensitivity (national annual article counts)
+MEDIA = sens("Media-adjusted")
+MEDIA_CORR = RES["media_correlation"]
+MEDIA_START = MEDIA_CORR["years"][0] + 1
+MEDIA_END = MEDIA_CORR["years"][-1] + 1
+
 # Load primary dataframes for year ranges/resolution (used in supplementary table and limitations)
 PHYS_DF = load("physicians_by_specialty.csv")
 HOSP_DF = load("facilities_hospital_by_specialty.csv")
@@ -133,6 +139,7 @@ REFS = {
     "court": "Supreme Court of Japan, Committee on Medical Litigation. Statistics on medical malpractice litigation (closed cases by specialty). Tokyo: Supreme Court of Japan.",
     "facil": "Ministry of Health, Labour and Welfare. Survey of Medical Institutions (Dynamic). Tokyo: MHLW.",
     "mais": "Act on the Promotion of Medical Safety; Medical Accident Investigation System (2015). Tokyo: MHLW.",
+    "nikkei": "Nikkei Inc. Nikkei Telecom 21 (新聞・情報データベース). Tokyo: Nikkei Inc. Accessed 2024.",
     "angrist": "Angrist JD, Pischke JS. Mostly Harmless Econometrics. Princeton: Princeton University Press; 2009.",
     "strobe": "von Elm E, Altman DG, Egger M, et al. The STROBE statement. Lancet. 2007;370(9596):1453-1457.",
     "matsa2007": "Matsa DA. Does malpractice liability keep the doctor away? Evidence from tort reform damage caps. J Legal Stud. 2007;36(S2):S143-S182.",
@@ -392,11 +399,13 @@ def build_manuscript():
          "analysis: physician counts by specialty from the biennial Statistics of "
          "Physicians, Dentists and Pharmacists{phys}; closed malpractice claims by "
          "specialty from the Supreme Court of Japan{court}; and hospital counts by "
-         "specialty from the annual Survey of Medical Institutions{facil}. A fourth series, "
-         "annual medical accident investigation reports by specialty from the Japan "
-         "Medical Safety Research Organisation (JMSR, 2015-2025), was used in a "
-         "sensitivity analysis.{mais} The full extraction pipeline (with source identifiers "
-         "and SHA-256 checksums) is documented in the accompanying repository.")
+         "specialty from the annual Survey of Medical Institutions{facil}. Two sensitivity "
+         "series were also used: annual medical accident investigation reports by "
+         "specialty from the Japan Medical Safety Research Organisation (JMSR, 2015-2025){mais} "
+         f"and total national newspaper article counts from Nikkei Telecom 21 "
+         f"({MEDIA_START}\u2013{MEDIA_END}; keywords: \u533b\u7642\u4e8b\u6545 + \u533b\u7642\u904e\u8aa4).{{nikkei}} "
+         "The full extraction pipeline (with source identifiers and SHA-256 checksums) is "
+         "documented in the accompanying repository.")
     body(doc,
          "Physician counts use the principal-specialty (\u4e3b\u305f\u308b\u8a3a\u7597\u79d1) "
          "classification; broad categories were matched to the Supreme Court's "
@@ -432,10 +441,15 @@ def build_manuscript():
          "JOCS-CP period.{jocscp} Sensitivity analyses repeated the models on (i) the "
          "annual hospital series, (ii) a linearly interpolated annual physician series "
          "(with degrees of freedom governed by the measured waves, not the interpolated n), "
-         "(iii) raw counts instead of rates, and (iv) the annual hospital series 2016-2024 "
-         f"additionally controlling for the JMSR report rate (reports per {_per} physicians). "
-         "This last test evaluates whether the litigation coefficient is confounded by or "
-         "collinear with broader medical accident reporting. Because the primary analyses are "
+         "(iii) raw counts instead of rates, (iv) the annual hospital series 2016-2024 "
+         f"additionally controlling for the JMSR report rate (reports per {_per} physicians), "
+         f"and (v) the annual hospital series {MEDIA_START}\u2013{MEDIA_END} additionally "
+         f"controlling for total Nikkei Telecom article counts. Because the article-count series "
+         "is a national yearly variable, it is collinear with full wave fixed effects; this "
+         "sensitivity therefore uses specialty fixed effects plus a linear time trend rather "
+         "than wave dummies. These last two tests evaluate whether the litigation coefficient "
+         "is confounded by or collinear with broader accident reporting or media coverage. "
+         "Because the primary analyses are "
          "confirmatory and null, we did not adjust for multiplicity and interpret the "
          "single secondary association (the JOCS-CP indicator) as exploratory. Analyses "
          "used Python (statsmodels); code and data are openly available.")
@@ -534,6 +548,18 @@ def build_manuscript():
          f"and the JMSR term was not associated with hospital growth (p={JMSR['med_p']:.2f}; "
          "Supplementary Table 3). Thus, the null litigation result is not explained by, nor "
          "masked by, broader medical accident reporting.")
+    body(doc,
+         f"Finally, we tested national newspaper coverage from Nikkei Telecom 21 as a "
+         f"potential confounder.{{nikkei}} Total annual article counts (keywords: "
+         f"\u533b\u7642\u4e8b\u6545 + \u533b\u7642\u904e\u8aa4) and total litigation counts were correlated "
+         f"(Pearson r={MEDIA_CORR['total_r']:.2f}), consistent with the public salience of "
+         f"high-litigation years; however, within the annual hospital panel the lagged "
+         "litigation rate and the media-count series were only weakly correlated. "
+         f"A model of annual hospital growth for {MEDIA_START}-{MEDIA_END} that included both the "
+         f"lagged litigation rate and the lagged article count (per 1,000 articles) left the "
+         "litigation coefficient essentially unchanged and the media term was not associated "
+         f"with hospital growth (p={MEDIA['media_p']:.2f}; Supplementary Table 4). Media coverage "
+         "therefore does not account for the null litigation effect either.")
 
     # Discussion
     head(doc, "Discussion", level=1)
@@ -686,7 +712,9 @@ def build_manuscript():
          "not retrievable from primary sources. Clinic counts by specialty are "
          f"published only every {CLINIC_RES} years and were used descriptively. JMSR "
          f"report counts are available only from {JMSR_CORR['years'][0]} and were used in a "
-         f"{JMSR_START}-2024 sensitivity. Litigation counts are assigned to a principal specialty "
+         f"{JMSR_START}-2024 sensitivity. Media article counts are available only for "
+         f"{MEDIA_START}-{MEDIA_END} and are a national total, so they cannot be decomposed by "
+         "specialty and are collinear with full wave fixed effects. Litigation counts are assigned to a principal specialty "
          "and, by the Court's own note, do not measure intrinsic specialty risk.{court} "
          "Finally, these findings are "
          "embedded in Japan's particular legal, cultural and institutional "
@@ -894,7 +922,9 @@ def build_supplementary():
            ["Clinics by specialty", "MHLW Survey (static)", res_words.get(CLINIC_RES, f"Every {CLINIC_RES} years"),
             _year_label(CLINIC_DF.columns), "Descriptive only"],
            ["JMSR report counts", "JMSR / MAIS", "Annual",
-            _year_label(JMSR_CORR['years']), "Sensitivity (2016-2024)"]],
+            _year_label(JMSR_CORR['years']), "Sensitivity (2016-2024)"],
+           ["Newspaper article counts", "Nikkei Telecom 21", "Annual",
+            _year_label(MEDIA_CORR['years']), f"Sensitivity ({MEDIA_START}-{MEDIA_END})"]],
           "Supplementary Table 1. Primary data sources and their resolution.")
 
     # Supplementary Table 2: TOST details
@@ -922,6 +952,15 @@ def build_supplementary():
            ["Lagged JMSR report rate", fmt(JMSR["med_coef"], 4), f"{JMSR['med_p']:.2f}", JMSR["n_obs"]]],
           f"Supplementary Table 3. JMSR-adjusted annual hospital growth model "
           f"({JMSR_START}-2024) with both exposures entered simultaneously.")
+
+    # Supplementary Table 4: media-adjusted hospital model
+    table(doc,
+          ["Exposure", "Coefficient", "p", "n"],
+          [["Lagged litigation rate", fmt(MEDIA["lit_coef"], 4), f"{MEDIA['lit_p']:.2f}", MEDIA["n_obs"]],
+           ["Lagged media count (per 1,000 articles)", fmt(MEDIA["media_coef"], 4), f"{MEDIA['media_p']:.2f}", MEDIA["n_obs"]]],
+          f"Supplementary Table 4. Media-adjusted annual hospital growth model "
+          f"({MEDIA_START}-{MEDIA_END}) with a linear time trend; full year fixed effects are "
+          "omitted because the national article-count series is collinear with them.")
 
     out = os.path.join(BASE, "hp_supplementary.docx")
     doc.save(out)
