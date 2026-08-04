@@ -1,0 +1,39 @@
+{
+  "outcome": "after_purchase_intention",
+  "group_col": "shape",
+  "n": 109,
+  "summary": {
+    "decreasing": {
+      "n": 8,
+      "mean": 5.0,
+      "median": 5.5,
+      "std": 1.5,
+      "prop_positive": 1.0
+    },
+    "increasing": {
+      "n": 8,
+      "mean": 5.125,
+      "median": 5.0,
+      "std": 0.5994789404140899,
+      "prop_positive": 1.0
+    },
+    "inverted_u": {
+      "n": 83,
+      "mean": 5.108433734939759,
+      "median": 5.0,
+      "std": 1.3798205592501598,
+      "prop_positive": 1.0
+    },
+    "u_shape": {
+      "n": 10,
+      "mean": 4.7,
+      "median": 5.0,
+      "std": 1.6155494421403513,
+      "prop_positive": 1.0
+    }
+  },
+  "anova_f": 0.2648679067822714,
+  "anova_p": 0.85057546294942,
+  "kruskal_h": 1.1840584175765603,
+  "kruskal_p": 0.756830245897055
+}
