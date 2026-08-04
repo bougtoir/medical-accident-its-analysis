@@ -283,6 +283,10 @@ jobs:
           BRANCH_MAP["devin/1785420517-taste-drug-analysis"]="tommo-taste-receptor-2025-0057"
           SUBDIR_MAP["devin/1785420517-taste-drug-analysis"]="tommo_taste_receptor_2025-0057"
 
+          # ── Sales conversation dynamics (turn-level word count trajectories) ──
+          BRANCH_MAP["devin/1785812663-sales-conversation-dynamics"]="sales-conversation-dynamics"
+          SUBDIR_MAP["devin/1785812663-sales-conversation-dynamics"]="sales_conversation_dynamics"
+
           # ── File exclusion map ──
           # Space-separated list of file paths (relative to subdir root if
           # SUBDIR_MAP is set, or repo root otherwise) to exclude from sync.
