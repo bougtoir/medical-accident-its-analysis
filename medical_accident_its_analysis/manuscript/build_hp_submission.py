@@ -90,8 +90,8 @@ JMSR_START = JMSR_CORR["years"][0] + 1  # outcome years start one year after fir
 # Nikkei Telecom media coverage sensitivity (national annual article counts)
 MEDIA = sens("Media-adjusted")
 MEDIA_CORR = RES["media_correlation"]
-MEDIA_START = MEDIA_CORR["years"][0] + 1
-MEDIA_END = MEDIA_CORR["years"][-1] + 1
+MEDIA_START = MEDIA_CORR["years"][0] + 1   # outcome years start one year after first media lag
+MEDIA_END = MEDIA_CORR["years"][-1]        # last outcome year of the media sensitivity
 
 # Load primary dataframes for year ranges/resolution (used in supplementary table and limitations)
 PHYS_DF = load("physicians_by_specialty.csv")
@@ -783,7 +783,7 @@ def build_title_page(main_word_count):
         "Corresponding author: Onishi Tatsuki (email: [corresponding author email])",
         f"Word count (main text): approximately {main_word_count} words (excluding abstract, references, declarations, tables and figure legends)",
         "Article type: Full-length article",
-        "Tables: 2  Figures: 2  Supplementary tables: 2  Supplementary figures: 2",
+        "Tables: 2  Figures: 2  Supplementary tables: 4  Supplementary figures: 2",
         "Conflicts of interest: none declared",
         "Funding: none",
         "Data availability: all primary data and analysis code are openly available in the project repository.",
