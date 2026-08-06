@@ -28,23 +28,36 @@ n_univ_areas = meta['n_univ_areas']
 fiscal_year = meta.get('fiscal_year', 2022)
 
 
+def _which(tool):
+    path = shutil.which(tool)
+    if not path:
+        raise RuntimeError(
+            f"Required tool '{tool}' not found in PATH. "
+            f"Install LibreOffice and poppler-utils to generate the STROBE page-number column."
+        )
+    return path
+
+
 def get_manuscript_page_ranges():
-    """Convert the main manuscript docx to PDF and return a dict of section->page range."""
+    """Convert the main manuscript docx to PDF and return a dict of section/table/page ranges."""
     manuscript = os.path.join(OUTPUT_DIR, 'regional_anaesthesia_JECH_EN.docx')
     if not os.path.exists(manuscript):
-        return {}
+        raise FileNotFoundError(f"Main manuscript not found: {manuscript}")
+
+    _which('libreoffice')
+    _which('pdftotext')
 
     tmpdir = tempfile.mkdtemp()
     try:
         subprocess.run(
             ['libreoffice', '--headless', '--convert-to', 'pdf',
              '--outdir', tmpdir, manuscript],
-            check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+            check=True, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
         )
         pdf_name = os.path.splitext(os.path.basename(manuscript))[0] + '.pdf'
         pdf_path = os.path.join(tmpdir, pdf_name)
         if not os.path.exists(pdf_path):
-            return {}
+            raise RuntimeError(f"LibreOffice did not produce expected PDF: {pdf_path}")
 
         text = subprocess.run(
             ['pdftotext', '-layout', pdf_path, '-'],
@@ -76,10 +89,19 @@ def get_manuscript_page_ranges():
             else:
                 end = len(pages)
             ranges[h] = f"{start}" if start == end else f"{start}–{end}"
+
+        # Detect embedded tables by their captions.
+        for label in ['Table 1.', 'Table 2.', 'Table 3.']:
+            key = label.rstrip('.')
+            for i, page in enumerate(pages):
+                if label in page:
+                    ranges[key] = str(i + 1)
+                    break
+
         return ranges
-    except Exception as e:
-        print(f"Warning: could not infer manuscript page numbers: {e}")
-        return {}
+    except subprocess.CalledProcessError as e:
+        err = e.stderr.decode('utf-8', errors='ignore')[:500] if e.stderr else str(e)
+        raise RuntimeError(f"Failed to extract manuscript page numbers: {err}") from e
     finally:
         shutil.rmtree(tmpdir, ignore_errors=True)
 
@@ -88,19 +110,38 @@ page_ranges = get_manuscript_page_ranges()
 
 
 def page_str_for(section, item_num=""):
-    """Return a page range string for a STROBE item."""
-    if section == 'Title and abstract':
-        if item_num == '1(a)':
-            abstract_pages = page_ranges.get('ABSTRACT', '')
-            return f"1, {abstract_pages}" if abstract_pages else "1"
-        if item_num == '1(b)':
-            return page_ranges.get('ABSTRACT', '')
+    """Return a page range string for a STROBE item.
+
+    Page numbers are item-specific where possible; 'N/A' is used for
+    non-applicable items and 'Title page' for the separate title-page file.
+    """
+    key = (section, item_num)
+    if key in (('Title and abstract', '1(a)'),):
+        abstract_pages = page_ranges.get('ABSTRACT', '')
+        return f"1, {abstract_pages}" if abstract_pages else "1"
+    if key in (('Title and abstract', '1(b)'),):
         return page_ranges.get('ABSTRACT', '')
     if section == 'Introduction':
         return page_ranges.get('INTRODUCTION', '')
     if section == 'Methods':
+        if item_num == '12(d)':
+            return 'N/A'
         return page_ranges.get('METHODS', '')
     if section == 'Results':
+        if item_num in ('13(c)', '16(c)'):
+            return 'N/A'
+        if item_num == '14(a)':
+            t1 = page_ranges.get('Table 1', '')
+            t2 = page_ranges.get('Table 2', '')
+            return f"{t1}, {t2}" if t1 and t2 else page_ranges.get('RESULTS', '')
+        if item_num == '14(b)':
+            return page_ranges.get('Table 2', '')
+        if item_num == '15*':
+            return f"{page_ranges.get('Table 1', '')}–{page_ranges.get('Table 2', '')}"
+        if item_num == '16(a)':
+            return page_ranges.get('Table 3', '')
+        if item_num == '16(b)':
+            return page_ranges.get('FIGURE LEGENDS', '')
         return page_ranges.get('RESULTS', '')
     if section == 'Discussion':
         return page_ranges.get('DISCUSSION', '')
@@ -293,7 +334,7 @@ items = [
      "Give the source of funding and the role of the funders for the "
      "present study and, if applicable, for the original study on which the "
      "present article is based",
-     "End Matter, 'Funding'"),
+     "Title page, 'Funding'"),
 ]
 
 table = doc.add_table(rows=1 + len(items), cols=5)
