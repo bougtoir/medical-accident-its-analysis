@@ -32,7 +32,11 @@ jobs:
           BRANCH_MAP["devin/1774353301-icr-paper"]="linko-icr-paper"
           BRANCH_MAP["devin/1783102664-jma-journal-manuscript"]="medical-accident-its-analysis"
           BRANCH_MAP["devin/1774578035-cetacean-acoustic-analysis"]="cetacean-acoustic-analysis"
-          BRANCH_MAP["devin/1774681647-yoshka-pkpd-package"]="yoshika-pkpd"
+          # Superseded by the Software Impacts branch below (same target repo),
+          # which contains the package plus the external-validation pipeline and
+          # the Software Impacts submission materials.
+          # BRANCH_MAP["devin/1774681647-yoshka-pkpd-package"]="yoshika-pkpd"
+          BRANCH_MAP["devin/1784709022-yoshika-software-impacts"]="yoshika-pkpd"
           BRANCH_MAP["devin/1774686640-cryoanesthesia-scoping-review"]="cryoanesthesia-scoping-review"
           BRANCH_MAP["devin/1774689702-bbb-bhb-research"]="bbb-bhb-research"
           BRANCH_MAP["devin/1774689786-onishi-submission-strategy"]="onishi-submission-strategy"
@@ -302,6 +306,13 @@ jobs:
           # outputs out of the public repo; reproduce.py (figures + in-text numbers)
           # and the data/analysis code remain public for reproducibility.
           EXCLUDE_MAP["devin/1784904207-transport-policy"]="build_submission.py output/Manuscript_TransportPolicy.docx output/Cover_Letter_TransportPolicy.docx output/Title_Page_TransportPolicy.docx output/Submission_Checklist_TransportPolicy.docx output/Highlights_TransportPolicy.docx output/Highlights_TransportPolicy.txt output/TransportPolicy_submission_package.zip output/VALIDATION.txt output/Citation_Audit.csv output/Reference_Verification.csv output/Reporting_Guideline_PRISMA-ScR.docx"
+          # yoshika-software-impacts is branched from the monorepo root, so the
+          # yoshika project (yoshika/, tests/, paper/, pyproject.toml, README,
+          # LICENSE) sits alongside many unrelated project folders. Exclude every
+          # non-yoshika top-level entry so the public yoshika-pkpd repo contains
+          # only the package + its paper materials. Submission correspondence
+          # (cover/rebuttal letters) is also excluded.
+          EXCLUDE_MAP["devin/1784709022-yoshika-software-impacts"]=".agents anesthesia-record archaic_language_typology ava_lllt_hypothesis ba_sphere_dashboard.html ba_sphere_simulation.py beyond-gdp-national-power biwa_archaeological_prospection buddhist_food_lexicon_map canonical_curves_reexamination clinical_noise_inverse_problem color_cooking_concept data denisovan-archaic-dna-analysis desflurane_critical_appraisal documents dvs_noise_inverse_problem flood-prediction-review garment-printer-app gdp_cwon_integration gdp_tempo_paper gdp_tempo_poc generate_new_figures.py gis_data healthcare_economic_effect healthcare_tempo_poc khmer_inscription_analysis landmine_transparent_map medical_accident_its_analysis medical_sapir_whorf meeting-slides montmorillonite_decaf montmorillonite_oil ndb-pain-regional-variation-japan output paper-dashboard pose_alignment_tool project-hub pwv_vitaldb_analysis reports round1_crime_analysis scripts sits9 slides spectral-causality-a2-ecd spectral-causality-brainstorm spectral-causality-jmlr sr_ancova_framework stem_cell_seasonality tasuki-electoral-model tempo-effect-paper threebody_pk_compartment tommo_taste_receptor_2025-0057 vaporizer-price-study weibull-clinical-dropout yago_cs_bleeding yago_ionv zero_calibration_pmea paper/cover_letter_revised.docx paper/cover_letter_revised.md paper/rebuttal_letter.docx paper/rebuttal_letter.md paper/software_impacts/cover_letter.docx paper/software_impacts/cover_letter.md"
 
           OWNER="bougtoir"
 
