@@ -89,7 +89,7 @@ jobs:
           BRANCH_MAP["devin/1776162271-germany-reunification-analysis"]="germany-reunification-analysis"
           BRANCH_MAP["devin/1776288480-demres-submission"]="demres-submission"
           BRANCH_MAP["devin/1776939083-ijqhc-submission"]="ijqhc-submission"
-          BRANCH_MAP["devin/1784865040-ijhpm-submission"]="jech-submission"
+          BRANCH_MAP["devin/1784865040-ijhpm-submission"]="anesthesia_variation_355_region"
 
           # ── GDP / healthcare economics ──
           BRANCH_MAP["devin/1776760815-gdp-tempo-poc"]="gdp-tempo-poc"
