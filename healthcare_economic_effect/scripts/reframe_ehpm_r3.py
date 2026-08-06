@@ -82,7 +82,7 @@ def reframe_manuscript():
     targeted_replacements = [
         (
             "Evaluating Healthcare Expenditure Sustainability in Japan: A Dual-Return Framework Integrating Input-Output Multipliers, Health-Capital Tempo, and Diagnostic Equipment Stock with Cross-Country Benchmarking",
-            "Evaluating the Demand-Side Fiscal Return to Healthcare Expenditure in Japan: Input-Output Multipliers, a Constant Health-Capital Lag, and Diagnostic Equipment Stock with Cross-Country OECD Benchmarking",
+            "Demand-Side Fiscal Return to Healthcare Expenditure in Japan: Input-Output Multipliers, a Constant Health-Capital Lag, and Diagnostic Equipment Stock with Cross-Country OECD Benchmarking",
         ),
         (
             "Japan Healthcare I-O Sustainability",
@@ -204,7 +204,7 @@ def build_cover_letter_r3():
     add_plain_para(
         doc,
         'We are resubmitting a substantially reframed version of our manuscript, '
-        'now entitled "Evaluating the Demand-Side Fiscal Return to Healthcare '
+        'now entitled "Demand-Side Fiscal Return to Healthcare '
         'Expenditure in Japan: Input-Output Multipliers, a Constant Health-Capital '
         'Lag, and Diagnostic Equipment Stock with Cross-Country OECD Benchmarking". '
         "The previous submission was de novo rejected because the revisions had "
@@ -294,7 +294,7 @@ def build_response_to_reviewers_r3():
     doc.add_paragraph()
 
     add_plain_para(doc, "Re: EHPM-D-26-00106R2 de novo rejection response")
-    add_plain_para(doc, '"Evaluating the Demand-Side Fiscal Return to Healthcare Expenditure in Japan: Input-Output Multipliers, a Constant Health-Capital Lag, and Diagnostic Equipment Stock with Cross-Country OECD Benchmarking"')
+    add_plain_para(doc, '"Demand-Side Fiscal Return to Healthcare Expenditure in Japan: Input-Output Multipliers, a Constant Health-Capital Lag, and Diagnostic Equipment Stock with Cross-Country OECD Benchmarking"')
     doc.add_paragraph()
     add_plain_para(doc, "Dear Professor Harada,")
     doc.add_paragraph()
@@ -329,8 +329,8 @@ def build_response_to_reviewers_r3():
     run = p.add_run("Response: ")
     run.bold = True
     p.add_run(
-        "We agree entirely. The title has been changed to 'Evaluating the "
-        "Demand-Side Fiscal Return to Healthcare Expenditure in Japan: "
+        "We agree entirely. The title has been changed to 'Demand-Side "
+        "Fiscal Return to Healthcare Expenditure in Japan: "
         "Input-Output Multipliers, a Constant Health-Capital Lag, and Diagnostic "
         "Equipment Stock with Cross-Country OECD Benchmarking'. The abstract, "
         "aims, discussion, and conclusions no longer describe a 'dual-return' "
