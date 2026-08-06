@@ -123,6 +123,7 @@ jobs:
           BRANCH_MAP["devin/1777601123-khmer-civic-summary"]="khmer-civic-summary"
           # REMOVED: figure-redistribution (no unique content vs master)
           BRANCH_MAP["devin/1777901782-healthcare-economic-effect"]="healthcare-economic-effect"
+          BRANCH_MAP["devin/ehpm-r3-reframe"]="healthcare-economic-effect"
           BRANCH_MAP["devin/1777908700-canonical-curves-reexamination"]="canonical-curves-reexamination"
           BRANCH_MAP["devin/1777909479-desflurane-critical-appraisal"]="desflurane-critical-appraisal"
           BRANCH_MAP["devin/rokid-lyrics"]="rokid-lyrics"
@@ -229,6 +230,7 @@ jobs:
           SUBDIR_MAP["devin/1776765895-gdp-cwon-joint"]="gdp_cwon_integration"
           SUBDIR_MAP["devin/1776288480-demres-submission"]="tempo-effect-paper"
           SUBDIR_MAP["devin/1777901782-healthcare-economic-effect"]="healthcare_economic_effect"
+          SUBDIR_MAP["devin/ehpm-r3-reframe"]="healthcare_economic_effect"
           SUBDIR_MAP["devin/1777908700-canonical-curves-reexamination"]="canonical_curves_reexamination"
           SUBDIR_MAP["devin/1777909479-desflurane-critical-appraisal"]="desflurane_critical_appraisal"
           SUBDIR_MAP["devin/1777601123-khmer-civic-summary"]="khmer_inscription_analysis"
