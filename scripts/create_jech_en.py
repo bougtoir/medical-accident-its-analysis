@@ -19,6 +19,7 @@ by scripts/compile_ijhpm_results.py.
 import json
 import os
 import re
+import sys
 from string import Template
 
 from docx import Document
@@ -330,16 +331,7 @@ figure_legends = []
 
 
 def add_figure_inline(image_path, caption):
-    """Add an inline figure placeholder and store the full legend for the end."""
-    label = caption.split('.')[0]
-    add_para(label + '.', bold=True, space_before=12, space_after=6)
-    if os.path.exists(image_path):
-        p = doc.add_paragraph()
-        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        run = p.add_run()
-        run.add_picture(image_path, width=Inches(6.3))
-    else:
-        add_para('[Figure image not found: ' + image_path + ']', italic=True)
+    """Store the figure legend; JECH requires figures as separate files."""
     figure_legends.append(caption)
     add_blank()
 
@@ -386,14 +378,14 @@ add_blank()
 add_heading("Abstract", level=1, space_before=0)
 
 add_para(
-    "Background  Geographic variation in anaesthesia practice is well documented, "
+    "Background Geographic variation in anaesthesia practice is well documented, "
     "but it remains unclear whether it reflects real differences in care or "
     "artefacts of coding, reimbursement and auditing. Japan's uniform national "
     "fee schedule combined with prefecture-specific claims auditing offers a "
     "natural experiment for separating these explanations.")
 
 add_para(
-    "Methods  We conducted a cross-sectional ecological study using age- and "
+    "Methods We conducted a cross-sectional ecological study using age- and "
     "sex-standardised claim ratios for general, spinal, epidural and continuous "
     "epidural anaesthesia across ${n_areas} secondary medical areas nested "
     "within ${n_prefectures} prefectures, fiscal year ${fiscal_year}. We fitted "
@@ -402,7 +394,7 @@ add_para(
     "density, anaesthesiologist supply and plausible differential audit rates.")
 
 add_para(
-    "Results  Coefficients of variation ranged from ${L008_cv}% (general "
+    "Results Coefficients of variation ranged from ${L008_cv}% (general "
     "anaesthesia) to ${L002_cv}% (epidural). For general anaesthesia, only "
     "${L008_ml_icc} of variance lay between prefectures; university hospital "
     "presence explained ${L008_ml_r2} of total variance (β = "
@@ -414,7 +406,7 @@ add_para(
     "hospital effect for general, epidural and continuous epidural anaesthesia.")
 
 add_para(
-    "Conclusion  Regional variation in anaesthesia practice is predominantly "
+    "Conclusion Regional variation in anaesthesia practice is predominantly "
     "structural, driven by access to university hospitals rather than by "
     "prefectural auditing. In Japan and similar universal-coverage systems, "
     "this pattern signals inequitable access to neuraxial techniques and should "
@@ -432,7 +424,7 @@ doc.add_page_break()
 add_heading("Key messages", level=1, space_before=0)
 
 add_para(
-    "What is already known on this topic")
+    "What is already known on this topic", bold=True)
 add_para(
     "Geographic variation in medical and surgical practice is a recurring "
     "finding in high-income countries, yet it is often difficult to separate "
@@ -442,7 +434,7 @@ add_para(
     "experiment for testing these alternative explanations.")
 
 add_para(
-    "What this study adds")
+    "What this study adds", bold=True)
 add_para(
     "In a nationwide cross-sectional ecological analysis of age- and sex-"
     "standardised anaesthesia claim ratios across ${n_areas} secondary medical "
@@ -452,7 +444,7 @@ add_para(
     "small fraction of the observed variation.")
 
 add_para(
-    "How this study might affect research, practice or policy")
+    "How this study might affect research, practice or policy", bold=True)
 add_para(
     "Administrative claims data should be used to monitor small-area "
     "variation in surgical care as a population-health equity indicator, and "
@@ -475,8 +467,8 @@ add_para(
     "unmet need.{1,5} The same records are also used for prefecture-level "
     "insurance auditing (shinsa), and audit intensity varies across "
     "prefectures.{6} Where audits differ, between-area variation in claims could "
-    "reflect differential scrutiny rather than differential care. Separating "
-    "these explanations is important for population health research and "
+    "reflect differential scrutiny rather than differential care. Distinguishing "
+    "between them is important for population health research and "
     "policy: if variation is real, it signals inequitable access; if it is an "
     "artefact, quality-improvement and payment reforms may be misdirected.")
 
@@ -878,14 +870,14 @@ add_para(
     "across all ${n_prefectures} prefectures. This suggests that the "
     "structural-access explanation is a robust feature of high-income "
     "universal-coverage systems rather than a Japanese idiosyncrasy. "
-    "Extrapolation to low- and middle-income countries is more cautious because "
+    "Extrapolation to low- and middle-income countries should be more cautious, because "
     "fee schedules and audit arrangements are typically heterogeneous and "
     "claims data often incomplete.")
 
 add_subheading("Implications for public health research, practice and policy")
 add_para(
-    "From a population-health perspective, our findings have three "
-    "implications. First, administrative claims data can be used as a "
+    "Three public-health implications follow from these findings. First, "
+    "administrative claims data can be used as a "
     "surveillance tool to monitor small-area variation in perioperative care "
     "under universal coverage, but should be interpreted alongside sensitivity "
     "analyses for coding and audit effects. Second, the observed "
@@ -1013,6 +1005,11 @@ if figure_legends:
     add_heading('Figure legends', level=1)
     for cap in figure_legends:
         add_para(cap, space_before=6, space_after=12)
+
+# Convert statistical expressions to native Word equation objects
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from jech_math import convert_docx_math_to_omml
+convert_docx_math_to_omml(doc)
 
 # ============================================================
 # Save
