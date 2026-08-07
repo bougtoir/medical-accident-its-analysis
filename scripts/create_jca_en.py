@@ -757,7 +757,7 @@ add_figure_inline(
 
 add_subheading("Sensitivity analyses against the audit hypothesis")
 add_para(
-    "All three pre-specified sensitivity analyses converged in rejecting the "
+    "All three pre-specified sensitivity analyses pointed away from the "
     "audit hypothesis. First, within-prefecture variance decomposition attributed "
     "${L008_vd_between}% of general anaesthesia variance to between-prefecture "
     "differences, ${L008_vd_univ}% to the university hospital effect within "
@@ -813,14 +813,14 @@ add_para(
     "hospital presence explained the largest share of variance for general "
     "anaesthesia and was positive in every prefecture, while the proportion of "
     "variance attributable to prefecture-level factors -- where audit intensity "
-    "differs -- was small. Three independent sensitivity analyses converged in "
-    "rejecting differential auditing as the main explanation. Because the "
-    "outcome is a reimbursed claim ratio, the observed gradient documents "
+    "differs -- was small. Three independent sensitivity analyses each pointed "
+    "away from differential auditing as the main explanation. Because the "
+    "outcome is a reimbursed claim ratio, the observed gradient captures "
     "service delivery rather than bedside practice directly; however, the "
     "within-prefecture structure of the data and the audit-sensitivity "
     "analyses make it unlikely that the entire pattern is an artefact of "
-    "differential scrutiny. The residual variation is therefore best "
-    "interpreted as a geographically patterned difference in the provision of "
+    "differential scrutiny. The remaining variation is therefore best "
+    "interpreted as a geographic pattern in the provision of "
     "potentially beneficial anaesthesia services.")
 
 add_subheading("Strengths and limitations")
@@ -859,15 +859,15 @@ add_para(
 
 add_subheading("International generalizability and clinical relevance")
 add_para(
-    "Our findings are consistent with the broader medical practice-variation "
+    "Our findings fit the broader medical practice-variation "
     "literature. The Dartmouth Atlas project documented extensive regional "
     "variation in surgical rates in the United States, driven primarily by "
     "physician supply and practice style.{20} Comparable patterns have been "
     "described for the National Health Service in England,{21} Germany{22} and "
     "Australia.{23} Our study extends this evidence by exploiting Japan's "
     "uniform fee schedule combined with prefecture-specific auditing to "
-    "disentangle administrative and structural sources of variation, and by "
-    "providing, to our knowledge, the first multilevel small-area analysis of "
+    "disentangle administrative and structural sources of variation, and, to our "
+    "knowledge, is the first multilevel small-area analysis of "
     "anaesthesia technique under universal coverage in East Asia. The "
     "university hospital effect we report (Cohen's d = ${L008_d}) is "
     "substantial, plausibly reflecting the influence of the ikyoku (university "
