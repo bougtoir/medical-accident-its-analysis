@@ -54,6 +54,11 @@ python simulate.py
 | `false_positives_by_cancer.png` | 真陽性 vs 偽陽性の比較 |
 | `specificity_sweep.png` | 特異度が偽陽性数・受診負荷に与える影響 |
 
+## 議論資料
+
+- `discussion.md`: 市中血液がん検査への規制の線引きに関する議論
+- `healthcare_exhaustion.md`: 「無駄な検査の結果、医療が疲弊する」という議論の骨格と根拠
+
 ## モデルの要点
 
 1. 対象集団 `N` 人に対し、各がんの有病率 `p` から真の患者数を設定。
