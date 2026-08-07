@@ -63,7 +63,7 @@ def get_manuscript_page_ranges():
             ['pdftotext', '-layout', pdf_path, '-'],
             capture_output=True, text=True, check=True,
         ).stdout
-        pages = text.split('\f')
+        pages = [p for p in text.split('\f') if p.strip()]
 
         headings = [
             'ABSTRACT', 'INTRODUCTION', 'METHODS',
@@ -100,7 +100,10 @@ def get_manuscript_page_ranges():
 
         return ranges
     except subprocess.CalledProcessError as e:
-        err = e.stderr.decode('utf-8', errors='ignore')[:500] if e.stderr else str(e)
+        raw = e.stderr
+        if isinstance(raw, bytes):
+            raw = raw.decode('utf-8', errors='ignore')
+        err = raw[:500] if raw else str(e)
         raise RuntimeError(f"Failed to extract manuscript page numbers: {err}") from e
     finally:
         shutil.rmtree(tmpdir, ignore_errors=True)

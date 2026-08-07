@@ -7,7 +7,7 @@ Conforms to Journal of Clinical Anesthesia original research author guidelines:
 - Highlights / Key Points: 3-5 bullets, each <=85 characters, as separate file
 - Body <=5000 words (excluding abstract, references, tables, figures)
 - Up to 6 combined figures/tables
-- References numbered in order of appearance (Vancouver style; first three authors then et al.)
+- References numbered in order of appearance (Vancouver style; in-text square brackets)
 - Numbered IMRaD sections and subsections (1, 1.1, 1.1.1)
 - Double-spaced, Times New Roman 12 pt
 
@@ -214,7 +214,10 @@ _heading_state = {'section': 0, 'subsection': 0}
 
 
 def add_run_with_refs(paragraph, text, italic=False, bold=False):
-    """Add text to a paragraph, parsing {n} or {n-m} as font superscript runs."""
+    """Add text to a paragraph, parsing {n} or {n-m} as bracketed Vancouver citations."""
+    # In Vancouver style, citations follow punctuation: move any trailing
+    # punctuation that sits immediately before a citation marker to after it.
+    text = re.sub(r'([.,;:])(\{[^}]+\})', r'\2\1', text)
     parts = re.split(r'(\{[^}]+\})', text)
     for part in parts:
         if not part:
@@ -228,18 +231,35 @@ def add_run_with_refs(paragraph, text, italic=False, bold=False):
             run.bold = True
         if part.startswith('{') and part.endswith('}'):
             inner = part[1:-1]
-            run.text = inner
-            run.font.superscript = True
+            run.text = f'[{inner}]'
+            run.font.superscript = False
+
+
+CITE_RE = re.compile(r'\[\d+(?:-\d+)?(?:,\s*\d+(?:-\d+)?)*\]')
+
+
+def _expand_citation(text):
+    """Expand a bracketed Vancouver citation such as '[7-9,12]' into integers."""
+    nums = []
+    inner = text.strip().strip('[]')
+    for token in re.split(r',\s*', inner):
+        token = token.strip()
+        if '-' in token:
+            start, end = token.split('-', 1)
+            nums.extend(range(int(start), int(end) + 1))
+        else:
+            nums.append(int(token))
+    return nums
 
 
 def renumber_references(doc, references):
-    """Determine first-appearance order from superscript citations and reorder.
+    """Determine first-appearance order from bracketed Vancouver citations and reorder.
 
     Walks the document body (stops at the 'References' heading), records the
     order in which each citation number first appears, builds an old->new
-    mapping, updates all superscript citation runs in place, and returns the
-    reference list reordered to match the new numbering. Uncited references
-    are dropped.
+    mapping, updates all bracketed citation runs in place, and returns the
+    reference list reordered to match the new numbering. Uncited references are
+    dropped.
     """
     first = {}
     cited = set()
@@ -248,9 +268,8 @@ def renumber_references(doc, references):
         if txt.upper() == 'REFERENCES':
             break
         for run in p.runs:
-            if run.font.superscript:
-                for n in re.findall(r'\d+', run.text):
-                    n = int(n)
+            for match in CITE_RE.finditer(run.text):
+                for n in _expand_citation(match.group(0)):
                     cited.add(n)
                     if n not in first:
                         first[n] = len(first) + 1
@@ -262,7 +281,7 @@ def renumber_references(doc, references):
 
     for p in doc.paragraphs:
         for run in p.runs:
-            if run.font.superscript:
+            if CITE_RE.search(run.text):
                 run.text = re.sub(r'\d+', repl, run.text)
 
     return [references[old - 1] for old in sorted(cited, key=mapping.get)]
@@ -968,24 +987,36 @@ for i, ref in enumerate(REFERENCES, 1):
     run.font.name = 'Times New Roman'
     run.font.size = Pt(12)
 
-# Body word count check (excluding title page, abstract, references, tables, figures)
+# Word-count checks (excluding title page, references, tables and figure legends)
+abstract_paras = []
 text_paras = []
+in_abstract = False
 in_body = False
 in_refs = False
 for p in doc.paragraphs:
     txt = p.text.strip()
     if not txt:
         continue
+    if txt.upper() == 'ABSTRACT':
+        in_abstract = True
+        continue
     if txt.upper().startswith('1. INTRODUCTION'):
+        in_abstract = False
         in_body = True
         continue
     if txt.upper() == 'REFERENCES':
+        in_body = False
         in_refs = True
         continue
+    if in_abstract:
+        abstract_paras.append(txt)
     if in_body and not in_refs:
         text_paras.append(txt)
+abstract = '\n'.join(abstract_paras)
+abstract_words = len(re.findall(r'\b\w+\b', abstract))
 body = '\n'.join(text_paras)
 words = len(re.findall(r'\b\w+\b', body))
+print(f"Abstract word count: {abstract_words}")
 print(f"Body word count (intro through conclusion): {words}")
 
 # Update title-page counts that were left as placeholders
@@ -1161,3 +1192,20 @@ for p in tp.paragraphs:
 tp_out = os.path.join(OUTPUT_DIR, 'title_page_JCA_EN.docx')
 tp.save(tp_out)
 print(f"Saved: {tp_out}")
+
+# Persist submission metadata for downstream files (cover letter, etc.)
+metadata = {
+    'title': title,
+    'body_word_count': words,
+    'abstract_word_count': abstract_words,
+    'n_tables': n_tables,
+    'n_figures': n_figures,
+    'n_references': n_refs,
+    'fiscal_year': FLAT['fiscal_year'],
+    'n_areas': FLAT['n_areas'],
+    'n_prefectures': FLAT['n_prefectures'],
+}
+meta_path = os.path.join(OUTPUT_DIR, 'jca_submission_metadata.json')
+with open(meta_path, 'w') as f:
+    json.dump(metadata, f, indent=2)
+print(f"Saved: {meta_path}")

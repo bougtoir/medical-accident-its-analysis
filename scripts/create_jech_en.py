@@ -231,6 +231,21 @@ def add_run_with_refs(paragraph, text, italic=False, bold=False):
             run.font.superscript = True
 
 
+def _expand_citation(text):
+    """Expand a superscript citation such as '7-9,12' into integers."""
+    nums = []
+    for token in re.split(r',\s*', text.strip()):
+        token = token.strip()
+        if not token:
+            continue
+        if '-' in token:
+            start, end = token.split('-', 1)
+            nums.extend(range(int(start), int(end) + 1))
+        else:
+            nums.append(int(token))
+    return nums
+
+
 def renumber_references(doc, references):
     """Determine first-appearance order from superscript citations and reorder.
 
@@ -238,8 +253,10 @@ def renumber_references(doc, references):
     order in which each citation number first appears, builds an old->new
     mapping, updates all superscript citation runs in place, and returns the
     reference list reordered to match the new numbering. Uncited references
-    are dropped.
+    are dropped. Range citations (e.g. 7-9) are expanded so middle numbers are
+    not dropped.
     """
+    CITE_RE = re.compile(r'\d+(?:-\d+)?(?:,\s*\d+(?:-\d+)?)*')
     first = {}
     cited = set()
     for p in doc.paragraphs:
@@ -248,11 +265,11 @@ def renumber_references(doc, references):
             break
         for run in p.runs:
             if run.font.superscript:
-                for n in re.findall(r'\d+', run.text):
-                    n = int(n)
-                    cited.add(n)
-                    if n not in first:
-                        first[n] = len(first) + 1
+                for match in CITE_RE.finditer(run.text):
+                    for n in _expand_citation(match.group(0)):
+                        cited.add(n)
+                        if n not in first:
+                            first[n] = len(first) + 1
     mapping = {old: new for new, old in enumerate(sorted(first, key=first.get), 1)}
 
     def repl(m):
