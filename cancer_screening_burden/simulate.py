@@ -278,7 +278,8 @@ def plot_ppv_by_cancer(
     ax.barh(sub["cancer"], sub["ppv"] * 100.0, color="steelblue")
     ax.set_xlabel("Positive predictive value (%)")
     ax.set_title(f"PPV by cancer type at follow-up rate = {follow_up_rate:.0%}")
-    ax.set_xlim(0, max(100, sub["ppv"].max() * 100 * 1.1))
+    max_ppv = max(sub["ppv"].max() * 100 * 1.1, 1.0)
+    ax.set_xlim(0, min(100.0, max_ppv))
     _save_plot(fig, output_path)
 
 
@@ -364,8 +365,19 @@ def find_capacity_threshold(df: pd.DataFrame, threshold: float = 100.0) -> str:
     if over.empty:
         return "not reached in the scanned range"
     rate = over["follow_up_rate"].min()
-    cancer_row = over[over["follow_up_rate"] == rate].iloc[0]
-    return f"{rate:.0%} (constrained resource: check utilization columns)"
+    row = over[over["follow_up_rate"] == rate].iloc[0]
+
+    utilization_cols = [c for c in row.index if c.endswith("_utilization_pct") and c != "max_capacity_utilization_pct"]
+    constrained = row[utilization_cols].idxmax()
+    resource = constrained.replace("_utilization_pct", "").replace("_", " ").title()
+    return f"{rate:.0%} ({resource})"
+
+
+def choose_summary_rate(follow_up_rates: List[float], target: float = 0.5) -> float:
+    """Pick the follow-up rate in the list closest to the requested target."""
+    if not follow_up_rates:
+        raise ValueError("follow_up_rates must not be empty")
+    return min(follow_up_rates, key=lambda r: abs(r - target))
 
 
 def main() -> None:
@@ -405,8 +417,9 @@ def main() -> None:
     format_csv(agg).to_csv(args.output / "aggregate_by_followup.csv", index=False)
     format_csv(spec_df).to_csv(args.output / "specificity_sweep.csv", index=False)
 
-    # Default summary at 50% follow-up.
-    default_rate = 0.5
+    # Default summary at a representative follow-up rate.
+    follow_up_rates = params["simulation"]["follow_up_rates"]
+    default_rate = choose_summary_rate(follow_up_rates, target=0.5)
     summary = df[df["follow_up_rate"] == default_rate].copy()
     format_csv(summary).to_csv(args.output / "summary_default_followup.csv", index=False)
 
@@ -431,7 +444,7 @@ def main() -> None:
     )
     print()
 
-    print(f"At 50% follow-up rate, per 100,000 screened:")
+    print(f"At {default_rate:.0%} follow-up rate, per 100,000 screened:")
     row = agg[agg["follow_up_rate"] == default_rate].iloc[0]
     print(f"  True positives  : {row['true_positives']:.1f}")
     print(f"  False positives : {row['false_positives']:.1f}")
