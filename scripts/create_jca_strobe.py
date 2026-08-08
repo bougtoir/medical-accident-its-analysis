@@ -143,7 +143,9 @@ def page_str_for(section, item_num=""):
         if item_num == '14(b)':
             return page_ranges.get('Table 2', '')
         if item_num == '15*':
-            return f"{page_ranges.get('Table 1', '')}–{page_ranges.get('Table 2', '')}"
+            t1 = page_ranges.get('Table 1', '')
+            t2 = page_ranges.get('Table 2', '')
+            return f"{t1}–{t2}" if t1 and t2 else page_ranges.get('RESULTS', '')
         if item_num == '16(a)':
             return page_ranges.get('Table 3', '')
         if item_num == '16(b)':
