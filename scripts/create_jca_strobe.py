@@ -31,21 +31,24 @@ fiscal_year = meta.get('fiscal_year', 2022)
 def _which(tool):
     path = shutil.which(tool)
     if not path:
-        raise RuntimeError(
-            f"Required tool '{tool}' not found in PATH. "
-            f"Install LibreOffice and poppler-utils to generate the STROBE page-number column."
-        )
+        return None
     return path
 
 
 def get_manuscript_page_ranges():
-    """Convert the main manuscript docx to PDF and return a dict of section/table/page ranges."""
+    """Convert the main manuscript docx to PDF and return a dict of section/table/page ranges.
+
+    If LibreOffice or pdftotext is unavailable, returns an empty dict so the STROBE
+    checklist can still be generated with blank page-number cells.
+    """
     manuscript = os.path.join(OUTPUT_DIR, 'regional_anaesthesia_JCA_EN.docx')
     if not os.path.exists(manuscript):
         raise FileNotFoundError(f"Main manuscript not found: {manuscript}")
 
-    _which('libreoffice')
-    _which('pdftotext')
+    if not _which('libreoffice') or not _which('pdftotext'):
+        print("Warning: LibreOffice and/or pdftotext not found. "
+              "STROBE page-number column will be blank.")
+        return {}
 
     tmpdir = tempfile.mkdtemp()
     try:

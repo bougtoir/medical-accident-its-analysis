@@ -332,7 +332,8 @@ def add_blank():
 
 def add_table_from_data(caption, headers, rows, note=None):
     """Add an inline table with caption and optional footnote."""
-    add_para(caption, bold=True, space_before=12, space_after=6)
+    cap_p = add_para(caption, bold=True, space_before=12, space_after=6)
+    _excluded_word_count_elements.add(cap_p._element)
     table = doc.add_table(rows=1, cols=len(headers))
     table.style = 'Table Grid'
     hdr = table.rows[0].cells
@@ -355,11 +356,13 @@ def add_table_from_data(caption, headers, rows, note=None):
             r.font.name = 'Times New Roman'
             r.font.size = Pt(10)
     if note:
-        add_para(note, italic=True, space_before=6, space_after=12)
+        note_p = add_para(note, italic=True, space_before=6, space_after=12)
+        _excluded_word_count_elements.add(note_p._element)
     return table
 
 
 figure_legends = []
+_excluded_word_count_elements = set()
 
 
 def add_figure_inline(image_path, caption):
@@ -987,18 +990,37 @@ for i, ref in enumerate(REFERENCES, 1):
     run.font.name = 'Times New Roman'
     run.font.size = Pt(12)
 
-# Word-count checks (excluding title page, references, tables and figure legends)
+# Word-count checks and title-page placeholder updates are performed after
+# math conversion, so the counted text matches the saved docx.
+
+# Figure legends are placed at the end of the manuscript.
+if figure_legends:
+    add_heading('Figure legends', level=1, numbered=False)
+    for cap in figure_legends:
+        add_para(cap, space_before=6, space_after=12)
+
+# Convert statistical expressions to native Word equation objects
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from jech_math import convert_docx_math_to_omml
+convert_docx_math_to_omml(doc)
+
+# Word-count checks after converting math, so the counted text matches the saved docx.
 abstract_paras = []
 text_paras = []
 in_abstract = False
 in_body = False
 in_refs = False
 for p in doc.paragraphs:
+    if p._element in _excluded_word_count_elements:
+        continue
     txt = p.text.strip()
     if not txt:
         continue
     if txt.upper() == 'ABSTRACT':
         in_abstract = True
+        continue
+    if txt.upper().startswith('KEYWORDS:'):
+        in_abstract = False
         continue
     if txt.upper().startswith('1. INTRODUCTION'):
         in_abstract = False
@@ -1041,17 +1063,6 @@ for p in doc.paragraphs:
             run.font.size = Pt(12)
             run.italic = True
         break
-
-# Figure legends are placed at the end of the manuscript.
-if figure_legends:
-    add_heading('Figure legends', level=1, numbered=False)
-    for cap in figure_legends:
-        add_para(cap, space_before=6, space_after=12)
-
-# Convert statistical expressions to native Word equation objects
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from jech_math import convert_docx_math_to_omml
-convert_docx_math_to_omml(doc)
 
 # Add a centered page number to the footer of each section
 for section in doc.sections:
