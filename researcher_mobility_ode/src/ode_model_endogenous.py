@@ -24,6 +24,7 @@ Usage:
 
 import argparse
 import json
+import os
 from collections import defaultdict
 from pathlib import Path
 
@@ -34,8 +35,8 @@ from scipy.linalg import solve, eigvals
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = BASE_DIR / "data"
-COHORT_DIR = DATA_DIR / "cohort"
-RESULTS_DIR = BASE_DIR / "results" / "endogenous"
+COHORT_DIR = Path(os.environ.get("RESEARCHER_MOBILITY_COHORT_DIR", str(DATA_DIR / "cohort")))
+RESULTS_DIR = Path(os.environ.get("RESEARCHER_MOBILITY_RESULTS_DIR", str(BASE_DIR / "results" / "endogenous")))
 
 COMPARTMENTS = ["D", "A", "H_D", "H_A", "P_D", "P_A"]
 RATE_NAMES = ["alpha", "beta", "h_D", "h_A", "p_D", "p_A", "d"]
