@@ -78,7 +78,7 @@ def author_works_map(sample_path, requested_codes):
 def _most_common_country(works, a2g):
     counter = Counter()
     for w in works:
-        for cc in w.get("countries", set()):
+        for cc in sorted(w.get("countries", set())):
             counter[a2g[cc]] += 1
     return counter.most_common(1)[0][0] if counter else None
 
