@@ -1,0 +1,68 @@
+year,origin_group,destination_group,new_flow
+2000,Sinic,Unknown,1
+2000,United States,Unknown,1
+2002,Anglosphere ex-US,Anglosphere ex-US,1
+2003,Continental Europe,Unknown,1
+2003,Hindu,Hindu,1
+2004,Anglosphere ex-US,Sinic,1
+2004,Sinic,Sinic,1
+2004,United States,United States,1
+2005,Anglosphere ex-US,Other Civilizations,1
+2005,Continental Europe,Unknown,1
+2005,United States,Other Western,1
+2005,United States,Unknown,1
+2006,Anglosphere ex-US,Anglosphere ex-US,1
+2006,Sinic,Sinic,1
+2006,United States,Continental Europe,1
+2006,United States,Hindu,1
+2007,Sinic,United States,1
+2007,United States,Other Western,1
+2008,Continental Europe,Other Western,1
+2008,Islamic,Islamic,1
+2009,Anglosphere ex-US,Other Civilizations,1
+2009,Anglosphere ex-US,Other Western,1
+2009,Japanese,Japanese,1
+2010,Anglosphere ex-US,Japanese,1
+2011,Japanese,Sinic,1
+2011,Sinic,Sinic,1
+2011,United States,Anglosphere ex-US,1
+2012,Continental Europe,Other Civilizations,1
+2012,Continental Europe,Other Western,2
+2013,United States,Hindu,1
+2014,Other Civilizations,Other Civilizations,1
+2014,Other Western,Continental Europe,1
+2015,Islamic,Islamic,1
+2015,Sinic,Sinic,1
+2016,Anglosphere ex-US,Continental Europe,1
+2016,Other Civilizations,Japanese,1
+2016,United States,Hindu,2
+2016,United States,United States,1
+2017,Anglosphere ex-US,Continental Europe,1
+2017,United States,Continental Europe,1
+2018,Continental Europe,Anglosphere ex-US,1
+2018,Hindu,United States,1
+2018,Japanese,Other Western,1
+2019,Continental Europe,Anglosphere ex-US,1
+2019,Islamic,Anglosphere ex-US,1
+2019,Sinic,Sinic,1
+2019,United States,Sinic,1
+2020,Anglosphere ex-US,Anglosphere ex-US,1
+2020,Continental Europe,Anglosphere ex-US,1
+2020,Continental Europe,United States,1
+2020,Islamic,Continental Europe,1
+2020,Japanese,Other Civilizations,1
+2020,Sinic,Anglosphere ex-US,1
+2020,United States,Continental Europe,1
+2020,United States,Hindu,1
+2020,United States,Other Western,1
+2020,United States,United States,1
+2021,Continental Europe,Anglosphere ex-US,1
+2021,Islamic,Islamic,1
+2021,Sinic,United States,1
+2021,United States,Hindu,1
+2021,United States,Islamic,1
+2021,United States,Other Western,1
+2021,United States,Sinic,1
+2021,United States,United States,1
+2023,Continental Europe,Anglosphere ex-US,1
+2023,Continental Europe,Islamic,1

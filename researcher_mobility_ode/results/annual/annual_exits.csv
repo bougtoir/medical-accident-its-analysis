@@ -1,0 +1,60 @@
+origin_group,year,compartment,exit_count
+Anglosphere ex-US,2016,H_D,1
+Anglosphere ex-US,2023,D,2
+Anglosphere ex-US,2023,H_A,3
+Anglosphere ex-US,2023,H_D,9
+Anglosphere ex-US,2023,P_A,5
+Anglosphere ex-US,2023,P_D,7
+Continental Europe,2006,H_A,1
+Continental Europe,2016,P_D,1
+Continental Europe,2018,H_D,1
+Continental Europe,2023,A,1
+Continental Europe,2023,D,7
+Continental Europe,2023,H_A,4
+Continental Europe,2023,H_D,15
+Continental Europe,2023,P_A,6
+Continental Europe,2023,P_D,13
+Hindu,2023,D,4
+Hindu,2023,H_D,13
+Hindu,2023,P_A,2
+Hindu,2023,P_D,7
+Islamic,2023,D,4
+Islamic,2023,H_D,7
+Islamic,2023,P_A,2
+Islamic,2023,P_D,7
+Japanese,2005,D,1
+Japanese,2011,D,1
+Japanese,2013,P_D,1
+Japanese,2018,P_D,1
+Japanese,2019,H_D,1
+Japanese,2023,D,3
+Japanese,2023,H_A,2
+Japanese,2023,H_D,7
+Japanese,2023,P_A,1
+Japanese,2023,P_D,8
+Other Civilizations,2010,P_D,1
+Other Civilizations,2023,D,4
+Other Civilizations,2023,H_A,1
+Other Civilizations,2023,H_D,7
+Other Civilizations,2023,P_D,7
+Other Western,2023,D,1
+Other Western,2023,H_D,9
+Other Western,2023,P_D,5
+Sinic,2018,D,1
+Sinic,2023,A,1
+Sinic,2023,D,8
+Sinic,2023,H_A,3
+Sinic,2023,H_D,12
+Sinic,2023,P_A,1
+Sinic,2023,P_D,15
+United States,2012,H_A,1
+United States,2012,H_D,1
+United States,2015,H_D,1
+United States,2017,H_D,1
+United States,2018,H_D,1
+United States,2023,A,2
+United States,2023,D,1
+United States,2023,H_A,5
+United States,2023,H_D,12
+United States,2023,P_A,10
+United States,2023,P_D,14
