@@ -302,9 +302,9 @@ jobs:
           BRANCH_MAP["devin/1785812663-sales-conversation-dynamics"]="sales-conversation-dynamics"
           SUBDIR_MAP["devin/1785812663-sales-conversation-dynamics"]="sales_conversation_dynamics"
 
-          # ── AI/ML researcher mobility ODE model ──
-          BRANCH_MAP["devin/researcher-mobility-ode"]="researcher-mobility-ode"
-          SUBDIR_MAP["devin/researcher-mobility-ode"]="researcher_mobility_ode"
+          # ── AI/ML researcher mobility ODE model (full-article branch is the canonical public snapshot) ──
+          BRANCH_MAP["devin/researcher-mobility-ode-full-article"]="researcher-mobility-ode"
+          SUBDIR_MAP["devin/researcher-mobility-ode-full-article"]="researcher_mobility_ode"
 
           # ── AI/ML researcher mobility ODE model extensions ──
           BRANCH_MAP["devin/researcher-mobility-ode-extensions"]="researcher-mobility-ode-extensions"

@@ -47,6 +47,16 @@ def load_group_mapping():
     return a2g, group_to_a2
 
 
+def load_origin_overrides():
+    """Load manually audited origin-group overrides so they are reproducible."""
+    override_path = COHORT_DIR / "author_origin_overrides.csv"
+    if not override_path.exists():
+        return {}
+    df = pd.read_csv(override_path, dtype=str)
+    df = df.dropna(subset=["author_id", "origin_group"])
+    return dict(zip(df["author_id"].astype(str), df["origin_group"]))
+
+
 def group_country_codes(group_to_a2, group):
     """Return alpha-2 country codes for a group, sorted by AI/ML output."""
     return [a2 for a2, _ in sorted(group_to_a2[group], key=lambda x: -x[1])]
@@ -293,11 +303,21 @@ def build_cohort(sample_per_group, max_authors, client, a2g, group_to_a2):
         if row:
             rows.append(row)
     cohort = pd.DataFrame(rows)
+
+    # Apply audited origin-group overrides so manual corrections are reproducible
+    overrides = load_origin_overrides()
+    if overrides:
+        for author_id, new_group in overrides.items():
+            mask = cohort["author_id"] == author_id
+            if mask.any():
+                cohort.loc[mask, "origin_group"] = new_group
+                print(f"Applied origin-group override: {author_id} -> {new_group}")
+
     print(f"Cohort size after filtering: {len(cohort)}")
     return cohort
 
 
-def estimate_rates(cohort, prior=1.0, rate_cap=2.0):
+def estimate_rates(cohort, prior=1.0, rate_cap=2.0, min_cohort=10):
     """Compute smoothed constant-hazard transition rates per origin group.
 
     Laplace smoothing (prior=1) avoids 0/1 probabilities in small samples; the
@@ -320,7 +340,7 @@ def estimate_rates(cohort, prior=1.0, rate_cap=2.0):
     rates = []
     for g, df in cohort.groupby("origin_group"):
         n = len(df)
-        if n < 10:
+        if n < min_cohort:
             continue
 
         p_abroad_raw = df["abroad"].mean()
