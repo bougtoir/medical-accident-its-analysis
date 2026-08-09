@@ -8,4 +8,6 @@ The files in this directory are derived from the OpenAlex API (`subfields/1702`,
 
 ## Manual correction in `cohort.csv`
 
-One author (row 239, `Ignazio Stanganelli`, OpenAlex `A5061353810`) was assigned to `United States` by the automatic `classify_author` majority-vote rule. Inspection of the sampled works and the country-to-civilisation mapping showed that the author's earliest affiliation was in Italy (`IT`), which maps to `Continental Europe`. The `origin_group` cell was therefore corrected to `Continental Europe` and `origin_year` was set to the earliest observed Italian affiliation year. This is the only hand-edited value in the committed cohort file; it is documented here so that future re-extractions can audit the decision.
+One author (row 239, `Ignazio Stanganelli`, OpenAlex `A5061353810`) was assigned to `United States` by the automatic `classify_author` majority-vote rule. Inspection of the sampled works and the country-to-civilisation mapping showed that the author's earliest affiliation was in Italy (`IT`), which maps to `Continental Europe`. The `origin_group` cell was therefore corrected to `Continental Europe`.
+
+The correction is also stored in `author_origin_overrides.csv` and applied automatically by `src/cohort_extraction.py`, so the same corrected cohort is produced when the extraction script is re-run.
