@@ -139,40 +139,26 @@ def reconstruct_annual_states():
         hit_year = int(row["hit_year"]) if pd.notna(row["hit_year"]) else None
         pi_year = int(row["pi_year"]) if pd.notna(row["pi_year"]) else None
 
-        last_loc = "domestic"  # used for years before first sampled work
         for y in range(start, final_year + 1):
-            # Work-based location
-            if y in works_by_year:
-                groups = works_by_year[y]
-                if origin in groups:
-                    last_loc = "domestic"
-                else:
-                    last_loc = "abroad"
-
-            # Cohort-inferred location for years without a sampled work
+            # Cohort-inferred location from abroad flag / abroad_year / return_year / recent_group
             if not abroad or abroad_year is None or y < abroad_year:
-                loc = "domestic"
+                cohort_loc = "domestic"
             elif final_abroad:
-                loc = "abroad"
+                cohort_loc = "abroad"
             else:
                 if return_year is not None and y >= return_year:
-                    loc = "domestic"
+                    cohort_loc = "domestic"
                 else:
-                    loc = "abroad"
+                    cohort_loc = "abroad"
 
-            # Prefer sampled-work location if available, otherwise last inferred
+            # Prefer sampled-work location when available; otherwise use cohort-derived location
             if y in works_by_year:
                 if origin in works_by_year[y]:
                     loc = "domestic"
                 else:
                     loc = "abroad"
             else:
-                # carry forward last_loc; initialize with loc if no last_loc
-                if y > start and last_loc is not None:
-                    loc = last_loc
-                else:
-                    last_loc = loc
-            last_loc = loc
+                loc = cohort_loc
 
             if pi_year is not None and y >= pi_year:
                 stage = "P"

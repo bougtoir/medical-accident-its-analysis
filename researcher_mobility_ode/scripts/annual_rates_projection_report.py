@@ -11,7 +11,14 @@ This script:
    intervention framework if inter-civilisation poaching cannot be controlled.
 """
 
+import subprocess
+import sys
+import zipfile
 from pathlib import Path
+
+# Make local packages importable
+BASE_DIR = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(BASE_DIR / "src"))
 
 import matplotlib
 matplotlib.use("Agg")
@@ -24,7 +31,6 @@ from docx.shared import Inches
 
 import annual_state_reconstruction as asr
 
-BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = BASE_DIR / "data"
 RESULTS_DIR = BASE_DIR / "results"
 ANNUAL_DIR = RESULTS_DIR / "annual"
@@ -91,6 +97,11 @@ def build_annual_transitions(states=None):
     Returns two DataFrames:
       - counts: one row per (group, year, from, to, count)
       - probs: one row per (group, year, from, to, probability)
+
+    The probability table is completed for every (group, year, from) that has a
+    non-zero stock and every possible destination compartment, so that zero-
+    transition years are represented by Laplace-smoothed probabilities rather
+    than missing rows.
     """
     if states is None:
         states = asr.reconstruct_annual_states()
@@ -106,12 +117,20 @@ def build_annual_transitions(states=None):
     stock = build_annual_stock(states)
     stock = stock.rename(columns={"compartment": "from", "count": "stock"})
 
-    probs = counts.merge(stock, on=["origin_group", "year", "from"], how="left")
-    # Laplace smoothing
-    num_to = len(COMPARTMENTS) + 1  # exits to L
-    probs["prob"] = (probs["count"] + 0.5) / (probs["stock"] + 0.5 * num_to)
+    # Complete grid so that group-years with zero observed transitions still get
+    # a smoothed probability for every destination compartment.
+    full_grid = stock[["origin_group", "year", "from"]].drop_duplicates()
+    to_df = pd.DataFrame({"to": COMPARTMENTS})
+    full_grid = full_grid.merge(to_df, how="cross")
+    counts = full_grid.merge(counts, on=["origin_group", "year", "from", "to"], how="left").fillna(0)
+    counts["count"] = counts["count"].astype(int)
+    counts = counts.merge(stock, on=["origin_group", "year", "from"], how="left")
 
-    return counts, probs
+    # Laplace smoothing: +0.5 to each possible destination, including exit to L
+    num_to = len(COMPARTMENTS) + 1
+    counts["prob"] = (counts["count"] + 0.5) / (counts["stock"] + 0.5 * num_to)
+
+    return counts, counts
 
 
 def build_annual_inflows(states=None):
@@ -166,15 +185,16 @@ def build_interciv_flows(states=None, cohort=None):
     return stock, new_flow
 
 
-def build_rate_table(probs, inflows, exits):
+def build_rate_table(probs, inflows, exits, states=None):
     """Map observed transition counts to the ODE-style rate names per group-year."""
+    stock = build_annual_stock(states)
     alpha = _rate(probs, "D", "A", "alpha")
-    beta = _aggregate_return_rate(probs, exits)
+    beta = _aggregate_return_rate(probs, stock)
     h_D = _rate(probs, "D", "H_D", "h_D")
     h_A = _rate(probs, "A", "H_A", "h_A")
     p_D = _rate(probs, "H_D", "P_D", "p_D")
     p_A = _rate(probs, "H_A", "P_A", "p_A")
-    d = _dropout_rate(probs, exits)
+    d = _dropout_rate(exits, stock)
 
     rate_table = alpha.merge(beta, on=["origin_group", "year"], how="outer")
     for tbl in [h_D, h_A, p_D, p_A, d]:
@@ -193,20 +213,18 @@ def _rate(probs, from_c, to_c, name):
     return sub
 
 
-def _aggregate_return_rate(probs, exits):
+def _aggregate_return_rate(probs, stock):
     """Beta-like return rate from abroad compartments to domestic compartments."""
     mask = probs["from"].isin(["A", "H_A", "P_A"]) & probs["to"].isin(["D", "H_D", "P_D"])
     return_counts = probs[mask].groupby(["origin_group", "year"], observed=False)["count"].sum().reset_index(name="return_count")
-    stock = build_annual_stock()
     abroad_stock = stock[stock["compartment"].isin(["A", "H_A", "P_A"])].groupby(["origin_group", "year"], observed=False)["count"].sum().reset_index(name="abroad_stock")
     merged = return_counts.merge(abroad_stock, on=["origin_group", "year"], how="outer").fillna(0)
     merged["beta"] = (merged["return_count"] + 0.5) / (merged["abroad_stock"] + 0.5)
     return merged[["origin_group", "year", "beta"]]
 
 
-def _dropout_rate(probs, exits):
+def _dropout_rate(exits, stock):
     """Per-group aggregate dropout rate = exits / total stock."""
-    stock = build_annual_stock()
     total_stock = stock.groupby(["origin_group", "year"], observed=False)["count"].sum().reset_index(name="total_stock")
     exit_counts = exits.groupby(["origin_group", "year"], observed=False)["exit_count"].sum().reset_index(name="exit_count")
     merged = total_stock.merge(exit_counts, on=["origin_group", "year"], how="outer").fillna(0)
@@ -353,31 +371,29 @@ def project_population(states, projected_rates, train_end=2016, project_end=2026
                 d = float(g_pr["d"].iloc[0])
                 Itotal = float(g_pr["I_total"].iloc[0])
 
+                # Build a row-stochastic-ish matrix where any deficit in row sum
+                # represents dropout (no L column). If the outgoing rates exceed 1,
+                # scale all outgoing rates proportionally so the row sums to 1 - d'.
+                def _row(diag, outs):
+                    """outs is list of (col_index, rate); returns row of length 6."""
+                    total_out = sum(r for _, r in outs) + d
+                    if total_out > 1.0 and total_out > 1e-12:
+                        factor = 1.0 / total_out
+                    else:
+                        factor = 1.0
+                    row = np.zeros(6)
+                    row[diag] = max(0.0, 1.0 - total_out * factor)
+                    for col, r in outs:
+                        row[col] = r * factor
+                    return row
+
                 P = np.zeros((6, 6))
-                P[0, 0] = max(0.0, 1.0 - alpha - hD - d)
-                P[0, 1] = alpha
-                P[0, 2] = hD
-
-                P[1, 0] = beta
-                P[1, 1] = max(0.0, 1.0 - hA - beta - d)
-                P[1, 3] = hA
-
-                P[2, 2] = max(0.0, 1.0 - pD - d)
-                P[2, 4] = pD
-
-                P[3, 2] = beta
-                P[3, 3] = max(0.0, 1.0 - pA - beta - d)
-                P[3, 5] = pA
-
-                P[4, 4] = max(0.0, 1.0 - d)
-                P[5, 4] = beta
-                P[5, 5] = max(0.0, 1.0 - beta - d)
-
-                # row-normalise to account for rounding
-                row_sums = P.sum(axis=1)
-                for i in range(6):
-                    if row_sums[i] > 0 and not np.isclose(row_sums[i], 1.0):
-                        P[i, :] = P[i, :] / row_sums[i]
+                P[0, :] = _row(0, [(1, alpha), (2, hD)])
+                P[1, :] = _row(1, [(0, beta), (3, hA)])
+                P[2, :] = _row(2, [(4, pD)])
+                P[3, :] = _row(3, [(2, beta), (5, pA)])
+                P[4, :] = _row(4, [])
+                P[5, :] = _row(5, [(4, beta)])
 
             next_stock[gi, :] = current[gi, :] @ P
 
@@ -405,10 +421,20 @@ def project_population(states, projected_rates, train_end=2016, project_end=2026
     return pd.DataFrame(projections)
 
 
-def evaluate_projection(projected, observed):
-    """Compute RMSE and MAPE per group and compartment for 2017-2023."""
-    merged = projected.merge(observed, on=["origin_group", "year", "compartment"], suffixes=("_proj", "_obs"))
-    merged = merged[(merged["year"] >= 2017) & (merged["year"] <= 2023)]
+def evaluate_projection(projected, observed, train_end=2016, project_end=2026):
+    """Compute RMSE and MAPE per group and compartment for 2017-2023.
+
+    The observed stock is reindexed to the full (group, year, compartment) grid
+    so that cells with zero observed count are still compared against the
+    projection, preventing the metrics from being artificially optimistic.
+    """
+    eval_years = list(range(train_end + 1, project_end + 1))
+    full_grid = pd.MultiIndex.from_product(
+        [ORDERED_GROUPS, eval_years, COMPARTMENTS],
+        names=["origin_group", "year", "compartment"],
+    )
+    observed_full = observed.set_index(["origin_group", "year", "compartment"]).reindex(full_grid, fill_value=0).reset_index()
+    merged = projected.merge(observed_full, on=["origin_group", "year", "compartment"], suffixes=("_proj", "_obs"))
     merged["error"] = merged["count_proj"] - merged["count_obs"]
     merged["ape"] = np.abs(merged["error"]) / (merged["count_obs"] + 1)
 
@@ -660,7 +686,7 @@ def main():
     interciv_stock.to_csv(ANNUAL_DIR / "annual_interciv_stock.csv", index=False)
     interciv_new.to_csv(ANNUAL_DIR / "annual_interciv_newflow.csv", index=False)
 
-    rate_table = build_rate_table(probs, inflows, exits)
+    rate_table = build_rate_table(probs, inflows, exits, states)
     rate_table.to_csv(ANNUAL_DIR / "annual_ode_rates.csv", index=False)
 
     projected_rates = correct_and_project_rates(rate_table)
@@ -670,7 +696,8 @@ def main():
     projected_stock.to_csv(ANNUAL_DIR / "projected_annual_stock.csv", index=False)
 
     observed_for_eval = stock[stock["year"] <= 2023].copy()
-    merged, group_metrics, comp_metrics, overall = evaluate_projection(projected_stock, observed_for_eval)
+    max_obs_year = int(observed_for_eval["year"].max()) if not observed_for_eval.empty else 2023
+    merged, group_metrics, comp_metrics, overall = evaluate_projection(projected_stock, observed_for_eval, project_end=min(max_obs_year, 2026))
     merged.to_csv(ANNUAL_DIR / "projection_evaluation.csv", index=False)
     group_metrics.to_csv(ANNUAL_DIR / "projection_accuracy_by_group.csv", index=False)
     comp_metrics.to_csv(ANNUAL_DIR / "projection_accuracy_by_compartment.csv", index=False)
@@ -684,6 +711,37 @@ def main():
                           fig_rates, fig_heatmap, fig_projection, interciv_stock)
     print(f"Wrote {doc_path}")
     print(f"Overall projection RMSE: {overall['rmse'].iloc[0]:.3f}, MAPE: {overall['mape'].iloc[0]:.3%}")
+
+    # Generate editable PPTX and a submission zip with docx, figures, and CSVs
+    pptx_script = Path(__file__).parent / "build_annual_projection_pptx.py"
+    if pptx_script.exists():
+        subprocess.run([sys.executable, str(pptx_script)], check=True, cwd=BASE_DIR)
+
+    zip_path = DOCS_DIR / "annual_rates_projection_submission.zip"
+    with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
+        for path in [
+            doc_path,
+            DOCS_DIR / "annual_rates_projection_figures.pptx",
+            fig_rates,
+            fig_heatmap,
+            fig_projection,
+            ANNUAL_DIR / "observed_annual_stock.csv",
+            ANNUAL_DIR / "annual_transition_counts.csv",
+            ANNUAL_DIR / "annual_transition_probabilities.csv",
+            ANNUAL_DIR / "annual_inflows.csv",
+            ANNUAL_DIR / "annual_exits.csv",
+            ANNUAL_DIR / "annual_interciv_stock.csv",
+            ANNUAL_DIR / "annual_interciv_newflow.csv",
+            ANNUAL_DIR / "annual_ode_rates.csv",
+            ANNUAL_DIR / "projected_ode_rates.csv",
+            ANNUAL_DIR / "projected_annual_stock.csv",
+            ANNUAL_DIR / "projection_evaluation.csv",
+            ANNUAL_DIR / "projection_accuracy_by_group.csv",
+            ANNUAL_DIR / "projection_accuracy_by_compartment.csv",
+        ]:
+            if path.exists():
+                zf.write(path, path.name)
+    print(f"Wrote {zip_path}")
 
 
 if __name__ == "__main__":
