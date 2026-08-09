@@ -644,6 +644,10 @@ def summarize_results():
 
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument("--data-dir", type=str, default=str(COHORT_DIR),
+                        help="Directory containing cohort.csv, transition_rates.csv, and raw_sampled_works.json.")
+    parser.add_argument("--results-dir", type=str, default=str(RESULTS_DIR),
+                        help="Directory to write ODE results.")
     parser.add_argument("--k-override", type=int, default=None)
     parser.add_argument("--no-save", action="store_true")
     parser.add_argument("--safety-factor", type=float, default=0.5,
@@ -655,6 +659,9 @@ def main():
     parser.add_argument("--use-observed-r", action="store_true",
                         help="In saturating mode, use the uncapped observed r (still stable by saturation).")
     args = parser.parse_args()
+
+    globals()["COHORT_DIR"] = Path(args.data_dir)
+    globals()["RESULTS_DIR"] = Path(args.results_dir)
 
     summary_df, sens_df, pnr_df = run_endogenous_model(
         k_override=args.k_override,

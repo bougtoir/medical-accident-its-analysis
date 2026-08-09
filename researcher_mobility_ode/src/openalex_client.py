@@ -37,11 +37,14 @@ class OpenAlexClient:
         url = f"{OPENALEX_BASE}/{endpoint}"
         req_params = dict(params)
         req_params["mailto"] = self.mailto
-        r = self.session.get(url, params=req_params, timeout=90)
-        # Light backoff on 429
-        if r.status_code == 429:
-            time.sleep(2)
+        for attempt in range(5):
             r = self.session.get(url, params=req_params, timeout=90)
+            if r.status_code in (429, 503):
+                backoff = 2 ** attempt
+                time.sleep(backoff)
+                continue
+            r.raise_for_status()
+            return r.json()
         r.raise_for_status()
         return r.json()
 
@@ -105,12 +108,12 @@ class OpenAlexClient:
                         break
         return results[:n]
 
-    def fetch_works_by_authors(self, author_ids, select_fields, per_page=200):
-        """Return all AI/ML works for a list of author IDs (<=100 for OR)."""
+    def fetch_works_by_authors(self, author_ids, select_fields, per_page=200, subfield_id="subfields/1702"):
+        """Return all works in the target subfield for a list of author IDs (<=100 for OR)."""
         if not author_ids:
             return []
         ids = "|".join(sorted(author_ids))
-        base_filter = f"authorships.author.id:{ids},topics.subfield.id:subfields/1702"
+        base_filter = f"authorships.author.id:{ids},topics.subfield.id:{subfield_id}"
         results = []
         for page in self.paginate(
             "works",
