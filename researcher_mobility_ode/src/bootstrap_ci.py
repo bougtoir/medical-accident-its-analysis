@@ -42,6 +42,11 @@ def main():
     rng = np.random.default_rng(args.seed)
     cohort = pd.read_csv(odm.COHORT_DIR / "cohort.csv")
 
+    # Coauthor statistics depend on the original work sample, not the bootstrap
+    # resample, so compute them once outside the loop.
+    a2g = odm.load_group_mapping()
+    stats = odm.compute_coauthor_stats(a2g)
+
     rows = []
     for b in range(args.n_boot):
         boot = bootstrap_cohort(cohort, rng)
@@ -51,6 +56,10 @@ def main():
             safety_factor=args.safety_factor,
             cohort_df=boot,
             rates_df=rates,
+            a2g=a2g,
+            stats=stats,
+            compute_sensitivity=False,
+            compute_pnr=False,
         )
         for _, r in summary.iterrows():
             rows.append({

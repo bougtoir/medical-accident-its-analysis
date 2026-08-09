@@ -126,13 +126,13 @@ def compute_coauthor_stats(a2g, recent_years=(2020, 2021, 2022, 2023)):
     return stats
 
 
-def estimate_inflows(cohort):
+def estimate_inflows(cohort, start_year=2000, end_year=2016):
     """Annual new domestic entrants per group from observed career starts."""
-    df = cohort[(cohort["career_start"] >= 2000) & (cohort["career_start"] <= 2016)]
+    df = cohort[(cohort["career_start"] >= start_year) & (cohort["career_start"] <= end_year)]
     counts = (df.groupby(["origin_group", "career_start"])
                 .size()
                 .unstack(fill_value=0)
-                .reindex(columns=range(2000, 2017), fill_value=0))
+                .reindex(columns=range(start_year, end_year + 1), fill_value=0))
     annual_mean = counts.mean(axis=1)
     annual_mean = annual_mean.replace([np.inf, -np.inf], np.nan).fillna(0)
     return annual_mean.to_dict()
@@ -193,7 +193,8 @@ def r_critical(params, r_max=0.5, n_iter=40):
     return lo
 
 
-def estimate_endogenous_inflow(cohort, rates, safety_factor=0.5):
+def estimate_endogenous_inflow(cohort, rates, safety_factor=0.5,
+                                career_start_min=2000, career_start_max=2016):
     """
     Estimate I0 and r for each civilisation.
 
@@ -202,7 +203,7 @@ def estimate_endogenous_inflow(cohort, rates, safety_factor=0.5):
     linear model (it exceeds r_critical), so we report it for reference but
     use the stability-capped value.
     """
-    inflows = estimate_inflows(cohort)
+    inflows = estimate_inflows(cohort, career_start_min, career_start_max)
     pi_counts = cohort[cohort["pi"] == True].groupby("origin_group").size().to_dict()
 
     I0_dict = {}
@@ -448,7 +449,8 @@ def run_endogenous_model(k_override=None, save=True, scan_targets=("T", "P"),
                          safety_factor=0.5, cohort_df=None, rates_df=None,
                          saturating=False, saturation_k_factor=5.0,
                          use_observed_r=False, a2g=None, stats=None,
-                         compute_sensitivity=True, compute_pnr=True):
+                         compute_sensitivity=True, compute_pnr=True,
+                         career_start_min=2000, career_start_max=2016):
     a2g = a2g if a2g is not None else load_group_mapping()
     if stats is None:
         stats = compute_coauthor_stats(a2g)
@@ -459,10 +461,11 @@ def run_endogenous_model(k_override=None, save=True, scan_targets=("T", "P"),
     ).set_index("group")
 
     I0_dict, r_dict, rcrit_dict, r_obs_dict = estimate_endogenous_inflow(
-        cohort, rates, safety_factor=safety_factor
+        cohort, rates, safety_factor=safety_factor,
+        career_start_min=career_start_min, career_start_max=career_start_max,
     )
 
-    inflows = estimate_inflows(cohort)
+    inflows = estimate_inflows(cohort, career_start_min, career_start_max)
     pi_counts = cohort[cohort["pi"] == True].groupby("origin_group").size().to_dict()
 
     rate_cols = RATE_NAMES.copy()
@@ -474,8 +477,6 @@ def run_endogenous_model(k_override=None, save=True, scan_targets=("T", "P"),
         params = {c: float(row[c]) for c in rate_cols}
         I0 = I0_dict.get(group, 0.0)
         r = r_dict.get(group, 0.0)
-        if I0 <= 0 or np.isnan(I0):
-            continue
 
         if saturating:
             r = r_obs_dict.get(group, 0.0) if use_observed_r else r
@@ -488,6 +489,9 @@ def run_endogenous_model(k_override=None, save=True, scan_targets=("T", "P"),
                 params["epsilon"] = epsilon
             else:
                 params["epsilon"] = 0.0
+
+        if I0 <= 0 or np.isnan(I0):
+            continue
 
         params["r"] = r
 

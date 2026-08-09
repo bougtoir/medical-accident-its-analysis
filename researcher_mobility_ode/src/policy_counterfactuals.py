@@ -127,15 +127,16 @@ def main():
         base_margin = base_summary.loc[g, "margin_to_threshold_T"]
         for _, r in gdf.iterrows():
             pct_lever = (r["factor"] - 1.0) * 100.0
-            if pct_lever == 0:
+            if pd.isna(pct_lever) or pct_lever == 0:
                 continue
+            abs_lever_change_10pct = abs(pct_lever) / 10.0
             ranked.append({
                 "group": g,
                 "lever": r["lever"],
                 "direction": "increase" if pct_lever > 0 else "decrease",
                 "lever_change_pct": pct_lever,
                 "margin_gain": r["delta_margin"],
-                "normalised_margin_gain_per_10pct": r["delta_margin"] / (pct_lever / 10.0),
+                "normalised_margin_gain_per_10pct": r["delta_margin"] / abs_lever_change_10pct,
             })
     ranked_df = pd.DataFrame(ranked).sort_values(["group", "normalised_margin_gain_per_10pct"], ascending=[True, False])
     ranked_df.to_csv(RESULTS_DIR / "ranked_interventions.csv", index=False, encoding="utf-8-sig")

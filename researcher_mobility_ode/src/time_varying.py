@@ -32,11 +32,15 @@ def split_cohort(cohort, cutoff):
 
 def run_period(cohort, rates, period_label, safety_factor=0.5):
     """Run endogenous model for a given cohort/rates."""
+    start_year = int(cohort["career_start"].min())
+    end_year = int(cohort["career_start"].max())
     summary, sens, pnr = odm.run_endogenous_model(
         save=False,
         safety_factor=safety_factor,
         cohort_df=cohort,
         rates_df=rates,
+        career_start_min=start_year,
+        career_start_max=end_year,
     )
     summary["period"] = period_label
     sens["period"] = period_label
