@@ -609,7 +609,7 @@ def write_markdown(output_dir: Path, data, fig_paths):
         "",
         "**Author contributions:** [To be completed / removed for double-blind review]",
         "",
-        "**Acknowledgments:** [To be completed / removed for double-blind review]",
+        "**Acknowledgments:** " + NOTE_TEXT,
         "",
     ])
 
@@ -617,10 +617,10 @@ def write_markdown(output_dir: Path, data, fig_paths):
         "## 1. Introduction",
         "",
         "Most debates on research mobility focus on net flows: which country gains researchers and which loses them. "
-        "Net-flow accounting is useful for headlines, but it hides the transition rates that actually move researchers between career stages and locations [^1]. "
+        "Net-flow accounting is useful for headlines, but it hides the transition rates that actually move researchers between career stages and locations. "
         "A small proportional change in one of those rates can, over time, push a research community below the minimum coauthor pool it needs to remain viable. "
         "Once the pool falls below that threshold, recovery becomes difficult or impossible, even if policy is later reversed. "
-        "That is the point of no return that motivates this paper [^1].",
+        "That is the point of no return that motivates this paper.",
         "",
         "Artificial intelligence and machine learning have become the archetypal general-purpose technologies of the current era [5,6,7]. "
         "Their development depends on a relatively small, highly mobile workforce of doctoral and post-doctoral researchers, principal investigators, and research engineers [1]. "
@@ -999,7 +999,6 @@ def write_markdown(output_dir: Path, data, fig_paths):
 
     md_path = output_dir / "manuscript_full_article.md"
     lines.append("")
-    lines.append("[^1]: " + NOTE_TEXT)
     md_path.write_text("\n".join(lines), encoding="utf-8")
     return md_path
 
@@ -1059,7 +1058,10 @@ def _add_front_matter(doc, abstract, keywords, highlights):
     for sub in ["Funding", "Competing interests", "Author contributions", "Acknowledgments"]:
         p = doc.add_paragraph()
         p.add_run(f"{sub}: ").bold = True
-        p.add_run("[To be completed / removed for double-blind review]")
+        if sub == "Acknowledgments":
+            p.add_run("This study was motivated by a note.com essay by Yamada Y (momentumyy) that framed researcher mobility in terms of transition rates rather than net flows (" + NOTE_TEXT + ").")
+        else:
+            p.add_run("[To be completed / removed for double-blind review]")
 
 
 def _add_table_from_df(doc, df, caption, decimals=None, bold_header=True):
@@ -1093,13 +1095,10 @@ def _add_docx_body(doc, data, fig_paths):
     doc.add_heading("1. Introduction", level=1)
     p = doc.add_paragraph()
     p.add_run("Most debates on research mobility focus on net flows: which country gains researchers and which loses them. "
-              "Net-flow accounting is useful for headlines, but it hides the transition rates that actually move researchers between career stages and locations")
-    add_footnote(p)
-    p.add_run(". A small proportional change in one of those rates can, over time, push a research community below the minimum coauthor pool it needs to remain viable. "
+              "Net-flow accounting is useful for headlines, but it hides the transition rates that actually move researchers between career stages and locations. "
+              "A small proportional change in one of those rates can, over time, push a research community below the minimum coauthor pool it needs to remain viable. "
               "Once the pool falls below that threshold, recovery becomes difficult or impossible, even if policy is later reversed. "
-              "That is the point of no return that motivates this paper")
-    add_footnote(p)
-    p.add_run(". "
+              "That is the point of no return that motivates this paper. "
               "The contribution of this paper is to translate that qualitative insight into an empirically tractable model. "
               "We estimate transition rates from open bibliometric data, solve the steady state of a compartment model, and identify which rate in which civilisation is closest to a threshold. "
               "The approach is deliberately stylised: it sacrifices demographic realism for transparency and for the ability to compare multiple civilisations with the same accounting framework.")
@@ -1155,10 +1154,6 @@ def _add_docx_body(doc, data, fig_paths):
     p.add_run(". "
               "The model is intentionally simple: it does not explain why a rate is high or low, but it identifies which rate is closest to a threshold and therefore where early intervention is most urgent.")
 
-    # Footnote for motivating note.com essay
-    fn = doc.add_paragraph()
-    fn.add_run("1 ").font.superscript = True
-    fn.add_run(NOTE_TEXT)
     doc.add_paragraph()
 
     doc.add_heading("2. Literature and conceptual framework", level=1)
