@@ -32,15 +32,19 @@ class OpenAlexClient:
         return self.cache_dir / f"{h}.json"
 
     def _call(self, endpoint, params):
-        if self.delay:
-            time.sleep(self.delay)
         url = f"{OPENALEX_BASE}/{endpoint}"
         req_params = dict(params)
         req_params["mailto"] = self.mailto
-        for attempt in range(5):
+        for attempt in range(8):
+            if self.delay:
+                time.sleep(self.delay)
             r = self.session.get(url, params=req_params, timeout=90)
             if r.status_code in (429, 503):
-                backoff = 2 ** attempt
+                retry_after = r.headers.get("Retry-After")
+                if retry_after:
+                    backoff = max(1, int(retry_after))
+                else:
+                    backoff = min(60, 2 ** attempt)
                 time.sleep(backoff)
                 continue
             r.raise_for_status()
