@@ -100,8 +100,14 @@ def is_top10(work):
     return bool(cn.get("is_in_top_10_percent"))
 
 
-def classify_author(aid, works, a2g):
-    """Return a dict with career descriptors for one author."""
+def classify_author(aid, works, a2g, origin_override=None):
+    """Return a dict with career descriptors for one author.
+
+    If ``origin_override`` is provided, it is used as the author's origin
+    group instead of the automatic majority-vote over the first three career
+    years. The override is applied before ``abroad`` is computed so that the
+    derived mobility flag is consistent with the chosen origin.
+    """
     # Find author display name
     display_name = None
     for w in works:
@@ -128,7 +134,8 @@ def classify_author(aid, works, a2g):
     if n_works < MIN_WORKS:
         return None
 
-    # Determine origin group from first 3 years
+    # Determine origin group from first 3 years (always collected so the
+    # absence-of-affiliation filter still applies to overridden authors).
     origin_counter = Counter()
     first_year_by_group = {}
     for w in works:
@@ -140,11 +147,14 @@ def classify_author(aid, works, a2g):
                     first_year_by_group[g] = w["publication_year"]
     if not origin_counter:
         return None
-    # Tie-break by earliest first appearance, then most frequent
-    origin = max(
-        origin_counter.keys(),
-        key=lambda g: (origin_counter[g], -first_year_by_group[g]),
-    )
+    if origin_override is not None:
+        origin = origin_override
+    else:
+        # Tie-break by earliest first appearance, then most frequent
+        origin = max(
+            origin_counter.keys(),
+            key=lambda g: (origin_counter[g], -first_year_by_group[g]),
+        )
 
     # Abroad within ABROAD_WINDOW years
     abroad = False
@@ -295,23 +305,20 @@ def build_cohort(sample_per_group, max_authors, client, a2g, group_to_a2):
                 if aid in batch:
                     works_by_author[aid].append(w)
 
-    # Classify
+    # Classify, applying origin-group overrides before mobility flags are
+    # computed so that ``abroad`` and other derived fields are consistent.
+    overrides = load_origin_overrides()
     rows = []
     for aid in author_order:
         works = works_by_author.get(aid, [])
-        row = classify_author(aid, works, a2g)
+        row = classify_author(aid, works, a2g, origin_override=overrides.get(aid))
         if row:
             rows.append(row)
     cohort = pd.DataFrame(rows)
-
-    # Apply audited origin-group overrides so manual corrections are reproducible
-    overrides = load_origin_overrides()
     if overrides:
-        for author_id, new_group in overrides.items():
-            mask = cohort["author_id"] == author_id
-            if mask.any():
-                cohort.loc[mask, "origin_group"] = new_group
-                print(f"Applied origin-group override: {author_id} -> {new_group}")
+        for author_id in overrides:
+            if author_id in cohort["author_id"].values:
+                print(f"Applied origin-group override: {author_id} -> {overrides[author_id]}")
 
     print(f"Cohort size after filtering: {len(cohort)}")
     return cohort
