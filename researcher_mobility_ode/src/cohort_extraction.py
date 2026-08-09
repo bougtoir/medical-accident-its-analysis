@@ -23,10 +23,10 @@ DATA_DIR = BASE_DIR / "data"
 CACHE_DIR = DATA_DIR / "cache" / "openalex"
 COHORT_DIR = DATA_DIR / "cohort"
 
-SUBFIELD_AI = "subfields/1702"
+SUBFIELD = "subfields/1702"
 CAREER_START_MIN = 2000
 CAREER_START_MAX = 2016
-MIN_AI_WORKS = 10
+MIN_WORKS = 10
 ABROAD_WINDOW = 6
 HIT_WINDOW = 8
 PI_MIN_AUTHORS = 6
@@ -115,7 +115,7 @@ def classify_author(aid, works, a2g):
 
     if career_start < CAREER_START_MIN or career_start > CAREER_START_MAX:
         return None
-    if n_works < MIN_AI_WORKS:
+    if n_works < MIN_WORKS:
         return None
 
     # Determine origin group from first 3 years
@@ -210,7 +210,7 @@ def sample_works_for_group(client, group, codes, sample_per_group, seed_start):
         return []
     base_filter = (
         f"publication_year:{CAREER_START_MIN}-2023,"
-        f"topics.subfield.id:{SUBFIELD_AI},"
+        f"topics.subfield.id:{SUBFIELD},"
         f"authorships.institutions.country_code:{make_country_filter(codes)}"
     )
     return client.sample_works(
@@ -276,7 +276,8 @@ def build_cohort(sample_per_group, max_authors, client, a2g, group_to_a2):
     for i, batch in enumerate(author_batches, 1):
         print(f"  Fetching batch {i}/{len(author_batches)} ({len(batch)} authors) ...")
         works = client.fetch_works_by_authors(
-            batch, "id,publication_year,authorships,citation_normalized_percentile"
+            batch, "id,publication_year,authorships,citation_normalized_percentile",
+            subfield_id=SUBFIELD,
         )
         for w in works:
             for auth in w.get("authorships", []):
@@ -371,18 +372,30 @@ def estimate_rates(cohort, prior=1.0, rate_cap=2.0):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--sample-per-group", type=int, default=200,
-                        help="Number of AI/ML works to sample per civilization group.")
+                        help="Number of works to sample per civilization group.")
     parser.add_argument("--max-authors", type=int, default=1000,
                         help="Cap on unique authors to fetch works for (pilot safety).")
+    parser.add_argument("--subfield-id", type=str, default="subfields/1702",
+                        help="OpenAlex subfield ID to build the cohort for.")
+    parser.add_argument("--output-dir", type=str, default=str(COHORT_DIR),
+                        help="Directory to write cohort.csv, transition_rates.csv and raw_sampled_works.json.")
+    parser.add_argument("--min-works", type=int, default=10,
+                        help="Minimum number of works in the target subfield for an author to be included.")
     parser.add_argument("--cache-dir", type=str, default=str(CACHE_DIR))
     parser.add_argument("--no-cache", action="store_true")
     parser.add_argument("--force-resample", action="store_true",
                         help="Delete cached sampled works and fetch a new sample from OpenAlex.")
+    parser.add_argument("--delay", type=float, default=0.2,
+                        help="Seconds to sleep between OpenAlex API calls (default 0.2).")
     args = parser.parse_args()
+
+    globals()["SUBFIELD"] = args.subfield_id
+    globals()["COHORT_DIR"] = Path(args.output_dir)
+    globals()["MIN_WORKS"] = args.min_works
 
     client = OpenAlexClient(
         cache_dir=None if args.no_cache else args.cache_dir,
-        delay=0.05,
+        delay=args.delay,
     )
     a2g, group_to_a2 = load_group_mapping()
     print("Loaded group mapping for", len(a2g), "alpha-2 codes covering", len(group_to_a2), "groups.")
