@@ -10,9 +10,9 @@ International mobility can concentrate AI/ML researchers in a few regions, raisi
 
 **Highlights**
 
-- Nine modified Huntington civilisations are modelled as coupled six-compartment ODEs fitted to OpenAlex AI/ML data.
-- The closest point of no return is the Japanese PI pool, requiring only a 0.58 proportional change in d.
-- Dropout has the largest negative elasticity (~-2), while PI-driven inflow and domestic promotion (p_D) dominate positive leverage.
+- Nine civilisations modelled as six-compartment ODEs fitted to OpenAlex AI/ML data.
+- Closest point of no return is Japanese PI pool; d needs only 0.58 proportional change.
+- Dropout most negative; PI inflow and domestic promotion most positive.
 
 ## Data and Code Availability
 

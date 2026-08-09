@@ -137,9 +137,9 @@ def _abstract_and_highlights(eq, pnr_closest):
         "ordinary differential equations; point of no return; science policy; innovation studies"
     )
     highlights = [
-        f"Nine modified Huntington civilisations are modelled as coupled six-compartment ODEs fitted to OpenAlex AI/ML data.",
-        f"The closest point of no return is the {pnr_closest.iloc[0]['group']} PI pool, requiring only a {_fmt(pnr_closest.iloc[0]['proximity'])} proportional change in {pnr_closest.iloc[0]['rate_name']}.",
-        f"Dropout has the largest negative elasticity (~-2), while PI-driven inflow and domestic promotion (p_D) dominate positive leverage.",
+        "Nine civilisations modelled as six-compartment ODEs fitted to OpenAlex AI/ML data.",
+        f"Closest point of no return is {pnr_closest.iloc[0]['group']} PI pool; {pnr_closest.iloc[0]['rate_name']} needs only {_fmt(pnr_closest.iloc[0]['proximity'])} proportional change.",
+        "Dropout most negative; PI inflow and domestic promotion most positive.",
     ]
     return abstract, keywords, highlights
 
@@ -353,7 +353,10 @@ def _add_docx_title_page(doc, word_count=None):
     if word_count:
         p = doc.add_paragraph()
         p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        p.add_run(f"Approximate word count (incl. tables): {word_count}")
+        p.add_run(f"Approximate word count (main text incl. tables, excl. references): {word_count}")
+        p = doc.add_paragraph()
+        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        p.add_run("Note: Research Policy Full Article target is ~8,000–10,000 words; Research Note is 3,000–5,000 words. Expand or select article type accordingly.")
 
     p = doc.add_paragraph()
     p.alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -564,17 +567,17 @@ def write_docx_generic(output_dir: Path, eq, top_t, pnr_closest, sat_eq, fig1: P
 
 
 def write_docx_research_policy(output_dir: Path, eq, top_t, pnr_closest, sat_eq, fig1: Path, fig2: Path):
-    doc = Document()
     abstract, keywords, highlights = _abstract_and_highlights(eq, pnr_closest)
 
-    _add_docx_title_page(doc)
+    # Pre-compute body word count (excluding title page, front matter and references)
+    body_doc = Document()
+    _add_docx_body(body_doc, eq, top_t, pnr_closest, sat_eq, fig1, fig2)
+    body_wc = _doc_word_count(body_doc)
+
+    doc = Document()
+    _add_docx_title_page(doc, word_count=body_wc)
     _add_docx_front_matter(doc, abstract, keywords, highlights)
     _add_docx_body(doc, eq, top_t, pnr_closest, sat_eq, fig1, fig2)
-
-    # Update title page word count after body is built
-    word_count = _doc_word_count(doc)
-    # Word count includes title page; for a rough main-text estimate, keep as total.
-    # Rebuild title page is expensive; instead add a footer note? Skip.
 
     path = output_dir / "manuscript_research_policy.docx"
     doc.save(path)
