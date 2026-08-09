@@ -788,7 +788,15 @@ def write_markdown(output_dir: Path, data, fig_paths):
         "The civilisation grouping is a coarse aggregation; within-group heterogeneity is substantial. "
         "The model is a steady-state ODE and does not capture short-term dynamics, cross-civilisation spillovers, or the non-linear effects of network externalities. "
         "The cohort sample is small; the absolute equilibrium numbers should be interpreted as model-implied stocks rather than as census counts. "
+        "Authors with many publications are over-weighted relative to one-publication authors, so rate estimates reflect author-publication exposure rather than a uniformly representative sample of individuals. "
+        "The endogenous inflow is capped at a safety factor of 0.5 relative to the critical reproduction rate; alternative values would shift equilibrium levels and should be reported in future sensitivity tables. "
         "Finally, the point-of-no-return threshold is a sufficient condition for collapse, not a necessary one: a community may decline for reasons outside the model even if T remains above M.",
+        "Wide bootstrap confidence intervals, especially for smaller civilisation groups, mean that the ordinal ranking of groups by equilibrium size or proximity to threshold should be treated as descriptive rather than definitive. "
+        "The model identifies which transitions are most sensitive in a mechanical sense; turning those sensitivities into reliable policy priorities requires additional data on programme costs, implementation lags, and behavioural responses that are outside the scope of this paper.",
+        "Operationally, the framework can be used in two complementary ways. "
+        "As a monitoring tool, it can be rerun whenever new OpenAlex data are released, producing an updated set of transition rates, safety margins and proximity-to-threshold estimates. "
+        "As a scenario tool, it can quantify how large a proportional change in a given rate would be required to move a community toward or away from collapse, which helps prioritise empirical policy evaluation. "
+        "Both uses depend on transparent assumptions and regular recalibration; the model should not be used to justify one-off interventions without accompanying process evaluation.",
         "",
     ])
 
@@ -799,7 +807,8 @@ def write_markdown(output_dir: Path, data, fig_paths):
         "The model converts OpenAlex publication records into civilisation-specific transition rates and solves for the equilibrium active researcher pool. "
         "All groups remain above their minimum viable coauthor threshold in the fitted model, but the distance to that threshold varies by an order of magnitude and is most sensitive to exogenous entry and dropout. "
         "Simulated reductions in attrition and sustained new recruitment widen safety margins in the model, which is consistent with preserving civilisational diversity in AI/ML. "
-        "Future work should extend the model to network externalities, finer temporal resolution, and additional security-relevant fields.",
+        "Future work should extend the model to network externalities, finer temporal resolution, and additional security-relevant fields such as semiconductor physics, quantum computing, biotechnology and energy materials, allowing cross-field comparisons of vulnerability. "
+        "Other priorities include systematic sensitivity scans for the safety factor and saturating parameter epsilon, country- or institution-level partitions, dynamic ODE forecasts, endogenous coauthorship matching, and integration with policy cost data to produce cost-effectiveness comparisons of alternative interventions.",
         "",
         "## References",
         "",
@@ -1508,6 +1517,12 @@ def _add_docx_body(doc, data, fig_paths):
               "The framework is therefore not a prediction that a particular civilisation will collapse. "
               "It is a tool for ensuring that no single civilisation reaches a point where its collapse becomes self-sustaining, and that the global AI/ML system retains the diversity required for continued innovation.")
 
+    p = doc.add_paragraph()
+    p.add_run("Operationally, the framework can be used in two complementary ways. "
+              "As a monitoring tool, it can be rerun whenever new OpenAlex data are released, producing an updated set of transition rates, safety margins and proximity-to-threshold estimates. "
+              "As a scenario tool, it can quantify how large a proportional change in a given rate would be required to move a community toward or away from collapse, which helps prioritise empirical policy evaluation. "
+              "Both uses depend on transparent assumptions and regular recalibration; the model should not be used to justify one-off interventions without accompanying process evaluation.")
+
     doc.add_heading("6.4 Limitations", level=2)
     p = doc.add_paragraph()
     p.add_run("Several limitations should be acknowledged. "
@@ -1515,7 +1530,13 @@ def _add_docx_body(doc, data, fig_paths):
               "The civilisation grouping is a coarse aggregation; within-group heterogeneity is substantial. "
               "The model is a steady-state ODE and does not capture short-term dynamics, cross-civilisation spillovers, or the non-linear effects of network externalities. "
               "The cohort sample is small; the absolute equilibrium numbers should be interpreted as model-implied stocks rather than as census counts. "
+              "Authors with many publications are over-weighted relative to one-publication authors, so rate estimates reflect author-publication exposure rather than a uniformly representative sample of individuals. "
+              "The endogenous inflow is capped at a safety factor of 0.5 relative to the critical reproduction rate; alternative values would shift equilibrium levels and should be reported in future sensitivity tables. "
               "Finally, the point-of-no-return threshold is a sufficient condition for collapse, not a necessary one: a community may decline for reasons outside the model even if T remains above M.")
+
+    p = doc.add_paragraph()
+    p.add_run("Wide bootstrap confidence intervals, especially for smaller civilisation groups, mean that the ordinal ranking of groups by equilibrium size or proximity to threshold should be treated as descriptive rather than definitive. "
+              "The model identifies which transitions are most sensitive in a mechanical sense; turning those sensitivities into reliable policy priorities requires additional data on programme costs, implementation lags, and behavioural responses that are outside the scope of this paper.")
 
     p = doc.add_paragraph()
     p.add_run("From a security-studies perspective, the framework is intentionally non-adversarial. "
@@ -1544,11 +1565,12 @@ def _add_docx_body(doc, data, fig_paths):
     doc.add_heading("7.1 Future work", level=2)
     p = doc.add_paragraph()
     p.add_run("Several extensions are natural. "
-              "First, the model can be applied to other security-relevant fields such as semiconductor physics, quantum computing, biotechnology and energy materials. "
+              "First, the model can be applied to other security-relevant fields such as semiconductor physics, quantum computing, biotechnology and energy materials, allowing cross-field comparisons of vulnerability. "
               "Second, the civilisation partition can be refined to a country or institution level, allowing bilateral migration flows and network externalities to be incorporated. "
               "Third, the ODE can be solved dynamically rather than at steady state, making it possible to forecast the time to threshold under alternative policy scenarios. "
               "Fourth, the minimum viable coauthor threshold can be made endogenous by modelling coauthorship as a matching process. "
-              "Finally, the framework can be integrated with policy cost data to produce cost-effectiveness comparisons of alternative interventions.")
+              "Fifth, the sensitivity of equilibrium outcomes to the safety factor and to the saturating parameter epsilon should be mapped systematically. "
+              "Finally, the framework can be integrated with policy cost data to produce cost-effectiveness comparisons of alternative interventions, turning mechanical sensitivities into actionable funding priorities.")
 
     # References
     doc.add_heading("References", level=1)
