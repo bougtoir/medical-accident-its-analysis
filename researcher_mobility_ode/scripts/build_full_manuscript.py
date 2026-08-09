@@ -657,7 +657,7 @@ def _abstract_and_highlights(eq, pnr_closest):
         most_common_lever = "d"
     if all_top_are_d:
         lever_text = "A simulated reduction in dropout yields the largest margin gain per unit proportional change in every group, making it the most sensitive transition lever in the model. "
-        highlight_lever = "Simulated dropout reduction yields the largest margin gain per unit proportional change across all groups."
+        highlight_lever = "Dropout reduction gives the largest margin gain per 10% change across all groups."
     else:
         lever_text = f"A simulated reduction in dropout is the most common single positive lever, although other levers dominate for some groups in the current data. "
         highlight_lever = f"Simulated {most_common_lever} adjustment yields the largest margin gain per unit proportional change for most groups."
@@ -668,7 +668,7 @@ def _abstract_and_highlights(eq, pnr_closest):
         "and estimate transition rates from OpenAlex Artificial Intelligence works (subfield 1702). "
         "The minimum viable coauthor threshold is defined as M = k × c_bar, where c_bar is the mean number of authors per work and k is the median number of distinct last-author groups observed per recent year. "
         f"Across {len(eq)} groups, equilibrium domestic active pools remain above their thresholds, but the closest point of no return is observed for the {closest['group']} group, "
-        f"where a proportional change of {_fmt(closest['proximity'])} in {closest['rate_name']} (critical factor {_fmt(closest['critical_factor'])}×) would drive the active pool to its threshold. "
+        f"where {closest['rate_name']} must be multiplied by {_fmt(closest['critical_factor'], 3)}× its current value (a {closest['proximity']*100:.0f}% proportional change) to drive the active pool to its threshold. "
         + lever_text
         + "Historical and saturating-inflow counterfactuals show that the model is most sensitive to exogenous entry and attrition. "
         "These results provide a quantitative framework for early, safety-factor-bound policy scenarios that preserve civilisational diversity in AI/ML research."
@@ -679,7 +679,7 @@ def _abstract_and_highlights(eq, pnr_closest):
     )
     highlights = [
         "Nine civilisations modelled as six-compartment ODEs fitted to OpenAlex AI/ML data.",
-        f"Closest point of no return for the active pool is {closest['group']} via {closest['rate_name']} (critical factor {_fmt(closest['critical_factor'])}×).",
+        f"Closest point of no return: {closest['group']} via {closest['rate_name']} (factor {_fmt(closest['critical_factor'])}×).",
         highlight_lever,
     ]
     return abstract, keywords, highlights
@@ -907,7 +907,7 @@ def write_markdown(output_dir: Path, data, fig_paths):
         "",
         "For the 2017-2026 projection we fit a linear trend to the observed 2000-2016 rates for each group and rate. "
         "If fewer than four observations were available or the fit explained less than 10% of the variance, the historical mean was used instead. "
-        "Projected rates were clipped to [0, 1]. "
+        "Projected rates were clipped to values between 0 and 1. "
         "Dropout was capped at the 90th percentile of observed dropout rates to prevent implausible extrapolation. "
         "Projected total inflows were apportioned across compartments using the observed 2016 distribution. "
         "Population composition was projected forward with the discrete-time recursion N(t+1) = N(t)P(t) + b(t+1), where P(t) is a 6×6 row-stochastic-in-expectation matrix that preserves dropout mass: the row sum is 1 − d after scaling outgoing rates. "
@@ -923,7 +923,7 @@ def write_markdown(output_dir: Path, data, fig_paths):
         "Laplace smoothing adds a uniform prior of 0.5 to every possible destination, which shrinks sparse cells toward 1/(number of destinations) and prevents zero-probability singularities when a transition is unobserved in a small group-year. "
         "It is equivalent to a weak Dirichlet prior and is a standard regulariser for sparse multinomial transitions.",
         "",
-        "The [0, 1] clip after linear projection is a feasibility pressure: rates outside the probability simplex are inadmissible. "
+        "Clipping projected rates to values between 0 and 1 is a feasibility pressure: rates outside the probability simplex are inadmissible. "
         "The dropout cap is a safety pressure motivated by the fact that unbounded linear extrapolation of observed attrition would eventually predict more leavers than the total stock. "
         "The inflow apportionment pressure keeps the composition of new entrants aligned with the most recently observed recruitment pattern, rather than inventing a new distribution. "
         "Finally, the safety factor of 0.5 on the endogenous PI-driven inflow keeps the system inside the stability boundary. "
@@ -975,8 +975,8 @@ def write_markdown(output_dir: Path, data, fig_paths):
     closest = pnr_closest.iloc[0]
     lines.extend([
         f"Table 4 reports, for each group, the single rate that reaches the active-pool threshold with the smallest proportional change. "
-        f"The {closest['group']} group is the most fragile: a proportional change of {_fmt(closest['proximity'])} in {closest['rate_name']} (critical factor {_fmt(closest['critical_factor'])}×) would drive the active pool to its minimum viable threshold. "
-        f"For the active researcher pool, {ctx['pnr_lever_text']}.",
+        f"The {closest['group']} group is the most fragile: {closest['rate_name']} must be multiplied by {_fmt(closest['critical_factor'], 3)}× its current value (a {closest['proximity']*100:.0f}% proportional change) to drive the active pool to its minimum viable threshold. "
+        f"{ctx['pnr_lever_text']}.",
         "",
     ])
 
@@ -1189,7 +1189,7 @@ def write_markdown(output_dir: Path, data, fig_paths):
         "### 5.8 Correction pressures in the annual model",
         "",
         "The annual projection performs best where the correction pressures in Section 4.11 are binding. "
-        "Laplace smoothing prevents empty cells from being treated as impossible transitions; the [0,1] clip and the dropout cap prevent the trend extrapolation from producing rates that are incompatible with a stochastic transition matrix; and the 2016 inflow apportionment keeps new-entrant composition close to the last observed regime. "
+        "Laplace smoothing prevents empty cells from being treated as impossible transitions; the unit-interval clip and the dropout cap prevent the trend extrapolation from producing rates that are incompatible with a stochastic transition matrix; and the 2016 inflow apportionment keeps new-entrant composition close to the last observed regime. "
         "These pressures mean that the projection is not a purely mechanical forecast: it is a bounded extrapolation that stays within the empirical support of the 2000-2016 data and within the stability constraints of the compartment model.",
         "",
         "## 6. Discussion",
@@ -1251,7 +1251,7 @@ def write_markdown(output_dir: Path, data, fig_paths):
         "",
         f"The correction pressures are not ad hoc adjustments; each maps to a known statistical or dynamical constraint. "
         f"Laplace smoothing is equivalent to a weak Dirichlet prior on a multinomial transition vector; it guarantees that no cell has zero estimated probability and shrinks rare transitions toward the simplex centroid. "
-        f"The [0, 1] clip is a feasibility constraint on probabilities; the dropout cap is a cross-sectional constraint that prevents projected attrition from exceeding the observed stock; and the inflow apportionment constraint keeps the composition of new entrants equal to the last observed recruitment pattern. "
+        f"Clipping projected rates to values between 0 and 1 is a feasibility constraint on probabilities; the dropout cap is a cross-sectional constraint that prevents projected attrition from exceeding the observed stock; and the inflow apportionment constraint keeps the composition of new entrants equal to the last observed recruitment pattern. "
         f"In the 2017-2023 projection these pressures reduced the sensitivity of the forecast to sparse cells and to short-run fluctuations in small groups. "
         f"Quantitatively, the overall RMSE of {_fmt(annual_ctx.get('overall_rmse', float('nan')), 2)} and conservative MAPE of {_fmt(annual_ctx.get('overall_mape_pct', float('nan')), 1)}% are consistent with a model that is deliberately regularised rather than optimised for in-sample fit. "
         f"The residual errors are concentrated in the smallest compartments, which is exactly where smoothing is most active and where future data will be most valuable.",
@@ -1755,7 +1755,7 @@ def _add_docx_body(doc, data, fig_paths):
     p = doc.add_paragraph()
     p.add_run("For the 2017-2026 projection we fit a linear trend to the observed 2000-2016 rates for each group and rate. "
               "If fewer than four observations were available or the fit explained less than 10% of the variance, the historical mean was used instead. "
-              "Projected rates were clipped to [0, 1]. "
+              "Projected rates were clipped to values between 0 and 1. "
               "Dropout was capped at the 90th percentile of observed dropout rates to prevent implausible extrapolation. "
               "Projected total inflows were apportioned across compartments using the observed 2016 distribution. "
               "Population composition was projected forward with the discrete-time recursion N(t+1) = N(t)P(t) + b(t+1), where P(t) is a 6×6 row-stochastic-in-expectation matrix that preserves dropout mass: the row sum is 1 − d after scaling outgoing rates. "
@@ -1773,7 +1773,7 @@ def _add_docx_body(doc, data, fig_paths):
               "It is equivalent to a weak Dirichlet prior and is a standard regulariser for sparse multinomial transitions.")
 
     p = doc.add_paragraph()
-    p.add_run("The [0, 1] clip after linear projection is a feasibility pressure: rates outside the probability simplex are inadmissible. "
+    p.add_run("Clipping projected rates to values between 0 and 1 is a feasibility pressure: rates outside the probability simplex are inadmissible. "
               "The dropout cap is a safety pressure motivated by the fact that unbounded linear extrapolation of observed attrition would eventually predict more leavers than the total stock. "
               "The inflow apportionment pressure keeps the composition of new entrants aligned with the most recently observed recruitment pattern, rather than inventing a new distribution. "
               "Finally, the safety factor of 0.5 on the endogenous PI-driven inflow keeps the system inside the stability boundary. "
@@ -1841,8 +1841,8 @@ def _add_docx_body(doc, data, fig_paths):
     closest = pnr_closest.iloc[0]
     p = doc.add_paragraph()
     p.add_run(f"Table 4 reports, for each group, the single rate that reaches the active-pool threshold with the smallest proportional change. "
-              f"The {closest['group']} group is the most fragile: a proportional change of {_fmt(closest['proximity'])} in {closest['rate_name']} (critical factor {_fmt(closest['critical_factor'])}×) would drive the active pool to its minimum viable threshold. "
-              f"For the active researcher pool, {ctx['pnr_lever_text']}. "
+              f"The {closest['group']} group is the most fragile: {closest['rate_name']} must be multiplied by {_fmt(closest['critical_factor'], 3)}× its current value (a {closest['proximity']*100:.0f}% proportional change) to drive the active pool to its minimum viable threshold. "
+              f"{ctx['pnr_lever_text']}. "
               "This is consistent with a recruitment-driven view of scientific communities: if the pipeline of new researchers shuts or slows, the active pool eventually falls below the minimum viable coauthor pool regardless of how efficient return or promotion becomes. "
               "A global retention programme that reduces dropout would benefit all groups, but the most vulnerable groups may also need an expansion of the exogenous entry rate.")
 
@@ -2081,7 +2081,7 @@ def _add_docx_body(doc, data, fig_paths):
     doc.add_heading("5.8 Correction pressures in the annual model", level=2)
     p = doc.add_paragraph()
     p.add_run("The annual projection performs best where the correction pressures in Section 4.11 are binding. "
-              "Laplace smoothing prevents empty cells from being treated as impossible transitions; the [0,1] clip and the dropout cap prevent the trend extrapolation from producing rates that are incompatible with a stochastic transition matrix; and the 2016 inflow apportionment keeps new-entrant composition close to the last observed regime. "
+              "Laplace smoothing prevents empty cells from being treated as impossible transitions; the unit-interval clip and the dropout cap prevent the trend extrapolation from producing rates that are incompatible with a stochastic transition matrix; and the 2016 inflow apportionment keeps new-entrant composition close to the last observed regime. "
               "These pressures mean that the projection is not a purely mechanical forecast: it is a bounded extrapolation that stays within the empirical support of the 2000-2016 data and within the stability constraints of the compartment model.")
 
     # Discussion
@@ -2184,9 +2184,9 @@ def _add_docx_body(doc, data, fig_paths):
     p = doc.add_paragraph()
     p.add_run("The correction pressures are not ad hoc adjustments; each maps to a known statistical or dynamical constraint. "
               "Laplace smoothing is equivalent to a weak Dirichlet prior on a multinomial transition vector; it guarantees that no cell has zero estimated probability and shrinks rare transitions toward the simplex centroid. "
-              "The [0, 1] clip is a feasibility constraint on probabilities; the dropout cap is a cross-sectional constraint that prevents projected attrition from exceeding the observed stock; and the inflow apportionment constraint keeps the composition of new entrants equal to the last observed recruitment pattern. "
+              "Clipping projected rates to values between 0 and 1 is a feasibility constraint on probabilities; the dropout cap is a cross-sectional constraint that prevents projected attrition from exceeding the observed stock; and the inflow apportionment constraint keeps the composition of new entrants equal to the last observed recruitment pattern. "
               "In the 2017-2023 projection these pressures reduced the sensitivity of the forecast to sparse cells and to short-run fluctuations in small groups. "
-              "Quantitatively, the overall RMSE of {_fmt(annual_ctx.get('overall_rmse', float('nan')), 2)} and conservative MAPE of {_fmt(annual_ctx.get('overall_mape_pct', float('nan')), 1)}% are consistent with a model that is deliberately regularised rather than optimised for in-sample fit. "
+              f"Quantitatively, the overall RMSE of {_fmt(annual_ctx.get('overall_rmse', float('nan')), 2)} and conservative MAPE of {_fmt(annual_ctx.get('overall_mape_pct', float('nan')), 1)}% are consistent with a model that is deliberately regularised rather than optimised for in-sample fit. "
               "The residual errors are concentrated in the smallest compartments, which is exactly where smoothing is most active and where future data will be most valuable.")
 
     doc.add_heading("6.5 Intra-civilisation alternatives when inter-civilisation mobility cannot be controlled", level=2)
