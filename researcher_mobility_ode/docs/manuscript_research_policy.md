@@ -6,7 +6,7 @@
 
 International mobility can concentrate AI/ML researchers in a few regions, raising the risk that smaller research communities fall below a minimum viable coauthor pool and cannot recover. We model each civilisation as a six-compartment system of domestic and abroad early-career, high-impact, and principal-investigator researchers, and estimate transition rates from OpenAlex Artificial Intelligence works (subfield 1702). The minimum viable coauthor threshold is defined as M = k × c_bar, where c_bar is the mean number of authors per work and k is the median number of distinct last-author groups observed per recent year. Across 9 groups, equilibrium domestic active pools T remain above M, but the closest point of no return is observed for the Japanese group, where a proportional change of 0.58 in d (critical factor 1.58×) would drive the pool to its threshold. The largest positive leverage comes from PI-driven inflow and the conversion of high-impact researchers into PIs, while the dominant negative leverage is researcher dropout. These results provide a quantitative framework for early, safety-factor-bound interventions that preserve civilisational diversity in AI/ML research.
 
-**Keywords:** researcher mobility; artificial intelligence; civilisation grouping; ordinary differential equations; point of no return; science policy; innovation studies
+**Keywords:** researcher mobility; artificial intelligence; civilisation grouping; ordinary differential equations; point of no return; innovation studies
 
 **Highlights**
 

@@ -134,7 +134,7 @@ def _abstract_and_highlights(eq, pnr_closest):
     )
     keywords = (
         "researcher mobility; artificial intelligence; civilisation grouping; "
-        "ordinary differential equations; point of no return; science policy; innovation studies"
+        "ordinary differential equations; point of no return; innovation studies"
     )
     highlights = [
         "Nine civilisations modelled as six-compartment ODEs fitted to OpenAlex AI/ML data.",
