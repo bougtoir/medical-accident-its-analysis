@@ -297,7 +297,7 @@ def build_cohort(sample_per_group, max_authors, client, a2g, group_to_a2):
     return cohort
 
 
-def estimate_rates(cohort, prior=1.0, rate_cap=2.0):
+def estimate_rates(cohort, prior=1.0, rate_cap=2.0, min_cohort=10):
     """Compute smoothed constant-hazard transition rates per origin group.
 
     Laplace smoothing (prior=1) avoids 0/1 probabilities in small samples; the
@@ -320,7 +320,7 @@ def estimate_rates(cohort, prior=1.0, rate_cap=2.0):
     rates = []
     for g, df in cohort.groupby("origin_group"):
         n = len(df)
-        if n < 10:
+        if n < min_cohort:
             continue
 
         p_abroad_raw = df["abroad"].mean()

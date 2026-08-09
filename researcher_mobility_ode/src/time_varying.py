@@ -61,8 +61,8 @@ def main():
     if len(early) == 0 or len(late) == 0:
         raise ValueError("Empty early or late cohort after split")
 
-    early_rates = estimate_rates(early).set_index("group")
-    late_rates = estimate_rates(late).set_index("group")
+    early_rates = estimate_rates(early, min_cohort=5).set_index("group")
+    late_rates = estimate_rates(late, min_cohort=5).set_index("group")
 
     early_summary, early_sens, early_pnr = run_period(
         early, early_rates, "early", safety_factor=args.safety_factor
