@@ -4,7 +4,7 @@
 
 ## Abstract
 
-Artificial intelligence (AI) and machine learning (ML) research is increasingly concentrated in a few regions, raising the risk that smaller research communities fall below a minimum viable coauthor pool and cannot recover. We model each civilisation as a six-compartment system of domestic and abroad early-career, high-impact, and principal-investigator researchers, and estimate transition rates from OpenAlex Artificial Intelligence works (subfield 1702). The minimum viable coauthor threshold is defined as M = k × c_bar, where c_bar is the mean number of authors per work and k is the median number of distinct last-author groups observed per recent year. Across 9 groups, equilibrium domestic active pools remain above their thresholds, but the closest point of no return is observed for the Other Civilizations group, where a proportional change of 0.75 in I0 (critical factor 0.25×) would drive the active pool to its threshold. A 10% simulated reduction in dropout yields the largest margin gain per unit proportional change in every group, making it the most sensitive transition lever in the model. Historical and saturating-inflow counterfactuals show that the model is most sensitive to exogenous entry and attrition. These results provide a quantitative framework for early, safety-factor-bound policy scenarios that preserve civilisational diversity in AI/ML research.
+Artificial intelligence (AI) and machine learning (ML) research is increasingly concentrated in a few regions, raising the risk that smaller research communities fall below a minimum viable coauthor pool and cannot recover. We model each civilisation as a six-compartment system of domestic and abroad early-career, high-impact, and principal-investigator researchers, and estimate transition rates from OpenAlex Artificial Intelligence works (subfield 1702). The minimum viable coauthor threshold is defined as M = k × c_bar, where c_bar is the mean number of authors per work and k is the median number of distinct last-author groups observed per recent year. Across 9 groups, equilibrium domestic active pools remain above their thresholds, but the closest point of no return is observed for the Other Civilizations group, where a proportional change of 0.75 in I0 (critical factor 0.25×) would drive the active pool to its threshold. A simulated reduction in dropout yields the largest margin gain per unit proportional change in every group, making it the most sensitive transition lever in the model. Historical and saturating-inflow counterfactuals show that the model is most sensitive to exogenous entry and attrition. These results provide a quantitative framework for early, safety-factor-bound policy scenarios that preserve civilisational diversity in AI/ML research.
 
 **Keywords:** researcher mobility; artificial intelligence; civilisation grouping; ordinary differential equations; point of no return; innovation studies
 
@@ -50,7 +50,7 @@ The AI/ML literature has documented the same patterns at higher resolution. Macr
 
 What is missing is a formal link between individual transition rates and the long-run viability of a research community. The concept of a minimum viable population, introduced by Shaffer, captures the smallest isolated population that has a high probability of persisting despite demographic, environmental and genetic stochasticity[11]. Transferred to science, the equivalent idea is a minimum viable coauthor pool: the smallest number of active researchers that can continue to produce work at the field's observed coauthor intensity. Below that pool, collaboration networks fragment, mentorship chains break, and the field enters a self-reinforcing decline.
 
-This framing generates four testable hypotheses. H1: Across all groups, the equilibrium active pool exceeds the minimum viable threshold, but the distance to the threshold varies widely. H2: Dropout is the transition rate with the largest negative effect, because attrition removes researchers from every compartment. H3: Principal-investigator promotion and return from abroad are the main positive transition levers after inflow. H4: Smaller civilisations, and those with older cohort structures, sit closer to their point of no return.
+This framing generates four testable hypotheses. H1: Across all groups, the equilibrium active pool exceeds the minimum viable threshold, but the distance to the threshold varies widely. H2: Dropout is the transition rate with the largest negative effect, because attrition removes researchers from every compartment. H3: The largest positive transition lever is principal-investigator promotion (p_D), followed by domestic hit generation (h_D). H4: Smaller civilisations, and those with older cohort structures, sit closer to their point of no return.
 
 ## 3. Data and grouping
 
@@ -108,7 +108,7 @@ Table 2 reports the equilibrium domestic active pool T, the minimum viable thres
 
 **Figure 1. Equilibrium domestic active pool (T) and minimum viable coauthor threshold (M) by group.** All groups remain above the threshold, but the margin varies widely.
 
-Table 3 shows the three transition-rate elasticities with the largest absolute impact on T for each group. Dropout (d) is the largest negative lever in every group; promotion of domestic hit researchers to PIs (p_D) and return from abroad (β) are the main positive transition levers after inflow.
+Table 3 shows the three transition-rate elasticities with the largest absolute impact on T for each group. Dropout (d) is the largest negative lever in every group, with an elasticity between -2.32 and -2.01 for the active pool. The largest positive transition lever is principal-investigator promotion (p_D), followed by domestic hit generation (h_D). The Japanese group shows the highest sensitivity to PI promotion (p_D), indicating that strengthening domestic promotion is especially important for that community.
 
 | Group | 1st rate | 1st elasticity | 2nd rate | 2nd elasticity | 3rd rate | 3rd elasticity |
 |---|---|---|---|---|---|---|
@@ -122,7 +122,7 @@ Table 3 shows the three transition-rate elasticities with the largest absolute i
 | Sinic | d | -2.027 | p_D | 0.035 | h_D | 0.021 |
 | United States | d | -2.124 | p_D | 0.089 | h_D | 0.063 |
 
-Table 4 reports, for each group, the single rate that reaches the active-pool threshold with the smallest proportional change. The Other Civilizations group is the most fragile: a proportional change of 0.75 in I0 (critical factor 0.25×) would drive the active pool to its minimum viable threshold.
+Table 4 reports, for each group, the single rate that reaches the active-pool threshold with the smallest proportional change. The Other Civilizations group is the most fragile: a proportional change of 0.75 in I0 (critical factor 0.25×) would drive the active pool to its minimum viable threshold. For the active researcher pool, I0 is the closest point-of-no-return lever for the active researcher pool in every group.
 
 | Group | Target | Rate | Current | Critical factor | Proximity |
 |---|---|---|---|---|---|
@@ -142,7 +142,7 @@ Table 4 reports, for each group, the single rate that reaches the active-pool th
 
 ### 5.1 Saturating recruitment extension
 
-Replacing linear inflow with a saturating form lowers equilibrium pools because each additional PI adds fewer entrants. Table 5 compares linear and saturating equilibrium T values.
+Replacing linear inflow with a saturating form lowers equilibrium pools because each additional PI adds fewer entrants. Across groups, saturating equilibrium T is 37-48% lower than the linear variant. Table 5 compares linear and saturating equilibrium T values.
 
 | Group | Linear T | Saturating T | ε |
 |---|---|---|---|
@@ -158,19 +158,12 @@ Replacing linear inflow with a saturating form lowers equilibrium pools because 
 
 ### 5.2 Historical counterfactual
 
-Table 6 compares the equilibrium that would have emerged if the transition rates estimated for the early career window (2000-2010) or the late window (2011-2016) had persisted indefinitely. The late window is shorter and its rates are estimated from younger cohorts, so the comparison should be read as a sensitivity exercise rather than a forecast.
+Table 6 compares the equilibrium that would have emerged if the transition rates estimated for the early career window (2000-2010) or the late window (2011-2016) had persisted indefinitely. The late window is shorter and its rates are estimated from younger cohorts, so the comparison should be read as a sensitivity exercise rather than a forecast. Only 2 groups have enough dual-window support for reliable rate estimation in both windows; they are listed in the table. All 2 groups with dual-window support would see smaller safety margins under late-window rates (Sinic, Continental Europe).
 
 | Group | T early | T late | ΔT (%) | Margin early | Margin late | Δ margin |
 |---|---|---|---|---|---|---|
-| Anglosphere ex-US | 699.2 | 250.1 | -64.2 | 579.5 | 130.3 | -449.2 |
 | Continental Europe | 1117.0 | 791.3 | -29.2 | 987.9 | 662.2 | -325.7 |
-| Hindu | 902.2 | 608.4 | -32.6 | 836.1 | 542.4 | -293.7 |
-| Islamic | 185.5 | 1106.5 | 496.4 | 59.0 | 979.9 | 920.9 |
-| Japanese | 184.3 | 235.3 | 27.7 | 133.8 | 184.8 | 51.0 |
-| Other Civilizations | 164.4 | 673.8 | 309.8 | 59.8 | 569.2 | 509.3 |
-| Other Western | 304.0 | 239.0 | -21.4 | 246.9 | 181.8 | -65.0 |
 | Sinic | 1392.6 | 936.4 | -32.8 | 1280.3 | 824.1 | -456.2 |
-| United States | 770.7 | 547.3 | -29.0 | 638.2 | 414.8 | -223.3 |
 
 ![Figure 3](figures/fig3_historical_margin.png)
 
@@ -178,7 +171,7 @@ Table 6 compares the equilibrium that would have emerged if the transition rates
 
 ### 5.3 Policy counterfactuals
 
-Table 7 reports the single mechanical counterfactual with the largest margin gain per 10% lever change for each group. Reducing dropout is the dominant positive lever for every civilisation.
+Table 7 reports the single mechanical counterfactual with the largest margin gain per 10% lever change for each group. Reducing dropout is the dominant positive lever for every civilisation. A roughly 10% proportional reduction in d would add about 26 active researchers in the Japanese group and about 203 in the Sinic group, reflecting differences in cohort size and baseline attrition.
 
 | Group | Lever | Direction | Change (%) | Margin gain | Gain per 10% |
 |---|---|---|---|---|---|
@@ -216,13 +209,13 @@ Table 8 reports bootstrap 95% confidence intervals for the equilibrium active po
 
 The results support a transition-rate view of research policy. Rather than asking which country has a net inflow or outflow of researchers, the model asks which rate must be altered to keep a community above its minimum viable coauthor pool. The answer is not the same for every group, but a clear pattern emerges.
 
-First, exogenous entry (I0) is the closest point of no return for the active researcher pool in every group except the Japanese PI pool. A large proportional reduction in baseline recruitment would drive most communities to their threshold before mobility rates such as return or promotion became binding. This is consistent with the observation that AI/ML fields depend on a continuous pipeline of new graduate students and junior researchers[6,8]. Policies that sustain that pipeline, such as doctoral funding, visa routes for early-career researchers, and stable junior positions, are therefore first-order defences against a point of no return.
+First, I0 is the closest point-of-no-return lever for the active researcher pool in every group. A large proportional reduction in baseline recruitment would drive most communities to their threshold before mobility rates such as return or promotion became binding. This is consistent with the observation that AI/ML fields depend on a continuous pipeline of new graduate students and junior researchers[6,8]. Policies that sustain that pipeline, such as doctoral funding, visa routes for early-career researchers, and stable junior positions, are therefore first-order defences against a point of no return.
 
-Second, among the mobility transition rates, dropout is the dominant lever. Its elasticity is near -2 for every group, and a simulated 10% reduction yields the largest margin gain per unit proportional change in the policy counterfactuals. Attrition matters because it removes researchers from every compartment, not just one. A 10% proportional reduction in dropout expands the safety margin more than comparably sized increases in return, hit generation or promotion. For groups with small safety margins, such as Japan, even modest attrition reductions may substantially delay the threshold. These counterfactuals are mechanical perturbations of the fitted rates; they identify the most sensitive transition levers, not the causal effect of any specific policy programme.
+Second, among the mobility transition rates, dropout (d) is the dominant negative lever; its active-pool elasticity ranges from -2.32 to -2.01 across groups, and in the policy counterfactuals a simulated reduction in dropout yields the largest margin gain per unit proportional change. Attrition matters because it removes researchers from every compartment, not just one. A 10% proportional reduction in dropout expands the safety margin more than comparably sized increases in return, hit generation or promotion. For Japanese, the group with the smallest safety margin, even modest attrition reductions may widen the margin. These counterfactuals are mechanical perturbations of the fitted rates; they identify the most sensitive transition levers, not the causal effect of any specific policy programme.
 
-Third, the positive transition levers are not symmetric. PI promotion (p_D) and domestic hit generation (h_D) have positive but smaller elasticities than dropout reduction. Return from abroad (β) is also positive, though its effect is generally smaller than keeping researchers from leaving in the first place. The implication for policy is that retention is usually cheaper and more effective than return, but a balanced portfolio is still needed: a community without domestic PI growth cannot reproduce itself through attrition reduction alone.
+Third, the largest positive transition lever is principal-investigator promotion (p_D), followed by domestic hit generation (h_D). The Japanese group shows the strongest response to PI promotion, suggesting that for that community expanding the domestic PI pipeline is an efficient lever. Return from abroad (β) is also positive for most groups, though its effect is generally smaller than reducing attrition directly. The implication for policy is that retention and promotion are usually more efficient than trying to attract returnees, but a balanced portfolio is still needed: a community without domestic PI growth cannot reproduce itself through attrition reduction alone.
 
-Fourth, the historical counterfactual shows that the late-window rates, if they persisted, would change equilibrium margins in both directions. Several large groups would see lower safety margins, while Japan and some smaller groups would see higher margins. This heterogeneity cautions against treating AI/ML mobility as a single global trend. It also confirms that the model can detect temporal changes in transition rates, which is the prerequisite for the early intervention the framework is designed to support.
+Fourth, the historical counterfactual shows that the late-window rates, if they persisted, would alter equilibrium margins. All 2 groups with dual-window support would see smaller safety margins under late-window rates (Sinic, Continental Europe). This pattern cautions against treating AI/ML mobility as a single global trend. It also confirms that the model can detect temporal changes in transition rates, which is the prerequisite for the early intervention the framework is designed to support.
 
 The transition levers also interact in ways that a single-rate elasticity cannot fully capture. For example, reducing dropout and increasing PI promotion together are likely to have a larger effect than the sum of the two individual perturbations, because more researchers survive to become PIs and those PIs then train additional early-career researchers through the endogenous inflow channel. Conversely, a simultaneous fall in exogenous entry and a rise in dropout can push a community to its threshold faster than either change alone. The model's steady-state and one-at-a-time counterfactuals are therefore a starting point; they identify the most sensitive margins but do not exhaust the policy design space.
 

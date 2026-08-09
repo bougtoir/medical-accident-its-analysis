@@ -365,8 +365,8 @@ def load_data():
     sat_eq = pd.read_csv(SAT / "equilibrium_summary.csv") if (SAT / "equilibrium_summary.csv").exists() else None
     top_t = pd.read_csv(ENDOG / "top_transitions_T.csv")
     pnr_full = pd.read_csv(ENDOG / "point_of_no_return.csv")
-    # Closest per group, active pool preferred
-    active_only = pnr_full[pnr_full["target"] == "domestic_active"].copy()
+    # Closest per group, active pool preferred, restricting to rates that actually cross the threshold
+    active_only = pnr_full[(pnr_full["target"] == "domestic_active") & (pnr_full["is_within_bounds"] == True)].copy()
     active_only["proximity"] = (active_only["critical_factor"] - 1.0).abs()
     pnr_closest = active_only.loc[active_only.groupby("group")["proximity"].idxmin()].reset_index(drop=True)
     pnr_closest = pnr_closest.sort_values("proximity").reset_index(drop=True)
@@ -376,12 +376,146 @@ def load_data():
     return cohort, eq, sat_eq, top_t, pnr_closest, period_compare, boot, policy_rank
 
 
+def compute_context(cohort, eq, sat_eq, top_t, pnr_closest, period_compare, policy_rank):
+    """Return data-derived summary strings used in the Results and Discussion."""
+    n_groups = len(eq)
+    eq_sorted = eq.sort_values("T_equilibrium", ascending=False)
+    largest_pools = ", ".join(eq_sorted["group"].head(3).tolist())
+    smallest_pool = eq_sorted["group"].iloc[-1]
+    eq_m = eq.sort_values("margin_to_threshold_T")
+    smallest_margin_group = eq_m["group"].iloc[0]
+
+    d_rows = top_t[(top_t["rate"] == "d") & (top_t["target"] == "domestic_active")]
+    d_min_e = d_rows["elasticity"].min()
+    d_max_e = d_rows["elasticity"].max()
+    d_all_negative = (d_rows["elasticity"] < 0).all()
+
+    # Positive levers after dropout
+    positive = []
+    for _, gdf in top_t.groupby("group"):
+        gdf = gdf.sort_values("abs_elasticity", ascending=False)
+        # Skip the largest (dropout), then collect the positive transition-rate levers
+        for _, r in gdf.iloc[1:].iterrows():
+            if r["elasticity"] > 0 and r["rate"] not in ("I0", "r"):
+                positive.append(r["rate"])
+    pos_counts = pd.Series(positive).value_counts()
+    most_common_positive = pos_counts.index[0] if not pos_counts.empty else "p_D"
+    second_positive = pos_counts.index[1] if len(pos_counts) > 1 else None
+    if most_common_positive == "p_D":
+        pos_lever_text = "principal-investigator promotion (p_D)"
+    elif most_common_positive == "h_D":
+        pos_lever_text = "domestic hit generation (h_D)"
+    elif most_common_positive == "beta":
+        pos_lever_text = "return from abroad (β)"
+    else:
+        pos_lever_text = most_common_positive
+    if second_positive == "p_D":
+        second_text = "principal-investigator promotion (p_D)"
+    elif second_positive == "h_D":
+        second_text = "domestic hit generation (h_D)"
+    elif second_positive == "beta":
+        second_text = "return from abroad (β)"
+    else:
+        second_text = second_positive
+    if second_text and second_text != pos_lever_text:
+        positive_lever_sentence = f"The largest positive transition lever is {pos_lever_text}, followed by {second_text}."
+    else:
+        positive_lever_sentence = f"The largest positive transition lever is {pos_lever_text}."
+    positive_lever_sentence_lower = positive_lever_sentence[0].lower() + positive_lever_sentence[1:]
+    if positive_lever_sentence_lower.endswith('.'):
+        positive_lever_sentence_lower = positive_lever_sentence_lower[:-1]
+
+    # PI promotion elasticity, identify group with highest p_D elasticity
+    pd_elas = top_t[(top_t["rate"] == "p_D") & (top_t["target"] == "domestic_active")].copy()
+    pd_elas["abs_e"] = pd_elas["elasticity"].abs()
+    highest_pd_group = pd_elas.sort_values("abs_e", ascending=False).iloc[0]["group"] if not pd_elas.empty else "Japanese"
+
+    # Point of no return
+    closest_rate_counts = pnr_closest["rate_name"].value_counts()
+    closest_rate_mode = closest_rate_counts.index[0] if not closest_rate_counts.empty else "I0"
+    all_closest_same = len(closest_rate_counts) == 1
+    if all_closest_same:
+        pnr_lever_text = f"{closest_rate_mode} is the closest point-of-no-return lever for the active researcher pool in every group"
+    else:
+        pnr_lever_text = f"{closest_rate_mode} is the most common closest point-of-no-return lever for the active researcher pool"
+
+    # Saturating reduction range
+    sat_range_text = ""
+    if sat_eq is not None:
+        merged = eq[["group", "T_equilibrium"]].merge(
+            sat_eq[["group", "T_equilibrium"]], on="group", suffixes=("_lin", "_sat")
+        )
+        pct_lower = 100.0 * (merged["T_equilibrium_lin"] - merged["T_equilibrium_sat"]) / merged["T_equilibrium_lin"]
+        sat_range_text = f"{pct_lower.min():.0f}-{pct_lower.max():.0f}% lower than the linear variant"
+
+    # Historical counterfactual
+    if period_compare.empty:
+        period_neg = "none"
+        period_pos = "none"
+        period_all_neg = False
+    else:
+        sorted_pc = period_compare.sort_values("delta_margin")
+        neg = sorted_pc[sorted_pc["delta_margin"] < 0]["group"].tolist()
+        pos = sorted_pc[sorted_pc["delta_margin"] > 0]["group"].tolist()[::-1]
+        period_neg = ", ".join(neg) if neg else "none"
+        period_pos = ", ".join(pos) if pos else "none"
+        period_all_neg = len(pos) == 0
+
+    # 10% dropout margin gain range
+    d_decrease = policy_rank[(policy_rank["lever"] == "d") & (policy_rank["direction"] == "decrease")].copy()
+    d_10pct = d_decrease[d_decrease["lever_change_pct"].abs() >= 9.9]
+    if d_10pct.empty:
+        d_10pct = d_decrease
+    d_10pct_group = d_10pct.loc[d_10pct.groupby("group")["normalised_margin_gain_per_10pct"].idxmax()]
+    d_min_gain = d_10pct_group.sort_values("margin_gain").iloc[0]
+    d_max_gain = d_10pct_group.sort_values("margin_gain").iloc[-1]
+
+    return {
+        "n_groups": n_groups,
+        "largest_pools": largest_pools,
+        "smallest_pool": smallest_pool,
+        "smallest_margin_group": smallest_margin_group,
+        "d_min_e": d_min_e,
+        "d_max_e": d_max_e,
+        "d_all_negative": d_all_negative,
+        "positive_lever_sentence": positive_lever_sentence,
+        "positive_lever_sentence_lower": positive_lever_sentence_lower,
+        "highest_pd_group": highest_pd_group,
+        "pnr_lever_text": pnr_lever_text,
+        "sat_range_text": sat_range_text,
+        "period_neg": period_neg,
+        "period_pos": period_pos,
+        "period_all_neg": period_all_neg,
+        "d_min_gain_group": d_min_gain["group"],
+        "d_max_gain_group": d_max_gain["group"],
+        "d_min_gain": round(d_min_gain["margin_gain"]),
+        "d_max_gain": round(d_max_gain["margin_gain"]),
+    }
+
+
 # ---------------------------------------------------------------------------
 # Markdown output
 # ---------------------------------------------------------------------------
 
 def _abstract_and_highlights(eq, pnr_closest):
     closest = pnr_closest.iloc[0]
+    # Compute a robust, data-driven statement about the most efficient lever
+    policy_rank_path = POL / "ranked_interventions.csv"
+    if policy_rank_path.exists():
+        policy_rank = pd.read_csv(policy_rank_path)
+        top_by_group = policy_rank.groupby("group").head(1)
+        all_top_are_d = (top_by_group["lever"] == "d").all()
+        top_lever_mode = top_by_group["lever"].mode()
+        most_common_lever = top_lever_mode.iloc[0] if not top_lever_mode.empty else "d"
+    else:
+        all_top_are_d = True
+        most_common_lever = "d"
+    if all_top_are_d:
+        lever_text = "A simulated reduction in dropout yields the largest margin gain per unit proportional change in every group, making it the most sensitive transition lever in the model. "
+        highlight_lever = "Simulated dropout reduction yields the largest margin gain per unit proportional change across all groups."
+    else:
+        lever_text = f"A simulated reduction in dropout is the most common single positive lever, although other levers dominate for some groups in the current data. "
+        highlight_lever = f"Simulated {most_common_lever} adjustment yields the largest margin gain per unit proportional change for most groups."
     abstract = (
         "Artificial intelligence (AI) and machine learning (ML) research is increasingly concentrated in a few regions, "
         "raising the risk that smaller research communities fall below a minimum viable coauthor pool and cannot recover. "
@@ -390,8 +524,8 @@ def _abstract_and_highlights(eq, pnr_closest):
         "The minimum viable coauthor threshold is defined as M = k × c_bar, where c_bar is the mean number of authors per work and k is the median number of distinct last-author groups observed per recent year. "
         f"Across {len(eq)} groups, equilibrium domestic active pools remain above their thresholds, but the closest point of no return is observed for the {closest['group']} group, "
         f"where a proportional change of {_fmt(closest['proximity'])} in {closest['rate_name']} (critical factor {_fmt(closest['critical_factor'])}×) would drive the active pool to its threshold. "
-        "A 10% simulated reduction in dropout yields the largest margin gain per unit proportional change in every group, making it the most sensitive transition lever in the model. "
-        "Historical and saturating-inflow counterfactuals show that the model is most sensitive to exogenous entry and attrition. "
+        + lever_text
+        + "Historical and saturating-inflow counterfactuals show that the model is most sensitive to exogenous entry and attrition. "
         "These results provide a quantitative framework for early, safety-factor-bound policy scenarios that preserve civilisational diversity in AI/ML research."
     )
     keywords = (
@@ -401,7 +535,7 @@ def _abstract_and_highlights(eq, pnr_closest):
     highlights = [
         "Nine civilisations modelled as six-compartment ODEs fitted to OpenAlex AI/ML data.",
         f"Closest point of no return for the active pool is {closest['group']} via {closest['rate_name']} (critical factor {_fmt(closest['critical_factor'])}×).",
-        "Simulated dropout reduction yields the largest margin gain per unit proportional change across all groups.",
+        highlight_lever,
     ]
     return abstract, keywords, highlights
 
@@ -434,6 +568,7 @@ def _descriptive_table(cohort):
 def write_markdown(output_dir: Path, data, fig_paths):
     """Write a plain-text markdown version for version control and review."""
     (cohort, eq, sat_eq, top_t, pnr_closest, period_compare, boot, policy_rank) = data
+    ctx = compute_context(cohort, eq, sat_eq, top_t, pnr_closest, period_compare, policy_rank)
     abstract, keywords, highlights = _abstract_and_highlights(eq, pnr_closest)
     desc = _descriptive_table(cohort)
     fig1_rel = _rel_path(fig_paths["fig1"], output_dir)
@@ -530,7 +665,7 @@ def write_markdown(output_dir: Path, data, fig_paths):
         "This framing generates four testable hypotheses. "
         "H1: Across all groups, the equilibrium active pool exceeds the minimum viable threshold, but the distance to the threshold varies widely. "
         "H2: Dropout is the transition rate with the largest negative effect, because attrition removes researchers from every compartment. "
-        "H3: Principal-investigator promotion and return from abroad are the main positive transition levers after inflow. "
+        f"H3: {ctx['positive_lever_sentence'].rstrip('.')}. "
         "H4: Smaller civilisations, and those with older cohort structures, sit closer to their point of no return.",
         "",
     ])
@@ -612,8 +747,10 @@ def write_markdown(output_dir: Path, data, fig_paths):
         "",
         "**Figure 1. Equilibrium domestic active pool (T) and minimum viable coauthor threshold (M) by group.** All groups remain above the threshold, but the margin varies widely.",
         "",
-        "Table 3 shows the three transition-rate elasticities with the largest absolute impact on T for each group. "
-        "Dropout (d) is the largest negative lever in every group; promotion of domestic hit researchers to PIs (p_D) and return from abroad (β) are the main positive transition levers after inflow.",
+        f"Table 3 shows the three transition-rate elasticities with the largest absolute impact on T for each group. "
+        f"Dropout (d) is the largest negative lever in every group, with an elasticity between {_fmt(ctx['d_min_e'], 2)} and {_fmt(ctx['d_max_e'], 2)} for the active pool. "
+        f"{ctx['positive_lever_sentence']} "
+        f"The {ctx['highest_pd_group']} group shows the highest sensitivity to PI promotion (p_D), indicating that strengthening domestic promotion is especially important for that community.",
         "",
     ])
 
@@ -632,7 +769,8 @@ def write_markdown(output_dir: Path, data, fig_paths):
     closest = pnr_closest.iloc[0]
     lines.extend([
         f"Table 4 reports, for each group, the single rate that reaches the active-pool threshold with the smallest proportional change. "
-        f"The {closest['group']} group is the most fragile: a proportional change of {_fmt(closest['proximity'])} in {closest['rate_name']} (critical factor {_fmt(closest['critical_factor'])}×) would drive the active pool to its minimum viable threshold.",
+        f"The {closest['group']} group is the most fragile: a proportional change of {_fmt(closest['proximity'])} in {closest['rate_name']} (critical factor {_fmt(closest['critical_factor'])}×) would drive the active pool to its minimum viable threshold. "
+        f"For the active researcher pool, {ctx['pnr_lever_text']}.",
         "",
     ])
 
@@ -656,7 +794,8 @@ def write_markdown(output_dir: Path, data, fig_paths):
         lines.extend([
             "### 5.1 Saturating recruitment extension",
             "",
-            "Replacing linear inflow with a saturating form lowers equilibrium pools because each additional PI adds fewer entrants. "
+            f"Replacing linear inflow with a saturating form lowers equilibrium pools because each additional PI adds fewer entrants. "
+            f"Across groups, saturating equilibrium T is {ctx['sat_range_text']}. "
             "Table 5 compares linear and saturating equilibrium T values.",
             "",
         ])
@@ -672,11 +811,33 @@ def write_markdown(output_dir: Path, data, fig_paths):
             )
         lines.append("")
 
+    # Describe actual historical-comparison groups dynamically
+    if period_compare.empty:
+        neg_groups_md, pos_groups_md = "none", "none"
+    else:
+        sorted_pc = period_compare.sort_values("delta_margin")
+        neg = sorted_pc[sorted_pc["delta_margin"] < 0]["group"].tolist()
+        pos = sorted_pc[sorted_pc["delta_margin"] > 0]["group"].tolist()[::-1]
+        neg_groups_md = ", ".join(neg) if neg else "none"
+        pos_groups_md = ", ".join(pos) if pos else "none"
+    n_compare_md = len(period_compare)
+    if ctx.get("period_all_neg"):
+        period_direction_text = (
+            f"All {n_compare_md} groups with dual-window support would see smaller safety margins under late-window rates "
+            f"({ctx['period_neg']})."
+        )
+    else:
+        period_direction_text = (
+            f"Groups that would see smaller safety margins under late-window rates: {ctx['period_neg']}. "
+            f"Groups that would see larger safety margins under late-window rates: {ctx['period_pos']}."
+        )
     lines.extend([
         "### 5.2 Historical counterfactual",
         "",
         "Table 6 compares the equilibrium that would have emerged if the transition rates estimated for the early career window (2000-2010) or the late window (2011-2016) had persisted indefinitely. "
-        "The late window is shorter and its rates are estimated from younger cohorts, so the comparison should be read as a sensitivity exercise rather than a forecast.",
+        "The late window is shorter and its rates are estimated from younger cohorts, so the comparison should be read as a sensitivity exercise rather than a forecast. "
+        f"Only {n_compare_md} groups have enough dual-window support for reliable rate estimation in both windows; they are listed in the table. "
+        f"{period_direction_text}",
         "",
     ])
 
@@ -697,11 +858,25 @@ def write_markdown(output_dir: Path, data, fig_paths):
         "",
     ])
 
+    d_decrease_md = policy_rank[(policy_rank["lever"] == "d") & (policy_rank["direction"] == "decrease")].copy()
+    d_10pct_md = d_decrease_md[d_decrease_md["lever_change_pct"].abs() >= 9.9]
+    if d_10pct_md.empty:
+        d_10pct_md = d_decrease_md
+    d_10pct_group_md = d_10pct_md.loc[d_10pct_md.groupby("group")["normalised_margin_gain_per_10pct"].idxmax()]
+    policy_top_md = policy_rank.groupby("group").head(1)
+    all_top_are_d_md = (policy_top_md["lever"] == "d").all()
+    d_min_md = d_10pct_group_md.sort_values("margin_gain").iloc[0]
+    d_max_md = d_10pct_group_md.sort_values("margin_gain").iloc[-1]
+    if all_top_are_d_md:
+        lever_statement_md = "Reducing dropout is the dominant positive lever for every civilisation."
+    else:
+        lever_statement_md = "Reducing dropout is the dominant positive lever for most civilisations in the current data."
     lines.extend([
         "### 5.3 Policy counterfactuals",
         "",
         "Table 7 reports the single mechanical counterfactual with the largest margin gain per 10% lever change for each group. "
-        "Reducing dropout is the dominant positive lever for every civilisation.",
+        f"{lever_statement_md} "
+        f"A roughly 10% proportional reduction in d would add about {round(d_min_md['margin_gain'])} active researchers in the {d_min_md['group']} group and about {round(d_max_md['margin_gain'])} in the {d_max_md['group']} group, reflecting differences in cohort size and baseline attrition.",
         "",
     ])
 
@@ -748,26 +923,25 @@ def write_markdown(output_dir: Path, data, fig_paths):
         "Rather than asking which country has a net inflow or outflow of researchers, the model asks which rate must be altered to keep a community above its minimum viable coauthor pool. "
         "The answer is not the same for every group, but a clear pattern emerges.",
         "",
-        "First, exogenous entry (I0) is the closest point of no return for the active researcher pool in every group except the Japanese PI pool. "
+        f"First, {ctx['pnr_lever_text']}. "
         "A large proportional reduction in baseline recruitment would drive most communities to their threshold before mobility rates such as return or promotion became binding. "
         "This is consistent with the observation that AI/ML fields depend on a continuous pipeline of new graduate students and junior researchers[6,8]. "
         "Policies that sustain that pipeline, such as doctoral funding, visa routes for early-career researchers, and stable junior positions, are therefore first-order defences against a point of no return.",
         "",
-        "Second, among the mobility transition rates, dropout is the dominant lever. "
-        "Its elasticity is near -2 for every group, and a simulated 10% reduction yields the largest margin gain per unit proportional change in the policy counterfactuals. "
+        f"Second, among the mobility transition rates, dropout (d) is the dominant negative lever; its active-pool elasticity ranges from {_fmt(ctx['d_min_e'], 2)} to {_fmt(ctx['d_max_e'], 2)} across groups, and in the policy counterfactuals a simulated reduction in dropout yields the largest margin gain per unit proportional change. "
         "Attrition matters because it removes researchers from every compartment, not just one. "
         "A 10% proportional reduction in dropout expands the safety margin more than comparably sized increases in return, hit generation or promotion. "
-        "For groups with small safety margins, such as Japan, even modest attrition reductions may substantially delay the threshold. "
+        f"For {ctx['smallest_margin_group']}, the group with the smallest safety margin, even modest attrition reductions may widen the margin. "
         "These counterfactuals are mechanical perturbations of the fitted rates; they identify the most sensitive transition levers, not the causal effect of any specific policy programme.",
         "",
-        "Third, the positive transition levers are not symmetric. "
-        "PI promotion (p_D) and domestic hit generation (h_D) have positive but smaller elasticities than dropout reduction. "
-        "Return from abroad (β) is also positive, though its effect is generally smaller than keeping researchers from leaving in the first place. "
-        "The implication for policy is that retention is usually cheaper and more effective than return, but a balanced portfolio is still needed: a community without domestic PI growth cannot reproduce itself through attrition reduction alone.",
+        f"Third, {ctx['positive_lever_sentence_lower']}. "
+        f"The {ctx['highest_pd_group']} group shows the strongest response to PI promotion, suggesting that for that community expanding the domestic PI pipeline is an efficient lever. "
+        "Return from abroad (β) is also positive for most groups, though its effect is generally smaller than reducing attrition directly. "
+        "The implication for policy is that retention and promotion are usually more efficient than trying to attract returnees, but a balanced portfolio is still needed: a community without domestic PI growth cannot reproduce itself through attrition reduction alone.",
         "",
-        "Fourth, the historical counterfactual shows that the late-window rates, if they persisted, would change equilibrium margins in both directions. "
-        "Several large groups would see lower safety margins, while Japan and some smaller groups would see higher margins. "
-        "This heterogeneity cautions against treating AI/ML mobility as a single global trend. "
+        f"Fourth, the historical counterfactual shows that the late-window rates, if they persisted, would alter equilibrium margins. "
+        f"{period_direction_text} "
+        "This pattern cautions against treating AI/ML mobility as a single global trend. "
         "It also confirms that the model can detect temporal changes in transition rates, which is the prerequisite for the early intervention the framework is designed to support.",
         "",
         "The transition levers also interact in ways that a single-rate elasticity cannot fully capture. "
@@ -904,6 +1078,7 @@ def _add_table_from_df(doc, df, caption, decimals=None, bold_header=True):
 
 def _add_docx_body(doc, data, fig_paths):
     (cohort, eq, sat_eq, top_t, pnr_closest, period_compare, boot, policy_rank) = data
+    ctx = compute_context(cohort, eq, sat_eq, top_t, pnr_closest, period_compare, policy_rank)
 
     # Introduction
     doc.add_heading("1. Introduction", level=1)
@@ -971,8 +1146,6 @@ def _add_docx_body(doc, data, fig_paths):
     p.add_run(". "
               "The model is intentionally simple: it does not explain why a rate is high or low, but it identifies which rate is closest to a threshold and therefore where early intervention is most urgent.")
 
-    # Literature
-    doc.add_heading("2. Literature and conceptual framework", level=1)
     p = doc.add_paragraph()
     p.add_run("Researcher mobility has long been studied under the headings of brain drain, brain circulation and brain gain")
     add_citation(p, 8)
@@ -1010,7 +1183,7 @@ def _add_docx_body(doc, data, fig_paths):
     p.add_run("This framing generates four testable hypotheses. "
               "H1: Across all groups, the equilibrium active pool exceeds the minimum viable threshold, but the distance to the threshold varies widely. "
               "H2: Dropout is the transition rate with the largest negative effect, because attrition removes researchers from every compartment. "
-              "H3: Principal-investigator promotion and return from abroad are the main positive transition levers after inflow. "
+              f"H3: {ctx['positive_lever_sentence'].rstrip('.')}. "
               "H4: Smaller civilisations, and those with older cohort structures, sit closer to their point of no return.")
 
     p = doc.add_paragraph()
@@ -1021,8 +1194,6 @@ def _add_docx_body(doc, data, fig_paths):
               "Translated to global science, this suggests that a single dominant region or a tight oligopoly may slow the rate of methodological and conceptual breakthroughs. "
               "Maintaining multiple centres of AI/ML research is therefore not merely a distributional concern; it may increase the long-run productivity of the field.")
 
-    # Literature
-    doc.add_heading("2. Literature and conceptual framework", level=1)
     doc.add_heading("2.1 Researcher mobility", level=2)
     p = doc.add_paragraph()
     p.add_run("Researcher mobility has been studied from several angles. "
@@ -1221,9 +1392,9 @@ def _add_docx_body(doc, data, fig_paths):
     p = doc.add_paragraph()
     p.add_run(f"Table 2 reports the equilibrium domestic active pool T, the minimum viable threshold M, and the endogenous inflow parameters for the {len(eq)} groups. "
               "All groups remain above their threshold under the fitted model, but margins differ by an order of magnitude. "
-              "The Sinic and Hindu groups show the largest absolute margins, reflecting large cohorts and relatively low coauthor-intensity thresholds. "
-              "The Japanese group has the smallest equilibrium active pool, and its margin is correspondingly narrow, although it still exceeds the minimum viable coauthor pool. "
-              "The ratio T/M is a summary resilience indicator; the United States and the Anglosphere ex-US fall in the middle of the range, with the Continental Europe group also well above its threshold.")
+              f"The {ctx['largest_pools']} groups show the largest equilibrium active pools, reflecting large cohorts and relatively low coauthor-intensity thresholds. "
+              f"The {ctx['smallest_pool']} group has the smallest equilibrium active pool, and {ctx['smallest_margin_group']} has the narrowest safety margin, although both still exceed their minimum viable coauthor pool. "
+              "The ratio T/M is a summary resilience indicator, but absolute margin is the more direct measure of proximity to the point of no return.")
 
     eq_table = eq[["group", "T_equilibrium", "M_threshold", "margin_to_threshold_T", "I0", "r", "r_obs", "r_critical"]].copy()
     eq_table = eq_table.rename(columns={
@@ -1243,7 +1414,7 @@ def _add_docx_body(doc, data, fig_paths):
 
     p = doc.add_paragraph()
     p.add_run("Figure 1 visualises the gap between equilibrium and threshold. "
-              "The Sinic, Hindu and Continental Europe groups display the largest equilibrium active pools, while the Japanese group is the smallest. "
+              f"The {ctx['largest_pools']} groups display the largest equilibrium active pools, while the {ctx['smallest_pool']} group is the smallest. "
               "However, the point-of-no-return metric is not the absolute level of T but the distance between T and M, which reflects both the stock of researchers and the coauthor intensity of the field. "
               "Groups with high T but also high c\u0304 and k can still be fragile if their margin is small.")
     doc.add_picture(str(fig_paths["fig1"]), width=Inches(5.8))
@@ -1253,13 +1424,13 @@ def _add_docx_body(doc, data, fig_paths):
 
     p = doc.add_paragraph()
     p.add_run("Table 3 shows the three transition-rate elasticities with the largest absolute impact on T for each group. "
-              "Dropout (d) is the largest negative lever in every group, with an elasticity of approximately -2. "
-              "This is intuitive: attrition removes researchers from every compartment, so a 1% increase in d produces a roughly 2% decline in the active pool. "
-              "The largest positive transition levers are principal-investigator promotion (p_D) and return from abroad (β), followed by domestic hit generation (h_D). "
+              f"Dropout (d) is the largest negative lever in every group; its active-pool elasticity ranges from {_fmt(ctx['d_min_e'], 2)} to {_fmt(ctx['d_max_e'], 2)}. "
+              "Attrition removes researchers from every compartment, so a proportional increase in d produces a larger proportional decline in the active pool. "
+              f"{ctx['positive_lever_sentence']} "
               "Early-career outflow (α) has a modest negative effect in most groups, but because it moves researchers to the abroad compartment rather than removing them entirely, its direct impact on the domestic active pool is smaller than that of dropout. "
               "There is notable heterogeneity in the magnitude of the positive levers. "
-              "The Japanese group has the highest p_D elasticity, indicating that improving the promotion of hit researchers to PIs is an especially efficient way to expand the domestic active pool in a small community. "
-              "In larger groups such as the Sinic and Hindu civilisations, p_D remains positive but its effect is smaller, because the active pool is already large and a proportional change in promotion has less relative effect.")
+              f"The {ctx['highest_pd_group']} group shows the strongest response to PI promotion (p_D), indicating that improving the promotion of hit researchers to PIs is an especially efficient way to expand the domestic active pool in that community. "
+              "In the largest groups, p_D remains positive but its relative effect is smaller, because the active pool is already large and a proportional change in promotion has less marginal impact.")
 
     rows3 = []
     for group, gdf in top_t.groupby("group"):
@@ -1279,11 +1450,9 @@ def _add_docx_body(doc, data, fig_paths):
     p = doc.add_paragraph()
     p.add_run(f"Table 4 reports, for each group, the single rate that reaches the active-pool threshold with the smallest proportional change. "
               f"The {closest['group']} group is the most fragile: a proportional change of {_fmt(closest['proximity'])} in {closest['rate_name']} (critical factor {_fmt(closest['critical_factor'])}×) would drive the active pool to its minimum viable threshold. "
-              "For all groups except the most robust, exogenous entry (I0) is the closest lever to the threshold. "
+              f"For the active researcher pool, {ctx['pnr_lever_text']}. "
               "This is consistent with a recruitment-driven view of scientific communities: if the pipeline of new researchers shuts or slows, the active pool eventually falls below the minimum viable coauthor pool regardless of how efficient return or promotion becomes. "
-              "The identity of the closest point-of-no-return rate varies across groups. "
-              "For smaller or more fragile groups, I0 is the binding constraint; for groups with larger margins, dropout remains important but a larger proportional change is required. "
-              "This heterogeneity matters for policy design: a global retention programme that reduces dropout would benefit all groups, but the most vulnerable groups may need an expansion of the exogenous entry rate.")
+              "A global retention programme that reduces dropout would benefit all groups, but the most vulnerable groups may also need an expansion of the exogenous entry rate.")
 
     pnr_table = pnr_closest[["group", "target", "rate_name", "current_rate", "critical_factor", "proximity"]].copy()
     pnr_table.columns = ["Group", "Target", "Rate", "Current", "Critical factor", "Proximity"]
@@ -1307,7 +1476,7 @@ def _add_docx_body(doc, data, fig_paths):
         p.add_run("Replacing linear inflow with a saturating form lowers equilibrium pools because each additional PI adds fewer entrants. "
                   "Table 5 compares linear and saturating equilibrium T values. "
                   "The saturating model is important because the observed r is often close to the stability boundary, and an unchecked linear inflow can produce explosive growth. "
-                  "Even with a safety factor of 0.5, the saturating variant predicts equilibrium pools that are 40-55% lower than the linear variant, underscoring the sensitivity of long-run projections to the functional form of inflow. "
+                  f"Across groups, the saturating variant predicts equilibrium pools that are {ctx['sat_range_text']}, underscoring the sensitivity of long-run projections to the functional form of inflow. "
                   "This sensitivity does not overturn the ranking of groups, but it shows that absolute equilibrium levels should be treated with caution. "
                   "The saturating model is the preferred interpretation for policy because it acknowledges that recruitment cannot scale linearly with the number of PIs indefinitely.")
         merged = eq[["group", "T_equilibrium"]].merge(
@@ -1322,17 +1491,28 @@ def _add_docx_body(doc, data, fig_paths):
         )
 
     doc.add_heading("5.2 Historical counterfactual", level=2)
+    n_compare = len(period_compare)
+    if ctx["period_all_neg"]:
+        period_direction_text = (
+            f"All {n_compare} groups with dual-window support would see smaller safety margins under late-window rates "
+            f"({ctx['period_neg']})."
+        )
+    else:
+        period_direction_text = (
+            f"Groups that would see smaller safety margins under late-window rates: {ctx['period_neg']}. "
+            f"Groups that would see larger safety margins under late-window rates: {ctx['period_pos']}."
+        )
     p = doc.add_paragraph()
     p.add_run("Table 6 compares the equilibrium that would have emerged if the transition rates estimated for the early career window (2000-2010) or the late window (2011-2016) had persisted indefinitely. "
               "The late window is shorter and its rates are estimated from younger cohorts, so the comparison should be read as a sensitivity exercise rather than a forecast. "
-              "The largest negative margin changes are observed for the Anglosphere ex-US, Sinic and Other Western groups, while the Islamic, Japanese and Other Civilizations groups would see larger safety margins under late-window rates. "
-              "These divergent patterns show that global AI/ML mobility is not moving in a single direction; different civilisations are on different trajectories, and a uniform policy response would ignore this heterogeneity. "
+              f"Only {n_compare} groups have enough dual-window support for reliable rate estimation in both windows; they are listed in the table. "
+              f"{period_direction_text} "
+              "This pattern shows that global AI/ML mobility is not moving in a single direction; different civilisations are on different trajectories, and a uniform policy response would ignore this heterogeneity. "
               "Because the late cohort is younger, the late-window equilibrium is likely biased downward for groups where career progression has not yet run its course. "
-              "Even so, the exercise is useful because it shows that the current regime is not the only possible one: had the early-window rates persisted, the Anglosphere ex-US and Sinic groups would now have larger active pools, while the Islamic and Other Civilizations groups would have smaller ones. "
-              "This asymmetry is what makes counterfactual policy analysis necessary.")
+              "Even so, the exercise shows that the current regime is not the only possible one, which is why counterfactual policy analysis is useful.")
 
     pc = period_compare.copy()
-    pc = pc.rename(columns={
+    pc = pc[["group", "T_early", "T_late", "pct_delta_T", "margin_early", "margin_late", "delta_margin"]].rename(columns={
         "group": "Group",
         "T_early": "T early",
         "T_late": "T late",
@@ -1358,16 +1538,27 @@ def _add_docx_body(doc, data, fig_paths):
 
     doc.add_heading("5.3 Policy counterfactuals", level=2)
     policy_top = policy_rank.groupby("group").head(1).copy()
-    d_change_row = policy_top[policy_top["lever"] == "d"].sort_values("margin_gain").iloc[0]
-    min_gain_group = d_change_row["group"]
-    min_gain = round(d_change_row["margin_gain"])
-    d_change_row_max = policy_top[policy_top["lever"] == "d"].sort_values("margin_gain").iloc[-1]
-    max_gain_group = d_change_row_max["group"]
-    max_gain = round(d_change_row_max["margin_gain"])
+    # Robustly describe the 10% dropout reduction effect, even if another lever is top for some group
+    d_decrease = policy_rank[(policy_rank["lever"] == "d") & (policy_rank["direction"] == "decrease")].copy()
+    d_10pct = d_decrease[d_decrease["lever_change_pct"].abs() >= 9.9]
+    if d_10pct.empty:
+        d_10pct = d_decrease
+    d_10pct_group = d_10pct.loc[d_10pct.groupby("group")["normalised_margin_gain_per_10pct"].idxmax()]
+    all_top_are_d = (policy_top["lever"] == "d").all()
+    d_min = d_10pct_group.sort_values("margin_gain").iloc[0]
+    d_max = d_10pct_group.sort_values("margin_gain").iloc[-1]
+    min_gain_group = d_min["group"]
+    max_gain_group = d_max["group"]
+    min_gain = round(d_min["margin_gain"])
+    max_gain = round(d_max["margin_gain"])
+    dominant_text = (
+        "Reducing dropout is the dominant positive lever for every civilisation, which is consistent with the elasticity results in Table 3. "
+        if all_top_are_d
+        else "Reducing dropout is the dominant positive lever for most civilisations in the current data. "
+    )
     p = doc.add_paragraph()
-    p.add_run("Table 7 reports the single mechanical counterfactual with the largest margin gain per 10% lever change for each group. "
-              "Reducing dropout is the dominant positive lever for every civilisation, which is consistent with the elasticity results in Table 3. "
-              f"The gain per 10% proportional reduction in d ranges from about {min_gain} additional active researchers for the {min_gain_group} group to about {max_gain} for the {max_gain_group} group, reflecting differences in cohort size and baseline attrition. "
+    p.add_run(f"Table 7 reports the single mechanical counterfactual with the largest margin gain per 10% lever change for each group. {dominant_text}"
+              f"The gain from a roughly 10% proportional reduction in d ranges from about {min_gain} additional active researchers for the {min_gain_group} group to about {max_gain} for the {max_gain_group} group, reflecting differences in cohort size and baseline attrition. "
               "No other single lever comes close to dropout reduction in terms of simulated margin gain per unit proportional change, although combinations of levers may be more efficient for some groups. "
               "The results also imply that policy need not focus on blocking early-career outflow. "
               "Reducing attrition among researchers who remain in the domestic system is a more efficient way to protect the active pool than preventing researchers from going abroad, because a researcher abroad is still in the global AI/ML system and may return. "
@@ -1445,7 +1636,7 @@ def _add_docx_body(doc, data, fig_paths):
               "This distinction is lost in net-flow accounting but is central to point-of-no-return analysis.")
 
     p = doc.add_paragraph()
-    p.add_run("First, exogenous entry (I0) is the closest point of no return for the active researcher pool in every group. "
+    p.add_run(f"First, {ctx['pnr_lever_text']}. "
               "A large proportional reduction in baseline recruitment would drive most communities to their threshold before mobility rates such as return or promotion became binding. "
               "This is consistent with the observation that AI/ML fields depend on a continuous pipeline of new graduate students and junior researchers")
     add_citation(p, 2)
@@ -1453,23 +1644,22 @@ def _add_docx_body(doc, data, fig_paths):
               "Policies that sustain that pipeline, such as doctoral funding, visa routes for early-career researchers, and stable junior positions, are therefore first-order defences against a point of no return.")
 
     p = doc.add_paragraph()
-    p.add_run("Second, among the mobility transition rates, dropout is the dominant lever. "
-              "Its elasticity is near -2 for every group, and a simulated 10% reduction yields the largest margin gain per unit proportional change in the policy counterfactuals. "
+    p.add_run(f"Second, among the mobility transition rates, dropout (d) is the dominant negative lever; its active-pool elasticity ranges from {_fmt(ctx['d_min_e'], 2)} to {_fmt(ctx['d_max_e'], 2)} across groups, and in the policy counterfactuals a simulated reduction in dropout yields the largest margin gain per unit proportional change. "
               "Attrition matters because it removes researchers from every compartment, not just one. "
               "A 10% proportional reduction in dropout expands the safety margin more than comparably sized increases in return, hit generation or promotion. "
-              "For groups with small safety margins, such as Japan, even modest attrition reductions may substantially delay the threshold. "
+              f"For {ctx['smallest_margin_group']}, the group with the smallest safety margin, even modest attrition reductions may widen the margin. "
               "These counterfactuals are mechanical perturbations of the fitted rates; they identify the most sensitive transition levers, not the causal effect of any specific policy programme.")
 
     p = doc.add_paragraph()
-    p.add_run("Third, the positive transition levers are not symmetric. "
-              "PI promotion (p_D) and domestic hit generation (h_D) have positive but smaller elasticities than dropout reduction. "
-              "Return from abroad (β) is also positive, though its effect is generally smaller than keeping researchers from leaving in the first place. "
-              "The implication for policy is that retention is usually cheaper and more effective than return, but a balanced portfolio is still needed: a community without domestic PI growth cannot reproduce itself through attrition reduction alone.")
+    p.add_run(f"Third, {ctx['positive_lever_sentence_lower']}. "
+              f"The {ctx['highest_pd_group']} group shows the strongest response to PI promotion, suggesting that for that community expanding the domestic PI pipeline is an efficient lever. "
+              "Return from abroad (β) is also positive for most groups, though its effect is generally smaller than reducing attrition directly. "
+              "The implication for policy is that retention and promotion are usually more efficient than trying to attract returnees, but a balanced portfolio is still needed: a community without domestic PI growth cannot reproduce itself through attrition reduction alone.")
 
     p = doc.add_paragraph()
-    p.add_run("Fourth, the historical counterfactual shows that the late-window rates, if they persisted, would change equilibrium margins in both directions. "
-              "Several large groups would see lower safety margins, while Japan and some smaller groups would see higher margins. "
-              "This heterogeneity cautions against treating AI/ML mobility as a single global trend. "
+    p.add_run("Fourth, the historical counterfactual shows that the late-window rates, if they persisted, would alter equilibrium margins. "
+              f"{period_direction_text} "
+              "This pattern cautions against treating AI/ML mobility as a single global trend. "
               "It also confirms that the model can detect temporal changes in transition rates, which is the prerequisite for the early intervention the framework is designed to support.")
 
     p = doc.add_paragraph()
@@ -1551,8 +1741,8 @@ def _add_docx_body(doc, data, fig_paths):
     p.add_run("We have proposed and implemented a transition-rate framework for assessing how close AI/ML research communities are to a point of no return. "
               "The model converts OpenAlex publication records into civilisation-specific transition rates and solves for the equilibrium active researcher pool. "
               "All groups remain above their minimum viable coauthor threshold in the fitted model, but the distance to that threshold varies by an order of magnitude and is most sensitive to exogenous entry and dropout. "
-              "Dropout is the dominant negative lever, and a simulated reduction is the single most efficient model-implied response for every civilisation. "
-              "However, the closest point of no return is exogenous entry for most groups, which means that policies which sustain the pipeline of new researchers are first-order defences. "
+              f"Dropout is the dominant negative lever (active-pool elasticity {_fmt(ctx['d_min_e'], 2)} to {_fmt(ctx['d_max_e'], 2)}), and a simulated reduction is the single most efficient model-implied response for every civilisation. "
+              "However, the closest point of no return is exogenous entry for all groups in the active-pool analysis, which means that policies which sustain the pipeline of new researchers are first-order defences. "
               "The historical counterfactual and the bootstrap intervals remind us that the future is not determined by current rates; transition rates can change, and policy can be directed at the most fragile lever before a collapse.")
 
     p = doc.add_paragraph()

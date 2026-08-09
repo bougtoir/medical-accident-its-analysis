@@ -30,6 +30,47 @@ def split_cohort(cohort, cutoff):
     return early, late
 
 
+def _support_counts(df):
+    """Return subpopulation sizes used for each transition rate."""
+    return {
+        "alpha": len(df),
+        "d": len(df),
+        "beta": int(df["abroad"].sum()),
+        "h_D": int((~df["abroad"]).sum()),
+        "h_A": int(df["abroad"].sum()),
+        "p_D": int((df["hit"] & ~df["abroad"]).sum()),
+        "p_A": int((df["hit"] & df["abroad"]).sum()),
+    }
+
+
+def filter_rates_by_support(cohort, rates, min_cohort=10):
+    """Set rates to NaN when their supporting subpopulation is too small.
+
+    Minimum thresholds are chosen to avoid degenerate zero-rate estimates
+    from tiny subgroups while still preserving PI-related rates that are
+    inherently rare.
+    """
+    rate_cols = ["alpha", "beta", "h_D", "h_A", "p_D", "p_A", "d"]
+    min_support = {
+        "alpha": min_cohort,
+        "d": min_cohort,
+        "beta": 3,
+        "h_D": 3,
+        "h_A": 3,
+        "p_D": 2,
+        "p_A": 2,
+    }
+    rates = rates.copy()
+    for group in rates.index:
+        df = cohort[cohort["origin_group"] == group]
+        counts = _support_counts(df)
+        for rate in rate_cols:
+            if counts[rate] < min_support[rate]:
+                rates.loc[group, rate] = np.nan
+    # Drop groups that cannot support all required rates
+    return rates.dropna(subset=rate_cols)
+
+
 def run_period(cohort, rates, period_label, safety_factor=0.5):
     """Run endogenous model for a given cohort/rates."""
     start_year = int(cohort["career_start"].min())
@@ -61,8 +102,8 @@ def main():
     if len(early) == 0 or len(late) == 0:
         raise ValueError("Empty early or late cohort after split")
 
-    early_rates = estimate_rates(early, min_cohort=5).set_index("group")
-    late_rates = estimate_rates(late, min_cohort=5).set_index("group")
+    early_rates = filter_rates_by_support(early, estimate_rates(early, min_cohort=10).set_index("group"))
+    late_rates = filter_rates_by_support(late, estimate_rates(late, min_cohort=10).set_index("group"))
 
     early_summary, early_sens, early_pnr = run_period(
         early, early_rates, "early", safety_factor=args.safety_factor
@@ -80,7 +121,10 @@ def main():
     sens.to_csv(RESULTS_DIR / "sensitivity.csv", index=False, encoding="utf-8-sig")
     pnr.to_csv(RESULTS_DIR / "point_of_no_return.csv", index=False, encoding="utf-8-sig")
 
-    # Period comparison keyed by group
+    # Period comparison keyed by group; only groups present in both windows
+    n_by_group = cohort.groupby("origin_group").size().to_dict()
+    early_n = early.groupby("origin_group").size().to_dict()
+    late_n = late.groupby("origin_group").size().to_dict()
     compare = []
     for g in summary["group"].unique():
         e = early_summary[early_summary["group"] == g]
@@ -91,6 +135,8 @@ def main():
         lr = l.iloc[0]
         compare.append({
             "group": g,
+            "n_early": int(early_n.get(g, 0)),
+            "n_late": int(late_n.get(g, 0)),
             "T_early": er["T_equilibrium"],
             "T_late": lr["T_equilibrium"],
             "delta_T": lr["T_equilibrium"] - er["T_equilibrium"],
