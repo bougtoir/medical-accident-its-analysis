@@ -137,7 +137,8 @@ def relabel_cohort(cohort, sample_path, requested_codes, min_cohort, a2g):
         rows.append(row)
 
     cohort = pd.DataFrame(rows)
-    cohort = cohort[cohort["origin_country"].isin(a2g)]
+    valid_names = set(a2g.values())
+    cohort = cohort[cohort["origin_country"].isin(valid_names)]
     vc = cohort["origin_country"].value_counts()
     cohort = cohort[cohort["origin_country"].map(vc) >= min_cohort]
 
