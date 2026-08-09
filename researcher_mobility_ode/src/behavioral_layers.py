@@ -34,6 +34,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 RESULTS_DIR = BASE_DIR / "results" / "behavioral_layers"
 
 
+def smooth_prop(successes, n, prior=1.0):
+    """Laplace-smoothed proportion matching cohort_extraction.estimate_rates."""
+    if n == 0:
+        return 0.0
+    return (successes + prior) / (n + 2 * prior)
+
+
 def p_to_beta(p, horizon=10.0, rate_cap=2.0):
     """Convert a return probability to a constant annual hazard rate."""
     if p <= 0.0:
@@ -146,10 +153,13 @@ def main():
             r_post_cf = min(r_post_cf, lr["mid_return_rate"])
         r_post_cf = min(max(r_post_cf, 0.0), 1.0)
 
-        # Combine postdoc and mid-career return probabilities, then convert
-        # the counterfactual probability to the same hazard scale used in rates.
+        # Combine postdoc and mid-career return probabilities, apply the same
+        # Laplace smoothing used in cohort_extraction.estimate_rates, then convert
+        # to the hazard scale used for beta in transition_rates.csv.
         p_return_cf = (n_post * r_post_cf + n_mid * lr["mid_return_rate"]) / n_total if n_total > 0 else lr["beta_baseline"]
-        beta_cf = p_to_beta(p_return_cf)
+        p_return_cf = min(max(p_return_cf, 0.0), 1.0)
+        p_return_cf_smooth = smooth_prop(p_return_cf * n_total, n_total)
+        beta_cf = p_to_beta(p_return_cf_smooth)
         beta_baseline = rates.loc[g, "beta"]
         cf = counterfactual_T(cohort, rates, g, beta_cf, a2g, stats)
         rows.append({
