@@ -376,6 +376,8 @@ def main():
                         help="Cap on unique authors to fetch works for (pilot safety).")
     parser.add_argument("--cache-dir", type=str, default=str(CACHE_DIR))
     parser.add_argument("--no-cache", action="store_true")
+    parser.add_argument("--force-resample", action="store_true",
+                        help="Delete cached sampled works and fetch a new sample from OpenAlex.")
     args = parser.parse_args()
 
     client = OpenAlexClient(
@@ -385,8 +387,8 @@ def main():
     a2g, group_to_a2 = load_group_mapping()
     print("Loaded group mapping for", len(a2g), "alpha-2 codes covering", len(group_to_a2), "groups.")
 
-    # Remove old cache if parameters changed
-    (COHORT_DIR / "raw_sampled_works.json").unlink(missing_ok=True)
+    if args.force_resample:
+        (COHORT_DIR / "raw_sampled_works.json").unlink(missing_ok=True)
 
     cohort = build_cohort(args.sample_per_group, args.max_authors, client, a2g, group_to_a2)
     cohort_path = COHORT_DIR / "cohort.csv"
