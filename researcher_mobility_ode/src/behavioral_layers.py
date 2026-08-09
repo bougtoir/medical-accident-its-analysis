@@ -21,6 +21,7 @@ A_postdoc and A_senior in future model versions.
 """
 
 import argparse
+import math
 from pathlib import Path
 
 import numpy as np
@@ -31,6 +32,15 @@ import ode_model_endogenous as odm
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 RESULTS_DIR = BASE_DIR / "results" / "behavioral_layers"
+
+
+def p_to_beta(p, horizon=10.0, rate_cap=2.0):
+    """Convert a return probability to a constant annual hazard rate."""
+    if p <= 0.0:
+        return 0.0
+    if p >= 1.0:
+        return rate_cap
+    return min(-math.log(1.0 - p) / horizon, rate_cap)
 
 
 def classify_abroad_layer(row):
@@ -135,7 +145,12 @@ def main():
         if args.cap_to_mid and lr["mid_return_rate"] > 0:
             r_post_cf = min(r_post_cf, lr["mid_return_rate"])
         r_post_cf = min(max(r_post_cf, 0.0), 1.0)
-        beta_cf = (n_post * r_post_cf + n_mid * lr["mid_return_rate"]) / n_total if n_total > 0 else lr["beta_baseline"]
+
+        # Combine postdoc and mid-career return probabilities, then convert
+        # the counterfactual probability to the same hazard scale used in rates.
+        p_return_cf = (n_post * r_post_cf + n_mid * lr["mid_return_rate"]) / n_total if n_total > 0 else lr["beta_baseline"]
+        beta_cf = p_to_beta(p_return_cf)
+        beta_baseline = rates.loc[g, "beta"]
         cf = counterfactual_T(cohort, rates, g, beta_cf, a2g, stats)
         rows.append({
             "group": g,
@@ -143,7 +158,7 @@ def main():
             "n_mid_abroad": n_mid,
             "postdoc_return_rate": lr["postdoc_return_rate"],
             "mid_return_rate": lr["mid_return_rate"],
-            "beta_baseline": lr["beta_baseline"],
+            "beta_baseline": beta_baseline,
             "beta_counterfactual": beta_cf,
             "T_baseline": base.loc[g, "T_equilibrium"],
             "T_counterfactual": cf["T_equilibrium"],

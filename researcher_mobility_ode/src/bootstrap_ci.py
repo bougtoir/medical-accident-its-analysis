@@ -51,6 +51,8 @@ def main():
             safety_factor=args.safety_factor,
             cohort_df=boot,
             rates_df=rates,
+            compute_sensitivity=False,
+            compute_pnr=False,
         )
         for _, r in summary.iterrows():
             rows.append({
