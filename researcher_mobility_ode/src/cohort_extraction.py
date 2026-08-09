@@ -134,21 +134,22 @@ def classify_author(aid, works, a2g, origin_override=None):
     if n_works < MIN_WORKS:
         return None
 
+    # Determine origin group from first 3 years (always collected so the
+    # absence-of-affiliation filter still applies to overridden authors).
+    origin_counter = Counter()
+    first_year_by_group = {}
+    for w in works:
+        if w["publication_year"] <= career_start + 2:
+            groups = work_groups_for_author(w, aid, a2g)
+            for g in groups:
+                origin_counter[g] += 1
+                if g not in first_year_by_group:
+                    first_year_by_group[g] = w["publication_year"]
+    if not origin_counter:
+        return None
     if origin_override is not None:
         origin = origin_override
     else:
-        # Determine origin group from first 3 years
-        origin_counter = Counter()
-        first_year_by_group = {}
-        for w in works:
-            if w["publication_year"] <= career_start + 2:
-                groups = work_groups_for_author(w, aid, a2g)
-                for g in groups:
-                    origin_counter[g] += 1
-                    if g not in first_year_by_group:
-                        first_year_by_group[g] = w["publication_year"]
-        if not origin_counter:
-            return None
         # Tie-break by earliest first appearance, then most frequent
         origin = max(
             origin_counter.keys(),
