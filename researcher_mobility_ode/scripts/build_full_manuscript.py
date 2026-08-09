@@ -255,7 +255,9 @@ def build_figure2(pnr_closest, fig_dir: Path):
     labels = [f"{r}\n({t})" for r, t in zip(pnr_closest["rate_name"], pnr_closest["target"])]
     prox = pnr_closest["proximity"].tolist()
     fig, ax = plt.subplots(figsize=(9, 5))
-    colors = ["crimson" if p < 0.7 else "darkorange" if p < 0.85 else "seagreen" for p in prox]
+    # Use a perceptually uniform, colour-vision-deficiency-friendly sequential palette
+    norm = max(prox) * 1.2 if prox else 1.0
+    colors = [plt.cm.plasma(0.25 + 0.55 * (p / norm)) for p in prox]
     bars = ax.barh(groups, prox, color=colors)
     for bar, label in zip(bars, labels):
         width = bar.get_width()
@@ -280,7 +282,10 @@ def build_figure3(period_compare, fig_dir: Path):
     groups = df["group"].tolist()
     deltas = df["delta_margin"].tolist()
     fig, ax = plt.subplots(figsize=(9, 5))
-    colors = ["seagreen" if d > 0 else "crimson" for d in deltas]
+    # Colour-vision-deficiency-friendly palette: blue for positive, vermillion for negative
+    CVD_POS = "#0072B2"
+    CVD_NEG = "#D55E00"
+    colors = [CVD_POS if d > 0 else CVD_NEG for d in deltas]
     bars = ax.barh(groups, deltas, color=colors)
     for bar, d in zip(bars, deltas):
         width = bar.get_width()
@@ -290,7 +295,7 @@ def build_figure3(period_compare, fig_dir: Path):
                 fontsize=8)
     ax.axvline(0, color="black", linewidth=0.8)
     ax.set_xlabel("Change in equilibrium safety margin (late − early)")
-    ax.set_title("Counterfactual change in safety margin if late-period rates persisted")
+    ax.set_title("Counterfactual change in safety margin if late-period rates persisted (point estimates)")
     fig.tight_layout()
     path = fig_dir / "fig3_historical_margin.png"
     fig.savefig(path, dpi=300)
@@ -327,22 +332,22 @@ def build_figure4(boot, fig_dir: Path):
 # ---------------------------------------------------------------------------
 
 REFS = [
-    "Momentumyy. 人材流出ではなく『遷移係数』で考える研究コミュニティの存亡. note, 2024. https://note.com/momentumyy/n/n86df5d34282d (accessed 2026-08-09).",
+    "Yamada Y (momentumyy). 海外で当てた研究者はその後どうなるのか. note.com, 2026. https://note.com/momentumyy/n/n86df5d34282d (accessed 2026-08-09).",
+    "MacroPolo. The Global AI Talent Tracker 2.0. Paulson Institute, 2023. https://macropolo.org/digital-projects/the-global-ai-talent-tracker/",
+    "Appelt S, van Beuzekom B, Galindo-Rueda F, de Pinho R. Which factors influence the international mobility of research scientists? OECD Science, Technology and Industry Working Papers 2015/02, 2015. https://doi.org/10.1787/5js1tmrr2233-en",
+    "Stephan P E. The Economics of Science. J Econ Lit. 1996;34(3):1199-1235.",
     "Huntington S P. The Clash of Civilizations and the Remaking of World Order. New York: Simon & Schuster, 1996.",
+    "Aghion P, Bloom N, Blundell R, Griffith R, Howitt P. Competition and innovation: an inverted-U relationship. Q J Econ. 2005;120(2):701-728.",
     "Priem J, Piwowar H, Orr R. OpenAlex: A fully-open index of scholarly works, authors, venues, institutions, and concepts. arXiv:2205.01833, 2022. https://doi.org/10.48550/arXiv.2205.01833",
     "Thorn K, Holm-Nielsen L B. International Mobility of Researchers and Scientists: Policy Options for Turning a Drain into a Gain. UNU-WIDER Research Paper No. 2006/83, 2006. https://www.wider.unu.edu/sites/default/files/rp2006-83.pdf",
-    "Appelt S, van Beuzekom B, Galindo-Rueda F, de Pinho R. Which factors influence the international mobility of research scientists? OECD Science, Technology and Industry Working Papers 2015/02, 2015. https://doi.org/10.1787/5js1tmrr2233-en",
-    "MacroPolo. The Global AI Talent Tracker 2.0. Paulson Institute, 2023. https://macropolo.org/digital-projects/the-global-ai-talent-tracker/",
     "AlShebli B, Memon S A, Evans J A, Rahwan T. China and the U.S. produce more impactful AI research when collaborating together. Sci Rep. 2024;14:28576. https://doi.org/10.1038/s41598-024-79863-5",
     "Yuan S, Shao Z, Wei X, Tang J, Hall W, Wang Y, et al. Science behind AI: the evolution of trend, mobility, and collaboration. Scientometrics. 2020;124(2):993-1013. https://doi.org/10.1007/s11192-020-03423-7",
     "Shaffer M L. Minimum Population Sizes for Species Conservation. BioScience. 1981;31(2):131-134.",
     "Franzoni C, Scellato G, Stephan P E. Foreign-born scientists: mobility patterns for 16 countries. Nat Biotechnol. 2012;30(12):1250-1253.",
-    "Aghion P, Bloom N, Blundell R, Griffith R, Howitt P. Competition and innovation: an inverted-U relationship. Q J Econ. 2005;120(2):701-728.",
-    "Freeman R B, Huang W. Collaboration: Strength in diversity. Nature. 2014;513(7518):305. https://doi.org/10.1038/513305a",
-    "Kerr W R. Global Talent and U.S. Immigration Policy. Harvard Business School Working Paper No. 20-107, 2020. https://www.hbs.edu/ris/Publication%20Files/20-107_0967f1ab-1d23-4d54-b5a1-c884234d9b31.pdf",
-    "Shachar A. The Race for Talent: Highly Skilled Migrants and Competitive Immigration Regimes. NYU Law Rev. 2006;81(1):148-206.",
-    "Stephan P E. The Economics of Science. J Econ Lit. 1996;34(3):1199-1235.",
     "Jones B F, Wuchty S, Uzzi B. Multi-University Research Teams: Shifting Impact, Geography, and Stratification in Science. Science. 2008;322(5905):1259-1262.",
+    "Freeman R B, Huang W. Collaboration: Strength in diversity. Nature. 2014;513(7518):305. https://doi.org/10.1038/513305a",
+    "Shachar A. The Race for Talent: Highly Skilled Migrants and Competitive Immigration Regimes. NYU Law Rev. 2006;81(1):148-206.",
+    "Kerr W R. Global Talent and U.S. Immigration Policy. Harvard Business School Working Paper No. 20-107, 2020. https://www.hbs.edu/ris/Publication%20Files/20-107_0967f1ab-1d23-4d54-b5a1-c884234d9b31.pdf"
 ]
 
 
@@ -385,9 +390,9 @@ def _abstract_and_highlights(eq, pnr_closest):
         "The minimum viable coauthor threshold is defined as M = k × c_bar, where c_bar is the mean number of authors per work and k is the median number of distinct last-author groups observed per recent year. "
         f"Across {len(eq)} groups, equilibrium domestic active pools remain above their thresholds, but the closest point of no return is observed for the {closest['group']} group, "
         f"where a proportional change of {_fmt(closest['proximity'])} in {closest['rate_name']} (critical factor {_fmt(closest['critical_factor'])}×) would drive the active pool to its threshold. "
-        "Dropout is the most powerful positive policy lever: reducing it by 10% yields the largest margin gain per unit effort in every group. "
+        "A 10% simulated reduction in dropout yields the largest margin gain per unit proportional change in every group, making it the most sensitive transition lever in the model. "
         "Historical and saturating-inflow counterfactuals show that the model is most sensitive to exogenous entry and attrition. "
-        "These results provide a quantitative framework for early, safety-factor-bound interventions that preserve civilisational diversity in AI/ML research."
+        "These results provide a quantitative framework for early, safety-factor-bound policy scenarios that preserve civilisational diversity in AI/ML research."
     )
     keywords = (
         "researcher mobility; artificial intelligence; civilisation grouping; "
@@ -396,7 +401,7 @@ def _abstract_and_highlights(eq, pnr_closest):
     highlights = [
         "Nine civilisations modelled as six-compartment ODEs fitted to OpenAlex AI/ML data.",
         f"Closest point of no return for the active pool is {closest['group']} via {closest['rate_name']} (critical factor {_fmt(closest['critical_factor'])}×).",
-        "Reducing researcher dropout is the largest positive lever across all groups.",
+        "Simulated dropout reduction yields the largest margin gain per unit proportional change across all groups.",
     ]
     return abstract, keywords, highlights
 
@@ -476,19 +481,19 @@ def write_markdown(output_dir: Path, data, fig_paths):
         "That is the point of no return that motivates this paper[1].",
         "",
         "Artificial intelligence and machine learning have become the archetypal general-purpose technologies of the current era[6,7,8]. "
-        "Their development depends on a relatively small, highly mobile workforce of doctoral and post-doctoral researchers, principal investigators, and research engineers[6]. "
+        "Their development depends on a relatively small, highly mobile workforce of doctoral and post-doctoral researchers, principal investigators, and research engineers[2]. "
         "The geographic concentration of this workforce has generated both scientific and geopolitical concern. "
         "Policymakers in the United States, China, Europe, Japan, India and elsewhere now treat AI talent as a strategic input, and several governments have introduced incentives to attract or retain researchers[5,6]. "
         "Most of those policies are evaluated by their immediate net-flow effects. "
         "They rarely ask which transition in the career pipeline is the binding constraint, or how close a community is to a threshold where the field can no longer sustain itself.",
         "",
-        "The civilisation framework offers a natural way to partition the global research population into culturally and institutionally coherent arenas[2]. "
+        "The civilisation framework offers a natural way to partition the global research population into culturally and institutionally coherent arenas[5]. "
         "We adapt Huntington's nine civilisations for AI/ML mobility by keeping the United States, China (Sinic), India (Hindu), Japan, and the Islamic world as distinct groups, splitting the Western bloc into the United States, Anglosphere excluding the United States, Continental Europe and Other Western, and merging the smaller Latin American, Orthodox and African communities into Other Civilizations. "
         "This grouping reflects the empirical size and mobility patterns observed in the data rather than a normative claim about civilisational identity.",
         "",
         "The central argument of the paper is that preserving civilisational diversity in AI/ML is not only a normative preference but also a safeguard against technological dead ends. "
-        "When a single region or a small oligopoly dominates a field, the set of research questions, evaluation norms, and institutional incentives narrows[11]. "
-        "A diverse ecosystem generates competing approaches, which increases the probability that unexpected breakthroughs and error correction survive[11]. "
+        "When a single region or a small oligopoly dominates a field, the set of research questions, evaluation norms, and institutional incentives narrows[6]. "
+        "A diverse ecosystem generates competing approaches, which increases the probability that unexpected breakthroughs and error correction survive[6]. "
         "If transition rates can be observed with enough temporal resolution, policy can intervene before a community reaches the point of no return. "
         "Early, proportionate interventions can prevent the emergence of a monopoly or oligopoly without requiring large ex post rescues.",
         "",
@@ -507,18 +512,18 @@ def write_markdown(output_dir: Path, data, fig_paths):
         "## 2. Literature and conceptual framework",
         "",
         "Researcher mobility has long been studied under the headings of brain drain, brain circulation and brain gain[4,5,10]. "
-        "Thorn and Holm-Nielsen argue that the mobility of researchers from developing countries can become a gain when return migration and diaspora networks are supported, but it can become a drain when local research environments cannot retain or reproduce talent[4]. "
-        "Appelt et al., using a gravity framework for 1996-2011, find that scientific collaboration, economic convergence and visa restrictions are the strongest correlates of bilateral mobility[5]. "
+        "Thorn and Holm-Nielsen argue that the mobility of researchers from developing countries can become a gain when return migration and diaspora networks are supported, but it can become a drain when local research environments cannot retain or reproduce talent[8]. "
+        "Appelt et al., using a gravity framework for 1996-2011, find that scientific collaboration, economic convergence and visa restrictions are the strongest correlates of bilateral mobility[3]. "
         "Their analysis shows that mobility is multi-directional: a large share of researcher movement is better described as circulation than as one-way migration.",
         "",
         "The AI/ML literature has documented the same patterns at higher resolution. "
-        "MacroPolo's Global AI Talent Tracker finds that the United States remains the leading destination for top-tier AI researchers, while China and India are expanding domestic retention[6]. "
-        "AlShebli et al. show that U.S.-China collaboration in AI is more impactful than either country working alone, and that most mobile AI scientists retain collaboration links with their origin country[7]. "
-        "Yuan et al. find that the brain-drain problem for AI scientists is increasingly serious in developing countries, and that the ties among AI elites are highly clustered[8]. "
+        "MacroPolo's Global AI Talent Tracker finds that the United States remains the leading destination for top-tier AI researchers, while China and India are expanding domestic retention[2]. "
+        "AlShebli et al. show that U.S.-China collaboration in AI is more impactful than either country working alone, and that most mobile AI scientists retain collaboration links with their origin country[9]. "
+        "Yuan et al. find that the brain-drain problem for AI scientists is increasingly serious in developing countries, and that the ties among AI elites are highly clustered[10]. "
         "These studies establish that AI/ML talent is mobile, concentrated and strategically important.",
         "",
         "What is missing is a formal link between individual transition rates and the long-run viability of a research community. "
-        "The concept of a minimum viable population, introduced by Shaffer, captures the smallest isolated population that has a high probability of persisting despite demographic, environmental and genetic stochasticity[9]. "
+        "The concept of a minimum viable population, introduced by Shaffer, captures the smallest isolated population that has a high probability of persisting despite demographic, environmental and genetic stochasticity[11]. "
         "Transferred to science, the equivalent idea is a minimum viable coauthor pool: the smallest number of active researchers that can continue to produce work at the field's observed coauthor intensity. "
         "Below that pool, collaboration networks fragment, mentorship chains break, and the field enters a self-reinforcing decline.",
         "",
@@ -687,14 +692,15 @@ def write_markdown(output_dir: Path, data, fig_paths):
     lines.extend([
         f"![Figure 3]({fig3_rel})",
         "",
-        "**Figure 3. Change in safety margin between early and late transition-rate regimes.** Positive values mean the late-window rates would produce a larger safety margin if they persisted.",
+        "**Figure 3. Change in safety margin between early and late transition-rate regimes.** Positive values mean the late-window rates would produce a larger safety margin if they persisted. "
+        "The comparison is across two point estimates; uncertainty is substantial because the two windows have different cohort sizes and the steady-state model does not capture policy shocks.",
         "",
     ])
 
     lines.extend([
         "### 5.3 Policy counterfactuals",
         "",
-        "Table 7 reports the single intervention with the largest margin gain per 10% lever change for each group. "
+        "Table 7 reports the single mechanical counterfactual with the largest margin gain per 10% lever change for each group. "
         "Reducing dropout is the dominant positive lever for every civilisation.",
         "",
     ])
@@ -748,10 +754,11 @@ def write_markdown(output_dir: Path, data, fig_paths):
         "Policies that sustain that pipeline, such as doctoral funding, visa routes for early-career researchers, and stable junior positions, are therefore first-order defences against a point of no return.",
         "",
         "Second, among the mobility transition rates, dropout is the dominant lever. "
-        "Its elasticity is near -2 for every group, and reducing it yields the largest margin gain per unit effort in the policy counterfactuals. "
+        "Its elasticity is near -2 for every group, and a simulated 10% reduction yields the largest margin gain per unit proportional change in the policy counterfactuals. "
         "Attrition matters because it removes researchers from every compartment, not just one. "
-        "A 10% reduction in dropout expands the safety margin more than comparably sized increases in return, hit generation or promotion. "
-        "For groups with small safety margins, such as Japan, even modest attrition reductions may substantially delay the threshold.",
+        "A 10% proportional reduction in dropout expands the safety margin more than comparably sized increases in return, hit generation or promotion. "
+        "For groups with small safety margins, such as Japan, even modest attrition reductions may substantially delay the threshold. "
+        "These counterfactuals are mechanical perturbations of the fitted rates; they identify the most sensitive transition levers, not the causal effect of any specific policy programme.",
         "",
         "Third, the positive transition levers are not symmetric. "
         "PI promotion (p_D) and domestic hit generation (h_D) have positive but smaller elasticities than dropout reduction. "
@@ -763,10 +770,18 @@ def write_markdown(output_dir: Path, data, fig_paths):
         "This heterogeneity cautions against treating AI/ML mobility as a single global trend. "
         "It also confirms that the model can detect temporal changes in transition rates, which is the prerequisite for the early intervention the framework is designed to support.",
         "",
+        "The transition levers also interact in ways that a single-rate elasticity cannot fully capture. "
+        "For example, reducing dropout and increasing PI promotion together are likely to have a larger effect than the sum of the two individual perturbations, because more researchers survive to become PIs and those PIs then train additional early-career researchers through the endogenous inflow channel. "
+        "Conversely, a simultaneous fall in exogenous entry and a rise in dropout can push a community to its threshold faster than either change alone. "
+        "The model's steady-state and one-at-a-time counterfactuals are therefore a starting point; they identify the most sensitive margins but do not exhaust the policy design space.",
+        "",
         "The connection to civilisational diversity is direct. "
         "Each group's safety margin can be monitored over time, and interventions can be adjusted before the margin disappears. "
         "Because the model uses a fixed safety factor of 0.5 for the endogenous inflow parameter r, the policy recommendations are deliberately conservative: they do not push the system toward instability. "
         "That bounded approach is consistent with the goal of preserving diversity rather than maximising any single country's share.",
+        "",
+        "It is important to stress that the counterfactuals reported in Tables 3 and 7 are mechanical perturbations of the fitted transition rates, not causal estimates of specific programmes. "
+        "They identify which rates the model treats as most sensitive, and therefore where empirical policy evaluation is most urgent, but they do not by themselves show that a given intervention would achieve the simulated change.",
         "",
         "Several limitations should be acknowledged. "
         "OpenAlex affiliation and country assignments are noisy, especially for researchers with multiple affiliations. "
@@ -783,7 +798,7 @@ def write_markdown(output_dir: Path, data, fig_paths):
         "We have proposed and implemented a transition-rate framework for assessing how close AI/ML research communities are to a point of no return. "
         "The model converts OpenAlex publication records into civilisation-specific transition rates and solves for the equilibrium active researcher pool. "
         "All groups remain above their minimum viable coauthor threshold in the fitted model, but the distance to that threshold varies by an order of magnitude and is most sensitive to exogenous entry and dropout. "
-        "Early, proportionate interventions that reduce attrition and sustain new recruitment can widen safety margins and preserve civilisational diversity in AI/ML. "
+        "Simulated reductions in attrition and sustained new recruitment widen safety margins in the model, which is consistent with preserving civilisational diversity in AI/ML. "
         "Future work should extend the model to network externalities, finer temporal resolution, and additional security-relevant fields.",
         "",
         "## References",
@@ -898,25 +913,25 @@ def _add_docx_body(doc, data, fig_paths):
 
     p = doc.add_paragraph()
     p.add_run("Artificial intelligence and machine learning have become the archetypal general-purpose technologies of the current era")
-    add_citation(p, 6)
+    add_citation(p, 2)
     p.add_run(", and their development depends on a relatively small, highly mobile workforce of doctoral and post-doctoral researchers, principal investigators, and research engineers")
-    add_citation(p, 6)
+    add_citation(p, 2)
     p.add_run(". "
               "The geographic concentration of this workforce has generated both scientific and geopolitical concern. "
               "Policymakers in the United States, China, Europe, Japan, India and elsewhere now treat AI talent as a strategic input, and several governments have introduced incentives to attract or retain researchers")
-    add_citation(p, 5)
+    add_citation(p, 3)
     p.add_run(". "
               "Most of those policies are evaluated by their immediate net-flow effects. "
               "They rarely ask which transition in the career pipeline is the binding constraint, or how close a community is to a threshold where the field can no longer sustain itself. "
               "The economic literature on science has long emphasised that researchers are a scarce input and that their mobility responds to career incentives and institutional quality")
-    add_citation(p, 15)
+    add_citation(p, 4)
     p.add_run(". "
               "That literature provides the microfoundation for our rates: individuals decide where to train, whether to go abroad, when to return, and when to leave academia. "
               "We aggregate those individual decisions into civilisation-level transition rates and ask what the resulting dynamics imply for community survival.")
 
     p = doc.add_paragraph()
     p.add_run("The civilisation framework offers a natural way to partition the global research population into culturally and institutionally coherent arenas")
-    add_citation(p, 2)
+    add_citation(p, 5)
     p.add_run(". "
               "We adapt Huntington's nine civilisations for AI/ML mobility by keeping the United States, China (Sinic), India (Hindu), Japan, and the Islamic world as distinct groups, splitting the Western bloc into the United States, Anglosphere excluding the United States, Continental Europe and Other Western, and merging the smaller Latin American, Orthodox and African communities into Other Civilizations. "
               "This grouping reflects the empirical size and mobility patterns observed in the data rather than a normative claim about civilisational identity.")
@@ -924,10 +939,10 @@ def _add_docx_body(doc, data, fig_paths):
     p = doc.add_paragraph()
     p.add_run("The central argument of the paper is that preserving civilisational diversity in AI/ML is not only a normative preference but also a safeguard against technological dead ends. "
               "When a single region or a small oligopoly dominates a field, the set of research questions, evaluation norms, and institutional incentives narrows")
-    add_citation(p, 11)
+    add_citation(p, 6)
     p.add_run(". "
               "A diverse ecosystem generates competing approaches, which increases the probability that unexpected breakthroughs and error correction survive")
-    add_citation(p, 11)
+    add_citation(p, 6)
     p.add_run(". "
               "If transition rates can be observed with enough temporal resolution, policy can intervene before a community reaches the point of no return. "
               "Early, proportionate interventions can prevent the emergence of a monopoly or oligopoly without requiring large ex post rescues.")
@@ -943,7 +958,7 @@ def _add_docx_body(doc, data, fig_paths):
 
     p = doc.add_paragraph()
     p.add_run("The contribution is a reproducible, data-driven transition-rate model that links OpenAlex publication records to a system of ordinary differential equations")
-    add_citation(p, 3)
+    add_citation(p, 7)
     p.add_run(". "
               "The model is intentionally simple: it does not explain why a rate is high or low, but it identifies which rate is closest to a threshold and therefore where early intervention is most urgent.")
 
@@ -951,33 +966,33 @@ def _add_docx_body(doc, data, fig_paths):
     doc.add_heading("2. Literature and conceptual framework", level=1)
     p = doc.add_paragraph()
     p.add_run("Researcher mobility has long been studied under the headings of brain drain, brain circulation and brain gain")
-    add_citation(p, 4)
+    add_citation(p, 8)
     p.add_run(". "
               "Thorn and Holm-Nielsen argue that the mobility of researchers from developing countries can become a gain when return migration and diaspora networks are supported, but it can become a drain when local research environments cannot retain or reproduce talent")
-    add_citation(p, 4)
+    add_citation(p, 8)
     p.add_run(". "
               "Appelt et al., using a gravity framework for 1996-2011, find that scientific collaboration, economic convergence and visa restrictions are the strongest correlates of bilateral mobility")
-    add_citation(p, 5)
+    add_citation(p, 3)
     p.add_run(". "
               "Their analysis shows that mobility is multi-directional: a large share of researcher movement is better described as circulation than as one-way migration.")
 
     p = doc.add_paragraph()
     p.add_run("The AI/ML literature has documented the same patterns at higher resolution. "
               "MacroPolo's Global AI Talent Tracker finds that the United States remains the leading destination for top-tier AI researchers, while China and India are expanding domestic retention")
-    add_citation(p, 6)
+    add_citation(p, 2)
     p.add_run(". "
               "AlShebli et al. show that U.S.-China collaboration in AI is more impactful than either country working alone, and that most mobile AI scientists retain collaboration links with their origin country")
-    add_citation(p, 7)
+    add_citation(p, 9)
     p.add_run(". "
               "Yuan et al. find that the brain-drain problem for AI scientists is increasingly serious in developing countries, and that the ties among AI elites are highly clustered")
-    add_citation(p, 8)
+    add_citation(p, 10)
     p.add_run(". "
               "These studies establish that AI/ML talent is mobile, concentrated and strategically important.")
 
     p = doc.add_paragraph()
     p.add_run("What is missing is a formal link between individual transition rates and the long-run viability of a research community. "
               "The concept of a minimum viable population, introduced by Shaffer, captures the smallest isolated population that has a high probability of persisting despite demographic, environmental and genetic stochasticity")
-    add_citation(p, 9)
+    add_citation(p, 11)
     p.add_run(". "
               "Transferred to science, the equivalent idea is a minimum viable coauthor pool: the smallest number of active researchers that can continue to produce work at the field's observed coauthor intensity. "
               "Below that pool, collaboration networks fragment, mentorship chains break, and the field enters a self-reinforcing decline.")
@@ -992,7 +1007,7 @@ def _add_docx_body(doc, data, fig_paths):
     p = doc.add_paragraph()
     p.add_run("A final literature stream emphasises the consequences of concentrated research agendas. "
               "Aghion et al. provide evidence that the relationship between competition and innovation follows an inverted-U shape, with the strongest innovative performance in markets that are neither perfectly collusive nor perfectly monopolistic")
-    add_citation(p, 11)
+    add_citation(p, 6)
     p.add_run(". "
               "Translated to global science, this suggests that a single dominant region or a tight oligopoly may slow the rate of methodological and conceptual breakthroughs. "
               "Maintaining multiple centres of AI/ML research is therefore not merely a distributional concern; it may increase the long-run productivity of the field.")
@@ -1003,7 +1018,7 @@ def _add_docx_body(doc, data, fig_paths):
     p = doc.add_paragraph()
     p.add_run("Researcher mobility has been studied from several angles. "
               "A large empirical literature documents net flows of scientists and inventors across countries and regions, often using patent or publication records")
-    add_citation(p, 10)
+    add_citation(p, 12)
     p.add_run(". "
               "That work consistently finds that the United States, parts of Europe and, increasingly, China and India are central nodes in the global mobility network. "
               "It also finds that mobility responds to wages, funding, institutional quality and career prospects, but that it is path-dependent: once a community loses its senior cohort, it becomes harder to rebuild.")
@@ -1012,7 +1027,7 @@ def _add_docx_body(doc, data, fig_paths):
     p = doc.add_paragraph()
     p.add_run("A second strand of work emphasises the structure of scientific collaboration. "
               "Multi-university and international teams now produce a growing share of high-impact research, and the geographic dispersion of teams does not necessarily reduce their impact")
-    add_citation(p, 16)
+    add_citation(p, 13)
     p.add_run(". "
               "This literature suggests that global AI/ML is not a zero-sum race in which every researcher in one location subtracts from another. "
               "It also implies that sustaining a domestic community is compatible with, rather than opposed to, international collaboration. "
@@ -1022,7 +1037,7 @@ def _add_docx_body(doc, data, fig_paths):
     p = doc.add_paragraph()
     p.add_run("The third relevant literature concerns population viability and critical thresholds. "
               "In conservation biology, the minimum viable population concept identifies the smallest number of individuals that can sustain a population in the wild")
-    add_citation(p, 9)
+    add_citation(p, 11)
     p.add_run(". "
               "We borrow that intuition and apply it to a research community. "
               "A field needs a minimum number of active researchers to produce work, train successors, and maintain peer review and conference communities. "
@@ -1033,11 +1048,11 @@ def _add_docx_body(doc, data, fig_paths):
     p = doc.add_paragraph()
     p.add_run("The present paper bridges these literatures by estimating transition rates from open bibliometric data and embedding them in a compartment model. "
               "The model is closest in spirit to Stephan's economic model of science, in which researchers move through career stages and respond to incentives")
-    add_citation(p, 15)
+    add_citation(p, 4)
     p.add_run(", but it adds a civilisational partition and a minimum viable coauthor threshold. "
               "The civilisational partition is not merely a geographic convenience. "
               "It reflects the fact that career incentives, language, funding systems, and institutional networks cluster along civilisational lines, and that these clusters shape mobility more than national borders alone")
-    add_citation(p, 2)
+    add_citation(p, 5)
     p.add_run(". "
               "The result is a framework that can be updated as new data arrive and can compare the fragility of different research communities using a common metric. "
               "Because it is built on open bibliometric data and transparent transition rates, the model can be replicated and extended by other researchers and by policymakers who need a common language for discussing mobility and capacity.")
@@ -1046,12 +1061,12 @@ def _add_docx_body(doc, data, fig_paths):
     doc.add_heading("3. Data and grouping", level=1)
     p = doc.add_paragraph()
     p.add_run("We extracted AI/ML works and author histories from the OpenAlex API for subfield `subfields/1702` (Artificial Intelligence), using works published between 2000 and 2023")
-    add_citation(p, 3)
+    add_citation(p, 7)
     p.add_run(". "
               "OpenAlex provides open, CC0 bibliographic metadata including authors, affiliations, countries, publication dates, venues and citation links. "
               "We built author histories by following each author's sequence of works and affiliations, assigning them to a country for each work and then to a civilisation by the modal country of their recorded affiliations. "
               "An author is treated as active if they have at least one AI/ML work in the observation window and as a principal investigator (PI) if they appear as the last author of at least one work, a standard proxy for seniority in empirical science")
-    add_citation(p, 15)
+    add_citation(p, 4)
     p.add_run(". "
               "A 'hit' work is defined as one whose citation count places it in the top 10% of AI/ML works in the same publication year. "
               "The final groups are: United States, Anglosphere ex-US, Continental Europe, Sinic, Japanese, Hindu, Islamic, Other Western, and Other Civilizations.")
@@ -1150,7 +1165,8 @@ def _add_docx_body(doc, data, fig_paths):
               "The non-linear steady-state equations are solved numerically using a trust-region Newton method with analytically supplied Jacobians. "
               "Elasticities are computed by perturbing each rate by 1%, re-solving, and taking the percentage change in the target stock. "
               "For point-of-no-return analysis we scale each rate until the active pool reaches M and record the critical factor and its proximity, |critical factor − 1|. "
-              "A rate whose critical factor lies inside the scan window and is close to 1.0 is the most fragile lever for that group.")
+              "A rate whose critical factor lies inside the scan window and is close to 1.0 is the most fragile lever for that group. "
+              "All counterfactuals are mechanical perturbations of the fitted rates; they reveal which transitions the model treats as sensitive, not the causal impact of real-world policies.")
 
     doc.add_heading("4.5 Historical counterfactual design", level=2)
     p = doc.add_paragraph()
@@ -1327,20 +1343,27 @@ def _add_docx_body(doc, data, fig_paths):
     p.add_run("Figure 3 shows the change in safety margin between the early and late transition-rate regimes.")
     doc.add_picture(str(fig_paths["fig3"]), width=Inches(5.8))
     cap = doc.add_paragraph()
-    cap.add_run("Figure 3. Change in safety margin between early and late transition-rate regimes. Positive values mean the late-window rates would produce a larger safety margin if they persisted.").italic = True
+    cap.add_run("Figure 3. Change in safety margin between early and late transition-rate regimes. Positive values mean the late-window rates would produce a larger safety margin if they persisted. "
+                "The comparison is across two point estimates; uncertainty is substantial because the two windows have different cohort sizes and the steady-state model does not capture policy shocks.").italic = True
     cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
     doc.add_heading("5.3 Policy counterfactuals", level=2)
+    policy_top = policy_rank.groupby("group").head(1).copy()
+    d_change_row = policy_top[policy_top["lever"] == "d"].sort_values("margin_gain").iloc[0]
+    min_gain_group = d_change_row["group"]
+    min_gain = round(d_change_row["margin_gain"])
+    d_change_row_max = policy_top[policy_top["lever"] == "d"].sort_values("margin_gain").iloc[-1]
+    max_gain_group = d_change_row_max["group"]
+    max_gain = round(d_change_row_max["margin_gain"])
     p = doc.add_paragraph()
-    p.add_run("Table 7 reports the single intervention with the largest margin gain per 10% lever change for each group. "
+    p.add_run("Table 7 reports the single mechanical counterfactual with the largest margin gain per 10% lever change for each group. "
               "Reducing dropout is the dominant positive lever for every civilisation, which is consistent with the elasticity results in Table 3. "
-              "The gain per 10% reduction in d ranges from about 33 additional active researchers for Japan to about 260 for the Sinic group, reflecting differences in cohort size and baseline attrition. "
-              "No other single lever comes close to dropout reduction in terms of margin gained per unit policy effort, although combinations of levers may be more efficient for some groups. "
+              f"The gain per 10% proportional reduction in d ranges from about {min_gain} additional active researchers for the {min_gain_group} group to about {max_gain} for the {max_gain_group} group, reflecting differences in cohort size and baseline attrition. "
+              "No other single lever comes close to dropout reduction in terms of simulated margin gain per unit proportional change, although combinations of levers may be more efficient for some groups. "
               "The results also imply that policy need not focus on blocking early-career outflow. "
               "Reducing attrition among researchers who remain in the domestic system is a more efficient way to protect the active pool than preventing researchers from going abroad, because a researcher abroad is still in the global AI/ML system and may return. "
-              "For the smallest groups, increasing the exogenous entry rate or improving the promotion of hit researchers to PIs can add additional margin, but dropout reduction remains the first-order intervention.")
+              "For the smallest groups, increasing the exogenous entry rate or improving the promotion of hit researchers to PIs can add additional margin, but dropout reduction remains the first-order model-implied target.")
 
-    policy_top = policy_rank.groupby("group").head(1).copy()
     policy_top = policy_top.rename(columns={
         "group": "Group",
         "lever": "Lever",
@@ -1352,7 +1375,7 @@ def _add_docx_body(doc, data, fig_paths):
     _add_table_from_df(
         doc,
         policy_top,
-        caption="Table 7. Top positive intervention per group, measured by margin gain per 10% proportional lever change.",
+        caption="Table 7. Top positive mechanical counterfactual per group, measured by margin gain per 10% proportional lever change.",
         decimals={"Change (%)": 0, "Margin gain": 1, "Gain per 10%": 1},
     )
 
@@ -1404,7 +1427,7 @@ def _add_docx_body(doc, data, fig_paths):
     doc.add_heading("6.1 From net flows to transition rates", level=2)
     p = doc.add_paragraph()
     p.add_run("Most empirical studies of researcher mobility measure net flows, stocks or collaboration counts")
-    add_citation(p, 10)
+    add_citation(p, 12)
     p.add_run(". "
               "These indicators are useful for describing patterns, but they do not reveal the mechanisms that sustain or undermine a research community. "
               "A country may have a positive net inflow while simultaneously losing its domestic PI base through retirement or emigration, or it may have negative net flow but a healthy pipeline of new entrants. "
@@ -1416,16 +1439,17 @@ def _add_docx_body(doc, data, fig_paths):
     p.add_run("First, exogenous entry (I0) is the closest point of no return for the active researcher pool in every group. "
               "A large proportional reduction in baseline recruitment would drive most communities to their threshold before mobility rates such as return or promotion became binding. "
               "This is consistent with the observation that AI/ML fields depend on a continuous pipeline of new graduate students and junior researchers")
-    add_citation(p, 6)
+    add_citation(p, 2)
     p.add_run(". "
               "Policies that sustain that pipeline, such as doctoral funding, visa routes for early-career researchers, and stable junior positions, are therefore first-order defences against a point of no return.")
 
     p = doc.add_paragraph()
     p.add_run("Second, among the mobility transition rates, dropout is the dominant lever. "
-              "Its elasticity is near -2 for every group, and reducing it yields the largest margin gain per unit effort in the policy counterfactuals. "
+              "Its elasticity is near -2 for every group, and a simulated 10% reduction yields the largest margin gain per unit proportional change in the policy counterfactuals. "
               "Attrition matters because it removes researchers from every compartment, not just one. "
-              "A 10% reduction in dropout expands the safety margin more than comparably sized increases in return, hit generation or promotion. "
-              "For groups with small safety margins, such as Japan, even modest attrition reductions may substantially delay the threshold.")
+              "A 10% proportional reduction in dropout expands the safety margin more than comparably sized increases in return, hit generation or promotion. "
+              "For groups with small safety margins, such as Japan, even modest attrition reductions may substantially delay the threshold. "
+              "These counterfactuals are mechanical perturbations of the fitted rates; they identify the most sensitive transition levers, not the causal effect of any specific policy programme.")
 
     p = doc.add_paragraph()
     p.add_run("Third, the positive transition levers are not symmetric. "
@@ -1440,20 +1464,30 @@ def _add_docx_body(doc, data, fig_paths):
               "It also confirms that the model can detect temporal changes in transition rates, which is the prerequisite for the early intervention the framework is designed to support.")
 
     p = doc.add_paragraph()
+    p.add_run("The transition levers also interact in ways that a single-rate elasticity cannot fully capture. "
+              "For example, reducing dropout and increasing PI promotion together are likely to have a larger effect than the sum of the two individual perturbations, because more researchers survive to become PIs and those PIs then train additional early-career researchers through the endogenous inflow channel. "
+              "Conversely, a simultaneous fall in exogenous entry and a rise in dropout can push a community to its threshold faster than either change alone. "
+              "The model's steady-state and one-at-a-time counterfactuals are therefore a starting point; they identify the most sensitive margins but do not exhaust the policy design space.")
+
+    p = doc.add_paragraph()
     p.add_run("The connection to civilisational diversity is direct. "
               "Each group's safety margin can be monitored over time, and interventions can be adjusted before the margin disappears. "
               "Because the model uses a fixed safety factor of 0.5 for the endogenous inflow parameter r, the policy recommendations are deliberately conservative: they do not push the system toward instability. "
               "That bounded approach is consistent with the goal of preserving diversity rather than maximising any single country's share.")
 
+    p = doc.add_paragraph()
+    p.add_run("It is important to stress that the counterfactuals reported in Tables 3 and 7 are mechanical perturbations of the fitted transition rates, not causal estimates of specific programmes. "
+              "They identify which rates the model treats as most sensitive, and therefore where empirical policy evaluation is most urgent, but they do not by themselves show that a given intervention would achieve the simulated change.")
+
     doc.add_heading("6.2 Civilisational diversity as an innovation input", level=2)
     p = doc.add_paragraph()
     p.add_run("A second implication concerns the normative status of civilisational diversity. "
               "We treat diversity as an input to innovation rather than as a distributional afterthought")
-    add_citation(p, 12)
+    add_citation(p, 14)
     p.add_run(". "
               "A monocentric or tight-oligopoly structure in AI/ML may produce short-run efficiency gains through scale and agglomeration, but it also raises the risk of methodological lock-in, selection bias in training data, and reduced error correction. "
               "Recent work on multi-university teams shows that geographically dispersed collaborations can retain high impact, which suggests that distributing capacity across civilisations need not sacrifice quality")
-    add_citation(p, 16)
+    add_citation(p, 13)
     p.add_run(". "
               "By quantifying the safety margin for each research community, the framework makes it possible to argue for support of smaller communities on positive, innovation-systems grounds. "
               "Preserving multiple centres of AI/ML research is not a matter of slowing the frontier; it is a matter of ensuring that the frontier is not defined by a single set of institutions, languages, or problems.")
@@ -1465,9 +1499,9 @@ def _add_docx_body(doc, data, fig_paths):
               "Interventions can then be calibrated to maintain a minimum safety margin rather than to maximise any one stock. "
               "This is the operational meaning of early intervention: not a forecast that a particular collapse will occur, but a structured way to keep the system away from a point of no return. "
               "It also frames high-skilled mobility as a strategic competition among jurisdictions for talent")
-    add_citation(p, 14)
+    add_citation(p, 15)
     p.add_run(", in which the central question is not only who wins the current round but whether the global system retains enough diversity for future rounds")
-    add_citation(p, 13)
+    add_citation(p, 16)
     p.add_run(". "
               "If the dt of policy response is short enough, the model can be updated annually and divergence caught early, before any single civilisation approaches a point of no return. "
               "This is the mechanism through which technology monopoly, hegemonic concentration and oligopoly dead-ends can be avoided: by keeping every major research community above its minimum viable coauthor pool, the framework sustains the competitive diversity that underpins long-run technological progress. "
@@ -1496,7 +1530,7 @@ def _add_docx_body(doc, data, fig_paths):
     p.add_run("We have proposed and implemented a transition-rate framework for assessing how close AI/ML research communities are to a point of no return. "
               "The model converts OpenAlex publication records into civilisation-specific transition rates and solves for the equilibrium active researcher pool. "
               "All groups remain above their minimum viable coauthor threshold in the fitted model, but the distance to that threshold varies by an order of magnitude and is most sensitive to exogenous entry and dropout. "
-              "Dropout is the dominant negative lever, and reducing it is the single most efficient policy response for every civilisation. "
+              "Dropout is the dominant negative lever, and a simulated reduction is the single most efficient model-implied response for every civilisation. "
               "However, the closest point of no return is exogenous entry for most groups, which means that policies which sustain the pipeline of new researchers are first-order defences. "
               "The historical counterfactual and the bootstrap intervals remind us that the future is not determined by current rates; transition rates can change, and policy can be directed at the most fragile lever before a collapse.")
 
@@ -1548,7 +1582,7 @@ def write_pptx(output_dir, data, fig_paths):
     prs.slide_height = PptxInches(7.5)
 
     def add_image_slide(title, img_path, caption):
-        slide_layout = prs.slide_layouts[5]
+        slide_layout = prs.slide_layouts[3]
         slide = prs.slides.add_slide(slide_layout)
         slide.shapes.title.text = title
         left = PptxInches(1.5)
@@ -1560,7 +1594,7 @@ def write_pptx(output_dir, data, fig_paths):
             paragraph.font.size = Pt(14)
 
     def add_table_slide(title, df, col_names, width_per_col=1.5, font_size=10):
-        slide_layout = prs.slide_layouts[5]
+        slide_layout = prs.slide_layouts[3]
         slide = prs.slides.add_slide(slide_layout)
         slide.shapes.title.text = title
         rows, cols = len(df) + 1, len(col_names)
@@ -1593,7 +1627,7 @@ def write_pptx(output_dir, data, fig_paths):
     add_image_slide(
         "Figure 3: Historical counterfactual margin change",
         fig_paths["fig3"],
-        "Positive values mean the late-window rates would produce a larger safety margin if they persisted.",
+        "Positive values mean the late-window rates would produce a larger safety margin if they persisted. The comparison is across point estimates; uncertainty is substantial.",
     )
     add_image_slide(
         "Figure 4: Bootstrap 95% CI for equilibrium T",
