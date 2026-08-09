@@ -234,14 +234,68 @@ def estimate_endogenous_inflow(cohort, rates, safety_factor=0.5):
     return I0_dict, r_dict, rcrit_dict, r_obs_dict
 
 
-def equilibrium(params, I0):
-    """Solve M y_eq + b = 0 with b[0] = -I0; return vector and T."""
-    M = build_matrix(params)
+def _linear_equilibrium(M, I0):
+    """Solve M y_eq + b = 0 with b[0] = -I0."""
     b = np.zeros(6)
     b[0] = -I0
     y_eq = solve(M, b, assume_a="gen")
     T = y_eq[0] + y_eq[2] + y_eq[4]
     return y_eq, T
+
+
+def saturating_equilibrium(params, I0):
+    """
+    Equilibrium for I(P_D) = I0 + r * P_D / (1 + epsilon * P_D).
+
+    The state dynamics are linear except for the first-equation inflow, so
+    once P_D is known the equilibrium is y_eq = -A^{-1} [I(P_D), 0, ...]^T,
+    where A is the baseline matrix (r feedback removed).
+    """
+    r = params.get("r", 0.0)
+    epsilon = params.get("epsilon", 0.0)
+    p_idx = COMPARTMENTS.index("P_D")
+
+    # Baseline transition matrix without PI-driven linear feedback
+    p_no_r = {**params, "r": 0.0}
+    A = build_matrix(p_no_r)
+    A_inv = np.linalg.inv(A)
+    g = -A_inv[p_idx, 0]
+
+    if g <= 0 or (r <= 0 and I0 <= 0):
+        return np.zeros(6), 0.0
+
+    # Positive root of epsilon P^2 + (1 - g I0 epsilon - g r) P - g I0 = 0
+    a = epsilon
+    b_coef = 1.0 - g * I0 * epsilon - g * r
+    c = -g * I0
+
+    if abs(a) < 1e-12:
+        P = -c / b_coef if abs(b_coef) > 1e-12 else 0.0
+    else:
+        disc = b_coef * b_coef - 4.0 * a * c
+        sqrt_disc = np.sqrt(max(0.0, disc))
+        # c < 0 guarantees one positive root with (-b + sqrt(disc)) / (2a)
+        if abs(b_coef + sqrt_disc) > 1e-12:
+            P = (-b_coef + sqrt_disc) / (2.0 * a)
+        elif abs(b_coef - sqrt_disc) > 1e-12:
+            P = (-b_coef - sqrt_disc) / (2.0 * a)
+        else:
+            P = 0.0
+    P = max(0.0, P)
+
+    I_star = I0 + r * P / (1.0 + epsilon * P)
+    y_eq = -A_inv[:, 0] * I_star
+    T = y_eq[0] + y_eq[2] + y_eq[4]
+    return y_eq, T
+
+
+def equilibrium(params, I0):
+    """Solve M y_eq + b = 0 with b[0] = -I0; return vector and T."""
+    epsilon = params.get("epsilon", 0.0)
+    if epsilon and epsilon > 0:
+        return saturating_equilibrium(params, I0)
+    M = build_matrix(params)
+    return _linear_equilibrium(M, I0)
 
 
 def compartment_value(y_eq, name):
@@ -391,16 +445,25 @@ def point_of_no_return(params, I0, M_threshold, rate_name, target="T",
 
 
 def run_endogenous_model(k_override=None, save=True, scan_targets=("T", "P"),
-                         safety_factor=0.5):
-    a2g = load_group_mapping()
-    stats = compute_coauthor_stats(a2g)
+                         safety_factor=0.5, cohort_df=None, rates_df=None,
+                         saturating=False, saturation_k_factor=5.0,
+                         use_observed_r=False, a2g=None, stats=None,
+                         compute_sensitivity=True, compute_pnr=True):
+    a2g = a2g if a2g is not None else load_group_mapping()
+    if stats is None:
+        stats = compute_coauthor_stats(a2g)
 
-    cohort = pd.read_csv(COHORT_DIR / "cohort.csv")
-    rates = pd.read_csv(COHORT_DIR / "transition_rates.csv").set_index("group")
+    cohort = cohort_df if cohort_df is not None else pd.read_csv(COHORT_DIR / "cohort.csv")
+    rates = rates_df if rates_df is not None else pd.read_csv(
+        COHORT_DIR / "transition_rates.csv"
+    ).set_index("group")
 
     I0_dict, r_dict, rcrit_dict, r_obs_dict = estimate_endogenous_inflow(
         cohort, rates, safety_factor=safety_factor
     )
+
+    inflows = estimate_inflows(cohort)
+    pi_counts = cohort[cohort["pi"] == True].groupby("origin_group").size().to_dict()
 
     rate_cols = RATE_NAMES.copy()
     summary_rows = []
@@ -414,12 +477,27 @@ def run_endogenous_model(k_override=None, save=True, scan_targets=("T", "P"),
         if I0 <= 0 or np.isnan(I0):
             continue
 
+        if saturating:
+            r = r_obs_dict.get(group, 0.0) if use_observed_r else r
+            P_D_obs = pi_counts.get(group, 0)
+            I_total = inflows.get(group, 0.0)
+            if P_D_obs > 0 and r > 0:
+                K = max(P_D_obs, saturation_k_factor * P_D_obs)
+                epsilon = 1.0 / K
+                I0 = max(0.0, I_total - r * P_D_obs / (1.0 + epsilon * P_D_obs))
+                params["epsilon"] = epsilon
+            else:
+                params["epsilon"] = 0.0
+
         params["r"] = r
 
         st = stats.get(group, {})
         c_bar = st.get("mean_authors", np.nan)
         k_obs = st.get("k_groups", 0)
-        k = k_override if k_override is not None else k_obs
+        if isinstance(k_override, dict):
+            k = k_override.get(group, k_obs)
+        else:
+            k = k_override if k_override is not None else k_obs
         M_threshold = k * c_bar if not (np.isnan(c_bar) or c_bar == 0) else np.nan
 
         y_eq, T_eq = equilibrium(params, I0)
@@ -429,6 +507,7 @@ def run_endogenous_model(k_override=None, save=True, scan_targets=("T", "P"),
             "group": group,
             "I0": I0,
             "r": r,
+            "epsilon": params.get("epsilon", 0.0),
             "r_obs": r_obs_dict.get(group, np.nan),
             "r_critical": rcrit_dict.get(group, np.nan),
             "c_bar": c_bar,
@@ -447,26 +526,30 @@ def run_endogenous_model(k_override=None, save=True, scan_targets=("T", "P"),
         })
 
         for target in scan_targets:
+            if not compute_sensitivity and not compute_pnr:
+                continue
             target_label = {"T": "domestic_active", "P": "domestic_PIs"}.get(target, target)
-            sens = sensitivity_table(params, I0, target=target)
-            sens["group"] = group
-            sens["target"] = target_label
-            sens["M_threshold"] = M_threshold
-            sensitivity_frames.append(sens)
+            if compute_sensitivity:
+                sens = sensitivity_table(params, I0, target=target)
+                sens["group"] = group
+                sens["target"] = target_label
+                sens["M_threshold"] = M_threshold
+                sensitivity_frames.append(sens)
 
-            for rate_name in list(params.keys()) + ["I0"]:
-                if rate_name != "I0" and params[rate_name] <= 0:
-                    continue
-                pnr = point_of_no_return(params, I0, M_threshold, rate_name, target=target)
-                pnr["group"] = group
-                pnr["target"] = target_label
-                pnr["T_equilibrium"] = T_eq
-                pnr["M_threshold"] = M_threshold
-                pnr_frames.append(pnr)
+            if compute_pnr:
+                for rate_name in list(params.keys()) + ["I0"]:
+                    if rate_name != "I0" and params[rate_name] <= 0:
+                        continue
+                    pnr = point_of_no_return(params, I0, M_threshold, rate_name, target=target)
+                    pnr["group"] = group
+                    pnr["target"] = target_label
+                    pnr["T_equilibrium"] = T_eq
+                    pnr["M_threshold"] = M_threshold
+                    pnr_frames.append(pnr)
 
     summary_df = pd.DataFrame(summary_rows)
-    sens_df = pd.concat(sensitivity_frames, ignore_index=True)
-    pnr_df = pd.DataFrame(pnr_frames)
+    sens_df = pd.concat(sensitivity_frames, ignore_index=True) if sensitivity_frames else pd.DataFrame()
+    pnr_df = pd.DataFrame(pnr_frames) if pnr_frames else pd.DataFrame()
 
     if save:
         RESULTS_DIR.mkdir(parents=True, exist_ok=True)
@@ -565,16 +648,28 @@ def main():
     parser.add_argument("--no-save", action="store_true")
     parser.add_argument("--safety-factor", type=float, default=0.5,
                         help="Fraction of r_critical used for the PI reproduction rate (default 0.5).")
+    parser.add_argument("--saturating", action="store_true",
+                        help="Use saturating inflow I(P_D) = I0 + r P_D / (1 + epsilon P_D).")
+    parser.add_argument("--saturation-k-factor", type=float, default=5.0,
+                        help="Factor on observed P_D used to define saturation capacity K (default 5.0).")
+    parser.add_argument("--use-observed-r", action="store_true",
+                        help="In saturating mode, use the uncapped observed r (still stable by saturation).")
     args = parser.parse_args()
 
     summary_df, sens_df, pnr_df = run_endogenous_model(
         k_override=args.k_override,
         save=not args.no_save,
         safety_factor=args.safety_factor,
+        saturating=args.saturating,
+        saturation_k_factor=args.saturation_k_factor,
+        use_observed_r=args.use_observed_r,
     )
 
     print("\n=== Endogenous inflow parameters ===")
-    print(summary_df[["group", "I0", "r", "r_obs", "r_critical"]].to_string(index=False))
+    cols = ["group", "I0", "r", "r_obs", "r_critical"]
+    if "epsilon" in summary_df.columns:
+        cols.append("epsilon")
+    print(summary_df[cols].to_string(index=False))
 
     print("\n=== Equilibrium domestic active pool T = D + H_D + P_D ===")
     print(summary_df[["group", "T_equilibrium", "M_threshold", "margin_to_threshold_T"]].to_string(index=False))
