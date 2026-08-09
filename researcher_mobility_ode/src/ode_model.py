@@ -127,7 +127,10 @@ def compute_coauthor_stats(a2g, recent_years=(2020, 2021, 2022, 2023)):
 def estimate_inflows(cohort):
     """Annual new domestic entrants per group from observed career starts."""
     df = cohort[(cohort["career_start"] >= 2000) & (cohort["career_start"] <= 2016)]
-    counts = df.groupby(["origin_group", "career_start"]).size().unstack(fill_value=0)
+    counts = (df.groupby(["origin_group", "career_start"])
+                .size()
+                .unstack(fill_value=0)
+                .reindex(columns=range(2000, 2017), fill_value=0))
     annual_mean = counts.mean(axis=1)
     annual_mean = annual_mean.replace([np.inf, -np.inf], np.nan).fillna(0)
     return annual_mean.to_dict()
