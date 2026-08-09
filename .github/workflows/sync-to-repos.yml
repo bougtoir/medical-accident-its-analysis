@@ -310,6 +310,10 @@ jobs:
           BRANCH_MAP["devin/researcher-mobility-ode-extensions"]="researcher-mobility-ode-extensions"
           SUBDIR_MAP["devin/researcher-mobility-ode-extensions"]="researcher_mobility_ode"
 
+          # ── Quantum / atomic-molecular physics researcher mobility ODE model ──
+          BRANCH_MAP["devin/researcher-mobility-ode-quantum"]="researcher-mobility-ode-quantum"
+          SUBDIR_MAP["devin/researcher-mobility-ode-quantum"]="researcher_mobility_ode"
+
           # ── File exclusion map ──
           # Space-separated list of file paths (relative to subdir root if
           # SUBDIR_MAP is set, or repo root otherwise) to exclude from sync.
