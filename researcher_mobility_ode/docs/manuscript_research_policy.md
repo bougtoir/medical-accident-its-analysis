@@ -1,8 +1,32 @@
 # Quantifying the Point of No Return in Global AI/ML Research Communities
 
+**Article type:** Research Article / Research Note (to be confirmed)
+
 ## Abstract
 
 International mobility can concentrate AI/ML researchers in a few regions, raising the risk that smaller research communities fall below a minimum viable coauthor pool and cannot recover. We model each civilisation as a six-compartment system of domestic and abroad early-career, high-impact, and principal-investigator researchers, and estimate transition rates from OpenAlex Artificial Intelligence works (subfield 1702). The minimum viable coauthor threshold is defined as M = k × c_bar, where c_bar is the mean number of authors per work and k is the median number of distinct last-author groups observed per recent year. Across 9 groups, equilibrium domestic active pools T remain above M, but the closest point of no return is observed for the Japanese group, where a proportional change of 0.58 in d (critical factor 1.58×) would drive the pool to its threshold. The largest positive leverage comes from PI-driven inflow and the conversion of high-impact researchers into PIs, while the dominant negative leverage is researcher dropout. These results provide a quantitative framework for early, safety-factor-bound interventions that preserve civilisational diversity in AI/ML research.
+
+**Keywords:** researcher mobility; artificial intelligence; civilisation grouping; ordinary differential equations; point of no return; science policy; innovation studies
+
+**Highlights**
+
+- Nine modified Huntington civilisations are modelled as coupled six-compartment ODEs fitted to OpenAlex AI/ML data.
+- The closest point of no return is the Japanese PI pool, requiring only a 0.58 proportional change in d.
+- Dropout has the largest negative elasticity (~-2), while PI-driven inflow and domestic promotion (p_D) dominate positive leverage.
+
+## Data and Code Availability
+
+This study uses publication metadata from the OpenAlex API (subfield 1702, Artificial Intelligence; 2000–2023). The extraction and analysis code, the country-to-civilisation mapping, and the result CSVs used to generate this manuscript are available in the public GitHub repository https://github.com/bougtoir/researcher-mobility-ode. OpenAlex data are released under CC0.
+
+## Declarations
+
+**Funding:** [To be completed / removed for double-blind review]
+
+**Competing interests:** [To be completed / removed for double-blind review]
+
+**Author contributions:** [To be completed / removed for double-blind review]
+
+**Acknowledgments:** [To be completed / removed for double-blind review]
 
 ## 1. Introduction
 
