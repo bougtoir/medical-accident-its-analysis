@@ -761,7 +761,7 @@ def write_markdown(output_dir: Path, data, fig_paths):
         worst_compartment_mape = comp_acc.loc[comp_acc["mape"].idxmax(), "compartment"]
 
     lines = [
-        "# Quantifying the Point of No Return in Global AI/ML Research Communities",
+        "# Sustaining Heterogeneity: Interventions, Global AI/ML Researcher Mobility, and a Transition-Rate Framework (SHIGA)",
         "",
         "**Article type:** Research Article",
         "",
@@ -1280,7 +1280,8 @@ def write_markdown(output_dir: Path, data, fig_paths):
         "The annual rates show that the domestic active pool T = D + H_D + P_D responds most strongly to the dropout rate d, the domestic hit rate h_D, and the PI promotion rate p_D. "
         "Policies that reduce early-career attrition, expand domestic postdoctoral positions, or accelerate independent-lab formation therefore become defensive substitutes when inter-civilisation poaching cannot be regulated. "
         "This is the practical meaning of civilisational-diversity preservation under sovereignty constraints: even without controlling the border of talent, a community can increase the internal reproduction of active researchers. "
-        f"The ODE safety factor of {_fmt(ctx['safety_factor'], 2)} on endogenous PI inflow is a conservative bound that prevents over-optimism about this substitution effect; more ambitious domestic growth would require corresponding evidence that the extra PIs can be absorbed without simply raising dropout.",
+        f"The ODE safety factor of {_fmt(ctx['safety_factor'], 2)} on endogenous PI inflow is a conservative bound that prevents over-optimism about this substitution effect; more ambitious domestic growth would require corresponding evidence that the extra PIs can be absorbed without simply raising dropout. "
+        "This is precisely the title (SHIGA) in action: when cross-border mobility cannot be controlled, heterogeneity is sustained through domestic interventions rather than zero-sum recruitment.",
         "",
         "### 6.6 Annual updating as an early-warning layer",
         "",
@@ -1291,7 +1292,8 @@ def write_markdown(output_dir: Path, data, fig_paths):
         "That drift is the early-warning signal. "
         "Policymakers can then intervene before the active pool falls below M, using the rate-specific elasticities in Table 3 to prioritise the smallest proportional change that restores a safety margin. "
         "This is the operational mechanism for avoiding technology monopoly and oligopoly dead ends: by keeping every major research community above its minimum viable coauthor pool, annual monitoring sustains the competitive diversity that underpins long-run technological progress. "
-        "The framework is therefore not a prediction that a particular civilisation will collapse; it is a tool for ensuring that no single civilisation reaches a point where its collapse becomes self-sustaining.",
+        "The framework is therefore not a prediction that a particular civilisation will collapse; it is a tool for ensuring that no single civilisation reaches a point where its collapse becomes self-sustaining. "
+        "The title (SHIGA) therefore encapsulates the practical goal: keeping the global AI/ML system heterogeneous enough that no single centre of power can monopolise the technological frontier.",
         "",
         "### 6.7 Limitations",
         "",
@@ -1354,7 +1356,7 @@ def _add_title_page(doc, word_count=None):
     style.font.size = Pt(11)
     style.paragraph_format.line_spacing = 1.5
 
-    title = doc.add_heading("Quantifying the Point of No Return in Global AI/ML Research Communities", level=0)
+    title = doc.add_heading("Sustaining Heterogeneity: Interventions, Global AI/ML Researcher Mobility, and a Transition-Rate Framework (SHIGA)", level=0)
     title.alignment = WD_ALIGN_PARAGRAPH.CENTER
     title.runs[0].font.size = Pt(16)
     title.runs[0].font.bold = True
@@ -2195,7 +2197,8 @@ def _add_docx_body(doc, data, fig_paths):
               "If the dt of policy response is short enough, the model can be updated annually and divergence caught early, before any single civilisation approaches a point of no return. "
               "This is the mechanism through which technology monopoly, hegemonic concentration and oligopoly dead-ends can be avoided: by keeping every major research community above its minimum viable coauthor pool, the framework sustains the competitive diversity that underpins long-run technological progress. "
               "The framework is therefore not a prediction that a particular civilisation will collapse. "
-              "It is a tool for ensuring that no single civilisation reaches a point where its collapse becomes self-sustaining, and that the global AI/ML system retains the diversity required for continued innovation.")
+              "It is a tool for ensuring that no single civilisation reaches a point where its collapse becomes self-sustaining, and that the global AI/ML system retains the diversity required for continued innovation. "
+              "This is the purpose of the title (SHIGA): to sustain civilisational diversity through interventions in global AI/ML researcher mobility and a transition-rate framework.")
 
     p = doc.add_paragraph()
     p.add_run("Operationally, the framework can be used in two complementary ways. "
@@ -2229,7 +2232,8 @@ def _add_docx_body(doc, data, fig_paths):
               "That drift is the early-warning signal. "
               "Policymakers can then intervene before the active pool falls below M, using the rate-specific elasticities in Table 3 to prioritise the smallest proportional change that restores a safety margin. "
               "This is the operational mechanism for avoiding technology monopoly and oligopoly dead ends: by keeping every major research community above its minimum viable coauthor pool, annual monitoring sustains the competitive diversity that underpins long-run technological progress. "
-              "The framework is therefore not a prediction that a particular civilisation will collapse; it is a tool for ensuring that no single civilisation reaches a point where its collapse becomes self-sustaining.")
+              "The framework is therefore not a prediction that a particular civilisation will collapse; it is a tool for ensuring that no single civilisation reaches a point where its collapse becomes self-sustaining. "
+              "The title (SHIGA) therefore encapsulates the practical goal: keeping the global AI/ML system heterogeneous enough that no single centre of power can monopolise the technological frontier.")
 
     doc.add_heading("6.7 Limitations", level=2)
     p = doc.add_paragraph()
@@ -2350,7 +2354,7 @@ def write_pptx(output_dir, data, fig_paths):
     # Title slide
     slide_layout = prs.slide_layouts[0]
     slide = prs.slides.add_slide(slide_layout)
-    slide.shapes.title.text = "Quantifying the Point of No Return in Global AI/ML Research Communities"
+    slide.shapes.title.text = "Sustaining Heterogeneity: Interventions, Global AI/ML Researcher Mobility, and a Transition-Rate Framework (SHIGA)"
     slide.placeholders[1].text = "Data-driven manuscript figures and tables"
 
     add_image_slide(
