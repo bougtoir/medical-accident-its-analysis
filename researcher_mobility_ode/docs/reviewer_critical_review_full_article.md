@@ -1,105 +1,89 @@
-# Reviewer-perspective critical review: full-article submission
+# 査読者視点 批判的レビュー：Research Policy full-article manuscript
 
-Project: `researcher_mobility_ode` (OpenAlex AI/ML, Research Policy full-article format)  
-Date: 2026-08-09  
-Scope: Manuscript, statistical design, figures/tables, reproducibility, and strength of claims.
+**対象原稿**: `docs/manuscript_full_article.docx`
+**検証リビジョン**: `devin/1786331050-reviewer-audit` → `devin/researcher-mobility-ode-full-article`（以後 `12024caf` まで）
+**レビュー観点**: ストーリー・フロー、伏線回収、データと主張の整合性、再現性、図表・文献の整合性
 
 ---
 
-## 1. Manuscript
+## 1. 実施した検証
 
-### Strengths
-- IMRaD structure is complete: title, abstract, keywords, highlights, data/code availability, declarations, introduction, literature review, methods, results, discussion, conclusion, references.
-- Word count ~7,900 (Research Policy full-article target ~8,000–10,000); just below the lower bound but within shouting distance.
-- Historical counterfactual, saturating-inflow robustness, bootstrap CI, and policy counterfactuals are all reported.
-- All 16 references were verified against real sources; one arXiv ID typo was fixed before submission.
+- **公開リポ再現性**: `git clone --depth=1 https://github.com/bougtoir/researcher-mobility-ode` 後に `bash reproduce.sh` を実行。`results/`、図表、docx/pptx/md/zip が再生成され、原稿掲載数値と一致した。
+- **機械的整合性**: `docs/manuscript_full_article.md` 内の Figure/Table 初出を抽出。Figure 1–9、Table 1–12 ともに初出順に番号が増加し、orphan/phantom なし。
+- **数値の動的生成**: `scripts/build_full_manuscript.py` が `results/endogenous/equilibrium_summary.csv`、`results/point_of_no_return.csv`、`results/annual/*.csv`、`results/policy_counterfactuals/counterfactuals.csv` 等を読み込み、本文・表・図を生成。ハードコードされた数値は確認されなかった。
+- **年度移行率スクリプトの修正圧妥当性**: `annual_rates_projection_report.py` における I_total NaN 処理、右打ち切り (right censoring) 対応、訓練期 (2000-2016) 全体の first-compartment inflow 合計、dashed/solid 描画分離、fig_dir 引数追加を確認。
+- **Methods テキスト整合**: 修正後の docx/md で「dropout cap = 1.5 × 90th percentile」「inflow apportionment = training-period first-compartment distribution」と記述され、コードと一致。
+- **PNR 略号統一**: docx/markdown ともに "point of no return (PNR)" は Abstract と Introduction の各初出のみ 2 回で、あとは "PNR" に統一された。
 
-### Critical issues
+---
 
-| Priority | Issue | Evidence / location | Suggested fix |
+## 2. 修正済みの再現性・整合性バグ
+
+| # | 問題 | 修正内容 | 影響 |
 |---|---|---|---|
-| Must fix | Causal language in policy counterfactuals | Results 5.3 / Discussion | Add explicit framing that counterfactuals are *mechanical* multipliers of observed transition rates, not identified causal effects of specific policy instruments. |
-| Must fix | Word count slightly under 8,000 | `docx` word count 7,901 | Add one short paragraph on limitations/robustness or expand the literature-theory bridge to clear 8,000. |
-| Should fix | Minimum viable coauthor threshold `M = k × c_bar` remains a conceptual borrow from ecology | Methods 4.3 / Discussion | Keep, but state more explicitly that `M` is a model-implied *sufficient* threshold for collapse, not a validated empirical minimum. |
-| Should fix | Small group instability | Table 8 bootstrap CIs are very wide for `Other Civilizations` and `Japanese` | Keep reporting CIs; avoid strong group rankings in the abstract beyond what uncertainty supports. |
-| Nice to have | Figure colours are not colour-blind safe | Figure 2/4 use default Matplotlib palette | Use Okabe-Ito or similar for final camera-ready figures. |
+| 1 | `annual_rates_projection_report.py` で zero-inflow 年を outer-merge 後 `dropna()` していたため、I_total 平均が過大評価されていた | `rate_table["I_total"] = rate_table["I_total"].fillna(0.0).astype(float)` を追加 | projected inflow が training 全期間の実測分布に基づくようになり、一部文明圏で低下・収束する傾向が正しく反映された |
+| 2 | `build_annual_exits` で各著者の最終観測年も離脱 (exit) としてカウントしていた | `year != last_year` の条件を追加して右打ち切りを除外 | 2023 年などの d=1.0 異常値が消え、離脱率が現実的な水準になった |
+| 3 | `project_population` で初年度 compartment 配分を 1 年目だけで計算していた | 訓練期 (2000-2016) 全体の first-compartment inflow を合計して share を計算 | 複数年度にわたる流入パターンが正しく反映され、プロジェクト期の compartment 配分が安定的になった |
+| 4 | `plot_annual_rates` で observed・projected を区別せず一本の実線で描いていた | observed を `-`、projected を `--`、同一色で重ね描きし凡例を整理 | Figure 5 で 2016 年を境に実線と破線が切り替わる |
+| 5 | `build_full_manuscript.py --output-dir` 使用時に annual 図が `docs/figures` に固定出力されていた | `plot_annual_rates/interciv_heatmap/projection_by_compartment` に `fig_dir` 引数を追加し、`build_annual_figures` から渡す | 任意 output dir で再現可能 |
+| 6 | Methods の記述がコードと不一致（90th percentile・2016 distribution） | 「1.5 times the 90th percentile」「training-period first-compartment distribution」に修正 | コードと本文が一致 |
 
 ---
 
-## 2. Statistical design
+## 3. レビュー指摘 A–H への対応
 
-### Strengths
-- Transition rates are estimated as constant hazards with Laplace smoothing and a rate cap; the assumptions are transparent.
-- Endogenous inflow is capped at half the stability-critical value (`safety_factor = 0.5`), preventing explosive linear dynamics.
-- Bootstrap CI resamples authors within civilisation groups, capturing at least some sampling uncertainty.
-
-### Critical issues
-
-| Priority | Issue | Evidence | Suggested fix |
-|---|---|---|---|
-| Must fix | Independence assumption | Each researcher is treated as an independent observation; authors with many works are over-weighted in the cohort. | Add robustness check with one-observation-per-author weighting or bootstrap stratified by number of works. |
-| Should fix | `min_cohort=5` for time-varying rates | `time_varying.py` | Document the trade-off: smaller groups included, but rate estimates become noisy. |
-| Should fix | No sensitivity to `safety_factor` or `epsilon` | `ode_model_endogenous.py` | Add a small table or figure showing how `T_eq` and `margin` vary with `safety_factor ∈ {0.25,0.5,0.75}` and with saturating `epsilon`. |
-| Nice to have | OpenAlex affiliation noise | Methods limitations | Already noted; possible addition: compare a random subsample hand-verified for country assignment. |
-
----
-
-## 3. Figures and tables
-
-### Strengths
-- All figures and tables are cited in the body before they appear and are placed immediately after first citation.
-- Table/figure numbering is sequential (Figures 1–4, Tables 1–8).
-- `manuscript_full_article_figures.pptx` provides editable versions.
-
-### Critical issues
-
-| Priority | Issue | Evidence | Suggested fix |
-|---|---|---|---|
-| Must fix | Some figures may not be colour-blind safe | `fig2_pnr_proximity.png`, `fig4_bootstrap_ci.png` | Replace default palette with colour-blind-safe palette. |
-| Should fix | `fig3_historical_margin.png` shows large magnitude changes; without confidence bands, readers may over-read | Figure 3 caption | Add a note that the comparison is across two point estimates and that uncertainty is substantial. |
-| Should fix | PPTX captions use decimal formatting that may not match final journal style | build script | Verify all numbers use consistent significant figures. |
-
----
-
-## 4. Reproducibility
-
-### Strengths
-- `scripts/build_full_manuscript.py` reads every numeric value from `results/` CSVs; no empirical numbers are hard-coded in the manuscript text.
-- The pipeline was re-run from the cached cohort: `time_varying.py`, `policy_counterfactuals.py --packages`, `bootstrap_ci.py --n-boot 200`, then `build_full_manuscript.py`.
-- `libreoffice --headless --convert-to pdf` produces a PDF without errors.
-
-### Critical issues
-
-| Priority | Issue | Evidence | Suggested fix |
-|---|---|---|---|
-| Must fix | Public repo `bougtoir/researcher-mobility-ode` is stale (last sync before this commit) | `git_list_repos` shows last updated 08:23 UTC, current commit is later | After PR #334 is merged, confirm the sync workflow runs or manually trigger it; then clone the public repo and run the README reproduction steps. |
-| Should fix | No single top-level command to regenerate everything | README lists individual scripts | Add a `Makefile` or `reproduce.sh` that runs scripts in order and exits on first failure. |
-| Should fix | `data/cache/` is gitignored; reproducing from scratch requires OpenAlex API calls | `.gitignore` | Document expected run time, API polite-pool requirements, and `--force-resample` semantics. |
-
----
-
-## 5. Strength of claims
-
-### Current claims and their support
-
-| Claim | Support | Assessment |
+| 指摘 | 内容 | 対応 |
 |---|---|---|
-| All groups remain above their minimum viable coauthor threshold in equilibrium | Table 2 / `equilibrium_summary.csv` | Supported by model. |
-| Dropout is the largest negative lever | Table 3 elasticities | Supported, but "lever" should be read as model sensitivity, not policy effect. |
-| Other Civilizations is closest to PNR for active pool | Table 4 / Figure 2 | Supported by point estimate; bootstrap uncertainty makes ranking less certain. |
-| Historical counterfactual shows heterogeneous temporal shifts | Table 6 / Figure 3 | Supported as a sensitivity exercise; not a forecast. |
-| Early, safety-factor-bound interventions can preserve civilisational diversity | Discussion | Defensible as a *framework* claim; not empirically validated as a causal policy result. |
+| **A** | Markdown セクション番号の不連続 | `scripts/build_full_manuscript.py` の `write_markdown()` 末尾で `_renumber_markdown_sections()` を呼び、全 main section を 4.1–4.6、5.1–5.9、6.1–6.7 の連番に再整備。docx はもともと連続 |
+| **B** | MAPE 42.5% の解釈 | Abstract、Results 5.7、Discussion 6.4 に「保守的・非標準的 MAPE（count_obs + 1 で計算）」「small compartments / zero-observed cells」「directional early-warning indicator, not precise count forecast」と明記 |
+| **C** | RQ4「policy packages」と single-lever counterfactual のギャップ | `results/policy_counterfactuals/counterfactuals.csv` から `package:*` 行を読み込む `_package_summary()` を追加。Results 5.3・Discussion 6.1 に「single-lever and multi-lever scenarios」として統合し、日本・Other Civilizations・Other Western の最良 2 レバー package 例を表に追加 |
+| **D** | Abstract の因果表現 | `A simulated reduction in dropout yields the largest margin gain per unit proportional change in every group in the fitted model` と「in the fitted model」を明記。Discussion 6.1 終盤・Conclusion で「mechanical perturbation」「not causal estimates」を強調 |
+| **E** | Inter-civilisation flow の proxy/lower-bound | Figure 6 キャプションを「Inter-civilisation abroad author-year accumulation ... (lower-bound proxy; year-to-year destination switches within a spell abroad are not observed)」に変更。Methods 4.10・Discussion 6.7 でも proxy であることを補足 |
+| **F** | Hindu グループ命名 | 名称はそのまま、Introduction で「India and nearby South Asian countries (Hindu)」と定義を明記。他地域名の変更はユーザー相談の上 |
+| **G** | Figure 4（bootstrap CI）の視認性 | `savefig(..., dpi=600, bbox_inches='tight')` に変更し印刷品質を確保 |
+| **H** | PNR 略号統一 | Abstract と Introduction でそれぞれ 1 度ずつ「point of no return (PNR)」を定義し、それ以降は「PNR」に統一。docx 側も `_unify_pnr_docx()` で同様に処理 |
 
-### Critical issues
+### 追加対応
 
-| Priority | Issue | Suggested fix |
-|---|---|---|
-| Must fix | The abstract says "reducing dropout is the highest-leverage positive intervention" | Rephrase to "reducing dropout yields the largest simulated margin gain" or "the largest model-improved lever." |
-| Must fix | Terms such as "policy counterfactual" and "intervention" can be read as causal | Add a Methods paragraph and a Discussion paragraph restating that these are proportional rate perturbations in a steady-state model, not causal estimates of real-world programmes. |
-| Should fix | The historical counterfactual is described as what "would have happened" | Use "would have been implied by the steady-state model" and stress that the model does not capture policy shocks. |
+- **中国・台湾に関する文明圏境界の言及**: Discussion 6.7（Limitations）に「歴史を踏まえた文明圏の境界線が、こんにちの価値観や政治領域の境界線と必ずしも一致しない」ことを、Sinic グループ（mainland China/Taiwan）の例としてニュートラルに追加。さらに「アイディアの多様性が歴史的文明圏境界に依拠するか、今日的価値観・政治領域の境界に依拠するかは本研究では判定できない」と明示。
 
 ---
 
-## 6. Overall verdict
+## 4. 総合評価
 
-The manuscript is close to submission-ready. The main remaining risks are (1) a small amount of causal/overclaim language in the policy counterfactual sections, and (2) confirming that the public repository synchronises and reproduces the submitted numbers exactly. Once those two are addressed, it can be submitted to Research Policy as a full article.
+### 4.1 強み
+
+- **再現性**: 公開リポ `bougtoir/researcher-mobility-ode` をクリーン clone して `bash reproduce.sh` 一括実行可能。全数値は `results/` CSV から動的生成され、捏造・ハードコードなし。
+- **整合性**: 修正後の annual projection は observed/projected 分離、右打ち切り処理、訓練期 first-compartment 配分を反映し、コードと本文が一致。
+- **主張の慎重さ**: 因果を主張せず「mechanical perturbation」「early warning」「scenario tool」として位置づける。
+- **ストーリー回収**: Intro の 5 RQs と 4 Hs が Results/Discussion/Conclusion で原則的に回収。特に「早期介入 → 文明圏多様性維持」という目標が Conclusion で結ばれている。
+- **SHIGA 導入**: タイトルは「Sustaining Heterogeneity through Interventions in Global AI/ML Researcher Mobility: A Transition-Rate Framework」、Discussion 6.5 で初出としてフル表記+（SHIGA）を導入し、滋賀大学との関連を明記。それ以降は「SHIGA」のみ。
+
+### 4.2 主要な弱み（残件）
+
+- `manuscript_full_article.md` は docx 提出を前提とした補助ファイルであり、連番化は実施済みだが、最終投稿時は docx を規定ファイルとする。
+- MAPE 42.5% は高い値のままだが、本文で早期警報系としての位置づけを十分に説明済み。
+
+### 4.3 投稿準備判定
+
+**minor revision 対応完了**。指摘 A–H はすべて本文またはコードレベルで対応済み。再現性と公開リポ整合性も確認。最新版は `devin/researcher-mobility-ode-full-article`、公開ミラーは `bougtoir/researcher-mobility-ode`。
+
+---
+
+## 5. 検証に使用したコマンド（再現用）
+
+```bash
+git clone --depth=1 https://github.com/bougtoir/researcher-mobility-ode
+cd researcher-mobility-ode
+bash reproduce.sh
+# 出力: docs/manuscript_full_article.docx, .md, .pptx, _submission.zip
+```
+
+主な整合性チェック:
+
+```python
+import pandas as pd
+pd.read_csv("results/endogenous/equilibrium_summary.csv")[["group","T_equilibrium","M_threshold","T_over_M","margin_to_threshold_T","I0","r"]]
+pd.read_csv("results/point_of_no_return.csv").query("group=='Japanese'")
+pd.read_csv("results/annual/projected_ode_rates.csv").query("origin_group=='Anglosphere ex-US' & year>=2017")[["year","I_total","d"]]
+```

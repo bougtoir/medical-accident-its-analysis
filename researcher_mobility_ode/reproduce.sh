@@ -15,4 +15,5 @@ python src/ode_model_endogenous.py --saturating --results-dir results/endogenous
 python src/time_varying.py --cutoff 2010
 python src/bootstrap_ci.py --n-boot 200
 python src/policy_counterfactuals.py --packages
+python scripts/annual_rates_projection_report.py
 python scripts/build_full_manuscript.py
