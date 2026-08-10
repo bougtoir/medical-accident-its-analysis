@@ -408,8 +408,8 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--sample-per-group", type=int, default=200,
                         help="Number of works to sample per civilization group.")
-    parser.add_argument("--max-authors", type=int, default=1000,
-                        help="Cap on unique authors to fetch works for (pilot safety).")
+    parser.add_argument("--max-authors", type=int, default=0,
+                        help="Cap on unique authors to fetch works for (0 = no cap).")
     parser.add_argument("--subfield-id", type=str, default="subfields/1702",
                         help="OpenAlex subfield ID to build the cohort for.")
     parser.add_argument("--output-dir", type=str, default=str(COHORT_DIR),
