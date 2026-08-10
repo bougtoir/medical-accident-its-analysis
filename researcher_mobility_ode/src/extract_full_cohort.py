@@ -305,6 +305,10 @@ def _fetch_partition(partition, q, stop_event, api_key, mailto, per_page, max_pa
         q.put((partition["id"], "ERROR", str(e), None, None, None, None, None, None))
         stop_event.set()
         return
+    except Exception as e:
+        q.put((partition["id"], "ERROR", f"Partition {partition['id']}: {e}", None, None, None, None, None, None))
+        stop_event.set()
+        return
 
     q.put((partition["id"], None, None, None, None, None, None, None, None))
 
