@@ -4,14 +4,14 @@
 
 ## Abstract
 
-Artificial intelligence (AI) and machine learning (ML) research is increasingly concentrated in a few regions, raising the risk that smaller research communities fall below a minimum viable coauthor pool and cannot recover. We model each civilisation as a six-compartment system of domestic and abroad early-career, high-impact, and principal-investigator researchers, and estimate transition rates from OpenAlex Artificial Intelligence works (subfield 1702). The minimum viable coauthor threshold is defined as M = k × c_bar, where c_bar is the mean number of authors per work and k is the median number of distinct last-author groups observed per recent year. Across 9 groups, equilibrium domestic active pools remain above their thresholds, but the closest point of no return (PNR) is observed for the Other Civilizations group, where I0 must be multiplied by 0.246× its current value (equivalent to a 75% proportional reduction) to drive the active pool to its threshold. A simulated reduction in dropout yields the largest margin gain per unit proportional change in every group in the fitted model. The 2017-2023 out-of-sample projection records RMSE 3.35 and a conservative, non-standard MAPE of 42.5% (computed against count_obs + 1 to avoid division by zero). That level of error is expected because the projection is designed as an early-warning indicator of directional drift and threshold crossing, not as a precise population forecast. Historical and saturating-inflow counterfactuals show that the model is most sensitive to exogenous entry and attrition. These results provide a quantitative framework for early, safety-factor-bound policy scenarios that preserve civilisational diversity in AI/ML research.
+Artificial intelligence (AI) and machine learning (ML) research is increasingly concentrated in a few regions, raising the risk that smaller research communities fall below a minimum viable coauthor pool and cannot recover. We model each civilisation as a six-compartment system of domestic and abroad early-career, high-impact, and principal-investigator researchers, and estimate transition rates from OpenAlex Artificial Intelligence works (subfield 1702). The minimum viable coauthor threshold is defined as M = k × c_bar, where c_bar is the mean number of authors per work and k is the median number of distinct last-author groups observed per recent year. Across 9 groups, equilibrium domestic active pools remain above their thresholds, but the closest point of no return (PNR) is observed for the Other Western group, where d must be multiplied by 1.165× its current value (equivalent to a 17% proportional increase) to drive the active pool to its threshold. A simulated reduction in dropout yields the largest margin gain per unit proportional change in every group in the fitted model. The 2017-2023 out-of-sample projection records RMSE 3.96 and a conservative, non-standard MAPE of 71.6% (computed against count_obs + 1 to avoid division by zero). That level of error is expected because the projection is designed as an early-warning indicator of directional drift and threshold crossing, not as a precise population forecast. Historical and saturating-inflow counterfactuals show that the model is most sensitive to exogenous entry and attrition. These results provide a quantitative framework for early, safety-factor-bound policy scenarios that preserve civilisational diversity in AI/ML research.
 
 **Keywords:** researcher mobility; artificial intelligence; civilisation grouping; ordinary differential equations; PNR; innovation studies
 
 ## Highlights
 
 - Nine civilisations modelled as six-compartment ODEs fitted to OpenAlex AI/ML data.
-- Closest PNR: Other Civilizations via I0 (factor 0.246×).
+- Closest PNR: Other Western via d (factor 1.165×).
 - Dropout reduction gives the largest margin gain per 10% change across all groups in the fitted model.
 
 ## Data and Code Availability
@@ -50,25 +50,25 @@ The AI/ML literature has documented the same patterns at higher resolution. Macr
 
 What is missing is a formal link between individual transition rates and the long-run viability of a research community. The concept of a minimum viable population, introduced by Shaffer, captures the smallest isolated population that has a high probability of persisting despite demographic, environmental and genetic stochasticity [10]. Transferred to science, the equivalent idea is a minimum viable coauthor pool: the smallest number of active researchers that can continue to produce work at the field's observed coauthor intensity. Below that pool, collaboration networks fragment, mentorship chains break, and the field enters a self-reinforcing decline.
 
-This framing generates four testable hypotheses. H1: Across all groups, the equilibrium active pool exceeds the minimum viable threshold, but the distance to the threshold varies widely. H2: Dropout is the transition rate with the largest negative effect, because attrition removes researchers from every compartment. H3: The largest positive transition lever is principal-investigator promotion (p_D), followed by domestic hit generation (h_D). H4: Smaller civilisations, and those with older cohort structures, sit closer to their PNR.
+This framing generates four testable hypotheses. H1: Across all groups, the equilibrium active pool exceeds the minimum viable threshold, but the distance to the threshold varies widely. H2: Dropout is the transition rate with the largest negative effect, because attrition removes researchers from every compartment. H3: The largest positive transition lever is domestic hit generation (h_D), followed by principal-investigator promotion (p_D). H4: Smaller civilisations, and those with older cohort structures, sit closer to their PNR.
 
 ## 3. Data and grouping
 
 We extracted AI/ML works and author histories from the OpenAlex API for subfield `subfields/1702` (Artificial Intelligence), using works published between 2000 and 2023 [2]. Authors were assigned to a civilisation by the majority country of their affiliated institutions. The mapping is documented in the repository and is reproduced here only in summary. The final groups are: United States, Anglosphere ex-US, Continental Europe, Sinic, Japanese, Hindu, Islamic, Other Western, and Other Civilizations.
 
-The cohort is restricted to authors whose first observed AI/ML publication year (career-start year) is between 2000 and 2016 and who have at least ten AI/ML works in the 2000-2023 window. An author is treated as active if they have at least one AI/ML work in 2020-2023, and as having dropped out otherwise. A 'hit' work is a non-last-author paper whose citation count places it in the top 10% of AI/ML works in the same publication year, observed within the first eight career years. An author is classified as a principal investigator (PI) if their first last-author paper has at least six authors, a standard bibliometric proxy for seniority [3]. The abroad flag is set if the author is affiliated with a non-origin civilisation within the first six career years. Table 1 reports the size and composition of the extracted cohort. The sample is a reproducible pilot extraction; absolute counts are small because the goal is to demonstrate the transition-rate framework rather than to provide a definitive census of global AI/ML researchers.
+The cohort is restricted to authors whose first observed AI/ML publication year (career-start year) is between 2000 and 2016 and who have at least two AI/ML works in the 2000-2023 window. An author is treated as active if they have at least one AI/ML work in 2020-2023, and as having dropped out otherwise. A 'hit' work is a paper on which the author is not the last author and whose citation count places it in the top 10% of AI/ML works in the same publication year, observed within the first eight career years. An author is classified as a principal investigator (PI) if their first last-author paper appears during the observation window; single-authored papers are treated as last-author papers so that culturally varying coauthorship norms do not bias the seniority proxy [3]. The abroad flag is set if the author is affiliated with a non-origin civilisation within the first six career years. Table 1 reports the size and composition of the extracted cohort. The sample is a reproducible pilot extraction; absolute counts are small because the goal is to demonstrate the transition-rate framework rather than to provide a definitive census of global AI/ML researchers.
 
 | Group | Authors | Works | Active | Hits | PIs | Career start | Abroad |
 |---|---|---|---|---|---|---|---|
-| Anglosphere ex-US | 27 | 1977 | 26 | 25 | 14 | 2006.2 | 19 |
-| Continental Europe | 49 | 3850 | 46 | 41 | 23 | 2006.1 | 23 |
-| Hindu | 26 | 1754 | 26 | 20 | 13 | 2008.0 | 4 |
-| Islamic | 20 | 830 | 20 | 13 | 9 | 2011.5 | 7 |
-| Japanese | 26 | 1236 | 21 | 17 | 11 | 2005.7 | 4 |
-| Other Civilizations | 20 | 843 | 19 | 14 | 9 | 2009.0 | 6 |
-| Other Western | 15 | 947 | 15 | 14 | 5 | 2008.2 | 8 |
-| Sinic | 41 | 3397 | 40 | 31 | 20 | 2007.3 | 16 |
-| United States | 49 | 4210 | 44 | 46 | 28 | 2006.4 | 17 |
+| Anglosphere ex-US | 33 | 2004 | 27 | 26 | 30 | 2006.1 | 20 |
+| Continental Europe | 67 | 3938 | 51 | 48 | 60 | 2006.6 | 27 |
+| Hindu | 39 | 1813 | 35 | 23 | 30 | 2009.8 | 7 |
+| Islamic | 28 | 874 | 25 | 16 | 24 | 2011.3 | 8 |
+| Japanese | 35 | 1277 | 26 | 18 | 27 | 2006.2 | 4 |
+| Other Civilizations | 34 | 898 | 25 | 17 | 25 | 2008.1 | 7 |
+| Other Western | 24 | 986 | 16 | 18 | 22 | 2008.0 | 10 |
+| Sinic | 61 | 3510 | 56 | 38 | 56 | 2008.6 | 18 |
+| United States | 62 | 4282 | 51 | 52 | 56 | 2007.5 | 19 |
 
 ## 4. Methods
 
@@ -108,47 +108,47 @@ Table 2 reports the equilibrium domestic active pool T, the minimum viable thres
 
 | Group | T_eq | M | Margin | T/M | I0 | r | r_obs | r_crit |
 |---|---|---|---|---|---|---|---|---|
-| Anglosphere ex-US | 752.12 | 119.78 | 632.34 | 6.28 | 1.55 | 0.00 | 0.11345 | 0.00478 |
-| Continental Europe | 1208.42 | 129.07 | 1079.36 | 9.36 | 2.82 | 0.00 | 0.12532 | 0.00510 |
-| Hindu | 1497.37 | 66.04 | 1431.33 | 22.67 | 1.52 | 0.00 | 0.11765 | 0.00213 |
-| Islamic | 892.42 | 126.52 | 765.89 | 7.05 | 1.16 | 0.00 | 0.13072 | 0.00282 |
-| Japanese | 206.81 | 50.48 | 156.33 | 4.10 | 1.42 | 0.01 | 0.13904 | 0.01985 |
-| Other Civilizations | 424.70 | 104.60 | 320.10 | 4.06 | 1.15 | 0.00 | 0.13072 | 0.00620 |
-| Other Western | 513.12 | 57.17 | 455.95 | 8.98 | 0.87 | 0.00 | 0.17647 | 0.00400 |
-| Sinic | 1783.64 | 112.34 | 1671.29 | 15.88 | 2.38 | 0.00 | 0.12059 | 0.00281 |
-| United States | 770.21 | 132.49 | 637.71 | 5.81 | 2.77 | 0.00 | 0.10294 | 0.00808 |
+| Anglosphere ex-US | 240.73 | 119.78 | 120.95 | 2.01 | 1.70 | 0.01 | 0.06471 | 0.01609 |
+| Continental Europe | 384.91 | 129.07 | 255.84 | 2.98 | 3.32 | 0.01 | 0.06569 | 0.02068 |
+| Hindu | 590.62 | 66.04 | 524.58 | 8.94 | 2.17 | 0.00 | 0.07647 | 0.00821 |
+| Islamic | 377.31 | 126.52 | 250.79 | 2.98 | 1.53 | 0.00 | 0.06863 | 0.00939 |
+| Japanese | 190.21 | 50.48 | 139.73 | 3.77 | 1.72 | 0.01 | 0.07625 | 0.02534 |
+| Other Civilizations | 170.77 | 104.60 | 66.17 | 1.63 | 1.65 | 0.01 | 0.08000 | 0.02772 |
+| Other Western | 80.04 | 57.17 | 22.87 | 1.40 | 1.03 | 0.02 | 0.06417 | 0.03471 |
+| Sinic | 1205.38 | 112.34 | 1093.04 | 10.73 | 3.42 | 0.00 | 0.06408 | 0.00608 |
+| United States | 528.72 | 132.49 | 396.23 | 3.99 | 3.26 | 0.01 | 0.06513 | 0.01376 |
 
 ![Figure 1](figures/fig1_equilibrium_margin.png)
 
 **Figure 1. Equilibrium domestic active pool (T) and minimum viable coauthor threshold (M) by group.** All groups remain above the threshold, but the margin varies widely.
 
-Table 3 shows the three transition-rate elasticities with the largest absolute impact on T for each group. Dropout (d) is the largest negative lever in every group, with an elasticity between -2.32 and -2.01 for the active pool. The largest positive transition lever is principal-investigator promotion (p_D), followed by domestic hit generation (h_D). The Japanese group shows the highest sensitivity to PI promotion (p_D), indicating that strengthening domestic promotion is especially important for that community.
+Table 3 shows the three transition-rate elasticities with the largest absolute impact on T for each group. Dropout (d) is the largest negative lever in every group, with an elasticity between -2.38 and -2.06 for the active pool. The largest positive transition lever is domestic hit generation (h_D), followed by principal-investigator promotion (p_D). The Other Civilizations group shows the highest sensitivity to PI promotion (p_D), indicating that strengthening domestic promotion is especially important for that community.
 
 | Group | 1st rate | 1st elasticity | 2nd rate | 2nd elasticity | 3rd rate | 3rd elasticity |
 |---|---|---|---|---|---|---|
-| Anglosphere ex-US | d | -2.162 | p_D | 0.116 | beta | 0.046 |
-| Continental Europe | d | -2.096 | p_D | 0.066 | beta | 0.044 |
-| Hindu | d | -2.011 | p_D | 0.038 | h_D | 0.013 |
-| Islamic | d | -2.051 | p_D | 0.057 | h_D | 0.022 |
-| Japanese | d | -2.317 | p_D | 0.233 | h_D | 0.111 |
-| Other Civilizations | d | -2.125 | p_D | 0.094 | h_D | 0.047 |
-| Other Western | d | -2.123 | p_D | 0.137 | h_D | 0.014 |
-| Sinic | d | -2.027 | p_D | 0.035 | h_D | 0.021 |
-| United States | d | -2.124 | p_D | 0.089 | h_D | 0.063 |
+| Anglosphere ex-US | d | -2.295 | beta | 0.195 | h_D | 0.117 |
+| Continental Europe | d | -2.268 | h_D | 0.160 | beta | 0.133 |
+| Hindu | d | -2.095 | h_D | 0.072 | p_D | 0.051 |
+| Islamic | d | -2.134 | h_D | 0.076 | p_D | 0.071 |
+| Japanese | d | -2.306 | h_D | 0.170 | p_D | 0.145 |
+| Other Civilizations | d | -2.377 | h_D | 0.184 | p_D | 0.153 |
+| Other Western | d | -2.360 | h_D | 0.155 | p_D | 0.140 |
+| Sinic | d | -2.063 | h_D | 0.052 | beta | 0.027 |
+| United States | d | -2.161 | h_D | 0.131 | beta | 0.102 |
 
-Table 4 reports, for each group, the single rate that reaches the active-pool threshold with the smallest proportional change. The Other Civilizations group is the most fragile: I0 must be multiplied by 0.246× its current value (equivalent to a 75% proportional reduction) to drive the active pool to its minimum viable threshold. I0 is the closest point-of-no-return lever for the active researcher pool in every group.
+Table 4 reports, for each group, the single rate that reaches the active-pool threshold with the smallest proportional change. The Other Western group is the most fragile: d must be multiplied by 1.165× its current value (equivalent to a 17% proportional increase) to drive the active pool to its minimum viable threshold. I0 is the most common closest point-of-no-return lever for the active researcher pool.
 
 | Group | Target | Rate | Current | Critical factor | Proximity |
 |---|---|---|---|---|---|
-| Other Civilizations | domestic_active | I0 | 1.1486 | 0.246 | 0.754 |
-| Japanese | domestic_active | I0 | 1.4202 | 0.244 | 0.756 |
-| United States | domestic_active | I0 | 2.7692 | 0.172 | 0.828 |
-| Anglosphere ex-US | domestic_active | I0 | 1.5548 | 0.159 | 0.841 |
-| Islamic | domestic_active | I0 | 1.1638 | 0.142 | 0.858 |
-| Other Western | domestic_active | I0 | 0.8723 | 0.111 | 0.889 |
-| Continental Europe | domestic_active | I0 | 2.8237 | 0.107 | 0.893 |
-| Sinic | domestic_active | I0 | 2.3837 | 0.063 | 0.937 |
-| Hindu | domestic_active | I0 | 1.5156 | 0.044 | 0.956 |
+| Other Western | domestic_active | d | 0.0236 | 1.165 | 0.165 |
+| Other Civilizations | domestic_active | d | 0.0181 | 1.260 | 0.260 |
+| Anglosphere ex-US | domestic_active | d | 0.0124 | 1.418 | 0.418 |
+| Continental Europe | domestic_active | I0 | 3.3207 | 0.335 | 0.665 |
+| Islamic | domestic_active | I0 | 1.5344 | 0.335 | 0.665 |
+| Japanese | domestic_active | I0 | 1.7167 | 0.265 | 0.735 |
+| United States | domestic_active | I0 | 3.2617 | 0.251 | 0.749 |
+| Hindu | domestic_active | I0 | 2.1709 | 0.112 | 0.888 |
+| Sinic | domestic_active | I0 | 3.4179 | 0.093 | 0.907 |
 
 ![Figure 2](figures/fig2_pnr_proximity.png)
 
@@ -156,28 +156,30 @@ Table 4 reports, for each group, the single rate that reaches the active-pool th
 
 ### 5.1 Saturating recruitment extension
 
-Replacing linear inflow with a saturating form lowers equilibrium pools because each additional PI adds fewer entrants. Across groups, saturating equilibrium T is 37-48% lower than the linear variant. Table 5 compares linear and saturating equilibrium T values.
+Replacing linear inflow with a saturating form lowers equilibrium pools because each additional PI adds fewer entrants. Across groups, saturating equilibrium T is 19-41% lower than the linear variant. Table 5 compares linear and saturating equilibrium T values.
 
 | Group | Linear T | Saturating T | ε |
 |---|---|---|---|
-| Anglosphere ex-US | 752 | 411 | 0.01429 |
-| Continental Europe | 1208 | 659 | 0.00870 |
-| Hindu | 1497 | 781 | 0.01538 |
-| Islamic | 892 | 469 | 0.02222 |
-| Japanese | 207 | 129 | 0.01818 |
-| Other Civilizations | 425 | 234 | 0.02222 |
-| Other Western | 513 | 270 | 0.04000 |
-| Sinic | 1784 | 941 | 0.01000 |
-| United States | 770 | 446 | 0.00714 |
+| Anglosphere ex-US | 241 | 165 | 0.00667 |
+| Continental Europe | 385 | 277 | 0.00333 |
+| Hindu | 591 | 355 | 0.00667 |
+| Islamic | 377 | 234 | 0.00833 |
+| Japanese | 190 | 138 | 0.00741 |
+| Other Civilizations | 171 | 125 | 0.00800 |
+| Other Western | 80 | 65 | 0.00909 |
+| Sinic | 1205 | 713 | 0.00357 |
+| United States | 529 | 352 | 0.00357 |
 
 ### 5.2 Historical counterfactual
 
-Table 6 compares the equilibrium that would have emerged if the transition rates estimated for the early career window (2000-2010) or the late window (2011-2016) had persisted indefinitely. The late window is shorter and its rates are estimated from younger cohorts, so the comparison should be read as a sensitivity exercise rather than a forecast. Only 2 groups have enough dual-window support for reliable rate estimation in both windows; they are listed in the table. Both groups with dual-window support would see smaller safety margins under late-window rates (Sinic, Continental Europe).
+Table 6 compares the equilibrium that would have emerged if the transition rates estimated for the early career window (2000-2010) or the late window (2011-2016) had persisted indefinitely. The late window is shorter and its rates are estimated from younger cohorts, so the comparison should be read as a sensitivity exercise rather than a forecast. Only 4 groups have enough dual-window support for reliable rate estimation in both windows; they are listed in the table. Groups that would see smaller safety margins under late-window rates: United States, Continental Europe. Groups that would see larger safety margins under late-window rates: Other Civilizations, Sinic.
 
 | Group | T early | T late | ΔT (%) | Margin early | Margin late | Δ margin |
 |---|---|---|---|---|---|---|
-| Continental Europe | 1117 | 791 | -29.2 | 988 | 662 | -325.7 |
-| Sinic | 1393 | 936 | -32.8 | 1280 | 824 | -456.2 |
+| Continental Europe | 420 | 368 | -12.3 | 291 | 239 | -51.8 |
+| Other Civilizations | 81 | 1093 | 1240.8 | -23 | 988 | 1011.1 |
+| Sinic | 944 | 1313 | 39.2 | 831 | 1201 | 369.5 |
+| United States | 563 | 428 | -23.9 | 431 | 296 | -134.8 |
 
 ![Figure 3](figures/fig3_historical_margin.png)
 
@@ -185,27 +187,27 @@ Table 6 compares the equilibrium that would have emerged if the transition rates
 
 ### 5.3 Policy counterfactuals
 
-Table 7 reports the single mechanical counterfactual with the largest margin gain per 10% lever change for each group. Reducing dropout is the dominant positive lever for every civilisation. A roughly 10% proportional reduction in d would add about 26 active researchers in the Japanese group and about 203 in the Sinic group, reflecting differences in cohort size and baseline attrition.
+Table 7 reports the single mechanical counterfactual with the largest margin gain per 10% lever change for each group. Reducing dropout is the dominant positive lever for every civilisation. A roughly 10% proportional reduction in d would add about 14 active researchers in the Other Western group and about 144 in the Sinic group, reflecting differences in cohort size and baseline attrition.
 
 | Group | Lever | Direction | Change (%) | Margin gain | Gain per 10% |
 |---|---|---|---|---|---|
-| Anglosphere ex-US | d | decrease | -10 | 89 | 88.9 |
-| Continental Europe | d | decrease | -10 | 141 | 141.0 |
-| Hindu | d | decrease | -10 | 168 | 168.3 |
-| Islamic | d | decrease | -10 | 101 | 101.2 |
-| Japanese | d | decrease | -10 | 26 | 25.8 |
-| Other Civilizations | d | decrease | -10 | 49 | 49.4 |
-| Other Western | d | decrease | -10 | 58 | 58.3 |
-| Sinic | d | decrease | -10 | 203 | 202.6 |
-| United States | d | decrease | -10 | 92 | 92.0 |
+| Anglosphere ex-US | d | decrease | -10 | 34 | 34.3 |
+| Continental Europe | d | decrease | -10 | 56 | 55.6 |
+| Hindu | d | decrease | -10 | 71 | 70.8 |
+| Islamic | d | decrease | -10 | 46 | 46.3 |
+| Japanese | d | decrease | -10 | 27 | 27.1 |
+| Other Civilizations | d | decrease | -10 | 25 | 25.3 |
+| Other Western | d | decrease | -10 | 14 | 13.8 |
+| Sinic | d | decrease | -10 | 144 | 143.6 |
+| United States | d | decrease | -10 | 70 | 69.7 |
 
-We also evaluated multi-lever policy packages for the three smallest-margin groups. The package with the largest margin gain in each group was: Japanese (return_plus_retention: +27 active researchers); Other Civilizations (return_plus_retention: +50 active researchers); Other Western (return_plus_retention: +59 active researchers). These packages combine dropout reduction with return or PI-pipeline levers, showing that the framework can compare multi-lever interventions as well as single-rate perturbations.
+We also evaluated multi-lever policy packages for the three smallest-margin groups. The package with the largest margin gain in each group was: Other Western (return_plus_retention: +15 active researchers); Other Civilizations (return_plus_retention: +27 active researchers); Anglosphere ex-US (return_plus_retention: +37 active researchers). These packages combine dropout reduction with return or PI-pipeline levers, showing that the framework can compare multi-lever interventions as well as single-rate perturbations.
 
 | Group | Package | Baseline margin | Margin gain |
 |---|---|---|---|
-| Japanese | return_plus_retention | 156 | 27 |
-| Other Civilizations | return_plus_retention | 320 | 50 |
-| Other Western | return_plus_retention | 456 | 59 |
+| Other Western | return_plus_retention | 23 | 15 |
+| Other Civilizations | return_plus_retention | 66 | 27 |
+| Anglosphere ex-US | return_plus_retention | 121 | 37 |
 
 ### 5.4 Uncertainty
 
@@ -213,15 +215,15 @@ Table 8 reports bootstrap 95% confidence intervals for the equilibrium active po
 
 | Group | T median | T 95% CI | P_D mean | P_D 95% CI |
 |---|---|---|---|---|
-| Anglosphere ex-US | 752 | [260, 1595] | 823 | [207, 1517] |
-| Continental Europe | 1214 | [761, 5174] | 1532 | [638, 5072] |
-| Hindu | 1497 | [1492, 1502] | 1421 | [1366, 1446] |
-| Islamic | 892 | [883, 899] | 813 | [691, 851] |
-| Japanese | 206 | [96, 470] | 173 | [46, 402] |
-| Other Civilizations | 425 | [189, 895] | 486 | [144, 848] |
-| Other Western | 514 | [506, 518] | 424 | [356, 473] |
-| Sinic | 1785 | [842, 3659] | 2210 | [756, 3586] |
-| United States | 775 | [412, 2521] | 831 | [334, 2438] |
+| Anglosphere ex-US | 250 | [126, 708] | 273 | [94, 681] |
+| Continental Europe | 391 | [235, 741] | 359 | [180, 672] |
+| Hindu | 594 | [282, 1610] | 664 | [221, 1545] |
+| Islamic | 379 | [174, 854] | 425 | [130, 807] |
+| Japanese | 189 | [97, 385] | 150 | [51, 323] |
+| Other Civilizations | 172 | [76, 437] | 144 | [42, 370] |
+| Other Western | 79 | [17, 205] | 68 | [9, 181] |
+| Sinic | 1214 | [749, 3917] | 1366 | [647, 3834] |
+| United States | 542 | [306, 1032] | 517 | [261, 972] |
 
 ![Figure 4](figures/fig4_bootstrap_ci.png)
 
@@ -239,15 +241,15 @@ Table 9 summarises the mean observed annual transition rates by group between 20
 
 | Group | α | β | h_D | p_D | d | I_total |
 |---|---|---|---|---|---|---|
-| Anglosphere ex-US | 0.113 | 0.152 | 0.142 | 0.061 | 0.042 | 1.59 |
-| Continental Europe | 0.048 | 0.139 | 0.122 | 0.068 | 0.027 | 2.88 |
-| Hindu | 0.064 | 0.190 | 0.130 | 0.075 | 0.057 | 1.53 |
-| Islamic | 0.082 | 0.291 | 0.133 | 0.078 | 0.159 | 1.25 |
-| Japanese | 0.053 | 0.333 | 0.102 | 0.072 | 0.049 | 1.53 |
-| Other Civilizations | 0.096 | 0.240 | 0.129 | 0.087 | 0.080 | 1.18 |
-| Other Western | 0.091 | 0.214 | 0.199 | 0.065 | 0.088 | 0.88 |
-| Sinic | 0.045 | 0.200 | 0.087 | 0.052 | 0.036 | 2.41 |
-| United States | 0.069 | 0.161 | 0.158 | 0.048 | 0.023 | 2.88 |
+| Anglosphere ex-US | 0.090 | 0.170 | 0.125 | 0.150 | 0.039 | 1.94 |
+| Continental Europe | 0.055 | 0.139 | 0.079 | 0.143 | 0.024 | 3.94 |
+| Hindu | 0.079 | 0.190 | 0.124 | 0.143 | 0.053 | 2.29 |
+| Islamic | 0.085 | 0.208 | 0.104 | 0.136 | 0.110 | 1.75 |
+| Japanese | 0.057 | 0.356 | 0.081 | 0.146 | 0.044 | 2.06 |
+| Other Civilizations | 0.075 | 0.238 | 0.086 | 0.141 | 0.049 | 2.00 |
+| Other Western | 0.100 | 0.266 | 0.158 | 0.120 | 0.062 | 1.41 |
+| Sinic | 0.077 | 0.193 | 0.096 | 0.168 | 0.032 | 3.59 |
+| United States | 0.087 | 0.157 | 0.134 | 0.166 | 0.024 | 3.65 |
 
 **Table 9. Mean observed annual transition rates by civilisation, 2000-2016.**
 
@@ -261,51 +263,51 @@ Table 10 lists the origin-destination pairs with the largest accumulation of abr
 
 | Origin | Destination | Author-years |
 |---|---|---|
-| Continental Europe | Continental Europe | 80 |
-| Sinic | Sinic | 78 |
+| Sinic | Sinic | 94 |
+| Continental Europe | Continental Europe | 86 |
 | Anglosphere ex-US | Continental Europe | 61 |
 | Continental Europe | Anglosphere ex-US | 60 |
 | Anglosphere ex-US | Anglosphere ex-US | 59 |
 | United States | Other Western | 52 |
-| Hindu | Hindu | 48 |
+| Hindu | Hindu | 51 |
+| Islamic | Islamic | 50 |
 | Other Western | Other Western | 43 |
 | Continental Europe | Other Western | 40 |
-| United States | Continental Europe | 38 |
 
 **Table 10. Top origin-destination abroad author-year pairs.**
 
 ### 5.6 Out-of-sample projection, 2017-2023
 
-The 2017-2023 projection is compared with observed annual stocks in Figure 7. Overall accuracy is RMSE 3.35 and MAPE 42.5% (a non-standard, conservative measure computed against count_obs + 1 to avoid division by zero). The high MAPE reflects small absolute counts and zero-observed cells; the projection should be read as a directional early-warning indicator of drift and threshold proximity rather than a precise population forecast. Among civilisations the lowest RMSE is for Japanese and the highest RMSE is for Sinic; the highest MAPE is for Sinic. The largest errors occur in small compartments and in groups with sparse transition counts, which is expected because the annual model does not borrow information across civilisations.
+The 2017-2023 projection is compared with observed annual stocks in Figure 7. Overall accuracy is RMSE 3.96 and MAPE 71.6% (a non-standard, conservative measure computed against count_obs + 1 to avoid division by zero). The high MAPE reflects small absolute counts and zero-observed cells; the projection should be read as a directional early-warning indicator of drift and threshold proximity rather than a precise population forecast. Among civilisations the lowest RMSE is for Japanese and the highest RMSE is for Islamic; the highest MAPE is for Sinic. The largest errors occur in small compartments and in groups with sparse transition counts, which is expected because the annual model does not borrow information across civilisations.
 
 ![Figure 7](figures/annual_projection_vs_observed.png)
 
 **Figure 7. Observed (solid) and projected (dashed) compartment counts by civilisation, 2017-2023. The vertical dotted line marks the end of the training period (2016).**
 
-Table 11 reports projection accuracy by civilisation and Table 12 by compartment. Among compartments, the lowest RMSE is for A, while the highest RMSE is for H_D and the highest MAPE is for A. P_D and H_D show larger errors because small changes in PI and hit rates are amplified by the endogenous inflow term.
+Table 11 reports projection accuracy by civilisation and Table 12 by compartment. Among compartments, the lowest RMSE is for H_A, while the highest RMSE is for P_D and the highest MAPE is for D. P_D and H_D show larger errors because small changes in PI and hit rates are amplified by the endogenous inflow term.
 
 | Group | RMSE | MAPE |
 |---|---|---|
-| Anglosphere ex-US | 1.77 | 25.2% |
-| Continental Europe | 1.97 | 27.2% |
-| Hindu | 2.44 | 39.4% |
-| Islamic | 4.99 | 68.9% |
-| Japanese | 1.23 | 32.1% |
-| Other Civilizations | 1.83 | 37.6% |
-| Other Western | 2.74 | 42.9% |
-| Sinic | 5.30 | 70.9% |
-| United States | 4.79 | 38.2% |
+| Anglosphere ex-US | 1.80 | 46.2% |
+| Continental Europe | 2.94 | 82.4% |
+| Hindu | 5.93 | 86.6% |
+| Islamic | 6.39 | 82.2% |
+| Japanese | 1.64 | 22.9% |
+| Other Civilizations | 2.62 | 65.7% |
+| Other Western | 2.57 | 70.4% |
+| Sinic | 3.66 | 99.6% |
+| United States | 4.85 | 88.6% |
 
 **Table 11. Projection accuracy by civilisation, 2017-2023.**
 
 | Compartment | RMSE | MAPE |
 |---|---|---|
-| A | 1.15 | 72.1% |
-| D | 2.42 | 29.4% |
-| H_A | 1.63 | 28.9% |
-| H_D | 6.54 | 44.2% |
-| P_A | 1.98 | 47.0% |
-| P_D | 3.32 | 33.3% |
+| A | 1.80 | 106.2% |
+| D | 5.40 | 117.4% |
+| H_A | 0.78 | 37.1% |
+| H_D | 3.45 | 109.8% |
+| P_A | 2.57 | 36.4% |
+| P_D | 6.51 | 22.8% |
 
 **Table 12. Projection accuracy by compartment, 2017-2023.**
 
@@ -315,7 +317,7 @@ The annual projection performs best where the correction pressures in Section 4.
 
 ### 5.8 Japan-specific compartment and transition-rate ladder
 
-Figure 8 places the Japanese AI/ML research community in the compartment model. The fitted equilibrium is T=207 active researchers (D=20, H_D=44, P_D=143) against a minimum viable threshold of M=50, so the safety ratio T/M is 4.10. The right-hand ladder compares Japan's six transition rates with those of the other civilisations. Japan's closest PNR is the exogenous entry rate I0: if I0 were reduced to 24.4% of its current level, the active pool would reach the minimum viable threshold. In the fitted rates, early-career outflow (α=0.033) and domestic PI promotion (p_D=0.042) are comparatively low, while return from abroad (β=0.110) and domestic hit generation (h_D=0.109) are moderate. The small absolute size of the abroad PI compartment (P_A) shows that few Japanese researchers who leave eventually become PIs abroad, which makes the domestic pipeline the critical margin.
+Figure 8 places the Japanese AI/ML research community in the compartment model. The fitted equilibrium is T=189 active researchers (D=31, H_D=23, P_D=135) against a minimum viable threshold of M=50, so the safety ratio T/M is 3.77. The right-hand ladder compares Japan's six transition rates with those of the other civilisations. Japan's closest PNR is the exogenous entry rate I0: if I0 were reduced to 26.5% of its current level, the active pool would reach the minimum viable threshold. In the fitted rates, early-career outflow (α=0.024) and domestic PI promotion (p_D=0.092) are comparatively low, while return from abroad (β=0.110) and domestic hit generation (h_D=0.076) are moderate. The small absolute size of the abroad PI compartment (P_A) shows that few Japanese researchers who leave eventually become PIs abroad, which makes the domestic pipeline the critical margin.
 
 ![Figure 8](figures/fig8_japan_compartment_flow.png)
 
@@ -333,19 +335,19 @@ Figure 9 combines the long-run safety ratio T/M with the closest point-of-no-ret
 
 The results support a transition-rate view of research policy. Rather than asking which country has a net inflow or outflow of researchers, the model asks which rate must be altered to keep a community above its minimum viable coauthor pool. The answer is not the same for every group, but a clear pattern emerges.
 
-First, I0 is the closest point-of-no-return lever for the active researcher pool in every group. A large proportional reduction in baseline recruitment would drive most communities to their threshold before mobility rates such as return or promotion became binding. This is consistent with the observation that AI/ML fields depend on a continuous pipeline of new graduate students and junior researchers [5,7]. Policies that sustain that pipeline, such as doctoral funding, visa routes for early-career researchers, and stable junior positions, are therefore first-order defences against a PNR.
+First, I0 is the most common closest point-of-no-return lever for the active researcher pool. A large proportional reduction in baseline recruitment would drive most communities to their threshold before mobility rates such as return or promotion became binding. This is consistent with the observation that AI/ML fields depend on a continuous pipeline of new graduate students and junior researchers [5,7]. Policies that sustain that pipeline, such as doctoral funding, visa routes for early-career researchers, and stable junior positions, are therefore first-order defences against a PNR.
 
-Second, among the mobility transition rates, dropout (d) is the dominant negative lever; its active-pool elasticity ranges from -2.32 to -2.01 across groups, and in the policy counterfactuals a simulated reduction in dropout yields the largest margin gain per unit proportional change. Attrition matters because it removes researchers from every compartment, not just one. A 10% proportional reduction in dropout expands the safety margin more than comparably sized increases in return, hit generation or promotion. For Japanese, the group with the smallest safety margin, even modest attrition reductions may widen the margin. These counterfactuals are mechanical perturbations of the fitted rates; they identify the most sensitive transition levers, not the causal effect of any specific policy programme.
+Second, among the mobility transition rates, dropout (d) is the dominant negative lever; its active-pool elasticity ranges from -2.38 to -2.06 across groups, and in the policy counterfactuals a simulated reduction in dropout yields the largest margin gain per unit proportional change. Attrition matters because it removes researchers from every compartment, not just one. A 10% proportional reduction in dropout expands the safety margin more than comparably sized increases in return, hit generation or promotion. For Other Western, the group with the smallest safety margin, even modest attrition reductions may widen the margin. These counterfactuals are mechanical perturbations of the fitted rates; they identify the most sensitive transition levers, not the causal effect of any specific policy programme.
 
-Third, the largest positive transition lever is principal-investigator promotion (p_D), followed by domestic hit generation (h_D). The Japanese group shows the strongest response to PI promotion, suggesting that for that community expanding the domestic PI pipeline is an efficient lever. Return from abroad (β) is also positive for most groups, though its effect is generally smaller than reducing attrition directly. The implication for policy is that retention and promotion are usually more efficient than trying to attract returnees, but a balanced portfolio is still needed: a community without domestic PI growth cannot reproduce itself through attrition reduction alone.
+Third, the largest positive transition lever is domestic hit generation (h_D), followed by principal-investigator promotion (p_D). The Other Civilizations group shows the strongest response to PI promotion, suggesting that for that community expanding the domestic PI pipeline is an efficient lever. Return from abroad (β) is also positive for most groups, though its effect is generally smaller than reducing attrition directly. The implication for policy is that retention and promotion are usually more efficient than trying to attract returnees, but a balanced portfolio is still needed: a community without domestic PI growth cannot reproduce itself through attrition reduction alone.
 
-Fourth, the historical counterfactual shows that the late-window rates, if they persisted, would alter equilibrium margins. Both groups with dual-window support would see smaller safety margins under late-window rates (Sinic, Continental Europe). This pattern cautions against treating AI/ML mobility as a single global trend. It also confirms that the model can detect temporal changes in transition rates, which is the prerequisite for the early intervention the framework is designed to support.
+Fourth, the historical counterfactual shows that the late-window rates, if they persisted, would alter equilibrium margins. Groups that would see smaller safety margins under late-window rates: United States, Continental Europe. Groups that would see larger safety margins under late-window rates: Other Civilizations, Sinic. This pattern cautions against treating AI/ML mobility as a single global trend. It also confirms that the model can detect temporal changes in transition rates, which is the prerequisite for the early intervention the framework is designed to support.
 
 The transition levers also interact in ways that a single-rate elasticity cannot fully capture. For example, reducing dropout and increasing PI promotion together are likely to have a larger effect than the sum of the two individual perturbations, because more researchers survive to become PIs and those PIs then train additional early-career researchers through the endogenous inflow channel. Conversely, a simultaneous fall in exogenous entry and a rise in dropout can push a community to its threshold faster than either change alone. The model's steady-state and one-at-a-time counterfactuals are therefore a starting point; they identify the most sensitive margins but do not exhaust the policy design space.
 
 The connection to civilisational diversity is direct. Each group's safety margin can be monitored over time, and interventions can be adjusted before the margin disappears. Because the model uses a fixed safety factor of 0.50 for the endogenous inflow parameter r, the policy recommendations are deliberately conservative: they do not push the system toward instability. That bounded approach is consistent with the goal of preserving diversity rather than maximising any single country's share.
 
-Japan is the clearest example among the large civilisations. Its fitted active-pool margin is T=207 researchers, with M=50 (T/M=4.10). Figure 8 (reproduced below) shows that Japan's closest PNR is the exogenous entry rate I0: if I0 fell to 24.4% of its current level, the active pool would reach the minimum viable threshold. The same figure shows that Japan's early-career outflow α (0.033) and domestic PI promotion p_D (0.042) are comparatively low, while return from abroad β (0.110) and domestic hit generation h_D (0.109) are moderate. These numbers translate directly into policy levers. α can be reduced by expanding postdoctoral fellowships and junior-faculty positions that keep promising researchers in the domestic pipeline; β can be raised through return grants, dual appointments, and recognition of overseas experience in domestic hiring. h_D responds to doctoral and postdoctoral training expansion, including the 2026 AI for Science (SPREAD) programme if it is used to create independent labs with their own budgets rather than merely increasing headcount. p_D depends on tenure-track conversion, startup packages, and project-based PI status for mid-career researchers. d, the dropout rate to L, can be lowered through childcare support, dual-career accommodation, and stable non-tenure research tracks. Finally, I0 captures the pure exogenous entry flow and can be supported by research-master pipelines, undergraduate research programmes, and early doctoral fellowships. Weakening the Japanese civilisation would not be neutral for the rest of the world: it would remove a distinct institutional lineage, reduce the pool of non-Anglophone problem framings, and leave a range of health, ageing, robotics, and materials problems under-addressed. Maintaining Japan as a viable AI/ML civilisation is therefore in the global interest, not only in Japan's national interest.
+Japan is the clearest example among the large civilisations. Its fitted active-pool margin is T=189 researchers, with M=50 (T/M=3.77). Figure 8 (reproduced below) shows that Japan's closest PNR is the exogenous entry rate I0: if I0 fell to 26.5% of its current level, the active pool would reach the minimum viable threshold. The same figure shows that Japan's early-career outflow α (0.024) and domestic PI promotion p_D (0.092) are comparatively low, while return from abroad β (0.110) and domestic hit generation h_D (0.076) are moderate. These numbers translate directly into policy levers. α can be reduced by expanding postdoctoral fellowships and junior-faculty positions that keep promising researchers in the domestic pipeline; β can be raised through return grants, dual appointments, and recognition of overseas experience in domestic hiring. h_D responds to doctoral and postdoctoral training expansion, including the 2026 AI for Science (SPREAD) programme if it is used to create independent labs with their own budgets rather than merely increasing headcount. p_D depends on tenure-track conversion, startup packages, and project-based PI status for mid-career researchers. d, the dropout rate to L, can be lowered through childcare support, dual-career accommodation, and stable non-tenure research tracks. Finally, I0 captures the pure exogenous entry flow and can be supported by research-master pipelines, undergraduate research programmes, and early doctoral fellowships. Weakening the Japanese civilisation would not be neutral for the rest of the world: it would remove a distinct institutional lineage, reduce the pool of non-Anglophone problem framings, and leave a range of health, ageing, robotics, and materials problems under-addressed. Maintaining Japan as a viable AI/ML civilisation is therefore in the global interest, not only in Japan's national interest.
 
 ![Figure 8](figures/fig8_japan_compartment_flow.png)
 
@@ -359,7 +361,7 @@ Operationally, the framework can be used in two complementary ways. As a monitor
 
 ### 6.1 Validation of correction pressures
 
-The correction pressures are not ad hoc adjustments; each maps to a known statistical or dynamical constraint. Laplace smoothing is equivalent to a weak Dirichlet prior on a multinomial transition vector; it guarantees that no cell has zero estimated probability and shrinks rare transitions toward the simplex centroid. Clipping projected rates to values between 0 and 1 is a feasibility constraint on probabilities; the dropout cap is a cross-sectional constraint that prevents projected attrition from exceeding the observed stock; and the inflow apportionment constraint keeps the composition of new entrants equal to the last observed recruitment pattern. In the 2017-2023 projection these pressures reduced the sensitivity of the forecast to sparse cells and to short-run fluctuations in small groups. Quantitatively, the overall RMSE of 3.35 and conservative MAPE of 42.5% are consistent with a model that is deliberately regularised rather than optimised for in-sample fit. The high MAPE is driven by sparse compartments and zero-observed cells; the projection is therefore appropriate for monitoring directional drift and proximity to the PNR, not for precise count forecasting. The residual errors are concentrated in the smallest compartments, which is exactly where smoothing is most active and where future data will be most valuable.
+The correction pressures are not ad hoc adjustments; each maps to a known statistical or dynamical constraint. Laplace smoothing is equivalent to a weak Dirichlet prior on a multinomial transition vector; it guarantees that no cell has zero estimated probability and shrinks rare transitions toward the simplex centroid. Clipping projected rates to values between 0 and 1 is a feasibility constraint on probabilities; the dropout cap is a cross-sectional constraint that prevents projected attrition from exceeding the observed stock; and the inflow apportionment constraint keeps the composition of new entrants equal to the last observed recruitment pattern. In the 2017-2023 projection these pressures reduced the sensitivity of the forecast to sparse cells and to short-run fluctuations in small groups. Quantitatively, the overall RMSE of 3.96 and conservative MAPE of 71.6% are consistent with a model that is deliberately regularised rather than optimised for in-sample fit. The high MAPE is driven by sparse compartments and zero-observed cells; the projection is therefore appropriate for monitoring directional drift and proximity to the PNR, not for precise count forecasting. The residual errors are concentrated in the smallest compartments, which is exactly where smoothing is most active and where future data will be most valuable.
 
 ### 6.2 Intra-civilisation alternatives when inter-civilisation mobility cannot be controlled
 
@@ -375,7 +377,7 @@ Several limitations should be acknowledged. OpenAlex affiliation and country ass
 
 ## 7. Conclusion
 
-We have proposed and implemented a transition-rate framework for assessing how close AI/ML research communities are to a PNR. The model converts OpenAlex publication records into civilisation-specific transition rates and solves for the equilibrium active researcher pool. All groups remain above their minimum viable coauthor threshold in the fitted model, but the distance to that threshold varies by an order of magnitude and is most sensitive to exogenous entry and dropout. Dropout is the dominant negative lever (active-pool elasticity -2.32 to -2.01), and a simulated reduction is the single most efficient model-implied response for every civilisation. However, the closest PNR is exogenous entry for all groups in the active-pool analysis, which means that policies which sustain the pipeline of new researchers are first-order defences. The historical counterfactual and the bootstrap intervals remind us that the future is not determined by current rates; transition rates can change, and policy can be directed at the most fragile lever before a collapse.
+We have proposed and implemented a transition-rate framework for assessing how close AI/ML research communities are to a PNR. The model converts OpenAlex publication records into civilisation-specific transition rates and solves for the equilibrium active researcher pool. All groups remain above their minimum viable coauthor threshold in the fitted model, but the distance to that threshold varies by an order of magnitude and is most sensitive to exogenous entry and dropout. Dropout is the dominant negative lever (active-pool elasticity -2.38 to -2.06), and a simulated reduction is the single most efficient model-implied response for every civilisation. However, the closest PNR is exogenous entry for all groups in the active-pool analysis, which means that policies which sustain the pipeline of new researchers are first-order defences. The historical counterfactual and the bootstrap intervals remind us that the future is not determined by current rates; transition rates can change, and policy can be directed at the most fragile lever before a collapse.
 
 The annual projection layer adds an operational dimension to this conclusion. By estimating year-by-year transition rates and projecting one year ahead, the model turns the steady-state diagnostic into an early-warning dashboard. A one-year time step is short enough to detect drift before the active pool approaches the minimum viable threshold, and the correction pressures keep the projection within empirical and theoretical bounds. When inter-civilisation mobility cannot be controlled, the same framework points to intra-civilisation levers—reducing dropout, raising domestic hit rates, and accelerating PI promotion—that preserve T = D + H_D + P_D. These two layers, steady-state and annual, together provide a coherent basis for early, safety-factor-bound intervention.
 
