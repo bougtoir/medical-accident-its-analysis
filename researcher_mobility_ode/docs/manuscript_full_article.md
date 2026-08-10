@@ -11,7 +11,7 @@ Artificial intelligence (AI) and machine learning (ML) research is increasingly 
 ## Highlights
 
 - Nine civilisations modelled as six-compartment ODEs fitted to OpenAlex AI/ML data.
-- Closest point of no return: Other Civilizations via I0 (factor 0.25×).
+- Closest point of no return: Other Civilizations via I0 (factor 0.246×).
 - Dropout reduction gives the largest margin gain per 10% change across all groups.
 
 ## Data and Code Availability

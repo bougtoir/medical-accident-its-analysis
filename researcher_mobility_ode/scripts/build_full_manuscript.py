@@ -683,7 +683,8 @@ def _abstract_and_highlights(eq, pnr_closest):
     )
     highlights = [
         "Nine civilisations modelled as six-compartment ODEs fitted to OpenAlex AI/ML data.",
-        f"Closest point of no return: {closest['group']} via {closest['rate_name']} (factor {_fmt(closest['critical_factor'])}×).",
+        f"Closest point of no return: {closest['group']} via {closest['rate_name']} (factor {_fmt(closest['critical_factor'], 3)}×).",
+
         highlight_lever,
     ]
     return abstract, keywords, highlights
