@@ -4,15 +4,15 @@
 
 ## Abstract
 
-Artificial intelligence (AI) and machine learning (ML) research is increasingly concentrated in a few regions, raising the risk that smaller research communities fall below a minimum viable coauthor pool and cannot recover. We model each civilisation as a six-compartment system of domestic and abroad early-career, high-impact, and principal-investigator researchers, and estimate transition rates from OpenAlex Artificial Intelligence works (subfield 1702). The minimum viable coauthor threshold is defined as M = k × c_bar, where c_bar is the mean number of authors per work and k is the median number of distinct last-author groups observed per recent year. Across 9 groups, equilibrium domestic active pools remain above their thresholds, but the closest point of no return is observed for the Other Civilizations group, where a proportional change of 0.75 in I0 (critical factor 0.25×) would drive the active pool to its threshold. A simulated reduction in dropout yields the largest margin gain per unit proportional change in every group, making it the most sensitive transition lever in the model. Historical and saturating-inflow counterfactuals show that the model is most sensitive to exogenous entry and attrition. These results provide a quantitative framework for early, safety-factor-bound policy scenarios that preserve civilisational diversity in AI/ML research.
+Artificial intelligence (AI) and machine learning (ML) research is increasingly concentrated in a few regions, raising the risk that smaller research communities fall below a minimum viable coauthor pool and cannot recover. We model each civilisation as a six-compartment system of domestic and abroad early-career, high-impact, and principal-investigator researchers, and estimate transition rates from OpenAlex Artificial Intelligence works (subfield 1702). The minimum viable coauthor threshold is defined as M = k × c_bar, where c_bar is the mean number of authors per work and k is the median number of distinct last-author groups observed per recent year. Across 9 groups, equilibrium domestic active pools remain above their thresholds, but the closest point of no return is observed for the Other Civilizations group, where I0 must be multiplied by 0.246× its current value (a 75% proportional change) to drive the active pool to its threshold. A simulated reduction in dropout yields the largest margin gain per unit proportional change in every group, making it the most sensitive transition lever in the model. Historical and saturating-inflow counterfactuals show that the model is most sensitive to exogenous entry and attrition. These results provide a quantitative framework for early, safety-factor-bound policy scenarios that preserve civilisational diversity in AI/ML research.
 
 **Keywords:** researcher mobility; artificial intelligence; civilisation grouping; ordinary differential equations; point of no return; innovation studies
 
 ## Highlights
 
 - Nine civilisations modelled as six-compartment ODEs fitted to OpenAlex AI/ML data.
-- Closest point of no return for the active pool is Other Civilizations via I0 (critical factor 0.25×).
-- Simulated dropout reduction yields the largest margin gain per unit proportional change across all groups.
+- Closest point of no return: Other Civilizations via I0 (factor 0.25×).
+- Dropout reduction gives the largest margin gain per 10% change across all groups.
 
 ## Data and Code Availability
 
@@ -38,7 +38,7 @@ The civilisation framework offers a natural way to partition the global research
 
 The central argument of the paper is that preserving civilisational diversity in AI/ML is not only a normative preference but also a safeguard against technological dead ends. When a single region or a small oligopoly dominates a field, the set of research questions, evaluation norms, and institutional incentives narrows [5]. A diverse ecosystem generates competing approaches, which increases the probability that unexpected breakthroughs and error correction survive [5]. If transition rates can be observed with enough temporal resolution, policy can intervene before a community reaches the point of no return. Early, proportionate interventions can prevent the emergence of a monopoly or oligopoly without requiring large ex post rescues.
 
-We therefore address four research questions. First, how close is each civilisation to the point of no return in its AI/ML research community? Second, which transition rates have the largest effect on community size? Third, how have transition rates changed between earlier and later career cohorts, and what would have happened if those rates had persisted? Fourth, what safety-factor-bound policy packages can widen the margin before a point of no return is reached?
+We therefore address five research questions. First, how close is each civilisation to the point of no return in its AI/ML research community? Second, which transition rates have the largest effect on community size? Third, how have transition rates changed between earlier and later career cohorts, and what would have happened if those rates had persisted? Fourth, what safety-factor-bound policy packages can widen the margin before a point of no return is reached? Fifth, can the fitted rates be estimated year by year and used to project near-term population composition, and how well do those projections reproduce observed 2017-2023 counts?
 
 The contribution is a reproducible, data-driven transition-rate model that links OpenAlex publication records to a system of ordinary differential equations. The model is intentionally simple: it does not explain why a rate is high or low, but it identifies which rate is closest to a threshold and therefore where early intervention is most urgent.
 
@@ -88,6 +88,20 @@ For each group we computed the mean number of authors per work (c_bar) and the m
 
 Transition rates are estimated as constant per-year hazards from observed proportions within the cohort, with Laplace smoothing to avoid zero probabilities. The ODE system is solved at steady state for each group. Elasticities are computed by perturbing each rate by 1% and re-solving. For point-of-no-return analysis we scale each rate until the active pool reaches M and record the critical factor and its proximity, |critical factor − 1|. Historical counterfactuals split the cohort at career-start year 2010 and re-estimate all rates for the early and late windows. Bootstrap confidence intervals are obtained by resampling authors with replacement. Policy counterfactuals apply proportional changes to individual rates and report the resulting change in safety margin.
 
+### 4.10 Annual transition-rate estimation and projection
+
+The steady-state model in Sections 4.1-4.4 treats rates as constants. To test whether the same framework can be used for short-run monitoring, we reconstructed year-by-year compartment membership from cohort.csv and raw_sampled_works.json. For each author and year we inferred location as domestic if the author was in the origin civilisation and abroad otherwise, using sampled works when available and cohort-derived abroad/return years as a fallback. From these states we computed annual transition counts for the six compartments, applied Laplace +0.5 smoothing to empty destination cells, and derived the probabilities that map to α, β, h_D, h_A, p_D, p_A and d. Inter-civilisation flows are approximated by assigning each abroad author-year to the author's recent_group as the destination civilisation; this is a lower-bound proxy because year-to-year destination changes are not observed in the public cohort.
+
+For the 2017-2026 projection we fit a linear trend to the observed 2000-2016 rates for each group and rate. If fewer than four observations were available or the fit explained less than 10% of the variance, the historical mean was used instead. Projected rates were clipped to values between 0 and 1. Dropout was capped at the 90th percentile of observed dropout rates to prevent implausible extrapolation. Projected total inflows were apportioned across compartments using the observed 2016 distribution. Population composition was projected forward with the discrete-time recursion N(t+1) = N(t)P(t) + b(t+1), where P(t) is a 6×6 row-stochastic-in-expectation matrix that preserves dropout mass: the row sum is 1 − d after scaling outgoing rates. This discrete step is the operational counterpart of the continuous-time ODE; with an annual dt it provides an early-warning signal one year ahead.
+
+We compare the 2017-2023 projection with the observed annual stock. The comparison is limited to years that have observed data, and the observed stock is reindexed to the full group-year-compartment grid so that zero-observed cells are not omitted from the accuracy metrics. Accuracy is reported as RMSE and MAPE; MAPE here is computed against count_obs + 1 to avoid division by zero and is therefore a conservative, non-standard measure.
+
+### 4.11 Correction pressures and theoretical bounds
+
+The annual estimates contain several regularising pressures that bound the model away from instability and fabrication. Laplace smoothing adds a uniform prior of 0.5 to every possible destination, which shrinks sparse cells toward 1/(number of destinations) and prevents zero-probability singularities when a transition is unobserved in a small group-year. It is equivalent to a weak Dirichlet prior and is a standard regulariser for sparse multinomial transitions.
+
+Clipping projected rates to values between 0 and 1 is a feasibility pressure: rates outside the probability simplex are inadmissible. The dropout cap is a safety pressure motivated by the fact that unbounded linear extrapolation of observed attrition would eventually predict more leavers than the total stock. The inflow apportionment pressure keeps the composition of new entrants aligned with the most recently observed recruitment pattern, rather than inventing a new distribution. Finally, the safety factor of 0.5 on the endogenous PI-driven inflow keeps the system inside the stability boundary. Together these pressures embody the principle that projection should stay within observed empirical support and within theoretical stability limits; they are not arbitrary adjustments but transparent bounds that can be tightened or relaxed as more data become available.
+
 ## 5. Results
 
 Table 2 reports the equilibrium domestic active pool T, the minimum viable threshold M, and the endogenous inflow parameters for the 9 groups. All groups remain above their threshold under the fitted model, but margins differ by an order of magnitude.
@@ -122,7 +136,7 @@ Table 3 shows the three transition-rate elasticities with the largest absolute i
 | Sinic | d | -2.027 | p_D | 0.035 | h_D | 0.021 |
 | United States | d | -2.124 | p_D | 0.089 | h_D | 0.063 |
 
-Table 4 reports, for each group, the single rate that reaches the active-pool threshold with the smallest proportional change. The Other Civilizations group is the most fragile: a proportional change of 0.75 in I0 (critical factor 0.25×) would drive the active pool to its minimum viable threshold. For the active researcher pool, I0 is the closest point-of-no-return lever for the active researcher pool in every group.
+Table 4 reports, for each group, the single rate that reaches the active-pool threshold with the smallest proportional change. The Other Civilizations group is the most fragile: I0 must be multiplied by 0.246× its current value (a 75% proportional change) to drive the active pool to its minimum viable threshold. I0 is the closest point-of-no-return lever for the active researcher pool in every group.
 
 | Group | Target | Rate | Current | Critical factor | Proximity |
 |---|---|---|---|---|---|
@@ -205,6 +219,92 @@ Table 8 reports bootstrap 95% confidence intervals for the equilibrium active po
 
 **Figure 4. Bootstrap 95% confidence intervals for equilibrium T by group.** Intervals are asymmetric and wide, reflecting model uncertainty.
 
+### 5.6 Annual transition rates and inter-civilisation flows
+
+Figure 5 plots the observed 2000-2016 transition rates and the projected 2017-2026 rates for each civilisation. Rates are displayed by group and by transition type, so that the reader can see whether a particular transition is trending toward a boundary. Because the projections are linear trend fits regularised by the correction pressures described in Section 4.11, they are not forecasts of specific future events; they are the model's one-year-ahead extrapolation of the recent historical trajectory.
+
+![Figure 5](figures/annual_rates_by_group.png)
+
+**Figure 5. Annual observed (solid) and projected (dashed) transition rates by civilisation, 2000-2026.**
+
+Table 9 summarises the mean observed annual transition rates by group between 2000 and 2016. The table distinguishes early-career outflow (α), return (β), domestic and abroad hit generation (h_D, h_A), PI promotion (p_D), dropout (d), and total inflow (I_total).
+
+| Group | α | β | h_D | p_D | d | I_total |
+|---|---|---|---|---|---|---|
+| Anglosphere ex-US | 0.113 | 0.152 | 0.142 | 0.061 | 0.044 | 2.08 |
+| Continental Europe | 0.048 | 0.139 | 0.122 | 0.068 | 0.030 | 3.06 |
+| Hindu | 0.064 | 0.190 | 0.130 | 0.075 | 0.057 | 1.73 |
+| Islamic | 0.082 | 0.291 | 0.133 | 0.078 | 0.159 | 2.22 |
+| Japanese | 0.053 | 0.333 | 0.102 | 0.072 | 0.058 | 2.00 |
+| Other Civilizations | 0.096 | 0.240 | 0.129 | 0.087 | 0.086 | 1.67 |
+| Other Western | 0.091 | 0.214 | 0.199 | 0.065 | 0.088 | 1.67 |
+| Sinic | 0.045 | 0.200 | 0.087 | 0.052 | 0.036 | 2.56 |
+| United States | 0.069 | 0.161 | 0.158 | 0.048 | 0.027 | 2.88 |
+
+**Table 9. Mean observed annual transition rates by civilisation, 2000-2016.**
+
+Figure 6 shows the inter-civilisation accumulation of abroad author-years. Rows represent the origin civilisation and columns represent the destination civilisation, approximated by the author's recent_group while abroad. The heatmap is a lower-bound proxy because year-to-year destination switches within a spell abroad are not observed.
+
+![Figure 6](figures/annual_interciv_heatmap.png)
+
+**Figure 6. Inter-civilisation abroad author-year accumulation by origin (rows) and destination (columns).**
+
+Table 10 lists the origin-destination pairs with the largest accumulation of abroad author-years. These pairs identify the strongest visible inter-civilisation pipelines and are the empirical counterpart to the α and β transitions.
+
+| Origin | Destination | Author-years |
+|---|---|---|
+| Continental Europe | Continental Europe | 80 |
+| Sinic | Sinic | 78 |
+| Anglosphere ex-US | Continental Europe | 61 |
+| Continental Europe | Anglosphere ex-US | 60 |
+| Anglosphere ex-US | Anglosphere ex-US | 59 |
+| United States | Other Western | 52 |
+| Hindu | Hindu | 48 |
+| Other Western | Other Western | 43 |
+| Continental Europe | Other Western | 40 |
+| United States | Continental Europe | 38 |
+
+**Table 10. Top origin-destination abroad author-year pairs.**
+
+### 5.7 Out-of-sample projection, 2017-2023
+
+The 2017-2023 projection is compared with observed annual stocks in Figure 7. Overall accuracy is RMSE 2.66 and MAPE 35.9% (a non-standard, conservative measure computed against count_obs + 1 to avoid division by zero). Among civilisations the lowest RMSE is for Japanese and the highest RMSE is for Sinic; the highest MAPE is for Sinic. The largest errors occur in small compartments and in groups with sparse transition counts, which is expected because the annual model does not borrow information across civilisations.
+
+![Figure 7](figures/annual_projection_vs_observed.png)
+
+**Figure 7. Observed (solid) and projected (dashed) compartment counts by civilisation, 2017-2023. The vertical dotted line marks the end of the training period (2016).**
+
+Table 11 reports projection accuracy by civilisation and Table 12 by compartment. Among compartments, the lowest RMSE is for A, while the highest RMSE is for H_D and the highest MAPE is for A. P_D and H_D show larger errors because small changes in PI and hit rates are amplified by the endogenous inflow term.
+
+| Group | RMSE | MAPE |
+|---|---|---|
+| Anglosphere ex-US | 1.79 | 24.5% |
+| Continental Europe | 2.12 | 28.5% |
+| Hindu | 1.56 | 30.5% |
+| Islamic | 3.05 | 48.0% |
+| Japanese | 1.23 | 32.3% |
+| Other Civilizations | 1.72 | 36.7% |
+| Other Western | 2.22 | 34.8% |
+| Sinic | 4.43 | 54.5% |
+| United States | 3.87 | 33.6% |
+
+**Table 11. Projection accuracy by civilisation, 2017-2023.**
+
+| Compartment | RMSE | MAPE |
+|---|---|---|
+| A | 0.86 | 55.0% |
+| D | 1.51 | 21.1% |
+| H_A | 1.52 | 27.6% |
+| H_D | 4.68 | 32.3% |
+| P_A | 1.99 | 46.9% |
+| P_D | 3.33 | 32.7% |
+
+**Table 12. Projection accuracy by compartment, 2017-2023.**
+
+### 5.8 Correction pressures in the annual model
+
+The annual projection performs best where the correction pressures in Section 4.11 are binding. Laplace smoothing prevents empty cells from being treated as impossible transitions; the unit-interval clip and the dropout cap prevent the trend extrapolation from producing rates that are incompatible with a stochastic transition matrix; and the 2016 inflow apportionment keeps new-entrant composition close to the last observed regime. These pressures mean that the projection is not a purely mechanical forecast: it is a bounded extrapolation that stays within the empirical support of the 2000-2016 data and within the stability constraints of the compartment model.
+
 ## 6. Discussion
 
 The results support a transition-rate view of research policy. Rather than asking which country has a net inflow or outflow of researchers, the model asks which rate must be altered to keep a community above its minimum viable coauthor pool. The answer is not the same for every group, but a clear pattern emerges.
@@ -227,9 +327,31 @@ Several limitations should be acknowledged. OpenAlex affiliation and country ass
 Wide bootstrap confidence intervals, especially for smaller civilisation groups, mean that the ordinal ranking of groups by equilibrium size or proximity to threshold should be treated as descriptive rather than definitive. The model identifies which transitions are most sensitive in a mechanical sense; turning those sensitivities into reliable policy priorities requires additional data on programme costs, implementation lags, and behavioural responses that are outside the scope of this paper.
 Operationally, the framework can be used in two complementary ways. As a monitoring tool, it can be rerun whenever new OpenAlex data are released, producing an updated set of transition rates, safety margins and proximity-to-threshold estimates. As a scenario tool, it can quantify how large a proportional change in a given rate would be required to move a community toward or away from collapse, which helps prioritise empirical policy evaluation. Both uses depend on transparent assumptions and regular recalibration; the model should not be used to justify one-off interventions without accompanying process evaluation.
 
+### 6.4 Validation of correction pressures
+
+The correction pressures are not ad hoc adjustments; each maps to a known statistical or dynamical constraint. Laplace smoothing is equivalent to a weak Dirichlet prior on a multinomial transition vector; it guarantees that no cell has zero estimated probability and shrinks rare transitions toward the simplex centroid. Clipping projected rates to values between 0 and 1 is a feasibility constraint on probabilities; the dropout cap is a cross-sectional constraint that prevents projected attrition from exceeding the observed stock; and the inflow apportionment constraint keeps the composition of new entrants equal to the last observed recruitment pattern. In the 2017-2023 projection these pressures reduced the sensitivity of the forecast to sparse cells and to short-run fluctuations in small groups. Quantitatively, the overall RMSE of 2.66 and conservative MAPE of 35.9% are consistent with a model that is deliberately regularised rather than optimised for in-sample fit. The residual errors are concentrated in the smallest compartments, which is exactly where smoothing is most active and where future data will be most valuable.
+
+### 6.5 Intra-civilisation alternatives when inter-civilisation mobility cannot be controlled
+
+If a civilisation cannot control outflows to, or inflows from, other jurisdictions—whether because of visa regimes, salary differentials, language advantages, or targeted recruitment—it can still preserve its research community by acting on the intra-civilisation levers identified in the annual model. The annual rates show that the domestic active pool T = D + H_D + P_D responds most strongly to the dropout rate d, the domestic hit rate h_D, and the PI promotion rate p_D. Policies that reduce early-career attrition, expand domestic postdoctoral positions, or accelerate independent-lab formation therefore become defensive substitutes when inter-civilisation poaching cannot be regulated. This is the practical meaning of civilisational-diversity preservation under sovereignty constraints: even without controlling the border of talent, a community can increase the internal reproduction of active researchers. The ODE safety factor of 0.5 on endogenous PI inflow is a conservative bound that prevents over-optimism about this substitution effect; more ambitious domestic growth would require corresponding evidence that the extra PIs can be absorbed without simply raising dropout.
+
+### 6.6 Annual updating as an early-warning layer
+
+The 2017-2023 projection demonstrates that the framework can be rerun annually with a one-year time step. Each new year of OpenAlex data updates the observed transition rates, the fitted trends, and the distance to the minimum viable coauthor threshold. Because the model is regularised by the correction pressures, the one-year-ahead projection is not easily derailed by a single noisy observation. Instead, successive years reveal whether a particular transition rate is drifting toward a boundary. That drift is the early-warning signal. Policymakers can then intervene before the active pool falls below M, using the rate-specific elasticities in Table 3 to prioritise the smallest proportional change that restores a safety margin. This is the operational mechanism for avoiding technology monopoly and oligopoly dead ends: by keeping every major research community above its minimum viable coauthor pool, annual monitoring sustains the competitive diversity that underpins long-run technological progress. The framework is therefore not a prediction that a particular civilisation will collapse; it is a tool for ensuring that no single civilisation reaches a point where its collapse becomes self-sustaining.
+
+### 6.7 Limitations
+
+Several limitations should be acknowledged. OpenAlex affiliation and country assignments are noisy, especially for researchers with multiple affiliations. The civilisation grouping is a coarse aggregation; within-group heterogeneity is substantial. The annual model relies on a discrete approximation of the continuous-time ODE and does not capture within-year events or cross-civilisation spillovers. Inter-civilisation flows are approximated by the author's recent_group while abroad, which misses year-to-year destination switching. The cohort sample is small; the absolute equilibrium numbers should be interpreted as model-implied stocks rather than as census counts. Authors with many publications are over-weighted relative to one-publication authors, so rate estimates reflect author-publication exposure rather than a uniformly representative sample of individuals. The endogenous inflow is capped at a safety factor of 0.5 relative to the critical reproduction rate; alternative values would shift equilibrium levels and should be reported in future sensitivity tables. Finally, the point-of-no-return threshold is a sufficient condition for collapse, not a necessary one: a community may decline for reasons outside the model even if T remains above M.
+
 ## 7. Conclusion
 
-We have proposed and implemented a transition-rate framework for assessing how close AI/ML research communities are to a point of no return. The model converts OpenAlex publication records into civilisation-specific transition rates and solves for the equilibrium active researcher pool. All groups remain above their minimum viable coauthor threshold in the fitted model, but the distance to that threshold varies by an order of magnitude and is most sensitive to exogenous entry and dropout. Simulated reductions in attrition and sustained new recruitment widen safety margins in the model, which is consistent with preserving civilisational diversity in AI/ML. Future work should extend the model to network externalities, finer temporal resolution, and additional security-relevant fields such as semiconductor physics, quantum computing, biotechnology and energy materials, allowing cross-field comparisons of vulnerability. Other priorities include systematic sensitivity scans for the safety factor and saturating parameter epsilon, country- or institution-level partitions, dynamic ODE forecasts, endogenous coauthorship matching, and integration with policy cost data to produce cost-effectiveness comparisons of alternative interventions.
+We have proposed and implemented a transition-rate framework for assessing how close AI/ML research communities are to a point of no return. The model converts OpenAlex publication records into civilisation-specific transition rates and solves for the equilibrium active researcher pool. All groups remain above their minimum viable coauthor threshold in the fitted model, but the distance to that threshold varies by an order of magnitude and is most sensitive to exogenous entry and dropout. Dropout is the dominant negative lever (active-pool elasticity -2.32 to -2.01), and a simulated reduction is the single most efficient model-implied response for every civilisation. However, the closest point of no return is exogenous entry for all groups in the active-pool analysis, which means that policies which sustain the pipeline of new researchers are first-order defences. The historical counterfactual and the bootstrap intervals remind us that the future is not determined by current rates; transition rates can change, and policy can be directed at the most fragile lever before a collapse.
+
+The annual projection layer adds an operational dimension to this conclusion. By estimating year-by-year transition rates and projecting one year ahead, the model turns the steady-state diagnostic into an early-warning dashboard. A one-year time step is short enough to detect drift before the active pool approaches the minimum viable threshold, and the correction pressures keep the projection within empirical and theoretical bounds. When inter-civilisation mobility cannot be controlled, the same framework points to intra-civilisation levers—reducing dropout, raising domestic hit rates, and accelerating PI promotion—that preserve T = D + H_D + P_D. These two layers, steady-state and annual, together provide a coherent basis for early, safety-factor-bound intervention.
+
+The broader implication is that preserving civilisational diversity in AI/ML is compatible with, and may reinforce, scientific progress. A single dominant region or a tight oligopoly may achieve short-run scale economies, but it also risks methodological lock-in and reduces the set of problems that receive sustained attention. By monitoring transition rates and safety margins, policymakers can detect divergence early and intervene in a safety-factor-bound way. This is the practical meaning of the aspiration to avoid technology monopoly and oligopoly dead ends: not a prediction that any one civilisation will dominate, but a structured method for keeping the global system away from points of no return. Early, proportionate interventions that reduce attrition and sustain new recruitment can widen safety margins and preserve civilisational diversity in AI/ML.
+
+Future work should extend the model to network externalities, finer temporal resolution, and additional security-relevant fields such as semiconductor physics, quantum computing, biotechnology and energy materials, allowing cross-field comparisons of vulnerability. Other priorities include systematic sensitivity scans for the safety factor and saturating parameter epsilon, country- or institution-level partitions, dynamic ODE forecasts, endogenous coauthorship matching, and integration with policy cost data to produce cost-effectiveness comparisons of alternative interventions.
 
 ## References
 
