@@ -7,6 +7,9 @@ all works in the target subfield and year range through the OpenAlex cursor
 paginator, writes them to a local SQLite database, and then classifies every
 author who appears in at least one work with a mappable country affiliation.
 
+The fetch stage is parallelised by publication year to make full-population
+extraction practical (the OpenAlex API allows ~30 concurrent requests per key).
+
 Usage:
     python src/extract_full_cohort.py
     FULL=1 bash reproduce.sh   # after the cohort.csv has been written
@@ -19,9 +22,11 @@ import os
 import random
 import sqlite3
 import sys
+import threading
 import time
 from collections import defaultdict
 from pathlib import Path
+from queue import Queue
 
 import pandas as pd
 
@@ -49,7 +54,7 @@ COHORT_DIR = DATA_DIR / "cohort"
 
 def setup_db(db_path):
     """Create the works and author_works tables."""
-    conn = sqlite3.connect(db_path)
+    conn = sqlite3.connect(db_path, check_same_thread=False)
     conn.execute("PRAGMA journal_mode=WAL")
     conn.execute("PRAGMA synchronous=NORMAL")
     conn.execute("PRAGMA cache_size=-2000000")
@@ -155,12 +160,11 @@ class GroupReservoir:
 
 
 def load_state(state_path):
-    """Load the saved cursor or start fresh.  A saved cursor of 'DONE' means
-    the API fetch has already completed."""
+    """Load the saved per-partition state or start fresh."""
     if state_path.exists():
         with open(state_path, "r", encoding="utf-8") as f:
             return json.load(f)
-    return {"cursor": "*", "pages": 0, "works": 0, "author_rows": 0}
+    return {}
 
 
 def save_state(state_path, state):
@@ -168,119 +172,293 @@ def save_state(state_path, state):
         json.dump(state, f)
 
 
-def fetch_and_store(client, conn, a2g, state, state_path, subfield_id, start_year,
-                    end_year, per_page, pages_per_commit, max_pages, delay,
-                    sample_per_group=500):
-    """Stream all works through the OpenAlex cursor paginator and store in SQLite.
-
-    Also maintain a per-civilisation reservoir sample of reduced works for
-    downstream co-author statistics and annual-state reconstruction.
-    """
-    base_filter = (
-        f"publication_year:{start_year}-{end_year},"
-        f"topics.subfield.id:{subfield_id}"
-    )
-    base_params = {
-        "filter": base_filter,
-        "select": "id,publication_year,authorships,citation_normalized_percentile",
-        "per-page": per_page,
-    }
-
-    cursor = state["cursor"]
-    if cursor == "DONE":
-        print("API fetch already marked complete; skipping fetch.")
-        return state["pages"], state["works"], state["author_rows"]
-
-    pages_done = state["pages"]
-    works_done = state["works"]
-    rows_done = state["author_rows"]
-    start_time = time.time()
-    batch_works = []
-    batch_authors = []
-    reservoir = GroupReservoir(sample_per_group)
-
-    # Helper to flush the current batch to the DB and persist state.
-    def flush_and_save(next_cursor):
-        nonlocal batch_works, batch_authors, rows_done
+def _flush(conn, batch_works, batch_authors):
+    """Insert pending rows and commit."""
+    if batch_works:
         conn.executemany(
             "INSERT OR IGNORE INTO works (id, year, data) VALUES (?, ?, ?)",
             batch_works,
         )
+    if batch_authors:
         conn.executemany(
             "INSERT OR IGNORE INTO author_works (author_id, work_id) VALUES (?, ?)",
             batch_authors,
         )
-        conn.commit()
-        rows_done += len(batch_authors)
-        batch_works.clear()
-        batch_authors.clear()
-        state.update({"cursor": next_cursor, "pages": pages_done,
-                      "works": works_done, "author_rows": rows_done})
-        save_state(state_path, state)
+    conn.commit()
+
+
+def _partition_filter(subfield_id, start_year, end_year):
+    """Build filter strings for the whole range and for each year."""
+    whole = f"publication_year:{start_year}-{end_year},topics.subfield.id:{subfield_id}"
+    per_year = {str(y): f"publication_year:{y},topics.subfield.id:{subfield_id}" for y in range(start_year, end_year + 1)}
+    return whole, per_year
+
+
+def _make_partitions(state, subfield_id, start_year, end_year, workers):
+    """Create or resume partitions from the saved state."""
+    whole_filter, per_year = _partition_filter(subfield_id, start_year, end_year)
+    partitions = {}
+    if workers == 1:
+        partitions["all"] = {
+            "filter": whole_filter,
+            "cursor": "*",
+            "pages": 0,
+            "works": 0,
+            "author_rows": 0,
+        }
+    else:
+        for y, f in per_year.items():
+            partitions[y] = {
+                "filter": f,
+                "cursor": "*",
+                "pages": 0,
+                "works": 0,
+                "author_rows": 0,
+            }
+
+    # Merge any saved per-partition state for resumption.
+    saved = state.get("partitions", {})
+    if saved:
+        for pid, p in saved.items():
+            if pid in partitions:
+                partitions[pid].update(p)
+    elif state.get("cursor"):
+        # Legacy single-cursor state: migrate to one partition.
+        for p in partitions.values():
+            p["cursor"] = state.get("cursor", "*")
+            p["pages"] = state.get("pages", 0)
+            p["works"] = state.get("works", 0)
+            p["author_rows"] = state.get("author_rows", 0)
+            break
+
+    return partitions
+
+
+def _process_page(w, a2g):
+    """Return (works_row, author_rows, reduced_work, groups) or None."""
+    if not has_mappable_country(w, a2g):
+        return None
+    reduced = reduce_work(w)
+    wid = reduced["id"]
+    year = reduced["publication_year"]
+    works_row = (wid, year, json.dumps(reduced, ensure_ascii=False))
+    author_rows = []
+    seen = set()
+    for auth in w.get("authorships", []):
+        aid = author_id_key((auth.get("author") or {}).get("id"))
+        if aid and aid not in seen:
+            seen.add(aid)
+            author_rows.append((aid, wid))
+    groups = work_groups(reduced, a2g)
+    return works_row, author_rows, reduced, groups
+
+
+def _fetch_partition(partition, q, stop_event, api_key, mailto, per_page, max_pages_per_partition, a2g):
+    """Fetch all pages for a single partition and push results to the writer queue."""
+    client = OpenAlexClient(delay=0.0, cache_dir=None, api_key=api_key, mailto=mailto)
+    base_params = {
+        "filter": partition["filter"],
+        "select": "id,publication_year,authorships,citation_normalized_percentile",
+        "per-page": per_page,
+    }
+    cursor = partition["cursor"]
+    if cursor == "DONE":
+        q.put((partition["id"], None, None, None, None, None, None, None, None))
+        return
+
+    pages_done = partition["pages"]
+    works_done = partition["works"]
+    author_rows_done = partition["author_rows"]
 
     try:
-        while True:
-            if max_pages and pages_done >= max_pages:
-                print(f"Reached max_pages={max_pages}")
+        while not stop_event.is_set():
+            if max_pages_per_partition and pages_done >= max_pages_per_partition:
                 break
-
             page = client.get("works", {**base_params, "cursor": cursor})
             results = page.get("results", [])
-            pages_done += 1
-
+            works_batch = []
+            authors_batch = []
+            reduced_batch = []
+            groups_batch = []
             for w in results:
-                # Skip works with no mappable country affiliation; we cannot
-                # assign their authors to a civilisation group.
-                if not has_mappable_country(w, a2g):
+                out = _process_page(w, a2g)
+                if out is None:
                     continue
+                works_row, authors, reduced, groups = out
+                works_batch.append(works_row)
+                authors_batch.extend(authors)
+                reduced_batch.append(reduced)
+                groups_batch.append(groups)
+                works_done += 1
+                author_rows_done += len(authors)
 
-                reduced = reduce_work(w)
-                wid = reduced["id"]
-                year = reduced["publication_year"]
-                batch_works.append((wid, year, json.dumps(reduced, ensure_ascii=False)))
-
-                # Record every author on this work so that later works for the
-                # same author can be grouped together, even if some works have
-                # missing affiliation metadata.
-                seen_authors = set()
-                for auth in w.get("authorships", []):
-                    aid = author_id_key((auth.get("author") or {}).get("id"))
-                    if aid and aid not in seen_authors:
-                        seen_authors.add(aid)
-                        batch_authors.append((aid, wid))
-
-                # Maintain a stratified work sample for coauthor statistics.
-                reservoir.add(reduced, work_groups(reduced, a2g))
-
-            works_done += len(results)
+            pages_done += 1
             next_cursor = page.get("meta", {}).get("next_cursor")
-
-            if pages_done % pages_per_commit == 0:
-                flush_and_save(next_cursor or "DONE")
-                elapsed = time.time() - start_time
-                rate = pages_done / elapsed if elapsed else 0
-                print(f"  pages={pages_done}, works={works_done}, "
-                      f"author_rows={rows_done}, elapsed={elapsed:.1f}s, "
-                      f"rate={rate:.2f} pg/s, next_cursor={'yes' if next_cursor else 'no'}")
-
+            q.put((
+                partition["id"], works_batch, authors_batch, reduced_batch, groups_batch,
+                next_cursor, pages_done, works_done, author_rows_done,
+            ))
             if not next_cursor:
                 break
             cursor = next_cursor
+    except OpenAlexBudgetExhausted as e:
+        q.put((partition["id"], "ERROR", str(e), None, None, None, None, None, None))
+        stop_event.set()
+        return
 
-            # Be polite. The OpenAlex client already sleeps between calls when
-            # self.delay > 0, but we keep a small extra guard here.
-            if delay:
-                time.sleep(delay)
-    except OpenAlexBudgetExhausted:
-        flush_and_save(cursor)
-        raise
+    q.put((partition["id"], None, None, None, None, None, None, None, None))
 
-    # Final flush for any partial batch and mark fetch as done.
-    flush_and_save("DONE")
+
+def _writer(q, conn, state, state_path, pages_per_commit, n_partitions, a2g, sample_per_group):
+    """Consume the queue and persist works/author rows to the SQLite DB."""
+    reservoir = GroupReservoir(sample_per_group)
+    batch_works = []
+    batch_authors = []
+    pages_since_commit = 0
+    sentinels = 0
+    start_time = time.time()
+    partitions = state.setdefault("partitions", {})
+    partitions_done = set()
+
+    while sentinels < n_partitions:
+        item = q.get()
+        pid = item[0]
+        # Sentinel: (pid, None, None, ...)
+        if item[1] is None:
+            sentinels += 1
+            partitions_done.add(pid)
+            continue
+        # Error signal
+        if item[1] == "ERROR":
+            _flush(conn, batch_works, batch_authors)
+            save_state(state_path, state)
+            raise OpenAlexBudgetExhausted(item[2])
+
+        _, works_batch, authors_batch, reduced_batch, groups_batch, next_cursor, pages_done, works_done, author_rows_done = item
+        batch_works.extend(works_batch)
+        batch_authors.extend(authors_batch)
+        for reduced, groups in zip(reduced_batch, groups_batch):
+            reservoir.add(reduced, groups)
+
+        partition = partitions.setdefault(pid, {})
+        partition.update({
+            "cursor": next_cursor or "DONE",
+            "pages": pages_done,
+            "works": works_done,
+            "author_rows": author_rows_done,
+        })
+        pages_since_commit += 1
+
+        if pages_since_commit >= pages_per_commit:
+            _flush(conn, batch_works, batch_authors)
+            save_state(state_path, state)
+            batch_works.clear()
+            batch_authors.clear()
+            pages_since_commit = 0
+            total_pages = sum(p.get("pages", 0) for p in partitions.values())
+            total_works = sum(p.get("works", 0) for p in partitions.values())
+            total_authors = sum(p.get("author_rows", 0) for p in partitions.values())
+            elapsed = time.time() - start_time
+            rate = total_pages / elapsed if elapsed else 0
+            print(
+                f"  pages={total_pages}, works={total_works}, "
+                f"author_rows={total_authors}, elapsed={elapsed:.1f}s, "
+                f"rate={rate:.2f} pg/s, done={len(partitions_done)}/{n_partitions}"
+            )
+
+    if batch_works or batch_authors:
+        _flush(conn, batch_works, batch_authors)
+        save_state(state_path, state)
+
     sampled = reservoir.unique_works()
-    print(f"Fetch complete: {pages_done} pages, {works_done} works, "
-          f"{rows_done} author_works rows, {len(sampled)} sampled works.")
-    return pages_done, works_done, rows_done, sampled
+    sampled_path = Path(str(state_path) + ".sampled.json")
+    with open(sampled_path, "w", encoding="utf-8") as f:
+        json.dump(sampled, f, ensure_ascii=False)
+    return sampled
+
+
+def fetch_and_store(client, conn, a2g, state, state_path, subfield_id, start_year,
+                    end_year, per_page, pages_per_commit, max_pages, delay,
+                    sample_per_group=500, workers=1):
+    """Stream all works through the OpenAlex API and store in SQLite.
+
+    Uses multiple fetcher threads partitioned by publication year to keep the
+    OpenAlex connection pool saturated while a single writer thread persists
+    rows to the database.
+    """
+    partitions = _make_partitions(state, subfield_id, start_year, end_year, workers)
+    for pid, p in partitions.items():
+        p["id"] = pid
+
+    if all(p.get("cursor") == "DONE" for p in partitions.values()):
+        print("API fetch already marked complete; skipping fetch.")
+        return (
+            sum(p.get("pages", 0) for p in partitions.values()),
+            sum(p.get("works", 0) for p in partitions.values()),
+            sum(p.get("author_rows", 0) for p in partitions.values()),
+            [],
+        )
+
+    state["partitions"] = {pid: {k: v for k, v in p.items() if k != "id"} for pid, p in partitions.items()}
+    save_state(state_path, state)
+
+    q = Queue(maxsize=max(4, workers * 2))
+    stop_event = threading.Event()
+
+    # Use the existing client to source credentials; each worker gets its own.
+    api_key = getattr(client, "api_key", None)
+    mailto = getattr(client, "mailto", None)
+
+    writer = threading.Thread(
+        target=_writer,
+        args=(q, conn, state, state_path, pages_per_commit, len(partitions), a2g, sample_per_group),
+    )
+    writer.start()
+
+    max_per_partition = 0
+    if max_pages:
+        max_per_partition = max(1, max_pages // len(partitions))
+
+    threads = []
+    for pid, p in partitions.items():
+        if p.get("cursor") == "DONE":
+            q.put((pid, None, None, None, None, None, None, None, None))
+            continue
+        t = threading.Thread(
+            target=_fetch_partition,
+            args=(p, q, stop_event, api_key, mailto, per_page, max_per_partition, a2g),
+        )
+        t.start()
+        threads.append(t)
+
+    for t in threads:
+        t.join()
+
+    writer.join()
+
+    # Reload partitions from state after writer finishes.
+    partitions = state.get("partitions", {})
+    total_pages = sum(p.get("pages", 0) for p in partitions.values())
+    total_works = sum(p.get("works", 0) for p in partitions.values())
+    total_authors = sum(p.get("author_rows", 0) for p in partitions.values())
+    reservoir = GroupReservoir(sample_per_group)
+    # The writer already saved the reservoir in a separate file? No; we return it.
+    # We need the reservoir from writer thread. Since threads can't return, we
+    # rebuild from the DB works sample? Instead, writer can save to a temp file.
+    # Simpler: the writer saves the sampled works to state_path + '.sampled.json'
+    # and we load it here.
+    sampled_path = Path(str(state_path) + ".sampled.json")
+    if sampled_path.exists():
+        with open(sampled_path, "r", encoding="utf-8") as f:
+            sampled = json.load(f)
+    else:
+        sampled = []
+
+    print(
+        f"Fetch complete: {total_pages} pages, {total_works} works, "
+        f"{total_authors} author_works rows, {len(sampled)} sampled works."
+    )
+    return total_pages, total_works, total_authors, sampled
 
 
 def classify_all_authors(conn, a2g, min_works, overrides, batch_size=500):
@@ -343,15 +521,17 @@ def main():
     parser.add_argument("--db-path", default=str(CACHE_DIR / "full_cohort.db"))
     parser.add_argument("--state-path", default=str(CACHE_DIR / "full_cohort_state.json"))
     parser.add_argument("--per-page", type=int, default=200)
-    parser.add_argument("--delay", type=float, default=0.05)
+    parser.add_argument("--delay", type=float, default=0.0)
     parser.add_argument("--pages-per-commit", type=int, default=10)
+    parser.add_argument("--workers", type=int, default=24,
+                        help="Number of parallel fetcher threads (one per year by default).")
     parser.add_argument("--max-pages", type=int, default=0,
                         help="Stop after this many pages (for testing).")
     parser.add_argument("--sample-per-group", type=int, default=500,
                         help="Number of works to keep per group in raw_sampled_works.json.")
     parser.add_argument("--classify-batch-size", type=int, default=500)
     parser.add_argument("--resume", action="store_true",
-                        help="Resume from the cursor stored in --state-path.")
+                        help="Resume from the state stored in --state-path.")
     parser.add_argument("--no-fetch", action="store_true",
                         help="Skip the API fetch and only classify from the existing DB.")
     args = parser.parse_args()
@@ -379,6 +559,7 @@ def main():
                 args.subfield_id, args.start_year, args.end_year,
                 args.per_page, args.pages_per_commit, args.max_pages, args.delay,
                 sample_per_group=args.sample_per_group,
+                workers=args.workers,
             )
         except OpenAlexBudgetExhausted as e:
             print(f"ERROR: {e}")
