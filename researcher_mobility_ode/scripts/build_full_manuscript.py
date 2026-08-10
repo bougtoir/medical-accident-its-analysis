@@ -615,6 +615,9 @@ def compute_context(cohort, eq, sat_eq, top_t, pnr_closest, period_compare, poli
     d_min_gain = d_10pct_group.sort_values("margin_gain").iloc[0]
     d_max_gain = d_10pct_group.sort_values("margin_gain").iloc[-1]
 
+    # Endogenous inflow safety factor actually used in the fitted model
+    safety_factor = float((eq["r"] / eq["r_critical"]).min())
+
     return {
         "n_groups": n_groups,
         "largest_pools": largest_pools,
@@ -635,6 +638,7 @@ def compute_context(cohort, eq, sat_eq, top_t, pnr_closest, period_compare, poli
         "d_max_gain_group": d_max_gain["group"],
         "d_min_gain": round(d_min_gain["margin_gain"]),
         "d_max_gain": round(d_max_gain["margin_gain"]),
+        "safety_factor": safety_factor,
     }
 
 
@@ -875,7 +879,7 @@ def write_markdown(output_dir: Path, data, fig_paths):
         "### 4.2 Endogenous inflow",
         "",
         "New entrants are modelled as a function of the domestic PI stock. "
-        "The linear form is I(P_D) = I_0 + r P_D, with r capped at half the stability-critical value (safety factor 0.5). "
+        f"The linear form is I(P_D) = I_0 + r P_D, with r capped at {_fmt(ctx['safety_factor'], 2)}× the stability-critical value (safety factor {_fmt(ctx['safety_factor'], 2)}). "
         "A saturating alternative, I(P_D) = I_0 + r P_D / (1 + ε P_D), is reported as a robustness check.",
         "",
         "### 4.3 Minimum viable coauthor threshold",
@@ -926,7 +930,7 @@ def write_markdown(output_dir: Path, data, fig_paths):
         "Clipping projected rates to values between 0 and 1 is a feasibility pressure: rates outside the probability simplex are inadmissible. "
         "The dropout cap is a safety pressure motivated by the fact that unbounded linear extrapolation of observed attrition would eventually predict more leavers than the total stock. "
         "The inflow apportionment pressure keeps the composition of new entrants aligned with the most recently observed recruitment pattern, rather than inventing a new distribution. "
-        "Finally, the safety factor of 0.5 on the endogenous PI-driven inflow keeps the system inside the stability boundary. "
+        f"Finally, the safety factor of {_fmt(ctx['safety_factor'], 2)} on the endogenous PI-driven inflow keeps the system inside the stability boundary. "
         "Together these pressures embody the principle that projection should stay within observed empirical support and within theoretical stability limits; they are not arbitrary adjustments but transparent bounds that can be tightened or relaxed as more data become available.",
         "",
     ])
@@ -1028,8 +1032,9 @@ def write_markdown(output_dir: Path, data, fig_paths):
         pos_groups_md = ", ".join(pos) if pos else "none"
     n_compare_md = len(period_compare)
     if ctx.get("period_all_neg"):
+        prefix = "Both" if n_compare_md == 2 else f"All {n_compare_md}"
         period_direction_text = (
-            f"All {n_compare_md} groups with dual-window support would see smaller safety margins under late-window rates "
+            f"{prefix} groups with dual-window support would see smaller safety margins under late-window rates "
             f"({ctx['period_neg']})."
         )
     else:
@@ -1059,7 +1064,7 @@ def write_markdown(output_dir: Path, data, fig_paths):
     lines.extend([
         f"![Figure 3]({fig3_rel})",
         "",
-        "**Figure 3. Change in safety margin between early and late transition-rate regimes.** Positive values mean the late-window rates would produce a larger safety margin if they persisted. "
+        "**Figure 3. Change in safety margin between early and late transition-rate regimes.** Positive values mean the late-window rates would produce a larger safety margin than the early-window rates if they persisted; negative values mean the margin would shrink. "
         "The comparison is across two point estimates; uncertainty is substantial because the two windows have different cohort sizes and the steady-state model does not capture policy shocks.",
         "",
     ])
@@ -1226,7 +1231,7 @@ def write_markdown(output_dir: Path, data, fig_paths):
         "",
         "The connection to civilisational diversity is direct. "
         "Each group's safety margin can be monitored over time, and interventions can be adjusted before the margin disappears. "
-        "Because the model uses a fixed safety factor of 0.5 for the endogenous inflow parameter r, the policy recommendations are deliberately conservative: they do not push the system toward instability. "
+        f"Because the model uses a fixed safety factor of {_fmt(ctx['safety_factor'], 2)} for the endogenous inflow parameter r, the policy recommendations are deliberately conservative: they do not push the system toward instability. "
         "That bounded approach is consistent with the goal of preserving diversity rather than maximising any single country's share.",
         "",
         "It is important to stress that the counterfactuals reported in Tables 3 and 7 are mechanical perturbations of the fitted transition rates, not causal estimates of specific programmes. "
@@ -1238,7 +1243,7 @@ def write_markdown(output_dir: Path, data, fig_paths):
         "The model is a steady-state ODE and does not capture short-term dynamics, cross-civilisation spillovers, or the non-linear effects of network externalities. "
         "The cohort sample is small; the absolute equilibrium numbers should be interpreted as model-implied stocks rather than as census counts. "
         "Authors with many publications are over-weighted relative to one-publication authors, so rate estimates reflect author-publication exposure rather than a uniformly representative sample of individuals. "
-        "The endogenous inflow is capped at a safety factor of 0.5 relative to the critical reproduction rate; alternative values would shift equilibrium levels and should be reported in future sensitivity tables. "
+        f"The endogenous inflow is capped at a safety factor of {_fmt(ctx['safety_factor'], 2)} relative to the critical reproduction rate; alternative values would shift equilibrium levels and should be reported in future sensitivity tables. "
         "Finally, the point-of-no-return threshold is a sufficient condition for collapse, not a necessary one: a community may decline for reasons outside the model even if T remains above M.",
         "Wide bootstrap confidence intervals, especially for smaller civilisation groups, mean that the ordinal ranking of groups by equilibrium size or proximity to threshold should be treated as descriptive rather than definitive. "
         "The model identifies which transitions are most sensitive in a mechanical sense; turning those sensitivities into reliable policy priorities requires additional data on programme costs, implementation lags, and behavioural responses that are outside the scope of this paper.",
@@ -1262,7 +1267,7 @@ def write_markdown(output_dir: Path, data, fig_paths):
         "The annual rates show that the domestic active pool T = D + H_D + P_D responds most strongly to the dropout rate d, the domestic hit rate h_D, and the PI promotion rate p_D. "
         "Policies that reduce early-career attrition, expand domestic postdoctoral positions, or accelerate independent-lab formation therefore become defensive substitutes when inter-civilisation poaching cannot be regulated. "
         "This is the practical meaning of civilisational-diversity preservation under sovereignty constraints: even without controlling the border of talent, a community can increase the internal reproduction of active researchers. "
-        "The ODE safety factor of 0.5 on endogenous PI inflow is a conservative bound that prevents over-optimism about this substitution effect; more ambitious domestic growth would require corresponding evidence that the extra PIs can be absorbed without simply raising dropout.",
+        f"The ODE safety factor of {_fmt(ctx['safety_factor'], 2)} on endogenous PI inflow is a conservative bound that prevents over-optimism about this substitution effect; more ambitious domestic growth would require corresponding evidence that the extra PIs can be absorbed without simply raising dropout.",
         "",
         "### 6.6 Annual updating as an early-warning layer",
         "",
@@ -1284,7 +1289,7 @@ def write_markdown(output_dir: Path, data, fig_paths):
         "Inter-civilisation flows are approximated by the author's recent_group while abroad, which misses year-to-year destination switching. "
         "The cohort sample is small; the absolute equilibrium numbers should be interpreted as model-implied stocks rather than as census counts. "
         "Authors with many publications are over-weighted relative to one-publication authors, so rate estimates reflect author-publication exposure rather than a uniformly representative sample of individuals. "
-        "The endogenous inflow is capped at a safety factor of 0.5 relative to the critical reproduction rate; alternative values would shift equilibrium levels and should be reported in future sensitivity tables. "
+        f"The endogenous inflow is capped at a safety factor of {_fmt(ctx['safety_factor'], 2)} relative to the critical reproduction rate; alternative values would shift equilibrium levels and should be reported in future sensitivity tables. "
         "Finally, the point-of-no-return threshold is a sufficient condition for collapse, not a necessary one: a community may decline for reasons outside the model even if T remains above M.",
         "",
     ])
@@ -1673,7 +1678,7 @@ def _add_docx_body(doc, data, fig_paths):
     p.add_run("New entrants are modelled as a function of the domestic PI stock. "
               "The linear form is ")
     add_omath_inline(p, math_I_linear())
-    p.add_run(", with r capped at half the stability-critical value (safety factor 0.5). "
+    p.add_run(f", with r capped at {_fmt(ctx['safety_factor'], 2)}× the stability-critical value (safety factor {_fmt(ctx['safety_factor'], 2)}). "
               "A saturating alternative, ")
     add_omath_inline(p, math_I_saturating())
     p.add_run(", is reported as a robustness check. "
@@ -1776,7 +1781,7 @@ def _add_docx_body(doc, data, fig_paths):
     p.add_run("Clipping projected rates to values between 0 and 1 is a feasibility pressure: rates outside the probability simplex are inadmissible. "
               "The dropout cap is a safety pressure motivated by the fact that unbounded linear extrapolation of observed attrition would eventually predict more leavers than the total stock. "
               "The inflow apportionment pressure keeps the composition of new entrants aligned with the most recently observed recruitment pattern, rather than inventing a new distribution. "
-              "Finally, the safety factor of 0.5 on the endogenous PI-driven inflow keeps the system inside the stability boundary. "
+              f"Finally, the safety factor of {_fmt(ctx['safety_factor'], 2)} on the endogenous PI-driven inflow keeps the system inside the stability boundary. "
               "Together these pressures embody the principle that projection should stay within observed empirical support and within theoretical stability limits; they are not arbitrary adjustments but transparent bounds that can be tightened or relaxed as more data become available.")
 
     # Results
@@ -1885,8 +1890,9 @@ def _add_docx_body(doc, data, fig_paths):
     doc.add_heading("5.2 Historical counterfactual", level=2)
     n_compare = len(period_compare)
     if ctx["period_all_neg"]:
+        prefix = "Both" if n_compare == 2 else f"All {n_compare}"
         period_direction_text = (
-            f"All {n_compare} groups with dual-window support would see smaller safety margins under late-window rates "
+            f"{prefix} groups with dual-window support would see smaller safety margins under late-window rates "
             f"({ctx['period_neg']})."
         )
     else:
@@ -1924,7 +1930,7 @@ def _add_docx_body(doc, data, fig_paths):
     p.add_run("Figure 3 shows the change in safety margin between the early and late transition-rate regimes.")
     doc.add_picture(str(fig_paths["fig3"]), width=Inches(5.8))
     cap = doc.add_paragraph()
-    cap.add_run("Figure 3. Change in safety margin between early and late transition-rate regimes. Positive values mean the late-window rates would produce a larger safety margin if they persisted. "
+    cap.add_run("Figure 3. Change in safety margin between early and late transition-rate regimes. Positive values mean the late-window rates would produce a larger safety margin than the early-window rates if they persisted; negative values mean the margin would shrink. "
                 "The comparison is across two point estimates; uncertainty is substantial because the two windows have different cohort sizes and the steady-state model does not capture policy shocks.").italic = True
     cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
@@ -2138,7 +2144,7 @@ def _add_docx_body(doc, data, fig_paths):
     p = doc.add_paragraph()
     p.add_run("The connection to civilisational diversity is direct. "
               "Each group's safety margin can be monitored over time, and interventions can be adjusted before the margin disappears. "
-              "Because the model uses a fixed safety factor of 0.5 for the endogenous inflow parameter r, the policy recommendations are deliberately conservative: they do not push the system toward instability. "
+              f"Because the model uses a fixed safety factor of {_fmt(ctx['safety_factor'], 2)} for the endogenous inflow parameter r, the policy recommendations are deliberately conservative: they do not push the system toward instability. "
               "That bounded approach is consistent with the goal of preserving diversity rather than maximising any single country's share.")
 
     p = doc.add_paragraph()
@@ -2195,7 +2201,7 @@ def _add_docx_body(doc, data, fig_paths):
               "The annual rates show that the domestic active pool T = D + H_D + P_D responds most strongly to the dropout rate d, the domestic hit rate h_D, and the PI promotion rate p_D. "
               "Policies that reduce early-career attrition, expand domestic postdoctoral positions, or accelerate independent-lab formation therefore become defensive substitutes when inter-civilisation poaching cannot be regulated. "
               "This is the practical meaning of civilisational-diversity preservation under sovereignty constraints: even without controlling the border of talent, a community can increase the internal reproduction of active researchers. "
-              "The ODE safety factor of 0.5 on endogenous PI inflow is a conservative bound that prevents over-optimism about this substitution effect; more ambitious domestic growth would require corresponding evidence that the extra PIs can be absorbed without simply raising dropout.")
+              f"The ODE safety factor of {_fmt(ctx['safety_factor'], 2)} on endogenous PI inflow is a conservative bound that prevents over-optimism about this substitution effect; more ambitious domestic growth would require corresponding evidence that the extra PIs can be absorbed without simply raising dropout.")
 
     doc.add_heading("6.6 Annual updating as an early-warning layer", level=2)
     p = doc.add_paragraph()
@@ -2217,7 +2223,7 @@ def _add_docx_body(doc, data, fig_paths):
               "Inter-civilisation flows are approximated by the author's recent_group while abroad, which misses year-to-year destination switching. "
               "The cohort sample is small; the absolute equilibrium numbers should be interpreted as model-implied stocks rather than as census counts. "
               "Authors with many publications are over-weighted relative to one-publication authors, so rate estimates reflect author-publication exposure rather than a uniformly representative sample of individuals. "
-              "The endogenous inflow is capped at a safety factor of 0.5 relative to the critical reproduction rate; alternative values would shift equilibrium levels and should be reported in future sensitivity tables. "
+              f"The endogenous inflow is capped at a safety factor of {_fmt(ctx['safety_factor'], 2)} relative to the critical reproduction rate; alternative values would shift equilibrium levels and should be reported in future sensitivity tables. "
               "Finally, the point-of-no-return threshold is a sufficient condition for collapse, not a necessary one: a community may decline for reasons outside the model even if T remains above M.")
 
     p = doc.add_paragraph()
@@ -2343,7 +2349,7 @@ def write_pptx(output_dir, data, fig_paths):
     add_image_slide(
         "Figure 3: Historical counterfactual margin change",
         fig_paths["fig3"],
-        "Positive values mean the late-window rates would produce a larger safety margin if they persisted. The comparison is across point estimates; uncertainty is substantial.",
+        "Positive values mean the late-window rates would produce a larger safety margin than the early-window rates if they persisted; negative values mean the margin would shrink. The comparison is across point estimates; uncertainty is substantial.",
     )
     add_image_slide(
         "Figure 4: Bootstrap 95% CI for equilibrium T",
