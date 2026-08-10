@@ -112,12 +112,15 @@ class OpenAlexClient:
                         break
         return results[:n]
 
-    def fetch_works_by_authors(self, author_ids, select_fields, per_page=200, subfield_id="subfields/1702"):
+    def fetch_works_by_authors(self, author_ids, select_fields, per_page=200, subfield_id="subfields/1702", publication_year=None):
         """Return all works in the target subfield for a list of author IDs (<=100 for OR)."""
         if not author_ids:
             return []
         ids = "|".join(sorted(author_ids))
-        base_filter = f"authorships.author.id:{ids},topics.subfield.id:{subfield_id}"
+        filters = [f"authorships.author.id:{ids}", f"topics.subfield.id:{subfield_id}"]
+        if publication_year:
+            filters.append(f"publication_year:{publication_year}")
+        base_filter = ",".join(filters)
         results = []
         for page in self.paginate(
             "works",

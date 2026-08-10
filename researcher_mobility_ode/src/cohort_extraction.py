@@ -295,18 +295,23 @@ def build_cohort(sample_per_group, max_authors, client, a2g, group_to_a2):
         author_order = rng.sample(author_order, max_authors)
         print(f"Capped to {len(author_order)} authors for pilot.")
 
-    # Fetch works per author in batches of 100
+    # Fetch works per author in batches of 50
     works_by_author = defaultdict(list)
-    batch_size = 100
+    batch_size = 50
     author_batches = [
         author_order[i:i + batch_size] for i in range(0, len(author_order), batch_size)
     ]
     for i, batch in enumerate(author_batches, 1):
         print(f"  Fetching batch {i}/{len(author_batches)} ({len(batch)} authors) ...")
-        works = client.fetch_works_by_authors(
-            batch, "id,publication_year,authorships,citation_normalized_percentile",
-            subfield_id=SUBFIELD,
-        )
+        try:
+            works = client.fetch_works_by_authors(
+                batch, "id,publication_year,authorships,citation_normalized_percentile",
+                subfield_id=SUBFIELD,
+                publication_year=f"{CAREER_START_MIN}-2023",
+            )
+        except Exception as e:
+            print(f"  Warning: failed to fetch batch {i}: {e}. Skipping {len(batch)} authors.")
+            continue
         for w in works:
             for auth in w.get("authorships", []):
                 aid = author_id_key((auth.get("author") or {}).get("id"))
