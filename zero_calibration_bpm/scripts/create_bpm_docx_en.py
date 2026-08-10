@@ -492,7 +492,8 @@ add_para_with_refs(
     "systems. A range-dependence experiment sampled one fixed device (5% gain "
     "error) over pressure ranges of increasing width. The random seed, all "
     "parameters and the full pipeline (simulate -> analyse -> figures "
-    "-> manuscript) are provided in the public repository so that a third "
+    "-> manuscript) are available in the public repository "
+    "(https://github.com/bougtoir/abp_zero_calibration) so that a third "
     "party can regenerate every number, table and figure from a clean clone.")
 
 add_heading_styled("2.5. Real-waveform validation with VitalDB", level=2)
@@ -760,9 +761,10 @@ add_para("[To be completed by the authors, or state \u201cnone\u201d.]")
 add_heading_styled("Data availability", level=1)
 add_para(
     "Replication code, parameter files, and the generated data used to produce "
-    "every number, table and figure are provided as supplementary material with "
-    "this submission. The real-waveform validation uses the VitalDB Open Dataset, "
-    "which is publicly available at https://api.vitaldb.net/.")
+    "every number, table and figure are available in the public repository "
+    "https://github.com/bougtoir/abp_zero_calibration. The real-waveform "
+    "validation uses the VitalDB Open Dataset, which is publicly available at "
+    "https://api.vitaldb.net/.")
 
 doc.add_page_break()
 
