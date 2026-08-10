@@ -1,274 +1,384 @@
 ﻿author_id,display_name,career_start,career_end,n_ai_works,origin_group,abroad,abroad_year,hit,hit_year,pi_year,pi,active,recent_group
-A5025907388,Alina Ene,2008,2026,59,United States,False,,True,2008.0,,False,True,United States
-A5060785228,Vaibhav Gowadia,2005,2012,10,United States,True,2005.0,True,2005.0,,False,False,
-A5089291093,Robbi Rahim,2015,2024,126,Islamic,True,2018.0,True,2016.0,2018.0,True,True,Islamic
-A5102013345,Xiaofei He,2002,2025,137,United States,True,2005.0,True,2002.0,2009.0,True,True,Sinic
+A5025907388,Alina Ene,2008,2026,59,United States,False,,True,2008.0,2011.0,True,True,United States
+A5060785228,Vaibhav Gowadia,2005,2012,10,United States,True,2005.0,True,2005.0,2007.0,True,False,
+A5089291093,Robbi Rahim,2015,2024,126,Islamic,True,2018.0,True,2016.0,2015.0,True,True,Islamic
+A5102013345,Xiaofei He,2002,2025,137,United States,True,2005.0,True,2002.0,2005.0,True,True,Sinic
+A5100348642,Hao Li,2013,2025,7,Sinic,False,,False,,2013.0,True,True,Sinic
 A5013429379,Kae Tsunematsu,2016,2022,12,Japanese,False,,True,2019.0,2016.0,True,True,Japanese
-A5017386816,Shlomo Hoory,2003,2021,16,Anglosphere ex-US,True,2007.0,True,2009.0,,False,True,Other Western
-A5036590503,Vinayak Hegde,2005,2025,21,United States,False,,False,,2025.0,True,True,Hindu
-A5022583259,Canasai Kruengkrai,2002,2026,50,Other Civilizations,True,2005.0,True,2009.0,,False,True,Japanese
-A5026630522,Xiang Li,2011,2026,23,Sinic,True,2016.0,True,2011.0,2025.0,True,True,Sinic
-A5002013958,Amer Ibrahim Al‐Omari,2009,2025,19,Islamic,False,,False,,,False,True,Islamic
-A5020544957,Lucjan Hanzlik,2012,2026,72,Continental Europe,False,,True,2019.0,,False,True,Continental Europe
-A5086684679,Benny Applebaum,2004,2026,108,Other Western,True,2008.0,True,2006.0,,False,True,Other Western
-A5017721496,Kai Zhong,2014,2023,25,United States,True,2018.0,True,2016.0,,False,True,United States
-A5026461824,Reeba Korah,2012,2025,10,Hindu,False,,False,,,False,True,Hindu
-A5013103539,Patrizio Pelliccione,2001,2026,193,Continental Europe,True,2007.0,True,2003.0,2015.0,True,True,Continental Europe
-A5054860478,Mohammed Sakre,2009,2023,10,Islamic,False,,False,,,False,True,Islamic
-A5060051647,Neil Y. Yen,2009,2024,40,Japanese,True,2009.0,True,2012.0,2018.0,True,True,Japanese
+A5017386816,Shlomo Hoory,2003,2021,16,Anglosphere ex-US,True,2007.0,True,2009.0,2003.0,True,True,Other Western
+A5025092193,Aifeng Ren,2011,2011,2,Sinic,False,,False,,,False,False,
+A5035403497,Diankun Gong,2011,2025,8,Sinic,True,2013.0,True,2015.0,2024.0,True,True,Sinic
+A5036590503,Vinayak Hegde,2005,2025,21,United States,False,,False,,2016.0,True,True,Hindu
+A5022583259,Canasai Kruengkrai,2002,2026,50,Other Civilizations,True,2005.0,True,2009.0,2003.0,True,True,Japanese
+A5044501446,João Carlos Espíndola Ferreira,2000,2013,7,Other Civilizations,False,,False,,2007.0,True,False,
+A5114248527,Y.T. Yeh,2003,2005,4,Anglosphere ex-US,True,2003.0,False,,,False,False,
+A5009246414,Ngoc Bao Bui,2005,2008,8,Anglosphere ex-US,False,,False,,2005.0,True,False,
+A5026630522,Xiang Li,2011,2026,23,Sinic,True,2016.0,True,2011.0,2023.0,True,True,Sinic
+A5002013958,Amer Ibrahim Al‐Omari,2009,2025,19,Islamic,False,,False,,2009.0,True,True,Islamic
+A5020544957,Lucjan Hanzlik,2012,2026,72,Continental Europe,False,,True,2019.0,2023.0,True,True,Continental Europe
+A5086684679,Benny Applebaum,2004,2026,108,Other Western,True,2008.0,True,2006.0,2010.0,True,True,Other Western
+A5017721496,Kai Zhong,2014,2023,25,United States,True,2018.0,True,2016.0,2020.0,True,True,United States
+A5026461824,Reeba Korah,2012,2025,10,Hindu,False,,False,,2012.0,True,True,Hindu
+A5038498472,Yufang Dan,2012,2014,6,Continental Europe,True,2014.0,False,,2014.0,True,False,
+A5013103539,Patrizio Pelliccione,2001,2026,193,Continental Europe,True,2007.0,True,2003.0,2001.0,True,True,Continental Europe
+A5054860478,Mohammed Sakre,2009,2023,10,Islamic,False,,False,,2010.0,True,True,Islamic
+A5060051647,Neil Y. Yen,2009,2024,40,Japanese,True,2009.0,True,2012.0,2009.0,True,True,Japanese
+A5052038034,Márcio Teruo Akyama,2002,2002,2,Other Civilizations,False,,False,,,False,False,
 A5029964236,Wail Rezgui,2013,2023,13,Islamic,True,2014.0,True,2013.0,,False,True,Islamic
-A5048736038,Dominique Besagni,2003,2020,11,Continental Europe,True,2003.0,False,,,False,True,
+A5048736038,Dominique Besagni,2003,2020,11,Continental Europe,True,2003.0,False,,2020.0,True,True,
 A5061400789,Sandro Radovanović,2014,2026,20,Other Civilizations,False,,True,2014.0,,False,True,Other Civilizations
-A5038395521,Alexandre Decan,2008,2024,35,Continental Europe,False,,True,2014.0,,False,True,Continental Europe
-A5079026336,Jonathan Huang,2007,2024,68,United States,False,,True,2007.0,,False,True,United States
-A5010795922,Marcel Keller,2009,2026,45,Continental Europe,True,2012.0,True,2012.0,,False,True,Anglosphere ex-US
-A5057360483,А. Г. Ревенко,2002,2023,16,Other Civilizations,False,,True,2008.0,,False,True,Other Civilizations
+A5079183601,Jason W. Woodworth,2016,2019,5,United States,True,2018.0,True,2018.0,,False,False,
+A5038395521,Alexandre Decan,2008,2024,35,Continental Europe,False,,True,2014.0,2013.0,True,True,Continental Europe
+A5079026336,Jonathan Huang,2007,2024,68,United States,False,,True,2007.0,2011.0,True,True,United States
+A5010795922,Marcel Keller,2009,2026,45,Continental Europe,True,2012.0,True,2012.0,2009.0,True,True,Anglosphere ex-US
+A5057360483,А. Г. Ревенко,2002,2023,16,Other Civilizations,False,,True,2008.0,2002.0,True,True,Other Civilizations
 A5100426136,Pengfei Zhang,2013,2025,70,Sinic,False,,False,,2024.0,True,True,Sinic
-A5087169621,M. Yu. Saygin,2011,2026,33,Other Civilizations,False,,False,,2015.0,True,True,Other Civilizations
-A5100718480,Ning Ye,2003,2026,68,Sinic,True,2009.0,True,2009.0,2017.0,True,True,Sinic
-A5041150785,Christos-Savvas Bouganis,2005,2025,64,Anglosphere ex-US,False,,False,,,False,True,Anglosphere ex-US
-A5016874557,Urban Larsson,2006,2026,91,Continental Europe,False,,True,2010.0,,False,True,Hindu
+A5087169621,M. Yu. Saygin,2011,2026,33,Other Civilizations,False,,False,,2011.0,True,True,Other Civilizations
+A5081959207,Christian Rössl,2004,2025,3,Continental Europe,False,,True,2004.0,,False,True,Continental Europe
+A5000450888,Evaggelos V. Hatzikos,2005,2008,5,Continental Europe,False,,True,2007.0,,False,False,
+A5100718480,Ning Ye,2003,2026,68,Sinic,True,2009.0,True,2009.0,2003.0,True,True,Sinic
+A5041150785,Christos-Savvas Bouganis,2005,2025,64,Anglosphere ex-US,False,,False,,2008.0,True,True,Anglosphere ex-US
+A5016874557,Urban Larsson,2006,2026,91,Continental Europe,False,,True,2010.0,2006.0,True,True,Hindu
 A5038149192,Kai Chen,2007,2025,42,United States,False,,True,2012.0,2020.0,True,True,Sinic
-A5111908443,Ben Taskar,2001,2015,87,United States,False,,True,2001.0,,False,False,
-A5006461848,Daniel Rueckert,2000,2026,354,Anglosphere ex-US,False,,True,2000.0,2010.0,True,True,Continental Europe
-A5074190717,Helena M. Verkooijen,2000,2026,15,Continental Europe,False,,True,2000.0,2012.0,True,True,Continental Europe
-A5085706537,Xiaokai Wei,2015,2026,51,United States,True,2017.0,True,2015.0,,False,True,United States
-A5011710494,Syed M. Assad,2006,2026,125,Anglosphere ex-US,True,2006.0,True,2007.0,2019.0,True,True,Anglosphere ex-US
-A5067205952,Jinguang Han,2005,2026,103,Sinic,True,2011.0,True,2010.0,2019.0,True,True,Sinic
-A5086542590,Sumeth Yuenyong,2014,2025,24,Other Civilizations,True,2014.0,True,2014.0,,False,True,Other Civilizations
-A5027786039,Man Ho Au,2004,2026,272,Anglosphere ex-US,True,2004.0,True,2004.0,2016.0,True,True,Sinic
-A5009403828,Yuichiro Matsuzaki,2010,2026,152,Anglosphere ex-US,True,2010.0,True,2010.0,2022.0,True,True,Japanese
-A5102346243,Jun Furukawa,2001,2025,49,Japanese,False,,True,2001.0,,False,True,Other Western
-A5078019064,Katharina Manderscheid,2011,2022,15,Continental Europe,True,2011.0,True,2019.0,,False,True,Continental Europe
-A5006983355,C. Beck,2006,2025,26,Continental Europe,False,,True,2008.0,2011.0,True,True,United States
-A5069835171,Ewa Cukrowska,2004,2010,10,Other Civilizations,False,,True,2009.0,2006.0,True,False,
-A5049087736,Kazuaki Tanaka,2003,2025,23,Japanese,False,,False,,,False,True,Japanese
-A5083977323,Ritesh Ajoodha,2014,2026,34,Other Civilizations,False,,True,2020.0,,False,True,Other Civilizations
-A5053767784,Matt Luckcuck,2016,2026,30,Anglosphere ex-US,False,,True,2018.0,,False,True,Anglosphere ex-US
+A5111908443,Ben Taskar,2001,2015,87,United States,False,,True,2001.0,2006.0,True,False,
+A5006461848,Daniel Rueckert,2000,2026,354,Anglosphere ex-US,False,,True,2000.0,2008.0,True,True,Continental Europe
+A5051607205,Ryosuke Mizuno,2004,2025,6,Japanese,False,,False,,,False,True,
+A5074190717,Helena M. Verkooijen,2000,2026,15,Continental Europe,False,,True,2000.0,2002.0,True,True,Continental Europe
+A5085706537,Xiaokai Wei,2015,2026,51,United States,True,2017.0,True,2015.0,2017.0,True,True,United States
+A5011710494,Syed M. Assad,2006,2026,125,Anglosphere ex-US,True,2006.0,True,2007.0,2010.0,True,True,Anglosphere ex-US
+A5067205952,Jinguang Han,2005,2026,103,Sinic,True,2011.0,True,2010.0,2005.0,True,True,Sinic
+A5026140121,Tomoya Sasaki,2011,2024,4,Japanese,False,,False,,2011.0,True,True,Japanese
+A5042290609,Renukswamy Chikkamath,2016,2025,5,Hindu,False,,False,,,False,True,Continental Europe
+A5086542590,Sumeth Yuenyong,2014,2025,24,Other Civilizations,True,2014.0,True,2014.0,2014.0,True,True,Other Civilizations
+A5027786039,Man Ho Au,2004,2026,272,Anglosphere ex-US,True,2004.0,True,2004.0,2006.0,True,True,Sinic
+A5009403828,Yuichiro Matsuzaki,2010,2026,152,Anglosphere ex-US,True,2010.0,True,2010.0,2012.0,True,True,Japanese
+A5102346243,Jun Furukawa,2001,2025,49,Japanese,False,,True,2001.0,2004.0,True,True,Other Western
+A5078019064,Katharina Manderscheid,2011,2022,15,Continental Europe,True,2011.0,False,,2011.0,True,True,Continental Europe
+A5006983355,C. Beck,2006,2025,26,Continental Europe,False,,True,2012.0,2008.0,True,True,United States
+A5069835171,Ewa Cukrowska,2004,2010,10,Other Civilizations,False,,True,2005.0,2005.0,True,False,
+A5037919308,Aida Rahmattalabi,2016,2026,7,United States,False,,False,,,False,True,
+A5074730230,John Businge,2012,2025,7,Continental Europe,True,2016.0,True,2018.0,2013.0,True,True,Continental Europe
+A5049087736,Kazuaki Tanaka,2003,2025,23,Japanese,False,,False,,2018.0,True,True,Japanese
+A5080216035,H. K. Hsiao,2003,2020,8,Sinic,False,,False,,,False,True,
+A5083977323,Ritesh Ajoodha,2014,2026,34,Other Civilizations,False,,True,2020.0,2018.0,True,True,Other Civilizations
+A5053767784,Matt Luckcuck,2016,2026,30,Anglosphere ex-US,False,,True,2018.0,2016.0,True,True,Anglosphere ex-US
+A5100698162,Yuhui Zheng,2016,2021,3,Sinic,False,,False,,2018.0,True,True,Sinic
 A5063193249,Masoud Daneshtalab,2006,2026,62,Islamic,False,,False,,2020.0,True,True,Continental Europe
-A5073653623,Jun’ichi Kazama,2001,2013,48,Japanese,False,,True,2001.0,2009.0,True,False,
-A5036984041,Rie Shigetomi,2002,2011,11,Japanese,False,,False,,,False,False,
-A5108273448,Krzysztof Łatuszyński,2008,2025,33,Continental Europe,True,2010.0,True,2008.0,,False,True,Anglosphere ex-US
-A5027812149,Simone Diniz Junqueira Barbosa,2000,2026,103,Other Civilizations,False,,True,2000.0,2019.0,True,True,Other Civilizations
-A5085150941,Itzhak Tamo,2010,2025,84,Other Western,True,2011.0,True,2010.0,,False,True,Other Western
-A5100357293,Jianhua Ma,2001,2026,76,Japanese,False,,False,,2020.0,True,True,Japanese
-A5033442931,Stylianos I. Venieris,2015,2026,31,Anglosphere ex-US,True,2019.0,True,2019.0,2024.0,True,True,Anglosphere ex-US
-A5051519610,Lambert Mathias,2006,2026,42,United States,False,,True,2006.0,2018.0,True,True,United States
-A5012610674,Dimitri Van Landuyt,2007,2026,70,Continental Europe,False,,True,2013.0,,False,True,Continental Europe
-A5101465301,Bo Zu,2013,2025,20,Sinic,False,,True,2016.0,2016.0,True,True,Sinic
-A5085179919,Ujjwal Sen,2000,2026,275,Hindu,True,2002.0,True,2003.0,2002.0,True,True,Hindu
-A5053095481,Quanbo Ge,2007,2025,38,Sinic,False,,True,2014.0,,False,True,Sinic
-A5103070252,Soumya Jana,2002,2024,10,United States,False,,True,2009.0,2024.0,True,True,Hindu
-A5065017416,Omid Kavehei,2008,2026,23,Islamic,False,,True,2008.0,2021.0,True,True,Anglosphere ex-US
-A5018099452,Hiroyuki Ohsaki,2003,2026,52,Japanese,False,,False,,2013.0,True,True,Japanese
-A5022915033,Yang Xiang,2007,2025,46,Sinic,False,,True,2007.0,2023.0,True,True,Sinic
-A5011918131,Lexing Ying,2009,2026,103,United States,False,,True,2011.0,2024.0,True,True,United States
-A5026990786,Torsten Hoefler,2006,2026,158,United States,True,2006.0,True,2010.0,2018.0,True,True,Continental Europe
-A5035407171,Seongil Jo,2014,2026,32,Sinic,True,2019.0,True,2016.0,2023.0,True,True,Sinic
-A5061951606,Ryan Cotterell,2013,2026,397,United States,True,2015.0,True,2013.0,2020.0,True,True,Continental Europe
-A5015363344,Matteo Negri,2001,2026,276,Continental Europe,False,,True,2001.0,2006.0,True,True,Continental Europe
-A5089354452,Michiaki Iwazume,2001,2022,34,Japanese,False,,True,2008.0,,False,True,
-A5102201532,Guangbin Wu,2002,2025,10,Sinic,False,,False,,,False,True,Sinic
+A5073653623,Jun’ichi Kazama,2001,2013,48,Japanese,False,,True,2001.0,2008.0,True,False,
+A5036984041,Rie Shigetomi,2002,2011,11,Japanese,False,,False,,2002.0,True,False,
+A5108273448,Krzysztof Łatuszyński,2008,2025,33,Continental Europe,True,2010.0,True,2008.0,2009.0,True,True,Anglosphere ex-US
+A5027812149,Simone Diniz Junqueira Barbosa,2000,2026,103,Other Civilizations,False,,True,2000.0,2001.0,True,True,Other Civilizations
+A5101475514,Xiang Yan,2006,2022,9,Japanese,False,,True,2014.0,,False,True,Sinic
+A5085150941,Itzhak Tamo,2010,2025,84,Other Western,True,2011.0,True,2010.0,2011.0,True,True,Other Western
+A5100357293,Jianhua Ma,2001,2026,76,Japanese,False,,False,,2004.0,True,True,Japanese
+A5033442931,Stylianos I. Venieris,2015,2026,31,Anglosphere ex-US,True,2019.0,True,2019.0,2018.0,True,True,Anglosphere ex-US
+A5051519610,Lambert Mathias,2006,2026,42,United States,False,,True,2006.0,2008.0,True,True,United States
+A5012610674,Dimitri Van Landuyt,2007,2026,70,Continental Europe,False,,True,2013.0,2011.0,True,True,Continental Europe
+A5101465301,Bo Zu,2013,2025,20,Sinic,False,,True,2016.0,2014.0,True,True,Sinic
+A5085179919,Ujjwal Sen,2000,2026,275,Hindu,True,2002.0,True,2003.0,2000.0,True,True,Hindu
+A5053095481,Quanbo Ge,2007,2025,38,Sinic,False,,True,2014.0,2012.0,True,True,Sinic
+A5020385970,Rustamjon S. Muradov,2014,2022,3,Islamic,False,,False,,2014.0,True,True,Islamic
+A5031082220,Onkar N. Verma,2015,2021,4,Hindu,False,,False,,,False,True,
+A5103070252,Soumya Jana,2002,2024,10,United States,False,,False,,2002.0,True,True,Hindu
+A5065017416,Omid Kavehei,2008,2026,23,Islamic,False,,True,2008.0,2018.0,True,True,Anglosphere ex-US
+A5103696922,Tai M. Chung,2001,2003,3,Sinic,False,,False,,2003.0,True,False,
+A5018099452,Hiroyuki Ohsaki,2003,2026,52,Japanese,False,,False,,2010.0,True,True,Japanese
+A5022915033,Yang Xiang,2007,2025,46,Sinic,False,,True,2007.0,2008.0,True,True,Sinic
+A5011918131,Lexing Ying,2009,2026,103,United States,False,,True,2011.0,2009.0,True,True,United States
+A5006708769,N. Mavalvala,2005,2025,7,United States,False,,True,2005.0,2008.0,True,True,United States
+A5026990786,Torsten Hoefler,2006,2026,158,United States,True,2006.0,True,2010.0,2014.0,True,True,Continental Europe
+A5035407171,Seongil Jo,2014,2026,32,Sinic,True,2019.0,True,2016.0,2015.0,True,True,Sinic
+A5048623941,Steven Franzel,2014,2014,2,Continental Europe,False,,False,,,False,False,
+A5061951606,Ryan Cotterell,2013,2026,397,United States,True,2015.0,True,2013.0,2018.0,True,True,Continental Europe
+A5015363344,Matteo Negri,2001,2026,276,Continental Europe,False,,True,2001.0,2004.0,True,True,Continental Europe
+A5089354452,Michiaki Iwazume,2001,2022,34,Japanese,False,,True,2008.0,2013.0,True,True,
+A5102201532,Guangbin Wu,2002,2025,10,Sinic,False,,False,,2002.0,True,True,Sinic
+A5109990455,F. Zaccarini,2006,2014,6,Continental Europe,False,,False,,2006.0,True,False,
+A5088582415,Assaf Israel,2012,2012,2,Other Western,False,,False,,2012.0,True,False,
 A5034024970,Yoshimi Murata,2007,2018,11,Japanese,False,,False,,2007.0,True,False,
-A5081254473,Yael Tauman Kalai,2004,2025,160,United States,True,2004.0,True,2005.0,,False,True,United States
-A5082379297,Biyang Ma,2015,2026,29,Sinic,True,2015.0,False,,,False,True,Sinic
-A5007719662,Michela Bertolotto,2003,2025,59,Anglosphere ex-US,False,,True,2004.0,,False,True,Anglosphere ex-US
-A5066568670,Xia Ji,2008,2026,19,Sinic,False,,False,,,False,True,Sinic
-A5027667267,Raghava Mutharaju,2010,2026,88,United States,False,,True,2010.0,2022.0,True,True,Hindu
-A5102829523,Pratyusha Rakshit,2011,2026,62,Hindu,False,,True,2011.0,,False,True,Hindu
-A5059638892,Štefko Miklavič,2003,2025,33,Continental Europe,False,,False,,,False,True,Continental Europe
-A5028359630,Sudeep D. Thepade,2009,2025,41,Hindu,False,,True,2013.0,2022.0,True,True,Hindu
-A5048951071,Corrado Aaron Visaggio,2002,2026,49,Continental Europe,False,,True,2007.0,2021.0,True,True,Continental Europe
-A5048892933,Ran Cohen,2014,2026,47,Other Western,True,2018.0,True,2016.0,2022.0,True,True,Other Western
-A5013042933,Tomáš Skopal,2002,2025,52,Continental Europe,False,,True,2008.0,,False,True,Continental Europe
-A5068555962,Mohamed Abouhawwash,2015,2026,101,Islamic,True,2015.0,True,2015.0,2021.0,True,True,Islamic
-A5080341674,Shangping Zhong,2006,2025,22,Sinic,True,2006.0,True,2013.0,,False,True,Sinic
-A5033035493,E. Pazy,2001,2006,13,Continental Europe,True,2003.0,True,2001.0,,False,False,
-A5082022013,J. Shiny Duela,2014,2024,11,Other Western,False,,False,,,False,True,Hindu
-A5004205251,Saïd Elbanna,2009,2025,21,Islamic,False,,True,2009.0,,False,True,Islamic
-A5039995559,Yaron Lipman,2004,2025,25,Other Western,False,,True,2004.0,2019.0,True,True,Other Western
-A5056324053,Ernesto Jiménez-Ruiz,2006,2025,221,Continental Europe,True,2006.0,True,2007.0,2014.0,True,True,Anglosphere ex-US
-A5036102895,Jitender Kumar Chhabra,2004,2025,60,Hindu,False,,True,2004.0,,False,True,Hindu
-A5089819604,Michael Rabbat,2003,2026,126,United States,True,2006.0,True,2004.0,2020.0,True,True,Other Western
-A5078910758,Rada Chirkova,2000,2026,111,United States,False,,True,2008.0,2022.0,True,True,United States
-A5005880158,Emmanuel Godard,2002,2025,17,Continental Europe,False,,False,,,False,True,Continental Europe
-A5056123187,Yuren Zhou,2003,2026,122,Sinic,False,,True,2007.0,2018.0,True,True,Sinic
-A5075240167,Didik Indrayana,2015,2025,18,Islamic,False,,False,,,False,True,Islamic
-A5083874010,Víctor Neumann,2015,2025,33,Other Civilizations,False,,False,,,False,True,Other Civilizations
-A5083261801,Deniz Erdoğmuş,2001,2026,205,United States,False,,True,2001.0,2021.0,True,True,United States
-A5056384630,Liubov Kovriguina,2013,2025,14,Other Civilizations,False,,False,,2025.0,True,True,
-A5009032240,Takahiro Ogawa,2005,2026,250,Japanese,False,,False,,,False,True,Japanese
-A5059680084,Ting Hu,2006,2024,31,Sinic,False,,True,2014.0,,False,True,Sinic
-A5052576795,Ronald Y. Chang,2011,2026,16,Sinic,True,2011.0,True,2011.0,,False,True,Sinic
-A5050651525,Nan Cheng,2016,2026,91,Anglosphere ex-US,True,2018.0,True,2016.0,2023.0,True,True,Sinic
-A5090449160,Eisuke Ito,2002,2019,25,Japanese,False,,True,2010.0,,False,False,
-A5061975828,Shay Gueron,2000,2025,125,Other Western,False,,True,2007.0,,False,True,United States
-A5088657689,Ashikur Rahman,2008,2025,16,Islamic,True,2008.0,False,,2020.0,True,True,Islamic
-A5053775980,Tomer Koren,2011,2026,117,Other Western,True,2014.0,True,2011.0,,False,True,Other Western
-A5051850582,Yuan‐Hai Shao,2009,2026,118,Sinic,False,,True,2011.0,2021.0,True,True,Sinic
-A5020740517,Yuta Tsuboi,2002,2025,32,Japanese,True,2008.0,True,2002.0,,False,True,Japanese
-A5054314962,А. А. Логинов,2002,2017,24,United States,False,,True,2002.0,,False,False,
-A5064260879,Nimrod Talmon,2012,2026,65,Continental Europe,True,2012.0,True,2017.0,2014.0,True,True,Other Western
-A5037208593,Indrė Žliobaitė,2005,2025,67,Continental Europe,True,2011.0,True,2010.0,2014.0,True,True,Continental Europe
+A5078345211,Elitzur Dattner,2015,2019,7,Other Western,False,,True,2015.0,2015.0,True,False,
+A5081254473,Yael Tauman Kalai,2004,2025,160,United States,True,2004.0,True,2005.0,2004.0,True,True,United States
+A5075799551,Eli Nazarov,2012,2012,2,Other Western,False,,True,2012.0,,False,False,
+A5082379297,Biyang Ma,2015,2026,29,Sinic,True,2015.0,False,,2024.0,True,True,Sinic
+A5007719662,Michela Bertolotto,2003,2025,59,Anglosphere ex-US,False,,True,2004.0,2004.0,True,True,Anglosphere ex-US
+A5080139812,Steve Spagnola,2011,2011,2,United States,False,,False,,,False,False,
+A5101902813,B. Murali Krishna,2013,2024,7,Hindu,False,,False,,2020.0,True,True,Hindu
+A5066568670,Xia Ji,2008,2026,19,Sinic,False,,False,,2008.0,True,True,Sinic
+A5112289546,Hasin A. Ahmed,2012,2026,7,Hindu,False,,True,2012.0,,False,True,Hindu
+A5076755949,Alexander Knebe,2003,2023,6,Anglosphere ex-US,False,,False,,,False,True,Continental Europe
+A5027667267,Raghava Mutharaju,2010,2026,88,United States,False,,True,2010.0,2012.0,True,True,Hindu
+A5102829523,Pratyusha Rakshit,2011,2026,62,Hindu,False,,True,2011.0,2015.0,True,True,Hindu
+A5059638892,Štefko Miklavič,2003,2025,33,Continental Europe,False,,False,,2005.0,True,True,Continental Europe
+A5028359630,Sudeep D. Thepade,2009,2025,41,Hindu,False,,True,2013.0,2016.0,True,True,Hindu
+A5048951071,Corrado Aaron Visaggio,2002,2026,49,Continental Europe,False,,True,2007.0,2002.0,True,True,Continental Europe
+A5048892933,Ran Cohen,2014,2026,47,Other Western,True,2018.0,True,2016.0,2016.0,True,True,Other Western
+A5013042933,Tomáš Skopal,2002,2025,52,Continental Europe,False,,True,2008.0,2007.0,True,True,Continental Europe
+A5068555962,Mohamed Abouhawwash,2015,2026,101,Islamic,True,2015.0,True,2015.0,2015.0,True,True,Islamic
+A5080341674,Shangping Zhong,2006,2025,22,Sinic,True,2006.0,True,2013.0,2006.0,True,True,Sinic
+A5060324820,Emir Ugljanin,2012,2020,8,Other Civilizations,True,2016.0,False,,,False,True,
+A5024632348,Rafael Augusto Ferreira do Carmo,2008,2026,9,Other Civilizations,False,,True,2011.0,2019.0,True,True,Other Civilizations
+A5033035493,E. Pazy,2001,2006,13,Continental Europe,True,2003.0,True,2001.0,2006.0,True,False,
+A5101881724,Qitao Wu,2009,2009,2,Sinic,False,,False,,,False,False,
+A5082022013,J. Shiny Duela,2014,2024,11,Other Western,False,,False,,2014.0,True,True,Hindu
+A5004205251,Saïd Elbanna,2009,2025,21,Islamic,False,,True,2016.0,2009.0,True,True,Islamic
+A5039995559,Yaron Lipman,2004,2025,25,Other Western,False,,True,2004.0,2017.0,True,True,Other Western
+A5056324053,Ernesto Jiménez-Ruiz,2006,2025,221,Continental Europe,True,2006.0,True,2007.0,2009.0,True,True,Anglosphere ex-US
+A5036102895,Jitender Kumar Chhabra,2004,2025,60,Hindu,False,,True,2004.0,2008.0,True,True,Hindu
+A5090729031,Mitchell Peabody,2004,2011,5,United States,False,,False,,2011.0,True,False,
+A5034289476,Pierre Pellat-Finet,2006,2009,3,Continental Europe,True,2009.0,False,,2007.0,True,False,
+A5089819604,Michael Rabbat,2003,2026,126,United States,True,2006.0,True,2004.0,2010.0,True,True,Other Western
+A5078910758,Rada Chirkova,2000,2026,111,United States,False,,True,2008.0,2002.0,True,True,United States
+A5082739411,Siyuan Zou,2016,2024,6,Sinic,False,,True,2018.0,2018.0,True,True,
+A5005880158,Emmanuel Godard,2002,2025,17,Continental Europe,False,,False,,2016.0,True,True,Continental Europe
+A5056123187,Yuren Zhou,2003,2026,122,Sinic,False,,True,2007.0,2005.0,True,True,Sinic
+A5071754046,Long Cai,2010,2025,7,Sinic,False,,False,,2010.0,True,True,Sinic
+A5075240167,Didik Indrayana,2015,2025,18,Islamic,False,,False,,2015.0,True,True,Islamic
+A5083874010,Víctor Neumann,2015,2025,33,Other Civilizations,False,,False,,2015.0,True,True,Other Civilizations
+A5083261801,Deniz Erdoğmuş,2001,2026,205,United States,False,,True,2001.0,2002.0,True,True,United States
+A5056384630,Liubov Kovriguina,2013,2025,14,Other Civilizations,False,,False,,2015.0,True,True,
+A5009032240,Takahiro Ogawa,2005,2026,250,Japanese,False,,False,,2012.0,True,True,Japanese
+A5004768800,Luit Gazendam,2006,2010,9,Continental Europe,False,,True,2006.0,2010.0,True,False,
+A5059680084,Ting Hu,2006,2024,31,Sinic,False,,True,2014.0,2010.0,True,True,Sinic
+A5052576795,Ronald Y. Chang,2011,2026,16,Sinic,True,2011.0,True,2011.0,2015.0,True,True,Sinic
+A5072769752,Ana Pereira,2011,2022,6,Continental Europe,True,2015.0,True,2017.0,2011.0,True,True,Other Civilizations
+A5050651525,Nan Cheng,2016,2026,91,Anglosphere ex-US,True,2018.0,True,2016.0,2021.0,True,True,Sinic
+A5100636944,S. Ramos,2002,2017,3,Continental Europe,False,,False,,,False,False,
+A5090449160,Eisuke Ito,2002,2019,25,Japanese,False,,True,2010.0,2002.0,True,False,
+A5061975828,Shay Gueron,2000,2025,125,Other Western,False,,True,2007.0,2000.0,True,True,United States
+A5088657689,Ashikur Rahman,2008,2025,16,Islamic,True,2008.0,False,,2008.0,True,True,Islamic
+A5053775980,Tomer Koren,2011,2026,117,Other Western,True,2014.0,True,2011.0,2012.0,True,True,Other Western
+A5051850582,Yuan‐Hai Shao,2009,2026,118,Sinic,False,,True,2011.0,2013.0,True,True,Sinic
+A5020740517,Yuta Tsuboi,2002,2025,32,Japanese,True,2008.0,True,2008.0,2002.0,True,True,Japanese
+A5054314962,А. А. Логинов,2002,2017,24,United States,False,,True,2002.0,2003.0,True,False,
+A5113564150,Chuluun Minjin,2010,2013,4,Other Civilizations,False,,False,,2010.0,True,False,
+A5064260879,Nimrod Talmon,2012,2026,65,Continental Europe,True,2012.0,True,2017.0,2012.0,True,True,Other Western
+A5016339562,Ihab Talkhan,2003,2019,8,Islamic,False,,False,,2012.0,True,False,
+A5056617355,Sri Hesti Heriwati,2012,2024,3,Islamic,False,,False,,2012.0,True,True,Islamic
+A5078162024,Laércio A. Baldochi,2004,2006,2,Other Civilizations,False,,True,2004.0,,False,False,
+A5037208593,Indrė Žliobaitė,2005,2025,67,Continental Europe,True,2011.0,True,2010.0,2005.0,True,True,Continental Europe
 A5101402257,Kohei Fujita,2013,2024,15,Japanese,False,,True,2014.0,2016.0,True,True,Japanese
-A5025255782,Percy Liang,2004,2026,348,United States,False,,True,2006.0,2020.0,True,True,United States
-A5008388431,Takaomi Arai,2003,2025,10,Japanese,False,,True,2009.0,,False,True,Islamic
-A5033863497,Taras Kowaliw,2003,2016,25,Anglosphere ex-US,True,2007.0,True,2009.0,,False,False,
-A5059767811,Claudia Ermel,2000,2024,58,Continental Europe,False,,True,2004.0,,False,True,Continental Europe
-A5102757544,Harsh Kumar Verma,2008,2026,50,Hindu,False,,True,2013.0,,False,True,Hindu
-A5057362939,Bo Xu,2006,2025,39,Sinic,False,,False,,,False,True,Sinic
-A5011823283,Ahsan Nazir,2002,2026,40,Anglosphere ex-US,True,2002.0,True,2002.0,2019.0,True,True,Anglosphere ex-US
-A5021586372,Eitan Yaakobi,2007,2026,220,United States,True,2007.0,True,2008.0,2020.0,True,True,Other Western
-A5102250598,Liang Yu,2004,2025,23,Sinic,False,,False,,,False,True,Sinic
-A5091673337,Jinling Liang,2003,2026,78,Sinic,False,,True,2003.0,,False,True,Sinic
-A5091830652,Hadi Jamali‐Rad,2014,2026,27,Continental Europe,False,,True,2014.0,2025.0,True,True,Continental Europe
-A5110182596,Gerardo Sanz,2001,2023,17,Continental Europe,False,,False,,,False,True,Continental Europe
+A5025255782,Percy Liang,2004,2026,348,United States,False,,True,2006.0,2005.0,True,True,United States
+A5073888000,Paweł Mirosław Stano,2010,2018,6,Continental Europe,False,,True,2012.0,2018.0,True,False,
+A5008388431,Takaomi Arai,2003,2025,10,Japanese,False,,True,2009.0,2003.0,True,True,Islamic
+A5033863497,Taras Kowaliw,2003,2016,25,Anglosphere ex-US,True,2007.0,True,2009.0,2003.0,True,False,
+A5059767811,Claudia Ermel,2000,2024,58,Continental Europe,False,,True,2004.0,2001.0,True,True,Continental Europe
+A5073877485,Peter J. Wilson,2003,2008,4,Anglosphere ex-US,False,,False,,2005.0,True,False,
+A5102757544,Harsh Kumar Verma,2008,2026,50,Hindu,False,,True,2013.0,2008.0,True,True,Hindu
+A5057362939,Bo Xu,2006,2025,39,Sinic,False,,False,,2008.0,True,True,Sinic
+A5011823283,Ahsan Nazir,2002,2026,40,Anglosphere ex-US,True,2002.0,True,2002.0,2010.0,True,True,Anglosphere ex-US
+A5021586372,Eitan Yaakobi,2007,2026,220,United States,True,2007.0,True,2008.0,2009.0,True,True,Other Western
+A5102250598,Liang Yu,2004,2025,23,Sinic,False,,False,,2006.0,True,True,Sinic
+A5066428003,Tao Yin,2011,2022,4,Sinic,False,,False,,2020.0,True,True,
+A5091673337,Jinling Liang,2003,2026,78,Sinic,False,,True,2003.0,2004.0,True,True,Sinic
+A5091830652,Hadi Jamali‐Rad,2014,2026,27,Continental Europe,False,,True,2014.0,2015.0,True,True,Continental Europe
+A5100424600,Dandan Chen,2012,2024,8,Sinic,False,,True,2012.0,2014.0,True,True,Sinic
+A5109696738,Cheng Wang,2010,2022,2,Japanese,False,,False,,2022.0,True,True,
+A5107632916,A. Kurepin,2001,2017,4,Other Civilizations,False,,False,,,False,False,
+A5078808042,M. Kikuti,2002,2002,2,Other Civilizations,False,,False,,2002.0,True,False,
+A5110182596,Gerardo Sanz,2001,2023,17,Continental Europe,False,,False,,2003.0,True,True,Continental Europe
 A5086954690,Allison B. McCoy,2012,2026,25,United States,False,,True,2012.0,,False,True,United States
-A5101850696,Dmitry Ponomarev,2008,2021,30,United States,False,,True,2011.0,,False,True,United States
-A5073520602,Deepa Jose,2011,2025,22,Hindu,False,,False,,,False,True,Hindu
-A5007792821,Alessandro Garcia,2001,2025,178,Other Civilizations,True,2004.0,True,2003.0,2009.0,True,True,Other Civilizations
-A5037827497,Suresh Chittineni,2011,2026,20,Hindu,False,,False,,,False,True,Hindu
-A5100674840,Ignacio López Paniagua,2006,2024,12,Continental Europe,False,,True,2007.0,,False,True,Continental Europe
-A5053580201,Matt Calder,2009,2025,13,United States,False,,True,2009.0,2021.0,True,True,United States
-A5076604380,Francis M. Tyers,2009,2026,139,Continental Europe,False,,True,2009.0,2011.0,True,True,United States
-A5043223217,David Causeur,2003,2022,13,Continental Europe,False,,False,,,False,True,Continental Europe
-A5049707744,Haobo Wang,2011,2025,73,Sinic,False,,True,2019.0,2023.0,True,True,Sinic
-A5072460783,Alexander Binder,2010,2025,77,Continental Europe,True,2015.0,True,2012.0,2020.0,True,True,Sinic
-A5064961974,Asaf Levin,2010,2026,14,Other Western,False,,True,2010.0,,False,True,Other Western
-A5046070799,Ismael Sanz,2002,2016,38,Continental Europe,False,,True,2007.0,2013.0,True,False,
-A5037939833,Varun P. Gopi,2013,2026,17,Hindu,False,,True,2021.0,,False,True,Hindu
-A5083419995,Darrick E. Chang,2004,2026,77,United States,False,,True,2008.0,2015.0,True,True,Continental Europe
-A5100347410,Juan Wang,2000,2026,51,United States,False,,False,,2024.0,True,True,Sinic
-A5012932239,Michael Papasimeon,2000,2026,25,Anglosphere ex-US,False,,True,2002.0,,False,True,Anglosphere ex-US
-A5040335377,Nidhi Kalra,2006,2024,22,United States,False,,True,2006.0,,False,True,Hindu
-A5086416893,Mitsugu Hirasaka,2000,2018,24,Sinic,True,2000.0,False,,,False,False,
+A5101850696,Dmitry Ponomarev,2008,2021,30,United States,False,,True,2011.0,2008.0,True,True,United States
+A5109989992,J. Wanjiku,2014,2014,2,Continental Europe,False,,False,,2014.0,True,False,
+A5054995576,В. Н. Неверов,2005,2022,3,Other Civilizations,False,,False,,,False,True,Other Civilizations
+A5073520602,Deepa Jose,2011,2025,22,Hindu,False,,False,,2017.0,True,True,Hindu
+A5007792821,Alessandro Garcia,2001,2025,178,Other Civilizations,True,2004.0,True,2003.0,2006.0,True,True,Other Civilizations
+A5037827497,Suresh Chittineni,2011,2026,20,Hindu,False,,False,,2018.0,True,True,Hindu
+A5100674840,Ignacio López Paniagua,2006,2024,12,Continental Europe,False,,True,2007.0,2006.0,True,True,Continental Europe
+A5053580201,Matt Calder,2009,2025,13,United States,False,,True,2009.0,2020.0,True,True,United States
+A5076604380,Francis M. Tyers,2009,2026,139,Continental Europe,False,,True,2009.0,2009.0,True,True,United States
+A5056798581,Masaya Iwasawa,2009,2010,2,Japanese,False,,False,,,False,False,
+A5043223217,David Causeur,2003,2022,13,Continental Europe,False,,False,,2006.0,True,True,Continental Europe
+A5049707744,Haobo Wang,2011,2025,73,Sinic,False,,True,2019.0,2020.0,True,True,Sinic
+A5072460783,Alexander Binder,2010,2025,77,Continental Europe,True,2015.0,True,2012.0,2016.0,True,True,Sinic
+A5050748694,Cindy Even,2016,2021,9,United States,True,2017.0,True,2016.0,2019.0,True,True,
+A5064961974,Asaf Levin,2010,2026,14,Other Western,False,,True,2010.0,2010.0,True,True,Other Western
+A5086892584,Riaz Ul Haq,2016,2017,2,Islamic,False,,False,,2017.0,True,False,
+A5101524567,Wonjun Choi,2015,2023,8,Sinic,False,,True,2015.0,2022.0,True,True,Sinic
+A5046070799,Ismael Sanz,2002,2016,38,Continental Europe,False,,True,2007.0,2007.0,True,False,
+A5037939833,Varun P. Gopi,2013,2026,17,Hindu,False,,True,2021.0,2013.0,True,True,Hindu
+A5083419995,Darrick E. Chang,2004,2026,77,United States,False,,True,2008.0,2013.0,True,True,Continental Europe
+A5100347410,Juan Wang,2000,2026,51,United States,False,,False,,2000.0,True,True,Sinic
+A5047943995,Zhipeng Jin,2015,2022,6,Sinic,False,,True,2016.0,2021.0,True,True,Sinic
+A5012932239,Michael Papasimeon,2000,2026,25,Anglosphere ex-US,False,,True,2002.0,2017.0,True,True,Anglosphere ex-US
+A5040335377,Nidhi Kalra,2006,2024,22,United States,False,,True,2006.0,2006.0,True,True,Hindu
+A5086416893,Mitsugu Hirasaka,2000,2018,24,Sinic,True,2000.0,False,,2000.0,True,False,
 A5073227709,Sam Wiseman,2014,2023,49,United States,False,,True,2015.0,2018.0,True,True,United States
-A5001128596,Ziteng Sun,2016,2026,49,United States,True,2016.0,True,2019.0,,False,True,United States
-A5017433912,Zhiyong Shan,2007,2021,19,Sinic,False,,True,2012.0,2017.0,True,True,Sinic
-A5002740493,Ashish Shrivastava,2010,2025,49,United States,True,2013.0,True,2012.0,,False,True,Hindu
-A5034314821,Ofer Hadar,2006,2026,26,Other Western,False,,True,2009.0,,False,True,Other Western
-A5088879964,Mikio Fujiwara,2001,2025,165,Japanese,False,,True,2001.0,,False,True,Japanese
+A5001128596,Ziteng Sun,2016,2026,49,United States,True,2016.0,True,2019.0,2018.0,True,True,United States
+A5017433912,Zhiyong Shan,2007,2021,19,Sinic,False,,True,2012.0,2008.0,True,True,Sinic
+A5002740493,Ashish Shrivastava,2010,2025,49,United States,True,2013.0,True,2012.0,2010.0,True,True,Hindu
+A5034314821,Ofer Hadar,2006,2026,26,Other Western,False,,True,2009.0,2015.0,True,True,Other Western
+A5088879964,Mikio Fujiwara,2001,2025,165,Japanese,False,,True,2001.0,2009.0,True,True,Japanese
 A5021986478,Veronika A. Zimmer,2013,2025,27,Continental Europe,True,2018.0,True,2014.0,2024.0,True,True,Continental Europe
-A5018514550,Nora Tischler,2013,2026,53,Anglosphere ex-US,True,2016.0,True,2015.0,2024.0,True,True,Anglosphere ex-US
-A5060181712,Axel Müller,2004,2025,41,Anglosphere ex-US,True,2006.0,True,2007.0,,False,True,Anglosphere ex-US
-A5001883078,Shahram Shah Heydari,2010,2025,13,Anglosphere ex-US,False,,False,,,False,True,Anglosphere ex-US
-A5027072710,Rui Sun,2007,2026,40,Sinic,False,,True,2015.0,,False,True,Sinic
+A5031677703,Sathyakama Sandilya,2002,2012,8,Continental Europe,False,,True,2005.0,2004.0,True,False,
+A5018514550,Nora Tischler,2013,2026,53,Anglosphere ex-US,True,2016.0,True,2015.0,2016.0,True,True,Anglosphere ex-US
+A5004224909,Olga Sorkine,2004,2008,3,Other Western,True,2004.0,True,2004.0,2008.0,True,False,
+A5060181712,Axel Müller,2004,2025,41,Anglosphere ex-US,True,2006.0,True,2007.0,2006.0,True,True,Anglosphere ex-US
+A5001883078,Shahram Shah Heydari,2010,2025,13,Anglosphere ex-US,False,,False,,2013.0,True,True,Anglosphere ex-US
+A5027072710,Rui Sun,2007,2026,40,Sinic,False,,True,2015.0,2007.0,True,True,Sinic
+A5066413340,Danilo F. Câmara,2010,2013,2,Other Civilizations,False,,True,2010.0,,False,False,
 A5001854734,Isabel dos‐Santos‐Silva,2005,2023,43,Anglosphere ex-US,True,2010.0,True,2013.0,2005.0,True,True,Anglosphere ex-US
-A5010681007,A. P. Shanthi,2003,2025,25,Hindu,False,,True,2008.0,2025.0,True,True,Hindu
+A5010681007,A. P. Shanthi,2003,2025,25,Hindu,False,,True,2008.0,2005.0,True,True,Hindu
 A5101759281,Pierre Olivier,2011,2026,36,Continental Europe,False,,True,2019.0,2021.0,True,True,Anglosphere ex-US
-A5091791985,Oksana Oborska,2014,2025,13,Other Civilizations,False,,True,2015.0,,False,True,
-A5024926698,Ramesh K. Bhukya,2014,2026,29,Hindu,False,,True,2014.0,,False,True,Hindu
-A5100375832,Tao Zhang,2005,2025,42,Sinic,False,,False,,2025.0,True,True,Sinic
-A5068394403,Alexis Conneau,2016,2023,62,Other Western,True,2018.0,True,2017.0,2020.0,True,True,Other Western
-A5017116101,Soumya Sankar Ghosh,2016,2025,21,Hindu,False,,True,2023.0,2024.0,True,True,Hindu
-A5089742770,Michał Zawadzki,2005,2024,14,Continental Europe,False,,False,,,False,True,Continental Europe
-A5036161813,Norbert Preining,2002,2018,24,Continental Europe,False,,True,2007.0,,False,False,
-A5086316879,Jihong Guan,2001,2026,159,Sinic,False,,True,2009.0,2008.0,True,True,Sinic
-A5056657952,Hongxin Hu,2007,2026,117,United States,False,,True,2008.0,2014.0,True,True,United States
-A5056657508,Sitaresmi Wahyu Handani,2015,2026,12,Islamic,True,2021.0,True,2016.0,,False,True,Islamic
+A5091791985,Oksana Oborska,2014,2025,13,Other Civilizations,False,,True,2015.0,2014.0,True,True,
+A5024926698,Ramesh K. Bhukya,2014,2026,29,Hindu,False,,True,2014.0,2019.0,True,True,Hindu
+A5100375832,Tao Zhang,2005,2025,42,Sinic,False,,False,,2005.0,True,True,Sinic
+A5049520397,Arei Kobayashi,2001,2019,8,Japanese,False,,False,,2018.0,True,False,
+A5016305751,Dachao Liu,2012,2013,2,United States,False,,False,,,False,False,
+A5029796352,Kanwarpreet Sethi,2009,2010,3,United States,False,,True,2009.0,2009.0,True,False,
+A5068394403,Alexis Conneau,2016,2023,62,Other Western,True,2018.0,True,2017.0,2016.0,True,True,Other Western
+A5017116101,Soumya Sankar Ghosh,2016,2025,21,Hindu,False,,False,,2016.0,True,True,Hindu
+A5089742770,Michał Zawadzki,2005,2024,14,Continental Europe,False,,False,,2005.0,True,True,Continental Europe
+A5036161813,Norbert Preining,2002,2018,24,Continental Europe,False,,True,2007.0,2002.0,True,False,
+A5086316879,Jihong Guan,2001,2026,159,Sinic,False,,True,2009.0,2002.0,True,True,Sinic
+A5034071037,Cesare Massone,2006,2018,6,Continental Europe,False,,True,2007.0,,False,False,
+A5056657952,Hongxin Hu,2007,2026,117,United States,False,,True,2008.0,2007.0,True,True,United States
+A5056657508,Sitaresmi Wahyu Handani,2015,2026,12,Islamic,True,2021.0,True,2016.0,2015.0,True,True,Islamic
+A5056027859,Kashyap Bhansali,2014,2015,2,Hindu,False,,False,,,False,False,
+A5000265496,Doron Shmilovitz,2010,2023,3,Other Western,False,,False,,2010.0,True,True,Sinic
+A5109304024,Yan Guan,2007,2024,9,Sinic,False,,False,,2007.0,True,True,
 A5056730046,O. V. Astafiev,2000,2025,78,Japanese,False,,True,2002.0,2010.0,True,True,Other Civilizations
-A5020714424,Koichi Yamagata,2010,2026,26,Japanese,True,2013.0,True,2011.0,,False,True,Japanese
-A5043105133,Subhadip Basu,2009,2026,48,Hindu,False,,True,2012.0,2017.0,True,True,Hindu
-A5003924435,Debanjan Mahata,2000,2026,82,Hindu,False,,False,,2019.0,True,True,United States
-A5015315345,Owen Conlan,2001,2026,75,Anglosphere ex-US,True,2007.0,True,2001.0,2012.0,True,True,Anglosphere ex-US
+A5087322025,Melissa D. Clarkson,2012,2026,9,United States,False,,False,,2012.0,True,True,United States
+A5083988884,Chaker Mezioud,2009,2025,8,Islamic,False,,True,2016.0,,False,True,Islamic
+A5054217176,Youngsung Kim,2016,2026,4,United States,False,,True,2016.0,2026.0,True,True,
+A5020714424,Koichi Yamagata,2010,2026,26,Japanese,True,2013.0,True,2012.0,2010.0,True,True,Japanese
+A5043105133,Subhadip Basu,2009,2026,48,Hindu,False,,True,2012.0,2010.0,True,True,Hindu
+A5112142266,Nupur Chakraborty,2016,2017,2,Hindu,False,,False,,2016.0,True,False,
+A5003924435,Debanjan Mahata,2000,2026,82,Hindu,False,,False,,2000.0,True,True,United States
+A5015315345,Owen Conlan,2001,2026,75,Anglosphere ex-US,True,2007.0,True,2001.0,2002.0,True,True,Anglosphere ex-US
 A5012466506,Fuming Fang,2014,2025,25,Japanese,False,,True,2016.0,,False,True,United States
-A5031118344,Hailin Li,2004,2026,60,Sinic,True,2004.0,True,2011.0,2018.0,True,True,Sinic
-A5020710269,Boris Brandherm,2002,2023,19,Continental Europe,True,2008.0,True,2003.0,,False,True,Continental Europe
-A5062217711,Lisa Gandy,2006,2026,16,United States,False,,True,2013.0,,False,True,United States
-A5038657872,Donald E. K. Martin,2001,2026,22,United States,False,,False,,,False,True,United States
+A5031118344,Hailin Li,2004,2026,60,Sinic,True,2004.0,True,2011.0,2004.0,True,True,Sinic
+A5020710269,Boris Brandherm,2002,2023,19,Continental Europe,True,2008.0,True,2003.0,2002.0,True,True,Continental Europe
+A5062217711,Lisa Gandy,2006,2026,16,United States,False,,True,2013.0,2012.0,True,True,United States
+A5038657872,Donald E. K. Martin,2001,2026,22,United States,False,,False,,2001.0,True,True,United States
+A5039472305,Kai Liu,2013,2016,3,Sinic,False,,True,2016.0,,False,False,
 A5104013659,Dorria Salem,2015,2021,14,Islamic,False,,True,2017.0,,False,True,
-A5012148158,Bijan Davvaz,2001,2026,139,Islamic,False,,True,2004.0,2023.0,True,True,Islamic
-A5067997502,Yashar Mehdad,2009,2025,113,Continental Europe,True,2012.0,True,2009.0,2020.0,True,True,Other Western
-A5029325643,D. P. Acharjya,2008,2025,44,Hindu,False,,True,2012.0,,False,True,Hindu
-A5013599940,Anne-Lyse Minard,2009,2024,48,Continental Europe,False,,True,2010.0,,False,True,Continental Europe
-A5069889717,Mario Graff,2005,2026,82,Anglosphere ex-US,True,2005.0,True,2010.0,2014.0,True,True,Other Civilizations
-A5060007938,Huijing Zhao,2005,2023,45,Japanese,True,2007.0,True,2005.0,,False,True,Sinic
-A5058396473,Sachi Nandan Mohanty,2014,2026,114,Hindu,False,,True,2018.0,2021.0,True,True,Hindu
-A5100681555,Yabin Zhang,2010,2025,23,Sinic,False,,True,2018.0,,False,True,Sinic
-A5016474951,Kenji Tokuo,2003,2026,17,Japanese,False,,False,,,False,True,Japanese
-A5090325019,Sankaranarayanan Ananthakrishnan,2003,2026,46,United States,False,,True,2003.0,2021.0,True,True,Hindu
-A5030362118,Fábio M. F. Lobato,2015,2026,35,Other Civilizations,True,2019.0,True,2015.0,,False,True,Other Civilizations
-A5089866154,Nobu‐Hisa Kaneko,2014,2026,18,Japanese,False,,False,,2023.0,True,True,Japanese
-A5004168101,António R. C. Paiva,2006,2023,20,United States,False,,True,2008.0,,False,True,United States
-A5057170229,Hanna Mazzawi,2006,2026,31,Other Western,False,,True,2010.0,,False,True,
+A5012148158,Bijan Davvaz,2001,2026,139,Islamic,False,,True,2004.0,2001.0,True,True,Islamic
+A5067997502,Yashar Mehdad,2009,2025,113,Continental Europe,True,2012.0,True,2009.0,2009.0,True,True,Other Western
+A5029325643,D. P. Acharjya,2008,2025,44,Hindu,False,,True,2012.0,2015.0,True,True,Hindu
+A5013599940,Anne-Lyse Minard,2009,2024,48,Continental Europe,False,,True,2010.0,2009.0,True,True,Continental Europe
+A5069889717,Mario Graff,2005,2026,82,Anglosphere ex-US,True,2005.0,True,2010.0,2005.0,True,True,Other Civilizations
+A5018936613,Sven Anderson,2008,2009,2,Continental Europe,False,,False,,2009.0,True,False,
+A5060007938,Huijing Zhao,2005,2023,45,Japanese,True,2007.0,True,2005.0,2008.0,True,True,Sinic
+A5101403750,Meng Zhang,2007,2025,6,Sinic,False,,False,,2007.0,True,True,
+A5058396473,Sachi Nandan Mohanty,2014,2026,114,Hindu,False,,True,2018.0,2016.0,True,True,Hindu
+A5100681555,Yabin Zhang,2010,2025,23,Sinic,False,,True,2018.0,2010.0,True,True,Sinic
+A5016474951,Kenji Tokuo,2003,2026,17,Japanese,False,,False,,2003.0,True,True,Japanese
+A5102866931,О. В. Карпенко,2006,2025,2,Other Civilizations,False,,False,,2006.0,True,True,
+A5012167692,Luay Azzam,2007,2009,9,United States,False,,True,2007.0,2008.0,True,False,
+A5090325019,Sankaranarayanan Ananthakrishnan,2003,2026,46,United States,False,,True,2003.0,2007.0,True,True,Hindu
+A5030362118,Fábio M. F. Lobato,2015,2026,35,Other Civilizations,True,2019.0,True,2015.0,2016.0,True,True,Other Civilizations
+A5001299598,Laurence Bisht,2004,2007,3,Other Western,False,,False,,,False,False,
+A5089866154,Nobu‐Hisa Kaneko,2014,2026,18,Japanese,False,,False,,2014.0,True,True,Japanese
+A5004168101,António R. C. Paiva,2006,2023,20,United States,False,,True,2008.0,2007.0,True,True,United States
+A5057170229,Hanna Mazzawi,2006,2026,31,Other Western,False,,True,2013.0,2006.0,True,True,
 A5088935034,Najwa Aaraj,2007,2024,30,United States,False,,True,2008.0,2022.0,True,True,Islamic
-A5100740023,Jiannong Cao,2000,2026,232,Sinic,False,,True,2003.0,2020.0,True,True,Sinic
+A5100740023,Jiannong Cao,2000,2026,232,Sinic,False,,True,2003.0,2003.0,True,True,Sinic
+A5033346068,Madhavan Pallan,2016,2021,3,Hindu,False,,False,,,False,True,Hindu
 A5089608165,Marx Viana,2015,2026,26,Other Civilizations,False,,False,,,False,True,Other Civilizations
-A5042808286,Y. Sri Lalitha,2011,2024,10,Hindu,False,,False,,,False,True,Hindu
-A5039544387,Seid Muhie Yimam,2013,2025,91,Continental Europe,True,2016.0,True,2013.0,2023.0,True,True,Continental Europe
-A5004347851,Plácido A. Souza Neto,2009,2024,14,Other Civilizations,True,2014.0,True,2015.0,,False,True,Continental Europe
-A5000569191,Oren Weimann,2005,2024,66,United States,True,2005.0,True,2007.0,2011.0,True,True,Other Western
-A5101630133,Sunny Wong,2009,2018,10,United States,False,,True,2009.0,,False,False,
-A5032910899,Tatiana Mora Kuplich,2000,2022,11,Anglosphere ex-US,False,,True,2000.0,,False,True,Other Civilizations
-A5009282836,Muhammad Adnan Khan,2016,2026,110,Islamic,True,2021.0,True,2020.0,2021.0,True,True,Islamic
-A5100719462,Kui Yu,2004,2026,143,Sinic,False,,True,2010.0,2021.0,True,True,Sinic
-A5054484216,Christin Seifert,2004,2026,160,Continental Europe,False,,True,2008.0,2013.0,True,True,Continental Europe
-A5004375212,Stavros Shiaeles,2012,2025,41,Continental Europe,True,2018.0,True,2012.0,,False,True,Anglosphere ex-US
-A5041284015,Pablo Rodríguez-Ramírez,2010,2023,11,Other Civilizations,False,,False,,,False,True,Other Civilizations
-A5007649650,Jennifer Horkoff,2005,2025,97,Anglosphere ex-US,True,2010.0,True,2005.0,2013.0,True,True,Continental Europe
-A5007541022,Manuel Kauers,2002,2026,71,Continental Europe,True,2007.0,True,2006.0,,False,True,Continental Europe
-A5008847407,Joseph Keshet,2001,2026,131,Other Western,True,2007.0,True,2002.0,2018.0,True,True,Other Western
-A5101923452,Zhenjie Zhang,2013,2024,11,Sinic,False,,False,,,False,True,Sinic
-A5100382146,Xiaolu Li,2007,2026,1227,Sinic,True,2007.0,True,2007.0,,False,True,United States
-A5071082149,Mohamed Djamel Mouss,2013,2026,18,Islamic,False,,True,2014.0,,False,True,Islamic
-A5080674921,Daniel Hershcovich,2014,2026,111,Other Western,True,2014.0,True,2014.0,2023.0,True,True,Continental Europe
-A5047844943,Cătălin Stoean,2004,2026,89,Continental Europe,False,,True,2004.0,2025.0,True,True,Continental Europe
-A5109903215,M. Yachida,2002,2005,11,Japanese,False,,False,,,False,False,
-A5066190049,Valerie McCormack,2007,2025,36,Anglosphere ex-US,True,2009.0,True,2007.0,2016.0,True,True,Continental Europe
-A5082304130,Nando de Freitas,2000,2023,187,United States,True,2002.0,True,2000.0,2015.0,True,True,Anglosphere ex-US
-A5023928504,Jagdish Chand Bansal,2008,2026,127,Hindu,False,,True,2011.0,2021.0,True,True,Hindu
-A5054133174,Paulo Maciel,2004,2025,70,Other Civilizations,False,,True,2009.0,2013.0,True,True,Other Civilizations
-A5101617303,David Garber,2001,2021,15,Other Western,False,,True,2005.0,,False,True,Other Western
-A5025240237,Constantine Lignos,2009,2026,64,United States,False,,True,2009.0,,False,True,United States
-A5115603095,Yiqiao Wang,2003,2025,19,Anglosphere ex-US,False,,True,2003.0,,False,True,Sinic
-A5079066445,François Portet,2006,2025,155,Anglosphere ex-US,True,2009.0,True,2007.0,2010.0,True,True,Continental Europe
+A5042808286,Y. Sri Lalitha,2011,2024,10,Hindu,False,,False,,2019.0,True,True,Hindu
+A5039544387,Seid Muhie Yimam,2013,2025,91,Continental Europe,True,2016.0,True,2013.0,2014.0,True,True,Continental Europe
+A5101705580,Jordan Doyle,2007,2009,2,Anglosphere ex-US,False,,True,2007.0,,False,False,
+A5004347851,Plácido A. Souza Neto,2009,2024,14,Other Civilizations,True,2014.0,True,2015.0,2009.0,True,True,Continental Europe
+A5000569191,Oren Weimann,2005,2024,66,United States,True,2005.0,True,2007.0,2005.0,True,True,Other Western
+A5006252554,Lev Koushnir,2007,2010,2,Other Western,False,,False,,2007.0,True,False,
+A5101630133,Sunny Wong,2009,2018,10,United States,False,,True,2009.0,2010.0,True,False,
+A5032910899,Tatiana Mora Kuplich,2000,2022,11,Anglosphere ex-US,False,,True,2000.0,2001.0,True,True,Other Civilizations
+A5091909333,Phillip Reeder,2013,2025,5,United States,False,,True,2013.0,,False,True,United States
+A5009282836,Muhammad Adnan Khan,2016,2026,110,Islamic,True,2021.0,True,2020.0,2016.0,True,True,Islamic
+A5100719462,Kui Yu,2004,2026,143,Sinic,False,,True,2010.0,2004.0,True,True,Sinic
+A5054484216,Christin Seifert,2004,2026,160,Continental Europe,False,,True,2008.0,2005.0,True,True,Continental Europe
+A5004375212,Stavros Shiaeles,2012,2025,41,Continental Europe,True,2018.0,True,2012.0,2020.0,True,True,Anglosphere ex-US
+A5041284015,Pablo Rodríguez-Ramírez,2010,2023,11,Other Civilizations,False,,False,,2010.0,True,True,Other Civilizations
+A5023741297,Avideh Sabeti,2012,2014,3,Anglosphere ex-US,False,,False,,2012.0,True,False,
+A5035111977,Christian Rubio-Montiel,2016,2024,4,Other Civilizations,False,,False,,2016.0,True,True,Other Civilizations
+A5007649650,Jennifer Horkoff,2005,2025,97,Anglosphere ex-US,True,2010.0,True,2005.0,2012.0,True,True,Continental Europe
+A5007541022,Manuel Kauers,2002,2026,71,Continental Europe,True,2007.0,False,,2004.0,True,True,Continental Europe
+A5014688537,Hiroyasu Matsuura,2013,2024,2,Japanese,False,,False,,,False,True,
+A5008847407,Joseph Keshet,2001,2026,131,Other Western,True,2007.0,True,2002.0,2007.0,True,True,Other Western
+A5101923452,Zhenjie Zhang,2013,2024,11,Sinic,False,,False,,2020.0,True,True,Sinic
+A5100382146,Xiaolu Li,2007,2026,1227,Sinic,True,2007.0,True,2007.0,2009.0,True,True,United States
+A5071082149,Mohamed Djamel Mouss,2013,2026,18,Islamic,False,,True,2014.0,2013.0,True,True,Islamic
+A5080674921,Daniel Hershcovich,2014,2026,111,Other Western,True,2014.0,True,2014.0,2020.0,True,True,Continental Europe
+A5069970288,Kirti S. Pande,2015,2025,3,Hindu,False,,False,,2025.0,True,True,Hindu
+A5081113047,Haifeng Man,2010,2011,3,Japanese,False,,False,,,False,False,
+A5047844943,Cătălin Stoean,2004,2026,89,Continental Europe,False,,True,2004.0,2006.0,True,True,Continental Europe
+A5109903215,M. Yachida,2002,2005,11,Japanese,False,,False,,2002.0,True,False,
+A5025786249,Chengming Tan,2015,2023,6,Sinic,False,,False,,2021.0,True,True,Sinic
+A5028766687,Utkarsh Dwivedi,2015,2026,7,Hindu,True,2018.0,True,2020.0,,False,True,United States
+A5066190049,Valerie McCormack,2007,2025,36,Anglosphere ex-US,True,2009.0,True,2007.0,2012.0,True,True,Continental Europe
+A5082304130,Nando de Freitas,2000,2023,187,United States,True,2002.0,True,2000.0,2002.0,True,True,Anglosphere ex-US
+A5023928504,Jagdish Chand Bansal,2008,2026,127,Hindu,False,,True,2011.0,2008.0,True,True,Hindu
+A5054133174,Paulo Maciel,2004,2025,70,Other Civilizations,False,,True,2009.0,2008.0,True,True,Other Civilizations
+A5109255961,G. Mergen,2004,2008,7,United States,True,2008.0,True,2004.0,2008.0,True,False,
+A5101617303,David Garber,2001,2021,15,Other Western,False,,True,2005.0,2005.0,True,True,Other Western
+A5025240237,Constantine Lignos,2009,2026,64,United States,False,,True,2009.0,2010.0,True,True,United States
+A5115603095,Yiqiao Wang,2003,2025,19,Anglosphere ex-US,False,,True,2003.0,2005.0,True,True,Sinic
+A5079066445,François Portet,2006,2025,155,Anglosphere ex-US,True,2009.0,True,2007.0,2007.0,True,True,Continental Europe
 A5079450164,Hiraku Toida,2015,2024,15,Japanese,False,,True,2015.0,,False,True,Japanese
-A5001760915,Zhuowen Tu,2000,2026,130,United States,False,,True,2002.0,2014.0,True,True,United States
-A5077907139,Asif Ali Laghari,2016,2026,52,Sinic,True,2018.0,True,2016.0,2022.0,True,True,Islamic
-A5014035752,Dhruv Batra,2008,2024,207,United States,False,,True,2010.0,2016.0,True,True,United States
-A5039485950,Neetesh Gupta,2010,2025,25,Hindu,True,2012.0,True,2012.0,,False,True,Hindu
-A5052594698,Naif Alajlan,2011,2023,38,Islamic,False,,True,2012.0,2022.0,True,True,Islamic
-A5009361897,Stefan Strecker,2003,2022,29,Anglosphere ex-US,True,2007.0,True,2004.0,,False,True,Continental Europe
-A5015883801,Feng Duan,2005,2026,18,Sinic,False,,True,2012.0,2025.0,True,True,Sinic
-A5087762412,Shan Carter,2016,2026,15,United States,False,,True,2017.0,2020.0,True,True,
-A5007281490,Valentina Presutti,2003,2025,192,Continental Europe,True,2006.0,True,2003.0,2010.0,True,True,Continental Europe
-A5030313547,Frank Schlawin,2012,2026,49,United States,True,2013.0,True,2013.0,,False,True,Continental Europe
-A5073381909,Ritse M. Mann,2012,2026,163,Continental Europe,True,2014.0,True,2012.0,2017.0,True,True,Continental Europe
-A5091318289,Alireza Khalili Asboei,2012,2025,30,Islamic,False,,True,2012.0,,False,True,Islamic
-A5101435312,Hao Qin,2008,2026,18,Sinic,False,,False,,,False,True,Sinic
-A5061353810,Ignazio Stanganelli,2003,2025,10,Continental Europe,True,2004.0,True,2003.0,,False,True,Continental Europe
-A5073812421,Niloy Ganguly,2001,2026,192,Hindu,True,2003.0,True,2002.0,2016.0,True,True,Hindu
-A5014081539,Heidar Davoudi,2014,2026,29,Sinic,True,2015.0,True,2018.0,,False,True,Anglosphere ex-US
-A5026269420,Abir De,2012,2026,48,Hindu,False,,True,2015.0,2024.0,True,True,Hindu
-A5027726692,Luiz André P. Paes Leme,2006,2025,68,Other Civilizations,True,2009.0,True,2008.0,2016.0,True,True,Other Civilizations
-A5050327492,Frédéric Blain,2011,2026,55,Continental Europe,True,2014.0,True,2012.0,2017.0,True,True,Anglosphere ex-US
-A5069723364,Andrew Thangaraj,2000,2026,55,United States,True,2004.0,True,2006.0,,False,True,Hindu
-A5061291906,Yi‐Hsuan Yang,2006,2025,48,Sinic,False,,True,2006.0,2019.0,True,True,Sinic
-A5107868825,P. Chigansky,2000,2012,10,United States,True,2000.0,True,2004.0,,False,False,
-A5103157860,Jing Xu,2001,2025,56,Sinic,True,2005.0,True,2005.0,,False,True,Sinic
-A5101431627,Adam Morrison,2012,2025,40,Other Western,True,2018.0,True,2012.0,,False,True,Other Western
-A5102820732,Qin Xin,2006,2021,10,Continental Europe,True,2008.0,False,,,False,True,Other Western
-A5100380723,Dan Li,2013,2025,42,Sinic,True,2015.0,True,2016.0,2018.0,True,True,Sinic
-A5012055259,Preslav Nakov,2000,2026,628,Continental Europe,True,2003.0,True,2002.0,2004.0,True,True,Islamic
-A5026251377,Vasileios Giotsas,2011,2023,26,Anglosphere ex-US,True,2015.0,True,2012.0,,False,True,Anglosphere ex-US
-A5034936246,Sarika Jain,2007,2025,117,Hindu,False,,True,2008.0,,False,True,Hindu
-A5050791184,Anarosa A. F. Brandão,2003,2026,67,Other Civilizations,False,,True,2003.0,2023.0,True,True,Other Civilizations
-A5031903611,S. E. Borisovsky,2014,2025,24,Other Civilizations,False,,False,,2023.0,True,True,Other Civilizations
-A5025736293,Ik Rae Jeong,2000,2026,53,Sinic,False,,True,2004.0,,False,True,Sinic
-A5091078914,Song Fang,2010,2023,15,Sinic,True,2016.0,True,2016.0,,False,True,United States
-A5012817481,Hiroaki Tsushima,2005,2021,62,Japanese,False,,True,2005.0,2011.0,True,True,Japanese
-A5047549045,Dipti Misra Sharma,2002,2026,160,Hindu,False,,True,2008.0,2013.0,True,True,Hindu
-A5035338424,Norris Syed Abdullah,2011,2024,13,Anglosphere ex-US,True,2012.0,True,2012.0,,False,True,Islamic
-A5031401755,Leo Anthony Celi,2011,2026,198,United States,True,2014.0,True,2011.0,2017.0,True,True,United States
-A5006011837,Sumit Chakraborty,2005,2021,14,Hindu,False,,True,2007.0,,False,True,Hindu
-A5008701404,Juan P. Aguilera,2016,2025,28,Continental Europe,False,,False,,,False,True,Continental Europe
-A5010072422,Julius Beneoluchi Odili,2015,2025,35,Islamic,True,2020.0,True,2015.0,,False,True,Other Civilizations
-A5023417619,Shunyi Zhao,2011,2026,106,Sinic,True,2015.0,True,2012.0,,False,True,Sinic
-A5027026724,Miikka Silfverberg,2009,2026,80,Continental Europe,False,,True,2009.0,2013.0,True,True,Anglosphere ex-US
-A5002568654,Shuntaro Takeda,2011,2026,86,Japanese,False,,True,2011.0,2022.0,True,True,Japanese
-A5069519097,Firmanul Catur Wıbowo,2013,2026,15,Islamic,False,,False,,2022.0,True,True,Islamic
-A5100704639,Fusheng Wang,2003,2025,111,United States,False,,True,2003.0,2012.0,True,True,United States
-A5102838644,Asoka S. Karunananda,2005,2023,62,Hindu,True,2006.0,False,,2008.0,True,True,Hindu
+A5001760915,Zhuowen Tu,2000,2026,130,United States,False,,True,2002.0,2002.0,True,True,United States
+A5101708894,Anuj Kumar Singh,2013,2025,7,Hindu,True,2017.0,False,,2024.0,True,True,Hindu
+A5029804415,David Shepard,2014,2021,7,United States,False,,False,,2014.0,True,True,United States
+A5034784073,Chandrama Shaw,2002,2008,6,Hindu,True,2008.0,True,2003.0,,False,False,
+A5077907139,Asif Ali Laghari,2016,2026,52,Sinic,True,2018.0,True,2016.0,2016.0,True,True,Islamic
+A5014035752,Dhruv Batra,2008,2024,207,United States,False,,True,2010.0,2012.0,True,True,United States
+A5101828256,Zhenwei Chen,2011,2021,7,Sinic,False,,False,,2011.0,True,True,Sinic
+A5039485950,Neetesh Gupta,2010,2025,25,Hindu,True,2012.0,True,2012.0,2012.0,True,True,Hindu
+A5058038285,Margot Vander Laenen,2016,2024,2,Continental Europe,False,,True,2016.0,,False,True,Continental Europe
+A5052594698,Naif Alajlan,2011,2023,38,Islamic,False,,True,2012.0,2011.0,True,True,Islamic
+A5009361897,Stefan Strecker,2003,2022,29,Anglosphere ex-US,True,2007.0,True,2004.0,2003.0,True,True,Continental Europe
+A5015883801,Feng Duan,2005,2026,18,Sinic,False,,True,2012.0,2005.0,True,True,Sinic
+A5037178809,Nguihdama Dagwai,2014,2024,3,Other Civilizations,False,,False,,,False,True,Other Civilizations
+A5087762412,Shan Carter,2016,2026,15,United States,False,,True,2017.0,2016.0,True,True,
+A5103493809,Noriyuki Taniguchi,2004,2007,5,Japanese,False,,False,,,False,False,
+A5007281490,Valentina Presutti,2003,2025,192,Continental Europe,True,2006.0,True,2003.0,2004.0,True,True,Continental Europe
+A5030313547,Frank Schlawin,2012,2026,49,United States,True,2013.0,True,2013.0,2016.0,True,True,Continental Europe
+A5073381909,Ritse M. Mann,2012,2026,164,Continental Europe,True,2014.0,True,2012.0,2017.0,True,True,Continental Europe
+A5091318289,Alireza Khalili Asboei,2012,2025,30,Islamic,False,,True,2012.0,2013.0,True,True,Islamic
+A5055223398,Efraim Shmerling,2006,2016,7,Other Western,False,,False,,2006.0,True,False,
+A5101435312,Hao Qin,2008,2026,18,Sinic,False,,False,,2012.0,True,True,Sinic
+A5017477052,Ali Areshey,2011,2024,8,Islamic,False,,True,2017.0,2011.0,True,True,Islamic
+A5061353810,Ignazio Stanganelli,2003,2025,10,Continental Europe,True,2004.0,True,2003.0,2021.0,True,True,Continental Europe
+A5073812421,Niloy Ganguly,2001,2026,192,Hindu,True,2003.0,True,2002.0,2007.0,True,True,Hindu
+A5014081539,Heidar Davoudi,2014,2026,29,Sinic,True,2015.0,True,2018.0,2020.0,True,True,Anglosphere ex-US
+A5026269420,Abir De,2012,2026,48,Hindu,False,,True,2015.0,2015.0,True,True,Hindu
+A5027726692,Luiz André P. Paes Leme,2006,2025,68,Other Civilizations,True,2009.0,True,2008.0,2006.0,True,True,Other Civilizations
+A5050327492,Frédéric Blain,2011,2026,55,Continental Europe,True,2014.0,True,2012.0,2012.0,True,True,Anglosphere ex-US
+A5069723364,Andrew Thangaraj,2000,2026,55,United States,True,2004.0,True,2006.0,2005.0,True,True,Hindu
+A5061291906,Yi‐Hsuan Yang,2006,2025,48,Sinic,False,,True,2006.0,2012.0,True,True,Sinic
+A5107868825,P. Chigansky,2000,2012,10,Other Western,True,2000.0,True,2004.0,2006.0,True,False,
+A5103157860,Jing Xu,2001,2025,56,Sinic,True,2005.0,True,2005.0,2001.0,True,True,Sinic
+A5101431627,Adam Morrison,2012,2025,40,Other Western,True,2018.0,True,2012.0,2018.0,True,True,Other Western
+A5045063390,Noor Osama Aqqad,2016,2017,6,Islamic,False,,True,2016.0,2016.0,True,False,
+A5102820732,Qin Xin,2006,2021,10,Continental Europe,True,2008.0,False,,2006.0,True,True,Other Western
+A5079132347,Shahid Khan,2005,2024,6,Islamic,True,2005.0,False,,2005.0,True,True,Islamic
+A5100380723,Dan Li,2013,2025,42,Sinic,True,2015.0,True,2016.0,2013.0,True,True,Sinic
+A5109153580,Madhuri Arya,2011,2014,2,Hindu,False,,False,,,False,False,
+A5012055259,Preslav Nakov,2000,2026,628,Continental Europe,True,2003.0,True,2002.0,2000.0,True,True,Islamic
+A5026251377,Vasileios Giotsas,2011,2023,26,Anglosphere ex-US,True,2015.0,True,2012.0,2014.0,True,True,Anglosphere ex-US
+A5108049312,Yufei Liu,2013,2023,6,Sinic,True,2013.0,True,2014.0,2013.0,True,True,Sinic
+A5034936246,Sarika Jain,2007,2025,117,Hindu,False,,True,2008.0,2007.0,True,True,Hindu
+A5050791184,Anarosa A. F. Brandão,2003,2026,67,Other Civilizations,False,,True,2003.0,2006.0,True,True,Other Civilizations
+A5031903611,S. E. Borisovsky,2014,2025,24,Other Civilizations,False,,False,,2019.0,True,True,Other Civilizations
+A5025736293,Ik Rae Jeong,2000,2026,53,Sinic,False,,True,2004.0,2012.0,True,True,Sinic
+A5091078914,Song Fang,2010,2023,15,Sinic,True,2016.0,True,2016.0,2010.0,True,True,United States
+A5012817481,Hiroaki Tsushima,2005,2021,62,Japanese,False,,True,2005.0,2007.0,True,True,Japanese
+A5047549045,Dipti Misra Sharma,2002,2026,160,Hindu,False,,True,2008.0,2008.0,True,True,Hindu
+A5015921717,I. M. Simanovich,2004,2011,3,Other Civilizations,False,,False,,2009.0,True,False,
+A5035338424,Norris Syed Abdullah,2011,2024,13,Anglosphere ex-US,True,2012.0,True,2012.0,2011.0,True,True,Islamic
+A5031401755,Leo Anthony Celi,2011,2026,199,United States,True,2014.0,True,2011.0,2016.0,True,True,United States
+A5006011837,Sumit Chakraborty,2005,2021,14,Hindu,False,,True,2007.0,2010.0,True,True,Hindu
+A5082172042,J. Castor,2001,2006,4,Continental Europe,False,,False,,,False,False,
+A5008701404,Juan P. Aguilera,2016,2025,28,Continental Europe,False,,False,,2016.0,True,True,Continental Europe
+A5010072422,Julius Beneoluchi Odili,2015,2025,35,Islamic,True,2020.0,True,2015.0,2017.0,True,True,Other Civilizations
+A5023417619,Shunyi Zhao,2011,2026,106,Sinic,True,2015.0,True,2012.0,2014.0,True,True,Sinic
+A5027026724,Miikka Silfverberg,2009,2026,80,Continental Europe,False,,True,2009.0,2010.0,True,True,Anglosphere ex-US
+A5002568654,Shuntaro Takeda,2011,2026,86,Japanese,False,,True,2011.0,2021.0,True,True,Japanese
+A5069519097,Firmanul Catur Wıbowo,2013,2026,15,Islamic,False,,False,,2013.0,True,True,Islamic
+A5100704639,Fusheng Wang,2003,2025,111,United States,False,,True,2003.0,2007.0,True,True,United States
+A5102838644,Asoka S. Karunananda,2005,2023,62,Hindu,True,2006.0,False,,2006.0,True,True,Hindu
 A5112404902,Ahmad Rofiq Hakim,2012,2021,10,Islamic,False,,False,,,False,True,Islamic
-A5101512376,Sanasam Ranbir Singh,2003,2026,79,Hindu,False,,True,2010.0,2024.0,True,True,Hindu
-A5057850155,C. Maria Keet,2005,2025,171,Continental Europe,True,2011.0,True,2006.0,,False,True,Other Civilizations
+A5101512376,Sanasam Ranbir Singh,2003,2026,79,Hindu,False,,True,2010.0,2003.0,True,True,Hindu
+A5066638693,Carme Sala,2004,2020,7,Continental Europe,False,,False,,2005.0,True,True,
+A5103171999,Pingping Gu,2016,2023,4,Sinic,False,,False,,,False,True,Sinic
+A5066780369,Manish Rana,2016,2025,4,Hindu,False,,True,2016.0,,False,True,Hindu
+A5057850155,C. Maria Keet,2005,2025,171,Continental Europe,True,2011.0,True,2007.0,2005.0,True,True,Other Civilizations

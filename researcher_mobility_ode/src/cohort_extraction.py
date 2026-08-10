@@ -26,10 +26,9 @@ COHORT_DIR = DATA_DIR / "cohort"
 SUBFIELD = "subfields/1702"
 CAREER_START_MIN = 2000
 CAREER_START_MAX = 2016
-MIN_WORKS = 10
+MIN_WORKS = 2
 ABROAD_WINDOW = 6
 HIT_WINDOW = 8
-PI_MIN_AUTHORS = 6
 DROPOUT_LATEST_YEAR = 2019  # no work in 2020-2023 -> dropout (as of 2023)
 
 
@@ -93,6 +92,16 @@ def author_position(work, target_aid):
         if aid == target_aid:
             return auth.get("author_position")
     return None
+
+
+def is_last_author(work, target_aid):
+    """Return True if the target author is the last author, treating a single
+    authored paper as last author by default."""
+    authorships = work.get("authorships", [])
+    if len(authorships) == 1:
+        aid = author_id_key(((authorships[0].get("author") or {})).get("id"))
+        return aid == target_aid
+    return author_position(work, target_aid) == "last"
 
 
 def is_top10(work):
@@ -176,16 +185,15 @@ def classify_author(aid, works, a2g, origin_override=None):
         y = w["publication_year"]
         if y > career_start + HIT_WINDOW:
             break
-        pos = author_position(w, aid)
-        if pos != "last" and is_top10(w):
+        if not is_last_author(w, aid) and is_top10(w):
             hit = True
             hit_year = y
             break
 
-    # PI proxy: first last-author paper with >= PI_MIN_AUTHORS authors
+    # PI proxy: first last-author paper (single-authored papers count as last)
     pi_year = None
     for w in works:
-        if author_position(w, aid) == "last" and len(w.get("authorships", [])) >= PI_MIN_AUTHORS:
+        if is_last_author(w, aid):
             pi_year = w["publication_year"]
             break
 
@@ -406,7 +414,7 @@ def main():
                         help="OpenAlex subfield ID to build the cohort for.")
     parser.add_argument("--output-dir", type=str, default=str(COHORT_DIR),
                         help="Directory to write cohort.csv, transition_rates.csv and raw_sampled_works.json.")
-    parser.add_argument("--min-works", type=int, default=10,
+    parser.add_argument("--min-works", type=int, default=2,
                         help="Minimum number of works in the target subfield for an author to be included.")
     parser.add_argument("--cache-dir", type=str, default=str(CACHE_DIR))
     parser.add_argument("--no-cache", action="store_true")
