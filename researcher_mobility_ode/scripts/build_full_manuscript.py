@@ -16,6 +16,7 @@ import argparse
 import math
 import os
 import sys
+import zipfile
 from pathlib import Path
 
 # Make local packages importable
@@ -2555,6 +2556,15 @@ def main():
     print(f"Wrote {docx_path}")
     print(f"Wrote {pptx_path}")
     print(f"Figures saved to {fig_dir}")
+
+    # Build a submission zip containing the manuscript, editable figures, and PNGs
+    zip_path = output_dir / "manuscript_full_article_submission.zip"
+    with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
+        for path in [docx_path, pptx_path, md_path]:
+            zf.write(path, arcname=path.name)
+        for fig in sorted(fig_dir.glob("*.png")):
+            zf.write(fig, arcname=f"figures/{fig.name}")
+    print(f"Wrote {zip_path}")
 
 
 if __name__ == "__main__":
