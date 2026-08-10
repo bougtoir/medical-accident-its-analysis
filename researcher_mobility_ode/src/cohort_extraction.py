@@ -307,7 +307,6 @@ def build_cohort(sample_per_group, max_authors, client, a2g, group_to_a2):
             works = client.fetch_works_by_authors(
                 batch, "id,publication_year,authorships,citation_normalized_percentile",
                 subfield_id=SUBFIELD,
-                publication_year=f"{CAREER_START_MIN}-2023",
             )
         except Exception as e:
             print(f"  Warning: failed to fetch batch {i}: {e}. Skipping {len(batch)} authors.")

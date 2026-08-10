@@ -40,9 +40,20 @@ class OpenAlexClient:
                 time.sleep(self.delay)
             r = self.session.get(url, params=req_params, timeout=90)
             if r.status_code in (429, 503):
+                # Fail fast if the account has run out of credits rather than
+                # sleeping for a long Retry-After window.
+                try:
+                    body = r.json()
+                except Exception:
+                    body = {}
+                if body.get("dailyRemainingUsd") == 0 or body.get("prepaidRemainingUsd") == 0:
+                    raise RuntimeError(
+                        f"OpenAlex budget exhausted ({body.get('message', 'no budget')}). "
+                        "Add credits or wait for reset before re-extracting."
+                    )
                 retry_after = r.headers.get("Retry-After")
                 if retry_after:
-                    backoff = max(1, int(retry_after))
+                    backoff = min(120, max(1, int(retry_after)))
                 else:
                     backoff = min(60, 2 ** attempt)
                 time.sleep(backoff)
