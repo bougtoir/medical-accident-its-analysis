@@ -1,18 +1,19 @@
 # 査読者視点 批判的レビュー：Research Policy full-article manuscript
 
-**対象原稿**: `docs/manuscript_full_article.docx`（生成日: 2026-08-09）  
-**検証リビジョン**: `devin/1786331050-reviewer-audit` → `devin/researcher-mobility-ode-full-article`  
+**対象原稿**: `docs/manuscript_full_article.docx`
+**検証リビジョン**: `devin/1786331050-reviewer-audit` → `devin/researcher-mobility-ode-full-article`（以後 `12024caf` まで）
 **レビュー観点**: ストーリー・フロー、伏線回収、データと主張の整合性、再現性、図表・文献の整合性
 
 ---
 
 ## 1. 実施した検証
 
-- **公開リポ再現性**: `git clone --depth=1 https://github.com/bougtoir/researcher-mobility-ode` 後に `bash reproduce.sh` を実行。`results/`、図表、docx/pptx/md/zip が再生成され、原稿掲載数値と一致。
+- **公開リポ再現性**: `git clone --depth=1 https://github.com/bougtoir/researcher-mobility-ode` 後に `bash reproduce.sh` を実行。`results/`、図表、docx/pptx/md/zip が再生成され、原稿掲載数値と一致した。
 - **機械的整合性**: `docs/manuscript_full_article.md` 内の Figure/Table 初出を抽出。Figure 1–9、Table 1–12 ともに初出順に番号が増加し、orphan/phantom なし。
-- **数値の動的生成**: `scripts/build_full_manuscript.py` が `results/endogenous/equilibrium_summary.csv`、`results/point_of_no_return.csv`、`results/annual/*.csv` 等を読み込み、本文・表・図を生成。ハードコードされた数値は確認されなかった。
-- **年度移行率スクリプトの修正圧妥当性**: `annual_rates_projection_report.py` における I_total NaN 処理、右打ち切り (right censoring) 対応、初年度 compartment 配分の訓練期全期間集計、dashed/solid 描画分離、fig_dir 引数追加を確認。
+- **数値の動的生成**: `scripts/build_full_manuscript.py` が `results/endogenous/equilibrium_summary.csv`、`results/point_of_no_return.csv`、`results/annual/*.csv`、`results/policy_counterfactuals/counterfactuals.csv` 等を読み込み、本文・表・図を生成。ハードコードされた数値は確認されなかった。
+- **年度移行率スクリプトの修正圧妥当性**: `annual_rates_projection_report.py` における I_total NaN 処理、右打ち切り (right censoring) 対応、訓練期 (2000-2016) 全体の first-compartment inflow 合計、dashed/solid 描画分離、fig_dir 引数追加を確認。
 - **Methods テキスト整合**: 修正後の docx/md で「dropout cap = 1.5 × 90th percentile」「inflow apportionment = training-period first-compartment distribution」と記述され、コードと一致。
+- **PNR 略号統一**: docx/markdown ともに "point of no return (PNR)" は Abstract と Introduction の各初出のみ 2 回で、あとは "PNR" に統一された。
 
 ---
 
@@ -29,84 +30,47 @@
 
 ---
 
-## 3. 優先度別指摘（改訂版評価）
+## 3. レビュー指摘 A–H への対応
 
-### 3.1 最優先（投稿前に必須と思われるもの）
+| 指摘 | 内容 | 対応 |
+|---|---|---|
+| **A** | Markdown セクション番号の不連続 | `scripts/build_full_manuscript.py` の `write_markdown()` 末尾で `_renumber_markdown_sections()` を呼び、全 main section を 4.1–4.6、5.1–5.9、6.1–6.7 の連番に再整備。docx はもともと連続 |
+| **B** | MAPE 42.5% の解釈 | Abstract、Results 5.7、Discussion 6.4 に「保守的・非標準的 MAPE（count_obs + 1 で計算）」「small compartments / zero-observed cells」「directional early-warning indicator, not precise count forecast」と明記 |
+| **C** | RQ4「policy packages」と single-lever counterfactual のギャップ | `results/policy_counterfactuals/counterfactuals.csv` から `package:*` 行を読み込む `_package_summary()` を追加。Results 5.3・Discussion 6.1 に「single-lever and multi-lever scenarios」として統合し、日本・Other Civilizations・Other Western の最良 2 レバー package 例を表に追加 |
+| **D** | Abstract の因果表現 | `A simulated reduction in dropout yields the largest margin gain per unit proportional change in every group in the fitted model` と「in the fitted model」を明記。Discussion 6.1 終盤・Conclusion で「mechanical perturbation」「not causal estimates」を強調 |
+| **E** | Inter-civilisation flow の proxy/lower-bound | Figure 6 キャプションを「Inter-civilisation abroad author-year accumulation ... (lower-bound proxy; year-to-year destination switches within a spell abroad are not observed)」に変更。Methods 4.10・Discussion 6.7 でも proxy であることを補足 |
+| **F** | Hindu グループ命名 | 名称はそのまま、Introduction で「India and nearby South Asian countries (Hindu)」と定義を明記。他地域名の変更はユーザー相談の上 |
+| **G** | Figure 4（bootstrap CI）の視認性 | `savefig(..., dpi=600, bbox_inches='tight')` に変更し印刷品質を確保 |
+| **H** | PNR 略号統一 | Abstract と Introduction でそれぞれ 1 度ずつ「point of no return (PNR)」を定義し、それ以降は「PNR」に統一。docx 側も `_unify_pnr_docx()` で同様に処理 |
 
-#### A. Markdown コンパニオンのセクション番号不連続
-- **問題**: `manuscript_full_article.md` のセクション番号が `4.1-4.4` の次に `4.10-4.11`、`5.1-5.5` の次に `5.6-5.8`、`6.1-6.3` の次に `6.4-6.7` と飛んでいる。docx 側は `add_numbered_heading` によって連続的に生成されている。
-- **影響**: 投稿物としては docx が正だが、GitHub/PDF 補助閲覧者や査読者が md を開いた場合、構成が混乱する。
-- **修正案**: 提出用は docx のみとし、md は `README` 等で「supplementary / not submission formatted」と明記するか、`write_markdown` に連番ロジックを適用する。
+### 追加対応
 
-#### B. 年次予測精度（RMSE 3.35 / MAPE 42.5%）の解釈強化
-- **問題**: MAPE 42.5% は高く、早期警報系としての信頼性を疑問視される可能性がある。
-- **現状**: 原稿は「small compartments and sparse transition counts」「conservative, non-standard measure computed against count_obs + 1」と説明している。
-- **修正案**: Abstract または Discussion で「MAPE が高くても、警報系としては『閾値超過』フラグや T/M の方向性を追うものであり、精密な count 予測ではない」と一段階強調すると、査読者の懸念が和らぐ。
-
-### 3.2 高優先（Major revision リスク）
-
-#### C. RQ4「policy packages」の表現と実装のギャップ
-- **問題**: Intro の RQ4 は「safety-factor-bound policy packages」としているが、Results/Discussion では single-lever counterfactual（d 減少、p_D 増加等）しか提示していない。
-- **現状**: Discussion 6.1 で「二つのレバーを同時に変えると相乗効果があると考えられる」とは書かれている。
-- **修正案**: RQ4 の文言を「safety-factor-bound single-lever and two-lever scenarios」に弱めるか、Table 7 に d-10% + p_D+10% のような 2 レバー組み合わせを追加する。
-
-#### D. 因果表現の摘要レベルでの caveat
-- **問題**: Abstract の「A simulated reduction in dropout yields the largest margin gain...」は、単独で読むと実際の政策効果を暗示しやすい。
-- **現状**: Discussion 6.1・6.7・Conclusion で「mechanical perturbation」「not causal estimates」と明示。
-- **修正案**: Abstract 最後に「in the fitted model」または「in these mechanical scenarios」を 1 語追加するか、そのままにして本文の caveat 参照を明確にする。
-
-### 3.3 中優先（Minor revision / 補足説明）
-
-#### E. Inter-civilisation flow の定義
-- **問題**: `A`（abroad early-career）は特定文明圏への流出先ではなく「海外全体」の集計。年次遷移行列の `A → D`（帰国）は実際の帰国先を区別しない。
-- **現状**: Methods 4.10 および Discussion 6.7 で proxy / lower-bound として説明。
-- **修正案**: Figure 6 のキャプションを「Inter-civilisation abroad author-years」に留め、「Inter-civilisation flows」という強い表題を避けるか、本文で「proxy」であることを追加する。
-
-#### F. 「Hindu」等の命名
-- **問題**: グループ名 "Hindu" は宗教・文明圏を指すが、対象はインドを中心とする研究者。査読者がサンプリングバイアスや命名の妥当性を問う可能性がある。
-- **現状**: Methods 3 で定義されている。
-- **修正案**: Introduction のマッピング説明で「Hindu 文明圏 = インド・ネパール・スリランカ等を含む OpenAlex サンプル」と補強する。
-
-### 3.4 任意（改善推奨）
-
-#### G. Figure 4（bootstrap CI）の視認性
-- 9 文明圏 × 箱ひげが多く、印刷サイズを超える可能性がある。高解像度 PNG (300 dpi 以上) の確認を推奨。
-
-#### H. PNR 略号の統一
-- 全文で "point of no return" と略号 "PNR" が混在。Table キャプションでは PNR、本文ではフル表記が多い。用例を統一する。
+- **中国・台湾に関する文明圏境界の言及**: Discussion 6.7（Limitations）に「歴史を踏まえた文明圏の境界線が、こんにちの価値観や政治領域の境界線と必ずしも一致しない」ことを、Sinic グループ（mainland China/Taiwan）の例としてニュートラルに追加。
 
 ---
 
 ## 4. 総合評価
 
 ### 4.1 強み
+
 - **再現性**: 公開リポ `bougtoir/researcher-mobility-ode` をクリーン clone して `bash reproduce.sh` 一括実行可能。全数値は `results/` CSV から動的生成され、捏造・ハードコードなし。
 - **整合性**: 修正後の annual projection は observed/projected 分離、右打ち切り処理、訓練期 first-compartment 配分を反映し、コードと本文が一致。
 - **主張の慎重さ**: 因果を主張せず「mechanical perturbation」「early warning」「scenario tool」として位置づける。
 - **ストーリー回収**: Intro の 5 RQs と 4 Hs が Results/Discussion/Conclusion で原則的に回収。特に「早期介入 → 文明圏多様性維持」という目標が Conclusion で結ばれている。
+- **SHIGA 導入**: タイトルは「Sustaining Heterogeneity through Interventions in Global AI/ML Researcher Mobility: A Transition-Rate Framework」、Discussion 6.5 で初出としてフル表記+（SHIGA）を導入し、滋賀大学との関連を明記。それ以降は「SHIGA」のみ。
 
-### 4.2 主要な弱み
-- Markdown セクション番号の不連続（docx は OK）。
-- MAPE 42.5% が高く、警報系としての解釈を一段強化する必要がある。
-- RQ4 の「policy packages」は single-lever counterfactual に対して言葉が大きい。
-- Inter-civilisation flow は approximation/proxy であることを、表題・キャプション・本文でさらに強調すべき。
+### 4.2 主要な弱み（残件）
+
+- `manuscript_full_article.md` は docx 提出を前提とした補助ファイルであり、連番化は実施済みだが、最終投稿時は docx を規定ファイルとする。
+- MAPE 42.5% は高い値のままだが、本文で早期警報系としての位置づけを十分に説明済み。
 
 ### 4.3 投稿準備判定
-**条件付き可（Conditional Accept with minor revisions）**。必須は A（Markdown 扱い）のみ。B・C・D は本文の微調整で対応可能。E・F は Minor revision 対応として積んでおく。
+
+**minor revision 対応完了**。指摘 A–H はすべて本文またはコードレベルで対応済み。再現性と公開リポ整合性も確認。最新版は `devin/researcher-mobility-ode-full-article`、公開ミラーは `bougtoir/researcher-mobility-ode`。
 
 ---
 
-## 5. 未対応・要検討事項
-
-- `manuscript_full_article.md` のセクション番号連番化、または submission 用 docx のみ使用する方針の明文化。
-- RQ4 文言の修正または 2 レバー policy package 表の追加。
-- MAPE 42.5% に対する摘要・Discussion レベルでの追加 caveat。
-- 図表の最終印刷品質（dpi）確認。
-- PNR 略号の全文統一。
-
----
-
-## 6. 検証に使用したコマンド（再現用）
+## 5. 検証に使用したコマンド（再現用）
 
 ```bash
 git clone --depth=1 https://github.com/bougtoir/researcher-mobility-ode
