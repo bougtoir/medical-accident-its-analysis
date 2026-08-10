@@ -16,6 +16,10 @@ OPENALEX_BASE = "https://api.openalex.org"
 DEFAULT_MAILTO = "researcher-mobility-probe@example.org"
 
 
+class OpenAlexBudgetExhausted(RuntimeError):
+    """Raised when the OpenAlex account has no remaining API budget."""
+
+
 class OpenAlexClient:
     def __init__(self, cache_dir=None, mailto=DEFAULT_MAILTO, delay=0.05):
         self.mailto = mailto
@@ -47,7 +51,7 @@ class OpenAlexClient:
                 except Exception:
                     body = {}
                 if body.get("dailyRemainingUsd") == 0 or body.get("prepaidRemainingUsd") == 0:
-                    raise RuntimeError(
+                    raise OpenAlexBudgetExhausted(
                         f"OpenAlex budget exhausted ({body.get('message', 'no budget')}). "
                         "Add credits or wait for reset before re-extracting."
                     )

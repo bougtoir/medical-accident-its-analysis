@@ -15,7 +15,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from openalex_client import OpenAlexClient
+from openalex_client import OpenAlexBudgetExhausted, OpenAlexClient
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -297,6 +297,7 @@ def build_cohort(sample_per_group, max_authors, client, a2g, group_to_a2):
 
     # Fetch works per author in batches of 50
     works_by_author = defaultdict(list)
+    failed_batches = []
     batch_size = 50
     author_batches = [
         author_order[i:i + batch_size] for i in range(0, len(author_order), batch_size)
@@ -308,14 +309,32 @@ def build_cohort(sample_per_group, max_authors, client, a2g, group_to_a2):
                 batch, "id,publication_year,authorships,citation_normalized_percentile",
                 subfield_id=SUBFIELD,
             )
+        except OpenAlexBudgetExhausted:
+            # Fail fast so an incomplete cohort is never written to disk.
+            raise
         except Exception as e:
             print(f"  Warning: failed to fetch batch {i}: {e}. Skipping {len(batch)} authors.")
+            failed_batches.append({"batch": i, "authors": batch, "error": str(e)})
             continue
         for w in works:
             for auth in w.get("authorships", []):
                 aid = author_id_key((auth.get("author") or {}).get("id"))
                 if aid in batch:
                     works_by_author[aid].append(w)
+
+    if failed_batches:
+        failed_author_count = sum(len(b["authors"]) for b in failed_batches)
+        total_author_count = len(author_order)
+        failed_frac = failed_author_count / total_author_count if total_author_count else 0
+        print(f"  Warning: {failed_author_count} authors in {len(failed_batches)} batch(es) "
+              f"could not be fetched ({failed_frac:.1%}).")
+        # If a large fraction of the cohort is missing, refuse to write a
+        # misleadingly complete cohort file.
+        if failed_frac > 0.05:
+            raise RuntimeError(
+                f"Too many author batches failed ({failed_frac:.1%} of {total_author_count}). "
+                f"Fix the API/network issue and rerun; incomplete cohort would be written otherwise."
+            )
 
     # Classify, applying origin-group overrides before mobility flags are
     # computed so that ``abroad`` and other derived fields are consistent.
