@@ -106,17 +106,17 @@ Clipping projected rates to values between 0 and 1 is a feasibility pressure: ra
 
 Table 2 reports the equilibrium domestic active pool T, the minimum viable threshold M, and the endogenous inflow parameters for the 9 groups. All groups remain above their threshold under the fitted model, but margins differ by an order of magnitude.
 
-| Group | T_eq | M | Margin | I0 | r | r_obs | r_crit |
-|---|---|---|---|---|---|---|---|
-| Anglosphere ex-US | 752.12 | 119.78 | 632.34 | 1.55 | 0.00239 | 0.11345 | 0.00478 |
-| Continental Europe | 1208.42 | 129.07 | 1079.36 | 2.82 | 0.00255 | 0.12532 | 0.00510 |
-| Hindu | 1497.37 | 66.04 | 1431.33 | 1.52 | 0.00106 | 0.11765 | 0.00213 |
-| Islamic | 892.42 | 126.52 | 765.89 | 1.16 | 0.00141 | 0.13072 | 0.00282 |
-| Japanese | 206.81 | 50.48 | 156.33 | 1.42 | 0.00993 | 0.13904 | 0.01985 |
-| Other Civilizations | 424.70 | 104.60 | 320.10 | 1.15 | 0.00310 | 0.13072 | 0.00620 |
-| Other Western | 513.12 | 57.17 | 455.95 | 0.87 | 0.00200 | 0.17647 | 0.00400 |
-| Sinic | 1783.64 | 112.34 | 1671.29 | 2.38 | 0.00140 | 0.12059 | 0.00281 |
-| United States | 770.21 | 132.49 | 637.71 | 2.77 | 0.00404 | 0.10294 | 0.00808 |
+| Group | T_eq | M | Margin | T/M | I0 | r | r_obs | r_crit |
+|---|---|---|---|---|---|---|---|---|
+| Anglosphere ex-US | 752.12 | 119.78 | 632.34 | 6.28 | 1.55 | 0.00 | 0.11345 | 0.00478 |
+| Continental Europe | 1208.42 | 129.07 | 1079.36 | 9.36 | 2.82 | 0.00 | 0.12532 | 0.00510 |
+| Hindu | 1497.37 | 66.04 | 1431.33 | 22.67 | 1.52 | 0.00 | 0.11765 | 0.00213 |
+| Islamic | 892.42 | 126.52 | 765.89 | 7.05 | 1.16 | 0.00 | 0.13072 | 0.00282 |
+| Japanese | 206.81 | 50.48 | 156.33 | 4.10 | 1.42 | 0.01 | 0.13904 | 0.01985 |
+| Other Civilizations | 424.70 | 104.60 | 320.10 | 4.06 | 1.15 | 0.00 | 0.13072 | 0.00620 |
+| Other Western | 513.12 | 57.17 | 455.95 | 8.98 | 0.87 | 0.00 | 0.17647 | 0.00400 |
+| Sinic | 1783.64 | 112.34 | 1671.29 | 15.88 | 2.38 | 0.00 | 0.12059 | 0.00281 |
+| United States | 770.21 | 132.49 | 637.71 | 5.81 | 2.77 | 0.00 | 0.10294 | 0.00808 |
 
 ![Figure 1](figures/fig1_equilibrium_margin.png)
 
@@ -160,15 +160,15 @@ Replacing linear inflow with a saturating form lowers equilibrium pools because 
 
 | Group | Linear T | Saturating T | ε |
 |---|---|---|---|
-| Anglosphere ex-US | 752.12 | 411.20 | 0.01429 |
-| Continental Europe | 1208.42 | 659.04 | 0.00870 |
-| Hindu | 1497.37 | 781.23 | 0.01538 |
-| Islamic | 892.42 | 469.06 | 0.02222 |
-| Japanese | 206.81 | 129.35 | 0.01818 |
-| Other Civilizations | 424.70 | 234.34 | 0.02222 |
-| Other Western | 513.12 | 270.32 | 0.04000 |
-| Sinic | 1783.64 | 940.82 | 0.01000 |
-| United States | 770.21 | 445.87 | 0.00714 |
+| Anglosphere ex-US | 752 | 411 | 0.01429 |
+| Continental Europe | 1208 | 659 | 0.00870 |
+| Hindu | 1497 | 781 | 0.01538 |
+| Islamic | 892 | 469 | 0.02222 |
+| Japanese | 207 | 129 | 0.01818 |
+| Other Civilizations | 425 | 234 | 0.02222 |
+| Other Western | 513 | 270 | 0.04000 |
+| Sinic | 1784 | 941 | 0.01000 |
+| United States | 770 | 446 | 0.00714 |
 
 ### 5.2 Historical counterfactual
 
@@ -176,8 +176,8 @@ Table 6 compares the equilibrium that would have emerged if the transition rates
 
 | Group | T early | T late | ΔT (%) | Margin early | Margin late | Δ margin |
 |---|---|---|---|---|---|---|
-| Continental Europe | 1117.0 | 791.3 | -29.2 | 987.9 | 662.2 | -325.7 |
-| Sinic | 1392.6 | 936.4 | -32.8 | 1280.3 | 824.1 | -456.2 |
+| Continental Europe | 1117 | 791 | -29.2 | 988 | 662 | -325.7 |
+| Sinic | 1393 | 936 | -32.8 | 1280 | 824 | -456.2 |
 
 ![Figure 3](figures/fig3_historical_margin.png)
 
@@ -189,15 +189,15 @@ Table 7 reports the single mechanical counterfactual with the largest margin gai
 
 | Group | Lever | Direction | Change (%) | Margin gain | Gain per 10% |
 |---|---|---|---|---|---|
-| Anglosphere ex-US | d | decrease | -10 | 88.9 | 88.9 |
-| Continental Europe | d | decrease | -10 | 141.0 | 141.0 |
-| Hindu | d | decrease | -10 | 168.3 | 168.3 |
-| Islamic | d | decrease | -10 | 101.2 | 101.2 |
-| Japanese | d | decrease | -10 | 25.8 | 25.8 |
-| Other Civilizations | d | decrease | -10 | 49.4 | 49.4 |
-| Other Western | d | decrease | -10 | 58.3 | 58.3 |
-| Sinic | d | decrease | -10 | 202.6 | 202.6 |
-| United States | d | decrease | -10 | 92.0 | 92.0 |
+| Anglosphere ex-US | d | decrease | -10 | 89 | 88.9 |
+| Continental Europe | d | decrease | -10 | 141 | 141.0 |
+| Hindu | d | decrease | -10 | 168 | 168.3 |
+| Islamic | d | decrease | -10 | 101 | 101.2 |
+| Japanese | d | decrease | -10 | 26 | 25.8 |
+| Other Civilizations | d | decrease | -10 | 49 | 49.4 |
+| Other Western | d | decrease | -10 | 58 | 58.3 |
+| Sinic | d | decrease | -10 | 203 | 202.6 |
+| United States | d | decrease | -10 | 92 | 92.0 |
 
 ### 5.4 Uncertainty
 

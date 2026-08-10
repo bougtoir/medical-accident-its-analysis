@@ -241,15 +241,23 @@ def build_figure1(eq, fig_dir: Path):
     groups = eq["group"].tolist()
     x = np.arange(len(groups))
     width = 0.35
-    fig, ax = plt.subplots(figsize=(10, 5))
-    ax.bar(x - width / 2, eq["T_equilibrium"], width, label="Equilibrium T", color="steelblue")
-    ax.bar(x + width / 2, eq["M_threshold"], width, label="Minimum viable threshold M", color="coral")
+    fig, ax = plt.subplots(figsize=(10, 5.5))
+    t_bars = ax.bar(x - width / 2, eq["T_equilibrium"], width, label="Equilibrium T", color="steelblue")
+    m_bars = ax.bar(x + width / 2, eq["M_threshold"], width, label="Minimum viable threshold M", color="coral")
     ax.set_xticks(x)
     ax.set_xticklabels(groups, rotation=35, ha="right")
     ax.set_ylabel("Number of researchers")
     ax.set_title("Domestic active researcher pool and minimum viable coauthor threshold by group")
+    max_y = max(eq["T_equilibrium"].max(), eq["M_threshold"].max()) * 1.15
+    ax.set_ylim(0, max_y)
+    # Annotate bars with integer counts
+    for bar, val in zip(t_bars, eq["T_equilibrium"]):
+        ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + max_y * 0.01,
+                f"{int(round(val))}", ha="center", va="bottom", fontsize=7)
+    for bar, val in zip(m_bars, eq["M_threshold"]):
+        ax.text(bar.get_x() + bar.get_width() / 2, bar.get_height() + max_y * 0.01,
+                f"{int(round(val))}", ha="center", va="bottom", fontsize=7)
     ax.legend()
-    ax.set_ylim(0, max(eq["T_equilibrium"].max(), eq["M_threshold"].max()) * 1.1)
     fig.tight_layout()
     path = fig_dir / "fig1_equilibrium_margin.png"
     fig.savefig(path, dpi=300)
@@ -944,13 +952,16 @@ def write_markdown(output_dir: Path, data, fig_paths):
         "",
     ])
 
-    headers2 = ["Group", "T_eq", "M", "Margin", "I0", "r", "r_obs", "r_crit"]
+    headers2 = ["Group", "T_eq", "M", "Margin", "T/M", "I0", "r", "r_obs", "r_crit"]
     col_map2 = ["group", "T_equilibrium", "M_threshold", "margin_to_threshold_T", "I0", "r", "r_obs", "r_critical"]
-    dec2 = [None, 2, 2, 2, 2, 5, 5, 5]
+    dec2 = [None, 0, 0, 0, 2, 0, 5, 5, 5]
     lines.append("| " + " | ".join(headers2) + " |")
     lines.append("|" + "|".join(["---"] * len(headers2)) + "|")
     for _, row in eq.iterrows():
-        lines.append("| " + " | ".join([_fmt(row[c], dec2[i] or 2) for i, c in enumerate(col_map2)]) + " |")
+        t_over_m = _fmt(row["T_equilibrium"] / row["M_threshold"], 2)
+        vals = [_fmt(row[c], dec2[i] or 2) for i, c in enumerate(col_map2)]
+        vals.insert(4, t_over_m)
+        lines.append("| " + " | ".join(vals) + " |")
     lines.append("")
 
     lines.extend([
@@ -1018,7 +1029,7 @@ def write_markdown(output_dir: Path, data, fig_paths):
         )
         for _, row in merged.iterrows():
             lines.append(
-                f"| {row['group']} | {_fmt(row['T_equilibrium_lin'], 2)} | {_fmt(row['T_equilibrium_sat'], 2)} | {_fmt(row['epsilon'], 5)} |"
+                f"| {row['group']} | {_fmt(row['T_equilibrium_lin'], 0)} | {_fmt(row['T_equilibrium_sat'], 0)} | {_fmt(row['epsilon'], 5)} |"
             )
         lines.append("")
 
@@ -1058,7 +1069,7 @@ def write_markdown(output_dir: Path, data, fig_paths):
     lines.append("|" + "|".join(["---"] * len(headers6)) + "|")
     for _, row in period_compare.iterrows():
         lines.append(
-            f"| {row['group']} | {_fmt(row['T_early'], 1)} | {_fmt(row['T_late'], 1)} | {_fmt(row['pct_delta_T'], 1)} | {_fmt(row['margin_early'], 1)} | {_fmt(row['margin_late'], 1)} | {_fmt(row['delta_margin'], 1)} |"
+            f"| {row['group']} | {_fmt(row['T_early'], 0)} | {_fmt(row['T_late'], 0)} | {_fmt(row['pct_delta_T'], 1)} | {_fmt(row['margin_early'], 0)} | {_fmt(row['margin_late'], 0)} | {_fmt(row['delta_margin'], 1)} |"
         )
     lines.append("")
 
@@ -1098,7 +1109,7 @@ def write_markdown(output_dir: Path, data, fig_paths):
     lines.append("|" + "|".join(["---"] * len(headers7)) + "|")
     for _, row in policy_top.iterrows():
         lines.append(
-            f"| {row['group']} | {row['lever']} | {row['direction']} | {_fmt(row['lever_change_pct'], 0)} | {_fmt(row['margin_gain'], 1)} | {_fmt(row['normalised_margin_gain_per_10pct'], 1)} |"
+            f"| {row['group']} | {row['lever']} | {row['direction']} | {_fmt(row['lever_change_pct'], 0)} | {_fmt(row['margin_gain'], 0)} | {_fmt(row['normalised_margin_gain_per_10pct'], 1)} |"
         )
     lines.append("")
 
@@ -1655,7 +1666,7 @@ def _add_docx_body(doc, data, fig_paths):
         doc,
         desc,
         caption="Table 1. Descriptive statistics for the extracted AI/ML cohort by civilisation group.",
-        decimals={"career_start_mean": 1},
+        decimals={"n": 0, "works": 0, "active": 0, "hits": 0, "pis": 0, "career_start_mean": 1, "abroad": 0},
     )
 
     # Methods
@@ -1795,11 +1806,13 @@ def _add_docx_body(doc, data, fig_paths):
               "The ratio T/M is a summary resilience indicator, but absolute margin is the more direct measure of proximity to the point of no return.")
 
     eq_table = eq[["group", "T_equilibrium", "M_threshold", "margin_to_threshold_T", "I0", "r", "r_obs", "r_critical"]].copy()
+    eq_table["T_over_M"] = eq_table["T_equilibrium"] / eq_table["M_threshold"]
     eq_table = eq_table.rename(columns={
         "group": "Group",
         "T_equilibrium": "T_eq",
         "M_threshold": "M",
         "margin_to_threshold_T": "Margin",
+        "T_over_M": "T/M",
         "r_obs": "r_obs",
         "r_critical": "r_crit",
     })
@@ -1807,7 +1820,7 @@ def _add_docx_body(doc, data, fig_paths):
         doc,
         eq_table,
         caption="Table 2. Equilibrium domestic active pool, minimum viable threshold, and endogenous inflow parameters.",
-        decimals={"T_eq": 2, "M": 2, "Margin": 2, "I0": 2, "r": 5, "r_obs": 5, "r_crit": 5},
+        decimals={"T_eq": 0, "M": 0, "Margin": 0, "T/M": 2, "I0": 0, "r": 5, "r_obs": 5, "r_crit": 5},
     )
 
     p = doc.add_paragraph()
@@ -1885,7 +1898,7 @@ def _add_docx_body(doc, data, fig_paths):
             doc,
             merged,
             caption="Table 5. Equilibrium T under linear and saturating PI-driven inflow.",
-            decimals={"Linear T": 2, "Saturating T": 2, "ε": 5},
+            decimals={"Linear T": 0, "Saturating T": 0, "ε": 5},
         )
 
     doc.add_heading("5.2 Historical counterfactual", level=2)
@@ -1924,7 +1937,7 @@ def _add_docx_body(doc, data, fig_paths):
         doc,
         pc,
         caption="Table 6. Historical counterfactual: equilibrium active pool and safety margin under early versus late transition-rate regimes.",
-        decimals={"T early": 1, "T late": 1, "ΔT (%)": 1, "Margin early": 1, "Margin late": 1, "Δ margin": 1},
+        decimals={"T early": 0, "T late": 0, "ΔT (%)": 1, "Margin early": 0, "Margin late": 0, "Δ margin": 1},
     )
 
     p = doc.add_paragraph()
@@ -1975,7 +1988,7 @@ def _add_docx_body(doc, data, fig_paths):
         doc,
         policy_top,
         caption="Table 7. Top positive mechanical counterfactual per group, measured by margin gain per 10% proportional lever change.",
-        decimals={"Change (%)": 0, "Margin gain": 1, "Gain per 10%": 1},
+        decimals={"Change (%)": 0, "Margin gain": 0, "Gain per 10%": 1},
     )
 
     doc.add_heading("5.4 Uncertainty", level=2)
@@ -2159,6 +2172,8 @@ def _add_docx_body(doc, data, fig_paths):
     add_citation(p, 13)
     p.add_run(". "
               "A monocentric or tight-oligopoly structure in AI/ML may produce short-run efficiency gains through scale and agglomeration, but it also raises the risk of methodological lock-in, selection bias in training data, and reduced error correction. "
+              "It is also an evolutionary dead end: it narrows the menu of innovation options, removes healthy competitors whose alternative approaches keep the field honest, and concentrates problem selection under a single institutional and methodological line. "
+              "When one civilisation or a small oligopoly sets the dominant research agenda, problems that do not fit its priorities, languages, or institutional incentives are less likely to be addressed, leaving important scientific and social needs unresolved. "
               "Recent work on multi-university teams shows that geographically dispersed collaborations can retain high impact, which suggests that distributing capacity across civilisations need not sacrifice quality")
     add_citation(p, 12)
     p.add_run(". "
@@ -2362,12 +2377,14 @@ def write_pptx(output_dir, data, fig_paths):
     add_table_slide("Table 1: Descriptive cohort statistics", desc, desc.columns.tolist(), width_per_col=1.3)
 
     eq_table = eq[["group", "T_equilibrium", "M_threshold", "margin_to_threshold_T", "I0", "r", "r_obs", "r_critical"]].copy()
-    eq_table.columns = ["Group", "T_eq", "M", "Margin", "I0", "r", "r_obs", "r_crit"]
+    eq_table["T_over_M"] = eq_table["T_equilibrium"] / eq_table["M_threshold"]
+    eq_table.columns = ["Group", "T_eq", "M", "Margin", "T/M", "I0", "r", "r_obs", "r_crit"]
     for c in ["T_eq", "M", "Margin", "I0"]:
-        eq_table[c] = eq_table[c].apply(lambda x: _fmt(x, 2))
+        eq_table[c] = eq_table[c].apply(lambda x: _fmt(x, 0))
+    eq_table["T/M"] = eq_table["T/M"].apply(lambda x: _fmt(x, 2))
     for c in ["r", "r_obs", "r_crit"]:
         eq_table[c] = eq_table[c].apply(lambda x: _fmt(x, 5))
-    add_table_slide("Table 2: Equilibrium and inflow parameters", eq_table, eq_table.columns.tolist(), width_per_col=1.4)
+    add_table_slide("Table 2: Equilibrium and inflow parameters", eq_table, eq_table.columns.tolist(), width_per_col=1.35)
 
     rows2 = []
     for group, gdf in top_t.groupby("group"):
@@ -2390,7 +2407,7 @@ def write_pptx(output_dir, data, fig_paths):
             sat_eq[["group", "T_equilibrium", "epsilon"]], on="group", suffixes=("_lin", "_sat")
         )
         merged.columns = ["Group", "Linear T", "Saturating T", "ε"]
-        for c, d in {"Linear T": 2, "Saturating T": 2, "ε": 5}.items():
+        for c, d in {"Linear T": 0, "Saturating T": 0, "ε": 5}.items():
             merged[c] = merged[c].apply(lambda x, d=d: _fmt(x, d))
         add_table_slide("Table 5: Saturating inflow extension", merged, merged.columns.tolist(), width_per_col=2.0)
 
@@ -2403,8 +2420,8 @@ def write_pptx(output_dir, data, fig_paths):
         "margin_late": "Margin late",
         "delta_margin": "Δ margin",
     })
-    for c in ["T early", "T late", "ΔT (%)", "Margin early", "Margin late", "Δ margin"]:
-        pc[c] = pc[c].apply(lambda x: _fmt(x, 1))
+    for c, d in {"T early": 0, "T late": 0, "ΔT (%)": 1, "Margin early": 0, "Margin late": 0, "Δ margin": 1}.items():
+        pc[c] = pc[c].apply(lambda x, d=d: _fmt(x, d))
     add_table_slide("Table 6: Historical counterfactual", pc, pc.columns.tolist(), width_per_col=1.4)
 
     policy_top = policy_rank.groupby("group").head(1).rename(columns={
@@ -2415,7 +2432,7 @@ def write_pptx(output_dir, data, fig_paths):
         "margin_gain": "Margin gain",
         "normalised_margin_gain_per_10pct": "Gain per 10%",
     })
-    for c, d in {"Change (%)": 0, "Margin gain": 1, "Gain per 10%": 1}.items():
+    for c, d in {"Change (%)": 0, "Margin gain": 0, "Gain per 10%": 1}.items():
         policy_top[c] = policy_top[c].apply(lambda x, d=d: _fmt(x, d))
     add_table_slide("Table 7: Top policy intervention", policy_top, policy_top.columns.tolist(), width_per_col=2.0)
 
