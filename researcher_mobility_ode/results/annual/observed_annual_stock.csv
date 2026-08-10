@@ -1,878 +1,1170 @@
 origin_group,year,compartment,count
-Anglosphere ex-US,2000,D,1
-Anglosphere ex-US,2000,H_D,2
-Anglosphere ex-US,2001,D,1
-Anglosphere ex-US,2001,H_D,2
-Anglosphere ex-US,2001,P_D,1
+Anglosphere ex-US,2000,D,5
+Anglosphere ex-US,2000,H_D,3
+Anglosphere ex-US,2000,P_A,1
+Anglosphere ex-US,2000,P_D,2
+Anglosphere ex-US,2001,A,2
+Anglosphere ex-US,2001,D,10
+Anglosphere ex-US,2001,H_D,5
+Anglosphere ex-US,2001,P_A,2
+Anglosphere ex-US,2001,P_D,10
+Anglosphere ex-US,2002,D,11
 Anglosphere ex-US,2002,H_A,1
-Anglosphere ex-US,2002,H_D,2
-Anglosphere ex-US,2002,P_D,2
-Anglosphere ex-US,2003,A,1
-Anglosphere ex-US,2003,D,3
-Anglosphere ex-US,2003,H_A,1
-Anglosphere ex-US,2003,H_D,3
-Anglosphere ex-US,2003,P_D,5
-Anglosphere ex-US,2004,D,4
-Anglosphere ex-US,2004,H_A,2
-Anglosphere ex-US,2004,H_D,3
-Anglosphere ex-US,2004,P_D,6
-Anglosphere ex-US,2005,D,4
-Anglosphere ex-US,2005,H_A,1
-Anglosphere ex-US,2005,H_D,4
-Anglosphere ex-US,2005,P_A,1
-Anglosphere ex-US,2005,P_D,10
-Anglosphere ex-US,2006,A,1
-Anglosphere ex-US,2006,D,3
-Anglosphere ex-US,2006,H_D,4
-Anglosphere ex-US,2006,P_A,3
-Anglosphere ex-US,2006,P_D,10
-Anglosphere ex-US,2007,D,2
-Anglosphere ex-US,2007,H_A,1
-Anglosphere ex-US,2007,H_D,6
-Anglosphere ex-US,2007,P_A,6
-Anglosphere ex-US,2007,P_D,8
-Anglosphere ex-US,2008,D,1
-Anglosphere ex-US,2008,H_A,1
-Anglosphere ex-US,2008,H_D,5
-Anglosphere ex-US,2008,P_A,7
-Anglosphere ex-US,2008,P_D,9
-Anglosphere ex-US,2009,D,1
-Anglosphere ex-US,2009,H_A,2
-Anglosphere ex-US,2009,H_D,4
-Anglosphere ex-US,2009,P_A,9
-Anglosphere ex-US,2009,P_D,5
-Anglosphere ex-US,2010,D,2
-Anglosphere ex-US,2010,H_A,3
-Anglosphere ex-US,2010,H_D,1
-Anglosphere ex-US,2010,P_A,10
-Anglosphere ex-US,2010,P_D,6
-Anglosphere ex-US,2011,D,3
-Anglosphere ex-US,2011,H_A,3
-Anglosphere ex-US,2011,H_D,1
-Anglosphere ex-US,2011,P_A,10
-Anglosphere ex-US,2011,P_D,7
-Anglosphere ex-US,2012,D,2
-Anglosphere ex-US,2012,H_D,2
-Anglosphere ex-US,2012,P_A,14
-Anglosphere ex-US,2012,P_D,7
-Anglosphere ex-US,2013,D,2
-Anglosphere ex-US,2013,H_D,2
-Anglosphere ex-US,2013,P_A,14
-Anglosphere ex-US,2013,P_D,8
-Anglosphere ex-US,2014,D,2
-Anglosphere ex-US,2014,H_D,1
-Anglosphere ex-US,2014,P_A,14
-Anglosphere ex-US,2014,P_D,9
-Anglosphere ex-US,2015,D,2
-Anglosphere ex-US,2015,H_D,2
-Anglosphere ex-US,2015,P_A,15
-Anglosphere ex-US,2015,P_D,7
-Anglosphere ex-US,2016,D,2
-Anglosphere ex-US,2016,H_D,2
-Anglosphere ex-US,2016,P_A,14
-Anglosphere ex-US,2016,P_D,10
-Anglosphere ex-US,2017,D,2
-Anglosphere ex-US,2017,H_D,1
-Anglosphere ex-US,2017,P_A,13
-Anglosphere ex-US,2017,P_D,11
-Anglosphere ex-US,2018,D,1
-Anglosphere ex-US,2018,H_D,1
-Anglosphere ex-US,2018,P_A,13
-Anglosphere ex-US,2018,P_D,12
-Anglosphere ex-US,2019,D,1
-Anglosphere ex-US,2019,H_A,1
-Anglosphere ex-US,2019,P_A,13
-Anglosphere ex-US,2019,P_D,12
-Anglosphere ex-US,2020,D,1
-Anglosphere ex-US,2020,H_A,1
-Anglosphere ex-US,2020,P_A,12
-Anglosphere ex-US,2020,P_D,13
-Anglosphere ex-US,2021,D,1
-Anglosphere ex-US,2021,P_A,10
-Anglosphere ex-US,2021,P_D,16
-Anglosphere ex-US,2022,D,1
-Anglosphere ex-US,2022,P_A,10
-Anglosphere ex-US,2022,P_D,16
-Anglosphere ex-US,2023,D,1
-Anglosphere ex-US,2023,P_A,10
-Anglosphere ex-US,2023,P_D,16
-Continental Europe,2000,D,1
-Continental Europe,2000,H_D,1
-Continental Europe,2000,P_D,1
-Continental Europe,2001,D,2
-Continental Europe,2001,H_D,3
-Continental Europe,2001,P_D,3
-Continental Europe,2002,D,8
-Continental Europe,2002,H_D,2
-Continental Europe,2002,P_D,7
-Continental Europe,2003,A,1
-Continental Europe,2003,D,9
-Continental Europe,2003,H_A,1
-Continental Europe,2003,H_D,3
-Continental Europe,2003,P_A,1
-Continental Europe,2003,P_D,7
-Continental Europe,2004,D,10
-Continental Europe,2004,H_A,2
-Continental Europe,2004,H_D,2
-Continental Europe,2004,P_A,1
-Continental Europe,2004,P_D,11
-Continental Europe,2005,D,8
-Continental Europe,2005,H_A,2
-Continental Europe,2005,H_D,2
-Continental Europe,2005,P_A,1
-Continental Europe,2005,P_D,17
-Continental Europe,2006,D,11
-Continental Europe,2006,H_A,1
-Continental Europe,2006,H_D,2
-Continental Europe,2006,P_A,2
-Continental Europe,2006,P_D,23
-Continental Europe,2007,D,5
-Continental Europe,2007,H_A,2
-Continental Europe,2007,H_D,4
-Continental Europe,2007,P_A,3
-Continental Europe,2007,P_D,24
-Continental Europe,2008,D,6
-Continental Europe,2008,H_A,2
-Continental Europe,2008,H_D,5
-Continental Europe,2008,P_A,6
-Continental Europe,2008,P_D,22
-Continental Europe,2009,D,5
-Continental Europe,2009,H_A,1
-Continental Europe,2009,H_D,4
-Continental Europe,2009,P_A,7
-Continental Europe,2009,P_D,28
-Continental Europe,2010,D,7
-Continental Europe,2010,H_A,1
-Continental Europe,2010,H_D,2
-Continental Europe,2010,P_A,7
-Continental Europe,2010,P_D,28
-Continental Europe,2011,D,8
-Continental Europe,2011,H_D,3
-Continental Europe,2011,P_A,9
-Continental Europe,2011,P_D,28
-Continental Europe,2012,D,8
-Continental Europe,2012,H_D,7
-Continental Europe,2012,P_A,13
-Continental Europe,2012,P_D,26
-Continental Europe,2013,D,7
-Continental Europe,2013,H_D,8
-Continental Europe,2013,P_A,12
-Continental Europe,2013,P_D,28
-Continental Europe,2014,D,6
-Continental Europe,2014,H_A,1
-Continental Europe,2014,H_D,8
-Continental Europe,2014,P_A,13
-Continental Europe,2014,P_D,30
-Continental Europe,2015,D,5
-Continental Europe,2015,H_A,2
-Continental Europe,2015,H_D,6
-Continental Europe,2015,P_A,14
-Continental Europe,2015,P_D,27
-Continental Europe,2016,D,4
-Continental Europe,2016,H_A,1
-Continental Europe,2016,H_D,7
-Continental Europe,2016,P_A,17
-Continental Europe,2016,P_D,27
-Continental Europe,2017,D,4
-Continental Europe,2017,H_D,7
-Continental Europe,2017,P_A,18
-Continental Europe,2017,P_D,26
-Continental Europe,2018,D,3
-Continental Europe,2018,H_A,2
-Continental Europe,2018,H_D,4
-Continental Europe,2018,P_A,18
-Continental Europe,2018,P_D,27
-Continental Europe,2019,D,1
-Continental Europe,2019,H_A,3
-Continental Europe,2019,H_D,4
-Continental Europe,2019,P_A,17
-Continental Europe,2019,P_D,26
-Continental Europe,2020,H_A,1
-Continental Europe,2020,H_D,5
-Continental Europe,2020,P_A,19
-Continental Europe,2020,P_D,26
-Continental Europe,2021,H_A,1
-Continental Europe,2021,H_D,3
-Continental Europe,2021,P_A,14
-Continental Europe,2021,P_D,33
-Continental Europe,2022,H_A,1
-Continental Europe,2022,H_D,3
-Continental Europe,2022,P_A,13
-Continental Europe,2022,P_D,34
-Continental Europe,2023,H_D,3
-Continental Europe,2023,P_A,12
-Continental Europe,2023,P_D,36
-Hindu,2000,P_D,2
-Hindu,2001,D,1
-Hindu,2001,P_D,2
-Hindu,2002,D,2
-Hindu,2002,H_D,1
+Anglosphere ex-US,2002,H_D,13
+Anglosphere ex-US,2002,P_A,5
+Anglosphere ex-US,2002,P_D,12
+Anglosphere ex-US,2003,A,3
+Anglosphere ex-US,2003,D,16
+Anglosphere ex-US,2003,H_A,2
+Anglosphere ex-US,2003,H_D,16
+Anglosphere ex-US,2003,P_A,6
+Anglosphere ex-US,2003,P_D,23
+Anglosphere ex-US,2004,A,2
+Anglosphere ex-US,2004,D,10
+Anglosphere ex-US,2004,H_A,4
+Anglosphere ex-US,2004,H_D,20
+Anglosphere ex-US,2004,P_A,9
+Anglosphere ex-US,2004,P_D,30
+Anglosphere ex-US,2005,A,2
+Anglosphere ex-US,2005,D,14
+Anglosphere ex-US,2005,H_A,2
+Anglosphere ex-US,2005,H_D,20
+Anglosphere ex-US,2005,P_A,15
+Anglosphere ex-US,2005,P_D,37
+Anglosphere ex-US,2006,A,2
+Anglosphere ex-US,2006,D,17
+Anglosphere ex-US,2006,H_A,1
+Anglosphere ex-US,2006,H_D,19
+Anglosphere ex-US,2006,P_A,18
+Anglosphere ex-US,2006,P_D,43
+Anglosphere ex-US,2007,A,4
+Anglosphere ex-US,2007,D,19
+Anglosphere ex-US,2007,H_A,2
+Anglosphere ex-US,2007,H_D,18
+Anglosphere ex-US,2007,P_A,27
+Anglosphere ex-US,2007,P_D,43
+Anglosphere ex-US,2008,A,3
+Anglosphere ex-US,2008,D,13
+Anglosphere ex-US,2008,H_A,3
+Anglosphere ex-US,2008,H_D,19
+Anglosphere ex-US,2008,P_A,30
+Anglosphere ex-US,2008,P_D,54
+Anglosphere ex-US,2009,A,6
+Anglosphere ex-US,2009,D,11
+Anglosphere ex-US,2009,H_A,4
+Anglosphere ex-US,2009,H_D,20
+Anglosphere ex-US,2009,P_A,32
+Anglosphere ex-US,2009,P_D,53
+Anglosphere ex-US,2010,A,4
+Anglosphere ex-US,2010,D,13
+Anglosphere ex-US,2010,H_A,7
+Anglosphere ex-US,2010,H_D,14
+Anglosphere ex-US,2010,P_A,37
+Anglosphere ex-US,2010,P_D,59
+Anglosphere ex-US,2011,A,3
+Anglosphere ex-US,2011,D,16
+Anglosphere ex-US,2011,H_A,7
+Anglosphere ex-US,2011,H_D,13
+Anglosphere ex-US,2011,P_A,40
+Anglosphere ex-US,2011,P_D,61
+Anglosphere ex-US,2012,A,3
+Anglosphere ex-US,2012,D,14
+Anglosphere ex-US,2012,H_A,3
+Anglosphere ex-US,2012,H_D,15
+Anglosphere ex-US,2012,P_A,47
+Anglosphere ex-US,2012,P_D,63
+Anglosphere ex-US,2013,A,4
+Anglosphere ex-US,2013,D,13
+Anglosphere ex-US,2013,H_A,3
+Anglosphere ex-US,2013,H_D,14
+Anglosphere ex-US,2013,P_A,50
+Anglosphere ex-US,2013,P_D,63
+Anglosphere ex-US,2014,A,4
+Anglosphere ex-US,2014,D,13
+Anglosphere ex-US,2014,H_A,4
+Anglosphere ex-US,2014,H_D,13
+Anglosphere ex-US,2014,P_A,53
+Anglosphere ex-US,2014,P_D,65
+Anglosphere ex-US,2015,A,3
+Anglosphere ex-US,2015,D,13
+Anglosphere ex-US,2015,H_A,3
+Anglosphere ex-US,2015,H_D,12
+Anglosphere ex-US,2015,P_A,62
+Anglosphere ex-US,2015,P_D,58
+Anglosphere ex-US,2016,A,2
+Anglosphere ex-US,2016,D,15
+Anglosphere ex-US,2016,H_D,15
+Anglosphere ex-US,2016,P_A,62
+Anglosphere ex-US,2016,P_D,66
+Anglosphere ex-US,2017,A,4
+Anglosphere ex-US,2017,D,11
+Anglosphere ex-US,2017,H_A,1
+Anglosphere ex-US,2017,H_D,12
+Anglosphere ex-US,2017,P_A,60
+Anglosphere ex-US,2017,P_D,69
+Anglosphere ex-US,2018,A,1
+Anglosphere ex-US,2018,D,9
+Anglosphere ex-US,2018,H_A,5
+Anglosphere ex-US,2018,H_D,10
+Anglosphere ex-US,2018,P_A,62
+Anglosphere ex-US,2018,P_D,70
+Anglosphere ex-US,2019,A,1
+Anglosphere ex-US,2019,D,8
+Anglosphere ex-US,2019,H_A,5
+Anglosphere ex-US,2019,H_D,8
+Anglosphere ex-US,2019,P_A,66
+Anglosphere ex-US,2019,P_D,68
+Anglosphere ex-US,2020,A,1
+Anglosphere ex-US,2020,D,8
+Anglosphere ex-US,2020,H_A,3
+Anglosphere ex-US,2020,H_D,6
+Anglosphere ex-US,2020,P_A,63
+Anglosphere ex-US,2020,P_D,75
+Anglosphere ex-US,2021,A,2
+Anglosphere ex-US,2021,D,4
+Anglosphere ex-US,2021,H_A,2
+Anglosphere ex-US,2021,H_D,6
+Anglosphere ex-US,2021,P_A,53
+Anglosphere ex-US,2021,P_D,89
+Anglosphere ex-US,2022,A,2
+Anglosphere ex-US,2022,D,4
+Anglosphere ex-US,2022,H_A,1
+Anglosphere ex-US,2022,H_D,5
+Anglosphere ex-US,2022,P_A,52
+Anglosphere ex-US,2022,P_D,92
+Anglosphere ex-US,2023,A,2
+Anglosphere ex-US,2023,D,3
+Anglosphere ex-US,2023,H_D,5
+Anglosphere ex-US,2023,P_A,52
+Anglosphere ex-US,2023,P_D,94
+Continental Europe,2000,D,8
+Continental Europe,2000,H_D,6
+Continental Europe,2000,P_D,9
+Continental Europe,2001,D,26
+Continental Europe,2001,H_A,1
+Continental Europe,2001,H_D,12
+Continental Europe,2001,P_D,22
+Continental Europe,2002,A,3
+Continental Europe,2002,D,38
+Continental Europe,2002,H_A,2
+Continental Europe,2002,H_D,18
+Continental Europe,2002,P_A,3
+Continental Europe,2002,P_D,32
+Continental Europe,2003,A,4
+Continental Europe,2003,D,44
+Continental Europe,2003,H_A,3
+Continental Europe,2003,H_D,16
+Continental Europe,2003,P_A,5
+Continental Europe,2003,P_D,48
+Continental Europe,2004,A,3
+Continental Europe,2004,D,49
+Continental Europe,2004,H_A,6
+Continental Europe,2004,H_D,18
+Continental Europe,2004,P_A,7
+Continental Europe,2004,P_D,68
+Continental Europe,2005,A,5
+Continental Europe,2005,D,44
+Continental Europe,2005,H_A,6
+Continental Europe,2005,H_D,25
+Continental Europe,2005,P_A,11
+Continental Europe,2005,P_D,93
+Continental Europe,2006,A,5
+Continental Europe,2006,D,40
+Continental Europe,2006,H_A,5
+Continental Europe,2006,H_D,36
+Continental Europe,2006,P_A,19
+Continental Europe,2006,P_D,112
+Continental Europe,2007,A,5
+Continental Europe,2007,D,32
+Continental Europe,2007,H_A,9
+Continental Europe,2007,H_D,35
+Continental Europe,2007,P_A,25
+Continental Europe,2007,P_D,134
+Continental Europe,2008,A,4
+Continental Europe,2008,D,39
+Continental Europe,2008,H_A,6
+Continental Europe,2008,H_D,43
+Continental Europe,2008,P_A,35
+Continental Europe,2008,P_D,143
+Continental Europe,2009,A,5
+Continental Europe,2009,D,45
+Continental Europe,2009,H_A,8
+Continental Europe,2009,H_D,36
+Continental Europe,2009,P_A,46
+Continental Europe,2009,P_D,158
+Continental Europe,2010,A,6
+Continental Europe,2010,D,37
+Continental Europe,2010,H_A,8
+Continental Europe,2010,H_D,40
+Continental Europe,2010,P_A,54
+Continental Europe,2010,P_D,169
+Continental Europe,2011,A,5
+Continental Europe,2011,D,39
+Continental Europe,2011,H_A,6
+Continental Europe,2011,H_D,47
+Continental Europe,2011,P_A,61
+Continental Europe,2011,P_D,186
+Continental Europe,2012,A,5
+Continental Europe,2012,D,39
+Continental Europe,2012,H_A,6
+Continental Europe,2012,H_D,51
+Continental Europe,2012,P_A,71
+Continental Europe,2012,P_D,189
+Continental Europe,2013,A,4
+Continental Europe,2013,D,42
+Continental Europe,2013,H_A,6
+Continental Europe,2013,H_D,49
+Continental Europe,2013,P_A,75
+Continental Europe,2013,P_D,199
+Continental Europe,2014,A,3
+Continental Europe,2014,D,45
+Continental Europe,2014,H_A,12
+Continental Europe,2014,H_D,45
+Continental Europe,2014,P_A,81
+Continental Europe,2014,P_D,205
+Continental Europe,2015,A,5
+Continental Europe,2015,D,49
+Continental Europe,2015,H_A,13
+Continental Europe,2015,H_D,47
+Continental Europe,2015,P_A,80
+Continental Europe,2015,P_D,215
+Continental Europe,2016,A,4
+Continental Europe,2016,D,41
+Continental Europe,2016,H_A,13
+Continental Europe,2016,H_D,48
+Continental Europe,2016,P_A,91
+Continental Europe,2016,P_D,219
+Continental Europe,2017,A,4
+Continental Europe,2017,D,30
+Continental Europe,2017,H_A,11
+Continental Europe,2017,H_D,46
+Continental Europe,2017,P_A,91
+Continental Europe,2017,P_D,222
+Continental Europe,2018,A,1
+Continental Europe,2018,D,26
+Continental Europe,2018,H_A,15
+Continental Europe,2018,H_D,36
+Continental Europe,2018,P_A,94
+Continental Europe,2018,P_D,226
+Continental Europe,2019,A,2
+Continental Europe,2019,D,20
+Continental Europe,2019,H_A,12
+Continental Europe,2019,H_D,31
+Continental Europe,2019,P_A,93
+Continental Europe,2019,P_D,222
+Continental Europe,2020,A,1
+Continental Europe,2020,D,16
+Continental Europe,2020,H_A,11
+Continental Europe,2020,H_D,28
+Continental Europe,2020,P_A,93
+Continental Europe,2020,P_D,226
+Continental Europe,2021,D,13
+Continental Europe,2021,H_A,6
+Continental Europe,2021,H_D,28
+Continental Europe,2021,P_A,59
+Continental Europe,2021,P_D,269
+Continental Europe,2022,D,12
+Continental Europe,2022,H_A,5
+Continental Europe,2022,H_D,29
+Continental Europe,2022,P_A,61
+Continental Europe,2022,P_D,268
+Continental Europe,2023,D,10
+Continental Europe,2023,H_A,4
+Continental Europe,2023,H_D,27
+Continental Europe,2023,P_A,53
+Continental Europe,2023,P_D,281
+Hindu,2000,D,1
+Hindu,2000,P_D,3
+Hindu,2001,D,4
+Hindu,2001,P_D,4
+Hindu,2002,A,1
+Hindu,2002,D,4
+Hindu,2002,H_D,4
 Hindu,2002,P_A,1
-Hindu,2002,P_D,1
-Hindu,2003,D,2
+Hindu,2002,P_D,4
+Hindu,2003,A,1
+Hindu,2003,D,6
 Hindu,2003,H_A,1
-Hindu,2003,H_D,1
+Hindu,2003,H_D,4
 Hindu,2003,P_A,1
-Hindu,2003,P_D,2
-Hindu,2004,D,2
+Hindu,2003,P_D,8
+Hindu,2004,A,1
+Hindu,2004,D,6
 Hindu,2004,H_A,1
-Hindu,2004,H_D,2
+Hindu,2004,H_D,6
 Hindu,2004,P_A,1
-Hindu,2004,P_D,2
-Hindu,2005,D,3
+Hindu,2004,P_D,10
+Hindu,2005,A,2
+Hindu,2005,D,8
 Hindu,2005,H_A,1
-Hindu,2005,H_D,2
+Hindu,2005,H_D,4
 Hindu,2005,P_A,1
-Hindu,2005,P_D,3
-Hindu,2006,D,2
+Hindu,2005,P_D,13
+Hindu,2006,A,2
+Hindu,2006,D,10
 Hindu,2006,H_A,1
-Hindu,2006,H_D,2
-Hindu,2006,P_A,2
-Hindu,2006,P_D,3
-Hindu,2007,D,1
-Hindu,2007,H_D,3
-Hindu,2007,P_A,3
-Hindu,2007,P_D,4
-Hindu,2008,D,1
-Hindu,2008,H_D,2
-Hindu,2008,P_A,3
-Hindu,2008,P_D,8
-Hindu,2009,D,3
-Hindu,2009,H_D,1
-Hindu,2009,P_A,3
-Hindu,2009,P_D,8
-Hindu,2010,D,3
-Hindu,2010,P_A,3
-Hindu,2010,P_D,10
-Hindu,2011,D,7
-Hindu,2011,H_D,1
-Hindu,2011,P_A,2
-Hindu,2011,P_D,11
-Hindu,2012,D,6
-Hindu,2012,H_D,3
-Hindu,2012,P_A,3
-Hindu,2012,P_D,12
-Hindu,2013,D,7
-Hindu,2013,H_D,4
-Hindu,2013,P_A,3
-Hindu,2013,P_D,13
-Hindu,2014,D,9
-Hindu,2014,H_D,5
-Hindu,2014,P_A,3
-Hindu,2014,P_D,13
-Hindu,2015,D,10
-Hindu,2015,H_D,3
-Hindu,2015,P_A,3
-Hindu,2015,P_D,16
-Hindu,2016,D,10
-Hindu,2016,H_D,3
-Hindu,2016,P_A,3
-Hindu,2016,P_D,20
-Hindu,2017,A,1
-Hindu,2017,D,8
-Hindu,2017,H_D,3
-Hindu,2017,P_A,3
-Hindu,2017,P_D,21
-Hindu,2018,A,2
-Hindu,2018,D,6
-Hindu,2018,H_D,3
-Hindu,2018,P_A,4
-Hindu,2018,P_D,20
-Hindu,2019,A,2
-Hindu,2019,D,5
-Hindu,2019,H_D,2
-Hindu,2019,P_A,2
-Hindu,2019,P_D,24
-Hindu,2020,D,5
-Hindu,2020,H_A,1
-Hindu,2020,H_D,2
-Hindu,2020,P_A,1
-Hindu,2020,P_D,26
-Hindu,2021,D,5
-Hindu,2021,H_A,1
-Hindu,2021,H_D,2
-Hindu,2021,P_D,27
-Hindu,2022,D,5
-Hindu,2022,H_A,1
-Hindu,2022,H_D,2
-Hindu,2022,P_D,27
-Hindu,2023,D,5
-Hindu,2023,H_A,1
-Hindu,2023,H_D,2
-Hindu,2023,P_D,27
-Islamic,2001,P_D,1
-Islamic,2002,P_D,1
-Islamic,2003,D,1
-Islamic,2003,P_D,1
-Islamic,2004,D,1
-Islamic,2004,P_D,1
-Islamic,2005,D,1
-Islamic,2005,P_D,2
-Islamic,2006,D,2
-Islamic,2006,P_A,1
-Islamic,2006,P_D,1
-Islamic,2007,D,2
-Islamic,2007,P_A,1
-Islamic,2007,P_D,1
-Islamic,2008,D,2
-Islamic,2008,H_D,1
-Islamic,2008,P_A,2
-Islamic,2008,P_D,1
-Islamic,2009,D,4
-Islamic,2009,H_D,1
-Islamic,2009,P_A,2
-Islamic,2009,P_D,3
-Islamic,2010,D,3
-Islamic,2010,H_D,1
-Islamic,2010,P_A,2
-Islamic,2010,P_D,4
-Islamic,2011,D,3
-Islamic,2011,H_D,1
-Islamic,2011,P_A,2
-Islamic,2011,P_D,6
-Islamic,2012,D,3
-Islamic,2012,H_D,2
-Islamic,2012,P_A,2
-Islamic,2012,P_D,8
-Islamic,2013,D,3
-Islamic,2013,H_D,2
-Islamic,2013,P_A,2
-Islamic,2013,P_D,11
-Islamic,2014,D,3
-Islamic,2014,H_D,2
-Islamic,2014,P_A,2
-Islamic,2014,P_D,12
-Islamic,2015,D,4
-Islamic,2015,H_A,1
-Islamic,2015,H_D,2
-Islamic,2015,P_A,3
-Islamic,2015,P_D,15
-Islamic,2016,D,4
-Islamic,2016,H_A,1
-Islamic,2016,H_D,3
-Islamic,2016,P_A,3
-Islamic,2016,P_D,17
-Islamic,2017,D,2
-Islamic,2017,H_A,1
-Islamic,2017,H_D,3
-Islamic,2017,P_A,3
-Islamic,2017,P_D,19
-Islamic,2018,D,2
-Islamic,2018,H_A,1
-Islamic,2018,H_D,2
-Islamic,2018,P_A,4
-Islamic,2018,P_D,17
-Islamic,2019,D,2
-Islamic,2019,H_A,1
-Islamic,2019,H_D,2
-Islamic,2019,P_A,5
-Islamic,2019,P_D,16
-Islamic,2020,D,1
-Islamic,2020,H_A,1
-Islamic,2020,H_D,2
-Islamic,2020,P_A,6
-Islamic,2020,P_D,15
-Islamic,2021,D,1
-Islamic,2021,H_D,3
-Islamic,2021,P_A,6
-Islamic,2021,P_D,15
-Islamic,2022,D,1
-Islamic,2022,H_D,3
-Islamic,2022,P_A,3
-Islamic,2022,P_D,18
-Islamic,2023,D,1
-Islamic,2023,H_D,3
-Islamic,2023,P_A,1
-Islamic,2023,P_D,20
-Japanese,2000,D,1
-Japanese,2001,D,4
-Japanese,2001,H_D,3
-Japanese,2002,D,3
-Japanese,2002,H_D,4
-Japanese,2002,P_D,4
-Japanese,2003,D,5
-Japanese,2003,H_D,4
-Japanese,2003,P_D,6
-Japanese,2004,D,6
-Japanese,2004,H_D,3
-Japanese,2004,P_D,8
-Japanese,2005,D,7
-Japanese,2005,H_D,5
-Japanese,2005,P_D,8
-Japanese,2006,D,8
-Japanese,2006,H_D,5
-Japanese,2006,P_D,7
-Japanese,2007,D,8
-Japanese,2007,H_A,1
-Japanese,2007,H_D,3
-Japanese,2007,P_D,9
-Japanese,2008,D,6
-Japanese,2008,H_D,3
-Japanese,2008,P_A,2
-Japanese,2008,P_D,9
-Japanese,2009,D,7
-Japanese,2009,H_D,2
-Japanese,2009,P_A,2
-Japanese,2009,P_D,11
-Japanese,2010,D,8
-Japanese,2010,H_D,1
-Japanese,2010,P_A,1
-Japanese,2010,P_D,15
-Japanese,2011,D,7
-Japanese,2011,H_D,2
-Japanese,2011,P_A,1
-Japanese,2011,P_D,16
-Japanese,2012,D,5
-Japanese,2012,H_D,2
-Japanese,2012,P_A,1
-Japanese,2012,P_D,16
-Japanese,2013,D,7
-Japanese,2013,H_D,1
-Japanese,2013,P_A,2
-Japanese,2013,P_D,16
-Japanese,2014,D,6
-Japanese,2014,H_A,1
-Japanese,2014,H_D,2
-Japanese,2014,P_A,2
-Japanese,2014,P_D,16
-Japanese,2015,D,6
-Japanese,2015,H_D,4
-Japanese,2015,P_A,2
-Japanese,2015,P_D,16
-Japanese,2016,D,5
-Japanese,2016,H_D,4
-Japanese,2016,P_A,2
-Japanese,2016,P_D,18
-Japanese,2017,D,5
-Japanese,2017,H_D,4
-Japanese,2017,P_A,2
-Japanese,2017,P_D,18
-Japanese,2018,D,3
-Japanese,2018,H_D,4
-Japanese,2018,P_A,3
-Japanese,2018,P_D,19
-Japanese,2019,D,3
-Japanese,2019,H_D,4
-Japanese,2019,P_A,2
-Japanese,2019,P_D,19
-Japanese,2020,D,3
-Japanese,2020,H_D,4
-Japanese,2020,P_A,3
-Japanese,2020,P_D,16
-Japanese,2021,D,3
-Japanese,2021,H_D,3
-Japanese,2021,P_A,1
-Japanese,2021,P_D,19
-Japanese,2022,D,2
-Japanese,2022,H_D,3
-Japanese,2022,P_A,1
-Japanese,2022,P_D,20
-Japanese,2023,D,2
-Japanese,2023,H_D,3
-Japanese,2023,P_A,1
-Japanese,2023,P_D,20
-Other Civilizations,2000,D,1
-Other Civilizations,2000,H_D,1
-Other Civilizations,2001,D,3
-Other Civilizations,2001,P_D,1
-Other Civilizations,2002,D,5
-Other Civilizations,2002,P_D,3
-Other Civilizations,2003,D,2
-Other Civilizations,2003,H_D,2
-Other Civilizations,2003,P_D,3
-Other Civilizations,2004,D,5
-Other Civilizations,2004,H_A,1
-Other Civilizations,2004,H_D,2
-Other Civilizations,2004,P_D,3
-Other Civilizations,2005,D,5
-Other Civilizations,2005,H_A,1
-Other Civilizations,2005,H_D,2
-Other Civilizations,2005,P_A,1
-Other Civilizations,2005,P_D,3
-Other Civilizations,2006,D,5
-Other Civilizations,2006,H_D,1
-Other Civilizations,2006,P_A,2
-Other Civilizations,2006,P_D,6
-Other Civilizations,2007,D,4
-Other Civilizations,2007,P_A,2
-Other Civilizations,2007,P_D,7
-Other Civilizations,2008,D,4
-Other Civilizations,2008,P_A,2
-Other Civilizations,2008,P_D,8
-Other Civilizations,2009,D,3
-Other Civilizations,2009,P_A,2
-Other Civilizations,2009,P_D,10
-Other Civilizations,2010,D,3
-Other Civilizations,2010,H_D,1
-Other Civilizations,2010,P_A,2
-Other Civilizations,2010,P_D,12
-Other Civilizations,2011,D,2
-Other Civilizations,2011,H_D,2
-Other Civilizations,2011,P_A,2
-Other Civilizations,2011,P_D,12
-Other Civilizations,2012,D,3
-Other Civilizations,2012,H_D,2
-Other Civilizations,2012,P_A,2
-Other Civilizations,2012,P_D,11
-Other Civilizations,2013,D,4
-Other Civilizations,2013,H_D,2
-Other Civilizations,2013,P_A,2
-Other Civilizations,2013,P_D,11
-Other Civilizations,2014,D,7
-Other Civilizations,2014,H_D,2
-Other Civilizations,2014,P_A,4
-Other Civilizations,2014,P_D,9
-Other Civilizations,2015,D,7
-Other Civilizations,2015,H_D,3
-Other Civilizations,2015,P_A,4
-Other Civilizations,2015,P_D,11
-Other Civilizations,2016,A,1
-Other Civilizations,2016,D,6
-Other Civilizations,2016,H_D,2
-Other Civilizations,2016,P_A,3
-Other Civilizations,2016,P_D,14
-Other Civilizations,2017,A,1
-Other Civilizations,2017,D,6
-Other Civilizations,2017,H_D,2
-Other Civilizations,2017,P_A,3
-Other Civilizations,2017,P_D,14
-Other Civilizations,2018,A,1
-Other Civilizations,2018,D,4
-Other Civilizations,2018,H_D,2
-Other Civilizations,2018,P_A,3
-Other Civilizations,2018,P_D,15
-Other Civilizations,2019,A,1
-Other Civilizations,2019,D,3
-Other Civilizations,2019,H_D,1
-Other Civilizations,2019,P_A,4
-Other Civilizations,2019,P_D,16
-Other Civilizations,2020,D,4
-Other Civilizations,2020,H_D,1
-Other Civilizations,2020,P_A,4
-Other Civilizations,2020,P_D,16
-Other Civilizations,2021,D,4
-Other Civilizations,2021,H_D,1
-Other Civilizations,2021,P_A,3
-Other Civilizations,2021,P_D,17
-Other Civilizations,2022,D,4
-Other Civilizations,2022,H_D,1
-Other Civilizations,2022,P_A,3
-Other Civilizations,2022,P_D,17
-Other Civilizations,2023,D,4
-Other Civilizations,2023,H_D,1
-Other Civilizations,2023,P_A,2
-Other Civilizations,2023,P_D,18
-Other Western,2000,A,1
-Other Western,2000,P_D,1
+Hindu,2006,H_D,5
+Hindu,2006,P_A,5
+Hindu,2006,P_D,14
+Hindu,2007,A,2
+Hindu,2007,D,11
+Hindu,2007,H_D,8
+Hindu,2007,P_A,7
+Hindu,2007,P_D,15
+Hindu,2008,A,2
+Hindu,2008,D,14
+Hindu,2008,H_D,7
+Hindu,2008,P_A,8
+Hindu,2008,P_D,21
+Hindu,2009,A,1
+Hindu,2009,D,18
+Hindu,2009,H_A,1
+Hindu,2009,H_D,10
+Hindu,2009,P_A,8
+Hindu,2009,P_D,30
+Hindu,2010,A,1
+Hindu,2010,D,24
+Hindu,2010,H_A,2
+Hindu,2010,H_D,8
+Hindu,2010,P_A,8
+Hindu,2010,P_D,38
+Hindu,2011,A,1
+Hindu,2011,D,36
+Hindu,2011,H_A,1
+Hindu,2011,H_D,9
+Hindu,2011,P_A,7
+Hindu,2011,P_D,45
+Hindu,2012,A,1
+Hindu,2012,D,39
+Hindu,2012,H_A,1
+Hindu,2012,H_D,15
+Hindu,2012,P_A,10
+Hindu,2012,P_D,49
+Hindu,2013,A,2
+Hindu,2013,D,39
+Hindu,2013,H_A,1
+Hindu,2013,H_D,18
+Hindu,2013,P_A,12
+Hindu,2013,P_D,64
+Hindu,2014,A,2
+Hindu,2014,D,46
+Hindu,2014,H_A,1
+Hindu,2014,H_D,22
+Hindu,2014,P_A,14
+Hindu,2014,P_D,74
+Hindu,2015,A,3
+Hindu,2015,D,42
+Hindu,2015,H_A,1
+Hindu,2015,H_D,20
+Hindu,2015,P_A,14
+Hindu,2015,P_D,87
+Hindu,2016,A,1
+Hindu,2016,D,46
+Hindu,2016,H_A,3
+Hindu,2016,H_D,25
+Hindu,2016,P_A,11
+Hindu,2016,P_D,103
+Hindu,2017,A,4
+Hindu,2017,D,36
+Hindu,2017,H_A,3
+Hindu,2017,H_D,24
+Hindu,2017,P_A,15
+Hindu,2017,P_D,104
+Hindu,2018,A,4
+Hindu,2018,D,27
+Hindu,2018,H_A,6
+Hindu,2018,H_D,20
+Hindu,2018,P_A,16
+Hindu,2018,P_D,112
+Hindu,2019,A,3
+Hindu,2019,D,24
+Hindu,2019,H_A,5
+Hindu,2019,H_D,18
+Hindu,2019,P_A,16
+Hindu,2019,P_D,117
+Hindu,2020,A,1
+Hindu,2020,D,20
+Hindu,2020,H_A,5
+Hindu,2020,H_D,16
+Hindu,2020,P_A,18
+Hindu,2020,P_D,119
+Hindu,2021,D,19
+Hindu,2021,H_A,3
+Hindu,2021,H_D,15
+Hindu,2021,P_A,12
+Hindu,2021,P_D,130
+Hindu,2022,D,18
+Hindu,2022,H_A,2
+Hindu,2022,H_D,14
+Hindu,2022,P_A,13
+Hindu,2022,P_D,132
+Hindu,2023,D,16
+Hindu,2023,H_A,2
+Hindu,2023,H_D,11
+Hindu,2023,P_A,11
+Hindu,2023,P_D,139
+Islamic,2000,P_D,1
+Islamic,2001,D,1
+Islamic,2001,P_D,2
+Islamic,2002,A,1
+Islamic,2002,D,4
+Islamic,2002,P_D,4
+Islamic,2003,A,1
+Islamic,2003,D,5
+Islamic,2003,P_D,9
+Islamic,2004,D,7
+Islamic,2004,P_A,1
+Islamic,2004,P_D,13
+Islamic,2005,D,6
+Islamic,2005,P_A,2
+Islamic,2005,P_D,17
+Islamic,2006,D,10
+Islamic,2006,P_A,3
+Islamic,2006,P_D,19
+Islamic,2007,A,1
+Islamic,2007,D,15
+Islamic,2007,H_D,2
+Islamic,2007,P_A,4
+Islamic,2007,P_D,21
+Islamic,2008,D,14
+Islamic,2008,H_D,7
+Islamic,2008,P_A,9
+Islamic,2008,P_D,22
+Islamic,2009,A,1
+Islamic,2009,D,21
+Islamic,2009,H_D,6
+Islamic,2009,P_A,9
+Islamic,2009,P_D,28
+Islamic,2010,A,2
+Islamic,2010,D,25
+Islamic,2010,H_A,2
+Islamic,2010,H_D,7
+Islamic,2010,P_A,11
+Islamic,2010,P_D,38
+Islamic,2011,A,2
+Islamic,2011,D,30
+Islamic,2011,H_A,3
+Islamic,2011,H_D,9
+Islamic,2011,P_A,14
+Islamic,2011,P_D,43
+Islamic,2012,A,4
+Islamic,2012,D,29
+Islamic,2012,H_A,3
+Islamic,2012,H_D,10
+Islamic,2012,P_A,15
+Islamic,2012,P_D,52
+Islamic,2013,A,8
+Islamic,2013,D,31
+Islamic,2013,H_A,3
+Islamic,2013,H_D,10
+Islamic,2013,P_A,15
+Islamic,2013,P_D,65
+Islamic,2014,A,8
+Islamic,2014,D,28
+Islamic,2014,H_A,2
+Islamic,2014,H_D,10
+Islamic,2014,P_A,17
+Islamic,2014,P_D,80
+Islamic,2015,A,7
+Islamic,2015,D,27
+Islamic,2015,H_A,5
+Islamic,2015,H_D,13
+Islamic,2015,P_A,19
+Islamic,2015,P_D,94
+Islamic,2016,A,5
+Islamic,2016,D,27
+Islamic,2016,H_A,6
+Islamic,2016,H_D,20
+Islamic,2016,P_A,22
+Islamic,2016,P_D,102
+Islamic,2017,A,3
+Islamic,2017,D,19
+Islamic,2017,H_A,9
+Islamic,2017,H_D,16
+Islamic,2017,P_A,21
+Islamic,2017,P_D,111
+Islamic,2018,A,3
+Islamic,2018,D,15
+Islamic,2018,H_A,8
+Islamic,2018,H_D,16
+Islamic,2018,P_A,22
+Islamic,2018,P_D,110
+Islamic,2019,A,2
+Islamic,2019,D,13
+Islamic,2019,H_A,7
+Islamic,2019,H_D,12
+Islamic,2019,P_A,28
+Islamic,2019,P_D,107
+Islamic,2020,A,1
+Islamic,2020,D,12
+Islamic,2020,H_A,5
+Islamic,2020,H_D,10
+Islamic,2020,P_A,33
+Islamic,2020,P_D,104
+Islamic,2021,D,11
+Islamic,2021,H_A,3
+Islamic,2021,H_D,11
+Islamic,2021,P_A,28
+Islamic,2021,P_D,112
+Islamic,2022,D,9
+Islamic,2022,H_A,2
+Islamic,2022,H_D,10
+Islamic,2022,P_A,22
+Islamic,2022,P_D,122
+Islamic,2023,D,8
+Islamic,2023,H_A,1
+Islamic,2023,H_D,10
+Islamic,2023,P_A,19
+Islamic,2023,P_D,127
+Japanese,2000,D,5
+Japanese,2000,H_D,1
+Japanese,2000,P_D,4
+Japanese,2001,D,17
+Japanese,2001,H_D,7
+Japanese,2001,P_D,5
+Japanese,2002,A,2
+Japanese,2002,D,27
+Japanese,2002,H_A,1
+Japanese,2002,H_D,10
+Japanese,2002,P_D,16
+Japanese,2003,A,2
+Japanese,2003,D,33
+Japanese,2003,H_A,1
+Japanese,2003,H_D,12
+Japanese,2003,P_D,23
+Japanese,2004,A,2
+Japanese,2004,D,38
+Japanese,2004,H_D,13
+Japanese,2004,P_A,4
+Japanese,2004,P_D,27
+Japanese,2005,A,2
+Japanese,2005,D,38
+Japanese,2005,H_A,2
+Japanese,2005,H_D,17
+Japanese,2005,P_A,5
+Japanese,2005,P_D,34
+Japanese,2006,A,2
+Japanese,2006,D,43
+Japanese,2006,H_A,2
+Japanese,2006,H_D,18
+Japanese,2006,P_A,7
+Japanese,2006,P_D,42
+Japanese,2007,A,2
+Japanese,2007,D,44
+Japanese,2007,H_A,5
+Japanese,2007,H_D,17
+Japanese,2007,P_A,9
+Japanese,2007,P_D,47
+Japanese,2008,A,2
+Japanese,2008,D,46
+Japanese,2008,H_A,4
+Japanese,2008,H_D,15
+Japanese,2008,P_A,13
+Japanese,2008,P_D,55
+Japanese,2009,A,2
+Japanese,2009,D,45
+Japanese,2009,H_A,4
+Japanese,2009,H_D,17
+Japanese,2009,P_A,12
+Japanese,2009,P_D,63
+Japanese,2010,A,1
+Japanese,2010,D,48
+Japanese,2010,H_A,3
+Japanese,2010,H_D,18
+Japanese,2010,P_A,12
+Japanese,2010,P_D,76
+Japanese,2011,A,1
+Japanese,2011,D,39
+Japanese,2011,H_A,3
+Japanese,2011,H_D,26
+Japanese,2011,P_A,12
+Japanese,2011,P_D,87
+Japanese,2012,A,1
+Japanese,2012,D,40
+Japanese,2012,H_A,3
+Japanese,2012,H_D,25
+Japanese,2012,P_A,14
+Japanese,2012,P_D,91
+Japanese,2013,A,1
+Japanese,2013,D,45
+Japanese,2013,H_A,2
+Japanese,2013,H_D,22
+Japanese,2013,P_A,14
+Japanese,2013,P_D,99
+Japanese,2014,A,2
+Japanese,2014,D,40
+Japanese,2014,H_A,2
+Japanese,2014,H_D,21
+Japanese,2014,P_A,20
+Japanese,2014,P_D,102
+Japanese,2015,A,2
+Japanese,2015,D,41
+Japanese,2015,H_A,2
+Japanese,2015,H_D,20
+Japanese,2015,P_A,17
+Japanese,2015,P_D,110
+Japanese,2016,A,2
+Japanese,2016,D,40
+Japanese,2016,H_A,2
+Japanese,2016,H_D,17
+Japanese,2016,P_A,20
+Japanese,2016,P_D,117
+Japanese,2017,A,2
+Japanese,2017,D,35
+Japanese,2017,H_A,4
+Japanese,2017,H_D,12
+Japanese,2017,P_A,20
+Japanese,2017,P_D,119
+Japanese,2018,A,3
+Japanese,2018,D,30
+Japanese,2018,H_A,2
+Japanese,2018,H_D,14
+Japanese,2018,P_A,20
+Japanese,2018,P_D,122
+Japanese,2019,A,3
+Japanese,2019,D,25
+Japanese,2019,H_A,4
+Japanese,2019,H_D,11
+Japanese,2019,P_A,17
+Japanese,2019,P_D,120
+Japanese,2020,A,2
+Japanese,2020,D,22
+Japanese,2020,H_A,5
+Japanese,2020,H_D,10
+Japanese,2020,P_A,19
+Japanese,2020,P_D,113
+Japanese,2021,A,1
+Japanese,2021,D,20
+Japanese,2021,H_A,2
+Japanese,2021,H_D,12
+Japanese,2021,P_A,10
+Japanese,2021,P_D,126
+Japanese,2022,D,18
+Japanese,2022,H_A,3
+Japanese,2022,H_D,10
+Japanese,2022,P_A,9
+Japanese,2022,P_D,131
+Japanese,2023,D,18
+Japanese,2023,H_A,3
+Japanese,2023,H_D,9
+Japanese,2023,P_A,9
+Japanese,2023,P_D,132
+Other Civilizations,2000,D,2
+Other Civilizations,2000,H_D,3
+Other Civilizations,2000,P_D,2
+Other Civilizations,2001,D,6
+Other Civilizations,2001,H_D,4
+Other Civilizations,2001,P_D,6
+Other Civilizations,2002,A,1
+Other Civilizations,2002,D,12
+Other Civilizations,2002,H_D,3
+Other Civilizations,2002,P_D,12
+Other Civilizations,2003,D,11
+Other Civilizations,2003,H_D,7
+Other Civilizations,2003,P_A,3
+Other Civilizations,2003,P_D,14
+Other Civilizations,2004,D,20
+Other Civilizations,2004,H_A,2
+Other Civilizations,2004,H_D,3
+Other Civilizations,2004,P_A,5
+Other Civilizations,2004,P_D,19
+Other Civilizations,2005,A,1
+Other Civilizations,2005,D,25
+Other Civilizations,2005,H_A,2
+Other Civilizations,2005,H_D,6
+Other Civilizations,2005,P_A,6
+Other Civilizations,2005,P_D,21
+Other Civilizations,2006,A,1
+Other Civilizations,2006,D,28
+Other Civilizations,2006,H_D,8
+Other Civilizations,2006,P_A,12
+Other Civilizations,2006,P_D,28
+Other Civilizations,2007,A,2
+Other Civilizations,2007,D,28
+Other Civilizations,2007,H_D,6
+Other Civilizations,2007,P_A,11
+Other Civilizations,2007,P_D,41
+Other Civilizations,2008,A,2
+Other Civilizations,2008,D,30
+Other Civilizations,2008,H_D,9
+Other Civilizations,2008,P_A,14
+Other Civilizations,2008,P_D,43
+Other Civilizations,2009,A,1
+Other Civilizations,2009,D,28
+Other Civilizations,2009,H_A,1
+Other Civilizations,2009,H_D,11
+Other Civilizations,2009,P_A,14
+Other Civilizations,2009,P_D,51
+Other Civilizations,2010,A,2
+Other Civilizations,2010,D,29
+Other Civilizations,2010,H_D,13
+Other Civilizations,2010,P_A,16
+Other Civilizations,2010,P_D,59
+Other Civilizations,2011,A,1
+Other Civilizations,2011,D,28
+Other Civilizations,2011,H_A,1
+Other Civilizations,2011,H_D,19
+Other Civilizations,2011,P_A,16
+Other Civilizations,2011,P_D,63
+Other Civilizations,2012,A,2
+Other Civilizations,2012,D,35
+Other Civilizations,2012,H_A,2
+Other Civilizations,2012,H_D,15
+Other Civilizations,2012,P_A,16
+Other Civilizations,2012,P_D,75
+Other Civilizations,2013,A,2
+Other Civilizations,2013,D,34
+Other Civilizations,2013,H_A,3
+Other Civilizations,2013,H_D,19
+Other Civilizations,2013,P_A,18
+Other Civilizations,2013,P_D,83
+Other Civilizations,2014,A,3
+Other Civilizations,2014,D,42
+Other Civilizations,2014,H_A,2
+Other Civilizations,2014,H_D,14
+Other Civilizations,2014,P_A,23
+Other Civilizations,2014,P_D,87
+Other Civilizations,2015,A,4
+Other Civilizations,2015,D,46
+Other Civilizations,2015,H_A,2
+Other Civilizations,2015,H_D,15
+Other Civilizations,2015,P_A,24
+Other Civilizations,2015,P_D,101
+Other Civilizations,2016,A,5
+Other Civilizations,2016,D,44
+Other Civilizations,2016,H_A,2
+Other Civilizations,2016,H_D,13
+Other Civilizations,2016,P_A,20
+Other Civilizations,2016,P_D,110
+Other Civilizations,2017,A,3
+Other Civilizations,2017,D,38
+Other Civilizations,2017,H_A,3
+Other Civilizations,2017,H_D,17
+Other Civilizations,2017,P_A,20
+Other Civilizations,2017,P_D,106
+Other Civilizations,2018,A,3
+Other Civilizations,2018,D,33
+Other Civilizations,2018,H_A,3
+Other Civilizations,2018,H_D,17
+Other Civilizations,2018,P_A,23
+Other Civilizations,2018,P_D,104
+Other Civilizations,2019,A,3
+Other Civilizations,2019,D,23
+Other Civilizations,2019,H_A,2
+Other Civilizations,2019,H_D,15
+Other Civilizations,2019,P_A,24
+Other Civilizations,2019,P_D,109
+Other Civilizations,2020,A,3
+Other Civilizations,2020,D,21
+Other Civilizations,2020,H_A,2
+Other Civilizations,2020,H_D,10
+Other Civilizations,2020,P_A,25
+Other Civilizations,2020,P_D,107
+Other Civilizations,2021,A,1
+Other Civilizations,2021,D,22
+Other Civilizations,2021,H_A,1
+Other Civilizations,2021,H_D,8
+Other Civilizations,2021,P_A,16
+Other Civilizations,2021,P_D,120
+Other Civilizations,2022,A,2
+Other Civilizations,2022,D,21
+Other Civilizations,2022,H_D,9
+Other Civilizations,2022,P_A,15
+Other Civilizations,2022,P_D,121
+Other Civilizations,2023,A,2
+Other Civilizations,2023,D,19
+Other Civilizations,2023,H_D,9
+Other Civilizations,2023,P_A,15
+Other Civilizations,2023,P_D,123
+Other Western,2000,D,4
+Other Western,2000,P_D,2
 Other Western,2001,A,1
-Other Western,2001,D,2
-Other Western,2001,P_D,1
+Other Western,2001,D,7
+Other Western,2001,H_D,1
+Other Western,2001,P_D,6
 Other Western,2002,A,1
-Other Western,2002,D,1
-Other Western,2002,H_D,1
-Other Western,2002,P_D,1
-Other Western,2003,A,1
-Other Western,2003,D,1
-Other Western,2003,H_D,1
-Other Western,2003,P_D,1
-Other Western,2004,D,3
+Other Western,2002,D,8
+Other Western,2002,H_D,4
+Other Western,2002,P_D,9
+Other Western,2003,D,9
+Other Western,2003,H_A,1
+Other Western,2003,H_D,10
+Other Western,2003,P_A,1
+Other Western,2003,P_D,11
+Other Western,2004,D,10
 Other Western,2004,H_A,1
-Other Western,2004,H_D,3
-Other Western,2004,P_D,1
-Other Western,2005,D,2
-Other Western,2005,H_A,2
-Other Western,2005,H_D,2
-Other Western,2005,P_D,2
-Other Western,2006,D,2
+Other Western,2004,H_D,12
+Other Western,2004,P_A,1
+Other Western,2004,P_D,16
+Other Western,2005,D,11
+Other Western,2005,H_A,1
+Other Western,2005,H_D,13
+Other Western,2005,P_A,1
+Other Western,2005,P_D,22
+Other Western,2006,D,12
 Other Western,2006,H_A,1
-Other Western,2006,H_D,3
-Other Western,2006,P_A,1
-Other Western,2006,P_D,4
-Other Western,2007,D,2
-Other Western,2007,H_A,1
-Other Western,2007,H_D,2
-Other Western,2007,P_A,2
-Other Western,2007,P_D,5
-Other Western,2008,D,1
-Other Western,2008,H_A,1
-Other Western,2008,H_D,1
-Other Western,2008,P_A,2
-Other Western,2008,P_D,6
-Other Western,2009,H_A,1
-Other Western,2009,H_D,2
-Other Western,2009,P_A,1
-Other Western,2009,P_D,6
-Other Western,2010,H_D,3
-Other Western,2010,P_A,2
-Other Western,2010,P_D,8
-Other Western,2011,H_D,3
-Other Western,2011,P_A,3
-Other Western,2011,P_D,7
-Other Western,2012,H_D,4
-Other Western,2012,P_A,3
-Other Western,2012,P_D,9
-Other Western,2013,H_D,3
-Other Western,2013,P_A,3
-Other Western,2013,P_D,7
-Other Western,2014,D,1
-Other Western,2014,H_A,1
-Other Western,2014,H_D,3
-Other Western,2014,P_A,3
-Other Western,2014,P_D,8
-Other Western,2015,D,1
-Other Western,2015,H_A,1
-Other Western,2015,H_D,2
-Other Western,2015,P_A,3
-Other Western,2015,P_D,10
-Other Western,2016,H_A,1
-Other Western,2016,H_D,2
-Other Western,2016,P_A,3
-Other Western,2016,P_D,12
-Other Western,2017,H_A,1
-Other Western,2017,H_D,1
-Other Western,2017,P_A,2
-Other Western,2017,P_D,13
-Other Western,2018,H_A,1
-Other Western,2018,P_A,5
-Other Western,2018,P_D,11
-Other Western,2019,H_D,1
-Other Western,2019,P_A,5
-Other Western,2019,P_D,11
-Other Western,2020,P_A,5
-Other Western,2020,P_D,11
-Other Western,2021,P_A,3
-Other Western,2021,P_D,13
-Other Western,2022,P_A,1
-Other Western,2022,P_D,15
-Other Western,2023,P_A,1
-Other Western,2023,P_D,15
-Sinic,2000,D,2
-Sinic,2000,P_A,1
-Sinic,2001,D,4
-Sinic,2001,P_A,1
-Sinic,2001,P_D,1
-Sinic,2002,D,3
-Sinic,2002,P_A,1
-Sinic,2002,P_D,3
-Sinic,2003,D,3
-Sinic,2003,H_D,1
-Sinic,2003,P_A,1
-Sinic,2003,P_D,6
-Sinic,2004,D,3
-Sinic,2004,H_D,1
-Sinic,2004,P_A,2
-Sinic,2004,P_D,7
-Sinic,2005,D,2
-Sinic,2005,H_D,1
-Sinic,2005,P_A,3
-Sinic,2005,P_D,10
-Sinic,2006,D,3
-Sinic,2006,H_D,2
-Sinic,2006,P_A,4
-Sinic,2006,P_D,11
-Sinic,2007,D,5
-Sinic,2007,H_A,1
-Sinic,2007,H_D,3
-Sinic,2007,P_A,3
-Sinic,2007,P_D,15
-Sinic,2008,D,4
-Sinic,2008,H_A,1
-Sinic,2008,H_D,2
-Sinic,2008,P_A,3
-Sinic,2008,P_D,19
-Sinic,2009,D,6
-Sinic,2009,H_D,2
-Sinic,2009,P_A,5
-Sinic,2009,P_D,18
-Sinic,2010,D,4
-Sinic,2010,H_D,2
-Sinic,2010,P_A,5
-Sinic,2010,P_D,22
-Sinic,2011,D,8
-Sinic,2011,H_A,1
-Sinic,2011,H_D,4
-Sinic,2011,P_A,5
-Sinic,2011,P_D,23
-Sinic,2012,D,4
-Sinic,2012,H_A,1
-Sinic,2012,H_D,4
-Sinic,2012,P_A,4
-Sinic,2012,P_D,28
-Sinic,2013,A,1
-Sinic,2013,D,7
-Sinic,2013,H_A,1
-Sinic,2013,H_D,3
-Sinic,2013,P_A,5
-Sinic,2013,P_D,31
-Sinic,2014,A,1
-Sinic,2014,D,8
-Sinic,2014,H_A,1
-Sinic,2014,H_D,1
-Sinic,2014,P_A,4
-Sinic,2014,P_D,35
-Sinic,2015,A,2
-Sinic,2015,D,8
-Sinic,2015,H_A,1
-Sinic,2015,H_D,2
-Sinic,2015,P_A,7
-Sinic,2015,P_D,34
-Sinic,2016,A,2
-Sinic,2016,D,9
-Sinic,2016,H_A,2
-Sinic,2016,H_D,3
-Sinic,2016,P_A,8
-Sinic,2016,P_D,34
-Sinic,2017,A,2
-Sinic,2017,D,9
-Sinic,2017,H_A,2
-Sinic,2017,H_D,2
-Sinic,2017,P_A,8
-Sinic,2017,P_D,34
-Sinic,2018,A,1
-Sinic,2018,D,7
-Sinic,2018,H_A,3
-Sinic,2018,H_D,2
-Sinic,2018,P_A,8
-Sinic,2018,P_D,36
-Sinic,2019,A,1
-Sinic,2019,D,6
-Sinic,2019,H_A,3
-Sinic,2019,H_D,3
-Sinic,2019,P_A,9
-Sinic,2019,P_D,34
-Sinic,2020,A,1
-Sinic,2020,D,4
-Sinic,2020,H_A,1
-Sinic,2020,H_D,3
-Sinic,2020,P_A,10
-Sinic,2020,P_D,37
-Sinic,2021,D,4
-Sinic,2021,H_D,3
-Sinic,2021,P_A,5
-Sinic,2021,P_D,44
-Sinic,2022,A,1
-Sinic,2022,D,3
-Sinic,2022,H_D,2
-Sinic,2022,P_A,5
-Sinic,2022,P_D,45
-Sinic,2023,D,4
-Sinic,2023,H_D,1
-Sinic,2023,P_A,3
-Sinic,2023,P_D,48
-United States,2000,D,3
-United States,2000,H_D,1
-United States,2000,P_D,1
-United States,2001,D,3
-United States,2001,H_D,3
-United States,2001,P_D,2
-United States,2002,D,1
-United States,2002,H_D,3
-United States,2002,P_A,1
-United States,2002,P_D,6
-United States,2003,D,2
-United States,2003,H_D,4
-United States,2003,P_A,1
-United States,2003,P_D,7
-United States,2004,A,1
-United States,2004,D,3
-United States,2004,H_D,6
-United States,2004,P_A,2
-United States,2004,P_D,7
-United States,2005,D,3
-United States,2005,H_A,1
-United States,2005,H_D,6
-United States,2005,P_A,5
-United States,2005,P_D,8
-United States,2006,A,1
-United States,2006,D,5
-United States,2006,H_A,2
-United States,2006,H_D,5
-United States,2006,P_A,5
-United States,2006,P_D,10
-United States,2007,A,2
-United States,2007,D,6
-United States,2007,H_A,1
-United States,2007,H_D,5
-United States,2007,P_A,4
-United States,2007,P_D,16
-United States,2008,A,1
-United States,2008,D,5
-United States,2008,H_A,2
-United States,2008,H_D,4
-United States,2008,P_A,5
-United States,2008,P_D,20
-United States,2009,A,1
-United States,2009,D,5
-United States,2009,H_A,1
-United States,2009,H_D,7
-United States,2009,P_A,5
-United States,2009,P_D,22
-United States,2010,D,4
-United States,2010,H_A,1
-United States,2010,H_D,7
-United States,2010,P_A,7
-United States,2010,P_D,23
-United States,2011,D,4
-United States,2011,H_A,1
-United States,2011,H_D,6
-United States,2011,P_A,7
-United States,2011,P_D,25
-United States,2012,D,3
-United States,2012,H_A,1
-United States,2012,H_D,6
-United States,2012,P_A,7
-United States,2012,P_D,28
-United States,2013,D,2
-United States,2013,H_A,2
-United States,2013,H_D,7
-United States,2013,P_A,8
-United States,2013,P_D,27
-United States,2014,D,3
-United States,2014,H_A,2
-United States,2014,H_D,6
-United States,2014,P_A,9
-United States,2014,P_D,28
-United States,2015,D,2
-United States,2015,H_A,3
-United States,2015,H_D,7
-United States,2015,P_A,9
-United States,2015,P_D,28
-United States,2016,A,1
-United States,2016,D,2
-United States,2016,H_A,1
-United States,2016,H_D,10
-United States,2016,P_A,11
-United States,2016,P_D,29
-United States,2017,A,1
-United States,2017,D,2
-United States,2017,H_A,2
-United States,2017,H_D,8
-United States,2017,P_A,10
-United States,2017,P_D,31
-United States,2018,D,1
-United States,2018,H_A,3
-United States,2018,H_D,6
-United States,2018,P_A,12
-United States,2018,P_D,31
-United States,2019,D,1
-United States,2019,H_A,1
-United States,2019,H_D,7
-United States,2019,P_A,12
-United States,2019,P_D,31
-United States,2020,D,1
-United States,2020,H_D,4
-United States,2020,P_A,13
-United States,2020,P_D,33
-United States,2021,D,1
-United States,2021,H_A,1
-United States,2021,H_D,3
-United States,2021,P_A,13
-United States,2021,P_D,33
-United States,2022,D,1
-United States,2022,H_D,3
-United States,2022,P_A,10
-United States,2022,P_D,37
-United States,2023,D,1
-United States,2023,H_D,3
-United States,2023,P_A,10
-United States,2023,P_D,37
+Other Western,2006,H_D,13
+Other Western,2006,P_A,4
+Other Western,2006,P_D,28
+Other Western,2007,D,11
+Other Western,2007,H_A,2
+Other Western,2007,H_D,9
+Other Western,2007,P_A,8
+Other Western,2007,P_D,29
+Other Western,2008,A,1
+Other Western,2008,D,13
+Other Western,2008,H_A,4
+Other Western,2008,H_D,8
+Other Western,2008,P_A,11
+Other Western,2008,P_D,26
+Other Western,2009,D,10
+Other Western,2009,H_A,5
+Other Western,2009,H_D,16
+Other Western,2009,P_A,10
+Other Western,2009,P_D,29
+Other Western,2010,D,12
+Other Western,2010,H_A,5
+Other Western,2010,H_D,16
+Other Western,2010,P_A,11
+Other Western,2010,P_D,35
+Other Western,2011,D,15
+Other Western,2011,H_A,9
+Other Western,2011,H_D,13
+Other Western,2011,P_A,14
+Other Western,2011,P_D,36
+Other Western,2012,A,1
+Other Western,2012,D,16
+Other Western,2012,H_A,6
+Other Western,2012,H_D,16
+Other Western,2012,P_A,14
+Other Western,2012,P_D,42
+Other Western,2013,A,1
+Other Western,2013,D,13
+Other Western,2013,H_A,6
+Other Western,2013,H_D,16
+Other Western,2013,P_A,16
+Other Western,2013,P_D,42
+Other Western,2014,A,2
+Other Western,2014,D,12
+Other Western,2014,H_A,6
+Other Western,2014,H_D,16
+Other Western,2014,P_A,16
+Other Western,2014,P_D,53
+Other Western,2015,A,1
+Other Western,2015,D,12
+Other Western,2015,H_A,9
+Other Western,2015,H_D,14
+Other Western,2015,P_A,18
+Other Western,2015,P_D,55
+Other Western,2016,D,11
+Other Western,2016,H_A,9
+Other Western,2016,H_D,18
+Other Western,2016,P_A,16
+Other Western,2016,P_D,63
+Other Western,2017,A,1
+Other Western,2017,D,6
+Other Western,2017,H_A,5
+Other Western,2017,H_D,16
+Other Western,2017,P_A,21
+Other Western,2017,P_D,65
+Other Western,2018,D,5
+Other Western,2018,H_A,3
+Other Western,2018,H_D,13
+Other Western,2018,P_A,28
+Other Western,2018,P_D,63
+Other Western,2019,D,3
+Other Western,2019,H_A,2
+Other Western,2019,H_D,11
+Other Western,2019,P_A,30
+Other Western,2019,P_D,59
+Other Western,2020,D,1
+Other Western,2020,H_A,4
+Other Western,2020,H_D,7
+Other Western,2020,P_A,24
+Other Western,2020,P_D,67
+Other Western,2021,D,1
+Other Western,2021,H_A,1
+Other Western,2021,H_D,7
+Other Western,2021,P_A,13
+Other Western,2021,P_D,81
+Other Western,2022,D,1
+Other Western,2022,H_D,8
+Other Western,2022,P_A,8
+Other Western,2022,P_D,86
+Other Western,2023,D,1
+Other Western,2023,H_D,8
+Other Western,2023,P_A,7
+Other Western,2023,P_D,87
+Sinic,2000,D,3
+Sinic,2000,P_A,2
+Sinic,2000,P_D,4
+Sinic,2001,D,10
+Sinic,2001,P_A,2
+Sinic,2001,P_D,13
+Sinic,2002,D,19
+Sinic,2002,H_D,2
+Sinic,2002,P_A,2
+Sinic,2002,P_D,24
+Sinic,2003,D,17
+Sinic,2003,H_D,7
+Sinic,2003,P_A,2
+Sinic,2003,P_D,35
+Sinic,2004,D,20
+Sinic,2004,H_D,11
+Sinic,2004,P_A,3
+Sinic,2004,P_D,47
+Sinic,2005,D,25
+Sinic,2005,H_A,1
+Sinic,2005,H_D,9
+Sinic,2005,P_A,9
+Sinic,2005,P_D,71
+Sinic,2006,A,1
+Sinic,2006,D,33
+Sinic,2006,H_A,3
+Sinic,2006,H_D,11
+Sinic,2006,P_A,15
+Sinic,2006,P_D,81
+Sinic,2007,A,1
+Sinic,2007,D,33
+Sinic,2007,H_A,4
+Sinic,2007,H_D,15
+Sinic,2007,P_A,19
+Sinic,2007,P_D,95
+Sinic,2008,A,1
+Sinic,2008,D,37
+Sinic,2008,H_A,4
+Sinic,2008,H_D,13
+Sinic,2008,P_A,29
+Sinic,2008,P_D,114
+Sinic,2009,A,1
+Sinic,2009,D,49
+Sinic,2009,H_A,2
+Sinic,2009,H_D,19
+Sinic,2009,P_A,36
+Sinic,2009,P_D,126
+Sinic,2010,A,1
+Sinic,2010,D,50
+Sinic,2010,H_A,4
+Sinic,2010,H_D,18
+Sinic,2010,P_A,41
+Sinic,2010,P_D,147
+Sinic,2011,A,1
+Sinic,2011,D,52
+Sinic,2011,H_A,7
+Sinic,2011,H_D,20
+Sinic,2011,P_A,45
+Sinic,2011,P_D,156
+Sinic,2012,A,2
+Sinic,2012,D,53
+Sinic,2012,H_A,6
+Sinic,2012,H_D,23
+Sinic,2012,P_A,44
+Sinic,2012,P_D,170
+Sinic,2013,A,3
+Sinic,2013,D,48
+Sinic,2013,H_A,7
+Sinic,2013,H_D,28
+Sinic,2013,P_A,45
+Sinic,2013,P_D,182
+Sinic,2014,A,2
+Sinic,2014,D,47
+Sinic,2014,H_A,7
+Sinic,2014,H_D,26
+Sinic,2014,P_A,49
+Sinic,2014,P_D,195
+Sinic,2015,A,4
+Sinic,2015,D,51
+Sinic,2015,H_A,7
+Sinic,2015,H_D,29
+Sinic,2015,P_A,56
+Sinic,2015,P_D,197
+Sinic,2016,A,3
+Sinic,2016,D,47
+Sinic,2016,H_A,8
+Sinic,2016,H_D,29
+Sinic,2016,P_A,57
+Sinic,2016,P_D,203
+Sinic,2017,A,3
+Sinic,2017,D,43
+Sinic,2017,H_A,8
+Sinic,2017,H_D,26
+Sinic,2017,P_A,62
+Sinic,2017,P_D,204
+Sinic,2018,A,2
+Sinic,2018,D,37
+Sinic,2018,H_A,8
+Sinic,2018,H_D,28
+Sinic,2018,P_A,63
+Sinic,2018,P_D,208
+Sinic,2019,A,2
+Sinic,2019,D,34
+Sinic,2019,H_A,8
+Sinic,2019,H_D,25
+Sinic,2019,P_A,61
+Sinic,2019,P_D,211
+Sinic,2020,A,3
+Sinic,2020,D,31
+Sinic,2020,H_A,4
+Sinic,2020,H_D,21
+Sinic,2020,P_A,65
+Sinic,2020,P_D,212
+Sinic,2021,A,1
+Sinic,2021,D,29
+Sinic,2021,H_A,2
+Sinic,2021,H_D,20
+Sinic,2021,P_A,40
+Sinic,2021,P_D,244
+Sinic,2022,A,3
+Sinic,2022,D,21
+Sinic,2022,H_A,1
+Sinic,2022,H_D,20
+Sinic,2022,P_A,41
+Sinic,2022,P_D,250
+Sinic,2023,A,1
+Sinic,2023,D,21
+Sinic,2023,H_D,18
+Sinic,2023,P_A,32
+Sinic,2023,P_D,264
+United States,2000,A,1
+United States,2000,D,8
+United States,2000,H_A,1
+United States,2000,H_D,5
+United States,2000,P_A,2
+United States,2000,P_D,9
+United States,2001,A,2
+United States,2001,D,12
+United States,2001,H_A,1
+United States,2001,H_D,9
+United States,2001,P_A,3
+United States,2001,P_D,16
+United States,2002,A,2
+United States,2002,D,15
+United States,2002,H_A,1
+United States,2002,H_D,13
+United States,2002,P_A,5
+United States,2002,P_D,40
+United States,2003,A,4
+United States,2003,D,18
+United States,2003,H_D,12
+United States,2003,P_A,9
+United States,2003,P_D,50
+United States,2004,A,4
+United States,2004,D,17
+United States,2004,H_A,1
+United States,2004,H_D,23
+United States,2004,P_A,17
+United States,2004,P_D,59
+United States,2005,A,5
+United States,2005,D,17
+United States,2005,H_A,5
+United States,2005,H_D,22
+United States,2005,P_A,29
+United States,2005,P_D,64
+United States,2006,A,4
+United States,2006,D,17
+United States,2006,H_A,6
+United States,2006,H_D,26
+United States,2006,P_A,38
+United States,2006,P_D,71
+United States,2007,A,4
+United States,2007,D,19
+United States,2007,H_A,7
+United States,2007,H_D,24
+United States,2007,P_A,42
+United States,2007,P_D,83
+United States,2008,A,3
+United States,2008,D,24
+United States,2008,H_A,8
+United States,2008,H_D,22
+United States,2008,P_A,52
+United States,2008,P_D,91
+United States,2009,A,4
+United States,2009,D,23
+United States,2009,H_A,9
+United States,2009,H_D,29
+United States,2009,P_A,58
+United States,2009,P_D,101
+United States,2010,A,3
+United States,2010,D,17
+United States,2010,H_A,9
+United States,2010,H_D,28
+United States,2010,P_A,69
+United States,2010,P_D,108
+United States,2011,A,4
+United States,2011,D,17
+United States,2011,H_A,9
+United States,2011,H_D,28
+United States,2011,P_A,69
+United States,2011,P_D,118
+United States,2012,A,5
+United States,2012,D,23
+United States,2012,H_A,10
+United States,2012,H_D,26
+United States,2012,P_A,77
+United States,2012,P_D,122
+United States,2013,A,5
+United States,2013,D,24
+United States,2013,H_A,11
+United States,2013,H_D,37
+United States,2013,P_A,81
+United States,2013,P_D,121
+United States,2014,A,4
+United States,2014,D,26
+United States,2014,H_A,11
+United States,2014,H_D,35
+United States,2014,P_A,88
+United States,2014,P_D,126
+United States,2015,A,4
+United States,2015,D,28
+United States,2015,H_A,13
+United States,2015,H_D,37
+United States,2015,P_A,85
+United States,2015,P_D,135
+United States,2016,A,8
+United States,2016,D,27
+United States,2016,H_A,10
+United States,2016,H_D,43
+United States,2016,P_A,92
+United States,2016,P_D,141
+United States,2017,A,8
+United States,2017,D,21
+United States,2017,H_A,10
+United States,2017,H_D,36
+United States,2017,P_A,95
+United States,2017,P_D,145
+United States,2018,A,7
+United States,2018,D,15
+United States,2018,H_A,12
+United States,2018,H_D,32
+United States,2018,P_A,103
+United States,2018,P_D,142
+United States,2019,A,5
+United States,2019,D,14
+United States,2019,H_A,11
+United States,2019,H_D,27
+United States,2019,P_A,98
+United States,2019,P_D,151
+United States,2020,A,4
+United States,2020,D,11
+United States,2020,H_A,13
+United States,2020,H_D,16
+United States,2020,P_A,104
+United States,2020,P_D,151
+United States,2021,A,2
+United States,2021,D,8
+United States,2021,H_A,9
+United States,2021,H_D,20
+United States,2021,P_A,92
+United States,2021,P_D,168
+United States,2022,A,3
+United States,2022,D,6
+United States,2022,H_A,6
+United States,2022,H_D,16
+United States,2022,P_A,89
+United States,2022,P_D,179
+United States,2023,A,3
+United States,2023,D,6
+United States,2023,H_A,5
+United States,2023,H_D,16
+United States,2023,P_A,85
+United States,2023,P_D,184

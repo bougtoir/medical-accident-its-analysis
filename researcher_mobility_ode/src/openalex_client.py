@@ -21,9 +21,10 @@ class OpenAlexBudgetExhausted(RuntimeError):
 
 
 class OpenAlexClient:
-    def __init__(self, cache_dir=None, mailto=DEFAULT_MAILTO, delay=0.05):
+    def __init__(self, cache_dir=None, mailto=DEFAULT_MAILTO, delay=0.05, api_key=None):
         self.mailto = mailto
         self.delay = delay
+        self.api_key = api_key or os.environ.get("OPENALEX_API_KEY")
         self.session = requests.Session()
         self.cache_dir = Path(cache_dir) if cache_dir else None
         if self.cache_dir:
@@ -39,6 +40,8 @@ class OpenAlexClient:
         url = f"{OPENALEX_BASE}/{endpoint}"
         req_params = dict(params)
         req_params["mailto"] = self.mailto
+        if self.api_key:
+            req_params["api_key"] = self.api_key
         for attempt in range(8):
             if self.delay:
                 time.sleep(self.delay)

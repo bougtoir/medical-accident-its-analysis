@@ -1,126 +1,517 @@
 year,origin_group,destination_group,new_flow
-2000,Other Western,Unknown,1
+2000,Anglosphere ex-US,Continental Europe,1
+2000,Sinic,Sinic,1
 2000,Sinic,Unknown,1
+2000,United States,Unknown,4
+2001,Anglosphere ex-US,Anglosphere ex-US,2
+2001,Anglosphere ex-US,Unknown,1
+2001,Continental Europe,Hindu,1
+2001,Other Western,Unknown,1
+2001,United States,Sinic,1
+2001,United States,Unknown,1
 2002,Anglosphere ex-US,Anglosphere ex-US,1
-2002,Hindu,Hindu,1
+2002,Anglosphere ex-US,Other Western,1
+2002,Continental Europe,Continental Europe,5
+2002,Continental Europe,United States,1
+2002,Continental Europe,Unknown,1
+2002,Hindu,Hindu,2
+2002,Islamic,Islamic,1
+2002,Japanese,Islamic,1
+2002,Japanese,Japanese,2
+2002,Other Civilizations,Other Civilizations,1
 2002,United States,Anglosphere ex-US,1
-2003,Anglosphere ex-US,Unknown,1
+2002,United States,Other Western,1
+2003,Anglosphere ex-US,Anglosphere ex-US,2
+2003,Anglosphere ex-US,Sinic,1
+2003,Anglosphere ex-US,Unknown,2
+2003,Continental Europe,Continental Europe,1
 2003,Continental Europe,Islamic,1
 2003,Continental Europe,Unknown,2
 2003,Hindu,Hindu,1
-2004,Anglosphere ex-US,Sinic,1
-2004,Continental Europe,Continental Europe,1
-2004,Other Civilizations,Other Civilizations,1
+2003,Other Civilizations,Other Civilizations,2
+2003,Other Western,Other Western,1
+2003,United States,Anglosphere ex-US,1
+2003,United States,Continental Europe,1
+2003,United States,Other Western,1
+2003,United States,Sinic,2
+2004,Anglosphere ex-US,Anglosphere ex-US,1
+2004,Anglosphere ex-US,Continental Europe,1
+2004,Anglosphere ex-US,Sinic,2
+2004,Anglosphere ex-US,United States,1
+2004,Anglosphere ex-US,Unknown,1
+2004,Continental Europe,Continental Europe,4
+2004,Continental Europe,United States,1
+2004,Japanese,Japanese,3
+2004,Other Civilizations,Other Civilizations,2
+2004,Other Civilizations,United States,1
+2004,Other Civilizations,Unknown,1
 2004,Sinic,Sinic,1
-2004,United States,Hindu,1
-2004,United States,United States,1
+2004,United States,Hindu,2
+2004,United States,Japanese,2
+2004,United States,Other Western,1
+2004,United States,Sinic,1
+2004,United States,United States,3
+2005,Anglosphere ex-US,Anglosphere ex-US,2
+2005,Anglosphere ex-US,Islamic,1
 2005,Anglosphere ex-US,Other Civilizations,1
+2005,Anglosphere ex-US,Sinic,1
+2005,Anglosphere ex-US,United States,1
+2005,Continental Europe,Continental Europe,3
+2005,Continental Europe,Islamic,1
+2005,Continental Europe,United States,1
+2005,Continental Europe,Unknown,1
+2005,Hindu,United States,1
+2005,Islamic,Hindu,1
+2005,Japanese,Japanese,1
+2005,Japanese,Other Civilizations,1
+2005,Japanese,Unknown,1
 2005,Other Civilizations,Japanese,1
-2005,Other Western,Unknown,1
-2005,Sinic,Sinic,1
+2005,Other Civilizations,United States,1
+2005,Sinic,Anglosphere ex-US,1
+2005,Sinic,Sinic,6
+2005,United States,Anglosphere ex-US,2
+2005,United States,Continental Europe,1
+2005,United States,Hindu,1
+2005,United States,Japanese,1
 2005,United States,Other Western,1
-2005,United States,Sinic,1
-2005,United States,Unknown,1
+2005,United States,Sinic,3
+2005,United States,United States,6
+2005,United States,Unknown,3
 2006,Anglosphere ex-US,Anglosphere ex-US,2
-2006,Continental Europe,Continental Europe,1
-2006,Hindu,Hindu,1
+2006,Anglosphere ex-US,Other Civilizations,1
+2006,Continental Europe,Anglosphere ex-US,1
+2006,Continental Europe,Continental Europe,4
+2006,Continental Europe,Hindu,1
+2006,Continental Europe,Islamic,1
+2006,Continental Europe,Unknown,2
+2006,Hindu,Hindu,2
+2006,Hindu,Sinic,1
+2006,Hindu,United States,1
 2006,Islamic,Islamic,1
-2006,Sinic,Sinic,1
+2006,Japanese,Japanese,1
+2006,Japanese,Sinic,1
+2006,Other Civilizations,Anglosphere ex-US,1
+2006,Other Civilizations,Continental Europe,1
+2006,Other Civilizations,Other Civilizations,1
+2006,Other Civilizations,United States,1
+2006,Other Western,Anglosphere ex-US,1
+2006,Other Western,Other Western,2
+2006,Sinic,Japanese,1
+2006,Sinic,Sinic,6
+2006,Sinic,United States,1
+2006,Sinic,Unknown,1
+2006,United States,Anglosphere ex-US,1
 2006,United States,Continental Europe,1
 2006,United States,Other Western,1
-2007,Anglosphere ex-US,Anglosphere ex-US,1
+2006,United States,Sinic,5
+2006,United States,United States,2
+2006,United States,Unknown,1
+2007,Anglosphere ex-US,Anglosphere ex-US,5
 2007,Anglosphere ex-US,Continental Europe,1
-2007,Anglosphere ex-US,Other Western,1
+2007,Anglosphere ex-US,Japanese,1
+2007,Anglosphere ex-US,Other Western,2
+2007,Anglosphere ex-US,Sinic,1
+2007,Anglosphere ex-US,United States,4
 2007,Continental Europe,Anglosphere ex-US,1
-2007,Continental Europe,Continental Europe,1
-2007,Japanese,Sinic,1
-2007,Other Western,Other Western,1
+2007,Continental Europe,Continental Europe,4
+2007,Continental Europe,United States,1
+2007,Continental Europe,Unknown,4
+2007,Hindu,Unknown,1
+2007,Islamic,Continental Europe,1
+2007,Islamic,Islamic,1
+2007,Japanese,Anglosphere ex-US,1
+2007,Japanese,Japanese,2
+2007,Japanese,Sinic,2
+2007,Other Civilizations,Japanese,1
+2007,Other Western,Other Western,4
+2007,Other Western,Unknown,1
+2007,Sinic,Other Civilizations,1
+2007,Sinic,Sinic,4
 2007,Sinic,United States,1
+2007,Sinic,Unknown,1
+2007,United States,Anglosphere ex-US,1
+2007,United States,Continental Europe,2
 2007,United States,Other Western,1
+2007,United States,Sinic,1
+2007,United States,United States,2
+2007,United States,Unknown,1
+2008,Anglosphere ex-US,Continental Europe,1
+2008,Anglosphere ex-US,Sinic,2
 2008,Anglosphere ex-US,Unknown,1
-2008,Continental Europe,Continental Europe,2
-2008,Continental Europe,Other Western,1
-2008,Islamic,Islamic,1
+2008,Continental Europe,Continental Europe,6
+2008,Continental Europe,Other Western,2
+2008,Continental Europe,United States,2
+2008,Hindu,Continental Europe,1
+2008,Islamic,Hindu,1
+2008,Islamic,Islamic,2
+2008,Islamic,Sinic,1
 2008,Japanese,Japanese,1
-2008,Other Western,Other Western,1
-2008,United States,Sinic,1
+2008,Japanese,Unknown,2
+2008,Other Civilizations,Anglosphere ex-US,1
+2008,Other Civilizations,Continental Europe,1
+2008,Other Civilizations,Other Civilizations,1
+2008,Other Western,Other Western,6
+2008,Sinic,Continental Europe,1
+2008,Sinic,Islamic,1
+2008,Sinic,Japanese,1
+2008,Sinic,Sinic,6
+2008,Sinic,United States,1
+2008,United States,Anglosphere ex-US,2
+2008,United States,Islamic,1
+2008,United States,Japanese,1
+2008,United States,Other Western,1
+2008,United States,Sinic,2
+2008,United States,United States,1
+2008,United States,Unknown,3
+2009,Anglosphere ex-US,Anglosphere ex-US,1
 2009,Anglosphere ex-US,Continental Europe,2
+2009,Anglosphere ex-US,Japanese,1
 2009,Anglosphere ex-US,Other Civilizations,1
-2009,Japanese,Japanese,1
+2009,Anglosphere ex-US,United States,1
+2009,Continental Europe,Anglosphere ex-US,2
+2009,Continental Europe,Continental Europe,5
+2009,Continental Europe,Islamic,1
+2009,Continental Europe,Other Civilizations,1
+2009,Continental Europe,United States,3
+2009,Continental Europe,Unknown,2
+2009,Islamic,Islamic,1
+2009,Japanese,Japanese,2
+2009,Japanese,United States,1
 2009,Other Civilizations,Other Civilizations,1
-2009,Sinic,Sinic,1
-2010,Anglosphere ex-US,Anglosphere ex-US,1
+2009,Other Civilizations,Unknown,1
+2009,Sinic,Sinic,4
+2009,Sinic,Unknown,1
+2009,United States,Anglosphere ex-US,1
+2009,United States,Continental Europe,1
+2009,United States,Other Western,1
+2009,United States,Sinic,7
+2009,United States,United States,1
+2010,Anglosphere ex-US,Anglosphere ex-US,4
 2010,Anglosphere ex-US,Continental Europe,1
 2010,Anglosphere ex-US,Japanese,1
-2010,Continental Europe,Anglosphere ex-US,1
+2010,Anglosphere ex-US,Other Civilizations,1
+2010,Anglosphere ex-US,United States,1
+2010,Continental Europe,Anglosphere ex-US,3
+2010,Continental Europe,Continental Europe,3
+2010,Continental Europe,Islamic,1
+2010,Continental Europe,Other Civilizations,1
+2010,Continental Europe,Other Western,1
+2010,Continental Europe,Unknown,2
+2010,Hindu,United States,1
+2010,Islamic,Anglosphere ex-US,1
+2010,Islamic,Islamic,3
+2010,Islamic,Unknown,1
+2010,Japanese,Unknown,1
+2010,Other Civilizations,Other Civilizations,1
+2010,Other Civilizations,Unknown,1
+2010,Other Western,Other Western,2
+2010,Other Western,Unknown,1
+2010,Sinic,Anglosphere ex-US,2
+2010,Sinic,Islamic,1
+2010,Sinic,Sinic,2
+2010,Sinic,United States,2
+2010,Sinic,Unknown,1
+2010,United States,Islamic,2
+2010,United States,Japanese,1
 2010,United States,Other Western,1
-2011,Continental Europe,Continental Europe,1
+2010,United States,Sinic,5
+2010,United States,United States,1
+2010,United States,Unknown,1
+2011,Anglosphere ex-US,Anglosphere ex-US,1
+2011,Anglosphere ex-US,Continental Europe,1
+2011,Anglosphere ex-US,Other Western,1
+2011,Anglosphere ex-US,United States,1
+2011,Anglosphere ex-US,Unknown,1
+2011,Continental Europe,Anglosphere ex-US,1
+2011,Continental Europe,Continental Europe,6
 2011,Continental Europe,Other Civilizations,1
-2011,Other Western,Other Western,1
-2011,Sinic,Sinic,2
+2011,Continental Europe,United States,1
+2011,Islamic,Anglosphere ex-US,1
+2011,Islamic,Islamic,1
+2011,Islamic,United States,1
+2011,Islamic,Unknown,1
+2011,Japanese,Sinic,1
+2011,Other Civilizations,Other Civilizations,1
+2011,Other Western,Continental Europe,1
+2011,Other Western,Other Western,7
+2011,Sinic,Anglosphere ex-US,1
+2011,Sinic,Sinic,7
+2011,Sinic,Unknown,1
+2011,United States,Continental Europe,1
+2011,United States,Other Western,1
+2011,United States,United States,2
+2012,Anglosphere ex-US,Anglosphere ex-US,1
 2012,Anglosphere ex-US,Islamic,1
-2012,Continental Europe,Anglosphere ex-US,1
-2012,Continental Europe,Continental Europe,1
+2012,Anglosphere ex-US,United States,2
+2012,Continental Europe,Anglosphere ex-US,3
+2012,Continental Europe,Continental Europe,3
+2012,Continental Europe,Islamic,2
 2012,Continental Europe,Other Western,2
-2012,Hindu,Hindu,1
+2012,Continental Europe,United States,1
+2012,Continental Europe,Unknown,1
+2012,Hindu,Hindu,2
+2012,Hindu,United States,1
+2012,Islamic,Hindu,2
+2012,Islamic,Unknown,1
+2012,Japanese,Japanese,1
+2012,Japanese,Unknown,2
+2012,Other Civilizations,Other Civilizations,2
+2012,Other Civilizations,Unknown,1
+2012,Other Western,Unknown,2
+2012,Sinic,Sinic,2
+2012,United States,Anglosphere ex-US,1
+2012,United States,Continental Europe,1
+2012,United States,Hindu,2
+2012,United States,Other Civilizations,1
+2012,United States,Other Western,1
+2012,United States,Sinic,1
+2012,United States,United States,5
+2013,Anglosphere ex-US,Islamic,1
+2013,Anglosphere ex-US,Japanese,1
+2013,Anglosphere ex-US,Other Western,1
+2013,Anglosphere ex-US,United States,1
+2013,Anglosphere ex-US,Unknown,1
+2013,Continental Europe,United States,3
+2013,Continental Europe,Unknown,1
+2013,Hindu,Hindu,2
+2013,Hindu,United States,1
+2013,Islamic,Anglosphere ex-US,2
+2013,Islamic,Islamic,2
+2013,Islamic,Unknown,1
 2013,Japanese,Japanese,1
-2013,Sinic,Sinic,2
-2013,United States,Continental Europe,1
+2013,Other Civilizations,Other Civilizations,2
+2013,Other Civilizations,Unknown,1
+2013,Other Western,Other Western,2
+2013,Other Western,Unknown,1
+2013,Sinic,Sinic,3
+2013,Sinic,United States,1
+2013,United States,Continental Europe,2
 2013,United States,Hindu,2
-2014,Continental Europe,Anglosphere ex-US,1
-2014,Continental Europe,Continental Europe,1
-2014,Japanese,Sinic,1
+2013,United States,Sinic,1
+2013,United States,United States,2
+2013,United States,Unknown,1
+2014,Anglosphere ex-US,Anglosphere ex-US,3
+2014,Anglosphere ex-US,Other Civilizations,1
+2014,Anglosphere ex-US,Other Western,1
+2014,Continental Europe,Anglosphere ex-US,3
+2014,Continental Europe,Continental Europe,7
+2014,Continental Europe,Other Civilizations,1
+2014,Continental Europe,Other Western,1
+2014,Continental Europe,Sinic,1
+2014,Continental Europe,United States,1
+2014,Hindu,Continental Europe,1
+2014,Hindu,Hindu,2
+2014,Islamic,Islamic,2
+2014,Japanese,Anglosphere ex-US,1
+2014,Japanese,Japanese,3
+2014,Japanese,Sinic,2
+2014,Japanese,Unknown,1
 2014,Other Civilizations,Continental Europe,1
-2014,Other Civilizations,Other Civilizations,1
+2014,Other Civilizations,Other Civilizations,2
+2014,Other Civilizations,Unknown,2
 2014,Other Western,Continental Europe,1
-2014,United States,Other Western,1
-2014,United States,United States,1
+2014,Other Western,Other Western,1
+2014,Other Western,United States,1
+2014,Sinic,Continental Europe,2
+2014,Sinic,Sinic,2
+2014,Sinic,United States,1
+2014,United States,Japanese,1
+2014,United States,Other Western,3
+2014,United States,United States,4
+2014,United States,Unknown,1
 2015,Anglosphere ex-US,Anglosphere ex-US,1
+2015,Anglosphere ex-US,Continental Europe,2
+2015,Anglosphere ex-US,Hindu,1
+2015,Anglosphere ex-US,Other Western,1
+2015,Anglosphere ex-US,Sinic,1
+2015,Anglosphere ex-US,Unknown,1
+2015,Continental Europe,Continental Europe,2
 2015,Continental Europe,Other Civilizations,1
-2015,Continental Europe,Sinic,1
-2015,Islamic,Islamic,2
-2015,Other Western,Other Western,1
-2015,Sinic,Anglosphere ex-US,1
-2015,Sinic,Sinic,3
+2015,Continental Europe,Sinic,3
+2015,Continental Europe,United States,2
+2015,Continental Europe,Unknown,1
+2015,Hindu,Hindu,2
+2015,Islamic,Islamic,3
+2015,Islamic,Sinic,1
+2015,Islamic,United States,1
+2015,Japanese,Unknown,1
+2015,Other Civilizations,Anglosphere ex-US,1
+2015,Other Civilizations,Other Civilizations,3
+2015,Other Western,Other Western,5
+2015,Other Western,Unknown,1
+2015,Sinic,Anglosphere ex-US,2
+2015,Sinic,Sinic,5
+2015,Sinic,United States,2
+2015,Sinic,Unknown,2
 2015,United States,Continental Europe,1
+2015,United States,Hindu,1
+2015,United States,Other Civilizations,1
+2015,United States,United States,2
 2016,Anglosphere ex-US,Anglosphere ex-US,1
-2016,Continental Europe,Continental Europe,2
-2016,Other Civilizations,Unknown,1
-2016,Sinic,Sinic,1
-2016,Sinic,United States,1
-2016,United States,Hindu,2
-2016,United States,United States,1
-2017,Hindu,Hindu,1
-2017,United States,United States,1
-2017,United States,Unknown,1
-2018,Continental Europe,Anglosphere ex-US,1
-2018,Continental Europe,Continental Europe,1
-2018,Hindu,United States,2
+2016,Anglosphere ex-US,United States,1
+2016,Anglosphere ex-US,Unknown,1
+2016,Continental Europe,Continental Europe,6
+2016,Continental Europe,Sinic,1
+2016,Continental Europe,United States,1
+2016,Continental Europe,Unknown,3
+2016,Islamic,Anglosphere ex-US,1
+2016,Islamic,Islamic,2
+2016,Islamic,Unknown,1
+2016,Japanese,Japanese,1
+2016,Japanese,Other Civilizations,1
+2016,Japanese,Sinic,1
+2016,Other Civilizations,United States,1
+2016,Other Civilizations,Unknown,2
+2016,Sinic,Islamic,1
+2016,Sinic,Sinic,2
+2016,Sinic,United States,2
+2016,United States,Anglosphere ex-US,1
+2016,United States,Hindu,3
+2016,United States,Islamic,2
+2016,United States,Other Western,1
+2016,United States,United States,4
+2017,Anglosphere ex-US,Anglosphere ex-US,1
+2017,Anglosphere ex-US,Islamic,1
+2017,Anglosphere ex-US,United States,2
+2017,Continental Europe,Anglosphere ex-US,1
+2017,Continental Europe,Continental Europe,1
+2017,Continental Europe,United States,1
+2017,Continental Europe,Unknown,2
+2017,Hindu,Anglosphere ex-US,1
+2017,Hindu,Continental Europe,1
+2017,Hindu,Hindu,3
+2017,Hindu,United States,3
+2017,Islamic,Anglosphere ex-US,2
+2017,Japanese,Anglosphere ex-US,1
+2017,Japanese,Japanese,1
+2017,Japanese,Unknown,1
+2017,Other Western,Other Western,5
+2017,Other Western,United States,1
+2017,Sinic,Anglosphere ex-US,2
+2017,Sinic,Sinic,3
+2017,Sinic,United States,1
+2017,United States,United States,4
+2017,United States,Unknown,2
+2018,Anglosphere ex-US,Anglosphere ex-US,1
+2018,Anglosphere ex-US,Hindu,1
+2018,Anglosphere ex-US,United States,2
+2018,Continental Europe,Anglosphere ex-US,2
+2018,Continental Europe,Continental Europe,4
+2018,Continental Europe,Hindu,1
+2018,Continental Europe,Islamic,1
+2018,Continental Europe,Unknown,1
+2018,Hindu,Hindu,3
+2018,Hindu,United States,3
 2018,Islamic,Islamic,1
+2018,Japanese,Japanese,1
 2018,Japanese,Other Western,1
-2018,Other Western,Other Western,3
-2018,Sinic,Islamic,1
-2018,United States,United States,1
-2018,United States,Unknown,1
-2019,Anglosphere ex-US,Anglosphere ex-US,1
+2018,Japanese,Sinic,1
+2018,Other Civilizations,Other Civilizations,2
+2018,Other Civilizations,Sinic,1
+2018,Other Western,Hindu,1
+2018,Other Western,Other Western,5
+2018,Sinic,Islamic,2
+2018,Sinic,Japanese,1
+2018,Sinic,Sinic,1
+2018,United States,Anglosphere ex-US,1
+2018,United States,Continental Europe,1
+2018,United States,Islamic,1
+2018,United States,Sinic,2
+2018,United States,United States,3
+2018,United States,Unknown,3
+2019,Anglosphere ex-US,Anglosphere ex-US,2
+2019,Anglosphere ex-US,Islamic,1
 2019,Anglosphere ex-US,Sinic,1
+2019,Anglosphere ex-US,United States,2
 2019,Continental Europe,Anglosphere ex-US,1
-2019,Islamic,Anglosphere ex-US,1
+2019,Continental Europe,Continental Europe,2
+2019,Continental Europe,Islamic,1
+2019,Islamic,Anglosphere ex-US,3
+2019,Islamic,Islamic,1
+2019,Islamic,Other Western,1
+2019,Japanese,Anglosphere ex-US,2
+2019,Japanese,Japanese,1
 2019,Other Civilizations,Other Civilizations,1
-2019,Sinic,Sinic,1
-2019,United States,Sinic,1
-2020,Continental Europe,United States,1
+2019,Other Civilizations,Other Western,1
+2019,Other Western,Other Western,1
+2019,Other Western,United States,2
+2019,Other Western,Unknown,1
+2019,Sinic,Other Civilizations,1
+2019,Sinic,Sinic,2
+2019,Sinic,Unknown,1
+2019,United States,Other Western,1
+2019,United States,Sinic,3
+2019,United States,United States,1
+2020,Anglosphere ex-US,Anglosphere ex-US,1
+2020,Anglosphere ex-US,Sinic,1
+2020,Continental Europe,Continental Europe,2
+2020,Continental Europe,Japanese,1
+2020,Continental Europe,Other Western,1
+2020,Continental Europe,Sinic,1
+2020,Continental Europe,United States,2
+2020,Continental Europe,Unknown,1
+2020,Hindu,Continental Europe,1
+2020,Hindu,United States,1
+2020,Islamic,Anglosphere ex-US,1
 2020,Islamic,Continental Europe,1
+2020,Islamic,Islamic,1
 2020,Islamic,Other Civilizations,1
-2020,Japanese,Other Civilizations,1
+2020,Islamic,Unknown,1
+2020,Japanese,Anglosphere ex-US,1
+2020,Japanese,Islamic,1
+2020,Japanese,Other Civilizations,2
+2020,Other Civilizations,Continental Europe,1
+2020,Other Civilizations,Hindu,1
+2020,Other Civilizations,Other Civilizations,1
+2020,Other Civilizations,United States,1
 2020,Other Western,Continental Europe,1
-2020,United States,Continental Europe,1
-2020,United States,United States,1
-2021,Islamic,Islamic,2
+2020,Other Western,Other Western,1
+2020,Other Western,Unknown,1
+2020,Sinic,Islamic,1
+2020,Sinic,Sinic,1
+2020,Sinic,United States,2
+2020,Sinic,Unknown,1
+2020,United States,Anglosphere ex-US,1
+2020,United States,Continental Europe,3
+2020,United States,Islamic,2
+2020,United States,Sinic,4
+2020,United States,United States,5
+2020,United States,Unknown,1
+2021,Anglosphere ex-US,Continental Europe,1
+2021,Anglosphere ex-US,Islamic,1
+2021,Continental Europe,Continental Europe,1
+2021,Continental Europe,Islamic,1
+2021,Hindu,Continental Europe,1
+2021,Islamic,Islamic,3
+2021,Japanese,United States,1
+2021,Other Civilizations,Continental Europe,1
+2021,Other Western,Other Western,1
+2021,Sinic,Anglosphere ex-US,1
+2021,Sinic,United States,1
+2021,United States,Anglosphere ex-US,1
 2021,United States,Continental Europe,1
 2021,United States,Hindu,1
 2021,United States,Islamic,1
-2021,United States,Sinic,1
-2021,United States,United States,1
-2022,Continental Europe,Sinic,1
-2022,Sinic,Sinic,1
+2021,United States,Other Civilizations,1
+2021,United States,Other Western,2
+2021,United States,Sinic,2
+2021,United States,United States,2
+2022,Anglosphere ex-US,United States,1
+2022,Continental Europe,Anglosphere ex-US,3
+2022,Continental Europe,Hindu,1
+2022,Continental Europe,Japanese,1
+2022,Continental Europe,Sinic,2
+2022,Hindu,Anglosphere ex-US,1
+2022,Hindu,Hindu,1
+2022,Other Civilizations,Islamic,1
+2022,Sinic,Continental Europe,2
+2022,Sinic,Sinic,6
+2022,Sinic,United States,1
+2022,United States,Hindu,3
+2022,United States,Other Civilizations,1
+2023,Anglosphere ex-US,Islamic,1
+2023,Other Civilizations,Japanese,1
+2023,Sinic,Sinic,4
+2023,United States,Anglosphere ex-US,1
+2023,United States,Hindu,1
+2023,United States,Other Civilizations,1
