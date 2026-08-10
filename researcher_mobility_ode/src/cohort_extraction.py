@@ -26,7 +26,7 @@ COHORT_DIR = DATA_DIR / "cohort"
 SUBFIELD = "subfields/1702"
 CAREER_START_MIN = 2000
 CAREER_START_MAX = 2016
-MIN_WORKS = 10
+MIN_WORKS = 2
 ABROAD_WINDOW = 6
 HIT_WINDOW = 8
 PI_MIN_AUTHORS = 6
@@ -406,7 +406,7 @@ def main():
                         help="OpenAlex subfield ID to build the cohort for.")
     parser.add_argument("--output-dir", type=str, default=str(COHORT_DIR),
                         help="Directory to write cohort.csv, transition_rates.csv and raw_sampled_works.json.")
-    parser.add_argument("--min-works", type=int, default=10,
+    parser.add_argument("--min-works", type=int, default=2,
                         help="Minimum number of works in the target subfield for an author to be included.")
     parser.add_argument("--cache-dir", type=str, default=str(CACHE_DIR))
     parser.add_argument("--no-cache", action="store_true")

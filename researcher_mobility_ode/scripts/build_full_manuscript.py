@@ -1212,7 +1212,7 @@ def write_markdown(output_dir: Path, data, fig_paths):
         "The mapping is documented in the repository and is reproduced here only in summary. "
         "The final groups are: United States, Anglosphere ex-US, Continental Europe, Sinic, Japanese, Hindu, Islamic, Other Western, and Other Civilizations.",
         "",
-        "The cohort is restricted to authors whose first observed AI/ML publication year (career-start year) is between 2000 and 2016 and who have at least ten AI/ML works in the 2000-2023 window. "
+        "The cohort is restricted to authors whose first observed AI/ML publication year (career-start year) is between 2000 and 2016 and who have at least two AI/ML works in the 2000-2023 window. "
         "An author is treated as active if they have at least one AI/ML work in 2020-2023, and as having dropped out otherwise. "
         "A 'hit' work is a non-last-author paper whose citation count places it in the top 10% of AI/ML works in the same publication year, observed within the first eight career years. "
         "An author is classified as a principal investigator (PI) if their first last-author paper has at least six authors, a standard bibliometric proxy for seniority [3]. "
@@ -2039,7 +2039,7 @@ def _add_docx_body(doc, data, fig_paths):
     p.add_run(". "
               "OpenAlex provides open, CC0 bibliographic metadata including authors, affiliations, countries, publication dates, venues and citation links. "
               "We built author histories by following each author's sequence of works and affiliations, assigning them to a country for each work and then to a civilisation by the modal country of their recorded affiliations. "
-              "The cohort is restricted to authors whose career-start year (first observed AI/ML publication year) is between 2000 and 2016 and who have at least ten AI/ML works in the 2000-2023 window. "
+              "The cohort is restricted to authors whose career-start year (first observed AI/ML publication year) is between 2000 and 2016 and who have at least two AI/ML works in the 2000-2023 window. "
               "An author is treated as active if they have at least one AI/ML work in 2020-2023, and as having dropped out otherwise. "
               "An author is classified as a principal investigator (PI) if their first last-author paper has at least six authors, a standard bibliometric proxy for seniority in empirical science")
     add_citation(p, 3)
@@ -2058,7 +2058,7 @@ def _add_docx_body(doc, data, fig_paths):
 
     doc.add_heading("3.2 Sample selection and variable definitions", level=2)
     p = doc.add_paragraph()
-    p.add_run("Authors enter the cohort if their first observed AI/ML publication year is between 2000 and 2016 and they have at least ten AI/ML works in the 2000-2023 observation window. "
+    p.add_run("Authors enter the cohort if their first observed AI/ML publication year is between 2000 and 2016 and they have at least two AI/ML works in the 2000-2023 observation window. "
               "The career-start year is the first observed AI/ML publication year. "
               "Authors with exclusively unknown affiliations or with all affiliations outside the mapped countries are excluded. "
               "For each author we record the country of the majority of their affiliations and the civilisation to which that country maps. "
