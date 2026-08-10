@@ -388,11 +388,13 @@ def fig7_real_validation(lang, outdir):
     example = pd.read_csv(os.path.join(DATA_DIR, "real_example_waveform.csv"))
     t_vals = example["time"].values[: int(10 / RW.SAMPLE_DT)]
     p_vals = example["pressure"].values[: len(t_vals)]
-    sbp_ex, dbp_ex, _ = RW._extract_beats(p_vals, fs=RW.SAMPLE_RATE)
+    sbp_ex, dbp_ex, _, sbp_idx_ex, dbp_idx_ex = RW._extract_beats(
+        p_vals, fs=RW.SAMPLE_RATE)
 
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(11, 4.6))
     ax1.plot(t_vals, p_vals, color="#1f77b4", lw=1.2, label=t["true_arterial"])
-    ax1.scatter(t_vals[::500], p_vals[::500], color="k", s=5, zorder=3)
+    ax1.scatter(t_vals[sbp_idx_ex], p_vals[sbp_idx_ex],
+                color="k", s=12, zorder=3, label=t["detected"])
     ax1.set_xlabel(t["time"])
     ax1.set_ylabel(t["pressure"])
     ax1.set_title(t["fig7a"], fontsize=10, loc="left")

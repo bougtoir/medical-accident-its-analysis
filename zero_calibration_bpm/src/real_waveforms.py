@@ -79,13 +79,14 @@ def _lowpass(sig: np.ndarray, fs: float, cutoff: float = LOWPASS) -> np.ndarray:
     return ss.filtfilt(b, a, sig)
 
 
-def _extract_beats(p: np.ndarray, fs: float = SAMPLE_RATE) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """Return systolic and diastolic pressure arrays for each valid beat.
+def _extract_beats(p: np.ndarray, fs: float = SAMPLE_RATE) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """Return systolic/diastolic pressures, pulse pressures and sample indices for each valid beat.
 
     Peaks (systoles) and troughs (diastoles) are identified on a low-passed
     copy of the signal; the raw (interpolated) waveform is used for the final
     value.  A beat is kept only if a trough follows its systolic peak before
-    the next peak.
+    the next peak.  The two index arrays give the sample positions of the
+    retained systolic peaks and the corresponding diastolic troughs.
     """
     p = _interpolate_nan(p)
     smooth = _lowpass(p, fs)
@@ -97,6 +98,8 @@ def _extract_beats(p: np.ndarray, fs: float = SAMPLE_RATE) -> tuple[np.ndarray, 
     sbp = []
     dbp = []
     pps = []
+    sbp_idx = []
+    dbp_idx = []
     for i in range(len(peaks) - 1):
         pk = peaks[i]
         nxt_pk = peaks[i + 1]
@@ -113,7 +116,9 @@ def _extract_beats(p: np.ndarray, fs: float = SAMPLE_RATE) -> tuple[np.ndarray, 
         sbp.append(s)
         dbp.append(d)
         pps.append(pp)
-    return np.asarray(sbp), np.asarray(dbp), np.asarray(pps)
+        sbp_idx.append(pk)
+        dbp_idx.append(tr)
+    return np.asarray(sbp), np.asarray(dbp), np.asarray(pps), np.asarray(sbp_idx), np.asarray(dbp_idx)
 
 
 def _case_segment(caseid: int, meta: pd.DataFrame, offset_seconds: int = 300):
@@ -205,7 +210,7 @@ def build_real_static() -> pd.DataFrame:
         seg = _case_segment(caseid, meta)
         if seg is None:
             continue
-        sbp, _, _ = _extract_beats(seg)
+        sbp, *_ = _extract_beats(seg)
         if len(sbp) < 5:
             continue
         case_beats[caseid] = sbp
@@ -234,7 +239,7 @@ def build_real_dynamic_example() -> pd.DataFrame:
     for caseid in caseids:
         seg = _case_segment(caseid, meta)
         if seg is not None:
-            sbp, dbp, pp = _extract_beats(seg)
+            sbp, dbp, pp, *_ = _extract_beats(seg)
             if len(sbp) >= 5:
                 t = np.arange(len(seg)) * SAMPLE_DT
                 return pd.DataFrame({

@@ -284,8 +284,8 @@ add_para(
     "masked by a compensating offset. We augmented the simulation with beat-by-"
     "beat invasive arterial pressures from the VitalDB Open Dataset "
     rf"($n = {P['n_real_cases']}$ cases, "
-    rf"$n \approx {P['n_real_cases'] * P['n_real_beats_per_scenario']:,}$ "
-    "beats) and applied the same four error models to the real waveforms. Each "
+    rf"$n = {P['n_real_beats_per_scenario']:,}$ paired beats per scenario) "
+    "and applied the same four error models to the real waveforms. Each "
     "case was assessed with the minimal Bland-Altman summary (mean bias, "
     "limits of agreement), Bland-Altman difference-versus-mean regression, "
     "Deming and Passing-Bablok regression, and Lin's concordance correlation "
@@ -608,8 +608,8 @@ add_heading_styled("3.4. Real-waveform validation", level=2)
 add_para_with_refs(
     f"The same four error models were applied to beat-by-beat invasive arterial "
     f"pressures from the VitalDB Open Dataset ($n = {P['n_real_cases']}$ cases, "
-    f"$n \u2248 {P['n_real_cases'] * P['n_real_beats_per_scenario']}$ "
-    "beats). The pattern matched the synthetic data: a compensating "
+    f"$n = {P['n_real_beats_per_scenario']:,}$ paired beats per scenario). "
+    "The pattern matched the synthetic data: a compensating "
     "offset made the mean bias effectively zero "
     f"({signed(rst['R4_gain_masked']['bias'])} mmHg), while the proportional-bias "
     "indicators remained elevated (CCC scale shift $v$ = "
@@ -881,7 +881,7 @@ doc.add_page_break()
 # TABLE 3 — real-waveform metrics (VitalDB)
 # ══════════════════════════════════════════════════════════════════
 add_heading_styled("Table 3", level=1)
-add_para(f"Table 3. Real-waveform method-comparison metrics from the VitalDB Open Dataset (n = {P['n_real_cases']} cases).",
+add_para(f"Table 3. Real-waveform method-comparison metrics from the VitalDB Open Dataset ({P['n_real_cases']} cases; n = paired beats).", 
          bold=True, italic=True)
 
 t3_headers = ["Scenario", "n", "Mean bias\n(mmHg)", "95% LoA\n(mmHg)", "PE (%)",
