@@ -144,12 +144,20 @@ def build_annual_inflows(states=None):
 
 
 def build_annual_exits(states=None):
-    """Count exits from each compartment per group-year."""
+    """Count exits from each compartment per group-year.
+
+    The last observed year for each author is treated as right-censored and
+    therefore not counted as an exit.
+    """
     if states is None:
         states = asr.reconstruct_annual_states()
     states_sorted = states.sort_values(["author_id", "year"])
     states_sorted["next_year"] = states_sorted.groupby("author_id")["year"].shift(-1)
-    exits = states_sorted[states_sorted["next_year"] != states_sorted["year"] + 1].copy()
+    states_sorted["last_year"] = states_sorted.groupby("author_id")["year"].transform("max")
+    exits = states_sorted[
+        (states_sorted["next_year"] != states_sorted["year"] + 1) &
+        (states_sorted["year"] != states_sorted["last_year"])
+    ].copy()
     exit_counts = exits.groupby(["origin_group", "year", "compartment"], observed=False).size().reset_index(name="exit_count")
     return exit_counts
 
@@ -202,6 +210,7 @@ def build_rate_table(probs, inflows, exits, states=None):
 
     inflow_total = inflows.groupby(["origin_group", "year"], observed=False)["inflow"].sum().reset_index(name="I_total")
     rate_table = rate_table.merge(inflow_total, on=["origin_group", "year"], how="outer")
+    rate_table["I_total"] = rate_table["I_total"].fillna(0.0).astype(float)
 
     rate_table = rate_table.sort_values(["origin_group", "year"])
     return rate_table
@@ -339,9 +348,14 @@ def project_population(states, projected_rates, train_end=2016, project_end=2026
     apportioned by the historical first-compartment distribution for the group.
     """
     inflows = build_annual_inflows(states)
+    inflows_by_compartment = (
+        inflows.groupby(["origin_group", "compartment"], observed=False)["inflow"]
+        .sum()
+        .reset_index(name="inflow_compartment")
+    )
     total_inflow = inflows.groupby("origin_group", observed=False)["inflow"].sum().reset_index(name="group_total")
-    first_share = inflows.merge(total_inflow, on="origin_group", how="left")
-    first_share["share"] = first_share["inflow"] / first_share["group_total"]
+    first_share = inflows_by_compartment.merge(total_inflow, on="origin_group", how="left")
+    first_share["share"] = first_share["inflow_compartment"] / first_share["group_total"]
     first_share_dict = first_share.set_index(["origin_group", "compartment"])["share"].to_dict()
 
     # observed 2016 stock aligned to COMPARTMENTS
@@ -462,20 +476,29 @@ def load_equilibrium_summary():
     return None
 
 
-def plot_annual_rates(rate_table, projected_rates):
+def plot_annual_rates(rate_table, projected_rates, fig_dir=None):
     """Line plots of observed and projected ODE-style rates per group."""
+    fig_dir = fig_dir or FIGURES_DIR
     rate_names = ["alpha", "beta", "h_D", "h_A", "p_D", "p_A", "d"]
-    plot_df = pd.concat([rate_table[rate_table["year"] <= 2016], projected_rates], ignore_index=True)
+    observed = rate_table[rate_table["year"] <= 2016].copy()
+    projected = projected_rates.copy()
 
     fig, axes = plt.subplots(3, 3, figsize=(16, 14), sharex="col")
     axes = axes.flatten()
     for gi, group in enumerate(ORDERED_GROUPS):
         ax = axes[gi]
-        g = plot_df[plot_df["origin_group"] == group]
+        g_obs = observed[observed["origin_group"] == group]
+        g_proj = projected[projected["origin_group"] == group]
         for ri, name in enumerate(rate_names):
-            if name not in g.columns:
-                continue
-            ax.plot(g["year"], g[name], label=name, marker="o", markersize=3, linewidth=1.2)
+            label_set = False
+            color = f"C{ri}"
+            if name in g_obs.columns and not g_obs.empty:
+                ax.plot(g_obs["year"], g_obs[name], label=name if not label_set else None,
+                        color=color, linestyle="-", marker="o", markersize=3, linewidth=1.2)
+                label_set = True
+            if name in g_proj.columns and not g_proj.empty:
+                ax.plot(g_proj["year"], g_proj[name], label=name if not label_set else None,
+                        color=color, linestyle="--", marker="", linewidth=1.2)
         ax.set_title(group, fontsize=9)
         ax.set_xlabel("Year")
         ax.set_ylabel("Rate")
@@ -483,13 +506,13 @@ def plot_annual_rates(rate_table, projected_rates):
     axes[0].legend(ncol=2, fontsize=7)
     fig.suptitle("Observed (solid) and projected (dashed) transition rates by civilisation, 2000-2026", fontsize=12)
     plt.tight_layout()
-    path = FIGURES_DIR / "annual_rates_by_group.png"
+    path = fig_dir / "annual_rates_by_group.png"
     fig.savefig(path, dpi=300, bbox_inches="tight")
     plt.close(fig)
     return path
 
 
-def plot_interciv_heatmap(flows):
+def plot_interciv_heatmap(flows, fig_dir=None):
     """Heatmap of total abroad stock by origin-destination pair, 2000-2023."""
     pivot = flows.groupby(["origin_group", "destination_group"], observed=False)["count"].sum().reset_index()
     matrix = pivot.pivot(index="origin_group", columns="destination_group", values="count").fillna(0)
@@ -503,13 +526,14 @@ def plot_interciv_heatmap(flows):
     ax.set_title("Total abroad author-years by origin and destination group (2000-2023)", fontsize=11)
     fig.colorbar(im, ax=ax, label="Author-years")
     fig.tight_layout()
-    path = FIGURES_DIR / "annual_interciv_heatmap.png"
+    fig_dir = fig_dir or FIGURES_DIR
+    path = fig_dir / "annual_interciv_heatmap.png"
     fig.savefig(path, dpi=300, bbox_inches="tight")
     plt.close(fig)
     return path
 
 
-def plot_projection_by_compartment(projected, observed):
+def plot_projection_by_compartment(projected, observed, fig_dir=None):
     """For each compartment, observed vs projected lines by civilisation."""
     fig, axes = plt.subplots(2, 3, figsize=(16, 10), sharex=True)
     axes = axes.flatten()
@@ -533,7 +557,8 @@ def plot_projection_by_compartment(projected, observed):
                bbox_to_anchor=(0.5, -0.02))
     fig.suptitle("Observed (solid) and projected (dashed) compartment counts by civilisation, 2017-2023", fontsize=12)
     plt.tight_layout(rect=[0, 0.05, 1, 0.97])
-    path = FIGURES_DIR / "annual_projection_vs_observed.png"
+    fig_dir = fig_dir or FIGURES_DIR
+    path = fig_dir / "annual_projection_vs_observed.png"
     fig.savefig(path, dpi=300, bbox_inches="tight")
     plt.close(fig)
     return path

@@ -704,20 +704,20 @@ def build_annual_figures(annual, fig_dir):
     rate_table = annual.get("rate_table")
     projected_rates = annual.get("projected_rates")
     if rate_table is not None and projected_rates is not None:
-        fig_paths["fig5"] = arpr.plot_annual_rates(rate_table, projected_rates)
+        fig_paths["fig5"] = arpr.plot_annual_rates(rate_table, projected_rates, fig_dir=fig_dir)
     else:
         fig_paths["fig5"] = fig_dir / "annual_rates_by_group.png"
 
     interciv = annual.get("interciv_stock")
     if interciv is not None:
-        fig_paths["fig6"] = arpr.plot_interciv_heatmap(interciv)
+        fig_paths["fig6"] = arpr.plot_interciv_heatmap(interciv, fig_dir=fig_dir)
     else:
         fig_paths["fig6"] = fig_dir / "annual_interciv_heatmap.png"
 
     obs_stock = annual.get("observed_stock")
     proj_stock = annual.get("projected_stock")
     if obs_stock is not None and proj_stock is not None:
-        fig_paths["fig7"] = arpr.plot_projection_by_compartment(proj_stock, obs_stock)
+        fig_paths["fig7"] = arpr.plot_projection_by_compartment(proj_stock, obs_stock, fig_dir=fig_dir)
     else:
         fig_paths["fig7"] = fig_dir / "annual_projection_vs_observed.png"
     return fig_paths
@@ -1119,8 +1119,8 @@ def write_markdown(output_dir: Path, data, fig_paths):
         "For the 2017-2026 projection we fit a linear trend to the observed 2000-2016 rates for each group and rate. "
         "If fewer than four observations were available or the fit explained less than 10% of the variance, the historical mean was used instead. "
         "Projected rates were clipped to values between 0 and 1. "
-        "Dropout was capped at the 90th percentile of observed dropout rates to prevent implausible extrapolation. "
-        "Projected total inflows were apportioned across compartments using the observed 2016 distribution. "
+        "Dropout was capped at 1.5 times the 90th percentile of observed dropout rates in the training window to prevent implausible extrapolation. "
+        "Projected total inflows were apportioned across compartments using the first-compartment distribution observed over the 2000-2016 training period. "
         "Population composition was projected forward with the discrete-time recursion N(t+1) = N(t)P(t) + b(t+1), where P(t) is a 6×6 row-stochastic-in-expectation matrix that preserves dropout mass: the row sum is 1 − d after scaling outgoing rates. "
         "This discrete step is the operational counterpart of the continuous-time ODE; with an annual dt it provides an early-warning signal one year ahead.",
         "",

@@ -92,7 +92,7 @@ Transition rates are estimated as constant per-year hazards from observed propor
 
 The steady-state model in Sections 4.1-4.4 treats rates as constants. To test whether the same framework can be used for short-run monitoring, we reconstructed year-by-year compartment membership from cohort.csv and raw_sampled_works.json. For each author and year we inferred location as domestic if the author was in the origin civilisation and abroad otherwise, using sampled works when available and cohort-derived abroad/return years as a fallback. From these states we computed annual transition counts for the six compartments, applied Laplace +0.5 smoothing to empty destination cells, and derived the probabilities that map to α, β, h_D, h_A, p_D, p_A and d. Inter-civilisation flows are approximated by assigning each abroad author-year to the author's recent_group as the destination civilisation; this is a lower-bound proxy because year-to-year destination changes are not observed in the public cohort.
 
-For the 2017-2026 projection we fit a linear trend to the observed 2000-2016 rates for each group and rate. If fewer than four observations were available or the fit explained less than 10% of the variance, the historical mean was used instead. Projected rates were clipped to values between 0 and 1. Dropout was capped at the 90th percentile of observed dropout rates to prevent implausible extrapolation. Projected total inflows were apportioned across compartments using the observed 2016 distribution. Population composition was projected forward with the discrete-time recursion N(t+1) = N(t)P(t) + b(t+1), where P(t) is a 6×6 row-stochastic-in-expectation matrix that preserves dropout mass: the row sum is 1 − d after scaling outgoing rates. This discrete step is the operational counterpart of the continuous-time ODE; with an annual dt it provides an early-warning signal one year ahead.
+For the 2017-2026 projection we fit a linear trend to the observed 2000-2016 rates for each group and rate. If fewer than four observations were available or the fit explained less than 10% of the variance, the historical mean was used instead. Projected rates were clipped to values between 0 and 1. Dropout was capped at 1.5 times the 90th percentile of observed dropout rates in the training window to prevent implausible extrapolation. Projected total inflows were apportioned across compartments using the first-compartment distribution observed over the 2000-2016 training period. Population composition was projected forward with the discrete-time recursion N(t+1) = N(t)P(t) + b(t+1), where P(t) is a 6×6 row-stochastic-in-expectation matrix that preserves dropout mass: the row sum is 1 − d after scaling outgoing rates. This discrete step is the operational counterpart of the continuous-time ODE; with an annual dt it provides an early-warning signal one year ahead.
 
 We compare the 2017-2023 projection with the observed annual stock. The comparison is limited to years that have observed data, and the observed stock is reindexed to the full group-year-compartment grid so that zero-observed cells are not omitted from the accuracy metrics. Accuracy is reported as RMSE and MAPE; MAPE here is computed against count_obs + 1 to avoid division by zero and is therefore a conservative, non-standard measure.
 
@@ -231,15 +231,15 @@ Table 9 summarises the mean observed annual transition rates by group between 20
 
 | Group | α | β | h_D | p_D | d | I_total |
 |---|---|---|---|---|---|---|
-| Anglosphere ex-US | 0.113 | 0.152 | 0.142 | 0.061 | 0.044 | 2.08 |
-| Continental Europe | 0.048 | 0.139 | 0.122 | 0.068 | 0.030 | 3.06 |
-| Hindu | 0.064 | 0.190 | 0.130 | 0.075 | 0.057 | 1.73 |
-| Islamic | 0.082 | 0.291 | 0.133 | 0.078 | 0.159 | 2.22 |
-| Japanese | 0.053 | 0.333 | 0.102 | 0.072 | 0.058 | 2.00 |
-| Other Civilizations | 0.096 | 0.240 | 0.129 | 0.087 | 0.086 | 1.67 |
-| Other Western | 0.091 | 0.214 | 0.199 | 0.065 | 0.088 | 1.67 |
-| Sinic | 0.045 | 0.200 | 0.087 | 0.052 | 0.036 | 2.56 |
-| United States | 0.069 | 0.161 | 0.158 | 0.048 | 0.027 | 2.88 |
+| Anglosphere ex-US | 0.113 | 0.152 | 0.142 | 0.061 | 0.042 | 1.59 |
+| Continental Europe | 0.048 | 0.139 | 0.122 | 0.068 | 0.027 | 2.88 |
+| Hindu | 0.064 | 0.190 | 0.130 | 0.075 | 0.057 | 1.53 |
+| Islamic | 0.082 | 0.291 | 0.133 | 0.078 | 0.159 | 1.25 |
+| Japanese | 0.053 | 0.333 | 0.102 | 0.072 | 0.049 | 1.53 |
+| Other Civilizations | 0.096 | 0.240 | 0.129 | 0.087 | 0.080 | 1.18 |
+| Other Western | 0.091 | 0.214 | 0.199 | 0.065 | 0.088 | 0.88 |
+| Sinic | 0.045 | 0.200 | 0.087 | 0.052 | 0.036 | 2.41 |
+| United States | 0.069 | 0.161 | 0.158 | 0.048 | 0.023 | 2.88 |
 
 **Table 9. Mean observed annual transition rates by civilisation, 2000-2016.**
 
@@ -268,7 +268,7 @@ Table 10 lists the origin-destination pairs with the largest accumulation of abr
 
 ### 5.7 Out-of-sample projection, 2017-2023
 
-The 2017-2023 projection is compared with observed annual stocks in Figure 7. Overall accuracy is RMSE 2.66 and MAPE 35.9% (a non-standard, conservative measure computed against count_obs + 1 to avoid division by zero). Among civilisations the lowest RMSE is for Japanese and the highest RMSE is for Sinic; the highest MAPE is for Sinic. The largest errors occur in small compartments and in groups with sparse transition counts, which is expected because the annual model does not borrow information across civilisations.
+The 2017-2023 projection is compared with observed annual stocks in Figure 7. Overall accuracy is RMSE 3.35 and MAPE 42.5% (a non-standard, conservative measure computed against count_obs + 1 to avoid division by zero). Among civilisations the lowest RMSE is for Japanese and the highest RMSE is for Sinic; the highest MAPE is for Sinic. The largest errors occur in small compartments and in groups with sparse transition counts, which is expected because the annual model does not borrow information across civilisations.
 
 ![Figure 7](figures/annual_projection_vs_observed.png)
 
@@ -278,26 +278,26 @@ Table 11 reports projection accuracy by civilisation and Table 12 by compartment
 
 | Group | RMSE | MAPE |
 |---|---|---|
-| Anglosphere ex-US | 1.79 | 24.5% |
-| Continental Europe | 2.12 | 28.5% |
-| Hindu | 1.56 | 30.5% |
-| Islamic | 3.05 | 48.0% |
-| Japanese | 1.23 | 32.3% |
-| Other Civilizations | 1.72 | 36.7% |
-| Other Western | 2.22 | 34.8% |
-| Sinic | 4.43 | 54.5% |
-| United States | 3.87 | 33.6% |
+| Anglosphere ex-US | 1.77 | 25.2% |
+| Continental Europe | 1.97 | 27.2% |
+| Hindu | 2.44 | 39.4% |
+| Islamic | 4.99 | 68.9% |
+| Japanese | 1.23 | 32.1% |
+| Other Civilizations | 1.83 | 37.6% |
+| Other Western | 2.74 | 42.9% |
+| Sinic | 5.30 | 70.9% |
+| United States | 4.79 | 38.2% |
 
 **Table 11. Projection accuracy by civilisation, 2017-2023.**
 
 | Compartment | RMSE | MAPE |
 |---|---|---|
-| A | 0.86 | 55.0% |
-| D | 1.51 | 21.1% |
-| H_A | 1.52 | 27.6% |
-| H_D | 4.68 | 32.3% |
-| P_A | 1.99 | 46.9% |
-| P_D | 3.33 | 32.7% |
+| A | 1.15 | 72.1% |
+| D | 2.42 | 29.4% |
+| H_A | 1.63 | 28.9% |
+| H_D | 6.54 | 44.2% |
+| P_A | 1.98 | 47.0% |
+| P_D | 3.32 | 33.3% |
 
 **Table 12. Projection accuracy by compartment, 2017-2023.**
 
@@ -351,7 +351,7 @@ Operationally, the framework can be used in two complementary ways. As a monitor
 
 ### 6.4 Validation of correction pressures
 
-The correction pressures are not ad hoc adjustments; each maps to a known statistical or dynamical constraint. Laplace smoothing is equivalent to a weak Dirichlet prior on a multinomial transition vector; it guarantees that no cell has zero estimated probability and shrinks rare transitions toward the simplex centroid. Clipping projected rates to values between 0 and 1 is a feasibility constraint on probabilities; the dropout cap is a cross-sectional constraint that prevents projected attrition from exceeding the observed stock; and the inflow apportionment constraint keeps the composition of new entrants equal to the last observed recruitment pattern. In the 2017-2023 projection these pressures reduced the sensitivity of the forecast to sparse cells and to short-run fluctuations in small groups. Quantitatively, the overall RMSE of 2.66 and conservative MAPE of 35.9% are consistent with a model that is deliberately regularised rather than optimised for in-sample fit. The residual errors are concentrated in the smallest compartments, which is exactly where smoothing is most active and where future data will be most valuable.
+The correction pressures are not ad hoc adjustments; each maps to a known statistical or dynamical constraint. Laplace smoothing is equivalent to a weak Dirichlet prior on a multinomial transition vector; it guarantees that no cell has zero estimated probability and shrinks rare transitions toward the simplex centroid. Clipping projected rates to values between 0 and 1 is a feasibility constraint on probabilities; the dropout cap is a cross-sectional constraint that prevents projected attrition from exceeding the observed stock; and the inflow apportionment constraint keeps the composition of new entrants equal to the last observed recruitment pattern. In the 2017-2023 projection these pressures reduced the sensitivity of the forecast to sparse cells and to short-run fluctuations in small groups. Quantitatively, the overall RMSE of 3.35 and conservative MAPE of 42.5% are consistent with a model that is deliberately regularised rather than optimised for in-sample fit. The residual errors are concentrated in the smallest compartments, which is exactly where smoothing is most active and where future data will be most valuable.
 
 ### 6.5 Intra-civilisation alternatives when inter-civilisation mobility cannot be controlled
 
