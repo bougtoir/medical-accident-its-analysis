@@ -1214,8 +1214,8 @@ def write_markdown(output_dir: Path, data, fig_paths):
         "",
         "The cohort is restricted to authors whose first observed AI/ML publication year (career-start year) is between 2000 and 2016 and who have at least two AI/ML works in the 2000-2023 window. "
         "An author is treated as active if they have at least one AI/ML work in 2020-2023, and as having dropped out otherwise. "
-        "A 'hit' work is a non-last-author paper whose citation count places it in the top 10% of AI/ML works in the same publication year, observed within the first eight career years. "
-        "An author is classified as a principal investigator (PI) if their first last-author paper has at least six authors, a standard bibliometric proxy for seniority [3]. "
+        "A 'hit' work is a paper on which the author is not the last author and whose citation count places it in the top 10% of AI/ML works in the same publication year, observed within the first eight career years. "
+        "An author is classified as a principal investigator (PI) if their first last-author paper appears during the observation window; single-authored papers are treated as last-author papers so that culturally varying coauthorship norms do not bias the seniority proxy [3]. "
         "The abroad flag is set if the author is affiliated with a non-origin civilisation within the first six career years. "
         "Table 1 reports the size and composition of the extracted cohort. "
         "The sample is a reproducible pilot extraction; absolute counts are small because the goal is to demonstrate the transition-rate framework rather than to provide a definitive census of global AI/ML researchers.",
@@ -2041,7 +2041,7 @@ def _add_docx_body(doc, data, fig_paths):
               "We built author histories by following each author's sequence of works and affiliations, assigning them to a country for each work and then to a civilisation by the modal country of their recorded affiliations. "
               "The cohort is restricted to authors whose career-start year (first observed AI/ML publication year) is between 2000 and 2016 and who have at least two AI/ML works in the 2000-2023 window. "
               "An author is treated as active if they have at least one AI/ML work in 2020-2023, and as having dropped out otherwise. "
-              "An author is classified as a principal investigator (PI) if their first last-author paper has at least six authors, a standard bibliometric proxy for seniority in empirical science")
+              "An author is classified as a principal investigator (PI) if their first last-author paper appears during the observation window; single-authored papers are treated as last-author papers so that culturally varying coauthorship norms do not bias the seniority proxy")
     add_citation(p, 3)
     p.add_run(". "
               "A 'hit' work is a non-last-author paper whose citation count places it in the top 10% of AI/ML works in the same publication year, observed within the first eight career years. "
@@ -2064,7 +2064,7 @@ def _add_docx_body(doc, data, fig_paths):
               "For each author we record the country of the majority of their affiliations and the civilisation to which that country maps. "
               "An author is active if they have at least one AI/ML work in 2020-2023; otherwise they are recorded as having dropped out. "
               "A hit is a non-last-author paper in the top 10% of AI/ML citations for its publication year, observed within the first eight career years. "
-              "A PI is an author whose first last-author paper has at least six authors. "
+              "A PI is an author whose first last-author paper appears during the observation window; single-authored papers are treated as last-author papers. "
               "The abroad flag is set if the author appears in a non-origin civilisation within the first six career years. "
               "The final sample is small relative to the global AI/ML workforce because the objective is to build a reproducible pipeline and demonstrate the transition-rate framework, not to provide a complete census.")
 
