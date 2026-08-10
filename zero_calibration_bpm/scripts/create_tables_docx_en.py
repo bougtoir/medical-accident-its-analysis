@@ -106,8 +106,9 @@ note("PP ratio = mean(measured PP / true PP); f_n = natural frequency; "
 
 doc.add_paragraph()
 
-title("Table 3. Real-waveform validation metrics for the four static "
-      "scenarios (n = paired beats from the VitalDB Open Dataset).")
+title(f"Table 3. Real-waveform validation metrics for the four static "
+      f"scenarios (n = {P['n_real_beats_per_scenario']:,} paired beats per "
+      f"scenario from the VitalDB Open Dataset, {P['n_real_cases']} cases).")
 h3 = ["Scenario", "n", "Mean bias (mmHg)", "95% LoA (mmHg)", "PE (%)",
       "BA reg. slope (95% CI)", "Deming slope (95% CI)",
       "P-B slope (95% CI)", "CCC", "C_b", "v"]

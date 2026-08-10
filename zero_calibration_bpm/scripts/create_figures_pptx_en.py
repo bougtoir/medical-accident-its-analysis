@@ -40,7 +40,7 @@ SLIDES = [
     ("figure6_range_dependence.png", "Figure 6. Range-dependence of the CCC",
      "For one fixed device, the CCC and the bias-correction factor C_b "
      "increase as the sampled pressure range widens, while the scale shift v "
-     "stays close to the true gain ratio."),
+     "is less range-dependent and approaches the true gain ratio at wider ranges."),
     ("figure7_real_validation.png", "Figure 7. Real-waveform validation",
      "(A) A 10-s segment of the SNUADC/ART waveform from the VitalDB Open "
      "Dataset with detected beats. (B) Bland\u2013Altman plot for the gain-masked "

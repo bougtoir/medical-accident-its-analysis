@@ -533,12 +533,12 @@ add_para_with_refs(
     f"was obvious on every analysis, including the mean bias "
     f"({signed(st['S3_gain_uncompensated']['bias'])} mmHg): gain error is not "
     "invisible to a Bland\u2013Altman analysis.")
-add_para("[TABLE 1]")
 add_figure(
     "Device-versus-reference concordance for the four static "
     "scenarios (dashed line = identity). Each panel shows the CCC, the CCC "
     "scale shift $v$, and the Bland\u2013Altman mean bias. S4 has a near-zero mean "
     "bias despite a 10% gain error.")
+add_para("[TABLE 1]")
 
 add_para_with_refs(
     f"The decisive case is S4, where a compensating offset makes the mean bias "
@@ -593,8 +593,9 @@ add_para_with_refs(
     f"For a single device with a fixed 5% gain error, the CCC rose from "
     f"{f2(rg['ccc'][0])} when sampled over a narrow pressure range "
     f"({int(rg['range_width'][0])} mmHg wide) to {f2(rg['ccc'][-1])} over a "
-    f"wide range ({int(rg['range_width'][-1])} mmHg), while the scale shift $v$ "
-    f"remained close to its true value (Fig. {next_fig_num()}). The CCC "
+    f"wide range ({int(rg['range_width'][-1])} mmHg). The scale shift $v$ was "
+    f"far less range-dependent than CCC and approached the true gain ratio as "
+    f"the sampled range widened (Fig. {next_fig_num()}). The CCC "
     "therefore should be "
     "reported together with the sampled pressure range; the structural "
     "components ($C_b$, $v$) are more transportable across studies " +
@@ -602,7 +603,8 @@ add_para_with_refs(
 add_figure(
     "Range-dependence of the CCC. For one fixed device, the CCC and $C_b$ "
     "increase as the sampled pressure range widens, whereas the scale shift "
-    "$v$ stays close to the true gain ratio.")
+    "$v$ is less range-dependent and approaches the true gain ratio "
+    "(dotted line) at wider ranges.")
 
 add_heading_styled("3.4. Real-waveform validation", level=2)
 add_para_with_refs(
@@ -881,7 +883,7 @@ doc.add_page_break()
 # TABLE 3 — real-waveform metrics (VitalDB)
 # ══════════════════════════════════════════════════════════════════
 add_heading_styled("Table 3", level=1)
-add_para(f"Table 3. Real-waveform method-comparison metrics from the VitalDB Open Dataset ({P['n_real_cases']} cases; n = paired beats).", 
+add_para(f"Table 3. Real-waveform method-comparison metrics from the VitalDB Open Dataset ({P['n_real_cases']} cases; n = {P['n_real_beats_per_scenario']:,} paired beats per scenario).",  
          bold=True, italic=True)
 
 t3_headers = ["Scenario", "n", "Mean bias\n(mmHg)", "95% LoA\n(mmHg)", "PE (%)",
