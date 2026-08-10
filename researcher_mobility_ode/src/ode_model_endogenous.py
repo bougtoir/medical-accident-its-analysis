@@ -200,9 +200,11 @@ def estimate_endogenous_inflow(cohort, rates, safety_factor=0.5,
     Estimate I0 and r for each civilisation.
 
     r is capped at safety_factor * r_critical to keep the linear ODE stable.
-    The observed cross-sectional reproduction ratio I/P_D is unstable in the
-    linear model (it exceeds r_critical), so we report it for reference but
-    use the stability-capped value.
+    The exogenous baseline I0 is calibrated so that the total equilibrium inflow
+    (I0 + r * P_D_eq) equals the observed annual inflow I, where P_D_eq is the
+    equilibrium PI count implied by I and the base transition matrix (r=0).
+    This keeps the endogenous model consistent with the non-endogenous steady
+    state while splitting inflow into an exogenous baseline and PI-driven feedback.
     """
     inflows = estimate_inflows(cohort, career_start_min, career_start_max)
     pi_counts = cohort[cohort["pi"] == True].groupby("origin_group").size().to_dict()
@@ -217,6 +219,12 @@ def estimate_endogenous_inflow(cohort, rates, safety_factor=0.5,
         I = inflows.get(group, 0.0)
         P_D_obs = pi_counts.get(group, 0)
 
+        # PI count that the base system would support with total inflow I and no PI feedback.
+        A_no_r = build_matrix({**params, "r": 0.0})
+        A_inv = np.linalg.inv(A_no_r)
+        g = -A_inv[4, 0]
+        P0 = float(g * I)
+
         rcrit = r_critical(params)
         r_cap = safety_factor * rcrit
 
@@ -225,8 +233,9 @@ def estimate_endogenous_inflow(cohort, rates, safety_factor=0.5,
         else:
             r_obs = 0.0
 
-        r_use = min(r_obs, r_cap) if r_obs > 0 else r_cap
-        I0 = max(0.0, I - r_use * P_D_obs)
+        r_use = min(r_obs, r_cap) if r_obs > 0 else 0.0
+        # Decompose observed inflow I = I0 + r_use * P0 so equilibrium inflow matches I.
+        I0 = max(1.0, I - r_use * P0)
 
         I0_dict[group] = I0
         r_dict[group] = r_use
@@ -481,12 +490,18 @@ def run_endogenous_model(k_override=None, save=True, scan_targets=("T", "P"),
 
         if saturating:
             r = r_obs_dict.get(group, 0.0) if use_observed_r else r
-            P_D_obs = pi_counts.get(group, 0)
             I_total = inflows.get(group, 0.0)
-            if P_D_obs > 0 and r > 0:
-                K = max(P_D_obs, saturation_k_factor * P_D_obs)
+            # Calibrate I0 so the total saturating equilibrium inflow equals I_total.
+            A_no_r = build_matrix({**params, "r": 0.0})
+            A_inv = np.linalg.inv(A_no_r)
+            g = -A_inv[4, 0]
+            P0 = float(g * I_total) if I_total > 0 else 0.0
+            P_D_obs = pi_counts.get(group, 0)
+            if P0 > 0 and r > 0:
+                K_base = P_D_obs if P_D_obs > 0 else P0
+                K = max(K_base, saturation_k_factor * K_base)
                 epsilon = 1.0 / K
-                I0 = max(0.0, I_total - r * P_D_obs / (1.0 + epsilon * P_D_obs))
+                I0 = max(1.0, I_total - r * P0 / (1.0 + epsilon * P0))
                 params["epsilon"] = epsilon
             else:
                 params["epsilon"] = 0.0
