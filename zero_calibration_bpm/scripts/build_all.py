@@ -25,14 +25,15 @@ def run_module(path, label):
 def main():
     sys.path.insert(0, SRC)
     sys.path.insert(0, HERE)
-    run_module(os.path.join(SRC, "simulate.py"), "1/8 simulate")
-    run_module(os.path.join(SRC, "analyze.py"), "2/8 analyze")
-    run_module(os.path.join(SRC, "figures.py"), "3/8 figures (EN + JA)")
-    run_module(os.path.join(HERE, "create_bpm_docx_en.py"), "4/8 manuscript EN")
-    run_module(os.path.join(HERE, "create_bpm_docx_ja.py"), "5/8 manuscript JA")
-    run_module(os.path.join(HERE, "create_tables_docx_en.py"), "6/8 tables docx")
-    run_module(os.path.join(HERE, "create_figures_pptx_en.py"), "7/8 figures pptx")
-    run_module(os.path.join(HERE, "create_bpm_cover_letter.py"), "8/8 cover letter")
+    run_module(os.path.join(SRC, "simulate.py"), "1/9 simulate")
+    run_module(os.path.join(SRC, "real_waveforms.py"), "2/9 real waveforms")
+    run_module(os.path.join(SRC, "analyze.py"), "3/9 analyze")
+    run_module(os.path.join(SRC, "figures.py"), "4/9 figures (EN + JA)")
+    run_module(os.path.join(HERE, "create_bpm_docx_en.py"), "5/9 manuscript EN")
+    run_module(os.path.join(HERE, "create_bpm_docx_ja.py"), "6/9 manuscript JA")
+    run_module(os.path.join(HERE, "create_tables_docx_en.py"), "7/9 tables docx")
+    run_module(os.path.join(HERE, "create_figures_pptx_en.py"), "8/9 figures pptx")
+    run_module(os.path.join(HERE, "create_tim_cover_letter.py"), "9/9 cover letter")
     print("\nAll outputs regenerated.")
 
 

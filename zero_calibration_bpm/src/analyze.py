@@ -132,7 +132,8 @@ def _round(obj, nd=3):
     return obj
 
 
-def build_summary(static_df, dynamic_df, range_df) -> dict:
+def build_summary(static_df, dynamic_df, range_df,
+                  real_static_df=None, real_stats=None) -> dict:
     summary = {
         "parameters": {
             "n_static": int(static_df["n"].iloc[0]),
@@ -147,6 +148,7 @@ def build_summary(static_df, dynamic_df, range_df) -> dict:
         "static": {},
         "dynamic": {},
         "range_dependence": {},
+        "real_static": {},
     }
     for _, row in static_df.iterrows():
         summary["static"][row["scenario"]] = _round(row.to_dict())
@@ -161,6 +163,11 @@ def build_summary(static_df, dynamic_df, range_df) -> dict:
         "v": _round(range_df["v"].tolist()),
         "r": _round(range_df["r"].tolist()),
     }
+    if real_static_df is not None and not real_static_df.empty:
+        for _, row in real_static_df.iterrows():
+            summary["real_static"][row["scenario"]] = _round(row.to_dict())
+    if real_stats:
+        summary["parameters"].update(real_stats)
     return summary
 
 
@@ -181,11 +188,29 @@ def main():
     range_df.to_csv(os.path.join(RESULTS_DIR, "range_dependence.csv"),
                     index=False)
 
-    summary = build_summary(static_df, dynamic_df, range_df)
+    real_static_path = os.path.join(DATA_DIR, "real_static_scenarios.csv")
+    real_static_df = None
+    real_stats = None
+    if os.path.exists(real_static_path):
+        real_static_in = pd.read_csv(real_static_path)
+        real_static_df = analyse_static(real_static_in)
+        real_static_df.to_csv(os.path.join(RESULTS_DIR, "real_static_metrics.csv"),
+                              index=False)
+        real_stats = {
+            "n_real_cases": int(real_static_in["caseid"].nunique()),
+            "n_real_beats_per_scenario": int(
+                real_static_in.groupby("scenario").size().iloc[0]),
+        }
+
+    summary = build_summary(static_df, dynamic_df, range_df,
+                            real_static_df, real_stats)
     with open(os.path.join(RESULTS_DIR, "summary.json"), "w") as f:
         json.dump(summary, f, indent=2)
     print("Wrote results/static_metrics.csv, results/dynamic_metrics.csv, "
           "results/range_dependence.csv, results/summary.json")
+    if real_static_df is not None:
+        print(f"Wrote results/real_static_metrics.csv "
+              f"({len(real_static_df)} scenarios)")
 
 
 if __name__ == "__main__":

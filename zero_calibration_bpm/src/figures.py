@@ -20,6 +20,7 @@ import pandas as pd
 from PIL import Image
 
 import methods as M
+import real_waveforms as RW
 
 HERE = os.path.dirname(__file__)
 DATA_DIR = os.path.join(HERE, "..", "data")
@@ -29,12 +30,13 @@ RESULTS_DIR = os.path.join(HERE, "..", "results")
 # Blood Pressure Monitoring allows six figures/tables in total; two figures
 # are provided as Supplemental Digital Content and are numbered separately.
 SUBMISSION_MAP = {
-    "figure2_scenarios_concordance": "Figure1",
-    "figure3_detection_panel": "Figure2",
-    "figure4_ba_masked_gain": "Figure3",
-    "figure5_dynamic_response": "Figure4",
-    "figure1_signal_decomposition": "SupplementalDigitalContent1",
-    "figure6_range_dependence": "SupplementalDigitalContent2",
+    "figure1_signal_decomposition": "Figure1",
+    "figure2_scenarios_concordance": "Figure2",
+    "figure3_detection_panel": "Figure3",
+    "figure4_ba_masked_gain": "Figure4",
+    "figure5_dynamic_response": "Figure5",
+    "figure6_range_dependence": "Figure6",
+    "figure7_real_validation": "Figure7",
 }
 
 
@@ -90,6 +92,9 @@ L = {
         "fig5b": "B  Example waveforms (MAP 90, true PP 40 mmHg)",
         "fig5c": "C  Measured vs true pulse pressure",
         "fig6_title": "Range-dependence of the concordance correlation coefficient",
+        "fig7_title": "Real-waveform validation from the VitalDB open dataset",
+        "fig7a": "A  10-s arterial pressure waveform (SNUADC/ART) with detected beats",
+        "fig7b": "B  Real-data Bland–Altman plot for R4 (gain error masked by offset)",
         "identity": "identity", "mean_bias": "mean bias",
         "gain_x": "gain ×", "s2_label": "S2 zeroed (no gain error)",
         "s4_label": "S4 gain error masked by offset",
@@ -124,6 +129,9 @@ L = {
         "fig5b": "B  波形例 (MAP 90, 真の脈圧 40 mmHg)",
         "fig5c": "C  計測脈圧 対 真の脈圧",
         "fig6_title": "一致相関係数の範囲依存性",
+        "fig7_title": "VitalDB公開データセットからの実波形検証",
+        "fig7a": "A  10秒間の動脈圧波形（SNUADC/ART）と検出ビート",
+        "fig7b": "B  R4（オフセットで隠れたゲイン誤差）の実データBland–Altmanプロット",
         "identity": "同一線", "mean_bias": "平均バイアス",
         "gain_x": "ゲイン ×", "s2_label": "S2 ゼロ校正後（ゲイン誤差なし）",
         "s4_label": "S4 オフセットで隠れたゲイン誤差",
@@ -135,11 +143,19 @@ SCEN_LABELS = {
     "en": {"S1_offset_only": "S1: offset only (pre-zeroing)",
            "S2_zeroed_ideal": "S2: zeroed, no gain error",
            "S3_gain_uncompensated": "S3: gain error (uncompensated)",
-           "S4_gain_masked": "S4: gain error masked by offset"},
+           "S4_gain_masked": "S4: gain error masked by offset",
+           "R1_offset_only": "R1: offset only",
+           "R2_zeroed_ideal": "R2: zeroed, no gain error",
+           "R3_gain_uncompensated": "R3: gain error (uncompensated)",
+           "R4_gain_masked": "R4: gain error masked by offset"},
     "ja": {"S1_offset_only": "S1: オフセットのみ（ゼロ校正前）",
            "S2_zeroed_ideal": "S2: ゼロ校正後・ゲイン誤差なし",
            "S3_gain_uncompensated": "S3: ゲイン誤差（未補正）",
-           "S4_gain_masked": "S4: オフセットで隠れたゲイン誤差"},
+           "S4_gain_masked": "S4: オフセットで隠れたゲイン誤差",
+           "R1_offset_only": "R1: オフセットのみ",
+           "R2_zeroed_ideal": "R2: ゼロ校正後・ゲイン誤差なし",
+           "R3_gain_uncompensated": "R3: ゲイン誤差（未補正）",
+           "R4_gain_masked": "R4: オフセットで隠れたゲイン誤差"},
 }
 
 METHOD_LABELS = {
@@ -157,7 +173,11 @@ def _load():
         summary = json.load(f)
     static = pd.read_csv(os.path.join(DATA_DIR, "static_scenarios.csv"))
     dynamic = pd.read_csv(os.path.join(DATA_DIR, "dynamic_scenarios.csv"))
-    return summary, static, dynamic
+    real_static = None
+    real_path = os.path.join(DATA_DIR, "real_static_scenarios.csv")
+    if os.path.exists(real_path):
+        real_static = pd.read_csv(real_path)
+    return summary, static, dynamic, real_static
 
 
 def fig1_signal(lang, outdir):
@@ -194,7 +214,7 @@ def fig1_signal(lang, outdir):
 
 def fig2_scenarios(lang, outdir):
     t = L[lang]
-    summary, static, _ = _load()
+    summary, static, _, _ = _load()
     order = ["S1_offset_only", "S2_zeroed_ideal",
              "S3_gain_uncompensated", "S4_gain_masked"]
     fig, axes = plt.subplots(2, 2, figsize=(10, 9))
@@ -222,7 +242,7 @@ def fig2_scenarios(lang, outdir):
 
 def fig3_detection(lang, outdir):
     t = L[lang]
-    summary, _, _ = _load()
+    summary, _, _, _ = _load()
     order = ["S1_offset_only", "S2_zeroed_ideal",
              "S3_gain_uncompensated", "S4_gain_masked"]
     mat = np.array([[1 if summary["static"][s][k] else 0 for k in FLAG_KEYS]
@@ -248,7 +268,7 @@ def fig3_detection(lang, outdir):
 
 def fig4_ba(lang, outdir):
     t = L[lang]
-    summary, static, _ = _load()
+    summary, static, _, _ = _load()
     fig, axes = plt.subplots(1, 2, figsize=(11, 4.6))
     for ax, name, lab in zip(
             axes, ["S2_zeroed_ideal", "S4_gain_masked"],
@@ -277,7 +297,7 @@ def fig4_ba(lang, outdir):
 
 def fig5_dynamic(lang, outdir):
     t = L[lang]
-    summary, _, dynamic = _load()
+    summary, _, dynamic, _ = _load()
     systems = [("optimal", "#2ca02c", t["sys_optimal"]),
                ("underdamped", "#d62728", t["sys_under"]),
                ("overdamped", "#1f77b4", t["sys_over"])]
@@ -339,7 +359,7 @@ def fig5_dynamic(lang, outdir):
 
 def fig6_range(lang, outdir):
     t = L[lang]
-    summary, _, _ = _load()
+    summary, _, _, _ = _load()
     rd = summary["range_dependence"]
     fig, ax = plt.subplots(figsize=(7.5, 4.8))
     ax.plot(rd["range_width"], rd["ccc"], "o-", color="#1f77b4",
@@ -355,6 +375,51 @@ def fig6_range(lang, outdir):
     ax.legend(fontsize=9)
     fig.tight_layout()
     _savefig(fig, outdir, "figure6_range_dependence")
+    plt.close(fig)
+
+
+def fig7_real_validation(lang, outdir):
+    t = L[lang]
+    summary, _, _, real_static = _load()
+    if real_static is None or real_static.empty:
+        return
+
+    # Example waveform (first 10 s)
+    example = pd.read_csv(os.path.join(DATA_DIR, "real_example_waveform.csv"))
+    t_vals = example["time"].values[: int(10 / RW.SAMPLE_DT)]
+    p_vals = example["pressure"].values[: len(t_vals)]
+    sbp_ex, dbp_ex, _ = RW._extract_beats(p_vals, fs=RW.SAMPLE_RATE)
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(11, 4.6))
+    ax1.plot(t_vals, p_vals, color="#1f77b4", lw=1.2, label=t["true_arterial"])
+    ax1.scatter(t_vals[::500], p_vals[::500], color="k", s=5, zorder=3)
+    ax1.set_xlabel(t["time"])
+    ax1.set_ylabel(t["pressure"])
+    ax1.set_title(t["fig7a"], fontsize=10, loc="left")
+    ax1.legend(fontsize=8, loc="upper right")
+
+    # Real R4 Bland-Altman plot
+    r4 = real_static[real_static["scenario"] == "R4_gain_masked"]
+    s = summary["real_static"]["R4_gain_masked"]
+    mean = (r4["reference"].values + r4["device"].values) / 2.0
+    diff = r4["device"].values - r4["reference"].values
+    ax2.scatter(mean, diff, s=6, alpha=0.3, color="#1f77b4")
+    ax2.axhline(s["bias"], color="k", lw=1.2,
+                 label=f"{t['mean_bias']}={s['bias']:.1f}")
+    ax2.axhline(s["loa_upper"], color="grey", ls="--", lw=1)
+    ax2.axhline(s["loa_lower"], color="grey", ls="--", lw=1)
+    xs = np.linspace(np.percentile(mean, 1), np.percentile(mean, 99), 50)
+    ax2.plot(xs, s["prop_slope"] * xs + s["prop_intercept"],
+             color="#d62728", lw=1.8,
+             label=f"{t['slope']}={s['prop_slope']:.3f}")
+    ax2.set_xlabel(t["mean_pair"])
+    ax2.set_ylabel(t["difference"])
+    ax2.set_title(t["fig7b"], fontsize=10, loc="left")
+    ax2.legend(fontsize=8, loc="upper left")
+
+    fig.suptitle(t["fig7_title"], fontsize=12, fontweight="bold")
+    fig.tight_layout(rect=[0, 0, 1, 0.95])
+    _savefig(fig, outdir, "figure7_real_validation")
     plt.close(fig)
 
 
@@ -394,7 +459,8 @@ def generate(lang="en", outdir=None):
     fig4_ba(lang, outdir)
     fig5_dynamic(lang, outdir)
     fig6_range(lang, outdir)
-    print(f"[{lang}] wrote 6 figures to {outdir}")
+    fig7_real_validation(lang, outdir)
+    print(f"[{lang}] wrote 7 figures to {outdir}")
 
 
 def export_tiff(src_dir=None, dst_dir=None, dpi=300):

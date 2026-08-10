@@ -11,37 +11,41 @@ from pptx.enum.text import PP_ALIGN
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 FIGDIR = os.path.join(SCRIPT_DIR, "..", "figures")
 OUTDIR = os.path.join(SCRIPT_DIR, "..", "manuscripts")
-OUTPATH = os.path.join(OUTDIR, "BPM_Figures_EN.pptx")
+OUTPATH = os.path.join(OUTDIR, "TIM_Figures_EN.pptx")
 os.makedirs(OUTDIR, exist_ok=True)
 
-# Main figures (submission numbering) followed by the two Supplemental
-# Digital Content figures, matching the manuscript.
+# Seven inline figures for the IEEE TIM manuscript.
 SLIDES = [
-    ("figure2_scenarios_concordance.png", "Figure 1. Concordance by scenario",
-     "Device-versus-reference concordance for the four static scenarios; each "
-     "panel shows CCC, scale shift v and mean bias. S4 has near-zero bias "
-     "despite a 10% gain error."),
-    ("figure3_detection_panel.png", "Figure 2. Detection pattern",
+    ("figure1_signal_decomposition.png", "Figure 1. Signal decomposition",
+     "A DC offset shifts the arterial pressure baseline but leaves pulse "
+     "pressure unchanged; a gain error scales the whole waveform and changes "
+     "pulse pressure. Zeroing corrects the offset but not the gain."),
+    ("figure2_scenarios_concordance.png", "Figure 2. Concordance by scenario",
+     "Device-versus-reference concordance for the four static scenarios "
+     "(dashed line = identity). Each panel shows the CCC, the CCC scale shift "
+     "v, and the Bland\u2013Altman mean bias. S4 has a near-zero mean bias despite "
+     "a 10% gain error."),
+    ("figure3_detection_panel.png", "Figure 3. Detection pattern",
      "Which reported analysis detects the error in each scenario (green = "
      "detected, grey = missed). In S4 the mean-bias summary misses the gain "
-     "error that all proportional-bias\u2013aware analyses detect."),
-    ("figure4_ba_masked_gain.png", "Figure 3. Bland\u2013Altman regression",
-     "Difference-versus-mean plots for S2 (flat slope) and S4 (positive slope "
-     "despite near-zero mean bias), revealing the masked proportional (gain) "
-     "error."),
-    ("figure5_dynamic_response.png", "Figure 4. Dynamic response",
-     "Frequency response and waveforms for optimal, under-damped and "
-     "over-damped systems, with measured-versus-true pulse pressure and the "
-     "mean PP ratio."),
-    ("figure1_signal_decomposition.png",
-     "Supplemental Digital Content 1. Signal decomposition",
-     "A DC offset shifts the baseline but leaves pulse pressure unchanged; a "
-     "gain error scales the whole waveform. Zeroing corrects the offset but "
-     "not the gain error."),
-    ("figure6_range_dependence.png",
-     "Supplemental Digital Content 2. Range-dependence of the CCC",
-     "For one fixed device, CCC and C_b increase as the sampled pressure "
-     "range widens, while the scale shift v stays near the true gain ratio."),
+     "error that every proportional-bias\u2013aware analysis detects."),
+    ("figure4_ba_masked_gain.png", "Figure 4. Bland\u2013Altman regression",
+     "Difference-versus-mean plots. In S2 the regression slope is flat; in S4 "
+     "the slope is clearly positive despite a near-zero mean bias, revealing "
+     "the masked proportional (gain) error."),
+    ("figure5_dynamic_response.png", "Figure 5. Dynamic response",
+     "(A) Frequency response of optimal, under-damped and over-damped systems "
+     "with arterial harmonics overlaid. (B) Example waveforms. (C) Measured-"
+     "versus-true pulse pressure and the mean PP ratio for each system."),
+    ("figure6_range_dependence.png", "Figure 6. Range-dependence of the CCC",
+     "For one fixed device, the CCC and the bias-correction factor C_b "
+     "increase as the sampled pressure range widens, while the scale shift v "
+     "stays close to the true gain ratio."),
+    ("figure7_real_validation.png", "Figure 7. Real-waveform validation",
+     "(A) A 10-s segment of the SNUADC/ART waveform from the VitalDB Open "
+     "Dataset with detected beats. (B) Bland\u2013Altman plot for the gain-masked "
+     "scenario (R4), showing a near-zero mean bias with a clear proportional "
+     "bias."),
 ]
 
 prs = Presentation()

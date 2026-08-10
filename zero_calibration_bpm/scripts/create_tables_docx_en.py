@@ -10,13 +10,14 @@ from manuscript_common import load_summary
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 OUTDIR = os.path.join(SCRIPT_DIR, "..", "manuscripts")
-OUTPATH = os.path.join(OUTDIR, "BPM_Tables_EN.docx")
+OUTPATH = os.path.join(OUTDIR, "TIM_Tables_EN.docx")
 os.makedirs(OUTDIR, exist_ok=True)
 
 S = load_summary()
 P = S["parameters"]
 st = S["static"]
 dy = S["dynamic"]
+re = S["real_static"]
 
 
 def f1(x): return f"{x:.1f}"
@@ -102,6 +103,31 @@ for k, label in dyn.items():
 fill(doc.add_table(rows=1 + len(rows2), cols=len(h2)), h2, rows2)
 note("PP ratio = mean(measured PP / true PP); f_n = natural frequency; "
      "zeta = damping coefficient.")
+
+doc.add_paragraph()
+
+title("Table 3. Real-waveform validation metrics for the four static "
+      "scenarios (n = paired beats from the VitalDB Open Dataset).")
+h3 = ["Scenario", "n", "Mean bias (mmHg)", "95% LoA (mmHg)", "PE (%)",
+      "BA reg. slope (95% CI)", "Deming slope (95% CI)",
+      "P-B slope (95% CI)", "CCC", "C_b", "v"]
+scen_real = {"R1_offset_only": "R1 offset only",
+             "R2_zeroed_ideal": "R2 zeroed (ideal)",
+             "R3_gain_uncompensated": "R3 gain error",
+             "R4_gain_masked": "R4 gain masked"}
+rows3 = []
+for k, label in scen_real.items():
+    d = re[k]
+    rows3.append([label, str(d["n"]), signed(d["bias"]),
+                  f"{d['loa_lower']:.1f} to {d['loa_upper']:.1f}", f1(d["pe"]),
+                  f"{d['prop_slope']:.3f} ({d['prop_slope_lo']:.3f}, {d['prop_slope_hi']:.3f})",
+                  f"{d['deming_slope']:.3f} ({d['deming_lo']:.3f}, {d['deming_hi']:.3f})",
+                  f"{d['pb_slope']:.3f} ({d['pb_lo']:.3f}, {d['pb_hi']:.3f})",
+                  f3(d["ccc"]), f3(d["C_b"]), f3(d["v"])])
+fill(doc.add_table(rows=1 + len(rows3), cols=len(h3)), h3, rows3)
+note("BA = Bland-Altman; CI = confidence interval; LoA = limits of agreement; "
+     "PE = percentage error; P-B = Passing-Bablok; CCC = concordance "
+     "correlation coefficient; C_b = bias-correction factor; v = scale shift.")
 
 doc.save(OUTPATH)
 print(f"Tables docx saved: {OUTPATH}")

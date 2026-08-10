@@ -14,10 +14,9 @@ figures: analyze
 
 docs: analyze figures
 	python3 scripts/create_bpm_docx_en.py
-	python3 scripts/create_bpm_docx_ja.py
 	python3 scripts/create_tables_docx_en.py
 	python3 scripts/create_figures_pptx_en.py
-	python3 scripts/create_bpm_cover_letter.py
+	python3 scripts/create_tim_cover_letter.py
 
 clean:
 	rm -f data/*.csv results/*.csv results/*.json

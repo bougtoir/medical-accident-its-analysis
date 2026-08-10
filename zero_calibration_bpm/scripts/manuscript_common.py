@@ -51,21 +51,10 @@ class Citations:
 
 
 def _fmt_nums(nums):
+    """Return numbers as a comma-separated string without collapsing ranges."""
     if not nums:
         return ""
-    runs = []
-    start = prev = nums[0]
-    for n in nums[1:]:
-        if n == prev + 1:
-            prev = n
-            continue
-        runs.append((start, prev))
-        start = prev = n
-    runs.append((start, prev))
-    parts = []
-    for a, b in runs:
-        parts.append(f"{a}" if a == b else f"{a}\u2013{b}")
-    return ",".join(parts)
+    return "}, {".join(str(n) for n in sorted(set(nums)))
 
 
 # ----------------------------------------------------------------------
@@ -108,4 +97,5 @@ REFDB = {
     "ameloot2015": "Ameloot K, Palmers PJ, Malbrain MLNG. The accuracy of noninvasive cardiac output and pressure measurements with finger cuff: a concise review. Curr Opin Crit Care 2015; 21: 232-239.",
     "squara2007": "Squara P, Denjean D, Estagnasie P, Brusset A, Dib JC, Dubois C. Noninvasive cardiac output monitoring (NICOM): a clinical validation. Intensive Care Med 2007; 33: 1191-1194.",
     "manecke2005": "Manecke GR. Edwards FloTrac sensor and Vigileo monitor: easy, accurate, reliable cardiac output assessment using the arterial pulse wave. Expert Rev Med Devices 2005; 2: 523-527.",
+    "vitaldb2022": "Lee HC, Park Y, Yoon SB, Yang SM, Park D, Jung CW. VitalDB, a high-fidelity multi-parameter vital signs database in surgical patients. Sci Data 2022; 9: 279.",
 }
