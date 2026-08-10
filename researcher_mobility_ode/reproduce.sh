@@ -6,10 +6,13 @@
 set -e
 cd "$(dirname "$0")"
 
+# Unbuffer Python stdout/stderr so long-running background logs are visible immediately.
+export PYTHONUNBUFFERED=1
+
 if [ -n "${FULL}" ]; then
-    python src/extract_full_cohort.py
+    python -u src/extract_full_cohort.py
 elif [ -n "${REEXTRACT}" ]; then
-    python src/cohort_extraction.py
+    python -u src/cohort_extraction.py
 fi
 
 python src/ode_model.py

@@ -16,6 +16,7 @@ import argparse
 import json
 import math
 import os
+import random
 import sqlite3
 import sys
 import time
@@ -115,6 +116,44 @@ def has_mappable_country(w, a2g):
     return False
 
 
+def work_groups(w, a2g):
+    """Return the set of civilisation groups present on a work."""
+    groups = set()
+    for auth in w.get("authorships", []):
+        for inst in auth.get("institutions", []):
+            cc = inst.get("country_code")
+            if cc and cc in a2g:
+                groups.add(a2g[cc])
+    return groups
+
+
+class GroupReservoir:
+    """Reservoir sample up to n_per_group works for each civilisation group."""
+    def __init__(self, n_per_group, seed=0):
+        self.n = n_per_group
+        self.counts = defaultdict(int)
+        self.samples = defaultdict(list)
+        self.rng = random.Random(seed)
+
+    def add(self, work, groups):
+        for g in groups:
+            self.counts[g] += 1
+            samples = self.samples[g]
+            if len(samples) < self.n:
+                samples.append(work)
+            else:
+                j = self.rng.randint(0, self.counts[g] - 1)
+                if j < self.n:
+                    samples[j] = work
+
+    def unique_works(self):
+        by_id = {}
+        for samples in self.samples.values():
+            for w in samples:
+                by_id[w["id"]] = w
+        return list(by_id.values())
+
+
 def load_state(state_path):
     """Load the saved cursor or start fresh.  A saved cursor of 'DONE' means
     the API fetch has already completed."""
@@ -130,8 +169,13 @@ def save_state(state_path, state):
 
 
 def fetch_and_store(client, conn, a2g, state, state_path, subfield_id, start_year,
-                    end_year, per_page, pages_per_commit, max_pages, delay):
-    """Stream all works through the OpenAlex cursor paginator and store in SQLite."""
+                    end_year, per_page, pages_per_commit, max_pages, delay,
+                    sample_per_group=500):
+    """Stream all works through the OpenAlex cursor paginator and store in SQLite.
+
+    Also maintain a per-civilisation reservoir sample of reduced works for
+    downstream co-author statistics and annual-state reconstruction.
+    """
     base_filter = (
         f"publication_year:{start_year}-{end_year},"
         f"topics.subfield.id:{subfield_id}"
@@ -153,6 +197,7 @@ def fetch_and_store(client, conn, a2g, state, state_path, subfield_id, start_yea
     start_time = time.time()
     batch_works = []
     batch_authors = []
+    reservoir = GroupReservoir(sample_per_group)
 
     # Helper to flush the current batch to the DB and persist state.
     def flush_and_save(next_cursor):
@@ -204,6 +249,9 @@ def fetch_and_store(client, conn, a2g, state, state_path, subfield_id, start_yea
                         seen_authors.add(aid)
                         batch_authors.append((aid, wid))
 
+                # Maintain a stratified work sample for coauthor statistics.
+                reservoir.add(reduced, work_groups(reduced, a2g))
+
             works_done += len(results)
             next_cursor = page.get("meta", {}).get("next_cursor")
 
@@ -229,9 +277,10 @@ def fetch_and_store(client, conn, a2g, state, state_path, subfield_id, start_yea
 
     # Final flush for any partial batch and mark fetch as done.
     flush_and_save("DONE")
+    sampled = reservoir.unique_works()
     print(f"Fetch complete: {pages_done} pages, {works_done} works, "
-          f"{rows_done} author_works rows.")
-    return pages_done, works_done, rows_done
+          f"{rows_done} author_works rows, {len(sampled)} sampled works.")
+    return pages_done, works_done, rows_done, sampled
 
 
 def classify_all_authors(conn, a2g, min_works, overrides, batch_size=500):
@@ -298,6 +347,8 @@ def main():
     parser.add_argument("--pages-per-commit", type=int, default=10)
     parser.add_argument("--max-pages", type=int, default=0,
                         help="Stop after this many pages (for testing).")
+    parser.add_argument("--sample-per-group", type=int, default=500,
+                        help="Number of works to keep per group in raw_sampled_works.json.")
     parser.add_argument("--classify-batch-size", type=int, default=500)
     parser.add_argument("--resume", action="store_true",
                         help="Resume from the cursor stored in --state-path.")
@@ -319,13 +370,15 @@ def main():
     conn = setup_db(db_path)
 
     state = load_state(state_path)
+    sampled_works = []
     if not args.no_fetch:
         client = OpenAlexClient(delay=args.delay, cache_dir=None)
         try:
-            fetch_and_store(
+            pages, works, rows, sampled_works = fetch_and_store(
                 client, conn, a2g, state, state_path,
                 args.subfield_id, args.start_year, args.end_year,
                 args.per_page, args.pages_per_commit, args.max_pages, args.delay,
+                sample_per_group=args.sample_per_group,
             )
         except OpenAlexBudgetExhausted as e:
             print(f"ERROR: {e}")
@@ -333,6 +386,12 @@ def main():
             sys.exit(1)
     else:
         print("Skipping API fetch, classifying from existing DB.")
+
+    if sampled_works:
+        sample_path = output_dir / "raw_sampled_works.json"
+        with open(sample_path, "w", encoding="utf-8") as f:
+            json.dump(sampled_works, f, ensure_ascii=False)
+        print(f"Sampled works saved to {sample_path} ({len(sampled_works)} works)")
 
     cohort = classify_all_authors(
         conn, a2g, args.min_works, overrides, batch_size=args.classify_batch_size
