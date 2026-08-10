@@ -27,6 +27,7 @@ sys.path.insert(0, str(BASE_DIR / "scripts"))
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 import numpy as np
 import pandas as pd
 from docx import Document
@@ -295,25 +296,32 @@ def build_figure2(pnr_closest, fig_dir: Path):
 
 
 def build_figure3(period_compare, fig_dir: Path):
-    """Historical counterfactual: change in safety margin from early to late rates."""
+    """Historical counterfactual: change in safety margin from early to late rates.
+
+    Mirrored to a left-origin layout: all bars originate at the left axis (0)
+    and extend to the right, with colour encoding whether late-period rates would
+    raise (blue) or lower (vermillion) the safety margin.
+    """
     fig_dir.mkdir(parents=True, exist_ok=True)
-    df = period_compare.sort_values("delta_margin")
+    df = period_compare.copy()
+    df["abs_delta"] = df["delta_margin"].abs()
+    df = df.sort_values("abs_delta", ascending=True)
     groups = df["group"].tolist()
     deltas = df["delta_margin"].tolist()
+    lengths = df["abs_delta"].tolist()
     fig, ax = plt.subplots(figsize=(9, 5))
     # Colour-vision-deficiency-friendly palette: blue for positive, vermillion for negative
     CVD_POS = "#0072B2"
     CVD_NEG = "#D55E00"
-    colors = [CVD_POS if d > 0 else CVD_NEG for d in deltas]
-    bars = ax.barh(groups, deltas, color=colors)
-    for bar, d in zip(bars, deltas):
-        width = bar.get_width()
-        ax.text(width + (max(deltas) * 0.01 if width >= 0 else min(deltas) * 0.01),
+    colors = [CVD_POS if d >= 0 else CVD_NEG for d in deltas]
+    bars = ax.barh(groups, lengths, color=colors)
+    for bar, d, l in zip(bars, deltas, lengths):
+        ax.text(l + max(lengths) * 0.02,
                 bar.get_y() + bar.get_height() / 2,
-                f"{_fmt(d, 1)}", va="center", ha="left" if width >= 0 else "right",
+                f"{_fmt(d, 1)}", va="center", ha="left",
                 fontsize=8)
     ax.axvline(0, color="black", linewidth=0.8)
-    ax.set_xlabel("Change in equilibrium safety margin (late − early)")
+    ax.set_xlabel("Change in equilibrium safety margin |late − early| (late higher → blue, lower → red)")
     ax.set_title("Counterfactual change in safety margin if late-period rates persisted (point estimates)")
     fig.tight_layout()
     path = fig_dir / "fig3_historical_margin.png"
@@ -341,6 +349,155 @@ def build_figure4(boot, fig_dir: Path):
     ax.set_xlim(0, max(high) * 1.05)
     fig.tight_layout()
     path = fig_dir / "fig4_bootstrap_ci.png"
+    fig.savefig(path, dpi=300)
+    plt.close(fig)
+    return path
+
+
+def build_figure8(trans_rates, eq, fig_dir: Path):
+    """Japan's six-compartment flow with cross-civilisation transition-rate ladders."""
+    fig_dir.mkdir(parents=True, exist_ok=True)
+
+    def _rate_fmt(v, dec=3):
+        if pd.isna(v):
+            return "—"
+        return f"{float(v):.{dec}f}"
+
+    ja_row = trans_rates[trans_rates["group"] == "Japanese"].iloc[0]
+    ja_eq = eq[eq["group"] == "Japanese"].iloc[0]
+
+    fig = plt.figure(figsize=(18, 10))
+    gs = fig.add_gridspec(1, 2, width_ratios=[1, 1.2])
+    ax1 = fig.add_subplot(gs[0, 0])
+    ax2 = fig.add_subplot(gs[0, 1])
+
+    # Left panel: Japan compartment flow
+    ax1.set_xlim(0, 1)
+    ax1.set_ylim(0, 1)
+    ax1.axis("off")
+    w, h = 0.14, 0.10
+    positions = {
+        "D": (0.18, 0.80), "H_D": (0.18, 0.52), "P_D": (0.18, 0.24),
+        "A": (0.82, 0.80), "H_A": (0.82, 0.52), "P_A": (0.82, 0.24),
+        "L": (0.50, 0.05),
+    }
+    counts = {
+        "D": ja_eq["D_eq"], "H_D": ja_eq["H_D_eq"], "P_D": ja_eq["P_D_eq"],
+        "A": ja_eq["A_eq"], "H_A": ja_eq["H_A_eq"], "P_A": ja_eq["P_A_eq"],
+    }
+    for name, (x, y) in positions.items():
+        if name == "L":
+            label = "L\n(dropout)"
+            fc = "#ffcccc"
+        else:
+            label = f"{name}\n{int(round(counts[name]))}"
+            fc = "#e6f2ff" if name in ("D", "H_D", "P_D") else "#fff4e6"
+        box = mpatches.FancyBboxPatch(
+            (x - w / 2, y - h / 2), w, h, boxstyle="round,pad=0.02",
+            facecolor=fc, edgecolor="black", linewidth=1.2,
+        )
+        ax1.add_patch(box)
+        ax1.text(x, y, label, ha="center", va="center", fontsize=9, weight="bold")
+
+    def _arrow(start, end, label, rate, color="black", lw=1.2):
+        ax1.annotate("", xy=end, xytext=start,
+                     arrowprops=dict(arrowstyle="->", color=color, lw=lw,
+                                     connectionstyle="arc3,rad=0"))
+        mx = (start[0] + end[0]) / 2
+        my = (start[1] + end[1]) / 2
+        ax1.text(mx, my + 0.025, f"{label}={_rate_fmt(rate)}",
+                 ha="center", va="bottom", fontsize=8, color=color,
+                 bbox=dict(boxstyle="round,pad=0.15", facecolor="white",
+                           edgecolor="none", alpha=0.8))
+
+    _arrow((0.25, 0.85), (0.75, 0.85), r"$\alpha$", ja_row["alpha"])
+    _arrow((0.75, 0.75), (0.25, 0.75), r"$\beta$", ja_row["beta"])
+    _arrow((0.18, 0.75), (0.18, 0.58), "h_D", ja_row["h_D"])
+    _arrow((0.18, 0.47), (0.18, 0.30), "p_D", ja_row["p_D"])
+    _arrow((0.82, 0.75), (0.82, 0.58), "h_A", ja_row["h_A"])
+    _arrow((0.82, 0.47), (0.82, 0.30), "p_A", ja_row["p_A"])
+
+    ax1.annotate("", xy=(0.11, 0.80), xytext=(0.02, 0.80),
+                 arrowprops=dict(arrowstyle="->", color="green", lw=1.2))
+    ax1.text(0.055, 0.83, f"I0+rP_D\nI0={_rate_fmt(ja_eq['I0'],1)}\nr={_rate_fmt(ja_eq['r'],4)}",
+             ha="center", va="bottom", fontsize=7, color="green")
+
+    for name, (x, y) in positions.items():
+        if name == "L":
+            continue
+        ax1.annotate("", xy=(0.50, 0.12), xytext=(x, y - 0.05),
+                     arrowprops=dict(arrowstyle="->", color="gray", lw=0.7,
+                                     ls="--", connectionstyle="arc3,rad=0.15"))
+    ax1.text(0.50, 0.015, f"d={_rate_fmt(ja_row['d'])} (all compartments)",
+             ha="center", va="bottom", fontsize=8, color="gray", weight="bold")
+    ax1.set_title(
+        f"Japanese community (T/M={_rate_fmt(ja_eq['T_equilibrium']/ja_eq['M_threshold'],2)})",
+        fontsize=12, weight="bold", pad=10,
+    )
+
+    # Right panel: rate ladders by civilisation, Japan highlighted
+    rates = ["alpha", "beta", "h_D", "h_A", "p_D", "d"]
+    others = sorted([g for g in trans_rates["group"] if g != "Japanese"])
+    groups = ["Japanese"] + others
+    n_groups = len(groups)
+    n_rates = len(rates)
+    y = np.arange(n_groups)
+    bar_height = 0.11
+    colors = plt.cm.tab10(np.linspace(0, 1, n_rates))
+    for i, rate in enumerate(rates):
+        vals = np.array([trans_rates[trans_rates["group"] == g][rate].values[0] for g in groups])
+        ax2.barh(y + i * bar_height, vals, height=bar_height, label=rate, color=colors[i])
+    ax2.set_yticks(y + bar_height * (n_rates - 1) / 2)
+    ax2.set_yticklabels(groups, fontsize=8)
+    ax2.invert_yaxis()
+    ax2.set_xlabel("Transition rate", fontsize=9)
+    ax2.set_title("Transition rates by civilisation (Japan highlighted)", fontsize=11, weight="bold", pad=10)
+    ax2.legend(ncol=3, fontsize=7, loc="lower right")
+    ax2.axhspan(-0.5, 0.5 + n_rates * bar_height, color="red", alpha=0.08)
+    ax2.set_ylim(n_groups - 0.5, -0.5)
+    ax2.set_xlim(0, 1.0)
+    ax2.grid(axis="x", linestyle=":", alpha=0.5)
+
+    fig.tight_layout()
+    path = fig_dir / "fig8_japan_compartment_flow.png"
+    fig.savefig(path, dpi=300, bbox_inches="tight")
+    plt.close(fig)
+    return path
+
+
+def build_figure9(eq, pnr_active, fig_dir: Path):
+    """T/M safety margin versus closest PNR proximity for all civilisations."""
+    fig_dir.mkdir(parents=True, exist_ok=True)
+
+    active = pnr_active[(pnr_active["target"] == "domestic_active") & (pnr_active["is_within_bounds"])].copy()
+    active["proximity"] = (active["critical_factor"] - 1).abs()
+    active = active.loc[active.groupby("group")["proximity"].idxmin()].reset_index(drop=True)
+    merged = eq[["group", "T_equilibrium", "M_threshold"]].merge(
+        active[["group", "rate_name", "current_rate", "critical_factor", "proximity"]], on="group"
+    )
+    merged["T_over_M"] = merged["T_equilibrium"] / merged["M_threshold"]
+    merged = merged.sort_values("T_over_M")
+
+    fig, ax = plt.subplots(figsize=(9, 7))
+    colors = ["red" if g == "Japanese" else "steelblue" for g in merged["group"]]
+    ax.scatter(merged["T_over_M"], merged["proximity"], c=colors, s=120, edgecolors="black", zorder=3)
+    for _, row in merged.iterrows():
+        ax.annotate(row["group"], (row["T_over_M"], row["proximity"]),
+                    textcoords="offset points", xytext=(6, 4), fontsize=8)
+    ax.axvline(1.0, color="gray", linestyle="--", lw=1)
+    ax.set_xlabel("T / M (equilibrium active pool / minimum viable threshold)", fontsize=10)
+    ax.set_ylabel("PNR proximity (|critical factor − 1|)\nsmaller = more fragile", fontsize=10)
+    ax.set_title("Model evaluation: safety margin vs. point-of-no-return proximity", fontsize=11, weight="bold")
+
+    ja = merged[merged["group"] == "Japanese"].iloc[0]
+    ax.annotate(f"Japan: PNR lever = {ja['rate_name']}",
+                (ja["T_over_M"], ja["proximity"]),
+                textcoords="offset points", xytext=(-30, -25),
+                fontsize=9, color="red",
+                arrowprops=dict(arrowstyle="->", color="red"))
+
+    fig.tight_layout()
+    path = fig_dir / "fig9_tm_pnr_scatter.png"
     fig.savefig(path, dpi=300)
     plt.close(fig)
     return path
@@ -475,6 +632,42 @@ def compute_annual_context(annual):
         ctx["obs_year_max"] = 2023
 
     return ctx
+
+
+def compute_japan_context(eq, pnr_closest, transition_rates):
+    """Return data-derived prose values for the Japan-specific discussion."""
+    ja = eq[eq["group"] == "Japanese"].iloc[0]
+    tr = transition_rates[transition_rates["group"] == "Japanese"].iloc[0]
+    pnr = pnr_closest[pnr_closest["group"] == "Japanese"]
+    if pnr.empty:
+        # fallback from full pnr if pnr_closest was not supplied with Japan row
+        pnr_row = None
+    else:
+        pnr_row = pnr.iloc[0]
+    return {
+        "T": float(ja["T_equilibrium"]),
+        "M": float(ja["M_threshold"]),
+        "T_over_M": float(ja["T_equilibrium"]) / float(ja["M_threshold"]),
+        "margin": float(ja["margin_to_threshold_T"]),
+        "D": int(round(ja["D_eq"])),
+        "A": int(round(ja["A_eq"])),
+        "H_D": int(round(ja["H_D_eq"])),
+        "H_A": int(round(ja["H_A_eq"])),
+        "P_D": int(round(ja["P_D_eq"])),
+        "P_A": int(round(ja["P_A_eq"])),
+        "I0": float(ja["I0"]),
+        "r": float(ja["r"]),
+        "alpha": float(tr["alpha"]),
+        "beta": float(tr["beta"]),
+        "h_D": float(tr["h_D"]),
+        "h_A": float(tr["h_A"]),
+        "p_D": float(tr["p_D"]),
+        "p_A": float(tr["p_A"]),
+        "d": float(tr["d"]),
+        "pnr_rate": pnr_row["rate_name"] if pnr_row is not None else "I0",
+        "pnr_factor": float(pnr_row["critical_factor"]) if pnr_row is not None else float("nan"),
+        "pnr_proximity": float(pnr_row["proximity"]) if pnr_row is not None else float("nan"),
+    }
 
 
 def annual_summary_table(annual):
@@ -737,8 +930,12 @@ def write_markdown(output_dir: Path, data, fig_paths):
     fig5_rel = _rel_path(fig_paths["fig5"], output_dir) if fig_paths.get("fig5") else ""
     fig6_rel = _rel_path(fig_paths["fig6"], output_dir) if fig_paths.get("fig6") else ""
     fig7_rel = _rel_path(fig_paths["fig7"], output_dir) if fig_paths.get("fig7") else ""
+    fig8_rel = _rel_path(fig_paths["fig8"], output_dir) if fig_paths.get("fig8") else ""
+    fig9_rel = _rel_path(fig_paths["fig9"], output_dir) if fig_paths.get("fig9") else ""
 
     annual = load_annual_data()
+    transition_rates_md = pd.read_csv(BASE_DIR / "data" / "cohort" / "transition_rates.csv")
+    ja_ctx_md = compute_japan_context(eq, pnr_closest, transition_rates_md)
     annual_ctx = compute_annual_context(annual)
     annual_means = annual_summary_table(annual)
     interciv_top = interciv_top_table(annual)
@@ -1149,7 +1346,7 @@ def write_markdown(output_dir: Path, data, fig_paths):
         "",
         f"![Figure 5]({fig5_rel})",
         "",
-        "**Figure 5. Annual observed (solid) and projected (dashed) transition rates by civilisation, 2000-2026.**",
+        "**Figure 5. Observed (solid) and projected (dashed) transition rates by civilisation, 2000-2026.**",
         "",
         "Table 9 summarises the mean observed annual transition rates by group between 2000 and 2016. "
         "The table distinguishes early-career outflow (α), return (β), domestic and abroad hit generation (h_D, h_A), PI promotion (p_D), dropout (d), and total inflow (I_total).",
@@ -1210,6 +1407,30 @@ def write_markdown(output_dir: Path, data, fig_paths):
         "Laplace smoothing prevents empty cells from being treated as impossible transitions; the unit-interval clip and the dropout cap prevent the trend extrapolation from producing rates that are incompatible with a stochastic transition matrix; and the 2016 inflow apportionment keeps new-entrant composition close to the last observed regime. "
         "These pressures mean that the projection is not a purely mechanical forecast: it is a bounded extrapolation that stays within the empirical support of the 2000-2016 data and within the stability constraints of the compartment model.",
         "",
+        "### 5.9 Japan-specific compartment and transition-rate ladder",
+        "",
+        f"Figure 8 places the Japanese AI/ML research community in the compartment model. "
+        f"The fitted equilibrium is T={ja_ctx_md['D'] + ja_ctx_md['H_D'] + ja_ctx_md['P_D']} active researchers (D={ja_ctx_md['D']}, H_D={ja_ctx_md['H_D']}, P_D={ja_ctx_md['P_D']}) against a minimum viable threshold of M={_fmt(ja_ctx_md['M'], 0)}, so the safety ratio T/M is {_fmt(ja_ctx_md['T_over_M'], 2)}. "
+        f"The right-hand ladder compares Japan's six transition rates with those of the other civilisations. "
+        f"Japan's closest point of no return is the exogenous entry rate I0: if I0 were reduced to {_fmt(ja_ctx_md['pnr_factor'] * 100, 1)}% of its current level, the active pool would reach the minimum viable threshold. "
+        f"In the fitted rates, early-career outflow (α={_fmt(ja_ctx_md['alpha'], 3)}) and domestic PI promotion (p_D={_fmt(ja_ctx_md['p_D'], 3)}) are comparatively low, while return from abroad (β={_fmt(ja_ctx_md['beta'], 3)}) and domestic hit generation (h_D={_fmt(ja_ctx_md['h_D'], 3)}) are moderate. "
+        "The small absolute size of the abroad PI compartment (P_A) shows that few Japanese researchers who leave eventually become PIs abroad, which makes the domestic pipeline the critical margin.",
+        "",
+        f"![Figure 8]({fig8_rel})",
+        "",
+        "**Figure 8. The Japanese AI/ML research community in the six-compartment model, with a cross-civilisation ladder of fitted transition rates.** Japan is highlighted in the right-hand panel; longer bars represent higher estimated rates.",
+        "",
+        "### 5.10 A combined model-evaluation view: T/M and PNR proximity",
+        "",
+        "Figure 9 combines the long-run safety ratio T/M with the closest point-of-no-return proximity for each civilisation. "
+        "A point in the lower-left corner has both a low equilibrium buffer and a small proportional change needed to reach the threshold, so it is the most fragile combination. "
+        "Japan sits in this region alongside the 'Other Civilizations' group, even though its T/M ratio is above one. "
+        "This dual view is useful as a model-evaluation metric: a civilisation can have a T/M ratio that looks comfortable but still be close to its PNR because the PNR depends on the proportional change in the most sensitive rate, not only on the level of T.",
+        "",
+        f"![Figure 9]({fig9_rel})",
+        "",
+        "**Figure 9. Equilibrium safety ratio (T/M) versus closest point-of-no-return proximity for all civilisations.** Japan is shown in red.",
+        "",
         "## 6. Discussion",
         "",
         "The results support a transition-rate view of research policy. "
@@ -1246,6 +1467,23 @@ def write_markdown(output_dir: Path, data, fig_paths):
         "Each group's safety margin can be monitored over time, and interventions can be adjusted before the margin disappears. "
         f"Because the model uses a fixed safety factor of {_fmt(ctx['safety_factor'], 2)} for the endogenous inflow parameter r, the policy recommendations are deliberately conservative: they do not push the system toward instability. "
         "That bounded approach is consistent with the goal of preserving diversity rather than maximising any single country's share.",
+        "",
+        f"Japan is the clearest example among the large civilisations. "
+        f"Its fitted active-pool margin is T={ja_ctx_md['D'] + ja_ctx_md['H_D'] + ja_ctx_md['P_D']} researchers, with M={_fmt(ja_ctx_md['M'], 0)} (T/M={_fmt(ja_ctx_md['T_over_M'], 2)}). "
+        f"Figure 8 (reproduced below) shows that Japan's closest point of no return is the exogenous entry rate I0: if I0 fell to {_fmt(ja_ctx_md['pnr_factor'] * 100, 1)}% of its current level, the active pool would reach the minimum viable threshold. "
+        f"The same figure shows that Japan's early-career outflow α ({_fmt(ja_ctx_md['alpha'], 3)}) and domestic PI promotion p_D ({_fmt(ja_ctx_md['p_D'], 3)}) are comparatively low, while return from abroad β ({_fmt(ja_ctx_md['beta'], 3)}) and domestic hit generation h_D ({_fmt(ja_ctx_md['h_D'], 3)}) are moderate. "
+        "These numbers translate directly into policy levers. "
+        "α can be reduced by expanding postdoctoral fellowships and junior-faculty positions that keep promising researchers in the domestic pipeline; β can be raised through return grants, dual appointments, and recognition of overseas experience in domestic hiring. "
+        "h_D responds to doctoral and postdoctoral training expansion, including the 2026 AI for Science (SPREAD) programme if it is used to create independent labs with their own budgets rather than merely increasing headcount. "
+        "p_D depends on tenure-track conversion, startup packages, and project-based PI status for mid-career researchers. "
+        "d, the dropout rate to L, can be lowered through childcare support, dual-career accommodation, and stable non-tenure research tracks. "
+        "Finally, I0 captures the pure exogenous entry flow and can be supported by research-master pipelines, undergraduate research programmes, and early doctoral fellowships. "
+        "Weakening the Japanese civilisation would not be neutral for the rest of the world: it would remove a distinct institutional lineage, reduce the pool of non-Anglophone problem framings, and leave a range of health, ageing, robotics, and materials problems under-addressed. "
+        "Maintaining Japan as a viable AI/ML civilisation is therefore in the global interest, not only in Japan's national interest.",
+        "",
+        f"![Figure 8]({fig8_rel})",
+        "",
+        "**Figure 8 (reproduced). Japan in the six-compartment model, with cross-civilisation transition-rate ladders.**",
         "",
         "It is important to stress that the counterfactuals reported in Tables 3 and 7 are mechanical perturbations of the fitted transition rates, not causal estimates of specific programmes. "
         "They identify which rates the model treats as most sensitive, and therefore where empirical policy evaluation is most urgent, but they do not by themselves show that a given intervention would achieve the simulated change.",
@@ -1434,6 +1672,8 @@ def _add_table_from_df(doc, df, caption, decimals=None, bold_header=True):
 def _add_docx_body(doc, data, fig_paths):
     (cohort, eq, sat_eq, top_t, pnr_closest, period_compare, boot, policy_rank) = data
     ctx = compute_context(cohort, eq, sat_eq, top_t, pnr_closest, period_compare, policy_rank)
+    transition_rates = pd.read_csv(BASE_DIR / "data" / "cohort" / "transition_rates.csv")
+    ja_ctx = compute_japan_context(eq, pnr_closest, transition_rates)
     annual = load_annual_data()
     annual_ctx = compute_annual_context(annual)
     annual_means = annual_summary_table(annual)
@@ -2040,7 +2280,7 @@ def _add_docx_body(doc, data, fig_paths):
               "Because the projections are linear trend fits regularised by the correction pressures described in Section 4.11, they are not forecasts of specific future events; they are the model's one-year-ahead extrapolation of the recent historical trajectory.")
     doc.add_picture(str(fig_paths["fig5"]), width=Inches(6.0))
     cap = doc.add_paragraph()
-    cap.add_run("Figure 5. Annual observed (solid) and projected (dashed) transition rates by civilisation, 2000-2026.").italic = True
+    cap.add_run("Figure 5. Observed (solid) and projected (dashed) transition rates by civilisation, 2000-2026.").italic = True
     cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
     p = doc.add_paragraph()
@@ -2107,6 +2347,32 @@ def _add_docx_body(doc, data, fig_paths):
     p.add_run("The annual projection performs best where the correction pressures in Section 4.11 are binding. "
               "Laplace smoothing prevents empty cells from being treated as impossible transitions; the unit-interval clip and the dropout cap prevent the trend extrapolation from producing rates that are incompatible with a stochastic transition matrix; and the 2016 inflow apportionment keeps new-entrant composition close to the last observed regime. "
               "These pressures mean that the projection is not a purely mechanical forecast: it is a bounded extrapolation that stays within the empirical support of the 2000-2016 data and within the stability constraints of the compartment model.")
+
+    doc.add_heading("5.9 Japan-specific compartment and transition-rate ladder", level=2)
+    p = doc.add_paragraph()
+    p.add_run(f"Figure 8 places the Japanese AI/ML research community in the compartment model. "
+              f"The fitted equilibrium is T={ja_ctx['D'] + ja_ctx['H_D'] + ja_ctx['P_D']} active researchers "
+              f"(D={ja_ctx['D']}, H_D={ja_ctx['H_D']}, P_D={ja_ctx['P_D']}) against a minimum viable threshold of M={_fmt(ja_ctx['M'], 0)}, "
+              f"so the safety ratio T/M is {_fmt(ja_ctx['T_over_M'], 2)}. "
+              "The right-hand ladder compares Japan's six transition rates with those of the other civilisations. "
+              f"Japan's closest point of no return is the exogenous entry rate I0: if I0 were reduced to {_fmt(ja_ctx['pnr_factor'] * 100, 1)}% of its current level, the active pool would reach the minimum viable threshold. "
+              f"In the fitted rates, early-career outflow (α={_fmt(ja_ctx['alpha'], 3)}) and domestic PI promotion (p_D={_fmt(ja_ctx['p_D'], 3)}) are comparatively low, while return from abroad (β={_fmt(ja_ctx['beta'], 3)}) and domestic hit generation (h_D={_fmt(ja_ctx['h_D'], 3)}) are moderate. "
+              "The small absolute size of the abroad PI compartment (P_A) shows that few Japanese researchers who leave eventually become PIs abroad, which makes the domestic pipeline the critical margin.")
+    doc.add_picture(str(fig_paths["fig8"]), width=Inches(6.0))
+    cap = doc.add_paragraph()
+    cap.add_run("Figure 8. The Japanese AI/ML research community in the six-compartment model, with a cross-civilisation ladder of fitted transition rates. Japan is highlighted in the right-hand panel; longer bars represent higher estimated rates.").italic = True
+    cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+    doc.add_heading("5.10 A combined model-evaluation view: T/M and PNR proximity", level=2)
+    p = doc.add_paragraph()
+    p.add_run("Figure 9 combines the long-run safety ratio T/M with the closest point-of-no-return proximity for each civilisation. "
+              "A point in the lower-left corner has both a low equilibrium buffer and a small proportional change needed to reach the threshold, so it is the most fragile combination. "
+              "Japan sits in this region alongside the 'Other Civilizations' group, even though its T/M ratio is above one. "
+              "This dual view is useful as a model-evaluation metric: a civilisation can have a T/M ratio that looks comfortable but still be close to its PNR because the PNR depends on the proportional change in the most sensitive rate, not only on the level of T.")
+    doc.add_picture(str(fig_paths["fig9"]), width=Inches(5.8))
+    cap = doc.add_paragraph()
+    cap.add_run("Figure 9. Equilibrium safety ratio (T/M) versus closest point-of-no-return proximity for all civilisations. Japan is shown in red.").italic = True
+    cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
     # Discussion
     doc.add_heading("6. Discussion", level=1)
@@ -2183,6 +2449,24 @@ def _add_docx_body(doc, data, fig_paths):
     p.add_run(". "
               "By quantifying the safety margin for each research community, the framework makes it possible to argue for support of smaller communities on positive, innovation-systems grounds. "
               "Preserving multiple centres of AI/ML research is not a matter of slowing the frontier; it is a matter of ensuring that the frontier is not defined by a single set of institutions, languages, or problems.")
+
+    p = doc.add_paragraph()
+    p.add_run("Japan is the clearest example among the large civilisations. "
+              "Its fitted active-pool margin is T=" + str(ja_ctx['D'] + ja_ctx['H_D'] + ja_ctx['P_D']) + " researchers, with M=" + _fmt(ja_ctx['M'], 0) + " (T/M=" + _fmt(ja_ctx['T_over_M'], 2) + "). "
+              "Figure 8 (reproduced below) shows that Japan's closest point of no return is the exogenous entry rate I0: if I0 fell to " + _fmt(ja_ctx['pnr_factor'] * 100, 1) + "% of its current level, the active pool would reach the minimum viable threshold. "
+              "The same figure shows that Japan's early-career outflow α (" + _fmt(ja_ctx['alpha'], 3) + ") and domestic PI promotion p_D (" + _fmt(ja_ctx['p_D'], 3) + ") are comparatively low, while return from abroad β (" + _fmt(ja_ctx['beta'], 3) + ") and domestic hit generation h_D (" + _fmt(ja_ctx['h_D'], 3) + ") are moderate. "
+              "These numbers translate directly into policy levers. "
+              "α can be reduced by expanding postdoctoral fellowships and junior-faculty positions that keep promising researchers in the domestic pipeline; β can be raised through return grants, dual appointments, and recognition of overseas experience in domestic hiring. "
+              "h_D responds to doctoral and postdoctoral training expansion, including the 2026 AI for Science (SPREAD) programme if it is used to create independent labs with their own budgets rather than merely increasing headcount. "
+              "p_D depends on tenure-track conversion, startup packages, and project-based PI status for mid-career researchers. "
+              "d, the dropout rate to L, can be lowered through childcare support, dual-career accommodation, and stable non-tenure research tracks. "
+              "Finally, I0 captures the pure exogenous entry flow and can be supported by research-master pipelines, undergraduate research programmes, and early doctoral fellowships. "
+              "Weakening the Japanese civilisation would not be neutral for the rest of the world: it would remove a distinct institutional lineage, reduce the pool of non-Anglophone problem framings, and leave a range of health, ageing, robotics, and materials problems under-addressed. "
+              "Maintaining Japan as a viable AI/ML civilisation is therefore in the global interest, not only in Japan's national interest.")
+    doc.add_picture(str(fig_paths["fig8"]), width=Inches(5.0))
+    cap = doc.add_paragraph()
+    cap.add_run("Figure 8 (reproduced). Japan in the six-compartment model, with cross-civilisation transition-rate ladders.").italic = True
+    cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
     doc.add_heading("6.3 Policy implications and early warning", level=2)
     p = doc.add_paragraph()
@@ -2455,7 +2739,7 @@ def write_pptx(output_dir, data, fig_paths):
     # Annual projection slides
     if fig_paths.get("fig5"):
         add_image_slide(
-            "Figure 5: Annual observed and projected transition rates",
+            "Figure 5: Observed and projected transition rates",
             fig_paths["fig5"],
             "Solid lines mark observed 2000-2016 rates; dashed lines mark projected 2017-2026 rates.",
         )
@@ -2470,6 +2754,20 @@ def write_pptx(output_dir, data, fig_paths):
             "Figure 7: Observed vs projected compartment counts",
             fig_paths["fig7"],
             "Solid lines are observed counts; dashed lines are 2017-2026 projections. The vertical dotted line is 2016.",
+        )
+
+    if fig_paths.get("fig8"):
+        add_image_slide(
+            "Figure 8: Japan compartment model and cross-civilisation transition-rate ladders",
+            fig_paths["fig8"],
+            "Left: Japan's six compartments; right: Japan highlighted against other civilisations on each transition rate.",
+        )
+
+    if fig_paths.get("fig9"):
+        add_image_slide(
+            "Figure 9: T/M safety margin versus closest PNR proximity",
+            fig_paths["fig9"],
+            "Lower-left points are the most fragile. Japan is highlighted in red.",
         )
 
     annual_means = annual_summary_table(annual)
@@ -2535,11 +2833,16 @@ def main():
     data = load_data()
     cohort, eq, sat_eq, top_t, pnr_closest, period_compare, boot, policy_rank = data
 
+    transition_rates = pd.read_csv(BASE_DIR / "data" / "cohort" / "transition_rates.csv")
+    pnr_full = pd.read_csv(ENDOG / "point_of_no_return.csv")
+
     fig_dir = output_dir / "figures"
     fig1 = build_figure1(eq, fig_dir)
     fig2 = build_figure2(pnr_closest, fig_dir)
     fig3 = build_figure3(period_compare, fig_dir)
     fig4 = build_figure4(boot, fig_dir)
+    fig8 = build_figure8(transition_rates, eq, fig_dir)
+    fig9 = build_figure9(eq, pnr_full, fig_dir)
 
     annual = load_annual_data()
     annual_figs = build_annual_figures(annual, fig_dir)
@@ -2552,6 +2855,8 @@ def main():
         "fig5": annual_figs.get("fig5"),
         "fig6": annual_figs.get("fig6"),
         "fig7": annual_figs.get("fig7"),
+        "fig8": fig8,
+        "fig9": fig9,
     }
 
     md_path = write_markdown(output_dir, data, fig_paths)

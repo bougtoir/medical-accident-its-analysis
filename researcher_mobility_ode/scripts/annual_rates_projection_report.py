@@ -481,7 +481,7 @@ def plot_annual_rates(rate_table, projected_rates):
         ax.set_ylabel("Rate")
         ax.set_ylim(-0.02, 1.02)
     axes[0].legend(ncol=2, fontsize=7)
-    fig.suptitle("Annual observed (2000-2016) and projected (2017-2026) transition rates by civilisation", fontsize=12)
+    fig.suptitle("Observed (solid) and projected (dashed) transition rates by civilisation, 2000-2026", fontsize=12)
     plt.tight_layout()
     path = FIGURES_DIR / "annual_rates_by_group.png"
     fig.savefig(path, dpi=300, bbox_inches="tight")
@@ -531,7 +531,7 @@ def plot_projection_by_compartment(projected, observed):
     handles, labels = axes[0].get_legend_handles_labels()
     fig.legend(handles, labels, loc="lower center", ncol=5, fontsize=8,
                bbox_to_anchor=(0.5, -0.02))
-    fig.suptitle("Observed (solid) vs projected (dashed) compartment trajectories", fontsize=12)
+    fig.suptitle("Observed (solid) and projected (dashed) compartment counts by civilisation, 2017-2023", fontsize=12)
     plt.tight_layout(rect=[0, 0.05, 1, 0.97])
     path = FIGURES_DIR / "annual_projection_vs_observed.png"
     fig.savefig(path, dpi=300, bbox_inches="tight")

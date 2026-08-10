@@ -225,7 +225,7 @@ Figure 5 plots the observed 2000-2016 transition rates and the projected 2017-20
 
 ![Figure 5](figures/annual_rates_by_group.png)
 
-**Figure 5. Annual observed (solid) and projected (dashed) transition rates by civilisation, 2000-2026.**
+**Figure 5. Observed (solid) and projected (dashed) transition rates by civilisation, 2000-2026.**
 
 Table 9 summarises the mean observed annual transition rates by group between 2000 and 2016. The table distinguishes early-career outflow (α), return (β), domestic and abroad hit generation (h_D, h_A), PI promotion (p_D), dropout (d), and total inflow (I_total).
 
@@ -305,6 +305,22 @@ Table 11 reports projection accuracy by civilisation and Table 12 by compartment
 
 The annual projection performs best where the correction pressures in Section 4.11 are binding. Laplace smoothing prevents empty cells from being treated as impossible transitions; the unit-interval clip and the dropout cap prevent the trend extrapolation from producing rates that are incompatible with a stochastic transition matrix; and the 2016 inflow apportionment keeps new-entrant composition close to the last observed regime. These pressures mean that the projection is not a purely mechanical forecast: it is a bounded extrapolation that stays within the empirical support of the 2000-2016 data and within the stability constraints of the compartment model.
 
+### 5.9 Japan-specific compartment and transition-rate ladder
+
+Figure 8 places the Japanese AI/ML research community in the compartment model. The fitted equilibrium is T=207 active researchers (D=20, H_D=44, P_D=143) against a minimum viable threshold of M=50, so the safety ratio T/M is 4.10. The right-hand ladder compares Japan's six transition rates with those of the other civilisations. Japan's closest point of no return is the exogenous entry rate I0: if I0 were reduced to 24.4% of its current level, the active pool would reach the minimum viable threshold. In the fitted rates, early-career outflow (α=0.033) and domestic PI promotion (p_D=0.042) are comparatively low, while return from abroad (β=0.110) and domestic hit generation (h_D=0.109) are moderate. The small absolute size of the abroad PI compartment (P_A) shows that few Japanese researchers who leave eventually become PIs abroad, which makes the domestic pipeline the critical margin.
+
+![Figure 8](figures/fig8_japan_compartment_flow.png)
+
+**Figure 8. The Japanese AI/ML research community in the six-compartment model, with a cross-civilisation ladder of fitted transition rates.** Japan is highlighted in the right-hand panel; longer bars represent higher estimated rates.
+
+### 5.10 A combined model-evaluation view: T/M and PNR proximity
+
+Figure 9 combines the long-run safety ratio T/M with the closest point-of-no-return proximity for each civilisation. A point in the lower-left corner has both a low equilibrium buffer and a small proportional change needed to reach the threshold, so it is the most fragile combination. Japan sits in this region alongside the 'Other Civilizations' group, even though its T/M ratio is above one. This dual view is useful as a model-evaluation metric: a civilisation can have a T/M ratio that looks comfortable but still be close to its PNR because the PNR depends on the proportional change in the most sensitive rate, not only on the level of T.
+
+![Figure 9](figures/fig9_tm_pnr_scatter.png)
+
+**Figure 9. Equilibrium safety ratio (T/M) versus closest point-of-no-return proximity for all civilisations.** Japan is shown in red.
+
 ## 6. Discussion
 
 The results support a transition-rate view of research policy. Rather than asking which country has a net inflow or outflow of researchers, the model asks which rate must be altered to keep a community above its minimum viable coauthor pool. The answer is not the same for every group, but a clear pattern emerges.
@@ -320,6 +336,12 @@ Fourth, the historical counterfactual shows that the late-window rates, if they 
 The transition levers also interact in ways that a single-rate elasticity cannot fully capture. For example, reducing dropout and increasing PI promotion together are likely to have a larger effect than the sum of the two individual perturbations, because more researchers survive to become PIs and those PIs then train additional early-career researchers through the endogenous inflow channel. Conversely, a simultaneous fall in exogenous entry and a rise in dropout can push a community to its threshold faster than either change alone. The model's steady-state and one-at-a-time counterfactuals are therefore a starting point; they identify the most sensitive margins but do not exhaust the policy design space.
 
 The connection to civilisational diversity is direct. Each group's safety margin can be monitored over time, and interventions can be adjusted before the margin disappears. Because the model uses a fixed safety factor of 0.50 for the endogenous inflow parameter r, the policy recommendations are deliberately conservative: they do not push the system toward instability. That bounded approach is consistent with the goal of preserving diversity rather than maximising any single country's share.
+
+Japan is the clearest example among the large civilisations. Its fitted active-pool margin is T=207 researchers, with M=50 (T/M=4.10). Figure 8 (reproduced below) shows that Japan's closest point of no return is the exogenous entry rate I0: if I0 fell to 24.4% of its current level, the active pool would reach the minimum viable threshold. The same figure shows that Japan's early-career outflow α (0.033) and domestic PI promotion p_D (0.042) are comparatively low, while return from abroad β (0.110) and domestic hit generation h_D (0.109) are moderate. These numbers translate directly into policy levers. α can be reduced by expanding postdoctoral fellowships and junior-faculty positions that keep promising researchers in the domestic pipeline; β can be raised through return grants, dual appointments, and recognition of overseas experience in domestic hiring. h_D responds to doctoral and postdoctoral training expansion, including the 2026 AI for Science (SPREAD) programme if it is used to create independent labs with their own budgets rather than merely increasing headcount. p_D depends on tenure-track conversion, startup packages, and project-based PI status for mid-career researchers. d, the dropout rate to L, can be lowered through childcare support, dual-career accommodation, and stable non-tenure research tracks. Finally, I0 captures the pure exogenous entry flow and can be supported by research-master pipelines, undergraduate research programmes, and early doctoral fellowships. Weakening the Japanese civilisation would not be neutral for the rest of the world: it would remove a distinct institutional lineage, reduce the pool of non-Anglophone problem framings, and leave a range of health, ageing, robotics, and materials problems under-addressed. Maintaining Japan as a viable AI/ML civilisation is therefore in the global interest, not only in Japan's national interest.
+
+![Figure 8](figures/fig8_japan_compartment_flow.png)
+
+**Figure 8 (reproduced). Japan in the six-compartment model, with cross-civilisation transition-rate ladders.**
 
 It is important to stress that the counterfactuals reported in Tables 3 and 7 are mechanical perturbations of the fitted transition rates, not causal estimates of specific programmes. They identify which rates the model treats as most sensitive, and therefore where empirical policy evaluation is most urgent, but they do not by themselves show that a given intervention would achieve the simulated change.
 
