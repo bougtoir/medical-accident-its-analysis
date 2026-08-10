@@ -80,6 +80,25 @@ def add_footnote(para, symbol="1"):
     return run
 
 
+RATE_LABELS = {
+    "I0": "exogenous entry rate (I0)",
+    "I": "exogenous entry rate (I)",
+    "d": "dropout rate (d)",
+    "alpha": "early-career outflow rate (α)",
+    "beta": "return rate (β)",
+    "h_D": "domestic hit-generation rate (h_D)",
+    "h_A": "abroad hit-generation rate (h_A)",
+    "p_D": "domestic principal-investigator promotion rate (p_D)",
+    "p_A": "abroad principal-investigator promotion rate (p_A)",
+    "r": "principal-investigator reproduction rate (r)",
+}
+
+
+def _rate_label(name):
+    """Return a full-spelling phrase with the rate symbol in parentheses."""
+    return RATE_LABELS.get(str(name), str(name))
+
+
 def _paragraph_text(doc):
     for p in doc.paragraphs:
         yield p.text
@@ -1012,7 +1031,7 @@ def _abstract_and_highlights(eq, pnr_closest):
         overall_rmse = float(((ev["error"] ** 2).mean()) ** 0.5)
         overall_mape = float(ev["ape"].mean() * 100.0)
         projection_accuracy_text = (
-            f"The 2017-2023 out-of-sample projection records RMSE {_fmt(overall_rmse, 2)} and a conservative, non-standard MAPE of {_fmt(overall_mape, 1)}% "
+            f"The 2017-2023 out-of-sample projection records root mean square error (RMSE) {_fmt(overall_rmse, 2)} and a conservative, non-standard mean absolute percentage error (MAPE) of {_fmt(overall_mape, 1)}% "
             "(computed against count_obs + 1 to avoid division by zero). "
             "That level of error is expected because the projection is designed as an early-warning indicator of directional drift and threshold crossing, not as a precise population forecast. "
         )
@@ -1021,11 +1040,11 @@ def _abstract_and_highlights(eq, pnr_closest):
     abstract = (
         "Artificial intelligence (AI) and machine learning (ML) research is increasingly concentrated in a few regions, "
         "raising the risk that smaller research communities fall below a minimum viable coauthor pool and cannot recover. "
-        "We model each civilisation as a six-compartment system of domestic and abroad early-career, high-impact, and principal-investigator researchers, "
+        "We model each civilisation as a six-compartment system of domestic and abroad early-career, high-impact, and principal-investigator (PI) researchers, "
         "and estimate transition rates from OpenAlex Artificial Intelligence works (subfield 1702). "
         "The minimum viable coauthor threshold is defined as M = k × c_bar, where c_bar is the mean number of authors per work and k is the median number of distinct last-author groups observed per recent year. "
         f"Across {len(eq)} groups, equilibrium domestic active pools remain above their thresholds, but the closest point of no return (PNR) is observed for the {closest['group']} group, "
-        f"where {closest['rate_name']} must be multiplied by {_fmt(closest['critical_factor'], 3)}× its current value (equivalent to a {closest['proximity']*100:.0f}% proportional {'reduction' if closest['critical_factor'] < 1 else 'increase'}) to drive the active pool to its threshold. "
+        f"where the {_rate_label(closest['rate_name'])} must be multiplied by {_fmt(closest['critical_factor'], 3)}× its current value (equivalent to a {closest['proximity']*100:.0f}% proportional {'reduction' if closest['critical_factor'] < 1 else 'increase'}) to drive the active pool to its threshold. "
         + lever_text
         + projection_accuracy_text
         + "Historical and saturating-inflow counterfactuals show that the model is most sensitive to exogenous entry and attrition. "
@@ -1148,8 +1167,8 @@ def write_markdown(output_dir: Path, data, fig_paths):
         "Once the pool falls below that threshold, recovery becomes difficult or impossible, even if policy is later reversed. "
         "That is the point of no return (PNR) that motivates this paper.",
         "",
-        "Artificial intelligence and machine learning have become the archetypal general-purpose technologies of the current era [5,6,7]. "
-        "Their development depends on a relatively small, highly mobile workforce of doctoral and post-doctoral researchers, principal investigators, and research engineers [1]. "
+        "Artificial intelligence (AI) and machine learning (ML) have become the archetypal general-purpose technologies of the current era [5,6,7]. "
+        "Their development depends on a relatively small, highly mobile workforce of doctoral and post-doctoral researchers, principal investigators (PIs), and research engineers [1]. "
         "The geographic concentration of this workforce has generated both scientific and geopolitical concern. "
         "Policymakers in the United States, China, Europe, Japan, India and elsewhere now treat AI talent as a strategic input, and several governments have introduced incentives to attract or retain researchers [4,5]. "
         "Most of those policies are evaluated by their immediate net-flow effects. "
@@ -1172,7 +1191,7 @@ def write_markdown(output_dir: Path, data, fig_paths):
         "Fourth, what safety-factor-bound single-lever and multi-lever policy scenarios can widen the margin before a point of no return (PNR) is reached? "
         "Fifth, can the fitted rates be estimated year by year and used to project near-term population composition, and how well do those projections reproduce observed 2017-2023 counts?",
         "",
-        "The contribution is a reproducible, data-driven transition-rate model that links OpenAlex publication records to a system of ordinary differential equations. "
+        "The contribution is a reproducible, data-driven transition-rate model that links OpenAlex publication records to a system of ordinary differential equations (ODEs). "
         "The model is intentionally simple: it does not explain why a rate is high or low, but it identifies which rate is closest to a threshold and therefore where early intervention is most urgent.",
         "",
     ])
@@ -1243,7 +1262,7 @@ def write_markdown(output_dir: Path, data, fig_paths):
         "### 4.2 Endogenous inflow",
         "",
         "New entrants are modelled as a function of the domestic PI stock. "
-        f"The linear form is I(P_D) = I_0 + r P_D, with r capped at {_fmt(ctx['safety_factor'], 2)}× the stability-critical value (safety factor {_fmt(ctx['safety_factor'], 2)}). "
+        f"The linear form is I(P_D) = I_0 + r P_D, where I_0 is the exogenous entry rate, r is the PI reproduction rate, and r is capped at {_fmt(ctx['safety_factor'], 2)}× the stability-critical value (safety factor {_fmt(ctx['safety_factor'], 2)}). "
         "A saturating alternative, I(P_D) = I_0 + r P_D / (1 + ε P_D), is reported as a robustness check.",
         "",
         "### 4.3 Minimum viable coauthor threshold",
@@ -1283,7 +1302,7 @@ def write_markdown(output_dir: Path, data, fig_paths):
         "",
         "We compare the 2017-2023 projection with the observed annual stock. "
         "The comparison is limited to years that have observed data, and the observed stock is reindexed to the full group-year-compartment grid so that zero-observed cells are not omitted from the accuracy metrics. "
-        "Accuracy is reported as RMSE and MAPE; MAPE here is computed against count_obs + 1 to avoid division by zero and is therefore a conservative, non-standard measure.",
+        "Accuracy is reported as root mean square error (RMSE) and mean absolute percentage error (MAPE); MAPE here is computed against count_obs + 1 to avoid division by zero and is therefore a conservative, non-standard measure.",
         "",
         "### 4.11 Correction pressures and theoretical bounds",
         "",
@@ -1346,7 +1365,7 @@ def write_markdown(output_dir: Path, data, fig_paths):
     closest = pnr_closest.iloc[0]
     lines.extend([
         f"Table 4 reports, for each group, the single rate that reaches the active-pool threshold with the smallest proportional change. "
-        f"The {closest['group']} group is the most fragile: {closest['rate_name']} must be multiplied by {_fmt(closest['critical_factor'], 3)}× its current value (equivalent to a {closest['proximity']*100:.0f}% proportional {'reduction' if closest['critical_factor'] < 1 else 'increase'}) to drive the active pool to its minimum viable threshold. "
+        f"The {closest['group']} group is the most fragile: {_rate_label(closest['rate_name'])} must be multiplied by {_fmt(closest['critical_factor'], 3)}× its current value (equivalent to a {closest['proximity']*100:.0f}% proportional {'reduction' if closest['critical_factor'] < 1 else 'increase'}) to drive the active pool to its minimum viable threshold. "
         f"{ctx['pnr_lever_text']}.",
         "",
     ])
@@ -1641,7 +1660,7 @@ def write_markdown(output_dir: Path, data, fig_paths):
         "",
         f"Japan is the clearest example among the large civilisations. "
         f"Its fitted active-pool margin is T={ja_ctx_md['D'] + ja_ctx_md['H_D'] + ja_ctx_md['P_D']} researchers, with M={_fmt(ja_ctx_md['M'], 0)} (T/M={_fmt(ja_ctx_md['T_over_M'], 2)}). "
-        f"Figure 8 (reproduced below) shows that Japan's closest point of no return is the exogenous entry rate I0: if I0 fell to {_fmt(ja_ctx_md['pnr_factor'] * 100, 1)}% of its current level, the active pool would reach the minimum viable threshold. "
+        f"As Figure 8 shows, Japan's closest point of no return is the exogenous entry rate I0: if I0 fell to {_fmt(ja_ctx_md['pnr_factor'] * 100, 1)}% of its current level, the active pool would reach the minimum viable threshold. "
         f"The same figure shows that Japan's early-career outflow α ({_fmt(ja_ctx_md['alpha'], 3)}) and domestic PI promotion p_D ({_fmt(ja_ctx_md['p_D'], 3)}) are comparatively low, while return from abroad β ({_fmt(ja_ctx_md['beta'], 3)}) and domestic hit generation h_D ({_fmt(ja_ctx_md['h_D'], 3)}) are moderate. "
         "These numbers translate directly into policy levers. "
         "α can be reduced by expanding postdoctoral fellowships and junior-faculty positions that keep promising researchers in the domestic pipeline; β can be raised through return grants, dual appointments, and recognition of overseas experience in domestic hiring. "
@@ -1651,10 +1670,6 @@ def write_markdown(output_dir: Path, data, fig_paths):
         "Finally, I0 captures the pure exogenous entry flow and can be supported by research-master pipelines, undergraduate research programmes, and early doctoral fellowships. "
         "Weakening the Japanese civilisation would not be neutral for the rest of the world: it would remove a distinct institutional lineage, reduce the pool of non-Anglophone problem framings, and leave a range of health, ageing, robotics, and materials problems under-addressed. "
         "Maintaining Japan as a viable AI/ML civilisation is therefore in the global interest, not only in Japan's national interest.",
-        "",
-        f"![Figure 8]({fig8_rel})",
-        "",
-        "**Figure 8 (reproduced). Japan in the six-compartment model, with cross-civilisation transition-rate ladders.**",
         "",
         "It is important to stress that the counterfactuals reported in Tables 3 and 7 are mechanical perturbations of the fitted transition rates, not causal estimates of specific programmes. "
         "They identify which rates the model treats as most sensitive, and therefore where empirical policy evaluation is most urgent, but they do not by themselves show that a given intervention would achieve the simulated change.",
@@ -1885,9 +1900,9 @@ def _add_docx_body(doc, data, fig_paths):
               "The approach is deliberately stylised: it sacrifices demographic realism for transparency and for the ability to compare multiple civilisations with the same accounting framework.")
 
     p = doc.add_paragraph()
-    p.add_run("Artificial intelligence and machine learning have become the archetypal general-purpose technologies of the current era")
+    p.add_run("Artificial intelligence (AI) and machine learning (ML) have become the archetypal general-purpose technologies of the current era")
     add_citation(p, 1)
-    p.add_run(", and their development depends on a relatively small, highly mobile workforce of doctoral and post-doctoral researchers, principal investigators, and research engineers")
+    p.add_run(", and their development depends on a relatively small, highly mobile workforce of doctoral and post-doctoral researchers, principal investigators (PIs), and research engineers")
     add_citation(p, 1)
     p.add_run(". "
               "The geographic concentration of this workforce has generated both scientific and geopolitical concern. "
@@ -1931,7 +1946,7 @@ def _add_docx_body(doc, data, fig_paths):
               "This prevents any single civilisation from cornering the supply of critical talent, and thereby preserves the competitive diversity that drives long-run innovation.")
 
     p = doc.add_paragraph()
-    p.add_run("The contribution is a reproducible, data-driven transition-rate model that links OpenAlex publication records to a system of ordinary differential equations")
+    p.add_run("The contribution is a reproducible, data-driven transition-rate model that links OpenAlex publication records to a system of ordinary differential equations (ODEs)")
     add_citation(p, 6)
     p.add_run(". "
               "The model is intentionally simple: it does not explain why a rate is high or low, but it identifies which rate is closest to a threshold and therefore where early intervention is most urgent.")
@@ -2116,7 +2131,7 @@ def _add_docx_body(doc, data, fig_paths):
     p.add_run("New entrants are modelled as a function of the domestic PI stock. "
               "The linear form is ")
     add_omath_inline(p, math_I_linear())
-    p.add_run(f", with r capped at {_fmt(ctx['safety_factor'], 2)}× the stability-critical value (safety factor {_fmt(ctx['safety_factor'], 2)}). "
+    p.add_run(f", where I_0 is the exogenous entry rate, r is the PI reproduction rate, and r is capped at {_fmt(ctx['safety_factor'], 2)}× the stability-critical value (safety factor {_fmt(ctx['safety_factor'], 2)}). "
               "A saturating alternative, ")
     add_omath_inline(p, math_I_saturating())
     p.add_run(", is reported as a robustness check. "
@@ -2207,7 +2222,7 @@ def _add_docx_body(doc, data, fig_paths):
     p = doc.add_paragraph()
     p.add_run("We compare the 2017-2023 projection with the observed annual stock. "
               "The comparison is limited to years that have observed data, and the observed stock is reindexed to the full group-year-compartment grid so that zero-observed cells are not omitted from the accuracy metrics. "
-              "Accuracy is reported as RMSE and MAPE; MAPE here is computed against count_obs + 1 to avoid division by zero and is therefore a conservative, non-standard measure.")
+              "Accuracy is reported as root mean square error (RMSE) and mean absolute percentage error (MAPE); MAPE here is computed against count_obs + 1 to avoid division by zero and is therefore a conservative, non-standard measure.")
 
     doc.add_heading("4.11 Correction pressures and theoretical bounds", level=2)
     p = doc.add_paragraph()
@@ -2640,7 +2655,7 @@ def _add_docx_body(doc, data, fig_paths):
     p = doc.add_paragraph()
     p.add_run("Japan is the clearest example among the large civilisations. "
               "Its fitted active-pool margin is T=" + str(ja_ctx['D'] + ja_ctx['H_D'] + ja_ctx['P_D']) + " researchers, with M=" + _fmt(ja_ctx['M'], 0) + " (T/M=" + _fmt(ja_ctx['T_over_M'], 2) + "). "
-              "Figure 8 (reproduced below) shows that Japan's closest point of no return is the exogenous entry rate I0: if I0 fell to " + _fmt(ja_ctx['pnr_factor'] * 100, 1) + "% of its current level, the active pool would reach the minimum viable threshold. "
+              "As Figure 8 shows, Japan's closest point of no return is the exogenous entry rate I0: if I0 fell to " + _fmt(ja_ctx['pnr_factor'] * 100, 1) + "% of its current level, the active pool would reach the minimum viable threshold. "
               "The same figure shows that Japan's early-career outflow α (" + _fmt(ja_ctx['alpha'], 3) + ") and domestic PI promotion p_D (" + _fmt(ja_ctx['p_D'], 3) + ") are comparatively low, while return from abroad β (" + _fmt(ja_ctx['beta'], 3) + ") and domestic hit generation h_D (" + _fmt(ja_ctx['h_D'], 3) + ") are moderate. "
               "These numbers translate directly into policy levers. "
               "α can be reduced by expanding postdoctoral fellowships and junior-faculty positions that keep promising researchers in the domestic pipeline; β can be raised through return grants, dual appointments, and recognition of overseas experience in domestic hiring. "
@@ -2650,11 +2665,6 @@ def _add_docx_body(doc, data, fig_paths):
               "Finally, I0 captures the pure exogenous entry flow and can be supported by research-master pipelines, undergraduate research programmes, and early doctoral fellowships. "
               "Weakening the Japanese civilisation would not be neutral for the rest of the world: it would remove a distinct institutional lineage, reduce the pool of non-Anglophone problem framings, and leave a range of health, ageing, robotics, and materials problems under-addressed. "
               "Maintaining Japan as a viable AI/ML civilisation is therefore in the global interest, not only in Japan's national interest.")
-    doc.add_picture(str(fig_paths["fig8"]), width=Inches(5.0))
-    cap = doc.add_paragraph()
-    cap.add_run("Figure 8 (reproduced). Japan in the six-compartment model, with cross-civilisation transition-rate ladders.").italic = True
-    cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
-
     doc.add_heading("6.3 Policy implications and early warning", level=2)
     p = doc.add_paragraph()
     p.add_run("The policy implications can be read as an early-warning architecture. "
