@@ -1,0 +1,477 @@
+#!/usr/bin/env python3
+"""Rate-based reanalysis on genuine primary data (addresses Reviewer 2).
+
+Inputs (all reproducible, provenance-tracked):
+  physicians_by_specialty.csv   biennial 2004-2024 (measured, 主たる診療科別)
+  litigation_by_specialty.csv   annual 2008-2024 (Supreme Court closed cases)
+  facilities_hospital_by_specialty.csv  annual 2008-2024 (一般+精神科病院)
+  medsafe_accidents_by_specialty.csv   annual 2015-2025 (JMSR/MAIS report counts)
+
+Design (agreed with author; supersedes the annual VAR/Granger which was not
+defensible with interpolated biennial data):
+  * Rates, not counts: exposure = litigation cases per 1,000 physicians, so
+    associations are not driven by specialty size.
+  * Measured points only: PRIMARY analysis on the biennial physician grid
+    (2008,2010,...,2024 = 9 measured waves); no interpolated observations.
+  * Panel across the 12 core specialties with specialty and wave fixed effects;
+    outcome = biennial log-change in physicians / hospitals; predictor = the
+    litigation rate at the start of each interval (lag).
+  * JOCS-CP (Japan Obstetric Compensation System, launched Jan-2009) entered as
+    an obstetrics-specific post-2009 indicator (structural confounder).
+  * Sensitivity: (a) annual hospital panel 2008-2024; (b) linear-interpolation
+    annual physician panel; (c) counts-vs-rates contrast; (d) annual hospital
+    model 2016-2024 additionally controlling for the JMSR report rate, to test
+    whether litigation findings are confounded by or collinear with broader
+    medical accident reporting. Inference uses standard errors clustered by
+    specialty, so the degrees of freedom are the number of clusters minus one
+    (12 - 1 = 11); the interpolated observation count does NOT inflate them.
+All numbers are written to results/reanalysis_results.json for the manuscript.
+"""
+import os, json
+import numpy as np
+import pandas as pd
+import statsmodels.formula.api as smf
+from scipy import stats
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+RES = os.path.join(os.path.dirname(HERE), "results")
+os.makedirs(RES, exist_ok=True)
+
+CORE = ["内科", "外科", "整形外科", "形成外科", "産婦人科", "小児科", "精神科",
+        "眼科", "耳鼻咽喉科", "泌尿器科", "皮膚科", "麻酔科"]
+CORE_EN = {"内科": "Internal medicine", "外科": "Surgery",
+           "整形外科": "Orthopaedics", "形成外科": "Plastic surgery",
+           "産婦人科": "Obstetrics & gynaecology", "小児科": "Paediatrics",
+           "精神科": "Psychiatry", "眼科": "Ophthalmology",
+           "耳鼻咽喉科": "Otolaryngology", "泌尿器科": "Urology",
+           "皮膚科": "Dermatology", "麻酔科": "Anaesthesiology"}
+
+
+def load(name):
+    df = pd.read_csv(os.path.join(HERE, name))
+    df = df.set_index("specialty")
+    df.columns = [int(c) for c in df.columns]
+    return df.loc[CORE]
+
+
+def load_jmsr():
+    """JMSR/MAIS medical-accident report counts by specialty (2015 onward).
+    The released CSV already contains broad core-specialty rows."""
+    path = os.path.join(os.path.dirname(HERE), "data",
+                        "medsafe_accidents_by_specialty.csv")
+    df = pd.read_csv(path)
+    df = df[df["specialty"].isin(CORE)].set_index("specialty")
+    year_cols = [c for c in df.columns if str(c).isdigit()]
+    df = df[year_cols].astype(float)
+    df.columns = [int(c) for c in df.columns]
+    return df.loc[CORE]
+
+
+def load_media():
+    """Nikkei Telecom 21 annual article counts (keywords: 医療事故 + 医療過誤),
+    2004-2018. These are total national newspaper coverage, not specialty-specific."""
+    path = os.path.join(os.path.dirname(HERE), "data",
+                        "nikkei_media_counts_2004_2018.csv")
+    df = pd.read_csv(path)
+    df = df.set_index("year")
+    return df["total_articles"].astype(float)
+
+
+def phys_frame(interpolate=False):
+    P = load("physicians_by_specialty.csv")
+    if interpolate:
+        P = P.reindex(columns=range(P.columns.min(), P.columns.max() + 1))
+        P = P.interpolate(axis=1, method="linear")
+    return P
+
+
+def long_panel(years, P=None):
+    if P is None:
+        P = phys_frame()
+    L = load("litigation_by_specialty.csv")
+    H = load("facilities_hospital_by_specialty.csv")
+    rows = []
+    for s in CORE:
+        for y in years:
+            if y in P.columns and not pd.isna(P.loc[s, y]) \
+                    and y in L.columns and y in H.columns:
+                rows.append(dict(specialty=s, year=y,
+                                 phys=P.loc[s, y], lit=L.loc[s, y],
+                                 hosp=H.loc[s, y]))
+    d = pd.DataFrame(rows)
+    d["litrate"] = 1000.0 * d["lit"] / d["phys"]          # cases / 1000 phys
+    d["jocscp"] = ((d.specialty == "産婦人科") & (d.year >= 2009)).astype(int)
+    return d
+
+
+def add_changes(d, step):
+    """log-changes over `step` years and lagged predictors, within specialty."""
+    d = d.sort_values(["specialty", "year"]).copy()
+    g = d.groupby("specialty")
+    d["dlog_phys"] = g["phys"].transform(lambda x: np.log(x) - np.log(x.shift(1)))
+    d["dlog_hosp"] = g["hosp"].transform(lambda x: np.log(x) - np.log(x.shift(1)))
+    d["litrate_lag"] = g["litrate"].shift(1)
+    d["lit_lag"] = g["lit"].shift(1)          # raw count (for counts-vs-rates)
+    d["jocscp_lag"] = g["jocscp"].shift(1)
+    return d
+
+
+def panel_fit(d, outcome, predictor, label, year_fe=True):
+    dd = d.dropna(subset=[outcome, predictor]).copy()
+    rhs = f"{predictor} + C(specialty)"
+    if year_fe:
+        rhs += " + C(year)"
+    if "jocscp_lag" in dd and dd["jocscp_lag"].nunique() > 1:
+        rhs += " + jocscp_lag"
+    m = smf.ols(f"{outcome} ~ {rhs}", data=dd).fit(
+        cov_type="cluster", cov_kwds={"groups": dd["specialty"]})
+    coef = float(m.params[predictor])
+    return {
+        "label": label, "outcome": outcome, "predictor": predictor,
+        "n_obs": int(dd.shape[0]), "n_specialties": int(dd.specialty.nunique()),
+        "n_waves": int(dd.year.nunique()),
+        "coef": coef, "se": float(m.bse[predictor]),
+        "ci_low": float(m.conf_int().loc[predictor, 0]),
+        "ci_high": float(m.conf_int().loc[predictor, 1]),
+        "p": float(m.pvalues[predictor]),
+        "direction": "negative" if coef < 0 else "positive",
+        "jocscp_coef": (float(m.params["jocscp_lag"])
+                        if "jocscp_lag" in m.params else None),
+        "jocscp_p": (float(m.pvalues["jocscp_lag"])
+                     if "jocscp_lag" in m.params else None),
+    }
+
+
+def equivalence_tost(d, outcome, margins=(0.01, 0.02)):
+    """TOST equivalence test on the effect of a 1-SD higher lagged litigation
+    rate on `outcome` (biennial log-change). Exposure standardised so the
+    coefficient = expected log-change per +1 SD of litigation rate; margins are
+    interpretable as fractional workforce change (0.01 = 1%). df = clusters-1
+    (conservative for cluster-robust SE)."""
+    dd = d.dropna(subset=[outcome, "litrate_lag"]).copy()
+    dd["z"] = (dd["litrate_lag"] - dd["litrate_lag"].mean()) / dd["litrate_lag"].std()
+    rhs = "z + C(specialty) + C(year)"
+    if dd["jocscp_lag"].nunique() > 1:
+        rhs += " + jocscp_lag"
+    m = smf.ols(f"{outcome} ~ {rhs}", data=dd).fit(
+        cov_type="cluster", cov_kwds={"groups": dd["specialty"]})
+    coef, se = float(m.params["z"]), float(m.bse["z"])
+    df = dd["specialty"].nunique() - 1
+    tcrit = stats.t.ppf(0.95, df)
+    ci90 = (coef - tcrit * se, coef + tcrit * se)
+    out = {"outcome": outcome, "coef_per_SD": coef, "se": se, "df": df,
+           "ci90_low": ci90[0], "ci90_high": ci90[1],
+           "sd_litrate": float(dd["litrate_lag"].std()), "tests": []}
+    for mg in margins:
+        p_low = stats.t.sf((coef + mg) / se, df)      # H0: coef <= -mg
+        p_high = stats.t.cdf((coef - mg) / se, df)     # H0: coef >= +mg
+        p_tost = max(p_low, p_high)
+        out["tests"].append({
+            "margin": mg, "p_tost": float(p_tost),
+            "equivalent": bool(ci90[0] > -mg and ci90[1] < mg),
+            "interpretation": f"a 1-SD higher litigation rate shifts biennial "
+                              f"{'physician' if 'phys' in outcome else 'facility'} "
+                              f"growth by <{int(mg*100)}%"})
+    return out
+
+
+def per_specialty_corr(d):
+    """Descriptive Spearman corr: litigation rate level vs physician growth."""
+    from scipy.stats import spearmanr
+    out = {}
+    for s in CORE:
+        ds = d[d.specialty == s].dropna(subset=["dlog_phys", "litrate_lag"])
+        if ds.shape[0] >= 4:
+            r, p = spearmanr(ds["litrate_lag"], ds["dlog_phys"])
+            out[CORE_EN[s]] = {"rho": float(r), "p": float(p), "n": int(ds.shape[0])}
+    return out
+
+
+def jmsr_lit_correlation(lit, jmsr):
+    """Correlation between litigation counts and JMSR report counts over the
+    overlapping 2015-2024 window, both pooled and within-specialty detrended."""
+    years = sorted(set(lit.columns) & set(jmsr.columns))
+    x_raw, y_raw = [], []
+    for s in CORE:
+        for y in years:
+            if pd.isna(lit.loc[s, y]) or pd.isna(jmsr.loc[s, y]):
+                continue
+            x_raw.append(float(lit.loc[s, y]))
+            y_raw.append(float(jmsr.loc[s, y]))
+    r_raw, p_raw = stats.pearsonr(x_raw, y_raw)
+
+    resid_x, resid_y = [], []
+    for s in CORE:
+        vals_x = [float(lit.loc[s, y]) for y in years
+                  if not pd.isna(lit.loc[s, y]) and not pd.isna(jmsr.loc[s, y])]
+        vals_y = [float(jmsr.loc[s, y]) for y in years
+                  if not pd.isna(lit.loc[s, y]) and not pd.isna(jmsr.loc[s, y])]
+        if len(vals_x) >= 4:
+            t = np.arange(len(vals_x))
+            x_d = np.array(vals_x) - np.polyval(np.polyfit(t, vals_x, 1), t)
+            y_d = np.array(vals_y) - np.polyval(np.polyfit(t, vals_y, 1), t)
+            resid_x.extend(x_d.tolist())
+            resid_y.extend(y_d.tolist())
+    r_det, p_det = stats.pearsonr(resid_x, resid_y)
+    return {
+        "years": years,
+        "n_specialty_years": len(x_raw),
+        "pooled_r": float(r_raw),
+        "pooled_p": float(p_raw),
+        "detrended_r": float(r_det),
+        "detrended_p": float(p_det),
+    }
+
+
+def jmsr_hospital_sensitivity():
+    """Annual hospital growth 2016-2024, controlling for both litigation rate
+    and JMSR report rate (rates per 1,000 physicians). Tests whether the
+    litigation result is confounded by or collinear with broader accident
+    reporting; uses the interpolated physician denominator for both rates."""
+    Pint = phys_frame(interpolate=True)
+    L = load("litigation_by_specialty.csv")
+    H = load("facilities_hospital_by_specialty.csv")
+    M = load_jmsr()
+    years = list(range(2016, 2025))
+    rows = []
+    for s in CORE:
+        for y in years:
+            prev = y - 1
+            if prev not in Pint.columns or y not in H.columns \
+                    or prev not in L.columns or prev not in M.columns:
+                continue
+            p_prev = Pint.loc[s, prev]
+            h_prev = H.loc[s, prev]
+            h_now = H.loc[s, y]
+            l_prev = L.loc[s, prev]
+            m_prev = M.loc[s, prev]
+            if pd.isna(p_prev) or pd.isna(h_prev) or pd.isna(h_now) \
+                    or pd.isna(l_prev) or pd.isna(m_prev):
+                continue
+            rows.append({
+                "specialty": s,
+                "year": y,
+                "dlog_hosp": np.log(h_now) - np.log(h_prev),
+                "litrate": 1000.0 * l_prev / p_prev,
+                "medrate": 1000.0 * m_prev / p_prev,
+            })
+    d = pd.DataFrame(rows)
+    m = smf.ols("dlog_hosp ~ litrate + medrate + C(specialty) + C(year)",
+                data=d).fit(cov_type="cluster", cov_kwds={"groups": d["specialty"]})
+    return {
+        "label": "JMSR-adjusted annual hospital growth (2016-2024) ~ lit rate + JMSR rate",
+        "outcome": "dlog_hosp",
+        "n_obs": int(d.shape[0]),
+        "n_specialties": int(d.specialty.nunique()),
+        "n_waves": int(d.year.nunique()),
+        "lit_coef": float(m.params["litrate"]),
+        "lit_se": float(m.bse["litrate"]),
+        "lit_p": float(m.pvalues["litrate"]),
+        "med_coef": float(m.params["medrate"]),
+        "med_se": float(m.bse["medrate"]),
+        "med_p": float(m.pvalues["medrate"]),
+        "r_lit_med": float(d[["litrate", "medrate"]].corr().iloc[0, 1]),
+    }
+
+
+def media_lit_correlation(lit, media):
+    """Correlation between total annual newspaper coverage and (a) total
+    litigation counts and (b) the lagged specialty-specific litigation rate
+    in the 2009-2018 window for which media data are available."""
+    years = sorted(set(lit.columns) & set(media.index) & set(range(2008, 2019)))
+    # total counts
+    total_lit = lit[years].sum(axis=0)
+    r_total, p_total = stats.pearsonr(media.loc[years].values, total_lit.values)
+
+    # within-panel correlation: lagged litrate vs media (next year)
+    Pint = phys_frame(interpolate=True)
+    litrate_vals, media_vals = [], []
+    for s in CORE:
+        for y in years:
+            if pd.isna(Pint.loc[s, y]) or pd.isna(lit.loc[s, y]) or pd.isna(media.loc[y]):
+                continue
+            litrate_vals.append(1000.0 * lit.loc[s, y] / Pint.loc[s, y])
+            media_vals.append(media.loc[y])
+    r_panel, p_panel = stats.pearsonr(litrate_vals, media_vals)
+    return {
+        "years": years,
+        "total_r": float(r_total),
+        "total_p": float(p_total),
+        "panel_r": float(r_panel),
+        "panel_p": float(p_panel),
+        "n_total": len(years),
+        "n_panel": len(litrate_vals),
+    }
+
+
+def media_hospital_sensitivity():
+    """Annual hospital growth 2009-2018 with lagged litigation rate and total
+    newspaper article counts (per 1,000 national articles). Because total media
+    coverage is a national yearly variable, it is collinear with full year fixed
+    effects; the sensitivity therefore uses specialty fixed effects plus a
+    linear time trend."""
+    Pint = phys_frame(interpolate=True)
+    L = load("litigation_by_specialty.csv")
+    H = load("facilities_hospital_by_specialty.csv")
+    M = load_media()
+    years = list(range(2009, 2019))
+    rows = []
+    for s in CORE:
+        for y in years:
+            prev = y - 1
+            if prev not in Pint.columns or y not in H.columns \
+                    or prev not in L.columns or prev not in M.index:
+                continue
+            p_prev = Pint.loc[s, prev]
+            h_prev = H.loc[s, prev]
+            h_now = H.loc[s, y]
+            l_prev = L.loc[s, prev]
+            m_prev = M.loc[prev]
+            if pd.isna(p_prev) or pd.isna(h_prev) or pd.isna(h_now) \
+                    or pd.isna(l_prev) or pd.isna(m_prev):
+                continue
+            rows.append({
+                "specialty": s,
+                "year": y,
+                "dlog_hosp": np.log(h_now) - np.log(h_prev),
+                "litrate": 1000.0 * l_prev / p_prev,
+                "media": m_prev / 1000.0,  # per 1,000 articles
+            })
+    d = pd.DataFrame(rows)
+    m = smf.ols("dlog_hosp ~ litrate + media + C(specialty) + year",
+                data=d).fit(cov_type="cluster", cov_kwds={"groups": d["specialty"]})
+    return {
+        "label": "Media-adjusted annual hospital growth (2009-2018) ~ lit rate + media count",
+        "outcome": "dlog_hosp",
+        "n_obs": int(d.shape[0]),
+        "n_specialties": int(d.specialty.nunique()),
+        "n_waves": int(d.year.nunique()),
+        "lit_coef": float(m.params["litrate"]),
+        "lit_se": float(m.bse["litrate"]),
+        "lit_p": float(m.pvalues["litrate"]),
+        "media_coef": float(m.params["media"]),
+        "media_se": float(m.bse["media"]),
+        "media_p": float(m.pvalues["media"]),
+        "r_lit_media": float(d[["litrate", "media"]].corr().iloc[0, 1]),
+    }
+
+
+def main():
+    res = {"grid": {}, "descriptive": {}, "primary": [], "sensitivity": []}
+
+    # ---- biennial measured grid (PRIMARY) ----
+    bien = list(range(2008, 2025, 2))
+    dbi = add_changes(long_panel(bien), 2)
+    res["grid"]["biennial_years"] = bien
+    res["grid"]["n_measured_waves"] = len(bien)
+
+    # descriptive rate levels (first vs last wave)
+    lp = long_panel(bien)
+    desc = {}
+    for s in CORE:
+        a = lp[(lp.specialty == s) & (lp.year == bien[0])].iloc[0]
+        b = lp[(lp.specialty == s) & (lp.year == bien[-1])].iloc[0]
+        desc[CORE_EN[s]] = {
+            "phys_first": int(a.phys), "phys_last": int(b.phys),
+            "litrate_first": round(float(a.litrate), 3),
+            "litrate_last": round(float(b.litrate), 3),
+            "hosp_first": int(a.hosp), "hosp_last": int(b.hosp)}
+    res["descriptive"]["biennial_first_last"] = {"first": bien[0], "last": bien[-1],
+                                                  "by_specialty": desc}
+    res["descriptive"]["spearman_litrate_vs_physgrowth"] = per_specialty_corr(dbi)
+
+    # PRIMARY panel models (rate exposure)
+    res["primary"].append(panel_fit(dbi, "dlog_phys", "litrate_lag",
+                                    "Biennial physician growth ~ lagged litigation rate"))
+    res["primary"].append(panel_fit(dbi, "dlog_hosp", "litrate_lag",
+                                    "Biennial hospital growth ~ lagged litigation rate"))
+
+    # EQUIVALENCE (TOST): is the litigation-rate effect equivalent to null?
+    res["equivalence"] = [equivalence_tost(dbi, "dlog_phys"),
+                          equivalence_tost(dbi, "dlog_hosp")]
+
+    # counts-vs-rates contrast (same design, raw count exposure)
+    res["sensitivity"].append(panel_fit(dbi, "dlog_phys", "lit_lag",
+                              "COUNTS contrast: physician growth ~ lagged litigation COUNT"))
+
+    # reverse direction: does workforce predict later litigation rate?
+    drev = dbi.copy()
+    drev["dlit"] = drev.groupby("specialty")["litrate"].transform(
+        lambda x: x - x.shift(1))
+    drev["phys_lag"] = drev.groupby("specialty")["phys"].shift(1)
+    rev = drev.dropna(subset=["dlit", "phys_lag"])
+    mrev = smf.ols("dlit ~ np.log(phys_lag) + C(specialty) + C(year)", data=rev).fit(
+        cov_type="cluster", cov_kwds={"groups": rev["specialty"]})
+    res["primary"].append({"label": "Reverse: change in litigation rate ~ lagged log physicians",
+                           "coef": float(mrev.params["np.log(phys_lag)"]),
+                           "p": float(mrev.pvalues["np.log(phys_lag)"]),
+                           "n_obs": int(rev.shape[0])})
+
+    # ---- SENSITIVITY (a): annual hospital panel 2008-2024 ----
+    # hospital & litigation are annual; physician denominator interpolated
+    ann = list(range(2008, 2025))
+    Pint = phys_frame(interpolate=True)
+    dan = add_changes(long_panel(ann, P=Pint), 1)
+    res["sensitivity"].append(panel_fit(dan, "dlog_hosp", "litrate_lag",
+                              "Annual hospital growth ~ lagged litigation rate (2008-2024)"))
+
+    # ---- SENSITIVITY (b): linear-interpolated annual physicians ----
+    dp = add_changes(long_panel(ann, P=Pint), 1)
+    fit_interp = panel_fit(dp, "dlog_phys", "litrate_lag",
+                           "SENSITIVITY interpolated-annual physician growth ~ lag rate")
+    fit_interp["note"] = ("physicians linearly interpolated between the %d measured "
+                          "biennial waves; standard errors are clustered by specialty so "
+                          "inference df = clusters - 1 = %d and the interpolated "
+                          "observation count does not inflate the degrees of freedom"
+                          % (len(bien), dp["specialty"].nunique() - 1))
+    res["sensitivity"].append(fit_interp)
+
+    # ---- SENSITIVITY (c): JMSR report-rate control (annual hospital 2016-2024) ----
+    res["jmsr_correlation"] = jmsr_lit_correlation(load("litigation_by_specialty.csv"),
+                                                   load_jmsr())
+    res["sensitivity"].append(jmsr_hospital_sensitivity())
+
+    # ---- SENSITIVITY (d): media coverage control (annual hospital 2009-2018) ----
+    res["media_correlation"] = media_lit_correlation(load("litigation_by_specialty.csv"),
+                                                     load_media())
+    res["sensitivity"].append(media_hospital_sensitivity())
+
+    with open(os.path.join(RES, "reanalysis_results.json"), "w") as f:
+        json.dump(res, f, ensure_ascii=False, indent=2)
+
+    # console summary
+    print("PRIMARY (biennial measured grid, rate exposure):")
+    for r in res["primary"]:
+        print(" ", r["label"])
+        print("    coef=%.5f p=%.4f n=%s" % (r.get("coef", float("nan")),
+              r.get("p", float("nan")), r.get("n_obs")))
+    print("\nEQUIVALENCE (TOST, per +1 SD litigation rate):")
+    for e in res["equivalence"]:
+        print("  %s: coef/SD=%+.4f 90%%CI[%+.4f,%+.4f]" % (
+            e["outcome"], e["coef_per_SD"], e["ci90_low"], e["ci90_high"]))
+        for t in e["tests"]:
+            print("     margin +-%.0f%%: p_TOST=%.4f equivalent=%s" % (
+                t["margin"] * 100, t["p_tost"], t["equivalent"]))
+    print("\nSENSITIVITY:")
+    for r in res["sensitivity"]:
+        if "lit_coef" in r and "media_coef" not in r:
+            print("  %s: lit coef=%.5f p=%.4f; jmsr coef=%.5f p=%.4f n=%s" % (
+                r["label"], r["lit_coef"], r["lit_p"], r["med_coef"], r["med_p"], r["n_obs"]))
+        elif "lit_coef" in r and "media_coef" in r:
+            print("  %s: lit coef=%.5f p=%.4f; media coef=%.5f p=%.4f n=%s" % (
+                r["label"], r["lit_coef"], r["lit_p"], r["media_coef"], r["media_p"], r["n_obs"]))
+        else:
+            print("  %s: coef=%.5f p=%.4f n=%s" % (r["label"], r.get("coef", np.nan),
+                  r.get("p", np.nan), r["n_obs"]))
+    print("\nJMSR-LITIGATION CORRELATION (2015-2024):")
+    c = res["jmsr_correlation"]
+    print("  pooled r=%.3f p=%.4f; detrended r=%.3f p=%.4f" % (
+        c["pooled_r"], c["pooled_p"], c["detrended_r"], c["detrended_p"]))
+    print("\nMEDIA-LITIGATION CORRELATION:")
+    m = res["media_correlation"]
+    print("  total media vs total litigation r=%.3f p=%.4f; panel litrate vs media r=%.3f p=%.4f" % (
+        m["total_r"], m["total_p"], m["panel_r"], m["panel_p"]))
+
+
+if __name__ == "__main__":
+    main()

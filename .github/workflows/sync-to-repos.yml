@@ -34,7 +34,9 @@ jobs:
           BRANCH_MAP["IONE-stratification-framework"]="ione-stratification-framework"
           BRANCH_MAP["devin/1774274321-rct-decomposition-paper"]="kotha-rct-decomposition"
           BRANCH_MAP["devin/1774353301-icr-paper"]="linko-icr-paper"
-          BRANCH_MAP["devin/1783102664-jma-journal-manuscript"]="medical-accident-its-analysis"
+          # superseded by devin/1785490740-jmaj-revision-reanalysis (rate-based re-analysis after JMA rejection)
+          # BRANCH_MAP["devin/1783102664-jma-journal-manuscript"]="medical-accident-its-analysis"
+          BRANCH_MAP["devin/1785490740-jmaj-revision-reanalysis"]="medical-accident-its-analysis"
           BRANCH_MAP["devin/1774578035-cetacean-acoustic-analysis"]="cetacean-acoustic-analysis"
           # Superseded by the Software Impacts branch below (same target repo),
           # which contains the package plus the external-validation pipeline and
@@ -230,7 +232,8 @@ jobs:
           SUBDIR_MAP["devin/1784701414-heat-accidents-mortality"]="heat_accidents_mortality"
 
           # Problem B fixes (branches with unrelated folders mixed in)
-          SUBDIR_MAP["devin/1783102664-jma-journal-manuscript"]="medical_accident_its_analysis"
+          # SUBDIR_MAP["devin/1783102664-jma-journal-manuscript"]="medical_accident_its_analysis"  # superseded
+          SUBDIR_MAP["devin/1785490740-jmaj-revision-reanalysis"]="medical_accident_its_analysis"
           SUBDIR_MAP["devin/1784701921-ndb-dea-drug-lag"]="ndb-dea-drug-lag"
           SUBDIR_MAP["devin/1778846737-flood-prediction-models"]="flood-prediction-review"
           SUBDIR_MAP["devin/1777462980-spectral-causality-brainstorm"]="spectral-causality-brainstorm"
