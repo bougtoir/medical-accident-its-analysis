@@ -98,6 +98,30 @@ BIEN = RES["grid"]["biennial_years"]
 YEARS = f"{BIEN[0]}\u2013{BIEN[-1]}"
 N_SPECIALTIES = len(CORE)
 PER = 1000  # rate scale (cases per 1,000 physicians)
+
+def _simulation_table_rows():
+    """Return rows for the counterfactual 2034 physician-count table."""
+    rows = []
+    for r in SIM.get("specialties", []):
+        rows.append([
+            EN.get(r["specialty"], r["specialty"]),
+            f"{r['phys_2024']:,}",
+            f"{r['projected_baseline']:,.0f}",
+            f"{r['projected_litigation_zero_point']:,.0f}",
+            f"{r['projected_litigation_zero_lower']:,.0f}",
+            f"{r['projected_mde_lever']:,.0f}",
+        ])
+    t = SIM.get("totals", {})
+    rows.append([
+        "All specialties",
+        f"{t.get('phys_2024', 0):,}",
+        f"{t.get('base_2034', 0):,}",
+        f"{t.get('lit_zero_point_2034', 0):,}",
+        f"{t.get('lit_zero_lower_2034', 0):,}",
+        f"{t.get('mde_2034', 0):,}",
+    ])
+    return rows
+
 MARGIN1 = int(RES["equivalence"][0]["tests"][0]["margin"] * 100)
 MARGIN2 = int(RES["equivalence"][1]["tests"][1]["margin"] * 100)
 
@@ -746,35 +770,10 @@ def build_manuscript():
          f"{SURG_SIM.get('pct_change_lit_zero_lower', 0):.1f}% under the 95% lower bound. The latter "
          "requires eliminating every remaining closed claim and assumes the most adverse (most "
          "negative) coefficient compatible with the data; a more realistic policy would achieve "
-         "far less. Table 3 reports projected 2034 physician counts by specialty and lever; "
-         "Figure 4 shows the same information as marginal percentage changes. Litigation reduction "
-         "is therefore not a high-leverage instrument for workforce allocation in this setting.")
-    sim_rows = []
-    for r in SIM.get("specialties", []):
-        sim_rows.append([
-            EN.get(r["specialty"], r["specialty"]),
-            f"{r['phys_2024']:,}",
-            f"{r['projected_baseline']:,.0f}",
-            f"{r['projected_litigation_zero_point']:,.0f}",
-            f"{r['projected_litigation_zero_lower']:,.0f}",
-            f"{r['projected_mde_lever']:,.0f}",
-        ])
-    t = SIM.get("totals", {})
-    sim_rows.append([
-        "All specialties",
-        f"{t.get('phys_2024', 0):,}",
-        f"{t.get('base_2034', 0):,}",
-        f"{t.get('lit_zero_point_2034', 0):,}",
-        f"{t.get('lit_zero_lower_2034', 0):,}",
-        f"{t.get('mde_2034', 0):,}",
-    ])
-    table(doc,
-          ["Specialty", "2024 count", "Baseline 2034", "Litigation zero (point)",
-           "Litigation zero (95% lower)", "MDE benchmark"],
-          sim_rows,
-          "Table 3. Counterfactual 2034 physician counts by specialty and policy lever. "
-          "Counts are projected from observed biennial baseline drift plus the indicated effect; "
-          "marginal percentage changes are shown in Figure 4.")
+         "far less. Full projected 2034 physician counts by specialty and lever are reported in "
+         "Supplementary Table 7; Figure 4 summarises the same information as marginal percentage "
+         "changes. Litigation reduction is therefore not a high-leverage instrument for workforce "
+         "allocation in this setting.")
     figure(doc, "ha_Figure_4.png",
            "Figure 4. Counterfactual policy-lever simulation: marginal 10-year change in "
            "physician counts by specialty relative to the projected baseline drift. "
@@ -1063,7 +1062,7 @@ def build_title_page(main_word_count):
         f"Word count (main text): approximately {main_word_count} words (excluding abstract, references, declarations, tables and figure legends)",
         "Article type: Original research article",
         "Target journal: Healthcare Analytics (Elsevier)",
-        "Tables: 3  Figures: 4  Supplementary tables: 6  Supplementary figures: 3",
+        "Tables: 2  Figures: 4  Supplementary tables: 7  Supplementary figures: 3",
         "Conflicts of interest: none declared",
         "Funding: none",
         f"Data availability: all primary data and analysis code are openly available in the project repository ({PUBLIC_REPO}).",
@@ -1126,10 +1125,11 @@ def build_cover_letter():
     paragraphs = [
         f'We submit an original research article, "{MANUSCRIPT_TITLE}", for '
         f'consideration by Healthcare Analytics.',
-        "Healthcare Analytics advances data-driven analytics and operations research for "
-        "healthcare decisions. Our study treats specialty physician workforce planning as a "
-        "healthcare resource-allocation problem and uses the litigation-workforce question "
-        "as a test case for a transparent, reproducible decision-analytics framework. The "
+        "Healthcare Analytics advances data-driven analytics, operations research, and "
+        "decision science for healthcare. Our study sits at this intersection: it treats "
+        "specialty physician workforce planning as a healthcare resource-allocation problem "
+        "and uses the litigation-workforce question as a test case for a transparent, "
+        "reproducible decision-analytics and policy-lever evaluation framework. The "
         "analytical contribution is diagnostic: we show how two common observational fallacies\u2014"
         "size confounding and interpolation of sparse panel data\u2014can be identified and removed "
         "when a proposed policy lever (malpractice-litigation risk) is evaluated against "
@@ -1287,6 +1287,15 @@ def build_supplementary():
           "Supplementary Table 6. Cluster block-bootstrap p-values, percentile 95% "
           "confidence intervals, equivalence power (if true effect is zero), and "
           "minimum detectable effect per 1-SD litigation-rate increase.")
+
+    # Supplementary Table 7: counterfactual 2034 physician counts
+    table(doc,
+          ["Specialty", "2024 count", "Baseline 2034", "Litigation zero (point)",
+           "Litigation zero (95% lower)", "MDE benchmark"],
+          _simulation_table_rows(),
+          "Supplementary Table 7. Counterfactual 2034 physician counts by specialty and policy lever. "
+          "Counts are projected from observed biennial baseline drift plus the indicated effect; "
+          "marginal percentage changes are shown in Figure 4.")
 
     # STROBE checklist
     head(doc, "STROBE checklist", level=1, numbered=False)
