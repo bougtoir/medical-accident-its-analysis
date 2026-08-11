@@ -289,7 +289,16 @@ def _add_runs(par, text, size=Pt(12), bold=False, italic=False):
             par.runs[-1].font.name = "Times New Roman"
 
 
-def head(doc, text, level=1):
+_head_counters = [0, 0, 0, 0]
+
+def head(doc, text, level=1, numbered=True):
+    global _head_counters
+    if numbered:
+        _head_counters[level - 1] += 1
+        for i in range(level, len(_head_counters)):
+            _head_counters[i] = 0
+        num = ".".join(str(_head_counters[i]) for i in range(level))
+        text = f"{num}. {text}"
     h = doc.add_heading(text, level=level)
     for r in h.runs:
         r.font.color.rgb = RGBColor(0, 0, 0)
@@ -373,6 +382,8 @@ def table(doc, headers, rows, caption):
 
 
 def build_manuscript():
+    global _head_counters
+    _head_counters = [0, 0, 0, 0]
     doc = _setup_doc()
 
     # Title
@@ -391,7 +402,7 @@ def build_manuscript():
         "away from high-risk specialties. We used this question as a test case for a "
         "transparent, reproducible decision-analytics framework that evaluates a proposed "
         "workforce policy lever while avoiding size confounding and interpolation artifacts "
-        "in sparse administrative panels. Using national primary data for {N_SPECIALTIES} specialties "
+        f"in sparse administrative panels. Using national primary data for {N_SPECIALTIES} specialties "
         f"in Japan ({BIEN[0]}\u2013{BIEN[-1]}), we measured exposure as closed "
         f"malpractice claims per {_per} physicians (rate, not count) and regressed biennial "
         "log-change in physicians and hospitals on the lagged litigation rate in a panel "
@@ -415,7 +426,7 @@ def build_manuscript():
     if abstract_wc > 250:
         raise SystemExit(f"Abstract is {abstract_wc} words; must be <=250")
 
-    head(doc, "Abstract", level=1)
+    head(doc, "Abstract", level=1, numbered=False)
     p = doc.add_paragraph()
     r = p.add_run(abstract_text)
     r.font.name = "Times New Roman"
@@ -428,7 +439,7 @@ def build_manuscript():
     kr.bold = True
     kr.font.name = "Times New Roman"
     _add_runs(kw, "malpractice litigation; physician workforce; specialty maldistribution; "
-                  "equivalence testing; healthcare decision analytics; policy lever evaluation")
+                  "equivalence testing; healthcare analytics")
     kw.paragraph_format.space_after = Pt(18)
 
     # Introduction
@@ -993,7 +1004,7 @@ def build_manuscript():
          "workforce-policy levers.")
 
     # Declaration of generative AI use (Elsevier requirement; place between Conclusions and References)
-    head(doc, "Declaration of generative AI use", level=1)
+    head(doc, "Declaration of generative AI use", level=1, numbered=False)
     body(doc,
          "[Authors: insert the Elsevier AI declaration here before submission. "
          "Example wording: During the preparation of this work the author(s) used "
@@ -1003,7 +1014,7 @@ def build_manuscript():
          "used, state so.]")
 
     # Declarations
-    head(doc, "Declarations", level=1)
+    head(doc, "Declarations", level=1, numbered=False)
     para(doc,
          "Funding: none. Competing interests: none declared. "
          "Ethics approval: this study used publicly available aggregated national "
@@ -1014,7 +1025,7 @@ def build_manuscript():
          f"{PUBLIC_REPO}), enabling full reproduction of every reported number.")
 
     # References
-    head(doc, "References", level=1)
+    head(doc, "References", level=1, numbered=False)
     missing = [k for k in REFS if k not in _CITE_ORDER]
     if missing:
         raise SystemExit(f"orphan references (in list, never cited): {missing}")
@@ -1074,7 +1085,6 @@ def build_highlights():
         f"Litigation risk is unrelated to physician or hospital decline in {N_SPECIALTIES} specialties.",
         "A decision-analytics framework removes size confounding and sparse-panel bias.",
         "Equivalence, bootstrap, and power diagnostics support an informative null.",
-        "JOCS-CP effect is exploratory and not robust to small-cluster inference.",
         "Behavioural-economics mechanisms and structural incentives explain the null.",
         "Policy should target structural incentives, not litigation-avoidance messaging.",
     ]
@@ -1166,7 +1176,7 @@ def build_cover_letter():
 
 def build_supplementary():
     doc = _setup_doc()
-    head(doc, "Supplementary material", level=1)
+    head(doc, "Supplementary material", level=1, numbered=False)
 
     para(doc, "Supplementary Figure 1. Sensitivity-analysis framework for evaluating "
               "malpractice-litigation risk as a healthcare workforce-allocation lever.")
@@ -1279,7 +1289,7 @@ def build_supplementary():
           "minimum detectable effect per 1-SD litigation-rate increase.")
 
     # STROBE checklist
-    head(doc, "STROBE checklist", level=1)
+    head(doc, "STROBE checklist", level=1, numbered=False)
     strobe_items = [
         ("1", "Title and abstract indicate the study design"),
         ("2", "Background and rationale"),
