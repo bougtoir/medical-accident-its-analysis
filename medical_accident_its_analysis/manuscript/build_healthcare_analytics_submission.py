@@ -8,14 +8,14 @@ Outputs (all derived from results/reanalysis_results.json and data_primary/):
   - manuscript/ha_cover_letter.docx      cover letter addressed to Healthcare Analytics
   - manuscript/ha_highlights.docx      3-5 highlights (<=85 chars each)
   - manuscript/ha_supplementary.docx     supplementary figures & tables
-  - output/ha_Figure_1.png .. Figure_2.png            main figure files
+  - output/ha_Figure_1.png .. Figure_3.png            main figure files
   - output/ha_Supplementary_Figure_1.png .. 3.png      supplementary figure files
   - manuscript/ha_figures.pptx           editable main figure slides
   - manuscript/ha_supplementary_figures.pptx editable supplementary figure slides
 
 Main manuscript is double-anonymisation compliant: no author identifiers,
 affiliations or acknowledgements in the body. Figures/tables in the main
-manuscript are limited to 4 (2 figures + 2 tables); remaining figures/tables
+manuscript are limited to 5 (3 figures + 2 tables); remaining figures/tables
 are placed in the supplementary file.
 """
 import os
@@ -88,6 +88,9 @@ EQP, EQH = RES["equivalence"][0], RES["equivalence"][1]
 # Bootstrap results for primary physician and hospital models (block resampling of specialties)
 BS_PHYS = next((b for b in RES["bootstrap"] if b["outcome"] == "dlog_phys"), None)
 BS_HOSP = next((b for b in RES["bootstrap"] if b["outcome"] == "dlog_hosp"), None)
+SIM = RES.get("policy_simulation", {})
+SURG_SIM = next((r for r in SIM.get("specialties", []) if r["specialty"] == "Surgery"), {}) if SIM else {}
+TOTAL_SIM = SIM.get("totals", {}) if SIM else {}
 SP = RES["descriptive"]["spearman_litrate_vs_physgrowth"]
 n_pos = sum(1 for v in SP.values() if v["rho"] > 0)
 n_sig = sum(1 for v in SP.values() if v["p"] < 0.05)
@@ -542,6 +545,19 @@ def build_manuscript():
          "2\u00b7F_t(m/SE) \u2212 1, where F_t is the cumulative distribution of the t(df) "
          "distribution. These diagnostics make the limited-panel information explicit to "
          "workforce planners evaluating this policy lever.")
+    head(doc, "Policy lever simulation", level=2)
+    body(doc,
+         "To translate the regression results into a decision-analytics output, we "
+         "projected physician counts to 2034 under three stylised policy levers. The "
+         "baseline used each specialty's observed mean biennial log-growth from 2004 to "
+         "2024. The two litigation-reduction levers set the litigation rate to zero and "
+         "applied the point estimate and the 95% lower-bound coefficient, respectively, so "
+         "they show both the central projection and the most favourable effect consistent "
+         "with the data. The third lever added the minimum detectable per-SD effect "
+         f"({EQP['mde_80pct']:.2f}% per biennium) to baseline growth as a benchmark for the smallest "
+         "policy effect this panel could detect with 80% power. The projections are "
+         "deterministic counterfactuals, not forecasts, and are reported as the marginal "
+         "percent change in 2034 relative to the baseline drift.")
     body(doc,
          "All reported confidence intervals and two-sided p-values use a "
          f"t-distribution with G-1 = {PHYS['df']} degrees of freedom, the small-cluster correction recommended "
@@ -695,6 +711,29 @@ def build_manuscript():
          "Holm step-down adjusted p-values for the exploratory sensitivity family are "
          "reported in Supplementary Table 5.")
 
+    head(doc, "Policy lever simulation", level=2)
+    body(doc,
+         "The counterfactual projection made the practical implications of the null "
+         "regression result explicit. Under the point estimate, eliminating all malpractice "
+         "litigation would add only "
+         f"{TOTAL_SIM.get('marginal_pct_lit_point', 0):.1f}% to the projected 2034 national physician "
+         "stock relative to baseline drift. Even under the 95% lower-bound (most favourable) "
+         f"coefficient it would add {TOTAL_SIM.get('marginal_pct_lit_lower', 0):.1f}%, comparable to the "
+         f"{TOTAL_SIM.get('marginal_pct_mde', 0):.1f}% gain from a generic lever equal to the minimum detectable "
+         "effect. General surgery, the only specialty with negative baseline drift, illustrates "
+         "the break-even arithmetic: its projected 2024-2034 decline of "
+         f"{SURG_SIM.get('pct_change_baseline', 0):.1f}% would be reduced to "
+         f"{SURG_SIM.get('pct_change_lit_zero_point', 0):.1f}% under the point estimate and reversed to "
+         f"{SURG_SIM.get('pct_change_lit_zero_lower', 0):.1f}% under the 95% lower bound. The latter "
+         "requires eliminating every remaining closed claim and assumes the most adverse (most "
+         "negative) coefficient compatible with the data; a more realistic policy would achieve "
+         "far less. Figure 3 shows that litigation reduction is therefore not a high-leverage "
+         "instrument for workforce allocation in this setting.")
+    figure(doc, "ha_Figure_3.png",
+           "Figure 3. Counterfactual policy-lever simulation: marginal 10-year change in "
+           "physician counts by specialty relative to the projected baseline drift. "
+           "The MDE benchmark is the minimum detectable per-SD effect from the primary analysis.")
+
     # Discussion
     head(doc, "Discussion", level=1)
     body(doc,
@@ -815,7 +854,11 @@ def build_manuscript():
     body(doc,
          "What do these findings imply for policy? Reducing civil malpractice "
          "litigation is unlikely to be a powerful lever for correcting specialty "
-         "maldistribution in this national setting. Structural incentives are more promising: "
+         "maldistribution in this national setting. The 10-year counterfactual simulation "
+         f"showed that eliminating all litigation would add only {TOTAL_SIM.get('marginal_pct_lit_point', 0):.1f}% "
+         "to the projected national physician stock under the point estimate, and even "
+         f"{TOTAL_SIM.get('marginal_pct_lit_lower', 0):.1f}% under the most favourable 95% lower-bound "
+         "coefficient, before accounting for the implausibility of zero claims. Structural incentives are more promising: "
          "no-fault compensation can de-risk high-acuity specialties, and payment "
          "design can reward service in underserved settings and activities. The "
          "JOCS-CP experience supports the former; the country's fee-for-service schedule "
@@ -974,7 +1017,7 @@ def build_title_page(main_word_count):
         f"Word count (main text): approximately {main_word_count} words (excluding abstract, references, declarations, tables and figure legends)",
         "Article type: Original research article",
         "Target journal: Healthcare Analytics (Elsevier)",
-        "Tables: 2  Figures: 2  Supplementary tables: 6  Supplementary figures: 3",
+        "Tables: 2  Figures: 3  Supplementary tables: 6  Supplementary figures: 3",
         "Conflicts of interest: none declared",
         "Funding: none",
         f"Data availability: all primary data and analysis code are openly available in the project repository ({PUBLIC_REPO}).",
@@ -1046,7 +1089,10 @@ def build_cover_letter():
         "size confounding and interpolation of sparse panel data\u2014can be identified and removed "
         "when a proposed policy lever (malpractice-litigation risk) is evaluated against "
         "workforce outcomes, and we add cluster block-bootstrap and power diagnostics to the "
-        "standard fixed-effects / equivalence-testing toolkit.",
+        "standard fixed-effects / equivalence-testing toolkit. We also include a counterfactual "
+        "policy-lever simulation that projects 2034 physician counts under stylised litigation-"
+        "reduction and structural-incentive scenarios, making the practical decision implications "
+        "of the regression results explicit.",
         "The national administrative data we use come from Japan, a setting that provides a "
         f"complete, long-running test case. Using national primary data for {N_SPEC} clinical specialties, we "
         "measure exposure as a size-adjusted rate (closed malpractice claims per "
@@ -1245,6 +1291,8 @@ def build_figure_pptx():
          f"\u00b1{MARGIN2}% margins; horizontal bars are 90% confidence intervals."),
         ("ha_Figure_2.png", "Figure 2",
          "Biennial physician growth against lagged litigation exposure measured as (a) counts and (b) rates. Points are coloured by specialty; the count panel shows the size confounding that the rate panel removes."),
+        ("ha_Figure_3.png", "Figure 3",
+         "Counterfactual policy-lever simulation: marginal 10-year change in physician counts by specialty relative to the projected baseline drift. The MDE benchmark is the minimum detectable per-SD effect from the primary analysis."),
     ]
     supp_figs = [
         ("ha_Supplementary_Figure_1.png", "Supplementary Figure 1",
@@ -1290,7 +1338,7 @@ def build_figure_pptx():
 def prepare_figures():
     """Verify that Healthcare Analytics figures have been generated."""
     required = [
-        "ha_Figure_1.png", "ha_Figure_2.png",
+        "ha_Figure_1.png", "ha_Figure_2.png", "ha_Figure_3.png",
         "ha_Supplementary_Figure_1.png", "ha_Supplementary_Figure_2.png",
         "ha_Supplementary_Figure_3.png",
     ]
@@ -1314,6 +1362,7 @@ def create_submission_zip():
         os.path.join(BASE, "ha_supplementary_figures.pptx"),
         os.path.join(OUT, "ha_Figure_1.png"),
         os.path.join(OUT, "ha_Figure_2.png"),
+        os.path.join(OUT, "ha_Figure_3.png"),
         os.path.join(OUT, "ha_Supplementary_Figure_1.png"),
         os.path.join(OUT, "ha_Supplementary_Figure_2.png"),
         os.path.join(OUT, "ha_Supplementary_Figure_3.png"),

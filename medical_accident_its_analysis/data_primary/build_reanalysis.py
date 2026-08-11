@@ -470,6 +470,83 @@ def media_hospital_sensitivity():
     }
 
 
+def policy_simulation(res):
+    """Counterfactual 10-year (5 biennia) projection of physician counts under
+    alternative policy levers. Baseline drift is the observed mean biennial
+    log-change per specialty. Litigation-elimination scenarios subtract the
+    empirical litigation coefficient (point estimate and 95% lower bound)
+    multiplied by the specialty's mean litigation rate. The MDE lever adds
+    the minimum detectable per-SD effect to baseline growth as a benchmark
+    for the smallest policy effect this panel could detect with 80% power."""
+    P = phys_frame()
+    L = load("litigation_by_specialty.csv")
+    T = 5  # 5 biennia = 10 years, 2024 -> 2034
+    mde = res["equivalence"][0]["mde_80pct"] / 100.0
+    coef = res["primary"][0]["coef"]
+    ci_low = res["primary"][0]["ci_low"]
+
+    rows = []
+    totals = {"phys_2024": 0, "base_2034": 0,
+              "lit_zero_point_2034": 0, "lit_zero_lower_2034": 0,
+              "mde_2034": 0}
+    for s in CORE:
+        phys_cols = sorted([c for c in P.columns if not pd.isna(P.loc[s, c])])
+        dlogs = [np.log(P.loc[s, phys_cols[i + 1]]) - np.log(P.loc[s, phys_cols[i]])
+                 for i in range(len(phys_cols) - 1)]
+        base_g = float(np.mean(dlogs))
+        common = sorted([c for c in L.columns
+                         if c in P.columns and not pd.isna(L.loc[s, c])
+                         and not pd.isna(P.loc[s, c])])
+        rates = [1000.0 * L.loc[s, c] / P.loc[s, c] for c in common]
+        rate_mean = float(np.mean(rates)) if rates else 0.0
+        n0 = int(P.loc[s, 2024])
+
+        g_lit_point = base_g - coef * rate_mean
+        g_lit_lower = base_g - ci_low * rate_mean
+        g_mde = base_g + mde
+
+        n_base = int(round(n0 * np.exp(T * base_g)))
+        n_lit_pt = int(round(n0 * np.exp(T * g_lit_point)))
+        n_lit_lb = int(round(n0 * np.exp(T * g_lit_lower)))
+        n_mde = int(round(n0 * np.exp(T * g_mde)))
+
+        rows.append({
+            "specialty": CORE_EN[s],
+            "phys_2024": n0,
+            "baseline_growth_per_biennium": round(base_g, 5),
+            "mean_litigation_rate": round(rate_mean, 3),
+            "projected_baseline": n_base,
+            "projected_litigation_zero_point": n_lit_pt,
+            "projected_litigation_zero_lower": n_lit_lb,
+            "projected_mde_lever": n_mde,
+            "pct_change_baseline": round(100.0 * (n_base / n0 - 1), 2),
+            "pct_change_lit_zero_point": round(100.0 * (n_lit_pt / n0 - 1), 2),
+            "pct_change_lit_zero_lower": round(100.0 * (n_lit_lb / n0 - 1), 2),
+            "pct_change_mde": round(100.0 * (n_mde / n0 - 1), 2),
+            "marginal_pct_lit_point": round(100.0 * (n_lit_pt / n_base - 1), 2),
+            "marginal_pct_lit_lower": round(100.0 * (n_lit_lb / n_base - 1), 2),
+            "marginal_pct_mde": round(100.0 * (n_mde / n_base - 1), 2),
+        })
+        totals["phys_2024"] += n0
+        totals["base_2034"] += n_base
+        totals["lit_zero_point_2034"] += n_lit_pt
+        totals["lit_zero_lower_2034"] += n_lit_lb
+        totals["mde_2034"] += n_mde
+
+    totals["marginal_pct_lit_point"] = round(100.0 * (totals["lit_zero_point_2034"] / totals["base_2034"] - 1), 2)
+    totals["marginal_pct_lit_lower"] = round(100.0 * (totals["lit_zero_lower_2034"] / totals["base_2034"] - 1), 2)
+    totals["marginal_pct_mde"] = round(100.0 * (totals["mde_2034"] / totals["base_2034"] - 1), 2)
+
+    res["policy_simulation"] = {
+        "horizon_biennia": T,
+        "horizon_year": 2024 + 2 * T,
+        "mde_per_biennium": mde,
+        "specialties": rows,
+        "totals": totals,
+        "note": "Projected physician counts are deterministic extrapolations of observed baseline growth plus the indicated policy effect. They are intended as decision-analytics counterfactuals, not forecasts."
+    }
+
+
 def main():
     res = {"grid": {}, "descriptive": {}, "primary": [], "sensitivity": []}
 
@@ -588,6 +665,9 @@ def main():
         "tests": [{"label": e["label"], "raw_p": e["raw_p"], "holm_p": a}
                   for e, a in zip(exploratory, adj_ps)]
     }
+
+    # Policy lever counterfactual simulation
+    policy_simulation(res)
 
     with open(os.path.join(RES, "reanalysis_results.json"), "w") as f:
         json.dump(res, f, ensure_ascii=False, indent=2)
