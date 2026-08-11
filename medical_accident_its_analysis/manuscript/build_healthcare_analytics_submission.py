@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Build a Healthcare Analytics (Elsevier) submission package for the rate-based
-analysis of litigation risk and specialty physician workforce in Japan.
+analysis of litigation risk and specialty physician workforce allocation (national data from Japan).
 
 Outputs (all derived from results/reanalysis_results.json and data_primary/):
   - manuscript/ha_manuscript_en.docx   anonymised main manuscript
@@ -108,6 +108,12 @@ MEDIA_END = MEDIA_CORR["years"][-1]        # last outcome year of the media sens
 
 # Public repository and reproducibility metadata
 PUBLIC_REPO = "https://github.com/bougtoir/medical-accident-its-analysis"
+
+# Title used throughout the submission (global framing; country is stated as data provenance)
+MANUSCRIPT_TITLE = (
+    "Litigation risk and specialty-level physician workforce allocation: "
+    "a sensitivity-analysis framework with equivalence testing"
+)
 
 # Holm-adjusted p-value for the exploratory JOCS-CP indicator in the hospital model
 JOCS_HOLM = next((
@@ -364,23 +370,20 @@ def build_manuscript():
     t = doc.add_paragraph()
     t.alignment = WD_ALIGN_PARAGRAPH.CENTER
     t.paragraph_format.space_after = Pt(18)
-    rt = t.add_run(
-        "Litigation risk and specialty-level physician workforce allocation in Japan, "
-        f"{YEARS}: a sensitivity-analysis framework with equivalence testing"
-    )
+    rt = t.add_run(MANUSCRIPT_TITLE)
     rt.bold = True
     rt.font.size = Pt(14)
     rt.font.name = "Times New Roman"
 
     # Abstract (unstructured, <=250 words)
     abstract_text = (
-        "Specialty maldistribution is a healthcare workforce allocation problem "
-        "in Japan, where policy discussions often assume that malpractice-litigation "
+        "Specialty maldistribution is a global healthcare workforce allocation problem, "
+        "and policy discussions in many systems assume that malpractice-litigation "
         "risk pushes physicians away from high-risk specialties. We used this "
         "question as a test case for a transparent, reproducible sensitivity-analysis "
         "framework that evaluates a proposed policy lever while avoiding size "
         "confounding and interpolation of sparse panels. Using national primary data "
-        f"for {N_SPEC} specialties ({BIEN[0]}\u2013{BIEN[-1]}), we measured exposure as "
+        f"for {N_SPEC} specialties in Japan ({BIEN[0]}\u2013{BIEN[-1]}), we measured exposure as "
         f"closed malpractice claims per {_per} physicians (rate, not count) and regressed "
         "biennial log-change in physicians and hospitals on the lagged litigation rate "
         "in a panel with specialty and wave fixed effects, cluster-robust standard "
@@ -417,20 +420,21 @@ def build_manuscript():
     kr.bold = True
     kr.font.name = "Times New Roman"
     _add_runs(kw, "malpractice litigation; physician workforce; specialty maldistribution; "
-                  "equivalence testing; health analytics; Japan")
+                  "equivalence testing; health analytics")
     kw.paragraph_format.space_after = Pt(18)
 
     # Introduction
     head(doc, "Introduction", level=1)
     body(doc,
-         "Japan faces a marked maldistribution of physicians across specialties "
-         "despite continued growth in the total physician supply. High-acuity fields "
-         "such as surgery, obstetrics and gynaecology, paediatrics and emergency care "
-         "are widely perceived as understaffed.{maldist} A recurring policy intuition "
+         "Specialty maldistribution is a global healthcare workforce allocation challenge: "
+         "high-acuity fields such as surgery, obstetrics and gynaecology, paediatrics and emergency care "
+         "are widely perceived as understaffed across many health systems.{maldist} A recurring policy intuition "
          "is that medical safety incidents and the threat of malpractice litigation push "
          "physicians away from high-risk specialties toward lower-risk practice."
          "{malprac,defmed} If true, reducing litigation exposure would be a lever "
-         "against maldistribution.")
+         "against maldistribution. Japan provides a well-documented national setting in which to test this "
+         "intuition: it tracks closed malpractice claims, physician counts and hospital counts by specialty, "
+         "and it faces the same fee-for-service and specialty-training pressures seen in other high-income countries.")
     body(doc,
          "Prior work in this area often related raw annual counts of incidents or "
          "lawsuits to raw counts of physicians or facilities. Two features make such "
@@ -461,7 +465,7 @@ def build_manuscript():
     body(doc,
          "We report this observational study following the Strengthening the Reporting of "
          "Observational Studies in Epidemiology (STROBE) guidance.{strobe} We "
-         f"studied {N_SPEC} core clinical specialties for which the Supreme Court reports "
+         f"studied {N_SPEC} core clinical specialties in Japan for which the Supreme Court reports "
          "specialty-specific litigation. Three official primary series drove the main "
          "analysis: physician counts by specialty from the biennial Statistics of "
          "Physicians, Dentists and Pharmacists{phys}; closed malpractice claims by "
@@ -690,7 +694,7 @@ def build_manuscript():
          "negligence-standard reforms could shift the composition of the physician "
          "workforce toward surgery in some regions, yet the effect was localized and "
          "modest.{frakes2020} Against this backdrop, a null effect of civil litigation "
-         "risk on Japanese specialty supply is not surprising, especially in a system "
+         "risk on specialty supply is not surprising, especially in a system "
          "with comparatively low litigation volume and predictable damages.")
     body(doc,
          "Even when litigation risk is unrelated to the number of physicians, it may "
@@ -701,12 +705,12 @@ def build_manuscript():
          "pressure.{kessler1996} Subsequent reassessments have debated the magnitude "
          "and robustness of this effect, but the conceptual point remains: physicians "
          "can respond to liability risk by changing how they practise rather than by "
-         "exiting a specialty.{sloan2008} In Japan, fee-for-service reimbursement "
+         "exiting a specialty.{sloan2008} Fee-for-service reimbursement in Japan "
          "rewards the high-acuity procedural work that also carries litigation "
          "exposure, so the financial return to remaining in surgery, obstetrics, or "
          "interventional specialties may dominate any deterrent from civil claims.")
     body(doc,
-         "Japan's litigation environment itself dampens the likelihood of a "
+         "The civil litigation environment in Japan itself dampens the likelihood of a "
          "flight-from-risk response. Taniguchi and colleagues analysed all closed "
          "malpractice claims reported by the Supreme Court from 2006 to 2021 and "
          "found that more than half ended in settlement, plaintiffs won only about a "
@@ -717,7 +721,7 @@ def build_manuscript():
          "that routine civil litigation risk alone would drive physicians out of "
          "high-risk fields.")
     body(doc,
-         "The Japan Obstetric Compensation System for Cerebral Palsy (2009) illustrates "
+         "No-fault obstetric compensation (the Japan Obstetric Compensation System for Cerebral Palsy, 2009) illustrates "
          "a different mechanism. It was introduced partly because of a shortage of "
          "young obstetricians and regional gaps in maternity care, and it combined "
          "no-fault compensation with investigation and prevention.{hasegawa2016} The "
@@ -736,7 +740,7 @@ def build_manuscript():
     body(doc,
          "The obstetrics and gynaecology case is the most discussed example of the "
          "litigation-workforce nexus, and it is consistent with our interpretation. "
-         "A recent comparison of Japanese and U.S. medical-legal claims in obstetrics and "
+         "A recent Japan\u2013U.S. comparison of medical-legal claims in obstetrics and "
          "gynaecology (OB/GYN) found that the proportion of malpractice claims in this specialty fell from "
          "15.1 percent in 2004 to 5.2 percent in 2022, and that claims per 100 OB/GYN "
          "physicians fell from 0.9 in 2007 to 0.4 in 2016, while maternal and neonatal "
@@ -754,10 +758,10 @@ def build_manuscript():
     body(doc,
          "What do these findings imply for policy? Reducing civil malpractice "
          "litigation is unlikely to be a powerful lever for correcting specialty "
-         "maldistribution in Japan. Structural incentives are more promising: "
+         "maldistribution in this national setting. Structural incentives are more promising: "
          "no-fault compensation can de-risk high-acuity specialties, and payment "
          "design can reward service in underserved settings and activities. The "
-         "JOCS-CP experience supports the former; Japan's fee-for-service schedule "
+         "JOCS-CP experience supports the former; the country's fee-for-service schedule "
          "and rural/urban payment adjustments illustrate the latter. Malpractice reform "
          "may still matter for defensive medicine, patient compensation, and provider-patient "
          "trust. But our evidence does not support the claim, at least from these data, that lowering "
@@ -789,7 +793,7 @@ def build_manuscript():
          "reform effects on physician supply are heterogeneous across states and "
          "specialties, and that more granular, state-specific designs are needed to "
          "settle the question in the U.S. context.{helland2015} Applying similar "
-         "logic in Japan would require individual-level or prefecture-level career "
+         "logic in the same national setting would require individual-level or prefecture-level career "
          "data linked to local litigation, media, and reimbursement environments. "
          "Until then, the present specialty-level rate analysis provides the most "
          "systematic evidence available on the central policy question: whether "
@@ -827,7 +831,7 @@ def build_manuscript():
          "specialty and are collinear with full wave fixed effects. Litigation counts are assigned to a principal specialty "
          "and, by the Court's own note, do not measure intrinsic specialty risk.{court} "
          "Finally, these findings are "
-         "embedded in Japan's particular legal, cultural and institutional "
+         "embedded in the country's particular legal, cultural and institutional "
          "context\u2014including its no-fault obstetric compensation scheme, its "
          "fee-for-service reimbursement structure and its comparatively low-volume "
          "malpractice-litigation culture\u2014so physician responses to litigation risk "
@@ -837,11 +841,11 @@ def build_manuscript():
 
     head(doc, "Conclusions", level=1)
     body(doc,
-         f"Across {YEARS}, specialty-level malpractice-litigation risk in Japan was "
-         "not associated with physician or hospital decline in these data, and the "
+         f"Across {YEARS}, specialty-level malpractice-litigation risk was not associated "
+         "with physician or hospital decline in these national data, and the "
          "physician effect was statistically equivalent to null within a small margin. "
          "Policies to counter specialty maldistribution may more productively target "
-         "structural incentives, especially no-fault compensation, rather than on the "
+         "structural incentives, especially no-fault compensation, rather than rely on the "
          "assumption that reducing litigation will retain physicians in high-risk "
          "specialties.")
 
@@ -892,10 +896,7 @@ def build_title_page(main_word_count):
     t = doc.add_paragraph()
     t.alignment = WD_ALIGN_PARAGRAPH.CENTER
     t.paragraph_format.space_after = Pt(18)
-    rt = t.add_run(
-        "Litigation risk and specialty-level physician workforce allocation in Japan, "
-        f"{YEARS}: a sensitivity-analysis framework with equivalence testing"
-    )
+    rt = t.add_run(MANUSCRIPT_TITLE)
     rt.bold = True
     rt.font.size = Pt(15)
     rt.font.name = "Times New Roman"
@@ -969,9 +970,8 @@ def build_cover_letter():
     p.runs[0].font.name = "Times New Roman"
 
     paragraphs = [
-        f'We submit an original research article, "Litigation risk and specialty-level '
-        f'physician workforce allocation in Japan, {YEARS}: a sensitivity-analysis '
-        f'framework with equivalence testing", for consideration by Healthcare Analytics.',
+        f'We submit an original research article, "{MANUSCRIPT_TITLE}", for '
+        f'consideration by Healthcare Analytics.',
         "Healthcare Analytics advances data-driven analytics for healthcare decisions. "
         "Our study treats specialty physician workforce planning as a healthcare "
         "resource-allocation problem and uses it as a test case for a transparent, "
@@ -980,7 +980,8 @@ def build_cover_letter():
         "interpolation of sparse panel data—can be identified and removed when a proposed "
         "policy lever (malpractice-litigation risk) is evaluated against physician "
         "workforce outcomes.",
-        f"Using national primary data for {N_SPEC} clinical specialties in Japan, we "
+        "The national administrative data we use come from Japan, a setting that provides a "
+        f"complete, long-running test case. Using national primary data for {N_SPEC} clinical specialties, we "
         "measure exposure as a size-adjusted rate (closed malpractice claims per "
         f"{_per} physicians) and estimate panel fixed-effects models with equivalence "
         "(TOST) testing. The effect of litigation risk on physician and hospital growth is "
