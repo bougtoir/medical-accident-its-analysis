@@ -191,6 +191,52 @@ def plot_workflow(outfile, title):
     _save(fig, outfile)
 
 
+def plot_hospital_counts_vs_rates(H, P, L, bien, outfile, title, colored=True):
+    """Scatter of biennial hospital growth vs lagged litigation exposure, counts vs rates."""
+    dgrow = {}
+    for i, s in enumerate(CORE):
+        for j, y in enumerate(bien[1:], 1):
+            if pd.isna(H.loc[s, y]) or pd.isna(H.loc[s, bien[j - 1]]) \
+                    or pd.isna(L.loc[s, bien[j - 1]]) or pd.isna(P.loc[s, bien[j - 1]]):
+                continue
+            g = np.log(H.loc[s, y]) - np.log(H.loc[s, bien[j - 1]])
+            cnt = L.loc[s, bien[j - 1]]
+            rate = 1000.0 * L.loc[s, bien[j - 1]] / P.loc[s, bien[j - 1]]
+            dgrow.setdefault("g", []).append(g)
+            dgrow.setdefault("cnt", []).append(cnt)
+            dgrow.setdefault("rate", []).append(rate)
+            dgrow.setdefault("specialty", []).append(s)
+    if not dgrow:
+        return
+    fig, axs = plt.subplots(1, 2, figsize=(11, 5))
+    if colored:
+        for i, s in enumerate(CORE):
+            mask = np.array(dgrow["specialty"]) == s
+            color = _specialty_color(i)
+            marker = _specialty_marker(i)
+            kw = dict(s=35, alpha=0.85, marker=marker, edgecolors="black",
+                      facecolors=color, linewidths=0.6, label=EN[s])
+            axs[0].scatter(np.array(dgrow["cnt"])[mask],
+                           np.array(dgrow["g"])[mask], **kw)
+            axs[1].scatter(np.array(dgrow["rate"])[mask],
+                           np.array(dgrow["g"])[mask], **kw)
+        axs[0].legend(fontsize=6, ncol=2, loc="upper right")
+        axs[1].legend(fontsize=6, ncol=2, loc="upper right")
+    else:
+        axs[0].scatter(dgrow["cnt"], dgrow["g"], s=12, alpha=0.6)
+        axs[1].scatter(dgrow["rate"], dgrow["g"], s=12, alpha=0.6, color="green")
+    axs[0].set_xlabel("Litigation COUNT (lagged)")
+    axs[0].set_ylabel("Biennial hospital log-growth")
+    axs[0].set_title("(a) Count exposure (size-confounded)")
+    axs[1].set_xlabel("Litigation RATE per 1,000 physicians (lagged)")
+    axs[1].set_title("(b) Rate exposure (size-adjusted)")
+    for a in axs:
+        a.axhline(0, color="k", lw=0.6)
+        a.grid(alpha=0.3)
+    fig.suptitle(title)
+    _save(fig, outfile)
+
+
 def plot_policy_simulation(sim, outfile, title):
     """Bar chart of the marginal 10-year effect of three policy levers relative to
     the projected baseline (observed drift). The MDE lever is the minimum
@@ -242,6 +288,10 @@ def main():
         "fig5_workflow.png",
         "Figure 5. Sensitivity-analysis framework for evaluating litigation risk "
         "as a healthcare workforce-allocation lever.")
+    plot_hospital_counts_vs_rates(
+        H, P, L, bien, "fig7_hospital_counts_vs_rates.png",
+        "Figure 7. Hospital counts vs. rates: association disappears under size adjustment",
+        colored=False)
     plot_policy_simulation(
         res["policy_simulation"], "fig6_policy_simulation.png",
         "Figure 6. Counterfactual policy-lever simulation: marginal 10-year change in "
@@ -253,8 +303,16 @@ def main():
         "Figure 1. Equivalence (TOST): litigation-rate effect vs. null")
     plot_counts_vs_rates(
         P, L, bien, "ha_Figure_2.png",
-        "Figure 2. Counts vs. rates: association disappears under size adjustment",
+        "Figure 2. Physician counts vs. rates: association disappears under size adjustment",
         colored=True)
+    plot_hospital_counts_vs_rates(
+        H, P, L, bien, "ha_Figure_3.png",
+        "Figure 3. Hospital counts vs. rates: association disappears under size adjustment",
+        colored=True)
+    plot_policy_simulation(
+        res["policy_simulation"], "ha_Figure_4.png",
+        "Figure 4. Counterfactual policy-lever simulation: marginal 10-year change in "
+        "physician counts relative to baseline drift")
     plot_workflow(
         "ha_Supplementary_Figure_1.png",
         "Supplementary Figure 1. Sensitivity-analysis framework for evaluating "
@@ -265,12 +323,8 @@ def main():
     plot_physician_index(
         P, bien, "ha_Supplementary_Figure_3.png",
         "Supplementary Figure 3. Physician workforce by specialty, indexed to 2008")
-    plot_policy_simulation(
-        res["policy_simulation"], "ha_Figure_3.png",
-        "Figure 3. Counterfactual policy-lever simulation: marginal 10-year change in "
-        "physician counts relative to baseline drift")
 
-    print("wrote fig1-6 and ha_* figure files to", OUT)
+    print("wrote fig1-7 and ha_* figure files to", OUT)
 
 
 if __name__ == "__main__":
