@@ -23,6 +23,7 @@ import json
 import re
 import zipfile
 import pandas as pd
+from lxml import etree
 from docx import Document
 from docx.shared import Inches, Pt, Cm, RGBColor
 from docx.enum.text import WD_ALIGN_PARAGRAPH
@@ -34,6 +35,19 @@ PROJ = os.path.dirname(BASE)
 DP = os.path.join(PROJ, "data_primary")
 OUT = os.path.join(PROJ, "output")
 RES = json.load(open(os.path.join(PROJ, "results", "reanalysis_results.json")))
+
+try:
+    from latex2mathml.converter import convert as _latex_to_mathml
+except ImportError:  # pragma: no cover
+    _latex_to_mathml = None
+
+_XSL_PATH = os.path.join(BASE, "MML2OMML.XSL")
+if not os.path.exists(_XSL_PATH):
+    _XSL_PATH = "/tmp/MML2OMML.XSL"
+if os.path.exists(_XSL_PATH):
+    _XSLT = etree.XSLT(etree.parse(_XSL_PATH))
+else:
+    _XSLT = None
 
 CORE = ["内科", "外科", "整形外科", "形成外科", "産婦人科", "小児科", "精神科",
         "眼科", "耳鼻咽喉科", "泌尿器科", "皮膚科", "麻酔科"]
@@ -172,6 +186,32 @@ BODY_TEXTS = []
 
 def wc(text):
     return len(re.findall(r"\b[\w'-]+\b", text))
+
+
+def add_math(doc, latex, inline=False, para=None):
+    """Insert an OMML equation from LaTeX source.
+
+    Falls back to italicised plain text if latex2mathml or the XSLT is not
+    available, so the manuscript remains usable in any environment.
+    """
+    if _latex_to_mathml is None or _XSLT is None:
+        if para is None:
+            para = doc.add_paragraph()
+        run = para.add_run(latex)
+        run.italic = True
+        run.font.name = "Cambria Math" if inline else "Times New Roman"
+        return para
+
+    mathml = _latex_to_mathml(latex)
+    mathml_tree = etree.fromstring(mathml)
+    omml_tree = _XSLT(mathml_tree)
+    omml_root = omml_tree.getroot()
+
+    if para is None:
+        para = doc.add_paragraph()
+        para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    para._element.append(omml_root)
+    return para
 
 
 def fmt(x, d=3):
@@ -397,7 +437,7 @@ def build_manuscript():
          "designs prone to spurious association. "
          "First, counts are not adjusted for specialty size: a larger specialty "
          "mechanically accumulates more procedures, more claims and more physicians, so "
-         "counts co-move without any behavioural mechanism. Second, the physician census "
+         "count-based associations can arise without any behavioural mechanism. Second, the physician census "
          "is collected only biennially; interpolating it to an annual series and "
          "analysing it as if each year were an independent observation inflates the "
          "degrees of freedom of any lag-based method. These pitfalls are not unique to "
@@ -419,7 +459,8 @@ def build_manuscript():
     head(doc, "Materials and methods", level=1)
     head(doc, "Data sources", level=2)
     body(doc,
-         "We report this observational study following the STROBE guidance.{strobe} We "
+         "We report this observational study following the Strengthening the Reporting of "
+         "Observational Studies in Epidemiology (STROBE) guidance.{strobe} We "
          f"studied {N_SPEC} core clinical specialties for which the Supreme Court reports "
          "specialty-specific litigation. Three official primary series drove the main "
          "analysis: physician counts by specialty from the biennial Statistics of "
@@ -463,27 +504,26 @@ def build_manuscript():
          f"Clusters are defined by specialty, so G={N_SPEC} and the small-cluster correction "
          "uses a t-distribution with G-1 degrees of freedom for all cluster-robust inference. "
          "Supplementary Figure 1 summarises the sensitivity-analysis framework. The primary "
-         "estimating equation, for specialty s and wave t, was "
-         "Delta log(Y_st) = alpha_s + delta_t + beta * litrate_s,t-1 + epsilon_st, "
-         "where Y is either physicians or hospitals, alpha_s are specialty fixed effects, "
+         "estimating equation, for specialty s and wave t, was as follows.")
+    add_math(doc, r"\Delta \log(Y_{st}) = \alpha_s + \delta_t + \beta \cdot \text{litrate}_{s,t-1} + \epsilon_{st}")
+    body(doc,
+         "Here, Y is either physicians or hospitals, alpha_s are specialty fixed effects, "
          "delta_t are wave fixed effects, and standard errors are clustered by specialty. "
          "For the equivalence analysis we standardised litrate to a z-score, so beta "
          "gives the expected biennial log-change per one-SD increase in the litigation rate.")
     body(doc,
          "We assessed equivalence to a null effect using two one-sided tests (TOST).{lakens,schuir} "
-         "For a pre-specified margin m, the two one-sided null hypotheses are "
-         "H0: beta <= -m and H0: beta >= +m; equivalence is declared when both one-sided "
-         f"tests yield p < alpha, using m in {MARGIN1*100:.0f}% and {MARGIN2*100:.0f}%. These "
-         "margins are smaller than typical policy targets for specialty workforce rebalancing "
-         "and represent changes that workforce planners would consider substantively small.")
+         "For a pre-specified margin m, the two one-sided null hypotheses are")
+    add_math(doc, r"H_0: \beta \leq -m \quad \text{and} \quad H_0: \beta \geq +m")
+    body(doc,
+         "Equivalence is declared when both one-sided tests yield p < alpha. We used "
+         f"margins of {MARGIN1}% and {MARGIN2}% biennial workforce change because they are "
+         "smaller than typical policy targets for specialty workforce rebalancing and "
+         "represent changes that workforce planners would consider substantively small.")
     body(doc,
          "All reported confidence intervals and two-sided p-values use a "
          f"t-distribution with G-1 = {PHYS['df']} degrees of freedom, the small-cluster correction recommended "
-         "by Cameron and Miller.{cameron2015} We pre-specified margins of "
-         f"\u00b1{MARGIN1}% and \u00b1{MARGIN2}% biennial workforce change because they are "
-         "smaller than typical policy targets for specialty workforce rebalancing and "
-         "represent changes that workforce planners would consider substantively small. "
-         "An indicator for obstetrics and gynaecology from 2009 onward captured the "
+         "by Cameron and Miller.{cameron2015} An indicator for obstetrics and gynaecology from 2009 onward captured the "
          "JOCS-CP period.{jocscp} Sensitivity analyses repeated the models on (i) the "
          "annual hospital series, (ii) a linearly interpolated annual physician series "
          "(with degrees of freedom governed by the measured waves, not the interpolated n), "
@@ -560,18 +600,17 @@ def build_manuscript():
 
     head(doc, "Counts versus rates, and confounders", level=2)
     body(doc,
-         f"Using raw litigation counts rather than rates did not recover a negative "
+         f"Using raw litigation counts rather than rates did not reveal a negative "
          f"association in this measured-only design (p={CNT['p']:.2f}). Figure 2 "
-         "illustrates the difference between the two exposure definitions: a count "
-         "exposure spans specialty size (panel a), whereas the size-adjusted rate does "
-         "not (panel b); points are coloured by specialty so the reader can identify which "
-         "fields drive any apparent outliers. The annual hospital and the interpolated "
-         f"annual physician sensitivity analyses were also null (p={ANN['p']:.2f} and p={INT['p']:.2f}), "
-         "confirming that size confounding and interpolation are sufficient to create "
-         "spurious associations. The JOCS-CP indicator was directionally positive in the "
+         "shows the contrast: the count exposure is confounded by specialty size (panel a), "
+         "whereas the rate-adjusted exposure is not (panel b); points are coloured and shaped "
+         "by specialty so readers can identify which fields drive any apparent pattern. "
+         f"The annual hospital and interpolated annual-physician sensitivity analyses were also null "
+         f"(p={ANN['p']:.2f} and p={INT['p']:.2f}), confirming that the null result is robust to panel "
+         "frequency and exposure definition. The JOCS-CP indicator was positive in sign in the "
          f"obstetric-hospital model (coefficient {fmt(HOSP['jocscp_coef'],3)}, raw p={HOSP['jocscp_p']:.3f}), "
-         f"but the association was not significant after the small-cluster correction and "
-         f"Holm adjustment for the exploratory sensitivity family (Holm p={JOCS_HOLM:.3f}); we "
+         f"but it did not remain significant after the small-cluster correction and Holm "
+         f"adjustment for the exploratory sensitivity family (Holm p={JOCS_HOLM:.3f}); we "
          "therefore treat it as exploratory and do not interpret it as a causal policy "
          "effect.")
     figure(doc, "ha_Figure_2.png",
@@ -588,30 +627,30 @@ def build_manuscript():
          f"log physicians) was also null (coefficient {fmt(REV['coef'],3)}, p={REV['p']:.2f}; "
          "Table 2), making a reverse-causation interpretation of the null unlikely.")
     body(doc,
-         f"We also evaluated the JMSR medical accident investigation report counts as a "
-         f"potential confounder or competing exposure.{{mais}} Over {JMSR_CORR['years'][0]}-"
+         f"We also evaluated JMSR medical-accident investigation report counts as a "
+         f"potential confounder or competing exposure.{{mais}} From {JMSR_CORR['years'][0]} to "
          f"{JMSR_CORR['years'][-1]}, raw litigation and JMSR report counts were strongly "
          f"correlated across specialties (Pearson r={JMSR_CORR['pooled_r']:.2f}), because large "
-         "specialties generate more of both; however, after removing specialty-specific "
-         f"levels and trends the within-specialty correlation was negligible (r={JMSR_CORR['detrended_r']:.2f}). "
+         "specialties generate more of both. After removing specialty-specific levels and "
+         f"trends, however, the within-specialty correlation was negligible (r={JMSR_CORR['detrended_r']:.2f}). "
          f"A model of annual hospital growth for {JMSR_START}-2024 that included both the "
          "lagged litigation rate and the lagged JMSR report rate left the litigation "
-         f"coefficient essentially unchanged (coefficient {fmt(JMSR['lit_coef'],4)}; p={JMSR['lit_p']:.2f}) "
+         f"coefficient essentially unchanged ({fmt(JMSR['lit_coef'],4)}; p={JMSR['lit_p']:.2f}) "
          f"and the JMSR term was not associated with hospital growth (p={JMSR['med_p']:.2f}; "
-         "Supplementary Table 3). Thus, the null litigation result is not explained by, nor "
-         "masked by, broader medical accident reporting.")
+         "Supplementary Table 3). The null litigation result is therefore neither explained nor "
+         "masked by broader medical-accident reporting.")
     body(doc,
          f"Finally, we tested national newspaper coverage from Nikkei Telecom 21 as a "
          f"potential confounder.{{nikkei}} Total annual article counts (keywords: "
          f"\u533b\u7642\u4e8b\u6545 + \u533b\u7642\u904e\u8aa4) and total litigation counts were correlated "
-         f"(Pearson r={MEDIA_CORR['total_r']:.2f}), consistent with the public salience of "
-         f"high-litigation years; however, within the annual hospital panel the lagged "
+         f"(Pearson r={MEDIA_CORR['total_r']:.2f}), consistent with greater public attention in "
+         f"high-litigation years. Within the annual hospital panel, however, the lagged "
          "litigation rate and the media-count series were only weakly correlated. "
          f"A model of annual hospital growth for {MEDIA_START}-{MEDIA_END} that included both the "
          f"lagged litigation rate and the lagged article count (per 1,000 articles) left the "
          "litigation coefficient essentially unchanged and the media term was not associated "
          f"with hospital growth (p={MEDIA['media_p']:.2f}; Supplementary Table 4). Media coverage "
-         "therefore does not account for the null litigation effect either. "
+         "therefore does not explain the null litigation effect either. "
          "Holm step-down adjusted p-values for the exploratory sensitivity family are "
          "reported in Supplementary Table 5.")
 
@@ -621,26 +660,26 @@ def build_manuscript():
          "Using national primary data, rates rather than counts, and only measured "
          "physician observations, we found no association between specialty-level "
          "malpractice-litigation risk and subsequent physician or hospital decline. "
-         "Equivalence testing turned this null into a positive statement: any effect of "
-         "litigation risk on the biennial workforce is smaller than a pre-specified, "
-         "policy-relevant margin. These data therefore do not support the hypothesis "
-         f"that physicians systematically abandon high-litigation specialties over {SPAN} "
-         "years of official statistics.")
+         f"Equivalence testing showed that any effect of litigation risk on biennial physician "
+         f"growth is smaller than {MARGIN1}% (90% CI within the {MARGIN1}% margin), and any "
+         f"effect on hospital growth is smaller than {MARGIN2}% (but not confidently smaller than "
+         f"{MARGIN1}%). These data therefore do not support the hypothesis that physicians "
+         f"systematically abandon high-litigation specialties over {SPAN} years of official statistics.")
     body(doc,
          "A null result is not merely a failure to detect an effect. The narrow "
          "confidence intervals and pre-specified equivalence margins allow us to say "
          "that, if litigation risk does influence specialty-level workforce growth, "
          "the magnitude is too small to matter for workforce planning. Across the "
-         "sensitivity analyses, neither alternative exposure definitions, interpolation, "
-         "nor potential confounders changed this conclusion, which is the main value "
+         "sensitivity analyses, alternative exposure definitions, interpolation, "
+         "and potential confounders did not change this conclusion, which is the main value "
          "of the framework for healthcare workforce allocation decisions.")
     body(doc,
-         "The raw-count sensitivity in our study did not recover a negative association, "
-         "indicating that size confounding and interpolation are sufficient to produce "
-         "spurious negative findings. This is a cautionary example for workforce research "
-         "that pairs administrative count series, and it underscores why rate-based, "
-         "measured-only designs are preferable when testing litigation-workforce "
-         "hypotheses.")
+         "The raw-count sensitivity did not reveal a negative association in these data, "
+         "illustrating that the apparent count-litigation relationship does not translate into "
+         "a behavioural effect once specialty size is accounted for (Figure 2). This is a "
+         "cautionary example for workforce research that pairs administrative count series, "
+         "and it underscores why rate-based, measured-only designs are preferable when testing "
+         "litigation-workforce hypotheses.")
     body(doc,
          "International evidence on tort reform and physician supply is consistent "
          "with a small or context-specific effect. Matsa found that U.S. state damage "
@@ -648,15 +687,15 @@ def build_manuscript():
          "but did not affect physician supply for the average resident.{matsa2007} "
          "Hyman and colleagues, examining the 2003 Texas reforms, found no measurable "
          "increase in physician supply for high-malpractice-risk specialties, primary "
-         "care, or rural physicians.{hyman2015} Frakes and co-workers showed that "
+         "care, or rural physicians.{hyman2015} Frakes and colleagues showed that "
          "negligence-standard reforms could shift the composition of the physician "
          "workforce toward surgery in some regions, yet the effect was localized and "
          "modest.{frakes2020} Against this backdrop, a null effect of civil litigation "
          "risk on Japanese specialty supply is not surprising, especially in a system "
          "with comparatively low litigation volume and predictable damages.")
     body(doc,
-         "Even when litigation risk does not change the number of physicians, it may "
-         "alter clinical behaviour through defensive medicine. Kessler and McClellan "
+         "Even when litigation risk is unrelated to the number of physicians, it may "
+         "shape clinical behaviour through defensive medicine. Kessler and McClellan "
          "showed that U.S. malpractice reforms reduced medical expenditures for elderly "
          "heart-disease patients without increasing mortality or complications, "
          "suggesting that defensive practice is one margin of adjustment to liability "
@@ -687,10 +726,10 @@ def build_manuscript():
          f"{fmt(HOSP['jocscp_coef'],3)}, raw p={HOSP['jocscp_p']:.3f}), but it did not remain "
          f"significant after the small-cluster correction and Holm adjustment for the "
          f"exploratory sensitivity family (Holm p={JOCS_HOLM:.3f}). This suggests that, "
-         "if the JOCS-CP did support obstetric hospital supply, the effect is too small "
+         "if the JOCS-CP did support obstetric hospital supply, the effect would be too small "
          "or too confounded by concurrent obstetric policies to be isolated here. "
          "Civil litigation exposure is also distinct from criminal prosecution. Morita "
-         "exploited the 2004 Fukushima obstetrician prosecution and found a 13 percent "
+         "studied the 2004 Fukushima obstetrician prosecution and found a 13 percent "
          "decline in obstetricians, with some switching to gynaecology.{morita2018} "
          "Criminal cases and their media coverage may be far more salient to career "
          "decisions than routine closed civil claims, and our data do not capture that "
@@ -698,8 +737,8 @@ def build_manuscript():
     body(doc,
          "The obstetrics and gynaecology case is the most discussed example of the "
          "litigation-workforce nexus, and it is consistent with our interpretation. "
-         "A recent comparison of Japanese and U.S. medical-legal claims in OB/GYN "
-         "found that the proportion of malpractice claims in this specialty fell from "
+         "A recent comparison of Japanese and U.S. medical-legal claims in obstetrics and "
+         "gynaecology (OB/GYN) found that the proportion of malpractice claims in this specialty fell from "
          "15.1 percent in 2004 to 5.2 percent in 2022, and that claims per 100 OB/GYN "
          "physicians fell from 0.9 in 2007 to 0.4 in 2016, while maternal and neonatal "
          "mortality also declined.{kamijo2025} The authors attribute this to heightened "
@@ -720,10 +759,9 @@ def build_manuscript():
          "no-fault compensation can de-risk high-acuity specialties, and payment "
          "design can reward service in underserved settings and activities. The "
          "JOCS-CP experience supports the former; Japan's fee-for-service schedule "
-         "and rural/urban payment adjustments illustrate the latter. This is not to "
-         "say that malpractice reform is irrelevant: it may influence defensive "
-         "medicine, patient compensation, and provider-patient trust. But our evidence "
-         "does not support the claim, at least from these data, that lowering "
+         "and rural/urban payment adjustments illustrate the latter. Malpractice reform "
+         "may still matter for defensive medicine, patient compensation, and provider-patient "
+         "trust. But our evidence does not support the claim, at least from these data, that lowering "
          "litigation risk will retain physicians in high-risk specialties. "
          "Policymakers should therefore target structural incentives before "
          "relying on litigation-avoidance messaging.")
