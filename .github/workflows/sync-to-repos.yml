@@ -26,6 +26,10 @@ jobs:
           # Define branch -> target repo mapping
           declare -A BRANCH_MAP
 
+          # ── Heat and traffic-crash mortality (US FARS + Japan NPA, GHCN) ──
+          # Track the merged mainline branch so the public repo reproduces the manuscript.
+          BRANCH_MAP["devin/1784701414-heat-accidents-mortality"]="heat-accidents-mortality"
+
           # ── Original entries ──
           BRANCH_MAP["IONE-stratification-framework"]="ione-stratification-framework"
           BRANCH_MAP["devin/1774274321-rct-decomposition-paper"]="kotha-rct-decomposition"
@@ -34,7 +38,11 @@ jobs:
           # BRANCH_MAP["devin/1783102664-jma-journal-manuscript"]="medical-accident-its-analysis"
           BRANCH_MAP["devin/1785490740-jmaj-revision-reanalysis"]="medical-accident-its-analysis"
           BRANCH_MAP["devin/1774578035-cetacean-acoustic-analysis"]="cetacean-acoustic-analysis"
-          BRANCH_MAP["devin/1774681647-yoshka-pkpd-package"]="yoshika-pkpd"
+          # Superseded by the Software Impacts branch below (same target repo),
+          # which contains the package plus the external-validation pipeline and
+          # the Software Impacts submission materials.
+          # BRANCH_MAP["devin/1774681647-yoshka-pkpd-package"]="yoshika-pkpd"
+          BRANCH_MAP["devin/1784709022-yoshika-software-impacts"]="yoshika-pkpd"
           BRANCH_MAP["devin/1774686640-cryoanesthesia-scoping-review"]="cryoanesthesia-scoping-review"
           BRANCH_MAP["devin/1774689702-bbb-bhb-research"]="bbb-bhb-research"
           BRANCH_MAP["devin/1774689786-onishi-submission-strategy"]="onishi-submission-strategy"
@@ -46,6 +54,7 @@ jobs:
           BRANCH_MAP["devin/1774690359-anesthesia-regional-variation-japan"]="anesthesia-regional-variation-japan"
           BRANCH_MAP["devin/1774690362-vaporizer-price-study"]="vaporizer-price-study"
           BRANCH_MAP["devin/1774690371-ndb-pain-regional-variation-japan"]="ndb-pain-regional-variation-japan"
+          BRANCH_MAP["devin/1784701921-ndb-dea-drug-lag"]="ndb-dea-drug-lag"
           BRANCH_MAP["scoping-review/hansens-disease-work-visa-screening"]="hansens-disease-work-visa-screening"
           BRANCH_MAP["tasuki-electoral-model"]="tasuki-electoral-model"
           BRANCH_MAP["devin/1772247034-mafb-analysis"]="mafb-population-projection"
@@ -75,6 +84,8 @@ jobs:
           # ── Academic slides / zero-calibration ──
           BRANCH_MAP["devin/1775549411-anesthesiology-academic-roi-slides"]="anesthesiology-academic-roi-slides"
           BRANCH_MAP["devin/1775637899-pmea-zero-calibration"]="pmea-zero-calibration"
+          BRANCH_MAP["devin/1784242391-bpm-zero-calibration"]="bpm-zero-calibration"
+          BRANCH_MAP["devin/1786340593-tim-zero-calibration"]="abp_zero_calibration"
 
           # ── Bland-Altman / BA series ──
           BRANCH_MAP["devin/1775690994-ba-plot-3d-simulation"]="ba-plot-3d-simulation"
@@ -91,6 +102,7 @@ jobs:
           BRANCH_MAP["devin/1776162271-germany-reunification-analysis"]="germany-reunification-analysis"
           BRANCH_MAP["devin/1776288480-demres-submission"]="demres-submission"
           BRANCH_MAP["devin/1776939083-ijqhc-submission"]="ijqhc-submission"
+          BRANCH_MAP["devin/1784865040-ijhpm-submission"]="anesthesia_variation_335_region"
 
           # ── GDP / healthcare economics ──
           BRANCH_MAP["devin/1776760815-gdp-tempo-poc"]="gdp-tempo-poc"
@@ -121,6 +133,7 @@ jobs:
           BRANCH_MAP["devin/1777601123-khmer-civic-summary"]="khmer-civic-summary"
           # REMOVED: figure-redistribution (no unique content vs master)
           BRANCH_MAP["devin/1777901782-healthcare-economic-effect"]="healthcare-economic-effect"
+          BRANCH_MAP["devin/ehpm-r3-reframe"]="healthcare-economic-effect"
           BRANCH_MAP["devin/1777908700-canonical-curves-reexamination"]="canonical-curves-reexamination"
           BRANCH_MAP["devin/1777909479-desflurane-critical-appraisal"]="desflurane-critical-appraisal"
           BRANCH_MAP["devin/rokid-lyrics"]="rokid-lyrics"
@@ -216,9 +229,12 @@ jobs:
           # subdirectory so the public repo stays clean.
           declare -A SUBDIR_MAP
 
+          SUBDIR_MAP["devin/1784701414-heat-accidents-mortality"]="heat_accidents_mortality"
+
           # Problem B fixes (branches with unrelated folders mixed in)
           # SUBDIR_MAP["devin/1783102664-jma-journal-manuscript"]="medical_accident_its_analysis"  # superseded
           SUBDIR_MAP["devin/1785490740-jmaj-revision-reanalysis"]="medical_accident_its_analysis"
+          SUBDIR_MAP["devin/1784701921-ndb-dea-drug-lag"]="ndb-dea-drug-lag"
           SUBDIR_MAP["devin/1778846737-flood-prediction-models"]="flood-prediction-review"
           SUBDIR_MAP["devin/1777462980-spectral-causality-brainstorm"]="spectral-causality-brainstorm"
           SUBDIR_MAP["devin/1777863337-spectral-causality-jmlr"]="spectral-causality-jmlr"
@@ -228,6 +244,7 @@ jobs:
           SUBDIR_MAP["devin/1776765895-gdp-cwon-joint"]="gdp_cwon_integration"
           SUBDIR_MAP["devin/1776288480-demres-submission"]="tempo-effect-paper"
           SUBDIR_MAP["devin/1777901782-healthcare-economic-effect"]="healthcare_economic_effect"
+          SUBDIR_MAP["devin/ehpm-r3-reframe"]="healthcare_economic_effect"
           SUBDIR_MAP["devin/1777908700-canonical-curves-reexamination"]="canonical_curves_reexamination"
           SUBDIR_MAP["devin/1777909479-desflurane-critical-appraisal"]="desflurane_critical_appraisal"
           SUBDIR_MAP["devin/1777601123-khmer-civic-summary"]="khmer_inscription_analysis"
@@ -267,6 +284,8 @@ jobs:
           SUBDIR_MAP["devin/1780039674-yago-cs-bleeding-analysis"]="yago_cs_bleeding"
           SUBDIR_MAP["devin/1780052155-yago-ionv-analysis"]="yago_ionv"
           SUBDIR_MAP["devin/1775637899-pmea-zero-calibration"]="zero_calibration_pmea"
+          SUBDIR_MAP["devin/1784242391-bpm-zero-calibration"]="zero_calibration_bpm"
+          SUBDIR_MAP["devin/1786340593-tim-zero-calibration"]="zero_calibration_bpm"
           SUBDIR_MAP["stem-cell-seasonality"]="stem_cell_seasonality"
           SUBDIR_MAP["devin/1782083347-landmine-transparent-map"]="landmine_transparent_map"
           SUBDIR_MAP["sits9-sync"]="sits9"
@@ -286,12 +305,31 @@ jobs:
           BRANCH_MAP["devin/1785420517-taste-drug-analysis"]="tommo-taste-receptor-2025-0057"
           SUBDIR_MAP["devin/1785420517-taste-drug-analysis"]="tommo_taste_receptor_2025-0057"
 
+          # ── Sales conversation dynamics (turn-level word count trajectories) ──
+          BRANCH_MAP["devin/1785812663-sales-conversation-dynamics"]="sales-conversation-dynamics"
+          SUBDIR_MAP["devin/1785812663-sales-conversation-dynamics"]="sales_conversation_dynamics"
+
+          # ── AI/ML researcher mobility ODE model (full-article branch is the canonical public snapshot) ──
+          BRANCH_MAP["devin/researcher-mobility-ode-full-article"]="researcher-mobility-ode"
+          SUBDIR_MAP["devin/researcher-mobility-ode-full-article"]="researcher_mobility_ode"
+
+          # ── AI/ML researcher mobility ODE model extensions ──
+          BRANCH_MAP["devin/researcher-mobility-ode-extensions"]="researcher-mobility-ode-extensions"
+          SUBDIR_MAP["devin/researcher-mobility-ode-extensions"]="researcher_mobility_ode"
+
+          # ── Quantum / atomic-molecular physics researcher mobility ODE model ──
+          BRANCH_MAP["devin/researcher-mobility-ode-quantum"]="researcher-mobility-ode-quantum"
+          SUBDIR_MAP["devin/researcher-mobility-ode-quantum"]="researcher_mobility_ode"
+
           # ── File exclusion map ──
           # Space-separated list of file paths (relative to subdir root if
           # SUBDIR_MAP is set, or repo root otherwise) to exclude from sync.
           # Use this to keep manuscript/cover-letter generation scripts out of
           # public repos while still syncing data, analysis code, and outputs.
           declare -A EXCLUDE_MAP
+          # No exclusions: the manuscript generator and its DOCX/PPTX/tables outputs
+          # are published so the public repo is fully reproducible (make all).
+          EXCLUDE_MAP["devin/1784701414-heat-accidents-mortality"]=""
           EXCLUDE_MAP["devin/1777908700-canonical-curves-reexamination"]="scripts/generate_manuscript.py scripts/generate_manuscript_ja.py scripts/generate_manuscript_boer.py scripts/generate_cover_letter.py scripts/generate_cover_letter_boer.py scripts/generate_strobe_checklist.py cover_letter_ripr.docx cover_letter_jes.docx cover_letter_boer.docx title_page_jes.docx strobe_checklist.docx manuscript_canonical_curves_ja.docx 52_canonical_curves_overview.md"
           EXCLUDE_MAP["devin/1781729486-measurement-integrated"]="measurement_submission/create_measurement_docx.py measurement_submission/create_measurement_pptx.py measurement_submission/create_title_page.py measurement_submission/create_cover_letter.py measurement_submission/create_highlights.py measurement_submission/create_acknowledgments.py measurement_submission/cover_letter_measurement.docx measurement_submission/title_page.docx measurement_submission/acknowledgments.docx"
           EXCLUDE_MAP["devin/1780790605-ep-submission-prep"]="create_manuscript.py create_manuscript_latex.py create_cover_letter_and_checklist.py manuscript/generate_docx.py manuscript/generate_cover_letter_docx.py manuscript/generate_figures_pptx.py manuscript/manuscript.tex manuscript/references.bib manuscript/manuscript.docx manuscript/manuscript.pdf manuscript/cover_letter.docx manuscript/cover_letter.pdf manuscript/cover_letter.tex manuscript/figures_pptx.pptx manuscript/sn-basic.bst manuscript/sn-jnl.cls manuscript/strobe_checklist.docx manuscript/table_s1.docx manuscript/table_s1.pdf manuscript/table_s1.tex"
@@ -301,6 +339,13 @@ jobs:
           # outputs out of the public repo; reproduce.py (figures + in-text numbers)
           # and the data/analysis code remain public for reproducibility.
           EXCLUDE_MAP["devin/1784904207-transport-policy"]="build_submission.py output/Manuscript_TransportPolicy.docx output/Cover_Letter_TransportPolicy.docx output/Title_Page_TransportPolicy.docx output/Submission_Checklist_TransportPolicy.docx output/Highlights_TransportPolicy.docx output/Highlights_TransportPolicy.txt output/TransportPolicy_submission_package.zip output/VALIDATION.txt output/Citation_Audit.csv output/Reference_Verification.csv output/Reporting_Guideline_PRISMA-ScR.docx"
+          # yoshika-software-impacts is branched from the monorepo root, so the
+          # yoshika project (yoshika/, tests/, paper/, pyproject.toml, README,
+          # LICENSE) sits alongside many unrelated project folders. Exclude every
+          # non-yoshika top-level entry so the public yoshika-pkpd repo contains
+          # only the package + its paper materials. Submission correspondence
+          # (cover/rebuttal letters) is also excluded.
+          EXCLUDE_MAP["devin/1784709022-yoshika-software-impacts"]=".agents anesthesia-record archaic_language_typology ava_lllt_hypothesis ba_sphere_dashboard.html ba_sphere_simulation.py beyond-gdp-national-power biwa_archaeological_prospection buddhist_food_lexicon_map canonical_curves_reexamination clinical_noise_inverse_problem color_cooking_concept data denisovan-archaic-dna-analysis desflurane_critical_appraisal documents dvs_noise_inverse_problem flood-prediction-review garment-printer-app gdp_cwon_integration gdp_tempo_paper gdp_tempo_poc generate_new_figures.py gis_data healthcare_economic_effect healthcare_tempo_poc khmer_inscription_analysis landmine_transparent_map medical_accident_its_analysis medical_sapir_whorf meeting-slides montmorillonite_decaf montmorillonite_oil ndb-pain-regional-variation-japan output paper-dashboard pose_alignment_tool project-hub pwv_vitaldb_analysis reports round1_crime_analysis scripts sits9 slides spectral-causality-a2-ecd spectral-causality-brainstorm spectral-causality-jmlr sr_ancova_framework stem_cell_seasonality tasuki-electoral-model tempo-effect-paper threebody_pk_compartment tommo_taste_receptor_2025-0057 vaporizer-price-study weibull-clinical-dropout yago_cs_bleeding yago_ionv zero_calibration_pmea paper/cover_letter_revised.docx paper/cover_letter_revised.md paper/rebuttal_letter.docx paper/rebuttal_letter.md paper/software_impacts/cover_letter.docx paper/software_impacts/cover_letter.md"
 
           OWNER="bougtoir"
 

@@ -1,10 +1,10 @@
-# Evaluating Healthcare Expenditure Sustainability in Japan
+# Evaluating the Demand-Side Fiscal Return to Healthcare Expenditure in Japan
 
-A dual-return framework that reframes healthcare spending from a "cost to be
+A demand-side fiscal-return and health-capital-lag analysis that reframes healthcare spending from a "cost to be
 contained" to an activity with measurable, but bounded, economic returns.
 This repository contains the complete, executable analysis code and input
 data underlying the manuscript submitted to *Environmental Health and
-Preventive Medicine* (EHPM-D-26-00106R1) and **supersedes the earlier
+Preventive Medicine* (EHPM-D-26-00106R2; de novo rejection, R3 resubmission prepared) and **supersedes the earlier
 minimum proof-of-concept**: every quantitative result in the manuscript can
 be regenerated from a clean clone.
 
@@ -71,8 +71,11 @@ python scripts/tempo_model_selection.py
 #    equipment/leakage, figures) -- consumes the JSON from step 2
 python scripts/analyze_healthcare_economic_effect.py
 
-# 4. build the manuscript, response letter, cover letter, and figure PPTX
+# 4. build the R2 manuscript, response letter, cover letter, and figure PPTX
 python scripts/create_manuscript_ehpm_r2.py
+
+# 5. (R3 reframe) generate the R3 submission package from the R2 docx/pptx
+python scripts/reframe_ehpm_r3.py
 ```
 
 `tempo_model_selection.py` resolves its World Bank cache in this order:
