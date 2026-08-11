@@ -9,7 +9,7 @@ Outputs (all derived from results/reanalysis_results.json and data_primary/):
   - manuscript/ha_highlights.docx      3-5 highlights (<=85 chars each)
   - manuscript/ha_supplementary.docx     supplementary figures & tables
   - output/ha_Figure_1.png .. Figure_2.png            main figure files
-  - output/ha_Supplementary_Figure_1.png .. 2.png      supplementary figure files
+  - output/ha_Supplementary_Figure_1.png .. 3.png      supplementary figure files
   - manuscript/ha_figures.pptx           editable main figure slides
   - manuscript/ha_supplementary_figures.pptx editable supplementary figure slides
 
@@ -325,8 +325,8 @@ def build_manuscript():
     t.alignment = WD_ALIGN_PARAGRAPH.CENTER
     t.paragraph_format.space_after = Pt(18)
     rt = t.add_run(
-        "Litigation risk and specialty-level physician workforce in Japan, "
-        f"{YEARS}: a rate-based analysis with equivalence testing"
+        "Litigation risk and specialty-level physician workforce allocation in Japan, "
+        f"{YEARS}: a sensitivity-analysis framework with equivalence testing"
     )
     rt.bold = True
     rt.font.size = Pt(14)
@@ -461,14 +461,25 @@ def build_manuscript():
          "it on the litigation rate at the start of the interval, in a panel with specialty "
          "and wave fixed effects and standard errors clustered by specialty.{angrist} "
          f"Clusters are defined by specialty, so G={N_SPEC} and the small-cluster correction "
-         "uses a t-distribution with G-1 degrees of freedom for all cluster-robust inference.")
+         "uses a t-distribution with G-1 degrees of freedom for all cluster-robust inference. "
+         "Supplementary Figure 1 summarises the sensitivity-analysis framework. The primary "
+         "estimating equation, for specialty s and wave t, was "
+         "Delta log(Y_st) = alpha_s + delta_t + beta * litrate_s,t-1 + epsilon_st, "
+         "where Y is either physicians or hospitals, alpha_s are specialty fixed effects, "
+         "delta_t are wave fixed effects, and standard errors are clustered by specialty. "
+         "For the equivalence analysis we standardised litrate to a z-score, so beta "
+         "gives the expected biennial log-change per one-SD increase in the litigation rate.")
     body(doc,
-         "We standardised the litigation-rate exposure for the equivalence analysis so "
-         "the coefficient gives the expected biennial log-change per one-SD increase in "
-         "the exposure. All reported confidence intervals and two-sided p-values use a "
+         "We assessed equivalence to a null effect using two one-sided tests (TOST).{lakens,schuir} "
+         "For a pre-specified margin m, the two one-sided null hypotheses are "
+         "H0: beta <= -m and H0: beta >= +m; equivalence is declared when both one-sided "
+         f"tests yield p < alpha, using m in {MARGIN1*100:.0f}% and {MARGIN2*100:.0f}%. These "
+         "margins are smaller than typical policy targets for specialty workforce rebalancing "
+         "and represent changes that workforce planners would consider substantively small.")
+    body(doc,
+         "All reported confidence intervals and two-sided p-values use a "
          f"t-distribution with G-1 = {PHYS['df']} degrees of freedom, the small-cluster correction recommended "
-         "by Cameron and Miller.{cameron2015} We assessed equivalence to a null effect "
-         "using two one-sided tests (TOST).{lakens,schuir} We pre-specified margins of "
+         "by Cameron and Miller.{cameron2015} We pre-specified margins of "
          f"\u00b1{MARGIN1}% and \u00b1{MARGIN2}% biennial workforce change because they are "
          "smaller than typical policy targets for specialty workforce rebalancing and "
          "represent changes that workforce planners would consider substantively small. "
@@ -492,9 +503,9 @@ def build_manuscript():
     head(doc, "Workforce and litigation trends", level=2)
     body(doc,
          f"Litigation rates per {_per} physicians varied several-fold across "
-         f"specialties and fell over time in {FELL} of {len(CORE)} fields (Supplementary Figure 1). "
+         f"specialties and fell over time in {FELL} of {len(CORE)} fields (Supplementary Figure 2). "
          f"Over the same period the physician workforce grew in {GREW} of {len(CORE)} specialties "
-         "(Supplementary Figure 2; Table 1); the only exception was general surgery, "
+         "(Supplementary Figure 3; Table 1); the only exception was general surgery, "
          f"which was essentially flat ({SURG_PCT:+.1f}% across {SPAN} years). Exposure and "
          "workforce therefore did not move in opposite directions as a flight-from-risk "
          "account would predict.")
@@ -749,6 +760,17 @@ def build_manuscript():
          f"specialties. The answer, in these data, is no—or at least not in a way that is "
          f"detectable or policy-relevant across {len(BIEN)} measured waves ({BIEN[0]}–{BIEN[-1]}).")
 
+    body(doc,
+         "The framework we used is intentionally general. Specialty physician workforce "
+         "allocation is a recurring healthcare decision problem, and the same "
+         "sensitivity-analysis steps—rate adjustment to remove size confounding, measured-"
+         "only panels to avoid interpolation, equivalence testing with policy-relevant "
+         "margins, and small-cluster inference—can be applied to other proposed levers, "
+         "such as fee schedules, regional quotas, or training subsidies. The analytic "
+         "contribution is therefore not the malpractice finding itself but a transparent, "
+         "reproducible workflow that helps decision-makers distinguish meaningful "
+         "workforce effects from spurious count- or interpolation-based associations.")
+
     head(doc, "Limitations", level=2)
     body(doc,
          f"This is an ecological, specialty-level analysis and cannot speak to "
@@ -834,8 +856,8 @@ def build_title_page(main_word_count):
     t.alignment = WD_ALIGN_PARAGRAPH.CENTER
     t.paragraph_format.space_after = Pt(18)
     rt = t.add_run(
-        "Litigation risk and specialty-level physician workforce in Japan, "
-        f"{YEARS}: a rate-based analysis with equivalence testing"
+        "Litigation risk and specialty-level physician workforce allocation in Japan, "
+        f"{YEARS}: a sensitivity-analysis framework with equivalence testing"
     )
     rt.bold = True
     rt.font.size = Pt(15)
@@ -911,8 +933,8 @@ def build_cover_letter():
 
     paragraphs = [
         f'We submit an original research article, "Litigation risk and specialty-level '
-        f'physician workforce in Japan, {YEARS}: a rate-based analysis with '
-        f'equivalence testing", for consideration by Healthcare Analytics.',
+        f'physician workforce allocation in Japan, {YEARS}: a sensitivity-analysis '
+        f'framework with equivalence testing", for consideration by Healthcare Analytics.',
         "Healthcare Analytics advances data-driven analytics for healthcare decisions. "
         "Our study treats specialty physician workforce planning as a healthcare "
         "resource-allocation problem and uses it as a test case for a transparent, "
@@ -958,8 +980,8 @@ def build_supplementary():
     doc = _setup_doc()
     head(doc, "Supplementary material", level=1)
 
-    para(doc, f"Supplementary Figure 1. Closed malpractice claims per {_per} physicians by "
-              f"specialty, 2008\u20132024 (rates, not counts).")
+    para(doc, "Supplementary Figure 1. Sensitivity-analysis framework for evaluating "
+              "malpractice-litigation risk as a healthcare workforce-allocation lever.")
     p = doc.add_paragraph()
     p.alignment = WD_ALIGN_PARAGRAPH.CENTER
     img = os.path.join(OUT, "ha_Supplementary_Figure_1.png")
@@ -967,10 +989,19 @@ def build_supplementary():
         p.add_run().add_picture(img, width=Inches(5.8))
     doc.add_paragraph()
 
-    para(doc, "Supplementary Figure 2. Physician workforce by specialty, indexed to 2008 (=100).")
+    para(doc, f"Supplementary Figure 2. Closed malpractice claims per {_per} physicians by "
+              f"specialty, 2008\u20132024 (rates, not counts).")
     p = doc.add_paragraph()
     p.alignment = WD_ALIGN_PARAGRAPH.CENTER
     img = os.path.join(OUT, "ha_Supplementary_Figure_2.png")
+    if os.path.exists(img):
+        p.add_run().add_picture(img, width=Inches(5.8))
+    doc.add_paragraph()
+
+    para(doc, "Supplementary Figure 3. Physician workforce by specialty, indexed to 2008 (=100).")
+    p = doc.add_paragraph()
+    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    img = os.path.join(OUT, "ha_Supplementary_Figure_3.png")
     if os.path.exists(img):
         p.add_run().add_picture(img, width=Inches(5.8))
     doc.add_paragraph()
@@ -1089,8 +1120,10 @@ def build_figure_pptx():
     ]
     supp_figs = [
         ("ha_Supplementary_Figure_1.png", "Supplementary Figure 1",
-         f"Closed malpractice claims per {_per} physicians by specialty, 2008\u20132024 (rates, not counts)."),
+         "Sensitivity-analysis framework for evaluating malpractice-litigation risk as a healthcare workforce-allocation lever."),
         ("ha_Supplementary_Figure_2.png", "Supplementary Figure 2",
+         f"Closed malpractice claims per {_per} physicians by specialty, 2008\u20132024 (rates, not counts)."),
+        ("ha_Supplementary_Figure_3.png", "Supplementary Figure 3",
          "Physician workforce by specialty, indexed to 2008 (=100)."),
     ]
 
@@ -1131,6 +1164,7 @@ def prepare_figures():
     required = [
         "ha_Figure_1.png", "ha_Figure_2.png",
         "ha_Supplementary_Figure_1.png", "ha_Supplementary_Figure_2.png",
+        "ha_Supplementary_Figure_3.png",
     ]
     for fn in required:
         path = os.path.join(OUT, fn)
@@ -1154,6 +1188,7 @@ def create_submission_zip():
         os.path.join(OUT, "ha_Figure_2.png"),
         os.path.join(OUT, "ha_Supplementary_Figure_1.png"),
         os.path.join(OUT, "ha_Supplementary_Figure_2.png"),
+        os.path.join(OUT, "ha_Supplementary_Figure_3.png"),
     ]
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as z:
         for path in files:

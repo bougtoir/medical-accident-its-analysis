@@ -157,6 +157,40 @@ def plot_counts_vs_rates(P, L, bien, outfile, title, colored=True):
     _save(fig, outfile)
 
 
+def plot_workflow(outfile, title):
+    """Schematic of the sensitivity-analysis framework for evaluating a policy lever."""
+    fig, ax = plt.subplots(figsize=(9, 10))
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    ax.axis("off")
+
+    def box(text, y, w=0.78, color="#f7f7f7"):
+        ax.annotate(text, xy=(0.5, y), xycoords="data",
+                    ha="center", va="center",
+                    fontsize=10, wrap=False,
+                    bbox=dict(boxstyle="round,pad=0.5", fc=color, ec="black", lw=1.2))
+
+    def arrow(y1, y2):
+        ax.annotate("", xy=(0.5, y2), xytext=(0.5, y1),
+                    arrowprops=dict(arrowstyle="->", color="black", lw=1.2))
+
+    # Framework boxes
+    box("Policy question\nDoes malpractice-litigation risk alter specialty-level\nphysician workforce allocation?", 0.93)
+    arrow(0.89, 0.83)
+    box("Healthcare workforce allocation\nas a resource-allocation decision\n(policy lever: litigation risk)", 0.80, color="#e8e8e8")
+    arrow(0.77, 0.71)
+    box("Two observational fallacies to avoid\n• Counts are confounded by specialty size\n• Interpolation inflates apparent panel size", 0.67)
+    arrow(0.63, 0.57)
+    box("Primary analytical choices\n• Exposure: rate per 1,000 physicians\n• Frequency: measured biennial waves\n• Model: specialty + wave fixed effects\n• Cluster-robust SEs (G=12; df=G-1=11)\n• Equivalence testing (TOST) with ±1% / ±2% margins", 0.51)
+    arrow(0.45, 0.37)
+    box("Sensitivity-analysis dimensions\n1. Counts vs. rates\n2. Biennial vs. interpolated-annual physician data\n3. Annual hospital data\n4. JMSR report rate, media coverage, JOCS-CP indicator", 0.31)
+    arrow(0.25, 0.17)
+    box("Decision-relevant conclusion\nLitigation risk is statistically equivalent to a null effect;\nstructural workforce incentives are more plausible levers.", 0.13, color="#e8e8e8")
+
+    ax.set_title(title, fontsize=12, pad=15)
+    _save(fig, outfile)
+
+
 def main():
     P, L, H = (load("physicians_by_specialty.csv"),
                load("litigation_by_specialty.csv"),
@@ -178,6 +212,10 @@ def main():
         P, L, bien, "fig4_counts_vs_rates.png",
         "Figure 4. Counts vs. rates: association disappears under size adjustment",
         colored=False)
+    plot_workflow(
+        "fig5_workflow.png",
+        "Figure 5. Sensitivity-analysis framework for evaluating litigation risk "
+        "as a healthcare workforce-allocation lever.")
 
     # Healthcare Analytics-specific figures with correct numbering
     plot_equivalence(
@@ -187,14 +225,18 @@ def main():
         P, L, bien, "ha_Figure_2.png",
         "Figure 2. Counts vs. rates: association disappears under size adjustment",
         colored=True)
+    plot_workflow(
+        "ha_Supplementary_Figure_1.png",
+        "Supplementary Figure 1. Sensitivity-analysis framework for evaluating "
+        "litigation risk as a healthcare workforce-allocation lever.")
     plot_litigation_rate(
-        P, L, bien, "ha_Supplementary_Figure_1.png",
-        "Supplementary Figure 1. Litigation rate by specialty (rate, not count), 2008–2024")
+        P, L, bien, "ha_Supplementary_Figure_2.png",
+        "Supplementary Figure 2. Litigation rate by specialty (rate, not count), 2008–2024")
     plot_physician_index(
-        P, bien, "ha_Supplementary_Figure_2.png",
-        "Supplementary Figure 2. Physician workforce by specialty, indexed to 2008")
+        P, bien, "ha_Supplementary_Figure_3.png",
+        "Supplementary Figure 3. Physician workforce by specialty, indexed to 2008")
 
-    print("wrote fig1-4 and ha_* figure files to", OUT)
+    print("wrote fig1-5 and ha_* figure files to", OUT)
 
 
 if __name__ == "__main__":
