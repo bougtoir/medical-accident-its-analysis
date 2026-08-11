@@ -189,12 +189,17 @@
       "n_waves": 8,
       "coef": -0.0009357623030693467,
       "se": 0.0015413346931402673,
-      "ci_low": -0.003956722789746367,
-      "ci_high": 0.0020851981836076732,
-      "p": 0.5437767958912558,
+      "t": -0.6071116852387548,
+      "df": 11,
+      "ci_low": -0.004328217089392081,
+      "ci_high": 0.0024566924832533873,
+      "p": 0.5561010210584092,
       "direction": "negative",
       "jocscp_coef": -0.014736850310984808,
-      "jocscp_p": 0.22315187302649309
+      "jocscp_se": 0.01209733564435723,
+      "jocscp_t": -1.2181897522086835,
+      "jocscp_df": 11,
+      "jocscp_p": 0.24863567188932603
     },
     {
       "label": "Biennial hospital growth ~ lagged litigation rate",
@@ -205,17 +210,24 @@
       "n_waves": 8,
       "coef": 0.00030863288570044363,
       "se": 0.0024125675857588186,
-      "ci_low": -0.004419912692655589,
-      "ci_high": 0.005037178464056477,
-      "p": 0.8982066281691967,
+      "t": 0.1279271459677554,
+      "df": 11,
+      "ci_low": -0.005001392568251863,
+      "ci_high": 0.005618658339652751,
+      "p": 0.9005154208030596,
       "direction": "positive",
       "jocscp_coef": 0.024208310785256745,
-      "jocscp_p": 0.00316132391861155
+      "jocscp_se": 0.008201759256445548,
+      "jocscp_t": 2.9515997761373045,
+      "jocscp_df": 11,
+      "jocscp_p": 0.013171659711580455
     },
     {
       "label": "Reverse: change in litigation rate ~ lagged log physicians",
       "coef": 0.09652733126369917,
-      "p": 0.846386308330943,
+      "se": 0.49825375583337694,
+      "df": 11,
+      "p": 0.849917384941799,
       "n_obs": 96
     }
   ],
@@ -229,12 +241,17 @@
       "n_waves": 8,
       "coef": 0.00020775270399208247,
       "se": 0.0003021012453209574,
-      "ci_low": -0.00038435485652169347,
-      "ci_high": 0.0007998602645058584,
-      "p": 0.4916465620981857,
+      "t": 0.6876923124608856,
+      "df": 11,
+      "ci_low": -0.00045716765380192316,
+      "ci_high": 0.0008726730617860881,
+      "p": 0.5058885072954538,
       "direction": "positive",
       "jocscp_coef": -0.0048778287926549285,
-      "jocscp_p": 0.3704084867129239
+      "jocscp_se": 0.0054457772459397214,
+      "jocscp_t": -0.895708467747511,
+      "jocscp_df": 11,
+      "jocscp_p": 0.3895888194505279
     },
     {
       "label": "Annual hospital growth ~ lagged litigation rate (2008-2024)",
@@ -245,12 +262,17 @@
       "n_waves": 16,
       "coef": 1.3417699138745538e-05,
       "se": 0.0017397204526948566,
-      "ci_low": -0.003396371731310892,
-      "ci_high": 0.003423207129588383,
-      "p": 0.9938463281084339,
+      "t": 0.0077125604392138366,
+      "df": 11,
+      "ci_low": -0.0038156811999354237,
+      "ci_high": 0.0038425165982129148,
+      "p": 0.993984425915641,
       "direction": "positive",
       "jocscp_coef": 0.0031103657481271344,
-      "jocscp_p": 0.6560750782316531
+      "jocscp_se": 0.0069842716572653864,
+      "jocscp_t": 0.44533859803284964,
+      "jocscp_df": 11,
+      "jocscp_p": 0.6647119609416088
     },
     {
       "label": "SENSITIVITY interpolated-annual physician growth ~ lag rate",
@@ -261,12 +283,17 @@
       "n_waves": 16,
       "coef": -0.0009672079207747033,
       "se": 0.0010788872979515434,
-      "ci_low": -0.003081788168137463,
-      "ci_high": 0.0011473723265880563,
-      "p": 0.3699929758211248,
+      "t": -0.8964865214477148,
+      "df": 11,
+      "ci_low": -0.003341822852968041,
+      "ci_high": 0.0014074070114186345,
+      "p": 0.38919117357230126,
       "direction": "negative",
       "jocscp_coef": -0.008606695866408057,
-      "jocscp_p": 0.12251844439207095,
+      "jocscp_se": 0.005573243322145245,
+      "jocscp_t": -1.5442885531678492,
+      "jocscp_df": 11,
+      "jocscp_p": 0.15078431045137958,
       "note": "physicians linearly interpolated between the 9 measured biennial waves; standard errors are clustered by specialty so inference df = clusters - 1 = 11 and the interpolated observation count does not inflate the degrees of freedom"
     },
     {
@@ -277,10 +304,10 @@
       "n_waves": 9,
       "lit_coef": 0.0021078718819725357,
       "lit_se": 0.0018683004319022568,
-      "lit_p": 0.2592229587311491,
+      "lit_p": 0.2832294487030226,
       "med_coef": -0.00094463105072919,
       "med_se": 0.0021183031247939904,
-      "med_p": 0.6556423076565263,
+      "med_p": 0.6642922984823505,
       "r_lit_med": 0.21370199719387165
     },
     {
@@ -291,10 +318,10 @@
       "n_waves": 10,
       "lit_coef": -0.0003073727471535207,
       "lit_se": 0.0008297673996217527,
-      "lit_p": 0.7110603203496112,
+      "lit_p": 0.7180943944576983,
       "media_coef": -0.0013582431399635263,
       "media_se": 0.0010179825559721778,
-      "media_p": 0.18212196549998982,
+      "media_p": 0.20908541527810545,
       "r_lit_media": 0.10376940681120421
     }
   ],
@@ -385,5 +412,55 @@
     "panel_p": 0.19020484565396334,
     "n_total": 11,
     "n_panel": 132
+  },
+  "multiple_comparison": {
+    "note": "Holm step-down adjustment applied to exploratory sensitivity tests and the JOCS-CP indicator; primary equivalence tests are confirmatory and not included in this family.",
+    "tests": [
+      {
+        "label": "Biennial physician growth ~ lagged litigation rate (JOCS-CP indicator)",
+        "raw_p": 0.24863567188932603,
+        "holm_p": 1.0
+      },
+      {
+        "label": "Biennial hospital growth ~ lagged litigation rate (JOCS-CP indicator)",
+        "raw_p": 0.013171659711580455,
+        "holm_p": 0.11854493740422409
+      },
+      {
+        "label": "COUNTS contrast: physician growth ~ lagged litigation COUNT",
+        "raw_p": 0.5058885072954538,
+        "holm_p": 1.0
+      },
+      {
+        "label": "Annual hospital growth ~ lagged litigation rate (2008-2024)",
+        "raw_p": 0.993984425915641,
+        "holm_p": 1.0
+      },
+      {
+        "label": "SENSITIVITY interpolated-annual physician growth ~ lag rate",
+        "raw_p": 0.38919117357230126,
+        "holm_p": 1.0
+      },
+      {
+        "label": "JMSR-adjusted annual hospital growth (2016-2024) ~ lit rate + JMSR rate (litigation rate)",
+        "raw_p": 0.2832294487030226,
+        "holm_p": 1.0
+      },
+      {
+        "label": "JMSR-adjusted annual hospital growth (2016-2024) ~ lit rate + JMSR rate (JMSR report rate)",
+        "raw_p": 0.6642922984823505,
+        "holm_p": 1.0
+      },
+      {
+        "label": "Media-adjusted annual hospital growth (2009-2018) ~ lit rate + media count (litigation rate)",
+        "raw_p": 0.7180943944576983,
+        "holm_p": 1.0
+      },
+      {
+        "label": "Media-adjusted annual hospital growth (2009-2018) ~ lit rate + media count (media count)",
+        "raw_p": 0.20908541527810545,
+        "holm_p": 1.0
+      }
+    ]
   }
 }

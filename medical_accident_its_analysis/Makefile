@@ -2,9 +2,9 @@
 # Every reported number is regenerated from data_primary/ and results/.
 PY=python3
 
-.PHONY: all data analysis manuscript clean
+.PHONY: all data analysis figures clean
 
-all: data analysis manuscript
+all: data analysis figures
 
 data:
 	$(PY) data_primary/build_physicians.py
@@ -14,16 +14,8 @@ data:
 analysis: data
 	$(PY) data_primary/build_reanalysis.py
 
-manuscript: analysis
+figures: analysis
 	$(PY) manuscript/build_figures_en.py
-	$(PY) manuscript/build_manuscript_en.py
-	$(PY) manuscript/build_package_en.py
-
-hp_submission: manuscript
-	$(PY) manuscript/build_hp_submission.py
-
-ha_submission: manuscript
-	$(PY) manuscript/build_healthcare_analytics_submission.py
 
 clean:
 	rm -rf data_primary/__pycache__ manuscript/__pycache__
