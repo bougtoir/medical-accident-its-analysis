@@ -470,11 +470,11 @@ def build_manuscript():
          "series were also used: annual medical accident investigation reports by "
          "specialty from the Japan Medical Safety Research Organisation (JMSR, 2015-2024){jmsr_data} "
          f"and total national newspaper article counts from Nikkei Telecom 21 "
-         "(2004-2018; the sensitivity analysis uses 2009-2018; keywords: medical accident + medical malpractice).{nikkei} "
+         "(2004-2018; the sensitivity analysis uses 2009-2018; keywords: medical error + medical malpractice).{nikkei} "
          f"The full extraction pipeline (with source identifiers and SHA-256 checksums) is "
          f"documented in the accompanying repository ({PUBLIC_REPO}).")
     body(doc,
-         "Physician counts use the principal-specialty classification; broad categories were matched to the Supreme Court's "
+         "Physician counts use the principal specialty classification; broad categories were matched to the Supreme Court's "
          "specialty labels, and subspecialties were aggregated in code. Because the "
          "Court assigns multi-specialty cases to a single principal specialty and states "
          "that the counts do not represent the intrinsic risk of each specialty, we "
@@ -641,7 +641,7 @@ def build_manuscript():
     body(doc,
          f"Finally, we tested national newspaper coverage from Nikkei Telecom 21 as a "
          f"potential confounder.{{nikkei}} Total annual article counts (keywords: "
-         f"medical accident + medical malpractice) and total litigation counts were correlated "
+         f"medical error + medical malpractice) and total litigation counts were correlated "
          f"(Pearson r={MEDIA_CORR['total_r']:.2f}), consistent with greater public attention in "
          f"high-litigation years. Within the annual hospital panel, however, the lagged "
          "litigation rate and the media-count series were only weakly correlated. "
