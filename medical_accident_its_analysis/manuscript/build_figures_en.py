@@ -36,11 +36,16 @@ def _save(fig, outfile):
     plt.close(fig)
 
 
+def _specialty_color(i, n=len(CORE)):
+    """Return a distinct color for specialty i from a 20-color qualitative map."""
+    return plt.cm.tab20(i / max(n - 1, 1))
+
+
 def plot_litigation_rate(P, L, bien, outfile, title):
     fig, ax = plt.subplots(figsize=(9, 6))
-    for s in CORE:
+    for i, s in enumerate(CORE):
         rate = [1000.0 * L.loc[s, y] / P.loc[s, y] for y in bien]
-        ax.plot(bien, rate, marker="o", ms=3, label=EN[s])
+        ax.plot(bien, rate, marker="o", ms=3, label=EN[s], color=_specialty_color(i))
     ax.set_xlabel("Year")
     ax.set_ylabel("Closed malpractice claims per 1,000 physicians")
     ax.set_title(title)
@@ -51,10 +56,10 @@ def plot_litigation_rate(P, L, bien, outfile, title):
 
 def plot_physician_index(P, bien, outfile, title):
     fig, ax = plt.subplots(figsize=(9, 6))
-    for s in CORE:
+    for i, s in enumerate(CORE):
         base = P.loc[s, bien[0]]
         idx = [100.0 * P.loc[s, y] / base for y in bien]
-        ax.plot(bien, idx, marker="o", ms=3, label=EN[s])
+        ax.plot(bien, idx, marker="o", ms=3, label=EN[s], color=_specialty_color(i))
     ax.axhline(100, color="k", lw=0.8, ls="--")
     ax.set_xlabel("Year")
     ax.set_ylabel("Physicians (2008 = 100)")
@@ -91,8 +96,6 @@ def plot_counts_vs_rates(P, L, bien, outfile, title, colored=True):
     the reader can identify which specialties drive any apparent outliers.
     """
     dgrow = {}
-    colors = {}
-    cmap = plt.cm.tab10 if colored else None
     for i, s in enumerate(CORE):
         for j, y in enumerate(bien[1:], 1):
             g = np.log(P.loc[s, y]) - np.log(P.loc[s, bien[j-1]])
@@ -102,20 +105,17 @@ def plot_counts_vs_rates(P, L, bien, outfile, title, colored=True):
             dgrow.setdefault("cnt", []).append(cnt)
             dgrow.setdefault("rate", []).append(rate)
             dgrow.setdefault("specialty", []).append(s)
-            if colored:
-                colors.setdefault("cnt", []).append(i)
-                colors.setdefault("rate", []).append(i)
-
     fig, axs = plt.subplots(1, 2, figsize=(11, 5))
     if colored:
         for i, s in enumerate(CORE):
             mask = np.array(dgrow["specialty"]) == s
+            color = _specialty_color(i)
             axs[0].scatter(np.array(dgrow["cnt"])[mask],
                            np.array(dgrow["g"])[mask], s=20, alpha=0.7,
-                           label=EN[s], color=cmap(i / max(len(CORE) - 1, 1)))
+                           label=EN[s], color=color)
             axs[1].scatter(np.array(dgrow["rate"])[mask],
                            np.array(dgrow["g"])[mask], s=20, alpha=0.7,
-                           color=cmap(i / max(len(CORE) - 1, 1)))
+                           color=color)
         axs[0].legend(fontsize=6, ncol=2, loc="upper right")
     else:
         axs[0].scatter(dgrow["cnt"], dgrow["g"], s=12, alpha=0.6)
