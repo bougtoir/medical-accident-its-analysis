@@ -36,16 +36,37 @@ def _save(fig, outfile):
     plt.close(fig)
 
 
-def _specialty_color(i, n=len(CORE)):
-    """Return a distinct color for specialty i from a 20-color qualitative map."""
-    return plt.cm.tab20(i / max(n - 1, 1))
+# Distinct visual styles for 12 specialties.  Colours are taken from the dark
+# half of tab20 first, then two light indices, so no adjacent dark/light pair
+# collides.  Markers and line styles ensure the figures remain interpretable
+# in black-and-white print or for colour-vision-deficient readers.
+_COLOR_IDX = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 1, 3]
+_MARKERS = ["o", "s", "^", "v", "D", "P", "X", "*", "h", "p", "<", ">"]
+_LINESTYLES = ["-", "--", "-.", ":", (0, (5, 1)), (0, (3, 1, 1, 1)),
+               (0, (1, 1)), (0, (5, 5)), (0, (5, 1, 1, 1, 1, 1)),
+               (0, (3, 3)), (0, (10, 2)), (0, (1, 3))]
+
+
+def _specialty_color(i):
+    """Return a distinct colour for specialty i."""
+    return plt.cm.tab20(_COLOR_IDX[i] / 19)
+
+
+def _specialty_marker(i):
+    return _MARKERS[i % len(_MARKERS)]
+
+
+def _specialty_linestyle(i):
+    return _LINESTYLES[i % len(_LINESTYLES)]
 
 
 def plot_litigation_rate(P, L, bien, outfile, title):
     fig, ax = plt.subplots(figsize=(9, 6))
     for i, s in enumerate(CORE):
         rate = [1000.0 * L.loc[s, y] / P.loc[s, y] for y in bien]
-        ax.plot(bien, rate, marker="o", ms=3, label=EN[s], color=_specialty_color(i))
+        ax.plot(bien, rate, marker=_specialty_marker(i), ms=4, mfc="none",
+                mew=0.8, label=EN[s], color=_specialty_color(i),
+                ls=_specialty_linestyle(i), lw=1.2)
     ax.set_xlabel("Year")
     ax.set_ylabel("Closed malpractice claims per 1,000 physicians")
     ax.set_title(title)
@@ -59,7 +80,9 @@ def plot_physician_index(P, bien, outfile, title):
     for i, s in enumerate(CORE):
         base = P.loc[s, bien[0]]
         idx = [100.0 * P.loc[s, y] / base for y in bien]
-        ax.plot(bien, idx, marker="o", ms=3, label=EN[s], color=_specialty_color(i))
+        ax.plot(bien, idx, marker=_specialty_marker(i), ms=4, mfc="none",
+                mew=0.8, label=EN[s], color=_specialty_color(i),
+                ls=_specialty_linestyle(i), lw=1.2)
     ax.axhline(100, color="k", lw=0.8, ls="--")
     ax.set_xlabel("Year")
     ax.set_ylabel("Physicians (2008 = 100)")
@@ -110,13 +133,15 @@ def plot_counts_vs_rates(P, L, bien, outfile, title, colored=True):
         for i, s in enumerate(CORE):
             mask = np.array(dgrow["specialty"]) == s
             color = _specialty_color(i)
+            marker = _specialty_marker(i)
+            kw = dict(s=35, alpha=0.85, marker=marker, edgecolors="black",
+                      facecolors=color, linewidths=0.6, label=EN[s])
             axs[0].scatter(np.array(dgrow["cnt"])[mask],
-                           np.array(dgrow["g"])[mask], s=20, alpha=0.7,
-                           label=EN[s], color=color)
+                           np.array(dgrow["g"])[mask], **kw)
             axs[1].scatter(np.array(dgrow["rate"])[mask],
-                           np.array(dgrow["g"])[mask], s=20, alpha=0.7,
-                           color=color)
+                           np.array(dgrow["g"])[mask], **kw)
         axs[0].legend(fontsize=6, ncol=2, loc="upper right")
+        axs[1].legend(fontsize=6, ncol=2, loc="upper right")
     else:
         axs[0].scatter(dgrow["cnt"], dgrow["g"], s=12, alpha=0.6)
         axs[1].scatter(dgrow["rate"], dgrow["g"], s=12, alpha=0.6, color="green")

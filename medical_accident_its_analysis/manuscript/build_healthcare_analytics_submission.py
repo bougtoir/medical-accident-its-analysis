@@ -334,30 +334,31 @@ def build_manuscript():
 
     # Abstract (unstructured, <=250 words)
     abstract_text = (
-        "Specialty maldistribution in Japan has raised concern that malpractice "
-        "litigation drives physicians from high-risk specialties. We examined "
-        "whether specialty-level litigation risk predicts later physician or "
-        f"hospital decline. Using national primary data for {N_SPEC} specialties "
-        f"({BIEN[0]}\u2013{BIEN[-1]}), we measured exposure as closed malpractice "
-        f"claims per {_per} physicians (rate, not count) and regressed biennial "
-        "log-change in physicians and hospitals on the lagged litigation rate in "
-        "a panel with specialty and wave fixed effects, cluster-robust standard "
+        "Specialty maldistribution is a healthcare workforce allocation problem "
+        "in Japan, where policy discussions often assume that malpractice-litigation "
+        "risk pushes physicians away from high-risk specialties. We used this "
+        "question as a test case for a transparent, reproducible sensitivity-analysis "
+        "framework that evaluates a proposed policy lever while avoiding size "
+        "confounding and interpolation of sparse panels. Using national primary data "
+        f"for {N_SPEC} specialties ({BIEN[0]}\u2013{BIEN[-1]}), we measured exposure as "
+        f"closed malpractice claims per {_per} physicians (rate, not count) and regressed "
+        "biennial log-change in physicians and hospitals on the lagged litigation rate "
+        "in a panel with specialty and wave fixed effects, cluster-robust standard "
         "errors, small-cluster t(G-1) inference, and two one-sided equivalence "
         f"(TOST) tests. The workforce grew in {GREW} of {N_SPEC} specialties; "
-        f"{SURG_DESC}, was the exception. Litigation rate was not associated "
-        f"with physician growth (coefficient {fmt(PHYS['coef'],4)}; 95% CI "
-        f"{fmt(PHYS['ci_low'],4)} to {fmt(PHYS['ci_high'],4)}; p={PHYS['p']:.2f}) "
-        f"or hospital growth (p={HOSP['p']:.2f}). A one-SD higher rate changed "
-        f"physician growth by less than \u00b1{MARGIN1}% (TOST p={p_tost_fmt(EQP['tests'][0]['p_tost'])}; "
-        f"less than \u00b1{MARGIN2}%, p={p_tost_fmt(EQP['tests'][1]['p_tost'])}; hospital growth was "
-        f"within \u00b1{MARGIN2}% (p={p_tost_fmt(EQH['tests'][1]['p_tost'])}) but not the stricter "
+        f"{SURG_DESC}, was the exception. Litigation rate was not associated with "
+        f"physician growth (coefficient {fmt(PHYS['coef'],4)}; 95% CI "
+        f"{fmt(PHYS['ci_low'],4)} to {fmt(PHYS['ci_high'],4)}; p={PHYS['p']:.2f}) or hospital "
+        f"growth (p={HOSP['p']:.2f}). A one-SD higher rate changed physician growth "
+        f"by less than \u00b1{MARGIN1}% (TOST p={p_tost_fmt(EQP['tests'][0]['p_tost'])}; "
+        f"less than \u00b1{MARGIN2}% was p={p_tost_fmt(EQP['tests'][1]['p_tost'])}); hospital growth "
+        f"was within \u00b1{MARGIN2}% (p={p_tost_fmt(EQH['tests'][1]['p_tost'])}) but not the stricter "
         f"\u00b1{MARGIN1}% margin (p={p_tost_fmt(EQH['tests'][0]['p_tost'])}). Sensitivity analyses "
         f"were unchanged and per-specialty rank correlations were mostly positive "
-        f"({n_pos}/{N_SPEC}) and none significant. Specialty-level litigation risk "
-        "in Japan is not associated with workforce decline and is statistically "
-        "equivalent to a null effect for physicians. These findings, drawn from "
-        "one health system, suggest that structural workforce incentives, rather "
-        "than litigation-avoidance messaging, warrant analytical attention."
+        f"({n_pos}/{N_SPEC}) and none significant. Specialty-level litigation risk is "
+        "not associated with workforce decline and is statistically equivalent to a "
+        "null effect for physicians. The framework is exportable to other policy "
+        "levers in healthcare workforce allocation."
     )
     abstract_wc = wc(abstract_text)
     if abstract_wc > 250:
@@ -401,9 +402,10 @@ def build_manuscript():
          "analysing it as if each year were an independent observation inflates the "
          "degrees of freedom of any lag-based method. These pitfalls are not unique to "
          "malpractice research; they arise whenever administrative counts are used to "
-         "infer behavioural responses in healthcare organisations. The "
-         "litigation-workforce question is therefore also a test case for a transparent, "
-         "reproducible health-analytics workflow.")
+         "infer behavioural responses in healthcare organisations. We therefore "
+         "treat the litigation-workforce question as a test case for a transparent, "
+         "reproducible sensitivity-analysis framework for healthcare workforce "
+         "allocation decisions.")
     body(doc,
          "We therefore examined the question using rates rather than counts, using "
          "only measured biennial physician observations, and using equivalence testing\u2014"
@@ -445,6 +447,11 @@ def build_manuscript():
 
     head(doc, "Statistical analysis", level=2)
     body(doc,
+         "We formalised the evaluation as a sensitivity-analysis framework that varies the "
+         "exposure definition (counts versus rates), panel frequency (measured biennial "
+         "waves versus interpolated annual values), and potential confounders (JMSR reports, "
+         "media coverage, JOCS-CP period) while holding the specialty-level panel "
+         "structure constant. "
          f"The exposure was the litigation rate, defined as closed claims per {_per} "
          "physicians in each specialty-year, which removes specialty-size confounding "
          "because large specialties generate more claims for reasons unrelated to "
@@ -453,15 +460,13 @@ def build_manuscript():
          "biennial log-change in physicians (and, separately, in hospitals) and regressed "
          "it on the litigation rate at the start of the interval, in a panel with specialty "
          "and wave fixed effects and standard errors clustered by specialty.{angrist} "
-         "Fixed effects absorb time-invariant specialty characteristics and common "
-         "shocks, so identification comes from within-specialty deviations in litigation "
-         "rate over time.")
+         f"Clusters are defined by specialty, so G={N_SPEC} and the small-cluster correction "
+         "uses a t-distribution with G-1 degrees of freedom for all cluster-robust inference.")
     body(doc,
          "We standardised the litigation-rate exposure for the equivalence analysis so "
          "the coefficient gives the expected biennial log-change per one-SD increase in "
-         "the exposure. Because only 12 specialties provide clusters, all reported "
-         "confidence intervals and two-sided p-values use a t-distribution with "
-         f"G-1 = {PHYS['df']} degrees of freedom, the small-cluster correction recommended "
+         "the exposure. All reported confidence intervals and two-sided p-values use a "
+         f"t-distribution with G-1 = {PHYS['df']} degrees of freedom, the small-cluster correction recommended "
          "by Cameron and Miller.{cameron2015} We assessed equivalence to a null effect "
          "using two one-sided tests (TOST).{lakens,schuir} We pre-specified margins of "
          f"\u00b1{MARGIN1}% and \u00b1{MARGIN2}% biennial workforce change because they are "
@@ -614,9 +619,10 @@ def build_manuscript():
          "A null result is not merely a failure to detect an effect. The narrow "
          "confidence intervals and pre-specified equivalence margins allow us to say "
          "that, if litigation risk does influence specialty-level workforce growth, "
-         "the magnitude is too small to matter for workforce planning. This is an "
-         "important distinction for policy debates that treat malpractice pressure as "
-         "a major driver of physician distribution.")
+         "the magnitude is too small to matter for workforce planning. Across the "
+         "sensitivity analyses, neither alternative exposure definitions, interpolation, "
+         "nor potential confounders changed this conclusion, which is the main value "
+         "of the framework for healthcare workforce allocation decisions.")
     body(doc,
          "The raw-count sensitivity in our study did not recover a negative association, "
          "indicating that size confounding and interpolation are sufficient to produce "
@@ -749,7 +755,10 @@ def build_manuscript():
          f"individual career decisions. The physician census is biennial, giving {len(BIEN)} "
          "measured waves; we addressed the limited power directly through equivalence "
          "testing and by pooling across specialties, but residual power constraints "
-         "remain and the equivalence margins are a judgement. Specialty-specific "
+         "remain and the equivalence margins are a judgement. Because clusters are "
+         f"defined by the {N_SPEC} specialties, the small-cluster correction uses G-1={PHYS['df']} "
+         "degrees of freedom; this is the minimum at which cluster-robust t inference is "
+         "recommended and is inherent to the data. Specialty-specific "
          f"litigation counts could be recovered only from {BIEN[0]}; pre-{BIEN[0]} specialty tables were "
          "not retrievable from primary sources. Clinic counts by specialty are "
          f"published only every {CLINIC_RES} years and were used descriptively. JMSR "
@@ -905,12 +914,13 @@ def build_cover_letter():
         f'physician workforce in Japan, {YEARS}: a rate-based analysis with '
         f'equivalence testing", for consideration by Healthcare Analytics.',
         "Healthcare Analytics advances data-driven analytics for healthcare decisions. "
-        "Our study treats specialty workforce maldistribution as a resource-allocation "
-        "problem and applies a transparent, reproducible health-analytics pipeline "
-        "to answer whether malpractice-litigation risk drives physicians away from "
-        "high-risk specialties. The analytical contribution is diagnostic: we show how "
-        "two common observational fallacies—size confounding and interpolation of sparse "
-        "panel data—can be identified and removed when evaluating a proposed policy lever.",
+        "Our study treats specialty physician workforce planning as a healthcare "
+        "resource-allocation problem and uses it as a test case for a transparent, "
+        "reproducible sensitivity-analysis framework. The analytical contribution is "
+        "diagnostic: we show how two common observational fallacies—size confounding and "
+        "interpolation of sparse panel data—can be identified and removed when a proposed "
+        "policy lever (malpractice-litigation risk) is evaluated against physician "
+        "workforce outcomes.",
         f"Using national primary data for {N_SPEC} clinical specialties in Japan, we "
         "measure exposure as a size-adjusted rate (closed malpractice claims per "
         f"{_per} physicians) and estimate panel fixed-effects models with equivalence "
