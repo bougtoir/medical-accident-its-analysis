@@ -678,7 +678,7 @@ def build_manuscript():
          "illustrating that the apparent count-litigation relationship does not translate into "
          "a behavioural effect once specialty size is accounted for (Figure 2). This is a "
          "cautionary example for workforce research that pairs administrative count series, "
-         "and it underscores why rate-based, measured-only designs are preferable when testing "
+         "and shows why rate-based, measured-only designs are preferable when testing "
          "litigation-workforce hypotheses.")
     body(doc,
          "International evidence on tort reform and physician supply is consistent "
