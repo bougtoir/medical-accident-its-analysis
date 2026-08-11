@@ -36,11 +36,37 @@ def _save(fig, outfile):
     plt.close(fig)
 
 
+# Distinct visual styles for 12 specialties.  Colours are taken from the dark
+# half of tab20 first, then two light indices, so no adjacent dark/light pair
+# collides.  Markers and line styles ensure the figures remain interpretable
+# in black-and-white print or for colour-vision-deficient readers.
+_COLOR_IDX = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 1, 3]
+_MARKERS = ["o", "s", "^", "v", "D", "P", "X", "*", "h", "p", "<", ">"]
+_LINESTYLES = ["-", "--", "-.", ":", (0, (5, 1)), (0, (3, 1, 1, 1)),
+               (0, (1, 1)), (0, (5, 5)), (0, (5, 1, 1, 1, 1, 1)),
+               (0, (3, 3)), (0, (10, 2)), (0, (1, 3))]
+
+
+def _specialty_color(i):
+    """Return a distinct colour for specialty i."""
+    return plt.cm.tab20(_COLOR_IDX[i] / 19)
+
+
+def _specialty_marker(i):
+    return _MARKERS[i % len(_MARKERS)]
+
+
+def _specialty_linestyle(i):
+    return _LINESTYLES[i % len(_LINESTYLES)]
+
+
 def plot_litigation_rate(P, L, bien, outfile, title):
     fig, ax = plt.subplots(figsize=(9, 6))
-    for s in CORE:
+    for i, s in enumerate(CORE):
         rate = [1000.0 * L.loc[s, y] / P.loc[s, y] for y in bien]
-        ax.plot(bien, rate, marker="o", ms=3, label=EN[s])
+        ax.plot(bien, rate, marker=_specialty_marker(i), ms=4, mfc="none",
+                mew=0.8, label=EN[s], color=_specialty_color(i),
+                ls=_specialty_linestyle(i), lw=1.2)
     ax.set_xlabel("Year")
     ax.set_ylabel("Closed malpractice claims per 1,000 physicians")
     ax.set_title(title)
@@ -51,10 +77,12 @@ def plot_litigation_rate(P, L, bien, outfile, title):
 
 def plot_physician_index(P, bien, outfile, title):
     fig, ax = plt.subplots(figsize=(9, 6))
-    for s in CORE:
+    for i, s in enumerate(CORE):
         base = P.loc[s, bien[0]]
         idx = [100.0 * P.loc[s, y] / base for y in bien]
-        ax.plot(bien, idx, marker="o", ms=3, label=EN[s])
+        ax.plot(bien, idx, marker=_specialty_marker(i), ms=4, mfc="none",
+                mew=0.8, label=EN[s], color=_specialty_color(i),
+                ls=_specialty_linestyle(i), lw=1.2)
     ax.axhline(100, color="k", lw=0.8, ls="--")
     ax.set_xlabel("Year")
     ax.set_ylabel("Physicians (2008 = 100)")
@@ -91,8 +119,6 @@ def plot_counts_vs_rates(P, L, bien, outfile, title, colored=True):
     the reader can identify which specialties drive any apparent outliers.
     """
     dgrow = {}
-    colors = {}
-    cmap = plt.cm.tab10 if colored else None
     for i, s in enumerate(CORE):
         for j, y in enumerate(bien[1:], 1):
             g = np.log(P.loc[s, y]) - np.log(P.loc[s, bien[j-1]])
@@ -102,21 +128,20 @@ def plot_counts_vs_rates(P, L, bien, outfile, title, colored=True):
             dgrow.setdefault("cnt", []).append(cnt)
             dgrow.setdefault("rate", []).append(rate)
             dgrow.setdefault("specialty", []).append(s)
-            if colored:
-                colors.setdefault("cnt", []).append(i)
-                colors.setdefault("rate", []).append(i)
-
     fig, axs = plt.subplots(1, 2, figsize=(11, 5))
     if colored:
         for i, s in enumerate(CORE):
             mask = np.array(dgrow["specialty"]) == s
+            color = _specialty_color(i)
+            marker = _specialty_marker(i)
+            kw = dict(s=35, alpha=0.85, marker=marker, edgecolors="black",
+                      facecolors=color, linewidths=0.6, label=EN[s])
             axs[0].scatter(np.array(dgrow["cnt"])[mask],
-                           np.array(dgrow["g"])[mask], s=20, alpha=0.7,
-                           label=EN[s], color=cmap(i / max(len(CORE) - 1, 1)))
+                           np.array(dgrow["g"])[mask], **kw)
             axs[1].scatter(np.array(dgrow["rate"])[mask],
-                           np.array(dgrow["g"])[mask], s=20, alpha=0.7,
-                           color=cmap(i / max(len(CORE) - 1, 1)))
+                           np.array(dgrow["g"])[mask], **kw)
         axs[0].legend(fontsize=6, ncol=2, loc="upper right")
+        axs[1].legend(fontsize=6, ncol=2, loc="upper right")
     else:
         axs[0].scatter(dgrow["cnt"], dgrow["g"], s=12, alpha=0.6)
         axs[1].scatter(dgrow["rate"], dgrow["g"], s=12, alpha=0.6, color="green")
@@ -129,6 +154,40 @@ def plot_counts_vs_rates(P, L, bien, outfile, title, colored=True):
         a.axhline(0, color="k", lw=0.6)
         a.grid(alpha=0.3)
     fig.suptitle(title)
+    _save(fig, outfile)
+
+
+def plot_workflow(outfile, title):
+    """Schematic of the sensitivity-analysis framework for evaluating a policy lever."""
+    fig, ax = plt.subplots(figsize=(9, 10))
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    ax.axis("off")
+
+    def box(text, y, w=0.78, color="#f7f7f7"):
+        ax.annotate(text, xy=(0.5, y), xycoords="data",
+                    ha="center", va="center",
+                    fontsize=10, wrap=False,
+                    bbox=dict(boxstyle="round,pad=0.5", fc=color, ec="black", lw=1.2))
+
+    def arrow(y1, y2):
+        ax.annotate("", xy=(0.5, y2), xytext=(0.5, y1),
+                    arrowprops=dict(arrowstyle="->", color="black", lw=1.2))
+
+    # Framework boxes
+    box("Policy question\nDoes malpractice-litigation risk alter specialty-level\nphysician workforce allocation?", 0.93)
+    arrow(0.89, 0.83)
+    box("Healthcare workforce allocation\nas a resource-allocation decision\n(policy lever: litigation risk)", 0.80, color="#e8e8e8")
+    arrow(0.77, 0.71)
+    box("Two observational fallacies to avoid\n• Counts are confounded by specialty size\n• Interpolation inflates apparent panel size", 0.67)
+    arrow(0.63, 0.57)
+    box("Primary analytical choices\n• Exposure: rate per 1,000 physicians\n• Frequency: measured biennial waves\n• Model: specialty + wave fixed effects\n• Cluster-robust SEs (G=12; df=G-1=11)\n• Equivalence testing (TOST) with ±1% / ±2% margins", 0.51)
+    arrow(0.45, 0.37)
+    box("Sensitivity-analysis dimensions\n1. Counts vs. rates\n2. Biennial vs. interpolated-annual physician data\n3. Annual hospital data\n4. JMSR report rate, media coverage, JOCS-CP indicator", 0.31)
+    arrow(0.25, 0.17)
+    box("Decision-relevant conclusion\nLitigation risk is statistically equivalent to a null effect;\nstructural workforce incentives are more plausible levers.", 0.13, color="#e8e8e8")
+
+    ax.set_title(title, fontsize=12, pad=15)
     _save(fig, outfile)
 
 
@@ -153,6 +212,10 @@ def main():
         P, L, bien, "fig4_counts_vs_rates.png",
         "Figure 4. Counts vs. rates: association disappears under size adjustment",
         colored=False)
+    plot_workflow(
+        "fig5_workflow.png",
+        "Figure 5. Sensitivity-analysis framework for evaluating litigation risk "
+        "as a healthcare workforce-allocation lever.")
 
     # Healthcare Analytics-specific figures with correct numbering
     plot_equivalence(
@@ -162,14 +225,18 @@ def main():
         P, L, bien, "ha_Figure_2.png",
         "Figure 2. Counts vs. rates: association disappears under size adjustment",
         colored=True)
+    plot_workflow(
+        "ha_Supplementary_Figure_1.png",
+        "Supplementary Figure 1. Sensitivity-analysis framework for evaluating "
+        "litigation risk as a healthcare workforce-allocation lever.")
     plot_litigation_rate(
-        P, L, bien, "ha_Supplementary_Figure_1.png",
-        "Supplementary Figure 1. Litigation rate by specialty (rate, not count), 2008–2024")
+        P, L, bien, "ha_Supplementary_Figure_2.png",
+        "Supplementary Figure 2. Litigation rate by specialty (rate, not count), 2008–2024")
     plot_physician_index(
-        P, bien, "ha_Supplementary_Figure_2.png",
-        "Supplementary Figure 2. Physician workforce by specialty, indexed to 2008")
+        P, bien, "ha_Supplementary_Figure_3.png",
+        "Supplementary Figure 3. Physician workforce by specialty, indexed to 2008")
 
-    print("wrote fig1-4 and ha_* figure files to", OUT)
+    print("wrote fig1-5 and ha_* figure files to", OUT)
 
 
 if __name__ == "__main__":
