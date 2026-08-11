@@ -98,8 +98,10 @@ jobs:
           BRANCH_MAP["devin/1776162271-germany-reunification-analysis"]="germany-reunification-analysis"
           BRANCH_MAP["devin/1776288480-demres-submission"]="demres-submission"
           BRANCH_MAP["devin/1776939083-ijqhc-submission"]="ijqhc-submission"
-          # Anesthesia regional variation 335 SMA manuscript (JCA submission; superseded JECH resubmission)
-          BRANCH_MAP["devin/1723012680-jca-submission"]="anesthesia_variation_335_region"
+          # Anesthesia regional variation 335 SMA manuscript
+          # Health Policy submission supersedes the earlier JCA attempt.
+          # BRANCH_MAP["devin/1723012680-jca-submission"]="anesthesia_variation_335_region"
+          BRANCH_MAP["health-policy-submission"]="anesthesia_variation_335_region"
 
           # ── GDP / healthcare economics ──
           BRANCH_MAP["devin/1776760815-gdp-tempo-poc"]="gdp-tempo-poc"
