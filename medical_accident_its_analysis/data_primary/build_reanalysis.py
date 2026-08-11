@@ -200,20 +200,85 @@ def equivalence_tost(d, outcome, margins=(0.01, 0.02)):
     df = dd["specialty"].nunique() - 1
     tcrit = stats.t.ppf(0.95, df)
     ci90 = (coef - tcrit * se, coef + tcrit * se)
+    # Power / minimum detectable effect for the per-SD coefficient
+    # MDE = smallest effect detectable (two-sided, 80% power) given cluster-robust SE
+    t_975 = stats.t.ppf(0.975, df)
+    t_80 = stats.t.ppf(0.80, df)
+    mde_80 = float((t_975 + t_80) * se)
     out = {"outcome": outcome, "coef_per_SD": coef, "se": se, "df": df,
            "ci90_low": ci90[0], "ci90_high": ci90[1],
+           "mde_80pct": mde_80 * 100,
            "sd_litrate": float(dd["litrate_lag"].std()), "tests": []}
     for mg in margins:
         p_low = stats.t.sf((coef + mg) / se, df)      # H0: coef <= -mg
         p_high = stats.t.cdf((coef - mg) / se, df)     # H0: coef >= +mg
         p_tost = max(p_low, p_high)
+        # Power to declare equivalence within this margin if the true effect is zero
+        power_eq = 2.0 * stats.t.cdf(mg / se, df) - 1.0
         out["tests"].append({
             "margin": mg, "p_tost": float(p_tost),
             "equivalent": bool(ci90[0] > -mg and ci90[1] < mg),
+            "power_if_null": float(power_eq),
             "interpretation": f"a 1-SD higher litigation rate shifts biennial "
                               f"{'physician' if 'phys' in outcome else 'facility'} "
                               f"growth by <{int(mg*100)}%"})
     return out
+
+
+def bootstrap_cluster(d, outcome, predictor, label, R=1999, seed=42):
+    """Cluster block bootstrap for the `predictor` coefficient.
+
+    Resamples specialty clusters with replacement, re-fits the panel model,
+    and reports (a) a percentile bootstrap 95% CI for the coefficient and
+    (b) a bootstrap p-value based on the distribution of |t| statistics.
+    This is a small-cluster robustness check rather than a replacement for
+    the analytical t(G-1) inference.
+    """
+    dd = d.dropna(subset=[outcome, predictor]).copy()
+    clusters = dd["specialty"].unique()
+    rng = np.random.default_rng(seed)
+
+    # observed fit and t-statistic
+    obs = panel_fit(dd, outcome, predictor, label, year_fe=True)
+    t_obs = abs(float(obs["t"]))
+
+    coefs, t_boot = [], []
+    for b in range(R):
+        sampled = rng.choice(clusters, size=len(clusters), replace=True)
+        blocks = []
+        for i, cl in enumerate(sampled):
+            sub = dd[dd.specialty == cl].copy()
+            sub["cluster_boot"] = f"{cl}_{b}_{i}"
+            blocks.append(sub)
+        dbb = pd.concat(blocks, ignore_index=True)
+        rhs = f"{predictor} + C(specialty)"
+        if dbb["year"].nunique() > 1:
+            rhs += " + C(year)"
+        if "jocscp_lag" in dbb and dbb["jocscp_lag"].nunique() > 1:
+            rhs += " + jocscp_lag"
+        try:
+            m = smf.ols(f"{outcome} ~ {rhs}", data=dbb).fit(
+                cov_type="cluster", cov_kwds={"groups": dbb["cluster_boot"]},
+                disp=0)
+            coef_b = float(m.params[predictor])
+            se_b = float(m.bse[predictor])
+            df_b = max(dbb["cluster_boot"].nunique() - 1, 1)
+            t_b = abs(coef_b / se_b) if se_b > 0 else 0.0
+            coefs.append(coef_b)
+            t_boot.append(t_b)
+        except Exception:
+            continue
+    coefs = np.array(coefs)
+    p_bootstrap = float(np.mean(np.array(t_boot) >= t_obs)) if t_boot else None
+    ci = (float(np.percentile(coefs, 2.5)),
+          float(np.percentile(coefs, 97.5))) if len(coefs) else (None, None)
+    return {
+        "label": label, "outcome": outcome, "predictor": predictor,
+        "R": len(t_boot), "t_obs": t_obs, "p_bootstrap": p_bootstrap,
+        "coef_boot_mean": float(np.mean(coefs)) if len(coefs) else None,
+        "coef_boot_ci_low": ci[0], "coef_boot_ci_high": ci[1],
+        "obs_coef": obs["coef"], "obs_p": obs["p"]
+    }
 
 
 def per_specialty_corr(d):
@@ -405,6 +470,83 @@ def media_hospital_sensitivity():
     }
 
 
+def policy_simulation(res):
+    """Counterfactual 10-year (5 biennia) projection of physician counts under
+    alternative policy levers. Baseline drift is the observed mean biennial
+    log-change per specialty. Litigation-elimination scenarios subtract the
+    empirical litigation coefficient (point estimate and 95% lower bound)
+    multiplied by the specialty's mean litigation rate. The MDE lever adds
+    the minimum detectable per-SD effect to baseline growth as a benchmark
+    for the smallest policy effect this panel could detect with 80% power."""
+    P = phys_frame()
+    L = load("litigation_by_specialty.csv")
+    T = 5  # 5 biennia = 10 years, 2024 -> 2034
+    mde = res["equivalence"][0]["mde_80pct"] / 100.0
+    coef = res["primary"][0]["coef"]
+    ci_low = res["primary"][0]["ci_low"]
+
+    rows = []
+    totals = {"phys_2024": 0, "base_2034": 0,
+              "lit_zero_point_2034": 0, "lit_zero_lower_2034": 0,
+              "mde_2034": 0}
+    for s in CORE:
+        phys_cols = sorted([c for c in P.columns if not pd.isna(P.loc[s, c])])
+        dlogs = [np.log(P.loc[s, phys_cols[i + 1]]) - np.log(P.loc[s, phys_cols[i]])
+                 for i in range(len(phys_cols) - 1)]
+        base_g = float(np.mean(dlogs))
+        common = sorted([c for c in L.columns
+                         if c in P.columns and not pd.isna(L.loc[s, c])
+                         and not pd.isna(P.loc[s, c])])
+        rates = [1000.0 * L.loc[s, c] / P.loc[s, c] for c in common]
+        rate_mean = float(np.mean(rates)) if rates else 0.0
+        n0 = int(P.loc[s, 2024])
+
+        g_lit_point = base_g - coef * rate_mean
+        g_lit_lower = base_g - ci_low * rate_mean
+        g_mde = base_g + mde
+
+        n_base = int(round(n0 * np.exp(T * base_g)))
+        n_lit_pt = int(round(n0 * np.exp(T * g_lit_point)))
+        n_lit_lb = int(round(n0 * np.exp(T * g_lit_lower)))
+        n_mde = int(round(n0 * np.exp(T * g_mde)))
+
+        rows.append({
+            "specialty": CORE_EN[s],
+            "phys_2024": n0,
+            "baseline_growth_per_biennium": round(base_g, 5),
+            "mean_litigation_rate": round(rate_mean, 3),
+            "projected_baseline": n_base,
+            "projected_litigation_zero_point": n_lit_pt,
+            "projected_litigation_zero_lower": n_lit_lb,
+            "projected_mde_lever": n_mde,
+            "pct_change_baseline": round(100.0 * (n_base / n0 - 1), 2),
+            "pct_change_lit_zero_point": round(100.0 * (n_lit_pt / n0 - 1), 2),
+            "pct_change_lit_zero_lower": round(100.0 * (n_lit_lb / n0 - 1), 2),
+            "pct_change_mde": round(100.0 * (n_mde / n0 - 1), 2),
+            "marginal_pct_lit_point": round(100.0 * (n_lit_pt / n_base - 1), 2),
+            "marginal_pct_lit_lower": round(100.0 * (n_lit_lb / n_base - 1), 2),
+            "marginal_pct_mde": round(100.0 * (n_mde / n_base - 1), 2),
+        })
+        totals["phys_2024"] += n0
+        totals["base_2034"] += n_base
+        totals["lit_zero_point_2034"] += n_lit_pt
+        totals["lit_zero_lower_2034"] += n_lit_lb
+        totals["mde_2034"] += n_mde
+
+    totals["marginal_pct_lit_point"] = round(100.0 * (totals["lit_zero_point_2034"] / totals["base_2034"] - 1), 2)
+    totals["marginal_pct_lit_lower"] = round(100.0 * (totals["lit_zero_lower_2034"] / totals["base_2034"] - 1), 2)
+    totals["marginal_pct_mde"] = round(100.0 * (totals["mde_2034"] / totals["base_2034"] - 1), 2)
+
+    res["policy_simulation"] = {
+        "horizon_biennia": T,
+        "horizon_year": 2024 + 2 * T,
+        "mde_per_biennium": mde,
+        "specialties": rows,
+        "totals": totals,
+        "note": "Projected physician counts are deterministic extrapolations of observed baseline growth plus the indicated policy effect. They are intended as decision-analytics counterfactuals, not forecasts."
+    }
+
+
 def main():
     res = {"grid": {}, "descriptive": {}, "primary": [], "sensitivity": []}
 
@@ -438,6 +580,14 @@ def main():
     # EQUIVALENCE (TOST): is the litigation-rate effect equivalent to null?
     res["equivalence"] = [equivalence_tost(dbi, "dlog_phys"),
                           equivalence_tost(dbi, "dlog_hosp")]
+
+    # BOOTSTRAP small-cluster robustness check (block resampling of specialties)
+    res["bootstrap"] = [
+        bootstrap_cluster(dbi, "dlog_phys", "litrate_lag",
+                          "Biennial physician growth ~ lagged litigation rate"),
+        bootstrap_cluster(dbi, "dlog_hosp", "litrate_lag",
+                          "Biennial hospital growth ~ lagged litigation rate")
+    ]
 
     # counts-vs-rates contrast (same design, raw count exposure)
     res["sensitivity"].append(panel_fit(dbi, "dlog_phys", "lit_lag",
@@ -515,6 +665,9 @@ def main():
         "tests": [{"label": e["label"], "raw_p": e["raw_p"], "holm_p": a}
                   for e, a in zip(exploratory, adj_ps)]
     }
+
+    # Policy lever counterfactual simulation
+    policy_simulation(res)
 
     with open(os.path.join(RES, "reanalysis_results.json"), "w") as f:
         json.dump(res, f, ensure_ascii=False, indent=2)

@@ -191,6 +191,32 @@ def plot_workflow(outfile, title):
     _save(fig, outfile)
 
 
+def plot_policy_simulation(sim, outfile, title):
+    """Bar chart of the marginal 10-year effect of three policy levers relative to
+    the projected baseline (observed drift). The MDE lever is the minimum
+    detectable per-SD effect and serves as a decision-analytics benchmark."""
+    rows = sim["specialties"]
+    labels = [r["specialty"] for r in rows]
+    x = np.arange(len(labels))
+    width = 0.22
+    pt = [r["marginal_pct_lit_point"] for r in rows]
+    lb = [r["marginal_pct_lit_lower"] for r in rows]
+    mde = [r["marginal_pct_mde"] for r in rows]
+
+    fig, ax = plt.subplots(figsize=(11, 5))
+    ax.bar(x - width, pt, width, label="Litigation eliminated (point estimate)", color="#4c78a8")
+    ax.bar(x, lb, width, label="Litigation eliminated (95% lower bound)", color="#f58518")
+    ax.bar(x + width, mde, width, label="MDE benchmark lever", color="#54a24b")
+    ax.axhline(0, color="k", lw=0.8)
+    ax.set_xticks(x)
+    ax.set_xticklabels(labels, rotation=45, ha="right", fontsize=8)
+    ax.set_ylabel("Marginal percent change by 2034 relative to baseline")
+    ax.set_title(title)
+    ax.legend(fontsize=8, loc="upper left")
+    ax.grid(axis="y", alpha=0.3)
+    _save(fig, outfile)
+
+
 def main():
     P, L, H = (load("physicians_by_specialty.csv"),
                load("litigation_by_specialty.csv"),
@@ -216,6 +242,10 @@ def main():
         "fig5_workflow.png",
         "Figure 5. Sensitivity-analysis framework for evaluating litigation risk "
         "as a healthcare workforce-allocation lever.")
+    plot_policy_simulation(
+        res["policy_simulation"], "fig6_policy_simulation.png",
+        "Figure 6. Counterfactual policy-lever simulation: marginal 10-year change in "
+        "physician counts relative to baseline drift")
 
     # Healthcare Analytics-specific figures with correct numbering
     plot_equivalence(
@@ -235,8 +265,12 @@ def main():
     plot_physician_index(
         P, bien, "ha_Supplementary_Figure_3.png",
         "Supplementary Figure 3. Physician workforce by specialty, indexed to 2008")
+    plot_policy_simulation(
+        res["policy_simulation"], "ha_Figure_3.png",
+        "Figure 3. Counterfactual policy-lever simulation: marginal 10-year change in "
+        "physician counts relative to baseline drift")
 
-    print("wrote fig1-5 and ha_* figure files to", OUT)
+    print("wrote fig1-6 and ha_* figure files to", OUT)
 
 
 if __name__ == "__main__":
