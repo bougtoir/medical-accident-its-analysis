@@ -96,8 +96,32 @@ n_pos = sum(1 for v in SP.values() if v["rho"] > 0)
 n_sig = sum(1 for v in SP.values() if v["p"] < 0.05)
 BIEN = RES["grid"]["biennial_years"]
 YEARS = f"{BIEN[0]}\u2013{BIEN[-1]}"
-N_SPEC = len(CORE)
+N_SPECIALTIES = len(CORE)
 PER = 1000  # rate scale (cases per 1,000 physicians)
+
+def _simulation_table_rows():
+    """Return rows for the counterfactual 2034 physician-count table."""
+    rows = []
+    for r in SIM.get("specialties", []):
+        rows.append([
+            EN.get(r["specialty"], r["specialty"]),
+            f"{r['phys_2024']:,}",
+            f"{r['projected_baseline']:,.0f}",
+            f"{r['projected_litigation_zero_point']:,.0f}",
+            f"{r['projected_litigation_zero_lower']:,.0f}",
+            f"{r['projected_mde_lever']:,.0f}",
+        ])
+    t = SIM.get("totals", {})
+    rows.append([
+        "All specialties",
+        f"{t.get('phys_2024', 0):,}",
+        f"{t.get('base_2034', 0):,}",
+        f"{t.get('lit_zero_point_2034', 0):,}",
+        f"{t.get('lit_zero_lower_2034', 0):,}",
+        f"{t.get('mde_2034', 0):,}",
+    ])
+    return rows
+
 MARGIN1 = int(RES["equivalence"][0]["tests"][0]["margin"] * 100)
 MARGIN2 = int(RES["equivalence"][1]["tests"][1]["margin"] * 100)
 
@@ -169,9 +193,9 @@ REFS = {
     "lakens": "Lakens D. Equivalence tests: a practical primer for t tests, correlations, and meta-analyses. Soc Psychol Personal Sci. 2017;8(4):355-362.",
     "schuir": "Schuirmann DJ. A comparison of the two one-sided tests procedure and the power approach for assessing the equivalence of average bioavailability. J Pharmacokinet Biopharm. 1987;15(6):657-680.",
     "jocscp": "Japan Council for Quality Health Care. Japan Obstetric Compensation System for Cerebral Palsy. Tokyo: Japan Council for Quality Health Care; 2009.",
-    "phys": "Ministry of Health, Labour and Welfare. Statistics of Physicians, Dentists and Pharmacists. Tokyo: MHLW; 2024. Available from: https://www.mhlw.go.jp/english/database/db-hw/",
-    "court": "Supreme Court of Japan, Committee on Medical Litigation. Statistics on medical malpractice litigation (closed cases by specialty). Tokyo: Supreme Court of Japan; 2024.",
-    "facil": "Ministry of Health, Labour and Welfare. Survey of Medical Institutions (Dynamic). Tokyo: MHLW; 2024. Available from: https://www.mhlw.go.jp/english/database/db-hw/",
+    "phys": "Ministry of Health, Labour and Welfare. Statistics of Physicians, Dentists and Pharmacists. Tokyo: MHLW; 2024. Available from: https://www.mhlw.go.jp/english/database/db-hw/ (accessed 11 August 2026).",
+    "court": "Supreme Court of Japan, Committee on Medical Litigation. Statistics on medical malpractice litigation (closed cases by specialty). Tokyo: Supreme Court of Japan; 2024. Available from: https://www.courts.go.jp/ (accessed 11 August 2026).",
+    "facil": "Ministry of Health, Labour and Welfare. Survey of Medical Institutions (Dynamic). Tokyo: MHLW; 2024. Available from: https://www.mhlw.go.jp/english/database/db-hw/ (accessed 11 August 2026).",
     "mais": "Act on the Promotion of Medical Safety; Medical Accident Investigation System (2015). Tokyo: MHLW; 2015.",
     "jmsr_data": "Japan Medical Safety Research Organisation. Annual reports of medical accident investigations (2015-2024). Tokyo: JMSR; 2025.",
     "nikkei": "Nikkei Inc. Nikkei Telecom 21. Tokyo: Nikkei Inc. Accessed 2024. Available from: https://telecom21.nikkei.co.jp/.",
@@ -289,7 +313,16 @@ def _add_runs(par, text, size=Pt(12), bold=False, italic=False):
             par.runs[-1].font.name = "Times New Roman"
 
 
-def head(doc, text, level=1):
+_head_counters = [0, 0, 0, 0]
+
+def head(doc, text, level=1, numbered=True):
+    global _head_counters
+    if numbered:
+        _head_counters[level - 1] += 1
+        for i in range(level, len(_head_counters)):
+            _head_counters[i] = 0
+        num = ".".join(str(_head_counters[i]) for i in range(level))
+        text = f"{num}. {text}"
     h = doc.add_heading(text, level=level)
     for r in h.runs:
         r.font.color.rgb = RGBColor(0, 0, 0)
@@ -373,6 +406,8 @@ def table(doc, headers, rows, caption):
 
 
 def build_manuscript():
+    global _head_counters
+    _head_counters = [0, 0, 0, 0]
     doc = _setup_doc()
 
     # Title
@@ -389,16 +424,16 @@ def build_manuscript():
         "Specialty maldistribution is a global healthcare workforce-allocation problem, "
         "and many health systems assume that malpractice-litigation risk pushes physicians "
         "away from high-risk specialties. We used this question as a test case for a "
-        "transparent, reproducible decision-analytics framework that evaluates a proposed "
+        "transparent, reproducible decision-analytics and operations-research framework that evaluates a proposed "
         "workforce policy lever while avoiding size confounding and interpolation artifacts "
-        "in sparse administrative panels. Using national primary data for {N_SPEC} specialties "
+        f"in sparse administrative panels. Using national primary data for {N_SPECIALTIES} specialties "
         f"in Japan ({BIEN[0]}\u2013{BIEN[-1]}), we measured exposure as closed "
         f"malpractice claims per {_per} physicians (rate, not count) and regressed biennial "
         "log-change in physicians and hospitals on the lagged litigation rate in a panel "
         "with specialty and wave fixed effects, cluster-robust standard errors with a "
         "small-cluster t(G-1) correction, a cluster block-bootstrap robustness check, "
         "two one-sided equivalence (TOST) tests, and power diagnostics. The workforce grew "
-        f"in {GREW} of {N_SPEC} specialties; {SURG_DESC}, was the exception. Litigation rate "
+        f"in {GREW} of {N_SPECIALTIES} specialties; {SURG_DESC}, was the exception. Litigation rate "
         f"was not associated with physician growth (coefficient {fmt(PHYS['coef'],4)}; "
         f"95% CI {fmt(PHYS['ci_low'],4)} to {fmt(PHYS['ci_high'],4)}; p={PHYS['p']:.2f}) or hospital "
         f"growth (p={HOSP['p']:.2f}). A one-SD higher rate changed physician growth by less than "
@@ -408,14 +443,14 @@ def build_manuscript():
         f"(p={p_tost_fmt(EQH['tests'][1]['p_tost'])}) but not the stricter \u00b1{MARGIN1}% margin "
         f"(p={p_tost_fmt(EQH['tests'][0]['p_tost'])}). Sensitivity analyses were unchanged. "
         f"Specialty-level litigation risk is not associated with "
-        "workforce decline in these national data. The decision-analytics framework is "
+        "workforce decline in these national data. The decision-analytics and operations-research framework is "
         "exportable to other healthcare workforce-policy levers."
     )
     abstract_wc = wc(abstract_text)
     if abstract_wc > 250:
         raise SystemExit(f"Abstract is {abstract_wc} words; must be <=250")
 
-    head(doc, "Abstract", level=1)
+    head(doc, "Abstract", level=1, numbered=False)
     p = doc.add_paragraph()
     r = p.add_run(abstract_text)
     r.font.name = "Times New Roman"
@@ -428,7 +463,7 @@ def build_manuscript():
     kr.bold = True
     kr.font.name = "Times New Roman"
     _add_runs(kw, "malpractice litigation; physician workforce; specialty maldistribution; "
-                  "equivalence testing; healthcare decision analytics; policy lever evaluation")
+                  "equivalence testing; healthcare decision analytics; operations research")
     kw.paragraph_format.space_after = Pt(18)
 
     # Introduction
@@ -458,8 +493,10 @@ def build_manuscript():
          "perspective, the relevant question is not whether litigation risk is correlated "
          "with raw counts, but whether it is a policy lever that workforce planners can use "
          "to shift specialty supply. We therefore treat the litigation-workforce question as "
-         "a test case for a transparent, reproducible decision-analytics framework for "
-         "healthcare workforce allocation and resource planning.")
+         "a test case for a transparent, reproducible decision-analytics and operations-research framework for "
+         "healthcare workforce allocation and resource planning. "
+         "This is, to our knowledge, the first application of pre-specified equivalence testing "
+         "and small-cluster inference diagnostics to the malpractice-litigation workforce literature.")
     body(doc,
          "We therefore examined the question using rates rather than counts, using "
          "only measured biennial physician observations, and using equivalence testing\u2014"
@@ -475,7 +512,7 @@ def build_manuscript():
     body(doc,
          "We report this observational study following the Strengthening the Reporting of "
          "Observational Studies in Epidemiology (STROBE) guidance.{strobe} We "
-         f"studied {N_SPEC} core clinical specialties in Japan for which the Supreme Court reports "
+         f"studied {N_SPECIALTIES} core clinical specialties in Japan for which the Supreme Court reports "
          "specialty-specific litigation. Three official primary series drove the main "
          "analysis: physician counts by specialty from the biennial Statistics of "
          "Physicians, Dentists and Pharmacists{phys}; closed malpractice claims by "
@@ -514,7 +551,7 @@ def build_manuscript():
          "biennial log-change in physicians (and, separately, in hospitals) and regressed "
          "it on the litigation rate at the start of the interval, in a panel with specialty "
          "and wave fixed effects and standard errors clustered by specialty.{angrist} "
-         f"Clusters are defined by specialty, so G={N_SPEC} and the small-cluster correction "
+         f"Clusters are defined by specialty, so G={N_SPECIALTIES} and the small-cluster correction "
          "uses a t-distribution with G-1 degrees of freedom for all cluster-robust inference. "
          "Supplementary Figure 1 summarises the sensitivity-analysis framework. The primary "
          "estimating equation, for specialty s and wave t, was as follows.")
@@ -547,8 +584,8 @@ def build_manuscript():
          "workforce planners evaluating this policy lever.")
     head(doc, "Policy lever simulation", level=2)
     body(doc,
-         "To translate the regression results into a decision-analytics output, we "
-         "projected physician counts to 2034 under three stylised policy levers. The "
+         "To translate the regression results into a decision-analytics and operations-research "
+         "output, we projected physician counts to 2034 under three stylised policy levers. The "
          "baseline used each specialty's observed mean biennial log-growth from 2004 to "
          "2024. The two litigation-reduction levers set the litigation rate to zero and "
          "applied the point estimate and the 95% lower-bound coefficient, respectively, so "
@@ -581,8 +618,8 @@ def build_manuscript():
     head(doc, "Workforce and litigation trends", level=2)
     body(doc,
          f"Litigation rates per {_per} physicians varied several-fold across "
-         f"specialties and fell over time in {FELL} of {len(CORE)} fields (Supplementary Figure 2). "
-         f"Over the same period the physician workforce grew in {GREW} of {len(CORE)} specialties "
+         f"specialties and fell over time in {FELL} of {N_SPECIALTIES} fields (Supplementary Figure 2). "
+         f"Over the same period the physician workforce grew in {GREW} of {N_SPECIALTIES} specialties "
          "(Supplementary Figure 3; Table 1); the only exception was general surgery, "
          f"which was essentially flat ({SURG_PCT:+.1f}% across {SPAN} years). Exposure and "
          "workforce therefore did not move in opposite directions as a flight-from-risk "
@@ -675,8 +712,16 @@ def build_manuscript():
            "(a) counts and (b) rates. Points are coloured by specialty; the count panel shows "
            "the size confounding that the rate panel removes.")
     body(doc,
+         "The same count-versus-rate contrast for biennial hospital growth is shown in "
+         "Figure 3. As with physician growth, the count exposure creates a spurious size "
+         "confound that disappears once the rate-adjusted exposure is used.")
+    figure(doc, "ha_Figure_3.png",
+           "Figure 3. Biennial hospital growth against lagged litigation exposure measured as "
+           "(a) counts and (b) rates. Points are coloured by specialty; the rate-adjusted "
+           "panel shows no systematic association.")
+    body(doc,
          f"Descriptively, per-specialty rank correlations between the lagged litigation "
-         f"rate and physician growth were positive in {n_pos} of {N_SPEC} specialties and "
+         f"rate and physician growth were positive in {n_pos} of {N_SPECIALTIES} specialties and "
          f"statistically significant in {n_sig}; the direction is therefore, if anything, "
          "opposite to a flight-from-risk hypothesis.")
     body(doc,
@@ -727,10 +772,12 @@ def build_manuscript():
          f"{SURG_SIM.get('pct_change_lit_zero_lower', 0):.1f}% under the 95% lower bound. The latter "
          "requires eliminating every remaining closed claim and assumes the most adverse (most "
          "negative) coefficient compatible with the data; a more realistic policy would achieve "
-         "far less. Figure 3 shows that litigation reduction is therefore not a high-leverage "
-         "instrument for workforce allocation in this setting.")
-    figure(doc, "ha_Figure_3.png",
-           "Figure 3. Counterfactual policy-lever simulation: marginal 10-year change in "
+         "far less. Full projected 2034 physician counts by specialty and lever are reported in "
+         "Supplementary Table 7; Figure 4 summarises the same information as marginal percentage "
+         "changes. Litigation reduction is therefore not a high-leverage instrument for workforce "
+         "allocation in this setting.")
+    figure(doc, "ha_Figure_4.png",
+           "Figure 4. Counterfactual policy-lever simulation: marginal 10-year change in "
            "physician counts by specialty relative to the projected baseline drift. "
            "The MDE benchmark is the minimum detectable per-SD effect from the primary analysis.")
 
@@ -902,14 +949,15 @@ def build_manuscript():
          f"detectable or policy-relevant across {len(BIEN)} measured waves ({BIEN[0]}–{BIEN[-1]}).")
 
     body(doc,
-         "The framework we used is intentionally general. Specialty physician workforce "
+         "The framework we used is intentionally general and falls within healthcare "
+         "operations research and decision analytics. Specialty physician workforce "
          "allocation is a recurring healthcare decision problem, and the same "
          "sensitivity-analysis steps—rate adjustment to remove size confounding, measured-"
          "only panels to avoid interpolation, equivalence testing with policy-relevant "
          "margins, and small-cluster inference—can be applied to other proposed levers, "
          "such as fee schedules, regional quotas, or training subsidies. The analytic "
          "contribution is therefore not the malpractice finding itself but a transparent, "
-         "reproducible workflow that helps decision-makers distinguish meaningful "
+         "reproducible decision-support workflow that helps planners distinguish meaningful "
          "workforce effects from spurious count- or interpolation-based associations.")
 
     head(doc, "Limitations", level=2)
@@ -924,7 +972,7 @@ def build_manuscript():
          "unlikely, yet unobserved confounders at the specialty or prefecture level cannot be "
          "fully ruled out. Cluster block-bootstrap and power diagnostics are reported in "
          "Supplementary Table 6. Because clusters are "
-         f"defined by the {N_SPEC} specialties, the small-cluster correction uses G-1={PHYS['df']} "
+         f"defined by the {N_SPECIALTIES} specialties, the small-cluster correction uses G-1={PHYS['df']} "
          "degrees of freedom; this is the minimum at which cluster-robust t inference is "
          "recommended and is inherent to the data. Specialty-specific "
          f"litigation counts could be recovered only from {BIEN[0]}; pre-{BIEN[0]} specialty tables were "
@@ -958,7 +1006,7 @@ def build_manuscript():
          "workforce-policy levers.")
 
     # Declaration of generative AI use (Elsevier requirement; place between Conclusions and References)
-    head(doc, "Declaration of generative AI use", level=1)
+    head(doc, "Declaration of generative AI use", level=1, numbered=False)
     body(doc,
          "[Authors: insert the Elsevier AI declaration here before submission. "
          "Example wording: During the preparation of this work the author(s) used "
@@ -968,7 +1016,7 @@ def build_manuscript():
          "used, state so.]")
 
     # Declarations
-    head(doc, "Declarations", level=1)
+    head(doc, "Declarations", level=1, numbered=False)
     para(doc,
          "Funding: none. Competing interests: none declared. "
          "Ethics approval: this study used publicly available aggregated national "
@@ -979,7 +1027,7 @@ def build_manuscript():
          f"{PUBLIC_REPO}), enabling full reproduction of every reported number.")
 
     # References
-    head(doc, "References", level=1)
+    head(doc, "References", level=1, numbered=False)
     missing = [k for k in REFS if k not in _CITE_ORDER]
     if missing:
         raise SystemExit(f"orphan references (in list, never cited): {missing}")
@@ -1017,7 +1065,7 @@ def build_title_page(main_word_count):
         f"Word count (main text): approximately {main_word_count} words (excluding abstract, references, declarations, tables and figure legends)",
         "Article type: Original research article",
         "Target journal: Healthcare Analytics (Elsevier)",
-        "Tables: 2  Figures: 3  Supplementary tables: 6  Supplementary figures: 3",
+        "Tables: 2  Figures: 4  Supplementary tables: 7  Supplementary figures: 3",
         "Conflicts of interest: none declared",
         "Funding: none",
         f"Data availability: all primary data and analysis code are openly available in the project repository ({PUBLIC_REPO}).",
@@ -1036,10 +1084,9 @@ def build_title_page(main_word_count):
 
 def build_highlights():
     highlights = [
-        f"Litigation risk is unrelated to physician or hospital decline in {N_SPEC} specialties.",
+        f"Litigation risk is unrelated to physician or hospital decline in {N_SPECIALTIES} specialties.",
         "A decision-analytics framework removes size confounding and sparse-panel bias.",
         "Equivalence, bootstrap, and power diagnostics support an informative null.",
-        "JOCS-CP effect is exploratory and not robust to small-cluster inference.",
         "Behavioural-economics mechanisms and structural incentives explain the null.",
         "Policy should target structural incentives, not litigation-avoidance messaging.",
     ]
@@ -1081,20 +1128,23 @@ def build_cover_letter():
     paragraphs = [
         f'We submit an original research article, "{MANUSCRIPT_TITLE}", for '
         f'consideration by Healthcare Analytics.',
-        "Healthcare Analytics advances data-driven analytics and operations research for "
-        "healthcare decisions. Our study treats specialty physician workforce planning as a "
-        "healthcare resource-allocation problem and uses the litigation-workforce question "
-        "as a test case for a transparent, reproducible decision-analytics framework. The "
+        "Healthcare Analytics advances data-driven analytics, operations research, and "
+        "decision science for healthcare. Our study sits at this intersection: it treats "
+        "specialty physician workforce planning as a healthcare resource-allocation problem "
+        "and uses the litigation-workforce question as a test case for a transparent, "
+        "reproducible decision-analytics and policy-lever evaluation framework. The "
         "analytical contribution is diagnostic: we show how two common observational fallacies\u2014"
         "size confounding and interpolation of sparse panel data\u2014can be identified and removed "
         "when a proposed policy lever (malpractice-litigation risk) is evaluated against "
         "workforce outcomes, and we add cluster block-bootstrap and power diagnostics to the "
-        "standard fixed-effects / equivalence-testing toolkit. We also include a counterfactual "
+        "standard fixed-effects / equivalence-testing toolkit. To our knowledge, this is the first "
+        "application of pre-specified equivalence testing and small-cluster inference diagnostics to "
+        "the malpractice-litigation workforce literature. We also include a counterfactual "
         "policy-lever simulation that projects 2034 physician counts under stylised litigation-"
         "reduction and structural-incentive scenarios, making the practical decision implications "
         "of the regression results explicit.",
         "The national administrative data we use come from Japan, a setting that provides a "
-        f"complete, long-running test case. Using national primary data for {N_SPEC} clinical specialties, we "
+        f"complete, long-running test case. Using national primary data for {N_SPECIALTIES} clinical specialties, we "
         "measure exposure as a size-adjusted rate (closed malpractice claims per "
         f"{_per} physicians) and estimate panel fixed-effects models with small-cluster "
         "inference, equivalence (TOST) testing, and bootstrap robustness checks. The effect of "
@@ -1131,7 +1181,7 @@ def build_cover_letter():
 
 def build_supplementary():
     doc = _setup_doc()
-    head(doc, "Supplementary material", level=1)
+    head(doc, "Supplementary material", level=1, numbered=False)
 
     para(doc, "Supplementary Figure 1. Sensitivity-analysis framework for evaluating "
               "malpractice-litigation risk as a healthcare workforce-allocation lever.")
@@ -1243,8 +1293,17 @@ def build_supplementary():
           "confidence intervals, equivalence power (if true effect is zero), and "
           "minimum detectable effect per 1-SD litigation-rate increase.")
 
+    # Supplementary Table 7: counterfactual 2034 physician counts
+    table(doc,
+          ["Specialty", "2024 count", "Baseline 2034", "Litigation zero (point)",
+           "Litigation zero (95% lower)", "MDE benchmark"],
+          _simulation_table_rows(),
+          "Supplementary Table 7. Counterfactual 2034 physician counts by specialty and policy lever. "
+          "Counts are projected from observed biennial baseline drift plus the indicated effect; "
+          "marginal percentage changes are shown in Figure 4.")
+
     # STROBE checklist
-    head(doc, "STROBE checklist", level=1)
+    head(doc, "STROBE checklist", level=1, numbered=False)
     strobe_items = [
         ("1", "Title and abstract indicate the study design"),
         ("2", "Background and rationale"),
@@ -1292,6 +1351,8 @@ def build_figure_pptx():
         ("ha_Figure_2.png", "Figure 2",
          "Biennial physician growth against lagged litigation exposure measured as (a) counts and (b) rates. Points are coloured by specialty; the count panel shows the size confounding that the rate panel removes."),
         ("ha_Figure_3.png", "Figure 3",
+         "Biennial hospital growth against lagged litigation exposure measured as (a) counts and (b) rates. Points are coloured by specialty; the rate-adjusted panel shows no systematic association."),
+        ("ha_Figure_4.png", "Figure 4",
          "Counterfactual policy-lever simulation: marginal 10-year change in physician counts by specialty relative to the projected baseline drift. The MDE benchmark is the minimum detectable per-SD effect from the primary analysis."),
     ]
     supp_figs = [
@@ -1338,7 +1399,7 @@ def build_figure_pptx():
 def prepare_figures():
     """Verify that Healthcare Analytics figures have been generated."""
     required = [
-        "ha_Figure_1.png", "ha_Figure_2.png", "ha_Figure_3.png",
+        "ha_Figure_1.png", "ha_Figure_2.png", "ha_Figure_3.png", "ha_Figure_4.png",
         "ha_Supplementary_Figure_1.png", "ha_Supplementary_Figure_2.png",
         "ha_Supplementary_Figure_3.png",
     ]
@@ -1363,6 +1424,7 @@ def create_submission_zip():
         os.path.join(OUT, "ha_Figure_1.png"),
         os.path.join(OUT, "ha_Figure_2.png"),
         os.path.join(OUT, "ha_Figure_3.png"),
+        os.path.join(OUT, "ha_Figure_4.png"),
         os.path.join(OUT, "ha_Supplementary_Figure_1.png"),
         os.path.join(OUT, "ha_Supplementary_Figure_2.png"),
         os.path.join(OUT, "ha_Supplementary_Figure_3.png"),
