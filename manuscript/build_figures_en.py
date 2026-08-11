@@ -32,7 +32,7 @@ def load(name):
 
 def _save(fig, outfile):
     fig.tight_layout()
-    fig.savefig(os.path.join(OUT, outfile), dpi=200)
+    fig.savefig(os.path.join(OUT, outfile), dpi=300)
     plt.close(fig)
 
 
