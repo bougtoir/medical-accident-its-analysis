@@ -424,7 +424,7 @@ def build_manuscript():
         "Specialty maldistribution is a global healthcare workforce-allocation problem, "
         "and many health systems assume that malpractice-litigation risk pushes physicians "
         "away from high-risk specialties. We used this question as a test case for a "
-        "transparent, reproducible decision-analytics framework that evaluates a proposed "
+        "transparent, reproducible decision-analytics and operations-research framework that evaluates a proposed "
         "workforce policy lever while avoiding size confounding and interpolation artifacts "
         f"in sparse administrative panels. Using national primary data for {N_SPECIALTIES} specialties "
         f"in Japan ({BIEN[0]}\u2013{BIEN[-1]}), we measured exposure as closed "
@@ -443,7 +443,7 @@ def build_manuscript():
         f"(p={p_tost_fmt(EQH['tests'][1]['p_tost'])}) but not the stricter \u00b1{MARGIN1}% margin "
         f"(p={p_tost_fmt(EQH['tests'][0]['p_tost'])}). Sensitivity analyses were unchanged. "
         f"Specialty-level litigation risk is not associated with "
-        "workforce decline in these national data. The decision-analytics framework is "
+        "workforce decline in these national data. The decision-analytics and operations-research framework is "
         "exportable to other healthcare workforce-policy levers."
     )
     abstract_wc = wc(abstract_text)
@@ -463,7 +463,7 @@ def build_manuscript():
     kr.bold = True
     kr.font.name = "Times New Roman"
     _add_runs(kw, "malpractice litigation; physician workforce; specialty maldistribution; "
-                  "equivalence testing; healthcare analytics")
+                  "equivalence testing; healthcare decision analytics; operations research")
     kw.paragraph_format.space_after = Pt(18)
 
     # Introduction
@@ -493,8 +493,10 @@ def build_manuscript():
          "perspective, the relevant question is not whether litigation risk is correlated "
          "with raw counts, but whether it is a policy lever that workforce planners can use "
          "to shift specialty supply. We therefore treat the litigation-workforce question as "
-         "a test case for a transparent, reproducible decision-analytics framework for "
-         "healthcare workforce allocation and resource planning.")
+         "a test case for a transparent, reproducible decision-analytics and operations-research framework for "
+         "healthcare workforce allocation and resource planning. "
+         "This is, to our knowledge, the first application of pre-specified equivalence testing "
+         "and small-cluster inference diagnostics to the malpractice-litigation workforce literature.")
     body(doc,
          "We therefore examined the question using rates rather than counts, using "
          "only measured biennial physician observations, and using equivalence testing\u2014"
@@ -582,8 +584,8 @@ def build_manuscript():
          "workforce planners evaluating this policy lever.")
     head(doc, "Policy lever simulation", level=2)
     body(doc,
-         "To translate the regression results into a decision-analytics output, we "
-         "projected physician counts to 2034 under three stylised policy levers. The "
+         "To translate the regression results into a decision-analytics and operations-research "
+         "output, we projected physician counts to 2034 under three stylised policy levers. The "
          "baseline used each specialty's observed mean biennial log-growth from 2004 to "
          "2024. The two litigation-reduction levers set the litigation rate to zero and "
          "applied the point estimate and the 95% lower-bound coefficient, respectively, so "
@@ -947,14 +949,15 @@ def build_manuscript():
          f"detectable or policy-relevant across {len(BIEN)} measured waves ({BIEN[0]}–{BIEN[-1]}).")
 
     body(doc,
-         "The framework we used is intentionally general. Specialty physician workforce "
+         "The framework we used is intentionally general and falls within healthcare "
+         "operations research and decision analytics. Specialty physician workforce "
          "allocation is a recurring healthcare decision problem, and the same "
          "sensitivity-analysis steps—rate adjustment to remove size confounding, measured-"
          "only panels to avoid interpolation, equivalence testing with policy-relevant "
          "margins, and small-cluster inference—can be applied to other proposed levers, "
          "such as fee schedules, regional quotas, or training subsidies. The analytic "
          "contribution is therefore not the malpractice finding itself but a transparent, "
-         "reproducible workflow that helps decision-makers distinguish meaningful "
+         "reproducible decision-support workflow that helps planners distinguish meaningful "
          "workforce effects from spurious count- or interpolation-based associations.")
 
     head(doc, "Limitations", level=2)
@@ -1134,7 +1137,9 @@ def build_cover_letter():
         "size confounding and interpolation of sparse panel data\u2014can be identified and removed "
         "when a proposed policy lever (malpractice-litigation risk) is evaluated against "
         "workforce outcomes, and we add cluster block-bootstrap and power diagnostics to the "
-        "standard fixed-effects / equivalence-testing toolkit. We also include a counterfactual "
+        "standard fixed-effects / equivalence-testing toolkit. To our knowledge, this is the first "
+        "application of pre-specified equivalence testing and small-cluster inference diagnostics to "
+        "the malpractice-litigation workforce literature. We also include a counterfactual "
         "policy-lever simulation that projects 2034 physician counts under stylised litigation-"
         "reduction and structural-incentive scenarios, making the practical decision implications "
         "of the regression results explicit.",
