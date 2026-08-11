@@ -333,18 +333,21 @@
       "df": 11,
       "ci90_low": -0.008420938522115116,
       "ci90_high": 0.0041658760040754125,
+      "mde_80pct": 1.0781182909867626,
       "sd_litrate": 2.273580857063443,
       "tests": [
         {
           "margin": 0.01,
           "p_tost": 0.023086759083317615,
           "equivalent": true,
+          "power_if_null": 0.9843045954944034,
           "interpretation": "a 1-SD higher litigation rate shifts biennial physician growth by <1%"
         },
         {
           "margin": 0.02,
           "p_tost": 0.00017200152253693472,
           "equivalent": true,
+          "power_if_null": 0.9998632697349543,
           "interpretation": "a 1-SD higher litigation rate shifts biennial physician growth by <2%"
         }
       ]
@@ -356,21 +359,52 @@
       "df": 11,
       "ci90_low": -0.00914902718342853,
       "ci90_high": 0.010552430825005767,
+      "mde_80pct": 1.6875200785555082,
       "sd_litrate": 2.273580857063443,
       "tests": [
         {
           "margin": 0.01,
           "p_tost": 0.059064408119823046,
           "equivalent": false,
+          "power_if_null": 0.9044455772699491,
           "interpretation": "a 1-SD higher litigation rate shifts biennial facility growth by <1%"
         },
         {
           "margin": 0.02,
           "p_tost": 0.0024065393386384633,
           "equivalent": true,
+          "power_if_null": 0.9961537964085292,
           "interpretation": "a 1-SD higher litigation rate shifts biennial facility growth by <2%"
         }
       ]
+    }
+  ],
+  "bootstrap": [
+    {
+      "label": "Biennial physician growth ~ lagged litigation rate",
+      "outcome": "dlog_phys",
+      "predictor": "litrate_lag",
+      "R": 1999,
+      "t_obs": 0.6071116852387548,
+      "p_bootstrap": 0.5732866433216608,
+      "coef_boot_mean": -0.0009896007682890385,
+      "coef_boot_ci_low": -0.004760606062637683,
+      "coef_boot_ci_high": 0.002124211828092299,
+      "obs_coef": -0.0009357623030693467,
+      "obs_p": 0.5561010210584092
+    },
+    {
+      "label": "Biennial hospital growth ~ lagged litigation rate",
+      "outcome": "dlog_hosp",
+      "predictor": "litrate_lag",
+      "R": 1999,
+      "t_obs": 0.1279271459677554,
+      "p_bootstrap": 0.9029514757378689,
+      "coef_boot_mean": 4.468599823133558e-05,
+      "coef_boot_ci_low": -0.004309840007638514,
+      "coef_boot_ci_high": 0.004159330612129998,
+      "obs_coef": 0.00030863288570044363,
+      "obs_p": 0.9005154208030596
     }
   ],
   "jmsr_correlation": {

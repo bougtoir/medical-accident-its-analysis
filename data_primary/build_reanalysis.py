@@ -200,20 +200,85 @@ def equivalence_tost(d, outcome, margins=(0.01, 0.02)):
     df = dd["specialty"].nunique() - 1
     tcrit = stats.t.ppf(0.95, df)
     ci90 = (coef - tcrit * se, coef + tcrit * se)
+    # Power / minimum detectable effect for the per-SD coefficient
+    # MDE = smallest effect detectable (two-sided, 80% power) given cluster-robust SE
+    t_975 = stats.t.ppf(0.975, df)
+    t_80 = stats.t.ppf(0.80, df)
+    mde_80 = float((t_975 + t_80) * se)
     out = {"outcome": outcome, "coef_per_SD": coef, "se": se, "df": df,
            "ci90_low": ci90[0], "ci90_high": ci90[1],
+           "mde_80pct": mde_80 * 100,
            "sd_litrate": float(dd["litrate_lag"].std()), "tests": []}
     for mg in margins:
         p_low = stats.t.sf((coef + mg) / se, df)      # H0: coef <= -mg
         p_high = stats.t.cdf((coef - mg) / se, df)     # H0: coef >= +mg
         p_tost = max(p_low, p_high)
+        # Power to declare equivalence within this margin if the true effect is zero
+        power_eq = 2.0 * stats.t.cdf(mg / se, df) - 1.0
         out["tests"].append({
             "margin": mg, "p_tost": float(p_tost),
             "equivalent": bool(ci90[0] > -mg and ci90[1] < mg),
+            "power_if_null": float(power_eq),
             "interpretation": f"a 1-SD higher litigation rate shifts biennial "
                               f"{'physician' if 'phys' in outcome else 'facility'} "
                               f"growth by <{int(mg*100)}%"})
     return out
+
+
+def bootstrap_cluster(d, outcome, predictor, label, R=1999, seed=42):
+    """Cluster block bootstrap for the `predictor` coefficient.
+
+    Resamples specialty clusters with replacement, re-fits the panel model,
+    and reports (a) a percentile bootstrap 95% CI for the coefficient and
+    (b) a bootstrap p-value based on the distribution of |t| statistics.
+    This is a small-cluster robustness check rather than a replacement for
+    the analytical t(G-1) inference.
+    """
+    dd = d.dropna(subset=[outcome, predictor]).copy()
+    clusters = dd["specialty"].unique()
+    rng = np.random.default_rng(seed)
+
+    # observed fit and t-statistic
+    obs = panel_fit(dd, outcome, predictor, label, year_fe=True)
+    t_obs = abs(float(obs["t"]))
+
+    coefs, t_boot = [], []
+    for b in range(R):
+        sampled = rng.choice(clusters, size=len(clusters), replace=True)
+        blocks = []
+        for i, cl in enumerate(sampled):
+            sub = dd[dd.specialty == cl].copy()
+            sub["cluster_boot"] = f"{cl}_{b}_{i}"
+            blocks.append(sub)
+        dbb = pd.concat(blocks, ignore_index=True)
+        rhs = f"{predictor} + C(specialty)"
+        if dbb["year"].nunique() > 1:
+            rhs += " + C(year)"
+        if "jocscp_lag" in dbb and dbb["jocscp_lag"].nunique() > 1:
+            rhs += " + jocscp_lag"
+        try:
+            m = smf.ols(f"{outcome} ~ {rhs}", data=dbb).fit(
+                cov_type="cluster", cov_kwds={"groups": dbb["cluster_boot"]},
+                disp=0)
+            coef_b = float(m.params[predictor])
+            se_b = float(m.bse[predictor])
+            df_b = max(dbb["cluster_boot"].nunique() - 1, 1)
+            t_b = abs(coef_b / se_b) if se_b > 0 else 0.0
+            coefs.append(coef_b)
+            t_boot.append(t_b)
+        except Exception:
+            continue
+    coefs = np.array(coefs)
+    p_bootstrap = float(np.mean(np.array(t_boot) >= t_obs)) if t_boot else None
+    ci = (float(np.percentile(coefs, 2.5)),
+          float(np.percentile(coefs, 97.5))) if len(coefs) else (None, None)
+    return {
+        "label": label, "outcome": outcome, "predictor": predictor,
+        "R": len(t_boot), "t_obs": t_obs, "p_bootstrap": p_bootstrap,
+        "coef_boot_mean": float(np.mean(coefs)) if len(coefs) else None,
+        "coef_boot_ci_low": ci[0], "coef_boot_ci_high": ci[1],
+        "obs_coef": obs["coef"], "obs_p": obs["p"]
+    }
 
 
 def per_specialty_corr(d):
@@ -438,6 +503,14 @@ def main():
     # EQUIVALENCE (TOST): is the litigation-rate effect equivalent to null?
     res["equivalence"] = [equivalence_tost(dbi, "dlog_phys"),
                           equivalence_tost(dbi, "dlog_hosp")]
+
+    # BOOTSTRAP small-cluster robustness check (block resampling of specialties)
+    res["bootstrap"] = [
+        bootstrap_cluster(dbi, "dlog_phys", "litrate_lag",
+                          "Biennial physician growth ~ lagged litigation rate"),
+        bootstrap_cluster(dbi, "dlog_hosp", "litrate_lag",
+                          "Biennial hospital growth ~ lagged litigation rate")
+    ]
 
     # counts-vs-rates contrast (same design, raw count exposure)
     res["sensitivity"].append(panel_fit(dbi, "dlog_phys", "lit_lag",
