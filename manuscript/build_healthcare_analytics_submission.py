@@ -178,6 +178,15 @@ def fmt(x, d=3):
     return f"{x:+.{d}f}" if isinstance(x, float) else str(x)
 
 
+def p_tost_fmt(p, digits=3):
+    """Format a TOST p-value; report '<0.001' when rounded to zero."""
+    if p is None:
+        return ""
+    fmt_str = f"{{p:.{digits}f}}"
+    s = fmt_str.format(p=p)
+    return "<0.001" if s == "0." + "0" * digits else s
+
+
 def cite_number(keys):
     nums = []
     for k in keys:
@@ -215,7 +224,7 @@ def _add_runs(par, text, size=Pt(12), bold=False, italic=False):
         if part.startswith("{") and part.endswith("}"):
             keys = [k.strip() for k in part[1:-1].split(",")]
             r = par.add_run(f"[{cite_number(keys)}]")
-            r.font.size = Pt(11)
+            r.font.superscript = True
         elif part:
             r = par.add_run(part)
             r.font.size = size
@@ -339,10 +348,10 @@ def build_manuscript():
         f"with physician growth (coefficient {fmt(PHYS['coef'],4)}; 95% CI "
         f"{fmt(PHYS['ci_low'],4)} to {fmt(PHYS['ci_high'],4)}; p={PHYS['p']:.2f}) "
         f"or hospital growth (p={HOSP['p']:.2f}). A one-SD higher rate changed "
-        f"physician growth by less than \u00b1{MARGIN1}% (TOST p={EQP['tests'][0]['p_tost']:.3f}) "
-        f"and less than \u00b1{MARGIN2}% (p={EQP['tests'][1]['p_tost']:.3f}); hospital growth was "
-        f"within \u00b1{MARGIN2}% (p={EQH['tests'][1]['p_tost']:.3f}) but not the stricter "
-        f"\u00b1{MARGIN1}% margin (p={EQH['tests'][0]['p_tost']:.3f}). Sensitivity analyses "
+        f"physician growth by less than \u00b1{MARGIN1}% (TOST p={p_tost_fmt(EQP['tests'][0]['p_tost'])}; "
+        f"less than \u00b1{MARGIN2}%, p={p_tost_fmt(EQP['tests'][1]['p_tost'])}; hospital growth was "
+        f"within \u00b1{MARGIN2}% (p={p_tost_fmt(EQH['tests'][1]['p_tost'])}) but not the stricter "
+        f"\u00b1{MARGIN1}% margin (p={p_tost_fmt(EQH['tests'][0]['p_tost'])}). Sensitivity analyses "
         f"were unchanged and per-specialty rank correlations were mostly positive "
         f"({n_pos}/{N_SPEC}) and none significant. Specialty-level litigation risk "
         "in Japan is not associated with workforce decline and is statistically "
@@ -390,7 +399,11 @@ def build_manuscript():
          "counts co-move without any behavioural mechanism. Second, the physician census "
          "is collected only biennially; interpolating it to an annual series and "
          "analysing it as if each year were an independent observation inflates the "
-         "degrees of freedom of any lag-based method.")
+         "degrees of freedom of any lag-based method. These pitfalls are not unique to "
+         "malpractice research; they arise whenever administrative counts are used to "
+         "infer behavioural responses in healthcare organisations. The "
+         "litigation-workforce question is therefore also a test case for a transparent, "
+         "reproducible health-analytics workflow.")
     body(doc,
          "We therefore examined the question using rates rather than counts, using "
          "only measured biennial physician observations, and using equivalence testing\u2014"
@@ -465,9 +478,9 @@ def build_manuscript():
          "is a national yearly variable, it is collinear with full wave fixed effects; this "
          "sensitivity therefore uses specialty fixed effects plus a linear time trend rather "
          "than wave dummies. The JOCS-CP indicator and all sensitivity models are exploratory; "
-         "we report raw p-values and Holm step-down adjusted p-values for this family in "
-         f"Supplementary Table 5. Analyses used Python (statsmodels); code and data are "
-         f"openly available at {PUBLIC_REPO}.")
+         "we report raw p-values and Holm step-down adjusted p-values for this family. "
+         "Analyses used Python (statsmodels); code and data are openly available at "
+         f"{PUBLIC_REPO}.")
 
     # Results
     head(doc, "Results", level=1)
@@ -501,13 +514,13 @@ def build_manuscript():
          f"{fmt(PHYS['ci_high'],4)}; p={PHYS['p']:.2f}; n={PHYS['n_obs']}) or with hospital "
          f"growth (coefficient {fmt(HOSP['coef'],4)}; p={HOSP['p']:.2f}). Equivalence "
          f"testing (Figure 1; Table 2) showed that a 1-SD higher litigation rate "
-         f"changed biennial physician growth by less than \u00b1{MARGIN1}% (TOST p={EQP['tests'][0]['p_tost']:.3f}; "
+         f"changed biennial physician growth by less than \u00b1{MARGIN1}% (TOST p={p_tost_fmt(EQP['tests'][0]['p_tost'])}; "
          f"point estimate {fmt(EQP['coef_per_SD']*100,2)}% with 90% CI "
          f"{fmt(EQP['ci90_low']*100,2)}% to {fmt(EQP['ci90_high']*100,2)}%). For hospital "
          f"growth the point estimate was {fmt(EQH['coef_per_SD']*100,2)}% (90% CI "
          f"{fmt(EQH['ci90_low']*100,2)}% to {fmt(EQH['ci90_high']*100,2)}%): it was within "
-         f"the \u00b1{MARGIN2}% margin (p={EQH['tests'][1]['p_tost']:.3f}) but not the stricter "
-         f"\u00b1{MARGIN1}% margin (p={EQH['tests'][0]['p_tost']:.3f}). Thus the data are "
+         f"the \u00b1{MARGIN2}% margin (p={p_tost_fmt(EQH['tests'][1]['p_tost'])}) but not the stricter "
+         f"\u00b1{MARGIN1}% margin (p={p_tost_fmt(EQH['tests'][0]['p_tost'])}). Thus the data are "
          "consistent with the absence of a policy-relevant effect on physician growth, "
          "and with at most a small effect on hospital growth. Detailed TOST results by "
          "margin are reported in Supplementary Table 2.")
@@ -582,7 +595,9 @@ def build_manuscript():
          f"lagged litigation rate and the lagged article count (per 1,000 articles) left the "
          "litigation coefficient essentially unchanged and the media term was not associated "
          f"with hospital growth (p={MEDIA['media_p']:.2f}; Supplementary Table 4). Media coverage "
-         "therefore does not account for the null litigation effect either.")
+         "therefore does not account for the null litigation effect either. "
+         "Holm step-down adjusted p-values for the exploratory sensitivity family are "
+         "reported in Supplementary Table 5.")
 
     # Discussion
     head(doc, "Discussion", level=1)
@@ -725,8 +740,8 @@ def build_manuscript():
          "Until then, the present specialty-level rate analysis provides the most "
          "systematic evidence available on the central policy question: whether "
          "malpractice litigation risk drives physicians away from high-risk "
-         "specialties. The answer is that it does not, at least not in a way that is "
-         f"detectable or policy-relevant in {SPAN} years of national data.")
+         f"specialties. The answer, in these data, is no—or at least not in a way that is "
+         f"detectable or policy-relevant across {len(BIEN)} measured waves ({BIEN[0]}–{BIEN[-1]}).")
 
     head(doc, "Limitations", level=2)
     body(doc,
@@ -890,9 +905,12 @@ def build_cover_letter():
         f'physician workforce in Japan, {YEARS}: a rate-based analysis with '
         f'equivalence testing", for consideration by Healthcare Analytics.',
         "Healthcare Analytics advances data-driven analytics for healthcare decisions. "
-        "Our study applies a transparent, reproducible health-analytics pipeline to a "
-        "long-standing workforce-policy question: whether malpractice-litigation risk "
-        "drives physicians away from high-risk specialties.",
+        "Our study treats specialty workforce maldistribution as a resource-allocation "
+        "problem and applies a transparent, reproducible health-analytics pipeline "
+        "to answer whether malpractice-litigation risk drives physicians away from "
+        "high-risk specialties. The analytical contribution is diagnostic: we show how "
+        "two common observational fallacies—size confounding and interpolation of sparse "
+        "panel data—can be identified and removed when evaluating a proposed policy lever.",
         f"Using national primary data for {N_SPEC} clinical specialties in Japan, we "
         "measure exposure as a size-adjusted rate (closed malpractice claims per "
         f"{_per} physicians) and estimate panel fixed-effects models with equivalence "
@@ -975,7 +993,7 @@ def build_supplementary():
                 f"{eq['coef_per_SD']*100:+.2f}%",
                 f"{eq['ci90_low']*100:+.2f}%, {eq['ci90_high']*100:+.2f}%",
                 f"\u00b1{int(t['margin']*100)}%",
-                f"{t['p_tost']:.3f}",
+                f"{p_tost_fmt(t['p_tost'])}",
                 "Yes" if t["equivalent"] else "No"
             ])
     table(doc,
