@@ -34,9 +34,9 @@ jobs:
           BRANCH_MAP["IONE-stratification-framework"]="ione-stratification-framework"
           BRANCH_MAP["devin/1774274321-rct-decomposition-paper"]="kotha-rct-decomposition"
           BRANCH_MAP["devin/1774353301-icr-paper"]="linko-icr-paper"
-          # superseded by devin/1785490740-jmaj-revision-reanalysis (rate-based re-analysis after JMA rejection)
-          # BRANCH_MAP["devin/1783102664-jma-journal-manuscript"]="medical-accident-its-analysis"
-          BRANCH_MAP["devin/1785490740-jmaj-revision-reanalysis"]="medical-accident-its-analysis"
+          # superseded by devin/17851786415018-ha-reviewer-fixes (Healthcare Analytics reviewer fixes after Health Policy desk reject)
+          # BRANCH_MAP["devin/1785490740-jmaj-revision-reanalysis"]="medical-accident-its-analysis"
+          BRANCH_MAP["devin/17851786415018-ha-reviewer-fixes"]="medical-accident-its-analysis"
           BRANCH_MAP["devin/1774578035-cetacean-acoustic-analysis"]="cetacean-acoustic-analysis"
           # Superseded by the Software Impacts branch below (same target repo),
           # which contains the package plus the external-validation pipeline and
@@ -232,8 +232,8 @@ jobs:
           SUBDIR_MAP["devin/1784701414-heat-accidents-mortality"]="heat_accidents_mortality"
 
           # Problem B fixes (branches with unrelated folders mixed in)
-          # SUBDIR_MAP["devin/1783102664-jma-journal-manuscript"]="medical_accident_its_analysis"  # superseded
-          SUBDIR_MAP["devin/1785490740-jmaj-revision-reanalysis"]="medical_accident_its_analysis"
+          # SUBDIR_MAP["devin/1785490740-jmaj-revision-reanalysis"]="medical_accident_its_analysis"  # superseded
+          SUBDIR_MAP["devin/17851786415018-ha-reviewer-fixes"]="medical_accident_its_analysis"
           SUBDIR_MAP["devin/1784701921-ndb-dea-drug-lag"]="ndb-dea-drug-lag"
           SUBDIR_MAP["devin/1778846737-flood-prediction-models"]="flood-prediction-review"
           SUBDIR_MAP["devin/1777462980-spectral-causality-brainstorm"]="spectral-causality-brainstorm"
@@ -339,6 +339,9 @@ jobs:
           # outputs out of the public repo; reproduce.py (figures + in-text numbers)
           # and the data/analysis code remain public for reproducibility.
           EXCLUDE_MAP["devin/1784904207-transport-policy"]="build_submission.py output/Manuscript_TransportPolicy.docx output/Cover_Letter_TransportPolicy.docx output/Title_Page_TransportPolicy.docx output/Submission_Checklist_TransportPolicy.docx output/Highlights_TransportPolicy.docx output/Highlights_TransportPolicy.txt output/TransportPolicy_submission_package.zip output/VALIDATION.txt output/Citation_Audit.csv output/Reference_Verification.csv output/Reporting_Guideline_PRISMA-ScR.docx"
+          # Keep manuscript/cover-letter generators and their prose-bearing outputs in wip;
+          # the public repo retains data, analysis code, figures and the reproducible JSON results.
+          EXCLUDE_MAP["devin/17851786415018-ha-reviewer-fixes"]="manuscript/build_healthcare_analytics_submission.py manuscript/build_hp_submission.py manuscript/build_manuscript_en.py manuscript/build_package_en.py manuscript/ha_manuscript_en.docx manuscript/ha_title_page.docx manuscript/ha_cover_letter.docx manuscript/ha_highlights.docx manuscript/ha_supplementary.docx manuscript/ha_figures.pptx manuscript/ha_supplementary_figures.pptx output/ha_submission.zip"
           # yoshika-software-impacts is branched from the monorepo root, so the
           # yoshika project (yoshika/, tests/, paper/, pyproject.toml, README,
           # LICENSE) sits alongside many unrelated project folders. Exclude every

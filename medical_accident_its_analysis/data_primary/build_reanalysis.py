@@ -33,6 +33,35 @@ import pandas as pd
 import statsmodels.formula.api as smf
 from scipy import stats
 
+
+def _cluster_p(coef, se, df):
+    """Two-sided p-value from a t(df) distribution with cluster-robust SE."""
+    if se is None or se == 0:
+        return None
+    t = coef / se
+    return float(2.0 * stats.t.sf(abs(t), df))
+
+
+def holm_adjust(pvals):
+    """Holm step-down p-value adjustment for a family of tests."""
+    pvals = [p if p is not None else 1.0 for p in pvals]
+    n = len(pvals)
+    if n == 0:
+        return []
+    arr = np.array(pvals, dtype=float)
+    order = np.argsort(arr)
+    sorted_p = arr[order]
+    adj = np.empty(n)
+    adj[0] = min(sorted_p[0] * n, 1.0)
+    for i in range(1, n):
+        adj[i] = min(max(adj[i - 1], sorted_p[i] * (n - i)), 1.0)
+    # Enforce monotonicity and cap at 1
+    adj = np.minimum.accumulate(adj[::-1])[::-1]
+    out = np.empty(n)
+    out[order] = adj
+    return out.tolist()
+
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 RES = os.path.join(os.path.dirname(HERE), "results")
 os.makedirs(RES, exist_ok=True)
@@ -125,20 +154,32 @@ def panel_fit(d, outcome, predictor, label, year_fe=True):
         rhs += " + jocscp_lag"
     m = smf.ols(f"{outcome} ~ {rhs}", data=dd).fit(
         cov_type="cluster", cov_kwds={"groups": dd["specialty"]})
+    # Small-cluster correction: inference uses t(G-1) rather than the large-
+    # sample residual df. This is conservative when only 12 clusters are available.
+    G = int(dd.specialty.nunique())
+    df = G - 1
     coef = float(m.params[predictor])
+    se = float(m.bse[predictor])
+    tstat = coef / se if se > 0 else 0.0
+    p = 2.0 * stats.t.sf(abs(tstat), df)
+    tcrit95 = stats.t.ppf(0.975, df)
+    ci_low, ci_high = coef - tcrit95 * se, coef + tcrit95 * se
+    jocscp_coef = (float(m.params["jocscp_lag"])
+                   if "jocscp_lag" in m.params else None)
+    jocscp_se = (float(m.bse["jocscp_lag"])
+                 if "jocscp_lag" in m.bse else None)
+    jocscp_t = jocscp_coef / jocscp_se if jocscp_se else None
+    jocscp_p = (2.0 * stats.t.sf(abs(jocscp_t), df)
+                if jocscp_t is not None else None)
     return {
         "label": label, "outcome": outcome, "predictor": predictor,
-        "n_obs": int(dd.shape[0]), "n_specialties": int(dd.specialty.nunique()),
+        "n_obs": int(dd.shape[0]), "n_specialties": G,
         "n_waves": int(dd.year.nunique()),
-        "coef": coef, "se": float(m.bse[predictor]),
-        "ci_low": float(m.conf_int().loc[predictor, 0]),
-        "ci_high": float(m.conf_int().loc[predictor, 1]),
-        "p": float(m.pvalues[predictor]),
+        "coef": coef, "se": se, "t": tstat, "df": df,
+        "ci_low": ci_low, "ci_high": ci_high, "p": p,
         "direction": "negative" if coef < 0 else "positive",
-        "jocscp_coef": (float(m.params["jocscp_lag"])
-                        if "jocscp_lag" in m.params else None),
-        "jocscp_p": (float(m.pvalues["jocscp_lag"])
-                     if "jocscp_lag" in m.params else None),
+        "jocscp_coef": jocscp_coef, "jocscp_se": jocscp_se,
+        "jocscp_t": jocscp_t, "jocscp_df": df, "jocscp_p": jocscp_p,
     }
 
 
@@ -258,6 +299,10 @@ def jmsr_hospital_sensitivity():
     d = pd.DataFrame(rows)
     m = smf.ols("dlog_hosp ~ litrate + medrate + C(specialty) + C(year)",
                 data=d).fit(cov_type="cluster", cov_kwds={"groups": d["specialty"]})
+    df = d.specialty.nunique() - 1
+    def _p(coef, se):
+        t = coef / se if se > 0 else 0.0
+        return 2.0 * stats.t.sf(abs(t), df)
     return {
         "label": "JMSR-adjusted annual hospital growth (2016-2024) ~ lit rate + JMSR rate",
         "outcome": "dlog_hosp",
@@ -266,10 +311,10 @@ def jmsr_hospital_sensitivity():
         "n_waves": int(d.year.nunique()),
         "lit_coef": float(m.params["litrate"]),
         "lit_se": float(m.bse["litrate"]),
-        "lit_p": float(m.pvalues["litrate"]),
+        "lit_p": _p(m.params["litrate"], m.bse["litrate"]),
         "med_coef": float(m.params["medrate"]),
         "med_se": float(m.bse["medrate"]),
-        "med_p": float(m.pvalues["medrate"]),
+        "med_p": _p(m.params["medrate"], m.bse["medrate"]),
         "r_lit_med": float(d[["litrate", "medrate"]].corr().iloc[0, 1]),
     }
 
@@ -340,6 +385,10 @@ def media_hospital_sensitivity():
     d = pd.DataFrame(rows)
     m = smf.ols("dlog_hosp ~ litrate + media + C(specialty) + year",
                 data=d).fit(cov_type="cluster", cov_kwds={"groups": d["specialty"]})
+    df = d.specialty.nunique() - 1
+    def _p(coef, se):
+        t = coef / se if se > 0 else 0.0
+        return 2.0 * stats.t.sf(abs(t), df)
     return {
         "label": "Media-adjusted annual hospital growth (2009-2018) ~ lit rate + media count",
         "outcome": "dlog_hosp",
@@ -348,10 +397,10 @@ def media_hospital_sensitivity():
         "n_waves": int(d.year.nunique()),
         "lit_coef": float(m.params["litrate"]),
         "lit_se": float(m.bse["litrate"]),
-        "lit_p": float(m.pvalues["litrate"]),
+        "lit_p": _p(m.params["litrate"], m.bse["litrate"]),
         "media_coef": float(m.params["media"]),
         "media_se": float(m.bse["media"]),
-        "media_p": float(m.pvalues["media"]),
+        "media_p": _p(m.params["media"], m.bse["media"]),
         "r_lit_media": float(d[["litrate", "media"]].corr().iloc[0, 1]),
     }
 
@@ -402,9 +451,12 @@ def main():
     rev = drev.dropna(subset=["dlit", "phys_lag"])
     mrev = smf.ols("dlit ~ np.log(phys_lag) + C(specialty) + C(year)", data=rev).fit(
         cov_type="cluster", cov_kwds={"groups": rev["specialty"]})
+    rev_df = rev["specialty"].nunique() - 1
+    rev_coef = float(mrev.params["np.log(phys_lag)"])
+    rev_se = float(mrev.bse["np.log(phys_lag)"])
+    rev_p = _cluster_p(rev_coef, rev_se, rev_df)
     res["primary"].append({"label": "Reverse: change in litigation rate ~ lagged log physicians",
-                           "coef": float(mrev.params["np.log(phys_lag)"]),
-                           "p": float(mrev.pvalues["np.log(phys_lag)"]),
+                           "coef": rev_coef, "se": rev_se, "df": rev_df, "p": rev_p,
                            "n_obs": int(rev.shape[0])})
 
     # ---- SENSITIVITY (a): annual hospital panel 2008-2024 ----
@@ -435,6 +487,34 @@ def main():
     res["media_correlation"] = media_lit_correlation(load("litigation_by_specialty.csv"),
                                                      load_media())
     res["sensitivity"].append(media_hospital_sensitivity())
+
+    # ---- MULTIPLE COMPARISON ADJUSTMENT (exploratory tests only) ----
+    # Primary equivalence tests are confirmatory and not adjusted. Sensitivity
+    # and JOCS-CP indicator tests are exploratory; report Holm-adjusted p-values.
+    exploratory = []
+    for r in res["primary"]:
+        if "jocscp_p" in r and r["jocscp_p"] is not None:
+            exploratory.append({"label": f"{r['label']} (JOCS-CP indicator)",
+                                "raw_p": r["jocscp_p"]})
+    for r in res["sensitivity"]:
+        if "coef" in r:
+            exploratory.append({"label": r["label"], "raw_p": r["p"]})
+        if "lit_p" in r:
+            exploratory.append({"label": f"{r['label']} (litigation rate)",
+                                "raw_p": r["lit_p"]})
+        if "med_p" in r and "media" not in r["label"]:
+            exploratory.append({"label": f"{r['label']} (JMSR report rate)",
+                                "raw_p": r["med_p"]})
+        if "media_p" in r:
+            exploratory.append({"label": f"{r['label']} (media count)",
+                                "raw_p": r["media_p"]})
+    raw_ps = [e["raw_p"] for e in exploratory]
+    adj_ps = holm_adjust(raw_ps)
+    res["multiple_comparison"] = {
+        "note": "Holm step-down adjustment applied to exploratory sensitivity tests and the JOCS-CP indicator; primary equivalence tests are confirmatory and not included in this family.",
+        "tests": [{"label": e["label"], "raw_p": e["raw_p"], "holm_p": a}
+                  for e, a in zip(exploratory, adj_ps)]
+    }
 
     with open(os.path.join(RES, "reanalysis_results.json"), "w") as f:
         json.dump(res, f, ensure_ascii=False, indent=2)

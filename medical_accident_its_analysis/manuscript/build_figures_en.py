@@ -30,83 +30,146 @@ def load(name):
     return df.loc[CORE]
 
 
-def main():
-    P, L, H = load("physicians_by_specialty.csv"), \
-        load("litigation_by_specialty.csv"), \
-        load("facilities_hospital_by_specialty.csv")
-    res = json.load(open(os.path.join(PROJ, "results", "reanalysis_results.json")))
-    bien = res["grid"]["biennial_years"]
+def _save(fig, outfile):
+    fig.tight_layout()
+    fig.savefig(os.path.join(OUT, outfile), dpi=200)
+    plt.close(fig)
 
-    # ---- Figure 1: litigation rate per 1000 physicians (biennial) ----
+
+def plot_litigation_rate(P, L, bien, outfile, title):
     fig, ax = plt.subplots(figsize=(9, 6))
     for s in CORE:
         rate = [1000.0 * L.loc[s, y] / P.loc[s, y] for y in bien]
         ax.plot(bien, rate, marker="o", ms=3, label=EN[s])
-    ax.set_xlabel("Year"); ax.set_ylabel("Closed malpractice claims per 1,000 physicians")
-    ax.set_title("Figure 1. Litigation rate by specialty (rate, not count), 2008–2024")
+    ax.set_xlabel("Year")
+    ax.set_ylabel("Closed malpractice claims per 1,000 physicians")
+    ax.set_title(title)
     ax.legend(fontsize=7, ncol=2, loc="upper right")
     ax.grid(alpha=0.3)
-    fig.tight_layout(); fig.savefig(os.path.join(OUT, "fig1_litigation_rate.png"), dpi=200)
-    plt.close(fig)
+    _save(fig, outfile)
 
-    # ---- Figure 2: physician counts (biennial), indexed to 2008 = 100 ----
+
+def plot_physician_index(P, bien, outfile, title):
     fig, ax = plt.subplots(figsize=(9, 6))
     for s in CORE:
         base = P.loc[s, bien[0]]
         idx = [100.0 * P.loc[s, y] / base for y in bien]
         ax.plot(bien, idx, marker="o", ms=3, label=EN[s])
     ax.axhline(100, color="k", lw=0.8, ls="--")
-    ax.set_xlabel("Year"); ax.set_ylabel("Physicians (2008 = 100)")
-    ax.set_title("Figure 2. Physician workforce by specialty, indexed to 2008")
+    ax.set_xlabel("Year")
+    ax.set_ylabel("Physicians (2008 = 100)")
+    ax.set_title(title)
     ax.legend(fontsize=7, ncol=2, loc="upper left")
     ax.grid(alpha=0.3)
-    fig.tight_layout(); fig.savefig(os.path.join(OUT, "fig2_physician_index.png"), dpi=200)
-    plt.close(fig)
+    _save(fig, outfile)
 
-    # ---- Figure 3: equivalence (TOST) forest ----
+
+def plot_equivalence(eq, outfile, title, margin1=0.01, margin2=0.02):
     fig, ax = plt.subplots(figsize=(9, 4))
-    eq = res["equivalence"]
     labels = ["Physician growth", "Hospital growth"]
     ys = [1, 0]
     for e, y in zip(eq, ys):
         ax.plot([e["ci90_low"], e["ci90_high"]], [y, y], "b-", lw=2)
         ax.plot(e["coef_per_SD"], y, "bo", ms=7)
-    for mg, c in [(0.01, "orange"), (0.02, "red")]:
+    for mg, c in [(margin1, "orange"), (margin2, "red")]:
         ax.axvline(mg, color=c, ls="--", lw=1, label=f"±{int(mg*100)}% margin")
         ax.axvline(-mg, color=c, ls="--", lw=1)
     ax.axvline(0, color="k", lw=0.8)
-    ax.set_yticks(ys); ax.set_yticklabels(labels)
+    ax.set_yticks(ys)
+    ax.set_yticklabels(labels)
     ax.set_xlabel("Effect of +1 SD litigation rate on biennial log-growth (90% CI)")
-    ax.set_title("Figure 3. Equivalence (TOST): litigation-rate effect vs. null")
+    ax.set_title(title)
     ax.legend(fontsize=8, loc="lower right")
     ax.set_ylim(-0.6, 1.6)
-    fig.tight_layout(); fig.savefig(os.path.join(OUT, "fig3_equivalence.png"), dpi=200)
-    plt.close(fig)
+    _save(fig, outfile)
 
-    # ---- Figure 4: counts-vs-rates contrast (scatter, pooled) ----
-    fig, axs = plt.subplots(1, 2, figsize=(11, 5))
+
+def plot_counts_vs_rates(P, L, bien, outfile, title, colored=True):
+    """Scatter of physician growth vs lagged litigation exposure, counts vs rates.
+
+    If colored=True, points are coloured by specialty and a legend is added so
+    the reader can identify which specialties drive any apparent outliers.
+    """
     dgrow = {}
-    for s in CORE:
-        for i, y in enumerate(bien[1:], 1):
-            g = np.log(P.loc[s, y]) - np.log(P.loc[s, bien[i-1]])
-            cnt = L.loc[s, bien[i-1]]
-            rate = 1000.0 * L.loc[s, bien[i-1]] / P.loc[s, bien[i-1]]
+    colors = {}
+    cmap = plt.cm.tab10 if colored else None
+    for i, s in enumerate(CORE):
+        for j, y in enumerate(bien[1:], 1):
+            g = np.log(P.loc[s, y]) - np.log(P.loc[s, bien[j-1]])
+            cnt = L.loc[s, bien[j-1]]
+            rate = 1000.0 * L.loc[s, bien[j-1]] / P.loc[s, bien[j-1]]
             dgrow.setdefault("g", []).append(g)
             dgrow.setdefault("cnt", []).append(cnt)
             dgrow.setdefault("rate", []).append(rate)
-    axs[0].scatter(dgrow["cnt"], dgrow["g"], s=12, alpha=0.6)
-    axs[0].set_xlabel("Litigation COUNT (lagged)"); axs[0].set_ylabel("Biennial physician log-growth")
+            dgrow.setdefault("specialty", []).append(s)
+            if colored:
+                colors.setdefault("cnt", []).append(i)
+                colors.setdefault("rate", []).append(i)
+
+    fig, axs = plt.subplots(1, 2, figsize=(11, 5))
+    if colored:
+        for i, s in enumerate(CORE):
+            mask = np.array(dgrow["specialty"]) == s
+            axs[0].scatter(np.array(dgrow["cnt"])[mask],
+                           np.array(dgrow["g"])[mask], s=20, alpha=0.7,
+                           label=EN[s], color=cmap(i / max(len(CORE) - 1, 1)))
+            axs[1].scatter(np.array(dgrow["rate"])[mask],
+                           np.array(dgrow["g"])[mask], s=20, alpha=0.7,
+                           color=cmap(i / max(len(CORE) - 1, 1)))
+        axs[0].legend(fontsize=6, ncol=2, loc="upper right")
+    else:
+        axs[0].scatter(dgrow["cnt"], dgrow["g"], s=12, alpha=0.6)
+        axs[1].scatter(dgrow["rate"], dgrow["g"], s=12, alpha=0.6, color="green")
+    axs[0].set_xlabel("Litigation COUNT (lagged)")
+    axs[0].set_ylabel("Biennial physician log-growth")
     axs[0].set_title("(a) Count exposure (size-confounded)")
-    axs[1].scatter(dgrow["rate"], dgrow["g"], s=12, alpha=0.6, color="green")
     axs[1].set_xlabel("Litigation RATE per 1,000 physicians (lagged)")
     axs[1].set_title("(b) Rate exposure (size-adjusted)")
     for a in axs:
-        a.axhline(0, color="k", lw=0.6); a.grid(alpha=0.3)
-    fig.suptitle("Figure 4. Counts vs. rates: association disappears under size adjustment")
-    fig.tight_layout(); fig.savefig(os.path.join(OUT, "fig4_counts_vs_rates.png"), dpi=200)
-    plt.close(fig)
+        a.axhline(0, color="k", lw=0.6)
+        a.grid(alpha=0.3)
+    fig.suptitle(title)
+    _save(fig, outfile)
 
-    print("wrote fig1-4 to", OUT)
+
+def main():
+    P, L, H = (load("physicians_by_specialty.csv"),
+               load("litigation_by_specialty.csv"),
+               load("facilities_hospital_by_specialty.csv"))
+    res = json.load(open(os.path.join(PROJ, "results", "reanalysis_results.json")))
+    bien = res["grid"]["biennial_years"]
+
+    # Base figures (retained for other manuscripts)
+    plot_litigation_rate(
+        P, L, bien, "fig1_litigation_rate.png",
+        "Figure 1. Litigation rate by specialty (rate, not count), 2008–2024")
+    plot_physician_index(
+        P, bien, "fig2_physician_index.png",
+        "Figure 2. Physician workforce by specialty, indexed to 2008")
+    plot_equivalence(
+        res["equivalence"], "fig3_equivalence.png",
+        "Figure 3. Equivalence (TOST): litigation-rate effect vs. null")
+    plot_counts_vs_rates(
+        P, L, bien, "fig4_counts_vs_rates.png",
+        "Figure 4. Counts vs. rates: association disappears under size adjustment",
+        colored=False)
+
+    # Healthcare Analytics-specific figures with correct numbering
+    plot_equivalence(
+        res["equivalence"], "ha_Figure_1.png",
+        "Figure 1. Equivalence (TOST): litigation-rate effect vs. null")
+    plot_counts_vs_rates(
+        P, L, bien, "ha_Figure_2.png",
+        "Figure 2. Counts vs. rates: association disappears under size adjustment",
+        colored=True)
+    plot_litigation_rate(
+        P, L, bien, "ha_Supplementary_Figure_1.png",
+        "Supplementary Figure 1. Litigation rate by specialty (rate, not count), 2008–2024")
+    plot_physician_index(
+        P, bien, "ha_Supplementary_Figure_2.png",
+        "Supplementary Figure 2. Physician workforce by specialty, indexed to 2008")
+
+    print("wrote fig1-4 and ha_* figure files to", OUT)
 
 
 if __name__ == "__main__":
