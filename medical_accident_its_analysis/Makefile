@@ -22,5 +22,8 @@ manuscript: analysis
 hp_submission: manuscript
 	$(PY) manuscript/build_hp_submission.py
 
+ha_submission: manuscript
+	$(PY) manuscript/build_healthcare_analytics_submission.py
+
 clean:
 	rm -rf data_primary/__pycache__ manuscript/__pycache__
