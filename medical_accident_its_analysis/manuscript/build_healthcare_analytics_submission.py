@@ -1153,7 +1153,9 @@ def build_cover_letter():
         "specialty-size confounding and interpolation are removed, and we discuss how "
         "behavioural-economics mechanisms (saliency, loss aversion, status-quo bias) and "
         "structural incentives\u2014notably no-fault obstetric compensation\u2014may sustain the "
-        "specialty workforce.",
+        "specialty workforce. Because these behavioural patterns arise from real-world administrative "
+        "and clinical data, the study offers a policy-relevant example of how perceived risk and economic "
+        "incentives interact in medical labour markets.",
         f"All data and code are openly available in the project repository "
         f"({PUBLIC_REPO}) and every reported number is reproducible from the raw primary files.",
         "The work is original, not under consideration elsewhere, and all authors approve "
