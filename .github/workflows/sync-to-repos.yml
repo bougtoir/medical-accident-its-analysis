@@ -34,7 +34,11 @@ jobs:
           BRANCH_MAP["IONE-stratification-framework"]="ione-stratification-framework"
           BRANCH_MAP["devin/1774274321-rct-decomposition-paper"]="kotha-rct-decomposition"
           BRANCH_MAP["devin/1774353301-icr-paper"]="linko-icr-paper"
-          BRANCH_MAP["devin/1783102664-jma-journal-manuscript"]="medical-accident-its-analysis"
+          # superseded by devin/1786420258-remove-japanese (final Healthcare Analytics framing)
+          # BRANCH_MAP["devin/1785490740-jmaj-revision-reanalysis"]="medical-accident-its-analysis"
+          # BRANCH_MAP["devin/17851786415018-ha-reviewer-fixes"]="medical-accident-its-analysis"
+          # BRANCH_MAP["devin/17851786415018-figure-colors-and-review"]="medical-accident-its-analysis"
+          BRANCH_MAP["devin/1786420258-remove-japanese"]="medical-accident-its-analysis"
           BRANCH_MAP["devin/1774578035-cetacean-acoustic-analysis"]="cetacean-acoustic-analysis"
           # Superseded by the Software Impacts branch below (same target repo),
           # which contains the package plus the external-validation pipeline and
@@ -82,6 +86,8 @@ jobs:
           # ── Academic slides / zero-calibration ──
           BRANCH_MAP["devin/1775549411-anesthesiology-academic-roi-slides"]="anesthesiology-academic-roi-slides"
           BRANCH_MAP["devin/1775637899-pmea-zero-calibration"]="pmea-zero-calibration"
+          BRANCH_MAP["devin/1784242391-bpm-zero-calibration"]="bpm-zero-calibration"
+          BRANCH_MAP["devin/1786340593-tim-zero-calibration"]="abp_zero_calibration"
 
           # ── Bland-Altman / BA series ──
           BRANCH_MAP["devin/1775690994-ba-plot-3d-simulation"]="ba-plot-3d-simulation"
@@ -228,7 +234,10 @@ jobs:
           SUBDIR_MAP["devin/1784701414-heat-accidents-mortality"]="heat_accidents_mortality"
 
           # Problem B fixes (branches with unrelated folders mixed in)
-          SUBDIR_MAP["devin/1783102664-jma-journal-manuscript"]="medical_accident_its_analysis"
+          # SUBDIR_MAP["devin/1785490740-jmaj-revision-reanalysis"]="medical_accident_its_analysis"  # superseded
+          # SUBDIR_MAP["devin/17851786415018-ha-reviewer-fixes"]="medical_accident_its_analysis"
+          # SUBDIR_MAP["devin/17851786415018-figure-colors-and-review"]="medical_accident_its_analysis"
+          SUBDIR_MAP["devin/1786420258-remove-japanese"]="medical_accident_its_analysis"
           SUBDIR_MAP["devin/1784701921-ndb-dea-drug-lag"]="ndb-dea-drug-lag"
           SUBDIR_MAP["devin/1778846737-flood-prediction-models"]="flood-prediction-review"
           SUBDIR_MAP["devin/1777462980-spectral-causality-brainstorm"]="spectral-causality-brainstorm"
@@ -279,6 +288,8 @@ jobs:
           SUBDIR_MAP["devin/1780039674-yago-cs-bleeding-analysis"]="yago_cs_bleeding"
           SUBDIR_MAP["devin/1780052155-yago-ionv-analysis"]="yago_ionv"
           SUBDIR_MAP["devin/1775637899-pmea-zero-calibration"]="zero_calibration_pmea"
+          SUBDIR_MAP["devin/1784242391-bpm-zero-calibration"]="zero_calibration_bpm"
+          SUBDIR_MAP["devin/1786340593-tim-zero-calibration"]="zero_calibration_bpm"
           SUBDIR_MAP["stem-cell-seasonality"]="stem_cell_seasonality"
           SUBDIR_MAP["devin/1782083347-landmine-transparent-map"]="landmine_transparent_map"
           SUBDIR_MAP["sits9-sync"]="sits9"
@@ -302,13 +313,25 @@ jobs:
           BRANCH_MAP["devin/1785812663-sales-conversation-dynamics"]="sales-conversation-dynamics"
           SUBDIR_MAP["devin/1785812663-sales-conversation-dynamics"]="sales_conversation_dynamics"
 
-          # ── Urban cancer-screening burden simulation ──
+          # -- Urban cancer-screening burden simulation --
           BRANCH_MAP["devin/1786090370-cancer-screening-burden"]="cancer-screening-burden"
           SUBDIR_MAP["devin/1786090370-cancer-screening-burden"]="cancer_screening_burden"
 
-          # ── Data-driven cancer-screening burden scenario-modeling paper ──
+          # -- Data-driven cancer-screening burden scenario-modeling paper --
           BRANCH_MAP["devin/1786535489-cancer-data-driven"]="cancer-screening-burden-data-driven"
           SUBDIR_MAP["devin/1786535489-cancer-data-driven"]="cancer_screening_burden"
+
+          # ── AI/ML researcher mobility ODE model (full-article branch is the canonical public snapshot) ──
+          BRANCH_MAP["devin/researcher-mobility-ode-full-article"]="researcher-mobility-ode"
+          SUBDIR_MAP["devin/researcher-mobility-ode-full-article"]="researcher_mobility_ode"
+
+          # ── AI/ML researcher mobility ODE model extensions ──
+          BRANCH_MAP["devin/researcher-mobility-ode-extensions"]="researcher-mobility-ode-extensions"
+          SUBDIR_MAP["devin/researcher-mobility-ode-extensions"]="researcher_mobility_ode"
+
+          # ── Quantum / atomic-molecular physics researcher mobility ODE model ──
+          BRANCH_MAP["devin/researcher-mobility-ode-quantum"]="researcher-mobility-ode-quantum"
+          SUBDIR_MAP["devin/researcher-mobility-ode-quantum"]="researcher_mobility_ode"
 
           # ── File exclusion map ──
           # Space-separated list of file paths (relative to subdir root if
@@ -328,6 +351,11 @@ jobs:
           # outputs out of the public repo; reproduce.py (figures + in-text numbers)
           # and the data/analysis code remain public for reproducibility.
           EXCLUDE_MAP["devin/1784904207-transport-policy"]="build_submission.py output/Manuscript_TransportPolicy.docx output/Cover_Letter_TransportPolicy.docx output/Title_Page_TransportPolicy.docx output/Submission_Checklist_TransportPolicy.docx output/Highlights_TransportPolicy.docx output/Highlights_TransportPolicy.txt output/TransportPolicy_submission_package.zip output/VALIDATION.txt output/Citation_Audit.csv output/Reference_Verification.csv output/Reporting_Guideline_PRISMA-ScR.docx"
+          # Keep manuscript/cover-letter generators and their prose-bearing outputs in wip;
+          # the public repo retains data, analysis code, figures and the reproducible JSON results.
+          # EXCLUDE_MAP["devin/17851786415018-ha-reviewer-fixes"]=...
+          # EXCLUDE_MAP["devin/17851786415018-figure-colors-and-review"]=...
+          EXCLUDE_MAP["devin/1786420258-remove-japanese"]="manuscript/build_healthcare_analytics_submission.py manuscript/build_hp_submission.py manuscript/build_manuscript_en.py manuscript/build_package_en.py manuscript/ha_manuscript_en.docx manuscript/ha_title_page.docx manuscript/ha_cover_letter.docx manuscript/ha_highlights.docx manuscript/ha_supplementary.docx manuscript/ha_figures.pptx manuscript/ha_supplementary_figures.pptx output/ha_submission.zip"
           # yoshika-software-impacts is branched from the monorepo root, so the
           # yoshika project (yoshika/, tests/, paper/, pyproject.toml, README,
           # LICENSE) sits alongside many unrelated project folders. Exclude every
