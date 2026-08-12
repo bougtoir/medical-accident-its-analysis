@@ -4,6 +4,7 @@ This script reads parameters.yaml and the generated CSV/PNG files and writes:
   - manuscript.md (Markdown draft with inline figure/table references)
   - manuscript/manuscript_figures.pptx (one slide per figure)
   - manuscript/manuscript_tables.docx (editable tables)
+  - manuscript/manuscript.docx (full draft with inline figures and tables)
 
 No numeric results are hard-coded; all numbers are read from output files.
 """
@@ -11,11 +12,17 @@ No numeric results are hard-coded; all numbers are read from output files.
 from __future__ import annotations
 
 import argparse
+import re
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 
 import pandas as pd
 import yaml
+from docx import Document
+from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.shared import Inches, Pt
+
+from simulate import choose_summary_rate, find_capacity_threshold
 
 
 def load_aggregate(output_dir: Path) -> pd.DataFrame:
@@ -30,11 +37,27 @@ def load_weighted_ppv(output_dir: Path) -> pd.DataFrame:
     return pd.read_csv(output_dir / "weighted_ppv_by_distribution.csv")
 
 
-def find_capacity_threshold(agg: pd.DataFrame) -> float:
-    over = agg[agg["max_capacity_utilization_pct"] > 100.0]
-    if over.empty:
-        return float("nan")
-    return over["follow_up_rate"].iloc[0]
+def load_capacity_summary(output_dir: Path) -> Dict[str, Any]:
+    path = output_dir / "specialist_capacity_summary.yaml"
+    if path.exists():
+        with open(path, "r", encoding="utf-8") as f:
+            return yaml.safe_load(f) or {}
+    return {}
+
+
+def parse_capacity_threshold(agg: pd.DataFrame) -> Tuple[float, str]:
+    """Return the first follow-up rate at which capacity exceeds 100% and the bottleneck resource."""
+    s = find_capacity_threshold(agg, threshold=100.0)
+    # find_capacity_threshold returns a string like "40% (Specialist Total Visits)"
+    # or "not reached in the scanned range".
+    if s.startswith("not"):
+        return float("nan"), "not reached"
+    m = re.search(r"([0-9]+)%\s*\(([^)]+)\)", s)
+    if not m:
+        return float("nan"), "unknown"
+    rate = int(m.group(1)) / 100.0
+    resource = m.group(2).strip().lower()
+    return rate, resource
 
 
 def compute_per_cancer_at_followup(by_cancer: pd.DataFrame, follow_up: float) -> pd.DataFrame:
@@ -54,7 +77,7 @@ def make_table_1(params: Dict[str, Any]) -> List[List[str]]:
         ["CT capacity per 100k per year", f"{cap['ct_exams_per_year']:.0f}", params["data_sources"]["diagnostic_capacity"]["source"]],
         ["MRI capacity per 100k per year", f"{cap['mri_exams_per_year']:.0f}", params["data_sources"]["diagnostic_capacity"]["source"]],
         ["Endoscopy capacity per 100k per year", f"{cap['endoscopy_exams_per_year']:.0f}", params["data_sources"]["diagnostic_capacity"]["source"]],
-        ["Specialist capacity per 100k per year", f"{cap['specialist_visits_per_year']:.0f}", "Illustrative scenario assumption"],
+        ["Specialist capacity per 100k per year", f"{cap['specialist_visits_per_year']:.0f}", cap.get("specialist_capacity_note", "Illustrative scenario assumption")],
     ]
     for cancer in params["cancers"]:
         table.append(
@@ -132,56 +155,103 @@ def make_table_3(agg: pd.DataFrame) -> List[List[str]]:
     return table
 
 
+def make_table_4(capacity_impact: pd.DataFrame) -> List[List[str]]:
+    """Table 4: Baseline cases per specialist and the incremental FP burden at 50% follow-up."""
+    table = [
+        [
+            "Cancer",
+            "Relevant specialty",
+            "Baseline cases per specialist",
+            "FP visits per specialist (100k screened)",
+            "Cases per specialist with FP",
+            "Increase (%)",
+        ]
+    ]
+    for _, row in capacity_impact.iterrows():
+        table.append(
+            [
+                str(row["cancer"]),
+                str(row["specialty"]),
+                f"{row['baseline_cases_per_specialist']:.1f}",
+                f"{row['fp_visits_per_specialist']:.2f}",
+                f"{row['cases_per_specialist_with_fp']:.1f}",
+                f"{row['percent_change_in_cases_per_specialist']:.1f}",
+            ]
+        )
+    return table
+
+
 def build_markdown(
     params: Dict[str, Any],
     agg: pd.DataFrame,
     by_cancer_at_50: pd.DataFrame,
     weighted_ppv: pd.DataFrame,
-    threshold: float,
+    capacity_impact: pd.DataFrame,
+    capacity_summary: Dict[str, Any],
     output_dir: Path,
 ) -> str:
     """Generate the Markdown manuscript body."""
-    row_50 = agg[agg["follow_up_rate"] == 0.5].iloc[0]
-    row_30 = agg[agg["follow_up_rate"] == 0.3].iloc[0]
-    row_70 = agg[agg["follow_up_rate"] == 0.7].iloc[0]
-    row_95 = by_cancer_at_50.iloc[0]  # placeholder; real specificity sweep handled below
+    follow_up_rates = agg["follow_up_rate"].tolist()
+    row_50 = agg[agg["follow_up_rate"] == choose_summary_rate(follow_up_rates, 0.5)].iloc[0]
+    row_30 = agg[agg["follow_up_rate"] == choose_summary_rate(follow_up_rates, 0.3)].iloc[0]
+    row_70 = agg[agg["follow_up_rate"] == choose_summary_rate(follow_up_rates, 0.7)].iloc[0]
 
-    # Pull specificity sweep aggregate for 0.95 and 0.99 if available.
+    threshold_rate, threshold_resource = parse_capacity_threshold(agg)
+    if pd.isna(threshold_rate):
+        threshold_str = "not reached in the scanned follow-up range"
+    else:
+        threshold_str = f"{threshold_rate:.0%} ({threshold_resource})"
+
+    # Specificity sweep PPVs at 95% and 99%.
     sweep = pd.read_csv(output_dir / "specificity_sweep.csv")
-    # aggregate across cancers for each specificity at follow_up 0.7
-    sweep_agg = sweep.groupby("sweep_specificity")[["true_positives", "false_positives"]].sum().reset_index()
-    sweep_agg["ppv"] = sweep_agg["true_positives"] / (sweep_agg["true_positives"] + sweep_agg["false_positives"])
-    ppv_95 = sweep_agg[sweep_agg["sweep_specificity"] == 0.95]["ppv"].values[0] * 100
-    ppv_99 = sweep_agg[sweep_agg["sweep_specificity"] == 0.99]["ppv"].values[0] * 100
+    sweep_agg = (
+        sweep.groupby("sweep_specificity")[["true_positives", "false_positives"]]
+        .sum()
+        .reset_index()
+    )
+    sweep_agg["ppv"] = sweep_agg["true_positives"] / (
+        sweep_agg["true_positives"] + sweep_agg["false_positives"]
+    )
+    spec_values = sweep_agg["sweep_specificity"].tolist()
+    spec_95 = choose_summary_rate(spec_values, 0.95)
+    spec_99 = choose_summary_rate(spec_values, 0.99)
+    ppv_95 = sweep_agg[sweep_agg["sweep_specificity"] == spec_95]["ppv"].values[0] * 100
+    ppv_99 = sweep_agg[sweep_agg["sweep_specificity"] == spec_99]["ppv"].values[0] * 100
+    ppv_ratio = ppv_95 / ppv_99 if ppv_99 > 0 else 0.0
 
-    # Find cancer with lowest and highest age-adjusted PPV.
     lowest_ppv = weighted_ppv.loc[weighted_ppv["ppv"].idxmin()]
     highest_ppv = weighted_ppv.loc[weighted_ppv["ppv"].idxmax()]
 
     cap = params["capacity"]
 
-    # Reference numbers in Vancouver order of appearance.
+    baseline_cases_per_spec = capacity_summary.get("baseline_cases_per_specialist", 0.0)
+    fp_visits_per_spec = capacity_summary.get("fp_visits_per_specialist", 0.0)
+    percent_change = capacity_summary.get("percent_change", 0.0)
+
     references = [
         "1. National Cancer Center of Japan. Cancer Statistics in Japan 2016-2023. https://ganjoho.jp/reg_stat/statistics/data/dl/en.html",
         "2. Ministry of Health, Labour and Welfare. 2023 Medical Facility Survey (Static/Dynamic). https://www.mhlw.go.jp/toukei/saikin/hw/iryosd/23/",
         "3. Kahwati LC, et al. Blood-Based Tests for Multiple Cancer Screening: A Systematic Review. AHRQ; 2025. https://www.ncbi.nlm.nih.gov/books/NBK618307/",
         "4. Schnabel JL, et al. Predictive Performance of Cell-Free Nucleic Acid-Based Multi-Cancer Early Detection Tests: A Systematic Review. PubMed; 2024. https://pubmed.ncbi.nlm.nih.gov/37791504/",
         "5. Nagamachi S, et al. Nationwide PET/CT facility survey on N-NOSE-triggered examinations. J Nucl Med Technol (Japanese report), 2024. https://jcpet.jp/2024/10/senchu-chosa.html",
+        "6. Ministry of Health, Labour and Welfare. Patient Survey 2023 (r05syobyo.pdf). https://www.mhlw.go.jp/toukei/saikin/hw/kanja/10syoubyo/",
+        "7. Ministry of Health, Labour and Welfare. NDB Open Data 11th release (April 2024–March 2025). https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/0000177179.html",
+        "8. Japanese Board of Medical Specialties. Summary of the Japanese specialist system (日本専門医制度概報), as tabulated by 内科専攻医net. https://senkoi.net/650/ and https://senkoi.net/778/",
     ]
 
     md = f"""# False-positive cascade and healthcare capacity burden of direct-to-consumer multi-cancer early detection blood tests in Japan: a scenario modelling study
 
 ## Abstract
 
-**Background:** Direct-to-consumer (DTC) blood-based multi-cancer early detection (MCED) tests are marketed as a simple alternative to organised screening, but their positive predictive value (PPV) is low in asymptomatic populations and each screen-positive person may trigger multiple confirmatory examinations.
+|**Background:** Direct-to-consumer (DTC) blood-based multi-cancer early detection (MCED) tests are marketed as a simple alternative to organised screening, but their positive predictive value (PPV) is low in asymptomatic populations and each screen-positive person may trigger multiple confirmatory examinations.
 
-**Methods:** We built a deterministic expected-value model parameterised with 2023 Japanese adult cancer incidence rates, 2023 population counts, and 2023 national medical-facility diagnostic volumes. We estimated true positives, false positives, downstream visits, and capacity utilisation for CT, MRI, endoscopy and specialist visits across follow-up rates of 0–100% and specificities of 95.0–99.9%.
+|**Methods:** We built a deterministic expected-value model parameterised with 2023 Japanese adult cancer incidence rates, 2023 population counts, and 2023 national medical-facility diagnostic volumes. Specialist capacity was additionally derived from NDB Open Data outpatient patient counts and JMSB specialist counts. We estimated true positives, false positives, downstream visits, capacity utilisation, and the per-specialist case load across follow-up rates of 0–100% and specificities of 95.0–99.9%.
 
-**Results:** At 50% follow-up, a screening wave of 100,000 persons would generate {row_50['true_positives']:.1f} true positives and {row_50['false_positives']:.1f} false positives (overall PPV {row_50['ppv']*100:.2f}%; FP/TP ratio {row_50['fp_to_tp_ratio']:.1f}). Total downstream visits would reach {row_50['total_visits']:.1f}, with maximum capacity utilisation {row_50['max_capacity_utilization_pct']:.1f}% (specialist visits). Any follow-up rate above {threshold:.0%} already exceeds illustrative capacity. PPV ranged from {lowest_ppv['ppv']*100:.2f}% ({lowest_ppv['cancer']}) to {highest_ppv['ppv']*100:.2f}% ({highest_ppv['cancer']}) across cancer types and was strongly age-dependent.
+|**Results:** At 50% follow-up, a screening wave of 100,000 persons would generate {row_50['true_positives']:.1f} true positives and {row_50['false_positives']:.1f} false positives (overall PPV {row_50['ppv']*100:.2f}%; FP/TP ratio {row_50['fp_to_tp_ratio']:.1f}). Total downstream visits would reach {row_50['total_visits']:.1f}, with maximum capacity utilisation {row_50['max_capacity_utilization_pct']:.1f}% (specialist visits). The first illustrative capacity ceiling was exceeded at a follow-up rate of {threshold_str}. PPV ranged from {lowest_ppv['ppv']*100:.2f}% ({lowest_ppv['cancer']}) to {highest_ppv['ppv']*100:.2f}% ({highest_ppv['cancer']}) across cancer types and was strongly age-dependent. Relative to the MHLW Patient Survey 2023 baseline case load, a 100,000-person DTC wave at 50% follow-up would add {fp_visits_per_spec:.1f} specialist visits per relevant specialist, raising the effective cases per specialist from {baseline_cases_per_spec:.1f} to {baseline_cases_per_spec + fp_visits_per_spec:.1f} ({percent_change:.0f}% increase).
 
-**Conclusions:** Even with optimistic 99% specificity, a DTC MCED wave can trigger a false-positive cascade that exceeds Japanese outpatient and endoscopic capacity. Regulatory guardrails on performance claims, follow-up obligations, and reporting are needed before routine adoption.
+|**Conclusions:** Even with optimistic 99% specificity, a DTC MCED wave can trigger a false-positive cascade that exceeds Japanese outpatient and endoscopic capacity. Regulatory guardrails on performance claims, follow-up obligations, and reporting are needed before routine adoption.
 
-**Keywords:** multi-cancer early detection, false positive, healthcare capacity, direct-to-consumer testing, Japan, scenario model
+|**Keywords:** multi-cancer early detection, false positive, healthcare capacity, direct-to-consumer testing, Japan, scenario model
 
 ---
 
@@ -195,6 +265,8 @@ Blood-based multi-cancer early detection (MCED) tests are increasingly advertise
 
 Cancer incidence by site, age, sex, and calendar year (2023) and the corresponding 2023 Japanese population by age and sex were taken from the National Cancer Center of Japan [^1^]. Annual volumes of CT, MRI, and upper/lower gastrointestinal endoscopies were derived from the 2023 Ministry of Health, Labour and Welfare Medical Facility Survey [^2^]. Test sensitivity and specificity ranges were informed by two recent systematic reviews of blood-based MCED tests [^3^][^4^], and real-world PPV evidence came from a nationwide PET/CT facility survey of N-NOSE-triggered examinations [^5^].
 
+Specialist capacity was defined using NDB Open Data first/revisit outpatient patient counts and Japanese Board of Medical Specialties specialist counts (JMSB概報, digitised by 内科専攻医net) [^7^][^8^]. Disease-specific baseline patient numbers for the case-per-specialist ratio were taken from the MHLW 2023 Patient Survey [^6^].
+
 ### Model
 
 We used a deterministic expected-value cohort model. For each cancer \(c\):
@@ -206,6 +278,10 @@ We used a deterministic expected-value cohort model. For each cancer \(c\):
 Each positive individual who followed up (follow-up rate, 0–100%) generated visits to CT, MRI, endoscopy, and specialist care according to cancer-specific pathway probabilities. Additional visits per true and false positive were added. Capacity utilisation for each resource was calculated as total visits divided by the annual capacity per 100,000 population. A full description of equations is available in `simulate.py`.
 
 Prevalence was approximated by adult (20+) incidence because point prevalence of undiagnosed, screen-detectable cancers is not publicly reported. This is a conservative lower-bound for true positives and therefore an upper-bound for PPV and FP/TP ratios. Pathway probabilities and the share of facility capacity available for a new DTC-related wave were scenario assumptions, documented in `parameters.yaml`.
+
+### Specialist capacity definition
+
+We define baseline specialist capacity as the annual outpatient caseload per cancer-relevant specialist. We used NDB Open Data unique first/revisit outpatient patients (April 2024–March 2025) divided by the total number of basic JMSB specialists, giving an average annual caseload per specialist [^7^][^8^]. We then multiplied this by the number of cancer-relevant specialists per 100,000 population and applied the same 20% share assumed available for a DTC wave. The resulting `specialist_visits_per_year` is an illustrative capacity ceiling for a 100,000-person cohort.
 
 ### Scenarios
 
@@ -231,13 +307,21 @@ At a 50% follow-up rate, the model estimated {row_50['true_positives']:.1f} true
 
 ### Capacity impact
 
-Total downstream visits rose from {agg[agg['follow_up_rate']==0.0]['total_visits'].iloc[0]:.1f} at 0% follow-up to {agg[agg['follow_up_rate']==1.0]['total_visits'].iloc[0]:.1f} at 100% follow-up (Fig. 1). Resource utilisation is shown in Fig. 2. The first illustrative capacity ceiling was exceeded at a follow-up rate of {threshold:.0%} ({'specialist visits'}), and at 50% follow-up maximum utilisation was {row_50['max_capacity_utilization_pct']:.1f}%.
+Total downstream visits rose from {agg[agg['follow_up_rate']==0.0]['total_visits'].iloc[0]:.1f} at 0% follow-up to {agg[agg['follow_up_rate']==1.0]['total_visits'].iloc[0]:.1f} at 100% follow-up (Fig. 1). Resource utilisation is shown in Fig. 2. The first illustrative capacity ceiling was exceeded at {threshold_str}. At 50% follow-up maximum utilisation was {row_50['max_capacity_utilization_pct']:.1f}%.
 
 ![Figure 1: Total downstream visits by follow-up rate](output/total_visits_by_followup.png)
 **Fig. 1.** Total downstream diagnostic and specialist visits generated by a blood-based MCED screening wave of 100,000 persons, by follow-up rate.
 
 ![Figure 2: Diagnostic capacity utilisation by follow-up rate](output/capacity_utilization.png)
 **Fig. 2.** Capacity utilisation (%) for CT, MRI, endoscopy, and specialist visits as follow-up rate increases. Values above 100% indicate demand exceeding the illustrative annual capacity available for a DTC screening wave.
+
+### Specialist capacity and the false-positive cascade
+
+Table 4 compares the MHLW Patient Survey 2023 baseline cancer case load per specialist with the additional specialist visits generated by a 100,000-person DTC wave at 50% follow-up. Across all cancer-relevant specialties, the baseline case load is about {baseline_cases_per_spec:.1f} patients per specialist; the DTC wave adds about {fp_visits_per_spec:.1f} visits per specialist, an increase of {percent_change:.0f}%.
+
+**Table 4. Baseline cases per specialist and incremental false-positive burden at 50% follow-up.**
+
+{format_markdown_table(make_table_4(capacity_impact))}
 
 ### Age-specific positive predictive value
 
@@ -248,7 +332,7 @@ PPV was strongly age-dependent (Fig. 3). In younger age groups PPV fell below 1%
 
 ### Sensitivity to test specificity
 
-Lowering specificity from 99% to 95% approximately halved aggregate PPV (from {ppv_99:.2f}% to {ppv_95:.2f}%) and dramatically increased total visits and capacity pressure (Fig. 4; Table 3).
+Lowering specificity from 99% to 95% reduced aggregate PPV to roughly {ppv_ratio:.1f} of the 99% value (from {ppv_99:.2f}% to {ppv_95:.2f}%) and dramatically increased total visits and capacity pressure (Fig. 4; Table 3).
 
 **Table 3. Aggregate outcomes by follow-up rate (base-case specificity).**
 
@@ -259,13 +343,13 @@ Lowering specificity from 99% to 95% approximately halved aggregate PPV (from {p
 
 ## Discussion
 
-Our scenario model shows that, even under optimistic assumptions for test accuracy, a DTC blood-based MCED screening wave can produce roughly {row_50['fp_to_tp_ratio']:.0f} false-positive workups for every true cancer detected. At 30% follow-up, illustrative specialist capacity is already saturated ({row_30['max_capacity_utilization_pct']:.1f}% utilisation); at 50% it is exceeded by {row_50['max_capacity_utilization_pct']-100:.1f} percentage points. The burden is not uniform: cancers with low prevalence (ovarian, liver, pancreatic) had the lowest PPV and the highest FP/TP ratios, while age strongly modulates PPV.
+Our scenario model shows that, even under optimistic assumptions for test accuracy, a DTC blood-based MCED screening wave can produce roughly {row_50['fp_to_tp_ratio']:.0f} false-positive workups for every true cancer detected. At 50% follow-up the illustrative specialist capacity ceiling is exceeded by {row_50['max_capacity_utilization_pct']-100:.1f} percentage points, and the effective case load per cancer-relevant specialist rises by about {percent_change:.0f}%. The burden is not uniform: cancers with low prevalence (ovarian, liver, pancreatic) had the lowest PPV and the highest FP/TP ratios, while age strongly modulates PPV.
 
 These findings align with real-world data from the N-NOSE PET/CT survey, in which the cancer discovery rate after a high-risk result was low and well below the company's advertised PPV [^5^].
 
 ### Limitations
 
-Our analysis intentionally uses scenario assumptions for test performance, diagnostic pathways, and the age distribution of DTC users, because these data are not publicly reported. Prevalence was approximated by adult incidence; true point prevalence of undiagnosed cancers may differ. Capacity was annualised from a one-month facility survey and then further reduced by an arbitrary available-for-cancer-workup share. The model is deterministic and does not capture stochastic variation, geographic maldistribution, or queueing effects.
+Our analysis intentionally uses scenario assumptions for test performance, diagnostic pathways, and the age distribution of DTC users, because these data are not publicly reported. Prevalence was approximated by adult incidence; true point prevalence of undiagnosed cancers may differ. Diagnostic capacity was annualised from a one-month facility survey and specialist capacity from NDB outpatient patient counts; both were reduced by an arbitrary available-for-cancer-workup share. The model is deterministic and does not capture stochastic variation, geographic maldistribution, or queueing effects.
 
 ### Conclusion
 
@@ -283,27 +367,44 @@ def format_markdown_table(table: List[List[str]]) -> str:
     return "\n".join(lines)
 
 
-def build_tables_docx(tables: Dict[str, List[List[str]]], docx_path: Path) -> None:
-    from docx import Document
-    from docx.shared import Inches, Pt
-    from docx.enum.text import WD_ALIGN_PARAGRAPH
+def _add_formatted_text(paragraph, text: str, font_size: int = 11) -> None:
+    """Add text to a paragraph, applying bold and superscript citation formatting."""
+    parts = re.split(r"(\[\^\d+\^\]|\*\*[^*]+\*\*)", text)
+    for part in parts:
+        if not part:
+            continue
+        run = paragraph.add_run()
+        if re.fullmatch(r"\*\*[^*]+\*\*", part):
+            run.text = part[2:-2]
+            run.font.bold = True
+        elif re.fullmatch(r"\[\^\d+\^\]", part):
+            run.text = part[2:-2].strip("[^]")
+            run.font.superscript = True
+        else:
+            run.text = part
+        run.font.size = Pt(font_size)
 
+
+def build_tables_docx(tables: Dict[str, List[List[str]]], docx_path: Path) -> None:
     doc = Document()
     for title, table_data in tables.items():
-        p = doc.add_heading(title, level=2)
-        # Add table
+        doc.add_heading(title, level=2)
         t = doc.add_table(rows=1, cols=len(table_data[0]))
         t.style = "Table Grid"
         hdr_cells = t.rows[0].cells
         for i, val in enumerate(table_data[0]):
             hdr_cells[i].text = val
-            for p in hdr_cells[i].paragraphs:
-                for r in p.runs:
+            for para in hdr_cells[i].paragraphs:
+                for r in para.runs:
                     r.font.bold = True
+                    r.font.size = Pt(10)
         for row in table_data[1:]:
             row_cells = t.add_row().cells
             for i, val in enumerate(row):
                 row_cells[i].text = val
+                for para in row_cells[i].paragraphs:
+                    for r in para.runs:
+                        r.font.size = Pt(10)
         doc.add_paragraph()
     doc.save(docx_path)
 
@@ -337,6 +438,116 @@ def build_figures_pptx(output_dir: Path, pptx_path: Path) -> None:
     prs.save(pptx_path)
 
 
+def markdown_to_docx(md_text: str, docx_path: Path, output_dir: Path) -> None:
+    """Convert the Markdown manuscript into a single editable .docx with inline figures and tables."""
+    doc = Document()
+    # Set a default font for the document.
+    style = doc.styles["Normal"]
+    style.font.name = "Calibri"
+    style.font.size = Pt(11)
+
+    lines = md_text.splitlines()
+    i = 0
+    table_pattern = re.compile(r"^\|(.*)\|\s*$")
+
+    while i < len(lines):
+        line = lines[i].rstrip()
+
+        if line.startswith("# ") and not line.startswith("## "):
+            p = doc.add_heading(line[2:], level=0)
+            p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            i += 1
+            continue
+
+        if line.startswith("### "):
+            doc.add_heading(line[4:], level=3)
+            i += 1
+            continue
+
+        if line.startswith("## "):
+            doc.add_heading(line[3:], level=2)
+            i += 1
+            continue
+
+        if line.startswith("!"):
+            m = re.match(r"!\[([^\]]*)\]\(([^)]+)\)", line)
+            if m:
+                img_path = output_dir / Path(m.group(2)).name
+                if img_path.exists():
+                    doc.add_picture(str(img_path), width=Inches(5.5))
+                    last_paragraph = doc.paragraphs[-1]
+                    last_paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                # The next line is typically the caption.
+                if i + 1 < len(lines) and lines[i + 1].startswith("**Fig."):
+                    i += 1
+                    cap = doc.add_paragraph()
+                    cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
+                    _add_formatted_text(cap, lines[i].strip(), font_size=10)
+                    cap.paragraph_format.space_before = Pt(6)
+            i += 1
+            continue
+
+        if line.startswith("**Table"):
+            p = doc.add_paragraph()
+            _add_formatted_text(p, line.strip(), font_size=11)
+            i += 1
+            continue
+
+        if table_pattern.match(line):
+            # Collect table lines.
+            table_lines = []
+            while i < len(lines) and table_pattern.match(lines[i]):
+                table_lines.append(lines[i])
+                i += 1
+            # Remove header separator line.
+            filtered = [l for l in table_lines if not re.match(r"^\|\s*[-:]+", l.strip())]
+            if filtered:
+                rows = []
+                for l in filtered:
+                    cells = [c.strip() for c in l.strip("|").split("|")]
+                    rows.append(cells)
+                if rows:
+                    t = doc.add_table(rows=1, cols=len(rows[0]))
+                    t.style = "Table Grid"
+                    for col_idx, val in enumerate(rows[0]):
+                        t.rows[0].cells[col_idx].text = val
+                        for para in t.rows[0].cells[col_idx].paragraphs:
+                            for r in para.runs:
+                                r.font.bold = True
+                                r.font.size = Pt(10)
+                    for row in rows[1:]:
+                        cells = t.add_row().cells
+                        for col_idx, val in enumerate(row):
+                            cells[col_idx].text = val
+                            for para in cells[col_idx].paragraphs:
+                                for r in para.runs:
+                                    r.font.size = Pt(10)
+                    doc.add_paragraph()
+            continue
+
+        if line == "---":
+            doc.add_paragraph("\u2501" * 60)
+            i += 1
+            continue
+
+        if line.startswith("- "):
+            p = doc.add_paragraph(style="List Bullet")
+            _add_formatted_text(p, line[2:], font_size=11)
+            i += 1
+            continue
+
+        if line.strip():
+            p = doc.add_paragraph()
+            _add_formatted_text(p, line, font_size=11)
+            i += 1
+            continue
+
+        # Blank line.
+        i += 1
+
+    doc.save(docx_path)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Build manuscript materials")
     parser.add_argument("--params", type=Path, default=Path("parameters.yaml"))
@@ -353,22 +564,31 @@ def main() -> None:
     by_cancer = load_by_cancer(args.output)
     weighted_ppv = load_weighted_ppv(args.output)
     by_cancer_at_50 = compute_per_cancer_at_followup(by_cancer, 0.5)
-    threshold = find_capacity_threshold(agg)
+    capacity_impact = pd.read_csv(args.output / "specialist_capacity_impact.csv")
+    capacity_summary = load_capacity_summary(args.output)
 
-    # Markdown manuscript
-    md = build_markdown(params, agg, by_cancer_at_50, weighted_ppv, threshold, args.output)
+    md = build_markdown(
+        params,
+        agg,
+        by_cancer_at_50,
+        weighted_ppv,
+        capacity_impact,
+        capacity_summary,
+        args.output,
+    )
     (args.manuscript / "manuscript.md").write_text(md, encoding="utf-8")
 
-    # Tables docx
     tables = {
         "Table 1. Data sources and scenario parameters": make_table_1(params),
         "Table 2. Per-cancer outcomes at 50% follow-up": make_table_2(by_cancer_at_50, weighted_ppv),
         "Table 3. Aggregate outcomes by follow-up rate": make_table_3(agg),
+        "Table 4. Baseline cases per specialist and incremental FP burden": make_table_4(capacity_impact),
     }
     build_tables_docx(tables, args.manuscript / "manuscript_tables.docx")
 
-    # Figures pptx
     build_figures_pptx(args.output, args.manuscript / "manuscript_figures.pptx")
+
+    markdown_to_docx(md, args.manuscript / "manuscript.docx", args.output)
 
     print(f"Manuscript materials written to {args.manuscript.resolve()}")
 

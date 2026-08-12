@@ -17,7 +17,10 @@ capacity:
   ct_exams_per_year: 5676.432035126377
   mri_exams_per_year: 2677.556272165081
   endoscopy_exams_per_year: 2583.0122797564964
-  specialist_visits_per_year: 8000.0
+  specialist_visits_per_year: 7183.295754215738
+  specialist_capacity_note: Derived from NDB Open Data first/revisit outpatient patient
+    counts (88,408,837 + 85,182,008) and 79,117 cancer-relevant JMSB specialists;
+    20% share assumed available for new cancer workups.
 specificity_sweep:
   follow_up_rate: 0.7
   specificity_values:

@@ -12,11 +12,18 @@ Run this script before simulate.py:
 
 from __future__ import annotations
 
+from functools import lru_cache
 from pathlib import Path
 from typing import Any, Dict, List
 
 import pandas as pd
 import yaml
+
+from specialist_capacity import (
+    compute_specialist_capacity_inputs,
+    load_specialist_counts,
+    read_ndb_outpatient_patients,
+)
 
 
 DATA_DIR = Path(__file__).parent / "data"
@@ -62,16 +69,20 @@ CHILD_TEEN_COLS = ["0-4 yrs.", "5-9 yrs.", "10-14 yrs.", "15-19 yrs."]
 ADULT_COLS = [c for c in AGE_COLS if c not in CHILD_TEEN_COLS]
 
 
+@lru_cache(maxsize=None)
 def load_pop(sex: str, year: int = 2023) -> pd.Series:
     pop = pd.read_excel(POP_FILE, sheet_name="pop", header=0)
     row = pop[
         (pop["Population"] == "All (including foreigners)")
         & (pop["Sex"] == sex)
         & (pop["Calendar year"] == year)
-    ].iloc[0]
-    return row
+    ]
+    if row.empty:
+        raise ValueError(f"No population row found for sex={sex}, year={year}")
+    return row.iloc[0]
 
 
+@lru_cache(maxsize=None)
 def load_incidence_rate(sex: str, site: str, year: int = 2023) -> pd.Series:
     rate = pd.read_excel(POP_FILE, sheet_name="rate", header=0)
     sub = rate[
@@ -128,39 +139,70 @@ def compute_capacity() -> Dict[str, float]:
     hosp = xl.parse("表11", header=None)
     clinic = xl.parse("表12", header=None)
 
-    def monthly_patients(df: pd.DataFrame, codes: List[str]) -> float:
+    def monthly_patients(df: pd.DataFrame, codes: List[str], modality: str) -> float:
         total = 0.0
+        found = False
         for code in codes:
             row = df[df[2].astype(str).str.strip() == code]
             if row.empty:
                 continue
+            found = True
             val = row.iloc[0, 9]
             try:
                 total += float(val)
-            except Exception:
-                pass
-        return total
+            except Exception as exc:
+                raise ValueError(
+                    f"Could not convert monthly patient count for {modality} code {code!r}: {val!r}"
+                ) from exc
+        return total, found
 
-    ct_monthly = monthly_patients(hosp, ["13", "14", "15", "16", "17"]) + monthly_patients(
-        clinic, ["13", "14", "15", "16", "17"]
-    )
-    mri_monthly = monthly_patients(hosp, ["18", "19", "20"]) + monthly_patients(
-        clinic, ["18", "19", "20"]
-    )
-    gastro_monthly = monthly_patients(hosp, ["03"]) + monthly_patients(clinic, ["03"])
-    colon_monthly = monthly_patients(hosp, ["04"]) + monthly_patients(clinic, ["04"])
+    ct_hosp, ct_hosp_found = monthly_patients(hosp, ["13", "14", "15", "16", "17"], "CT")
+    ct_clinic, ct_clinic_found = monthly_patients(clinic, ["13", "14", "15", "16", "17"], "CT")
+    if not (ct_hosp_found or ct_clinic_found):
+        raise ValueError("No CT monthly patient counts found in hospital or clinic tables")
+    ct_monthly = ct_hosp + ct_clinic
+
+    mri_hosp, mri_hosp_found = monthly_patients(hosp, ["18", "19", "20"], "MRI")
+    mri_clinic, mri_clinic_found = monthly_patients(clinic, ["18", "19", "20"], "MRI")
+    if not (mri_hosp_found or mri_clinic_found):
+        raise ValueError("No MRI monthly patient counts found in hospital or clinic tables")
+    mri_monthly = mri_hosp + mri_clinic
+
+    gastro_hosp, gastro_hosp_found = monthly_patients(hosp, ["03"], "upper-GI endoscopy")
+    gastro_clinic, gastro_clinic_found = monthly_patients(clinic, ["03"], "upper-GI endoscopy")
+    if not (gastro_hosp_found or gastro_clinic_found):
+        raise ValueError("No upper-GI endoscopy monthly patient counts found")
+    gastro_monthly = gastro_hosp + gastro_clinic
+
+    colon_hosp, colon_hosp_found = monthly_patients(hosp, ["04"], "lower-GI endoscopy")
+    colon_clinic, colon_clinic_found = monthly_patients(clinic, ["04"], "lower-GI endoscopy")
+    if not (colon_hosp_found or colon_clinic_found):
+        raise ValueError("No lower-GI endoscopy monthly patient counts found")
+    colon_monthly = colon_hosp + colon_clinic
     endoscopy_monthly = gastro_monthly + colon_monthly
 
     def per100k_annual(monthly: float) -> float:
         return monthly * 12 / POPULATION_2023 * 100_000.0 * AVAILABLE_CANCER_SHARE
 
+    # Specialist capacity is not reported by the facility survey. Derive it from
+    # NDB Open Data outpatient patient counts and JMSB specialist counts.
+    ndb_outpatient = read_ndb_outpatient_patients()
+    specialist_counts = load_specialist_counts()
+    specialist_inputs = compute_specialist_capacity_inputs(
+        ndb_outpatient, specialist_counts, AVAILABLE_CANCER_SHARE, POPULATION_2023
+    )
+
     return {
         "ct_exams_per_year": per100k_annual(ct_monthly),
         "mri_exams_per_year": per100k_annual(mri_monthly),
         "endoscopy_exams_per_year": per100k_annual(endoscopy_monthly),
-        # Specialist capacity is not directly reported by the facility survey;
-        # retained as an illustrative scenario value.
-        "specialist_visits_per_year": 8_000.0,
+        "specialist_visits_per_year": specialist_inputs["specialist_visits_per_year"],
+        "specialist_capacity_note": (
+            f"Derived from NDB Open Data first/revisit outpatient patient counts "
+            f"({ndb_outpatient['first_visit_patients']:,.0f} + {ndb_outpatient['revisit_patients']:,.0f}) "
+            f"and {specialist_inputs['relevant_specialists']:,.0f} cancer-relevant JMSB specialists; "
+            f"{AVAILABLE_CANCER_SHARE:.0%} share assumed available for new cancer workups."
+        ),
     }
 
 

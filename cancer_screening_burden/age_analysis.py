@@ -83,13 +83,17 @@ def build_age_specific_table(cancers: List[Dict[str, Any]]) -> pd.DataFrame:
 
 
 def weighted_ppv_for_distribution(
-    cancers: List[Dict[str, Any]], age_distribution: Dict[str, float]
+    cancers: List[Dict[str, Any]],
+    age_distribution: Dict[str, float],
+    age_df: pd.DataFrame | None = None,
 ) -> pd.DataFrame:
     """Return aggregate PPV for each cancer under the supplied age distribution.
 
     age_distribution: {age_group: population_share} where shares sum to 1.
+    age_df: optional pre-built age-specific table (avoids recomputing it).
     """
-    age_df = build_age_specific_table(cancers)
+    if age_df is None:
+        age_df = build_age_specific_table(cancers)
     rows = []
     for cancer in cancers:
         sub = age_df[age_df["cancer"] == cancer["name"]].copy()
@@ -164,7 +168,7 @@ def main() -> None:
     total_pop = sum(total_distribution.values())
     total_distribution = {k: v / total_pop for k, v in total_distribution.items()}
 
-    weighted = weighted_ppv_for_distribution(cancers, total_distribution)
+    weighted = weighted_ppv_for_distribution(cancers, total_distribution, age_df=age_df)
     weighted["distribution"] = "japan_total_2023"
     weighted = weighted.round(3)
     weighted.to_csv(args.output / "weighted_ppv_by_distribution.csv", index=False)
