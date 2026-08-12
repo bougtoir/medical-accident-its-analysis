@@ -2,15 +2,15 @@
 
 ## Abstract
 
-|**Background:** Direct-to-consumer (DTC) blood-based multi-cancer early detection (MCED) tests are marketed as a simple alternative to organised screening, but their positive predictive value (PPV) is low in asymptomatic populations and each screen-positive person may trigger multiple confirmatory examinations.
+**Background:** Direct-to-consumer (DTC) blood-based multi-cancer early detection (MCED) tests are marketed as a simple alternative to organised screening, but their positive predictive value (PPV) is low in asymptomatic populations and each screen-positive person may trigger multiple confirmatory examinations.
 
-|**Methods:** We built a deterministic expected-value model parameterised with 2023 Japanese adult cancer incidence rates, 2023 population counts, and 2023 national medical-facility diagnostic volumes. Specialist capacity was additionally derived from NDB Open Data outpatient patient counts and JMSB specialist counts. We estimated true positives, false positives, downstream visits, capacity utilisation, and the per-specialist case load across follow-up rates of 0–100% and specificities of 95.0–99.9%.
+**Methods:** We built a deterministic expected-value model parameterised with 2023 Japanese adult cancer incidence rates, 2023 population counts, and 2023 national medical-facility diagnostic volumes. Specialist capacity was additionally derived from NDB Open Data outpatient patient counts and JMSB specialist counts. We estimated true positives, false positives, downstream visits, capacity utilisation, and the per-specialist case load across follow-up rates of 0–100% and specificities of 95.0–99.9%.
 
-|**Results:** At 50% follow-up, a screening wave of 100,000 persons would generate 383.5 true positives and 7994.5 false positives (overall PPV 4.60%; FP/TP ratio 20.8). Total downstream visits would reach 15684.4, with maximum capacity utilisation 163.2% (specialist visits). The first illustrative capacity ceiling was exceeded at a follow-up rate of 40% (specialist total visits). PPV ranged from 0.70% (Ovarian) to 8.00% (Colorectal) across cancer types and was strongly age-dependent. Relative to the MHLW Patient Survey 2023 baseline case load, a 100,000-person DTC wave at 50% follow-up would add 184.3 specialist visits per relevant specialist, raising the effective cases per specialist from 35.1 to 219.4 (525% increase).
+**Results:** At 50% follow-up, a screening wave of 100,000 persons would generate 383.5 true positives and 7994.5 false positives (overall PPV 4.60%; FP/TP ratio 20.8). Total downstream visits would reach 15684.4, with maximum capacity utilisation 163.2% (specialist visits). The first illustrative capacity ceiling was exceeded at a follow-up rate of 40% (specialist total visits). PPV ranged from 0.70% (Ovarian) to 8.00% (Colorectal) across cancer types and was strongly age-dependent. Relative to the MHLW Patient Survey 2023 baseline case load, a 100,000-person DTC wave at 50% follow-up would add 184.3 specialist visits per relevant specialist, raising the effective cases per specialist from 35.1 to 219.4 (525% increase).
 
-|**Conclusions:** Even with optimistic 99% specificity, a DTC MCED wave can trigger a false-positive cascade that exceeds Japanese outpatient and endoscopic capacity. Regulatory guardrails on performance claims, follow-up obligations, and reporting are needed before routine adoption.
+**Conclusions:** Even with optimistic 99% specificity, a DTC MCED wave can trigger a false-positive cascade that exceeds Japanese outpatient and endoscopic capacity. Regulatory guardrails on performance claims, follow-up obligations, and reporting are needed before routine adoption.
 
-|**Keywords:** multi-cancer early detection, false positive, healthcare capacity, direct-to-consumer testing, Japan, scenario model
+**Keywords:** multi-cancer early detection, false positive, healthcare capacity, direct-to-consumer testing, Japan, scenario model
 
 ---
 
