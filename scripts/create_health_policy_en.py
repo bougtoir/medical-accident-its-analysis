@@ -520,9 +520,9 @@ add_para(
     "anaesthesia across ${n_areas} secondary medical areas nested within "
     "${n_prefectures} prefectures, fiscal year ${fiscal_year}. We fitted "
     "multilevel linear models with prefecture random intercepts and a university-"
-    "hospital fixed effect, and conducted sensitivity analyses for population "
-    "density, anaesthesiologist supply, log-transformed ratios and audit "
-    "rates.")
+    "hospital fixed effect, and tested robustness to population density and "
+    "anaesthesiologist supply, log-transformed ratios, and an upper-bound audit-"
+    "rate impact.")
 
 add_para(
     "Results: Coefficients of variation ranged from ${L008_cv}% to ${L002_cv}%. "
@@ -576,7 +576,7 @@ add_para(
     "requirements for neuraxial techniques tend to concentrate in teaching "
     "hospitals.{7-9} If access to these techniques varies by geography, "
     "patients' probability of receiving potentially beneficial care depends "
-    "on place of residence, an equity problem under universal coverage. "
+    "on place of residence, which is an equity problem under universal coverage. "
     "Because the FY2022 data predate the 2026 clarification of the general-anaesthesia "
     "billing code, any coding ambiguity that existed during the study period is "
     "retained in the analysis.{10}")
@@ -762,7 +762,7 @@ add_para(
     "${L008_ml_log_ci_high}, P ${L008_ml_log_p}), supporting the robustness of "
     "the linear model findings to right-skewed ratios and extreme outliers. "
     "University hospital areas had higher general anaesthesia ratios than non-"
-    "university areas in ${n_prefectures} of ${n_prefectures} prefectures, with a "
+    "university areas in all ${n_prefectures} prefectures, with a "
     "mean within-prefecture difference of +${L008_within_diff} points (t = ${L008_within_t}, "
     "P ${L008_within_p}) (Figure 2A). Cohen's d for the "
     "university hospital effect on general anaesthesia was ${L008_d}; on "
@@ -866,7 +866,7 @@ add_para(
     "miscoding between reclassifiable codes; it showed a coefficient of variation of "
     "${L008_L004_cv}% and a university hospital effect that remained large "
     "(Cohen's d ${L008_L004_d}), confirming that the structural effect is not "
-    "artefactually erased by combining codes.")
+    "erased as an artefact by combining codes.")
 
 add_subheading("Robustness: empirical Bayes shrinkage and outliers")
 add_para(
@@ -878,8 +878,8 @@ add_para(
     "of ${L008_attenuation}%; for epidural anaesthesia (L002) from ${L002_d} to "
     "${L002_d_shrunk} (${L002_attenuation}%); and for spinal anaesthesia (L004) "
     "from ${L004_d} to ${L004_d_shrunk} (${L004_attenuation}%). The general "
-    "anaesthesia effect therefore remained of moderate magnitude despite heavy "
-    "shrinkage, whereas the L002 and L004 effects were materially attenuated, "
+    "anaesthesia effect therefore remained moderate despite heavy shrinkage, "
+    "whereas the L002 and L004 effects were materially attenuated, "
     "indicating that those smaller raw effects are more vulnerable to sampling "
     "instability. These shrinkage estimates are complementary to, and consistent "
     "in direction with, the mixed-effects model coefficients reported in Table 2, "
@@ -908,7 +908,7 @@ add_para(
     "outcome is a reimbursed claim ratio, the observed gradient reflects "
     "billed service delivery rather than bedside intention; however, the "
     "within-prefecture structure of the data and the audit-sensitivity "
-    "analyses make differential scrutiny an unlikely complete explanation. The "
+    "analyses make it unlikely that differential scrutiny is the full explanation. The "
     "remaining variation is therefore best interpreted as a geographic pattern "
     "in the provision of potentially beneficial anaesthesia services.")
 
