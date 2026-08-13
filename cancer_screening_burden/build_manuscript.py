@@ -25,6 +25,15 @@ from docx.shared import Inches, Pt
 from simulate import choose_summary_rate, find_capacity_threshold
 
 
+def _ppv(tp: float, fp: float) -> float:
+    total = tp + fp
+    return tp / total if total > 0 else 0.0
+
+
+def _fp_to_tp_ratio(tp: float, fp: float) -> float:
+    return fp / tp if tp > 0 else float("inf")
+
+
 def load_aggregate(output_dir: Path) -> pd.DataFrame:
     return pd.read_csv(output_dir / "aggregate_by_followup.csv")
 
@@ -62,7 +71,9 @@ def parse_capacity_threshold(agg: pd.DataFrame) -> Tuple[float, str]:
 
 def compute_per_cancer_at_followup(by_cancer: pd.DataFrame, follow_up: float) -> pd.DataFrame:
     sub = by_cancer[by_cancer["follow_up_rate"] == follow_up].copy()
-    sub["ppv_pct"] = sub["ppv"] * 100.0
+    sub["ppv_pct"] = (
+        sub["true_positives"] / (sub["true_positives"] + sub["false_positives"]) * 100.0
+    )
     return sub
 
 
@@ -104,12 +115,17 @@ def make_table_2(by_cancer_at_50: pd.DataFrame, weighted_ppv: pd.DataFrame) -> L
             "Max resource utilisation (%)",
         ]
     ]
-    by_cancer_at_50 = by_cancer_at_50.merge(
-        weighted_ppv[["cancer", "ppv", "fp_to_tp_ratio"]], on="cancer", how="left", suffixes=("", "_weighted")
-    )
+    weighted_counts = weighted_ppv.set_index("cancer")[["true_positives", "false_positives"]]
     for _, row in by_cancer_at_50.iterrows():
-        ppv = row["ppv_weighted"] if pd.notna(row.get("ppv_weighted")) else row["ppv"]
-        fp_tp = row["fp_to_tp_ratio_weighted"] if pd.notna(row.get("fp_to_tp_ratio_weighted")) else row["fp_to_tp_ratio"]
+        cancer = row["cancer"]
+        if cancer in weighted_counts.index:
+            tp = float(weighted_counts.loc[cancer, "true_positives"])
+            fp = float(weighted_counts.loc[cancer, "false_positives"])
+        else:
+            tp = float(row["true_positives"])
+            fp = float(row["false_positives"])
+        ppv = _ppv(tp, fp)
+        fp_tp = _fp_to_tp_ratio(tp, fp)
         table.append(
             [
                 row["cancer"],
@@ -140,14 +156,16 @@ def make_table_3(agg: pd.DataFrame) -> List[List[str]]:
         ]
     ]
     for _, row in agg.iterrows():
+        ppv = _ppv(row["true_positives"], row["false_positives"])
+        fp_tp = _fp_to_tp_ratio(row["true_positives"], row["false_positives"])
         table.append(
             [
                 f"{row['follow_up_rate']:.0%}",
                 f"{row['true_positives']:.1f}",
                 f"{row['false_positives']:.1f}",
                 f"{row['total_positives']:.1f}",
-                f"{row['ppv'] * 100:.2f}",
-                f"{row['fp_to_tp_ratio']:.1f}",
+                f"{ppv * 100:.2f}",
+                f"{fp_tp:.1f}",
                 f"{row['total_visits']:.1f}",
                 f"{row['max_capacity_utilization_pct']:.1f}",
             ]
@@ -162,7 +180,7 @@ def make_table_4(capacity_impact: pd.DataFrame) -> List[List[str]]:
             "Cancer",
             "Relevant specialty",
             "Baseline cases per specialist",
-            "FP visits per specialist (100k screened)",
+            "False-positive specialist visits per specialist",
             "Cases per specialist with FP",
             "Increase (%)",
         ]
@@ -193,10 +211,20 @@ def build_markdown(
     """Generate the Markdown manuscript body."""
     follow_up_rates = agg["follow_up_rate"].tolist()
     row_50 = agg[agg["follow_up_rate"] == choose_summary_rate(follow_up_rates, 0.5)].iloc[0]
-    row_30 = agg[agg["follow_up_rate"] == choose_summary_rate(follow_up_rates, 0.3)].iloc[0]
-    row_70 = agg[agg["follow_up_rate"] == choose_summary_rate(follow_up_rates, 0.7)].iloc[0]
 
     threshold_rate, threshold_resource = parse_capacity_threshold(agg)
+
+    # Recompute PPV and FP/TP ratio from counts so prose matches tables exactly.
+    row_50_ppv = _ppv(row_50["true_positives"], row_50["false_positives"]) * 100
+    row_50_fp_tp = _fp_to_tp_ratio(row_50["true_positives"], row_50["false_positives"])
+
+    weighted_ppv = weighted_ppv.copy()
+    weighted_ppv["ppv"] = weighted_ppv.apply(
+        lambda r: _ppv(r["true_positives"], r["false_positives"]), axis=1
+    )
+    weighted_ppv["fp_to_tp_ratio"] = weighted_ppv.apply(
+        lambda r: _fp_to_tp_ratio(r["true_positives"], r["false_positives"]), axis=1
+    )
     if pd.isna(threshold_rate):
         threshold_str = "not reached in the scanned follow-up range"
     else:
@@ -221,6 +249,8 @@ def build_markdown(
 
     lowest_ppv = weighted_ppv.loc[weighted_ppv["ppv"].idxmin()]
     highest_ppv = weighted_ppv.loc[weighted_ppv["ppv"].idxmax()]
+    weighted_ppv_min_fp_tp = weighted_ppv["fp_to_tp_ratio"].min()
+    weighted_ppv_max_fp_tp = weighted_ppv["fp_to_tp_ratio"].max()
 
     cap = params["capacity"]
 
@@ -247,7 +277,7 @@ def build_markdown(
 
 **Methods:** We built a deterministic expected-value model parameterised with 2023 Japanese adult cancer incidence rates, 2023 population counts, and 2023 national medical-facility diagnostic volumes. Specialist capacity was additionally derived from NDB Open Data outpatient patient counts and JMSB specialist counts. We estimated true positives, false positives, downstream visits, capacity utilisation, and the per-specialist case load across follow-up rates of 0–100% and specificities of 95.0–99.9%.
 
-**Results:** At 50% follow-up, a screening wave of 100,000 persons would generate {row_50['true_positives']:.1f} true positives and {row_50['false_positives']:.1f} false positives (overall PPV {row_50['ppv']*100:.2f}%; FP/TP ratio {row_50['fp_to_tp_ratio']:.1f}). Total downstream visits would reach {row_50['total_visits']:.1f}, with maximum capacity utilisation {row_50['max_capacity_utilization_pct']:.1f}% (specialist visits). The first illustrative capacity ceiling was exceeded at a follow-up rate of {threshold_str}. PPV ranged from {lowest_ppv['ppv']*100:.2f}% ({lowest_ppv['cancer']}) to {highest_ppv['ppv']*100:.2f}% ({highest_ppv['cancer']}) across cancer types and was strongly age-dependent. Relative to the MHLW Patient Survey 2023 baseline case load, a 100,000-person DTC wave at 50% follow-up would add {fp_visits_per_spec:.1f} specialist visits per relevant specialist, raising the effective cases per specialist from {baseline_cases_per_spec:.1f} to {baseline_cases_per_spec + fp_visits_per_spec:.1f} ({percent_change:.0f}% increase).
+**Results:** At 50% follow-up, a screening wave of 100,000 persons would generate {row_50['true_positives']:.1f} true positives and {row_50['false_positives']:.1f} false positives (overall PPV {row_50_ppv:.2f}%; FP/TP ratio {row_50_fp_tp:.1f}). Total downstream visits would reach {row_50['total_visits']:.1f}, with maximum capacity utilisation {row_50['max_capacity_utilization_pct']:.1f}% (specialist visits). The first illustrative capacity ceiling was exceeded at a follow-up rate of {threshold_str}. PPV ranged from {lowest_ppv['ppv']*100:.2f}% ({lowest_ppv['cancer']}) to {highest_ppv['ppv']*100:.2f}% ({highest_ppv['cancer']}) across cancer types and was strongly age-dependent. Relative to the MHLW Patient Survey 2023 baseline case load, a 100,000-person DTC wave at 50% follow-up would add {fp_visits_per_spec:.1f} false-positive specialist visits per relevant specialist, raising the effective cases per specialist from {baseline_cases_per_spec:.1f} to {baseline_cases_per_spec + fp_visits_per_spec:.1f} ({percent_change:.0f}% increase).
 
 **Conclusions:** Even with optimistic 99% specificity, a DTC MCED wave can trigger a false-positive cascade that exceeds Japanese outpatient and endoscopic capacity. Regulatory guardrails on performance claims, follow-up obligations, and reporting are needed before routine adoption.
 
@@ -299,7 +329,7 @@ Table 1 summarises the data sources and base-case parameter values.
 
 ### Per-cancer burden at 50% follow-up
 
-At a 50% follow-up rate, the model estimated {row_50['true_positives']:.1f} true positives and {row_50['false_positives']:.1f} false positives across all eight cancers (Table 2). {highest_ppv['cancer']} had the highest age-adjusted PPV ({highest_ppv['ppv']*100:.2f}%) and {lowest_ppv['cancer']} the lowest ({lowest_ppv['ppv']*100:.2f}%). The FP/TP ratio ranged from {weighted_ppv['fp_to_tp_ratio'].min():.1f} to {weighted_ppv['fp_to_tp_ratio'].max():.1f}.
+At a 50% follow-up rate, the model estimated {row_50['true_positives']:.1f} true positives and {row_50['false_positives']:.1f} false positives across all eight cancers (Table 2). {highest_ppv['cancer']} had the highest age-adjusted PPV ({highest_ppv['ppv']*100:.2f}%) and {lowest_ppv['cancer']} the lowest ({lowest_ppv['ppv']*100:.2f}%). The FP/TP ratio ranged from {weighted_ppv_min_fp_tp:.1f} to {weighted_ppv_max_fp_tp:.1f}.
 
 **Table 2. Per-cancer outcomes at 50% follow-up (per 100,000 screened).**
 
@@ -317,7 +347,7 @@ Total downstream visits rose from {agg[agg['follow_up_rate']==0.0]['total_visits
 
 ### Specialist capacity and the false-positive cascade
 
-Table 4 compares the MHLW Patient Survey 2023 baseline cancer case load per specialist with the additional specialist visits generated by a 100,000-person DTC wave at 50% follow-up. Across all cancer-relevant specialties, the baseline case load is about {baseline_cases_per_spec:.1f} patients per specialist; the DTC wave adds about {fp_visits_per_spec:.1f} visits per specialist, an increase of {percent_change:.0f}%.
+Table 4 compares the MHLW Patient Survey 2023 baseline cancer case load per specialist with the additional false-positive specialist visits generated by a 100,000-person DTC wave at 50% follow-up. Across all cancer-relevant specialties, the baseline case load is about {baseline_cases_per_spec:.1f} patients per specialist; the DTC wave adds about {fp_visits_per_spec:.1f} false-positive specialist visits per specialist, an increase of {percent_change:.0f}%.
 
 **Table 4. Baseline cases per specialist and incremental false-positive burden at 50% follow-up.**
 
@@ -343,7 +373,7 @@ Lowering specificity from 99% to 95% reduced aggregate PPV to roughly {ppv_ratio
 
 ## Discussion
 
-Our scenario model shows that, even under optimistic assumptions for test accuracy, a DTC blood-based MCED screening wave can produce roughly {row_50['fp_to_tp_ratio']:.0f} false-positive workups for every true cancer detected. At 50% follow-up the illustrative specialist capacity ceiling is exceeded by {row_50['max_capacity_utilization_pct']-100:.1f} percentage points, and the effective case load per cancer-relevant specialist rises by about {percent_change:.0f}%. The burden is not uniform: cancers with low prevalence (ovarian, liver, pancreatic) had the lowest PPV and the highest FP/TP ratios, while age strongly modulates PPV.
+Our scenario model shows that, even under optimistic assumptions for test accuracy, a DTC blood-based MCED screening wave can produce roughly {row_50_fp_tp:.0f} false-positive workups for every true cancer detected. At 50% follow-up the illustrative specialist capacity ceiling is exceeded by {row_50['max_capacity_utilization_pct']-100:.1f} percentage points, and the effective case load per cancer-relevant specialist rises by about {percent_change:.0f}% due to false-positive follow-up visits. The burden is not uniform: cancers with low prevalence (ovarian, liver, pancreatic) had the lowest PPV and the highest FP/TP ratios, while age strongly modulates PPV.
 
 These findings align with real-world data from the N-NOSE PET/CT survey, in which the cancer discovery rate after a high-risk result was low and well below the company's advertised PPV [^5^].
 

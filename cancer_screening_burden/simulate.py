@@ -64,6 +64,14 @@ def compute_outcomes(
         + followed_fp * cancer["fp_additional_visits"]
     )
 
+    specialist_probability = pathway.get("specialist", 0.0)
+    fp_specialist_visits = followed_fp * (
+        specialist_probability + cancer["fp_additional_visits"]
+    )
+    tp_specialist_visits = followed_tp * (
+        specialist_probability + cancer["tp_additional_visits"]
+    )
+
     total_visits = sum(modality_visits.values()) + additional_visits
 
     fp_to_tp_ratio = false_positives / true_positives if true_positives > 0 else np.inf
@@ -86,6 +94,8 @@ def compute_outcomes(
         "followed_true_positives": followed_tp,
         "followed_false_positives": followed_fp,
         "additional_visits": additional_visits,
+        "fp_specialist_visits": fp_specialist_visits,
+        "tp_specialist_visits": tp_specialist_visits,
         "total_visits": total_visits,
         "fp_to_tp_ratio": fp_to_tp_ratio,
         "visits_per_detected_case": visits_per_detected_case,
@@ -185,6 +195,8 @@ def aggregate_by_follow_up(df: pd.DataFrame) -> pd.DataFrame:
         "mri_visits",
         "endoscopy_visits",
         "specialist_visits",
+        "fp_specialist_visits",
+        "tp_specialist_visits",
     ]
     grouped = df.groupby("follow_up_rate", as_index=False)[sum_cols].sum()
 
@@ -352,10 +364,18 @@ def plot_specificity_sweep(
 
 
 def format_csv(df: pd.DataFrame) -> pd.DataFrame:
-    """Round numeric columns for cleaner CSV output."""
+    """Round numeric columns for cleaner CSV output.
+
+    Ratio columns (PPV, FP/TP, capacity utilisation percentages) are kept at
+    higher precision so downstream prose can recompute consistent percentages.
+    """
     out = df.copy()
+    ratio_indicators = {"ppv", "fp_to_tp_ratio", "visits_per_detected_case"}
     for col in out.select_dtypes(include=[np.floating]).columns:
-        out[col] = out[col].round(3)
+        if col in ratio_indicators or col.endswith("_utilization_pct"):
+            out[col] = out[col].round(6)
+        else:
+            out[col] = out[col].round(3)
     return out
 
 

@@ -6,3 +6,4 @@ pyyaml
 openpyxl
 python-pptx
 python-docx
+pdfplumber

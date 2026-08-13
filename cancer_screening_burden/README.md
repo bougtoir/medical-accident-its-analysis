@@ -26,6 +26,7 @@
 pip install -r requirements.txt
 python prepare_parameters.py   # 公開データから parameters.yaml を生成
 python simulate.py             # シミュレーション本体（CSV/PNG出力）
+python specialist_capacity.py  # 専門医あたり負荷（Table 4 の入力）を生成
 python age_analysis.py         # 年齢別PPV分析
 python build_manuscript.py     # 原稿 Markdown + 図表 PPTX/DOCX を生成
 ```

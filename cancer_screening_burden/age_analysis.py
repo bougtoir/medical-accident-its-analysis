@@ -15,6 +15,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import yaml
 
+from simulate import format_csv
 from prepare_parameters import (
     AGE_COLS,
     CHILD_TEEN_COLS,
@@ -156,7 +157,7 @@ def main() -> None:
 
     # Age-specific PPV table.
     age_df = build_age_specific_table(cancers)
-    age_df = age_df.round(3)
+    age_df = format_csv(age_df)
     age_df.to_csv(args.output / "age_specific_ppv.csv", index=False)
 
     # Weighted PPV using the full 2023 Japanese age distribution (all ages).
@@ -170,7 +171,7 @@ def main() -> None:
 
     weighted = weighted_ppv_for_distribution(cancers, total_distribution, age_df=age_df)
     weighted["distribution"] = "japan_total_2023"
-    weighted = weighted.round(3)
+    weighted = format_csv(weighted)
     weighted.to_csv(args.output / "weighted_ppv_by_distribution.csv", index=False)
 
     # Plot.
