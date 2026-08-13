@@ -56,6 +56,26 @@ for src_name, dst_name in [
     else:
         print(f"Warning: missing figure file {src}")
 
+# Generate TIFF versions at 300 dpi for Elsevier artwork upload.
+try:
+    from PIL import Image
+    for png_name in ['figure1.png', 'figure2.png']:
+        png_path = os.path.join(hp_dir, png_name)
+        tiff_path = os.path.join(hp_dir, png_name.replace('.png', '.tiff'))
+        if os.path.exists(png_path):
+            im = Image.open(png_path)
+            # Preserve alpha if present; most journals prefer RGB for TIFF.
+            if im.mode == 'RGBA':
+                # Composite onto white background to avoid black background in TIFF.
+                bg = Image.new('RGBA', im.size, (255, 255, 255, 255))
+                im = Image.alpha_composite(bg, im).convert('RGB')
+            elif im.mode != 'RGB':
+                im = im.convert('RGB')
+            im.save(tiff_path, 'TIFF', dpi=(300, 300), compression='tiff_lzw')
+            print(f"Saved {tiff_path}")
+except Exception as e:
+    print(f"Warning: could not generate TIFF figures: {e}")
+
 # Assemble submission zip
 zip_path = os.path.join(root, 'health_policy_submission_package.zip')
 with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zf:

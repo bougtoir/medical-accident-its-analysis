@@ -303,8 +303,8 @@ def renumber_references(doc, references):
     return [references[old - 1] for old in sorted(cited, key=mapping.get)]
 
 
-def add_para(text, bold=False, italic=False, align=None, space_before=0, space_after=0):
-    p = doc.add_paragraph()
+def add_para(text, bold=False, italic=False, align=None, space_before=0, space_after=0, style=None):
+    p = doc.add_paragraph(style=style)
     if align is not None:
         p.alignment = align
     if space_before:
@@ -485,8 +485,8 @@ add_para(
     "Conclusion: Regional variation in anaesthesia practice is predominantly "
     "structural, driven by access to university hospitals rather than by "
     "prefectural auditing. In universal-coverage systems this pattern indicates "
-    "inequitable access to neuraxial techniques; policy should address workforce "
-    "and organisational barriers, not additional coding audits.")
+    "inequitable access to neuraxial techniques; policy efforts may need to "
+    "address workforce and organisational barriers, not additional coding audits.")
 
 add_blank()
 add_para("Keywords: ", bold=False)
@@ -943,21 +943,22 @@ add_para(
     "Geographic variation in these techniques therefore translates into "
     "variation in potentially modifiable patient outcomes, not merely variation "
     "in billing. Because the observed gradient is not explained by "
-    "differential auditing, interventions should target workforce distribution, "
-    "training and organisational capacity rather than coding compliance.")
+    "differential auditing, interventions may warrant targeting workforce "
+    "distribution, training and organisational capacity rather than coding "
+    "compliance.")
 
 add_subheading("Implications for perioperative practice and policy")
 add_para(
-    "Three policy implications follow. First, administrative "
+    "Three potential policy implications follow. First, administrative "
     "claims data can be used as a surveillance tool to monitor small-area "
     "variation in perioperative care under universal coverage, but should be "
     "interpreted alongside sensitivity analyses for coding and audit effects. "
     "Second, the observed variation in epidural and continuous epidural use "
-    "signals a potential equity gap: patients' access to techniques that may "
-    "improve recovery should not depend on whether they live near a university "
-    "hospital. Third, regulators should focus on workforce and organisational "
-    "determinants of anaesthesia service delivery rather than treating low "
-    "regional ratios primarily as coding or fraud problems. The "
+    "suggests a potential equity gap: patients' access to techniques that may "
+    "improve recovery appears to depend on whether they live near a university "
+    "hospital. Third, regulators may wish to focus on workforce and "
+    "organisational determinants of anaesthesia service delivery rather than "
+    "treating low regional ratios primarily as coding or fraud problems. The "
     "variance-decomposition framework is transferable to other procedures and "
     "to systems with a national fee schedule and regional audit variation, but "
     "the audit-specific interpretation is limited in settings where fee and "
@@ -975,8 +976,31 @@ add_para(
     "countries without universal coverage or with heterogeneous reimbursement, "
     "the audit hypothesis cannot be isolated, although the structural-access "
     "framework can be adapted if comparable data exist. Perioperative surveillance "
-    "of small-area variation should separate administrative from structural sources "
-    "before interpreting claims data as care variation or as coding quality.")
+    "of small-area variation would benefit from separating administrative from "
+    "structural sources before interpreting claims data as care variation or as "
+    "coding quality.")
+# ============================================================
+# RESEARCH IN CONTEXT
+# ============================================================
+add_heading("Research in context", level=1, numbered=True)
+add_para(
+    "What is already known: Geographic variation in anaesthesia technique is well "
+    "documented, but few studies have separated structural access to care from "
+    "administrative coding and auditing effects in universal-coverage systems.",
+    style='List Bullet')
+add_para(
+    "What this study adds: Across Japan's 335 secondary medical areas, "
+    "university-hospital proximity was associated with large differences in "
+    "standardised claim ratios, whereas prefectural claims-audit differences "
+    "explained only a small share of variance.",
+    style='List Bullet')
+add_para(
+    "What are the implications of these findings: Administrative claims can be "
+    "used as a surveillance signal for perioperative variation in universal "
+    "coverage settings, but low regional ratios should prompt review of "
+    "workforce and organisational access before being treated as coding or "
+    "fraud problems.",
+    style='List Bullet')
 # ============================================================
 # REFERENCES
 # ============================================================
@@ -1182,7 +1206,8 @@ tp_para(
     "Physician statistics: e-Stat (https://www.e-stat.go.jp). Geographic "
     "boundary data: National Land Numerical Information "
     "(https://nlftp.mlit.go.jp). Derived datasets and analysis code are "
-    "available from the corresponding author on reasonable request.")
+    "available at https://github.com/bougtoir/anesthesia_variation_335_region "
+    "and will be archived on Zenodo with a citable DOI upon acceptance.")
 tp_para(
     "Declaration of competing interests: [To be completed by the authors.] No "
     "known competing interests.")
