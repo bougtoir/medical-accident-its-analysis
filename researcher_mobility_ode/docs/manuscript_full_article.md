@@ -48,9 +48,10 @@ Intelligence; 2000--2023), accessed via the OpenAlex API. The analysis
 is bundled with a pre-extracted cohort and a stratified sample of works;
 the country-to-civilisation mapping, code, and result CSVs used to
 generate this manuscript are available in the public GitHub repository
-https://github.com/bougtoir/researcher-mobility-ode. The full SQLite
-cohort snapshot used for extraction is available from the corresponding
-author on request. OpenAlex data are released under CC0.
+https://github.com/bougtoir/researcher-mobility-ode. The extracted
+cohort SQLite database (a derived aggregate of OpenAlex records) is
+available from the corresponding author on request, subject to the
+OpenAlex CC0 licence and any applicable local data-use policies.
 
 ## Declarations
 

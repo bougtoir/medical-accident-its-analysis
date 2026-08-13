@@ -1121,10 +1121,10 @@ def _data_availability_text(blinded=False):
         "used to generate this manuscript "
     )
     if blinded:
-        return base + "will be made available in a public repository upon acceptance. The full SQLite cohort snapshot used for extraction is available from the corresponding author on request. OpenAlex data are released under CC0."
+        return base + "will be made available in a public repository upon acceptance. The extracted cohort SQLite database (a derived aggregate of OpenAlex records) is available from the corresponding author on request, subject to the OpenAlex CC0 licence and any applicable local data-use policies."
     return (
         base + "are available in the public GitHub repository "
-        "https://github.com/bougtoir/researcher-mobility-ode. The full SQLite cohort snapshot used for extraction is available from the corresponding author on request. OpenAlex data are released under CC0."
+        "https://github.com/bougtoir/researcher-mobility-ode. The extracted cohort SQLite database (a derived aggregate of OpenAlex records) is available from the corresponding author on request, subject to the OpenAlex CC0 licence and any applicable local data-use policies."
     )
 
 
