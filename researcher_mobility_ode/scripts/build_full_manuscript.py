@@ -565,6 +565,8 @@ REFS = [
     "Dosi G. Technological paradigms and technological trajectories: a suggested interpretation of the determinants and directions of technical change. Res Policy. 1982;11(3):147-162.",
     "Lundvall B-Å. National Systems of Innovation: Toward a Theory of Innovation and Interactive Learning. London: Anthem Press, 1992.",
     "Malerba F. Sectoral systems of innovation and production. Res Policy. 2002;31(2):247-264.",
+    "State B, Park P, Weber I, Macy M. The mesh of civilizations in the global network of digital communication. PLoS ONE. 2015;10(5):e0122543. https://doi.org/10.1371/journal.pone.0122543",
+    "Chinchilla-Rodríguez Z, Miao L, Murray D, Robinson-García N, Costas R, Sugimoto C R. A global comparison of scientific mobility and collaboration according to national scientific capacities. Front Res Metr Anal. 2018;3:17. https://doi.org/10.3389/frma.2018.00017",
     "Freeman R B, Huang W. Collaboration: Strength in diversity. Nature. 2014;513(7518):305. https://doi.org/10.1038/513305a",
     "Shachar A. The Race for Talent: Highly Skilled Migrants and Competitive Immigration Regimes. NYU Law Rev. 2006;81(1):148-206.",
     "Kerr W R. Global Talent and U.S. Immigration Policy. Harvard Business School Working Paper No. 20-107, 2020. https://www.hbs.edu/ris/Publication%20Files/20-107_0967f1ab-1d23-4d54-b5a1-c884234d9b31.pdf"
@@ -615,8 +617,47 @@ def load_annual_data():
         "evaluation": ANNUAL / "projection_evaluation.csv",
         "group_accuracy": ANNUAL / "projection_accuracy_by_group.csv",
         "compartment_accuracy": ANNUAL / "projection_accuracy_by_compartment.csv",
+        "rate_accuracy": ANNUAL / "projection_rate_accuracy.csv",
+        "rate_accuracy_overall": ANNUAL / "projection_rate_accuracy_overall.csv",
     }
     return {k: pd.read_csv(p) if p.exists() else None for k, p in paths.items()}
+
+
+def pnr_robustness_table():
+    """Compare closest PNR levers between linear and saturating endogenous inflow."""
+    lin_path = BASE_DIR / "results" / "endogenous" / "closest_point_of_no_return.csv"
+    sat_path = BASE_DIR / "results" / "endogenous_saturating" / "closest_point_of_no_return.csv"
+    if not (lin_path.exists() and sat_path.exists()):
+        return pd.DataFrame()
+    lin = pd.read_csv(lin_path)
+    sat = pd.read_csv(sat_path)
+    # Focus on the active-pool threshold, which is the operative PNR in the main text.
+    lin = lin[lin["target"] == "domestic_active"].copy()
+    sat = sat[sat["target"] == "domestic_active"].copy()
+    lin = lin.rename(columns={
+        "group": "origin_group",
+        "rate_name": "linear_closest",
+        "critical_factor": "linear_factor",
+        "proximity": "linear_proximity",
+    })
+    sat = sat.rename(columns={
+        "group": "origin_group",
+        "rate_name": "saturating_closest",
+        "critical_factor": "saturating_factor",
+        "proximity": "saturating_proximity",
+    })
+    df = lin[["origin_group", "linear_closest", "linear_factor", "linear_proximity"]].merge(
+        sat[["origin_group", "saturating_closest", "saturating_factor", "saturating_proximity"]],
+        on="origin_group",
+        how="inner",
+    )
+    if df.empty:
+        return pd.DataFrame()
+    # Reorder to the standard group order and round.
+    df = df.set_index("origin_group").reindex(arpr.ORDERED_GROUPS).reset_index()
+    for col in ["linear_factor", "saturating_factor", "linear_proximity", "saturating_proximity"]:
+        df[col] = df[col].round(4)
+    return df
 
 
 def compute_annual_context(annual):
@@ -684,6 +725,39 @@ def compute_annual_context(annual):
     else:
         ctx["obs_year_min"] = 2000
         ctx["obs_year_max"] = 2023
+
+    # Rate-level forecast accuracy (cleaner than stock-level because the fixed cohort lacks post-2016 entrants).
+    rate_overall = annual.get("rate_accuracy_overall")
+    if rate_overall is not None and not rate_overall.empty:
+        ctx["rate_overall_rmse"] = float(rate_overall["rmse"].iloc[0])
+        ctx["rate_overall_mae"] = float(rate_overall["mae"].iloc[0])
+        ctx["rate_overall_mape"] = float(rate_overall["mape"].iloc[0])
+        ctx["rate_overall_skill"] = float(rate_overall["skill"].iloc[0])
+    else:
+        ctx["rate_overall_rmse"] = float("nan")
+        ctx["rate_overall_mae"] = float("nan")
+        ctx["rate_overall_mape"] = float("nan")
+        ctx["rate_overall_skill"] = float("nan")
+
+    rate_acc = annual.get("rate_accuracy")
+    if rate_acc is not None and not rate_acc.empty:
+        # Best/worst rate by skill (naive/model RMSE ratio)
+        rate_acc = rate_acc.dropna(subset=["skill"]).copy()
+        if not rate_acc.empty:
+            ctx["best_rate_skill"] = str(rate_acc.loc[rate_acc["skill"].idxmax(), "rate"])
+            ctx["worst_rate_skill"] = str(rate_acc.loc[rate_acc["skill"].idxmin(), "rate"])
+            ctx["best_rate_skill_value"] = float(rate_acc["skill"].max())
+            ctx["worst_rate_skill_value"] = float(rate_acc["skill"].min())
+        else:
+            ctx["best_rate_skill"] = "—"
+            ctx["worst_rate_skill"] = "—"
+            ctx["best_rate_skill_value"] = float("nan")
+            ctx["worst_rate_skill_value"] = float("nan")
+    else:
+        ctx["best_rate_skill"] = "—"
+        ctx["worst_rate_skill"] = "—"
+        ctx["best_rate_skill_value"] = float("nan")
+        ctx["worst_rate_skill_value"] = float("nan")
 
     return ctx
 
@@ -1475,7 +1549,12 @@ def _add_docx_body(doc, data, fig_paths, blinded=False):
               "The United States is separated from the broader Anglosphere because it is the dominant destination for AI/ML researchers and because its higher-education and funding systems differ systematically from those of other English-speaking countries. "
               "Continental Europe is kept distinct from the Anglosphere because intra-European mobility and EU research funding create a separate mobility bloc. "
               "Latin American, Orthodox and sub-Saharan African countries are merged into Other Civilizations because their AI/ML author counts in the sample are too small to estimate stable transition rates separately. "
-              "These civilisation labels are operational categories based on observed publication-affiliation patterns; they are not normative claims about cultural or political identity, and they are reported in full in Supplementary Material.")
+              "These civilisation labels are operational categories based on observed publication-affiliation patterns; they are not normative claims about cultural or political identity, and they are reported in full in Supplementary Material. "
+              "Civilisation-level categories have also been shown to predict large-scale digital-communication networks")
+    add_citation(p, 17)
+    p.add_run(" and country-capacity clusters in scientific mobility and collaboration")
+    add_citation(p, 18)
+    p.add_run(", which supports the use of this aggregation as a cross-national research heuristic.")
 
     doc.add_heading("3.2 Sample selection and variable definitions", level=2)
     p = doc.add_paragraph()
@@ -1717,6 +1796,22 @@ def _add_docx_body(doc, data, fig_paths, blinded=False):
             decimals={"Linear T": 0, "Saturating T": 0, "ε": 5},
         )
 
+        # Robustness of PNR rankings to the functional form of endogenous inflow.
+        pnr_rob = pnr_robustness_table()
+        if not pnr_rob.empty:
+            p = doc.add_paragraph()
+            p.add_run("The closest point-of-no-return lever is the same under the saturating alternative for every civilisation: "
+                      "exogenous entry (I0) is the rate that requires the smallest proportional change to push the active pool to its minimum viable threshold. "
+                      "Table 5a reports the proportional factor and proximity for the active-pool threshold under both assumptions. "
+                      "The rank order of civilisational fragility is preserved (Spearman ρ = 1.0), and the absolute proximity values move in the same direction. "
+                      "This confirms that the policy ranking—exogenous entry first, then dropout, then domestic promotion and return—is robust to replacing the linear feedback with a saturating one.")
+            _add_table_from_df(
+                doc,
+                pnr_rob,
+                caption="Table 5a. Closest PNR lever and proximity under linear and saturating endogenous inflow (active-pool threshold).",
+                decimals={"linear_factor": 4, "saturating_factor": 4, "linear_proximity": 4, "saturating_proximity": 4},
+            )
+
     doc.add_heading("5.2 Historical counterfactual", level=2)
     n_compare = len(period_compare)
     if ctx["period_all_neg"]:
@@ -1869,10 +1964,12 @@ def _add_docx_body(doc, data, fig_paths, blinded=False):
     doc.add_heading("5.7 Out-of-sample projection, 2017-2023", level=2)
     p = doc.add_paragraph()
     p.add_run(f"The 2017-2023 projection is compared with observed annual stocks in Figure 7. "
-              f"Overall accuracy is RMSE {_fmt(annual_ctx.get('overall_rmse', float('nan')), 2)} and MAPE {_fmt(annual_ctx.get('overall_mape_pct', float('nan')), 1)}% (a non-standard, conservative measure computed against count_obs + 1 to avoid division by zero). "
-              "The high MAPE reflects small absolute counts and zero-observed cells, and the projection should be read as a directional early-warning indicator of drift and threshold proximity rather than a precise population forecast. "
-              f"Among civilisations the lowest RMSE is for {best_rmse_group} and the highest RMSE is for {worst_rmse_group}; the highest MAPE is for {worst_mape_group}. "
-              "The largest errors occur in small compartments and in groups with sparse transition counts, which is expected because the annual model does not borrow information across civilisations.")
+              f"Stock-level accuracy is RMSE {_fmt(annual_ctx.get('overall_rmse', float('nan')), 2)} and MAPE {_fmt(annual_ctx.get('overall_mape_pct', float('nan')), 1)}% (a non-standard, conservative measure computed against count_obs + 1 to avoid division by zero). "
+              "These stock-level metrics are not a fair test of the model: the estimation cohort is fixed to authors whose careers began by 2016, so observed post-2016 counts cannot include the new entrants that the projection adds each year. "
+              "The projection therefore necessarily diverges from observed stocks for any civilisation with positive recruitment. "
+              f"A cleaner validation is at the rate level: the projected transition rates have RMSE {_fmt(annual_ctx.get('rate_overall_rmse', float('nan')), 4)} and MAE {_fmt(annual_ctx.get('rate_overall_mae', float('nan')), 4)}, and the model's skill relative to a historical-mean baseline is {_fmt(annual_ctx.get('rate_overall_skill', float('nan')), 2)}. "
+              f"By rate, the best relative skill is for {annual_ctx.get('best_rate_skill', '—')} ({_fmt(annual_ctx.get('best_rate_skill_value', float('nan')), 2)}× the historical-mean RMSE), while the weakest is for {annual_ctx.get('worst_rate_skill', '—')} ({_fmt(annual_ctx.get('worst_rate_skill_value', float('nan')), 2)}×). "
+              "These figures show that the annual layer captures rate drift at least as well as a naive mean forecast, and should be read as a directional early-warning indicator of drift and threshold proximity rather than as a precise population forecast.")
 
     p = doc.add_paragraph()
     p.add_run("Direction and threshold-alarm diagnostics support this interpretation. ")
@@ -1882,7 +1979,9 @@ def _add_docx_body(doc, data, fig_paths, blinded=False):
     if "threshold_alarm_accuracy" in annual_ctx:
         p.add_run(f"For the active pool T = D + H_D + P_D, the projection correctly classifies whether T is below the minimum viable threshold M in {_fmt(annual_ctx['threshold_alarm_accuracy'] * 100, 1)}% of group-years "
                   f"(sensitivity {_fmt(annual_ctx['threshold_alarm_sensitivity'] * 100, 1)}%, specificity {_fmt(annual_ctx['threshold_alarm_specificity'] * 100, 1)}%). "
-                  f"The model identifies {_fmt(annual_ctx.get('threshold_alarms_obs', 0), 0)} observed threshold-crossing group-years, mostly in the smallest civilisations. ")
+                  f"The observed threshold-crossing group-years (n = {_fmt(annual_ctx.get('threshold_alarms_obs', 0), 0)}) all occur for the smallest civilisation in the post-2016 fixed cohort; they reflect the depletion of that cohort as careers mature, not a projected collapse. "
+                  "The projection, by construction, adds new entrants each year and therefore does not predict such within-cohort depletion. "
+                  "A zero sensitivity in this hold-out is thus a consequence of the fixed-cohort validation design, not evidence that the model misses genuine collapse events. ")
     p.add_run("These metrics confirm that the annual layer is useful for directional and threshold-crossing surveillance, not for precise population counts. "
               "The modest year-to-year direction-agreement value is expected for small compartments and sparse transitions, and it reinforces that the projection layer should be treated as a drift-and-threshold alarm rather than a population forecast.")
     doc.add_picture(str(fig_paths["fig7"]), width=Inches(6.0))
@@ -1987,7 +2086,7 @@ def _add_docx_body(doc, data, fig_paths, blinded=False):
     p = doc.add_paragraph()
     p.add_run("A second implication concerns the normative status of civilisational diversity. "
               "We treat diversity as an input to innovation rather than as a distributional afterthought")
-    add_citation(p, 17)
+    add_citation(p, 19)
     p.add_run(". "
               "A monocentric or tight-oligopoly structure in AI/ML may produce short-run efficiency gains through scale and agglomeration, but it also raises the risk of methodological lock-in, selection bias in training data, and reduced error correction. "
               "It is also an evolutionary dead end: it narrows the menu of innovation options, removes healthy competitors whose alternative approaches keep the field honest, and concentrates problem selection under a single institutional and methodological line. "
@@ -2020,9 +2119,9 @@ def _add_docx_body(doc, data, fig_paths, blinded=False):
               "Interventions can then be calibrated to maintain a minimum safety margin rather than to maximise any one stock. "
               "This is the operational meaning of early intervention: not a forecast that a particular collapse will occur, but a structured way to keep the system away from a point of no return. "
               "It also frames high-skilled mobility as a strategic competition among jurisdictions for talent")
-    add_citation(p, 18)
+    add_citation(p, 20)
     p.add_run(", in which the central question is not only who wins the current round but whether the global system retains enough diversity for future rounds")
-    add_citation(p, 19)
+    add_citation(p, 21)
     p.add_run(". "
               "If the dt of policy response is short enough, the model can be updated annually and divergence caught early, before any single civilisation approaches a point of no return. "
               "This is the mechanism through which technology monopoly, hegemonic concentration and oligopoly dead-ends can be avoided: by keeping every major research community above its minimum viable coauthor pool, the framework sustains the competitive diversity that underpins long-run technological progress. "

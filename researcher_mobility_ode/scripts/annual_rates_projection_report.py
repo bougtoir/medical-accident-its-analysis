@@ -568,6 +568,79 @@ def evaluate_projection(projected, observed, train_end=2016, project_end=2026, t
     return merged, group_metrics, comp_metrics, overall
 
 
+def evaluate_rate_projection(rate_table, projected_rates, train_end=2016, project_end=2023):
+    """Evaluate projected transition rates (not inflow or stock counts) against observed rates.
+
+    The observed rate_table contains the ODE-style rates for all years with data,
+    including 2017-2023.  We compare these with the projected_rates for the same
+    years.  A historical-mean baseline is computed from the training window
+    (<= train_end) and used to calculate a skill ratio (naive RMSE / model RMSE).
+    """
+    rate_names = ["alpha", "beta", "h_D", "h_A", "p_D", "p_A", "d"]
+    target_years = list(range(train_end + 1, project_end + 1))
+
+    obs = rate_table[rate_table["year"].isin(target_years)][["origin_group", "year"] + rate_names].copy()
+    proj = projected_rates[projected_rates["year"].isin(target_years)][["origin_group", "year"] + rate_names].copy()
+
+    if obs.empty or proj.empty:
+        return pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
+
+    merged = obs.merge(proj, on=["origin_group", "year"], suffixes=("_obs", "_proj"), how="inner")
+    for name in rate_names:
+        merged[name + "_error"] = merged[name + "_proj"] - merged[name + "_obs"]
+        merged[name + "_abserr"] = np.abs(merged[name + "_error"])
+        # Denominator guard: avoid division by zero and extreme outliers for near-zero observed rates.
+        merged[name + "_ape"] = merged[name + "_abserr"] / (merged[name + "_obs"] + 0.001)
+
+    # Historical-mean baseline from training window.
+    train = rate_table[rate_table["year"] <= train_end].copy()
+    means = train.groupby("origin_group")[rate_names].mean().reset_index()
+    baseline_grid = pd.DataFrame({
+        "year": np.repeat(target_years, len(means)),
+        "origin_group": np.tile(means["origin_group"].values, len(target_years)),
+    })
+    baseline = baseline_grid.merge(means, on="origin_group", how="left")
+    baseline_merged = obs.merge(baseline, on=["origin_group", "year"], suffixes=("_obs", "_base"), how="inner")
+
+    per_rate = []
+    for name in rate_names:
+        rmse = float(np.sqrt(np.mean(merged[name + "_error"] ** 2)))
+        mae = float(np.mean(merged[name + "_abserr"]))
+        mape = float(np.mean(merged[name + "_ape"]) * 100.0)
+        naive_rmse = float(np.sqrt(np.mean((baseline_merged[name + "_base"] - baseline_merged[name + "_obs"]) ** 2)))
+        skill = float(naive_rmse / rmse) if rmse > 1e-12 else float("nan")
+        per_rate.append({
+            "rate": name,
+            "rmse": rmse,
+            "mae": mae,
+            "mape": mape,
+            "naive_rmse": naive_rmse,
+            "skill": skill,
+        })
+    per_rate_df = pd.DataFrame(per_rate)
+
+    # Overall across all group-year-rate observations.
+    all_errors = pd.concat([merged[name + "_error"] for name in rate_names], ignore_index=True)
+    all_abs = pd.concat([merged[name + "_abserr"] for name in rate_names], ignore_index=True)
+    all_ape = pd.concat([merged[name + "_ape"] for name in rate_names], ignore_index=True)
+    overall_rmse = float(np.sqrt(np.mean(all_errors ** 2)))
+    overall_mae = float(np.mean(all_abs))
+    overall_mape = float(np.mean(all_ape) * 100.0)
+
+    base_errors = pd.concat([baseline_merged[name + "_base"] - baseline_merged[name + "_obs"] for name in rate_names], ignore_index=True)
+    overall_naive_rmse = float(np.sqrt(np.mean(base_errors ** 2)))
+    overall_skill = float(overall_naive_rmse / overall_rmse) if overall_rmse > 1e-12 else float("nan")
+    overall = pd.DataFrame({
+        "rmse": [overall_rmse],
+        "mae": [overall_mae],
+        "mape": [overall_mape],
+        "naive_rmse": [overall_naive_rmse],
+        "skill": [overall_skill],
+    })
+
+    return merged, per_rate_df, overall
+
+
 def load_equilibrium_summary():
     path = RESULTS_DIR / "endogenous" / "equilibrium_summary.csv"
     if path.exists():
@@ -678,6 +751,7 @@ def add_caption(doc, text, style="Caption"):
 
 
 def build_docx(rate_table, projected, observed, eval_group, eval_comp, eval_overall,
+               rate_per_rate, rate_overall,
                fig_rates, fig_heatmap, fig_projection, interciv_flows):
     doc = Document()
     title = doc.add_heading("Annual transition rates, inter-civilisation flows, and 2017-2026 projection report", level=0)
@@ -763,6 +837,37 @@ def build_docx(rate_table, projected, observed, eval_group, eval_comp, eval_over
         "projection linearly extrapolates noisy training rates."
     )
 
+    doc.add_heading("5a. Rate-level forecast validation", level=1)
+    doc.add_paragraph(
+        "Stock-level projection is sensitive to the fact that the fixed cohort has no post-2016 new entrants, "
+        "so the rate-level forecast provides a cleaner validation of the annual layer. "
+        "Table 3 reports RMSE, MAE and a skill ratio against a historical-mean baseline for each transition rate. "
+        "A skill ratio above 1.0 indicates that the projected rates improve on the baseline."
+    )
+    table3 = doc.add_table(rows=1, cols=6)
+    table3.style = "Table Grid"
+    h3 = table3.rows[0].cells
+    h3[0].text = "Rate"
+    h3[1].text = "RMSE"
+    h3[2].text = "MAE"
+    h3[3].text = "MAPE"
+    h3[4].text = "Naive RMSE"
+    h3[5].text = "Skill"
+    for _, row in rate_per_rate.iterrows():
+        r = table3.add_row().cells
+        r[0].text = str(row["rate"])
+        r[1].text = f"{row['rmse']:.4f}"
+        r[2].text = f"{row['mae']:.4f}"
+        r[3].text = f"{row['mape']:.1f}%"
+        r[4].text = f"{row['naive_rmse']:.4f}"
+        r[5].text = f"{row['skill']:.2f}"
+    add_caption(doc, "Table 3. Rate-level projection accuracy, 2017-2023.")
+    if not rate_overall.empty:
+        doc.add_paragraph(
+            f"Overall rate-level RMSE = {rate_overall['rmse'].iloc[0]:.4f}, MAE = {rate_overall['mae'].iloc[0]:.4f}, "
+            f"MAPE = {rate_overall['mape'].iloc[0]:.1f}%, skill = {rate_overall['skill'].iloc[0]:.2f}."
+        )
+
     doc.add_heading("6. Validation and civilisational diversity", level=1)
     summary = load_equilibrium_summary()
     if summary is not None and "safety_margin" in summary.columns:
@@ -839,12 +944,19 @@ def main():
     group_metrics.to_csv(ANNUAL_DIR / "projection_accuracy_by_group.csv", index=False)
     comp_metrics.to_csv(ANNUAL_DIR / "projection_accuracy_by_compartment.csv", index=False)
 
+    # Rate-level forecast validation: compare projected vs observed transition rates.
+    rate_merged, rate_per_rate, rate_overall = evaluate_rate_projection(rate_table, projected_rates, project_end=min(max_obs_year, 2023))
+    rate_merged.to_csv(ANNUAL_DIR / "projection_rate_evaluation.csv", index=False)
+    rate_per_rate.to_csv(ANNUAL_DIR / "projection_rate_accuracy.csv", index=False)
+    rate_overall.to_csv(ANNUAL_DIR / "projection_rate_accuracy_overall.csv", index=False)
+
     fig_rates = plot_annual_rates(rate_table, projected_rates)
     fig_heatmap = plot_interciv_heatmap(interciv_stock)
     fig_projection = plot_projection_by_compartment(projected_stock, observed_for_eval)
 
     doc_path = build_docx(rate_table, projected_stock, observed_for_eval,
                           group_metrics, comp_metrics, overall,
+                          rate_per_rate, rate_overall,
                           fig_rates, fig_heatmap, fig_projection, interciv_stock)
     print(f"Wrote {doc_path}")
     print(f"Overall projection RMSE: {overall['rmse'].iloc[0]:.3f}, MAPE: {overall['mape'].iloc[0]:.3%}, "

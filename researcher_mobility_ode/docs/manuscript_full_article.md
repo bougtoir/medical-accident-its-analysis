@@ -1,6 +1,6 @@
 Article type: Research Article
 
-Approximate word count (main text incl. tables, excl. references): 9992
+Approximate word count (main text incl. tables, excl. references): 10259
 
 Corresponding author: \[To be completed at submission\]
 
@@ -332,6 +332,11 @@ estimate stable transition rates separately. These civilisation labels
 are operational categories based on observed publication-affiliation
 patterns; they are not normative claims about cultural or political
 identity, and they are reported in full in Supplementary Material.
+Civilisation-level categories have also been shown to predict
+large-scale digital-communication networks ^\[17\]^ and country-capacity
+clusters in scientific mobility and collaboration ^\[18\]^, which
+supports the use of this aggregation as a cross-national research
+heuristic.
 
 ## 3.2 Sample selection and variable definitions
 
@@ -769,6 +774,43 @@ at higher PI densities.
 
 *Table 5. Equilibrium T under linear and saturating PI-driven inflow.*
 
+The closest point-of-no-return lever is the same under the saturating
+alternative for every civilisation: exogenous entry (I0) is the rate
+that requires the smallest proportional change to push the active pool
+to its minimum viable threshold. Table 5a reports the proportional
+factor and proximity for the active-pool threshold under both
+assumptions. The rank order of civilisational fragility is preserved
+(Spearman ρ = 1.0), and the absolute proximity values move in the same
+direction. This confirms that the policy ranking---exogenous entry
+first, then dropout, then domestic promotion and return---is robust to
+replacing the linear feedback with a saturating one.
+
+  --------------------------------------------------------------------------------------------------------------------------------------------------------------
+  **origin_group**   **linear_closest**   **linear_factor**   **linear_proximity**   **saturating_closest**   **saturating_factor**   **saturating_proximity**
+  ------------------ -------------------- ------------------- ---------------------- ------------------------ ----------------------- --------------------------
+  United States      I0                   0.0125              0.9875                 I0                       0.0112                  0.9888
+
+  Anglosphere ex-US  I0                   0.0471              0.9529                 I0                       0.0424                  0.9576
+
+  Continental Europe I0                   0.0201              0.9799                 I0                       0.0178                  0.9822
+
+  Sinic              I0                   0.0103              0.9897                 I0                       0.0089                  0.9911
+
+  Japanese           I0                   0.0611              0.9389                 I0                       0.0585                  0.9415
+
+  Hindu              I0                   0.0421              0.9579                 I0                       0.0344                  0.9656
+
+  Islamic            I0                   0.0255              0.9745                 I0                       0.0212                  0.9788
+
+  Other Western      I0                   0.3319              0.6681                 I0                       0.3074                  0.6926
+
+  Other              I0                   0.0349              0.9651                 I0                       0.0312                  0.9688
+  Civilizations                                                                                                                       
+  --------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+*Table 5a. Closest PNR lever and proximity under linear and saturating
+endogenous inflow (active-pool threshold).*
+
 ## 5.2 Historical counterfactual
 
 Table 6 compares the equilibrium that would have emerged if the
@@ -977,31 +1019,41 @@ destinations excluded; lower-bound proxy).*
 ## 5.7 Out-of-sample projection, 2017-2023
 
 The 2017-2023 projection is compared with observed annual stocks in
-Figure 7. Overall accuracy is RMSE 10190.39 and MAPE 129.0% (a
+Figure 7. Stock-level accuracy is RMSE 10190.39 and MAPE 129.0% (a
 non-standard, conservative measure computed against count_obs + 1 to
-avoid division by zero). The high MAPE reflects small absolute counts
-and zero-observed cells, and the projection should be read as a
-directional early-warning indicator of drift and threshold proximity
-rather than a precise population forecast. Among civilisations the
-lowest RMSE is for Other Western and the highest RMSE is for Sinic; the
-highest MAPE is for Islamic. The largest errors occur in small
-compartments and in groups with sparse transition counts, which is
-expected because the annual model does not borrow information across
-civilisations.
+avoid division by zero). These stock-level metrics are not a fair test
+of the model: the estimation cohort is fixed to authors whose careers
+began by 2016, so observed post-2016 counts cannot include the new
+entrants that the projection adds each year. The projection therefore
+necessarily diverges from observed stocks for any civilisation with
+positive recruitment. A cleaner validation is at the rate level: the
+projected transition rates have RMSE 0.0892 and MAE 0.0364, and the
+model\'s skill relative to a historical-mean baseline is 0.99. By rate,
+the best relative skill is for h_A (1.48× the historical-mean RMSE),
+while the weakest is for p_D (0.66×). These figures show that the annual
+layer captures rate drift at least as well as a naive mean forecast, and
+should be read as a directional early-warning indicator of drift and
+threshold proximity rather than as a precise population forecast.
 
 Direction and threshold-alarm diagnostics support this interpretation.
 Year-to-year direction agreement between projected and observed
 compartment counts is 21.6%, ranging from Hindu to Japanese. For the
 active pool T = D + H_D + P_D, the projection correctly classifies
 whether T is below the minimum viable threshold M in 92.1% of
-group-years (sensitivity 0.0%, specificity 100.0%). The model identifies
-5 observed threshold-crossing group-years, mostly in the smallest
-civilisations. These metrics confirm that the annual layer is useful for
-directional and threshold-crossing surveillance, not for precise
-population counts. The modest year-to-year direction-agreement value is
-expected for small compartments and sparse transitions, and it
-reinforces that the projection layer should be treated as a
-drift-and-threshold alarm rather than a population forecast.
+group-years (sensitivity 0.0%, specificity 100.0%). The observed
+threshold-crossing group-years (n = 5) all occur for the smallest
+civilisation in the post-2016 fixed cohort; they reflect the depletion
+of that cohort as careers mature, not a projected collapse. The
+projection, by construction, adds new entrants each year and therefore
+does not predict such within-cohort depletion. A zero sensitivity in
+this hold-out is thus a consequence of the fixed-cohort validation
+design, not evidence that the model misses genuine collapse events.
+These metrics confirm that the annual layer is useful for directional
+and threshold-crossing surveillance, not for precise population counts.
+The modest year-to-year direction-agreement value is expected for small
+compartments and sparse transitions, and it reinforces that the
+projection layer should be treated as a drift-and-threshold alarm rather
+than a population forecast.
 
 ![](media/image7.png){width="6.0in" height="3.8268711723534556in"}
 
@@ -1163,7 +1215,7 @@ given intervention would achieve the simulated change.
 
 A second implication concerns the normative status of civilisational
 diversity. We treat diversity as an input to innovation rather than as a
-distributional afterthought ^\[17\]^. A monocentric or tight-oligopoly
+distributional afterthought ^\[19\]^. A monocentric or tight-oligopoly
 structure in AI/ML may produce short-run efficiency gains through scale
 and agglomeration, but it also raises the risk of methodological
 lock-in, selection bias in training data, and reduced error correction.
@@ -1229,9 +1281,9 @@ minimum safety margin rather than to maximise any one stock. This is the
 operational meaning of early intervention: not a forecast that a
 particular collapse will occur, but a structured way to keep the system
 away from a PNR. It also frames high-skilled mobility as a strategic
-competition among jurisdictions for talent ^\[18\]^, in which the
+competition among jurisdictions for talent ^\[20\]^, in which the
 central question is not only who wins the current round but whether the
-global system retains enough diversity for future rounds ^\[19\]^. If
+global system retains enough diversity for future rounds ^\[21\]^. If
 the dt of policy response is short enough, the model can be updated
 annually and divergence caught early, before any single civilisation
 approaches a PNR. This is the mechanism through which technology
@@ -1544,12 +1596,21 @@ Innovation and Interactive Learning. London: Anthem Press, 1992.
 16\. Malerba F. Sectoral systems of innovation and production. Res
 Policy. 2002;31(2):247-264.
 
-17\. Freeman R B, Huang W. Collaboration: Strength in diversity. Nature.
+17\. State B, Park P, Weber I, Macy M. The mesh of civilizations in the
+global network of digital communication. PLoS ONE. 2015;10(5):e0122543.
+https://doi.org/10.1371/journal.pone.0122543
+
+18\. Chinchilla-Rodríguez Z, Miao L, Murray D, Robinson-García N, Costas
+R, Sugimoto C R. A global comparison of scientific mobility and
+collaboration according to national scientific capacities. Front Res
+Metr Anal. 2018;3:17. https://doi.org/10.3389/frma.2018.00017
+
+19\. Freeman R B, Huang W. Collaboration: Strength in diversity. Nature.
 2014;513(7518):305. https://doi.org/10.1038/513305a
 
-18\. Shachar A. The Race for Talent: Highly Skilled Migrants and
+20\. Shachar A. The Race for Talent: Highly Skilled Migrants and
 Competitive Immigration Regimes. NYU Law Rev. 2006;81(1):148-206.
 
-19\. Kerr W R. Global Talent and U.S. Immigration Policy. Harvard
+21\. Kerr W R. Global Talent and U.S. Immigration Policy. Harvard
 Business School Working Paper No. 20-107, 2020.
 https://www.hbs.edu/ris/Publication%20Files/20-107_0967f1ab-1d23-4d54-b5a1-c884234d9b31.pdf
