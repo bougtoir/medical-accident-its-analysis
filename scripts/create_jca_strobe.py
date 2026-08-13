@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Create STROBE checklist (cross-sectional studies) for Journal of Epidemiology & Community Health submission.
+"""Create STROBE checklist (cross-sectional studies) for Journal of Clinical Anesthesia submission.
 
 Reads the generated main manuscript .docx, converts it to PDF, and infers the
 page numbers where each STROBE item may be found.
@@ -14,7 +14,7 @@ from docx import Document
 from docx.shared import Pt, Cm
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 
-OUTPUT_DIR = os.path.join(os.path.dirname(__file__), '..', 'documents', 'JECH')
+OUTPUT_DIR = os.path.join(os.path.dirname(__file__), '..', 'documents', 'JCA')
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -41,7 +41,7 @@ def get_manuscript_page_ranges():
     If LibreOffice or pdftotext is unavailable, returns an empty dict so the STROBE
     checklist can still be generated with blank page-number cells.
     """
-    manuscript = os.path.join(OUTPUT_DIR, 'regional_anaesthesia_JECH_EN.docx')
+    manuscript = os.path.join(OUTPUT_DIR, 'regional_anaesthesia_JCA_EN.docx')
     if not os.path.exists(manuscript):
         raise FileNotFoundError(f"Main manuscript not found: {manuscript}")
 
@@ -69,7 +69,7 @@ def get_manuscript_page_ranges():
         pages = [p for p in text.split('\f') if p.strip()]
 
         headings = [
-            'ABSTRACT', 'KEY MESSAGES', 'INTRODUCTION', 'METHODS',
+            'ABSTRACT', 'INTRODUCTION', 'METHODS',
             'RESULTS', 'DISCUSSION', 'CONCLUSIONS', 'REFERENCES',
             'FIGURE LEGENDS',
         ]
@@ -184,9 +184,9 @@ r.font.size = Pt(13)
 
 p = doc.add_paragraph()
 p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-r = p.add_run("Manuscript: Regional variation in anaesthesia practice under "
-              "universal coverage in Japan: a cross-sectional ecological study "
-              "of secondary medical areas")
+r = p.add_run("Manuscript: Regional variation in anaesthesia practice in Japan "
+              "under universal health coverage: structural determinants and "
+              "claims-audit sensitivity")
 r.italic = True
 r.font.size = Pt(11)
 
@@ -201,7 +201,7 @@ items = [
     ("", "1(b)",
      "Provide in the abstract an informative and balanced summary of what "
      "was done and what was found",
-     "Abstract: structured subheadings Background/aims / Methods / Results / "
+     "Abstract: structured subheadings Background / Methods / Results / "
      "Conclusion"),
 
     ("Introduction", "", "", ""),
@@ -216,71 +216,72 @@ items = [
     ("Methods", "", "", ""),
     ("Study design", "4",
      "Present key elements of study design early in the paper",
-     "Methods, 'Study design and ethical considerations'"),
+     "Materials and methods, '2.1 Study design and ethical considerations'"),
     ("Setting", "5",
      "Describe the setting, locations, and relevant dates, including "
      "periods of recruitment, exposure, follow-up, and data collection",
-     f"Methods, 'Geographic units' and 'Data sources' (fiscal year {fiscal_year}, {n_areas} "
+     f"Materials and methods, '2.2 Geographic units' and '2.3 Data sources' (fiscal year {fiscal_year}, {n_areas} "
      f"secondary medical areas covering all {n_prefectures} prefectures of Japan)"),
     ("Participants", "6",
      "Give the eligibility criteria, and the sources and methods of "
      "selection of participants",
-     "Methods, 'Data sources'; aggregate ecological unit = secondary "
+     "Materials and methods, '2.3 Data sources'; aggregate ecological unit = secondary "
      "medical area; no individual-level eligibility criteria"),
     ("Variables", "7",
      "Clearly define all outcomes, exposures, predictors, potential "
      "confounders, and effect modifiers. Give diagnostic criteria, if "
      "applicable",
-     "Methods, 'Anaesthesia procedure codes and university hospital mapping' "
-     "and 'Statistical analysis'"),
+     "Materials and methods, '2.4 Anaesthesia procedure codes and university hospital mapping' "
+     "and '2.5 Statistical analysis'"),
     ("Data sources/measurement", "8*",
      "For each variable of interest, give sources of data and details of "
      "methods of assessment (measurement). Describe comparability of "
      "assessment methods if there is more than one group",
-     "Methods, 'Data sources and standardised claim ratios' (Cabinet Office "
+     "Materials and methods, '2.3 Data sources and standardised claim ratios' (Cabinet Office "
      "Regional Variation Visualisation; Survey of Physicians, Dentists and "
      "Pharmacists; National Land Numerical Information)"),
     ("Bias", "9",
      "Describe any efforts to address potential sources of bias",
-     "Methods, 'Sensitivity analyses against the audit hypothesis' and "
-     "Discussion, 'Strengths and limitations'"),
+     "Materials and methods, '2.5 Statistical analysis' and "
+     "Discussion, '4.2 Strengths and limitations'"),
     ("Study size", "10",
      "Explain how the study size was arrived at",
-     f"Methods, 'Data sources' (all {n_areas} areas — no sampling)"),
+     f"Materials and methods, '2.3 Data sources' (all {n_areas} areas — no sampling)"),
     ("Quantitative variables", "11",
      "Explain how quantitative variables were handled in the analyses. If "
      "applicable, describe which groupings were chosen and why",
-     "Methods, 'Statistical analysis' (standardised claim ratio as primary "
+     "Materials and methods, '2.5 Statistical analysis' (standardised claim ratio as primary "
      "outcome; empirical Bayes shrinkage)"),
     ("Statistical methods", "12(a)",
      "Describe all statistical methods, including those used to control for "
      "confounding",
-     "Methods, 'Statistical analysis' (descriptive statistics, multilevel "
+     "Materials and methods, '2.5 Statistical analysis' (descriptive statistics, multilevel "
      "models with prefecture random intercept, variance decomposition, "
      "empirical Bayes shrinkage)"),
     ("", "12(b)",
      "Describe any methods used to examine subgroups and interactions",
-     "Methods, 'Sensitivity analyses' (within-prefecture paired comparisons; "
+     "Results, '3.3 Sensitivity analyses against the audit hypothesis' and '3.4 Robustness: "
+     "empirical Bayes shrinkage and outliers' (within-prefecture paired comparisons; "
      "alternative combined outcomes)"),
     ("", "12(c)",
      "Explain how missing data were addressed",
-     "Methods, 'Statistical analysis' (low-volume areas masked by the data "
+     "Materials and methods, '2.5 Statistical analysis' (low-volume areas masked by the data "
      "provider are reported as n and excluded from rate calculations)"),
     ("", "12(d)",
      "Describe analytical methods taking account of sampling strategy",
      "Not applicable — full population of areas"),
     ("", "12(e)",
      "Describe any sensitivity analyses",
-     "Methods, 'Sensitivity analyses against the audit hypothesis'"),
+     "Results, '3.3 Sensitivity analyses against the audit hypothesis'"),
 
     ("Results", "", "", ""),
     ("Participants", "13(a)",
      "Report numbers of individuals at each stage of study",
-     f"Results, 'Study population' ({n_areas} areas, {n_prefectures} prefectures, {n_univ_areas} "
+     f"Results, '3.1 Study population' ({n_areas} areas, {n_prefectures} prefectures, {n_univ_areas} "
      f"university-hospital areas)"),
     ("", "13(b)",
      "Give reasons for non-participation at each stage",
-     "Results, 'Study population' (areas masked for low volume reported "
+     "Results, '3.1 Study population' (areas masked for low volume reported "
      "as n by procedure)"),
     ("", "13(c)",
      "Consider use of a flow diagram",
@@ -288,20 +289,20 @@ items = [
     ("Descriptive data", "14(a)",
      "Give characteristics of study participants and information on "
      "exposures and potential confounders",
-     "Results, 'Study population and variation'; Table 1 and Table 2"),
+     "Results, '3.1 Study population and variation in anaesthesia practice'; Table 1 and Table 2"),
     ("", "14(b)",
      "Indicate number of participants with missing data for each variable "
      "of interest",
      "Table 2 column 'n'"),
     ("Outcome data", "15*",
      "Report numbers of outcome events or summary measures",
-     "Results, 'Study population and variation' and Tables 1–2 (means, "
+     "Results, '3.1 Study population and variation in anaesthesia practice' and Tables 1–2 (means, "
      "SD, IQR, range, coefficients of variation)"),
     ("Main results", "16(a)",
      "Give unadjusted estimates and, if applicable, confounder-adjusted "
      "estimates and their precision (e.g. 95% CI). Make clear which "
      "confounders were adjusted for and why they were included",
-     "Results, 'Multilevel model'; Table 3 (mixed-effects coefficients "
+     "Results, '3.2 Multilevel model and university hospital effect'; Table 3 (mixed-effects coefficients "
      "with 95% confidence intervals)"),
     ("", "16(b)",
      "Report category boundaries when continuous variables were "
@@ -314,28 +315,28 @@ items = [
     ("Other analyses", "17",
      "Report other analyses done — e.g. analyses of subgroups and "
      "interactions, and sensitivity analyses",
-     "Results, 'Sensitivity analyses' and 'Robustness' (empirical Bayes "
+     "Results, '3.3 Sensitivity analyses against the audit hypothesis' and '3.4 Robustness: "
+     "empirical Bayes shrinkage and outliers' (empirical Bayes "
      "shrinkage; within-prefecture comparisons; combined codes)"),
 
     ("Discussion", "", "", ""),
     ("Key results", "18",
      "Summarise key results with reference to study objectives",
-     "Discussion, 'Statement of principal findings'"),
+     "Discussion, '4.1 Statement of principal findings'"),
     ("Limitations", "19",
      "Discuss limitations of the study, taking into account sources of "
      "potential bias or imprecision. Discuss both direction and magnitude "
      "of any potential bias",
-     "Discussion, 'Strengths and limitations'"),
+     "Discussion, '4.2 Strengths and limitations'"),
     ("Interpretation", "20",
      "Give a cautious overall interpretation of results considering "
      "objectives, limitations, multiplicity of analyses, results from "
      "similar studies, and other relevant evidence",
-     "Discussion, 'Interpretation within the context of the wider "
-     "literature'"),
+     "Discussion, '4.3 International generalizability and clinical relevance'"),
     ("Generalisability", "21",
      "Discuss the generalisability (external validity) of the study results",
-     "Discussion, 'Interpretation within the context of the wider literature' "
-     "and 'Implications for policy, practice and governance'"),
+     "Discussion, '4.3 International generalizability and clinical relevance' "
+     "and '4.4 Implications for perioperative practice and policy'"),
 
     ("Other information", "", "", ""),
     ("Funding", "22",
@@ -400,6 +401,6 @@ r = p.add_run(
 r.italic = True
 r.font.size = Pt(9)
 
-out = os.path.join(OUTPUT_DIR, 'STROBE_checklist_JECH_EN.docx')
+out = os.path.join(OUTPUT_DIR, 'STROBE_checklist_JCA_EN.docx')
 doc.save(out)
 print(f"Saved: {out}")

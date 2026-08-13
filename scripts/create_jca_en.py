@@ -1,15 +1,14 @@
 #!/usr/bin/env python3
-"""Create Journal of Epidemiology & Community Health formatted English manuscript.
+"""Create Journal of Clinical Anesthesia formatted English manuscript.
 
-Conforms to Journal of Epidemiology & Community Health original research author
-guidelines:
-- Title must indicate study design
-- Structured abstract (Background/Methods/Results/Conclusion) <=250 words
-- Key messages (What is already known / What this study adds / How this study might affect...) in 3-5 sentences
-- Body <=3500 words (excluding abstract, references, tables, figures)
-- Up to 5 combined tables/illustrations
-- References numbered in order of appearance (Vancouver style; first three authors then et al.)
-- Tables in main text; figure legends at end of manuscript; figures supplied as separate files
+Conforms to Journal of Clinical Anesthesia original research author guidelines:
+- Title should indicate study design
+- Structured abstract (Background/Methods/Results/Conclusion) <=300 words
+- Highlights / Key Points: 3-5 bullets, each <=85 characters, as separate file
+- Body <=5000 words (excluding abstract, references, tables, figures)
+- Up to 6 combined figures/tables
+- References numbered in order of appearance (Vancouver style; in-text square brackets)
+- Numbered IMRaD sections and subsections (1, 1.1, 1.1.1)
 - Double-spaced, Times New Roman 12 pt
 
 All numeric results are read from output/ijhpm_results.json, which is produced
@@ -28,7 +27,7 @@ from docx.oxml.ns import qn
 from docx.shared import Inches, Pt, Cm
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 
-OUTPUT_DIR = os.path.join(os.path.dirname(__file__), '..', 'documents', 'JECH')
+OUTPUT_DIR = os.path.join(os.path.dirname(__file__), '..', 'documents', 'JCA')
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -211,9 +210,14 @@ def build_flat(R):
 
 FLAT = build_flat(R)
 
+_heading_state = {'section': 0, 'subsection': 0}
+
 
 def add_run_with_refs(paragraph, text, italic=False, bold=False):
-    """Add text to a paragraph, parsing {n} or {n-m} as font superscript runs."""
+    """Add text to a paragraph, parsing {n} or {n-m} as bracketed Vancouver citations."""
+    # In Vancouver style, citations follow punctuation: move any trailing
+    # punctuation that sits immediately before a citation marker to after it.
+    text = re.sub(r'([.,;:])(\{[^}]+\})', r'\2\1', text)
     parts = re.split(r'(\{[^}]+\})', text)
     for part in parts:
         if not part:
@@ -227,17 +231,19 @@ def add_run_with_refs(paragraph, text, italic=False, bold=False):
             run.bold = True
         if part.startswith('{') and part.endswith('}'):
             inner = part[1:-1]
-            run.text = inner
-            run.font.superscript = True
+            run.text = f'[{inner}]'
+            run.font.superscript = False
+
+
+CITE_RE = re.compile(r'\[\d+(?:-\d+)?(?:,\s*\d+(?:-\d+)?)*\]')
 
 
 def _expand_citation(text):
-    """Expand a superscript citation such as '7-9,12' into integers."""
+    """Expand a bracketed Vancouver citation such as '[7-9,12]' into integers."""
     nums = []
-    for token in re.split(r',\s*', text.strip()):
+    inner = text.strip().strip('[]')
+    for token in re.split(r',\s*', inner):
         token = token.strip()
-        if not token:
-            continue
         if '-' in token:
             start, end = token.split('-', 1)
             nums.extend(range(int(start), int(end) + 1))
@@ -247,16 +253,14 @@ def _expand_citation(text):
 
 
 def renumber_references(doc, references):
-    """Determine first-appearance order from superscript citations and reorder.
+    """Determine first-appearance order from bracketed Vancouver citations and reorder.
 
     Walks the document body (stops at the 'References' heading), records the
     order in which each citation number first appears, builds an old->new
-    mapping, updates all superscript citation runs in place, and returns the
-    reference list reordered to match the new numbering. Uncited references
-    are dropped. Range citations (e.g. 7-9) are expanded so middle numbers are
-    not dropped.
+    mapping, updates all bracketed citation runs in place, and returns the
+    reference list reordered to match the new numbering. Uncited references are
+    dropped.
     """
-    CITE_RE = re.compile(r'\d+(?:-\d+)?(?:,\s*\d+(?:-\d+)?)*')
     first = {}
     cited = set()
     for p in doc.paragraphs:
@@ -264,12 +268,11 @@ def renumber_references(doc, references):
         if txt.upper() == 'REFERENCES':
             break
         for run in p.runs:
-            if run.font.superscript:
-                for match in CITE_RE.finditer(run.text):
-                    for n in _expand_citation(match.group(0)):
-                        cited.add(n)
-                        if n not in first:
-                            first[n] = len(first) + 1
+            for match in CITE_RE.finditer(run.text):
+                for n in _expand_citation(match.group(0)):
+                    cited.add(n)
+                    if n not in first:
+                        first[n] = len(first) + 1
     mapping = {old: new for new, old in enumerate(sorted(first, key=first.get), 1)}
 
     def repl(m):
@@ -278,7 +281,7 @@ def renumber_references(doc, references):
 
     for p in doc.paragraphs:
         for run in p.runs:
-            if run.font.superscript:
+            if CITE_RE.search(run.text):
                 run.text = re.sub(r'\d+', repl, run.text)
 
     return [references[old - 1] for old in sorted(cited, key=mapping.get)]
@@ -296,11 +299,21 @@ def add_para(text, bold=False, italic=False, align=None, space_before=0, space_a
     return p
 
 
-def add_heading(text, level=1, space_before=12, space_after=6):
+def add_heading(text, level=1, space_before=12, space_after=6, numbered=False):
+    global _heading_state
     p = doc.add_paragraph()
     p.paragraph_format.space_before = Pt(space_before)
     p.paragraph_format.space_after = Pt(space_after)
-    run = p.add_run(text.upper() if level == 1 else text)
+    if numbered and level == 1:
+        _heading_state['section'] += 1
+        _heading_state['subsection'] = 0
+        display = f"{_heading_state['section']}. {text.upper()}"
+    elif numbered and level == 2:
+        _heading_state['subsection'] += 1
+        display = f"{_heading_state['section']}.{_heading_state['subsection']} {text}"
+    else:
+        display = text.upper() if level == 1 else text
+    run = p.add_run(display)
     run.font.name = 'Times New Roman'
     run.font.size = Pt(12) if level > 1 else Pt(13)
     run.bold = True
@@ -308,7 +321,7 @@ def add_heading(text, level=1, space_before=12, space_after=6):
 
 
 def add_subheading(text):
-    return add_heading(text, level=2, space_before=8, space_after=4)
+    return add_heading(text, level=2, space_before=8, space_after=4, numbered=True)
 
 
 def add_blank():
@@ -319,7 +332,8 @@ def add_blank():
 
 def add_table_from_data(caption, headers, rows, note=None):
     """Add an inline table with caption and optional footnote."""
-    add_para(caption, bold=True, space_before=12, space_after=6)
+    cap_p = add_para(caption, bold=True, space_before=12, space_after=6)
+    _excluded_word_count_elements.add(cap_p._element)
     table = doc.add_table(rows=1, cols=len(headers))
     table.style = 'Table Grid'
     hdr = table.rows[0].cells
@@ -342,15 +356,17 @@ def add_table_from_data(caption, headers, rows, note=None):
             r.font.name = 'Times New Roman'
             r.font.size = Pt(10)
     if note:
-        add_para(note, italic=True, space_before=6, space_after=12)
+        note_p = add_para(note, italic=True, space_before=6, space_after=12)
+        _excluded_word_count_elements.add(note_p._element)
     return table
 
 
 figure_legends = []
+_excluded_word_count_elements = set()
 
 
 def add_figure_inline(image_path, caption):
-    """Store the figure legend; JECH requires figures as separate files."""
+    """Store the figure legend; figures are supplied as separate files."""
     figure_legends.append(caption)
     add_blank()
 
@@ -358,8 +374,8 @@ def add_figure_inline(image_path, caption):
 # ============================================================
 # TITLE PAGE (anonymised manuscript: no author identifying information)
 # ============================================================
-title = ("Regional variation in anaesthesia practice under universal coverage in Japan: "
-         "a cross-sectional ecological study of secondary medical areas")
+title = ("Regional variation in anaesthesia practice in Japan under universal health coverage: "
+         "structural determinants and claims-audit sensitivity")
 assert len(title) <= 150, f"Title is {len(title)} chars (max 150)"
 
 p = doc.add_paragraph()
@@ -374,7 +390,7 @@ add_para("Running header: Anaesthesia variation in Japan", italic=True,
          align=WD_ALIGN_PARAGRAPH.CENTER)
 add_blank()
 
-# Journal of Epidemiology & Community Health operates single-anonymised peer review.
+# Journal of Clinical Anesthesia uses single-anonymised peer review.
 # Author names, affiliations and contact details are supplied on the separate
 # title-page file to keep the main manuscript clean.
 add_para("[Author names, affiliations and contact details are provided "
@@ -385,8 +401,9 @@ add_blank()
 add_para("Article type: Original research article", italic=True)
 add_para("Word count (main text, excluding abstract, references, tables and figures): approximately [calculated at build] words", italic=True)
 add_para("Tables: [n_tables]   Figures: [n_figures]   References: [n_references]", italic=True)
+add_para("Highlights: 3-5 bullet points summarising novel findings (uploaded as a separate file)", italic=True)
 add_para("Reporting guideline: STROBE checklist for cross-sectional studies (uploaded as supplementary material)", italic=True)
-add_para("Target journal: Journal of Epidemiology & Community Health", italic=True)
+add_para("Target journal: Journal of Clinical Anesthesia", italic=True)
 
 doc.add_page_break()
 # ============================================================
@@ -397,19 +414,19 @@ add_blank()
 add_heading("Abstract", level=1, space_before=0)
 
 add_para(
-    "Background/aims: Geographic variation in anaesthesia practice is well documented, "
-    "but it remains unclear whether it reflects real differences in care or "
+    "Background: Geographic variation in anaesthesia technique is well documented, "
+    "but it is rarely possible to separate true differences in care from "
     "artefacts of coding, reimbursement and auditing. Japan's uniform national "
-    "fee schedule combined with prefecture-specific claims auditing offers a "
-    "natural experiment for separating these explanations.")
+    "fee schedule combined with prefecture-specific claims auditing creates a "
+    "natural experiment for this separation.")
 
 add_para(
-    "Methods: We conducted a cross-sectional ecological study using age- and "
-    "sex-standardised claim ratios for general, spinal, epidural and continuous "
-    "epidural anaesthesia across ${n_areas} secondary medical areas nested "
-    "within ${n_prefectures} prefectures, fiscal year ${fiscal_year}. We fitted "
+    "Methods: Cross-sectional ecological study of age- and sex-standardised "
+    "claim ratios for general, spinal, epidural and continuous epidural "
+    "anaesthesia across ${n_areas} secondary medical areas nested within "
+    "${n_prefectures} prefectures, fiscal year ${fiscal_year}. We fitted "
     "multilevel linear models with prefecture random intercepts and a university-"
-    "hospital fixed effect, and performed sensitivity analyses for population "
+    "hospital fixed effect, and conducted sensitivity analyses for population "
     "density, anaesthesiologist supply and plausible differential audit rates.")
 
 add_para(
@@ -427,54 +444,20 @@ add_para(
 add_para(
     "Conclusion: Regional variation in anaesthesia practice is predominantly "
     "structural, driven by access to university hospitals rather than by "
-    "prefectural auditing. In Japan and similar universal-coverage systems, "
-    "this pattern signals inequitable access to neuraxial techniques and should "
-    "be addressed through workforce and organisational policy, not additional "
-    "coding audits.")
+    "prefectural auditing. In universal-coverage systems this pattern indicates "
+    "inequitable access to neuraxial techniques; policy should address workforce "
+    "and organisational barriers, not additional coding audits.")
 
 add_blank()
 add_para("Keywords: ", bold=False)
 add_para(
-    "anaesthesia; small-area variation; multilevel analysis; quality of care; "
-    "patient safety; health equity; universal health coverage; Japan")
-
-doc.add_page_break()
-# ============================================================
-add_heading("Key messages", level=1, space_before=0)
-
-add_para(
-    "What is already known on this topic", bold=True)
-add_para(
-    "Geographic variation in medical and surgical practice is a recurring "
-    "finding in high-income countries, yet it is often difficult to separate "
-    "genuine differences in care from artefacts of coding, reimbursement and "
-    "audit policy. Universal-coverage systems that combine a national fee "
-    "schedule with regionally devolved claims auditing provide a natural "
-    "experiment for testing these alternative explanations.")
-
-add_para(
-    "What this study adds", bold=True)
-add_para(
-    "In a nationwide cross-sectional ecological analysis of age- and sex-"
-    "standardised anaesthesia claim ratios across ${n_areas} secondary medical "
-    "areas of Japan, university hospital presence was the dominant structural "
-    "determinant of variation in general, epidural and continuous epidural "
-    "anaesthesia use. Prefecture-specific audit intensity could explain only a "
-    "small fraction of the observed variation.")
-
-add_para(
-    "How this study might affect research, practice or policy", bold=True)
-add_para(
-    "Administrative claims data should be used to monitor small-area "
-    "variation in surgical care as a population-health equity indicator, and "
-    "policy makers should address workforce and organisational determinants "
-    "of access to neuraxial anaesthesia rather than treating geographic "
-    "differences primarily as a coding or fraud problem.")
+    "anaesthesia; neuraxial anaesthesia; small-area variation; multilevel analysis; "
+    "quality of care; perioperative medicine; health equity; Japan")
 
 doc.add_page_break()
 # INTRODUCTION
 # ============================================================
-add_heading("Introduction", level=1, space_before=0)
+add_heading("Introduction", level=1, space_before=0, numbered=True)
 
 add_para(
     "National administrative claims data are a cornerstone of health-services "
@@ -517,9 +500,9 @@ add_para(
     "framework for distinguishing administrative from structural sources of "
     "small-area variation in other universal-coverage systems.")
 # ============================================================
-# METHODS
+# MATERIALS AND METHODS
 # ============================================================
-add_heading("Methods", level=1)
+add_heading("Materials and methods", level=1, numbered=True)
 
 add_subheading("Study design and ethical considerations")
 add_para(
@@ -599,10 +582,31 @@ add_table_from_data(
           "were computed for each code by indirect age- and sex-standardisation.")
 )
 
+add_subheading("Statistical analysis")
+add_para(
+    "We computed descriptive statistics for each standardised claim ratio "
+    "(mean, standard deviation, median, interquartile range, minimum, maximum "
+    "and coefficient of variation). To account for the nesting of secondary "
+    "medical areas within prefectures, we fitted multilevel linear models with "
+    "prefecture random intercepts and a binary fixed effect for university "
+    "hospital presence, using restricted maximum likelihood. The null model "
+    "intraclass correlation coefficient quantified the proportion of variance "
+    "between prefectures, and the marginal R² quantified the proportional "
+    "reduction in total variance after adding the university-hospital fixed "
+    "effect. We decomposed within-prefecture variance into components "
+    "attributable to university-hospital presence and residual variation. We "
+    "conducted three sensitivity analyses to test the audit hypothesis: "
+    "within-prefecture paired comparisons of university and non-university "
+    "areas; a covariate-adjusted model adding the natural logarithm of "
+    "population density and the anaesthesiologist share of all physicians; and "
+    "an empirical Bayes shrinkage stress-test of area-level ratios toward "
+    "prefecture means. All analyses were performed in Python 3.10 using NumPy, "
+    "Pandas, SciPy and Statsmodels.")
+
 # ============================================================
 # RESULTS
 # ============================================================
-add_heading("Results", level=1)
+add_heading("Results", level=1, numbered=True)
 
 add_subheading("Study population and variation in anaesthesia practice")
 add_para(
@@ -756,7 +760,7 @@ add_figure_inline(
 
 add_subheading("Sensitivity analyses against the audit hypothesis")
 add_para(
-    "All three pre-specified sensitivity analyses converged in rejecting the "
+    "All three pre-specified sensitivity analyses pointed away from the "
     "audit hypothesis. First, within-prefecture variance decomposition attributed "
     "${L008_vd_between}% of general anaesthesia variance to between-prefecture "
     "differences, ${L008_vd_univ}% to the university hospital effect within "
@@ -803,7 +807,7 @@ add_para(
 # ============================================================
 # DISCUSSION
 # ============================================================
-add_heading("Discussion", level=1)
+add_heading("Discussion", level=1, numbered=True)
 
 add_subheading("Statement of principal findings")
 add_para(
@@ -812,14 +816,14 @@ add_para(
     "hospital presence explained the largest share of variance for general "
     "anaesthesia and was positive in every prefecture, while the proportion of "
     "variance attributable to prefecture-level factors -- where audit intensity "
-    "differs -- was small. Three independent sensitivity analyses converged in "
-    "rejecting differential auditing as the main explanation. Because the "
-    "outcome is a reimbursed claim ratio, the observed gradient documents "
+    "differs -- was small. Three independent sensitivity analyses each pointed "
+    "away from differential auditing as the main explanation. Because the "
+    "outcome is a reimbursed claim ratio, the observed gradient captures "
     "service delivery rather than bedside practice directly; however, the "
     "within-prefecture structure of the data and the audit-sensitivity "
     "analyses make it unlikely that the entire pattern is an artefact of "
-    "differential scrutiny. The residual variation is therefore best "
-    "interpreted as a geographically patterned difference in the provision of "
+    "differential scrutiny. The remaining variation is therefore best "
+    "interpreted as a geographic pattern in the provision of "
     "potentially beneficial anaesthesia services.")
 
 add_subheading("Strengths and limitations")
@@ -856,74 +860,84 @@ add_para(
     "cannot separate these opposing mechanisms, so the adjusted spinal-"
     "anaesthesia coefficient is best interpreted as an imprecise net effect.")
 
-add_subheading("Interpretation in the wider literature")
+add_subheading("International generalizability and clinical relevance")
 add_para(
-    "Our findings are consistent with the broader medical practice-variation "
+    "Our findings fit the broader medical practice-variation "
     "literature. The Dartmouth Atlas project documented extensive regional "
     "variation in surgical rates in the United States, driven primarily by "
     "physician supply and practice style.{20} Comparable patterns have been "
     "described for the National Health Service in England,{21} Germany{22} and "
     "Australia.{23} Our study extends this evidence by exploiting Japan's "
     "uniform fee schedule combined with prefecture-specific auditing to "
-    "disentangle administrative and structural sources of variation, and by "
-    "providing, to our knowledge, the first multilevel small-area analysis of "
+    "disentangle administrative and structural sources of variation, and, to our "
+    "knowledge, is the first multilevel small-area analysis of "
     "anaesthesia technique under universal coverage in East Asia. The "
     "university hospital effect we report (Cohen's d = ${L008_d}) is "
     "substantial, plausibly reflecting the influence of the ikyoku (university "
     "medical office) system on practice in affiliated hospitals.{24}")
 
 add_para(
-    "The findings are relevant beyond Japan. The within-prefecture variance "
-    "decomposition we describe is directly transportable to other universal-"
-    "coverage systems that combine a centrally uniform fee schedule with "
-    "regionally devolved claims auditing, including Taiwan's National Health "
-    "Insurance,{25} South Korea's National Health Insurance Service, and the "
-    "tariff-based systems of Germany, France and the English National Health "
-    "Service.{21,22} The dominance of tertiary-teaching-hospital concentration "
-    "as a structural determinant of technique choice echoes analogous patterns "
-    "for teaching-hospital anaesthesia mix in the US and United "
-    "Kingdom{20,21} and for other tertiary-intensive specialties across OECD "
-    "countries.{26} In contrast to the highly localised, physician-style-driven "
-    "variation often reported in the US, the Japanese pattern is more strongly "
-    "organisational, concentrated around university hospitals, and consistent "
-    "across all ${n_prefectures} prefectures. This suggests that the "
-    "structural-access explanation is a robust feature of high-income "
-    "universal-coverage systems rather than a Japanese idiosyncrasy. "
-    "Extrapolation to low- and middle-income countries should be more cautious, because "
-    "fee schedules and audit arrangements are typically heterogeneous and "
-    "claims data often incomplete.")
+    "The natural experiment used here depends on two institutional features: "
+    "a uniform national fee schedule that eliminates price variation, and "
+    "regionally devolved claims auditing that makes within-region audit policy "
+    "homogeneous while allowing it to differ between regions. Both features are "
+    "present in several high-income universal-coverage systems, including "
+    "Taiwan's National Health Insurance,{25} South Korea's National Health "
+    "Insurance Service, and the tariff-based systems of Germany, France and "
+    "the English National Health Service.{21,22} In these settings the "
+    "within-region variance decomposition and audit-sensitivity bound are "
+    "directly transportable. In countries without universal health coverage, "
+    "or where reimbursement varies by insurer, state or facility, price and "
+    "insurance-status differences confound any comparison of regional claims "
+    "rates, so the audit hypothesis cannot be isolated. The broader framework "
+    "of decomposing small-area variation into structural versus institutional-"
+    "artefact components can still be applied if comparable data exist, but the "
+    "audit-specific interpretation must be calibrated to local reimbursement and "
+    "auditing arrangements.")
 
-add_subheading("Implications for public health research, practice and policy")
 add_para(
-    "Three public-health implications follow from these findings. First, "
-    "administrative claims data can be used as a "
-    "surveillance tool to monitor small-area variation in perioperative care "
-    "under universal coverage, but should be interpreted alongside sensitivity "
-    "analyses for coding and audit effects. Second, the observed "
-    "variation in epidural and continuous epidural use signals a potential "
-    "equity gap: patients' access to techniques that may improve recovery "
-    "should not depend on whether they live near a university hospital. Third, "
-    "regulators should focus on workforce and organisational "
+    "For clinical anaesthesia practice, the finding that university-hospital "
+    "areas use more neuraxial and combined techniques has direct perioperative "
+    "implications. Neuraxial anaesthesia and epidural analgesia are associated "
+    "with reduced postoperative opioid consumption, lower postoperative nausea "
+    "and vomiting, and faster recovery in selected populations.{7-9} "
+    "Geographic variation in these techniques therefore translates into "
+    "variation in potentially modifiable patient outcomes, not merely variation "
+    "in billing. Because the observed gradient is not explained by "
+    "differential auditing, interventions should target workforce distribution, "
+    "training and organisational capacity rather than coding compliance.")
+
+add_subheading("Implications for perioperative practice and policy")
+add_para(
+    "Three implications follow from these findings. First, administrative "
+    "claims data can be used as a surveillance tool to monitor small-area "
+    "variation in perioperative care under universal coverage, but should be "
+    "interpreted alongside sensitivity analyses for coding and audit effects. "
+    "Second, the observed variation in epidural and continuous epidural use "
+    "signals a potential equity gap: patients' access to techniques that may "
+    "improve recovery should not depend on whether they live near a university "
+    "hospital. Third, regulators should focus on workforce and organisational "
     "determinants of anaesthesia service delivery rather than treating low "
     "regional ratios primarily as coding or fraud problems. The "
-    "variance-decomposition framework we used is transferable to other "
-    "procedures and to other countries with a national fee schedule and "
-    "regional audit variation, offering a practical epidemiologic approach to "
-    "separating administrative from structural sources of small-area "
-    "variation.")
+    "variance-decomposition framework is transferable to other procedures and "
+    "to systems with a national fee schedule and regional audit variation, but "
+    "the audit-specific interpretation is limited in settings where fee and "
+    "insurance structures are heterogeneous.")
 # ============================================================
 # CONCLUSIONS
 # ============================================================
-add_heading("Conclusions", level=1)
+add_heading("Conclusions", level=1, numbered=True)
 add_para(
     "Regional variation in anaesthesia practice under universal coverage in "
     "Japan is large and predominantly structural, driven by access to university "
     "hospitals rather than by prefectural claims auditing. The pattern is best "
     "interpreted as a documented-service-delivery gradient with potentially "
-    "inequitable access to neuraxial techniques. Public health surveillance of "
-    "small-area variation in surgical and anaesthesia services should separate "
-    "administrative from structural sources before interpreting claims data as "
-    "care variation or as coding quality.")
+    "inequitable access to neuraxial techniques. In countries without universal "
+    "coverage or with heterogeneous reimbursement, the audit hypothesis cannot "
+    "be isolated, although the structural-access framework can be adapted if "
+    "comparable data exist. Perioperative surveillance of small-area variation "
+    "should separate administrative from structural sources before interpreting "
+    "claims data as care variation or as coding quality.")
 # ============================================================
 # REFERENCES
 # ============================================================
@@ -976,24 +990,55 @@ for i, ref in enumerate(REFERENCES, 1):
     run.font.name = 'Times New Roman'
     run.font.size = Pt(12)
 
-# Body word count check (excluding title page, abstract, references, tables, figures)
+# Word-count checks and title-page placeholder updates are performed after
+# math conversion, so the counted text matches the saved docx.
+
+# Figure legends are placed at the end of the manuscript.
+if figure_legends:
+    add_heading('Figure legends', level=1, numbered=False)
+    for cap in figure_legends:
+        add_para(cap, space_before=6, space_after=12)
+
+# Convert statistical expressions to native Word equation objects
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from jech_math import convert_docx_math_to_omml
+convert_docx_math_to_omml(doc)
+
+# Word-count checks after converting math, so the counted text matches the saved docx.
+abstract_paras = []
 text_paras = []
+in_abstract = False
 in_body = False
 in_refs = False
 for p in doc.paragraphs:
+    if p._element in _excluded_word_count_elements:
+        continue
     txt = p.text.strip()
     if not txt:
         continue
-    if txt.upper() == 'INTRODUCTION':
+    if txt.upper() == 'ABSTRACT':
+        in_abstract = True
+        continue
+    if txt.upper().startswith('KEYWORDS:'):
+        in_abstract = False
+        continue
+    if txt.upper().startswith('1. INTRODUCTION'):
+        in_abstract = False
         in_body = True
         continue
     if txt.upper() == 'REFERENCES':
+        in_body = False
         in_refs = True
         continue
+    if in_abstract:
+        abstract_paras.append(txt)
     if in_body and not in_refs:
         text_paras.append(txt)
+abstract = '\n'.join(abstract_paras)
+abstract_words = len(re.findall(r'\b\w+\b', abstract))
 body = '\n'.join(text_paras)
 words = len(re.findall(r'\b\w+\b', body))
+print(f"Abstract word count: {abstract_words}")
 print(f"Body word count (intro through conclusion): {words}")
 
 # Update title-page counts that were left as placeholders
@@ -1019,17 +1064,6 @@ for p in doc.paragraphs:
             run.italic = True
         break
 
-# Figure legends are placed at the end of the manuscript per JECH guidance.
-if figure_legends:
-    add_heading('Figure legends', level=1)
-    for cap in figure_legends:
-        add_para(cap, space_before=6, space_after=12)
-
-# Convert statistical expressions to native Word equation objects
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from jech_math import convert_docx_math_to_omml
-convert_docx_math_to_omml(doc)
-
 # Add a centered page number to the footer of each section
 for section in doc.sections:
     footer = section.footer
@@ -1054,12 +1088,12 @@ for section in doc.sections:
 # ============================================================
 # Save
 # ============================================================
-out = os.path.join(OUTPUT_DIR, 'regional_anaesthesia_JECH_EN.docx')
+out = os.path.join(OUTPUT_DIR, 'regional_anaesthesia_JCA_EN.docx')
 doc.save(out)
 print(f"Saved: {out}")
 
 # --------------------------------------------------
-# Separate title page for Journal of Epidemiology & Community Health
+# Separate title page for Journal of Clinical Anesthesia
 # --------------------------------------------------
 tp = Document()
 for section in tp.sections:
@@ -1104,7 +1138,7 @@ tp_para("Article type: Original research article", italic=True)
 tp_para("Word count (main text, excluding abstract, references, tables and figures): approximately [calculated at build] words", italic=True)
 tp_para("Tables: [n_tables]   Figures: [n_figures]   References: [n_references]", italic=True)
 tp_para("Reporting guideline: STROBE checklist for cross-sectional studies", italic=True)
-tp_para("Target journal: Journal of Epidemiology & Community Health", italic=True)
+tp_para("Target journal: Journal of Clinical Anesthesia", italic=True)
 
 tp.add_paragraph()
 tp_para("Declarations", bold=True)
@@ -1124,13 +1158,22 @@ tp_para(
     "(https://nlftp.mlit.go.jp). Derived datasets and analysis code are "
     "available from the corresponding author on reasonable request.")
 tp_para(
-    "Competing interests: [To be completed by the authors.] No known competing "
-    "interests.")
+    "Declaration of competing interests: [To be completed by the authors.] No "
+    "known competing interests.")
 tp_para(
     "Funding: [To be completed by the authors.] This work received no specific "
     "grant.")
 tp_para(
     "Authors' contributions: [To be completed by the authors.]")
+tp_para(
+    "Declaration of generative AI use in scientific writing: During the "
+    "preparation of this work the authors used Devin (Cognition AI) as a coding "
+    "assistant to support data processing, statistical modelling, geographic "
+    "visualisation and manuscript formatting. After using this tool, the authors "
+    "reviewed and edited the content as needed and take full responsibility for "
+    "the integrity and accuracy of the published work. All scientific "
+    "interpretation, methodological decisions and the wording of scientific "
+    "claims were made by the human authors.")
 tp_para(
     "Acknowledgements: The authors thank the Cabinet Office Regional "
     "Variation Visualisation initiative, the Ministry of Health, Labour and "
@@ -1157,6 +1200,23 @@ for p in tp.paragraphs:
             run.font.size = Pt(12)
             run.italic = True
 
-tp_out = os.path.join(OUTPUT_DIR, 'title_page_JECH_EN.docx')
+tp_out = os.path.join(OUTPUT_DIR, 'title_page_JCA_EN.docx')
 tp.save(tp_out)
 print(f"Saved: {tp_out}")
+
+# Persist submission metadata for downstream files (cover letter, etc.)
+metadata = {
+    'title': title,
+    'body_word_count': words,
+    'abstract_word_count': abstract_words,
+    'n_tables': n_tables,
+    'n_figures': n_figures,
+    'n_references': n_refs,
+    'fiscal_year': FLAT['fiscal_year'],
+    'n_areas': FLAT['n_areas'],
+    'n_prefectures': FLAT['n_prefectures'],
+}
+meta_path = os.path.join(OUTPUT_DIR, 'jca_submission_metadata.json')
+with open(meta_path, 'w') as f:
+    json.dump(metadata, f, indent=2)
+print(f"Saved: {meta_path}")

@@ -318,6 +318,8 @@ for code in analysis_codes:
     # Standardise continuous covariates for stable estimation and comparability
     df['log_pop_density_z'] = (df['log_pop_density'] - df['log_pop_density'].mean()) / df['log_pop_density'].std()
     df['anes_pct_z'] = (df['anes_pct'] - df['anes_pct'].mean()) / df['anes_pct'].std()
+    df['log_scr'] = np.log(df['scr'])
+
 
     # Null model (random intercept only)
     try:
@@ -380,6 +382,32 @@ for code in analysis_codes:
             'anes_pct_z': {'coef': float('nan'), 'p': float('nan')},
         }
 
+    # Log-transformed sensitivity model (Gaussian LMM on log(SCR))
+    log_results = {}
+    try:
+        m0_log = MixedLM.from_formula('log_scr ~ 1', groups='pref_num', data=df).fit(reml=True)
+        var_pref_log = float(m0_log.cov_re.iloc[0, 0]) if hasattr(m0_log.cov_re, 'iloc') else float(m0_log.cov_re)
+        var_resid_log = float(m0_log.scale)
+        icc_log = var_pref_log / (var_pref_log + var_resid_log) if (var_pref_log + var_resid_log) > 0 else 0
+        m1_log = MixedLM.from_formula('log_scr ~ has_univ', groups='pref_num', data=df).fit(reml=True)
+        coef_log = float(m1_log.fe_params.get('has_univ', np.nan))
+        pval_log = float(m1_log.pvalues.get('has_univ', np.nan))
+        ci_log = m1_log.conf_int().loc['has_univ'] if 'has_univ' in m1_log.conf_int().index else [np.nan, np.nan]
+        ci_low_log, ci_high_log = float(ci_log.iloc[0]), float(ci_log.iloc[1])
+        log_results = {
+            'n': len(df),
+            'icc_null': float(icc_log),
+            'coef_univ': float(coef_log) if not np.isnan(coef_log) else 0,
+            'ci_low': float(ci_low_log) if not np.isnan(ci_low_log) else 0,
+            'ci_high': float(ci_high_log) if not np.isnan(ci_high_log) else 0,
+            'p': float(pval_log) if not np.isnan(pval_log) else 1,
+        }
+    except Exception:
+        log_results = {
+            'n': len(df), 'icc_null': float('nan'), 'coef_univ': float('nan'),
+            'ci_low': float('nan'), 'ci_high': float('nan'), 'p': float('nan'),
+        }
+
     results['codes'][code]['multilevel'] = {
         'n': len(df),
         'icc_null': float(icc),
@@ -389,6 +417,7 @@ for code in analysis_codes:
         'p': float(pval) if not np.isnan(pval) else 1,
         'marginal_r2': float(r2) if not np.isnan(r2) else 0,
     }
+    results['codes'][code]['multilevel_log'] = log_results
     results['codes'][code]['multilevel_covariate'] = covariate_results
 
 # ============================================================
