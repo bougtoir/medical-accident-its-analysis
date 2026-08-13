@@ -1116,8 +1116,8 @@ def _abstract_and_highlights(eq, pnr_closest):
 def _data_availability_text(blinded=False):
     base = (
         "This study uses the OpenAlex database (subfield 1702, Artificial Intelligence; "
-        "2000–2023), accessed via the OpenAlex API and a full-work local snapshot on 2026-08-09. "
-        "The country-to-civilisation mapping, extraction and analysis code, and the result CSVs "
+        "2000–2023), accessed via the OpenAlex API. The analysis is bundled with a pre-extracted "
+        "cohort and a stratified sample of works (OpenAlex snapshot extracted on 2026-08-09); the country-to-civilisation mapping, code, and result CSVs "
         "used to generate this manuscript "
     )
     if blinded:
@@ -1581,7 +1581,7 @@ def _add_docx_body(doc, data, fig_paths, blinded=False):
     p.add_run("The steady-state model in Sections 4.1-4.4 treats rates as constants. "
               "To test whether the same framework can be used for short-run monitoring, we reconstructed year-by-year compartment membership from the cohort data. "
               "For each author and year we inferred location as domestic if the author was in the origin civilisation and abroad otherwise. "
-              "From these states we computed annual transition counts for the six compartments, applied Laplace +0.5 smoothing to empty destination cells, and derived the probabilities that map to α, β, h_D, h_A and p_D, p_A. "
+              "From these states we computed annual transition counts for the six compartments, applied Laplace smoothing with a pseudocount of 1 for each possible destination, and derived the probabilities that map to α, β, h_D, h_A and p_D, p_A. "
               "Dropout (d) is not directly observed year-by-year in the training window because final attrition is right-censored before 2023, so we import the cohort-level per-year hazard from the full-career data and treat it as a constant annual rate for each group. "
               "Inter-civilisation flows are approximated by assigning each abroad author-year to the author's recent_group as the destination civilisation.")
 
@@ -1602,7 +1602,7 @@ def _add_docx_body(doc, data, fig_paths, blinded=False):
     doc.add_heading("4.7 Correction pressures and theoretical bounds", level=2)
     p = doc.add_paragraph()
     p.add_run("The annual estimates contain several regularising pressures that bound the model away from instability and fabrication. "
-              "Laplace smoothing adds a uniform prior of 0.5 to every possible destination, which shrinks sparse cells toward 1/(number of destinations) and prevents zero-probability singularities when a transition is unobserved in a small group-year. "
+              "Laplace smoothing adds a uniform prior of 1 to every possible destination, which shrinks sparse cells toward 1/(number of destinations) and prevents zero-probability singularities when a transition is unobserved in a small group-year. "
               "It is equivalent to a weak Dirichlet prior and is a standard regulariser for sparse multinomial transitions.")
 
     p = doc.add_paragraph()

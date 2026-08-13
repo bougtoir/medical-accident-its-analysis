@@ -126,9 +126,9 @@ def build_annual_transitions(states=None):
     counts["count"] = counts["count"].astype(int)
     counts = counts.merge(stock, on=["origin_group", "year", "from"], how="left")
 
-    # Laplace smoothing: +0.5 to each possible destination, including exit to L
+    # Laplace smoothing: +1 to each possible destination, including exit to L
     num_to = len(COMPARTMENTS) + 1
-    counts["prob"] = (counts["count"] + 0.5) / (counts["stock"] + 0.5 * num_to)
+    counts["prob"] = (counts["count"] + 1.0) / (counts["stock"] + 1.0 * num_to)
 
     return counts, counts
 
@@ -242,7 +242,7 @@ def _aggregate_return_rate(probs, stock):
     return_counts = probs[mask].groupby(["origin_group", "year"], observed=False)["count"].sum().reset_index(name="return_count")
     abroad_stock = stock[stock["compartment"].isin(["A", "H_A", "P_A"])].groupby(["origin_group", "year"], observed=False)["count"].sum().reset_index(name="abroad_stock")
     merged = return_counts.merge(abroad_stock, on=["origin_group", "year"], how="outer").fillna(0)
-    merged["beta"] = (merged["return_count"] + 0.5) / (merged["abroad_stock"] + 0.5)
+    merged["beta"] = (merged["return_count"] + 1.0) / (merged["abroad_stock"] + 2.0)
     return merged[["origin_group", "year", "beta"]]
 
 
@@ -251,7 +251,7 @@ def _dropout_rate(exits, stock):
     total_stock = stock.groupby(["origin_group", "year"], observed=False)["count"].sum().reset_index(name="total_stock")
     exit_counts = exits.groupby(["origin_group", "year"], observed=False)["exit_count"].sum().reset_index(name="exit_count")
     merged = total_stock.merge(exit_counts, on=["origin_group", "year"], how="outer").fillna(0)
-    merged["d"] = (merged["exit_count"] + 0.5) / (merged["total_stock"] + 0.5)
+    merged["d"] = (merged["exit_count"] + 1.0) / (merged["total_stock"] + 2.0)
     return merged[["origin_group", "year", "d"]]
 
 
@@ -695,7 +695,7 @@ def build_docx(rate_table, projected, observed, eval_group, eval_comp, eval_over
     doc.add_heading("2. Annual ODE-style transition rates", level=1)
     doc.add_paragraph(
         "Transition probabilities are estimated as count / stock for each civilisation and year. "
-        "Laplace smoothing (add-0.5) is applied to empty cells. Rates are mapped to the model parameters: "
+        "Laplace smoothing (add-1 per possible destination) is applied to empty cells. Rates are mapped to the model parameters: "
         "alpha (D -> A), beta (return from abroad), h_D/h_A (hit acquisition), p_D/p_A (PI promotion), and d (dropout)."
     )
     doc.add_picture(str(fig_rates), width=Inches(6.5))

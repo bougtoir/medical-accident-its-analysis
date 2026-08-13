@@ -1,6 +1,6 @@
 Article type: Research Article
 
-Approximate word count (main text incl. tables, excl. references): 9748
+Approximate word count (main text incl. tables, excl. references): 9752
 
 Author information removed for double-blind review
 
@@ -20,7 +20,7 @@ Western group, where the exogenous entry rate (I0) must be multiplied by
 0.332× (a 67% proportional reduction) to drive the active pool to its
 threshold. A simulated reduction in dropout yields the largest margin
 gain in every group in the fitted model. The 2017-2023 projection has
-RMSE 10187.43 and a conservative, non-standard MAPE of 130.4%
+RMSE 10190.39 and a conservative, non-standard MAPE of 129.0%
 (count_obs + 1 denominator). The high error is expected because the
 projection is an early-warning indicator of directional drift, not a
 precise forecast. Historical counterfactuals and bootstrap uncertainty
@@ -44,11 +44,12 @@ grouping; ordinary differential equations; PNR; innovation studies
 ## Data and Code Availability
 
 This study uses the OpenAlex database (subfield 1702, Artificial
-Intelligence; 2000--2023), accessed via the OpenAlex API and a full-work
-local snapshot on 2026-08-09. The country-to-civilisation mapping,
-extraction and analysis code, and the result CSVs used to generate this
-manuscript will be made available in a public repository upon
-acceptance. OpenAlex data are released under CC0.
+Intelligence; 2000--2023), accessed via the OpenAlex API. The analysis
+is bundled with a pre-extracted cohort and a stratified sample of works
+(OpenAlex snapshot extracted on 2026-08-09); the country-to-civilisation
+mapping, code, and result CSVs used to generate this manuscript will be
+made available in a public repository upon acceptance. OpenAlex data are
+released under CC0.
 
 ## Declarations
 
@@ -503,14 +504,14 @@ reconstructed year-by-year compartment membership from the cohort data.
 For each author and year we inferred location as domestic if the author
 was in the origin civilisation and abroad otherwise. From these states
 we computed annual transition counts for the six compartments, applied
-Laplace +0.5 smoothing to empty destination cells, and derived the
-probabilities that map to α, β, h_D, h_A and p_D, p_A. Dropout (d) is
-not directly observed year-by-year in the training window because final
-attrition is right-censored before 2023, so we import the cohort-level
-per-year hazard from the full-career data and treat it as a constant
-annual rate for each group. Inter-civilisation flows are approximated by
-assigning each abroad author-year to the author\'s recent_group as the
-destination civilisation.
+Laplace smoothing with a pseudocount of 1 for each possible destination,
+and derived the probabilities that map to α, β, h_D, h_A and p_D, p_A.
+Dropout (d) is not directly observed year-by-year in the training window
+because final attrition is right-censored before 2023, so we import the
+cohort-level per-year hazard from the full-career data and treat it as a
+constant annual rate for each group. Inter-civilisation flows are
+approximated by assigning each abroad author-year to the author\'s
+recent_group as the destination civilisation.
 
 For the 2017-2026 projection we fit a linear trend to the observed
 2000-2016 rates for each group and rate. If fewer than four observations
@@ -540,11 +541,11 @@ measure.
 
 The annual estimates contain several regularising pressures that bound
 the model away from instability and fabrication. Laplace smoothing adds
-a uniform prior of 0.5 to every possible destination, which shrinks
-sparse cells toward 1/(number of destinations) and prevents
-zero-probability singularities when a transition is unobserved in a
-small group-year. It is equivalent to a weak Dirichlet prior and is a
-standard regulariser for sparse multinomial transitions.
+a uniform prior of 1 to every possible destination, which shrinks sparse
+cells toward 1/(number of destinations) and prevents zero-probability
+singularities when a transition is unobserved in a small group-year. It
+is equivalent to a weak Dirichlet prior and is a standard regulariser
+for sparse multinomial transitions.
 
 Clipping projected rates to values between 0 and 1 is a feasibility
 pressure: rates outside the probability simplex are inadmissible. The
@@ -992,7 +993,7 @@ destinations excluded; lower-bound proxy).*
 ## 5.7 Out-of-sample projection, 2017-2023
 
 The 2017-2023 projection is compared with observed annual stocks in
-Figure 7. Overall accuracy is RMSE 10187.43 and MAPE 130.4% (a
+Figure 7. Overall accuracy is RMSE 10190.39 and MAPE 129.0% (a
 non-standard, conservative measure computed against count_obs + 1 to
 avoid division by zero). The high MAPE reflects small absolute counts
 and zero-observed cells, and the projection should be read as a
