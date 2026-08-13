@@ -234,8 +234,7 @@ def _add_text_run(paragraph, text, italic=False, bold=False):
 
 
 def add_run_with_refs(paragraph, text, italic=False, bold=False):
-    """Add text to a paragraph, parsing {n} or {n-m} as bracketed Vancouver citations
-    and converting Unicode superscript 2 (²) to Word-native font superscript."""
+    """Add text to a paragraph, parsing {n} or {n-m} as bracketed Vancouver citations."""
     # In Vancouver style, citations follow punctuation: move any trailing
     # punctuation that sits immediately before a citation marker to after it.
     text = re.sub(r'([.,;:])(\{[^}]+\})', r'\2\1', text)
@@ -248,16 +247,6 @@ def add_run_with_refs(paragraph, text, italic=False, bold=False):
             run = _add_text_run(paragraph, f'[{inner}]', italic=italic, bold=bold)
             run.font.superscript = False
             continue
-        # Convert R² to R with superscript 2 while keeping surrounding text.
-        while '²' in part:
-            idx = part.index('²')
-            if idx > 0:
-                _add_text_run(paragraph, part[:idx], italic=italic, bold=bold)
-            sup = _add_text_run(paragraph, '2', italic=italic, bold=bold)
-            sup.font.superscript = True
-            part = part[idx + 1:]
-            if not part:
-                break
         if part:
             _add_text_run(paragraph, part, italic=italic, bold=bold)
 
@@ -629,8 +618,7 @@ add_para(
     "between prefectures, and the proportional reduction in total variance "
     "(sometimes labelled marginal R²) measured the decrease in total "
     "(prefecture-level plus residual) variance after adding the university-"
-    "hospital fixed effect. We decomposed within-prefecture variance into components "
-    "attributable to university-hospital presence and residual variation. We "
+    "hospital fixed effect. We "
     "conducted four sensitivity analyses to test the audit hypothesis: "
     "within-prefecture paired comparisons of university and non-university "
     "areas; a covariate-adjusted model adding the natural logarithm of "
@@ -803,12 +791,12 @@ add_figure_inline(
 add_subheading("Sensitivity analyses against the audit hypothesis")
 add_para(
     "All pre-specified sensitivity analyses pointed away from differential "
-    "auditing as the main explanation. First, within-prefecture variance "
-    "decomposition attributed ${L008_vd_between}% of general anaesthesia variance "
-    "to between-prefecture differences, ${L008_vd_univ}% to the university hospital "
-    "effect within prefecture, and ${L008_vd_residual}% to residual within-group "
-    "variation; the university hospital effect alone explained "
-    "${L008_vd_univ_within}% of all within-prefecture variance. Second, general "
+    "auditing as the main explanation. First, the multilevel model estimates "
+    "that only ${L008_ml_icc} of general anaesthesia variance lies between "
+    "prefectures, where audit policy differs, so differential auditing can account "
+    "for at most a small share of observed variation. University hospital presence "
+    "explained ${L008_ml_r2} of total variance in the same model, a structural "
+    "component far larger than the between-prefecture share. Second, general "
     "and spinal anaesthesia were positively correlated (r = ${corr_L008_L004_r}, P "
     "${corr_L008_L004_p}), as were general and epidural anaesthesia (r = "
     "${corr_L008_L002_r}, P ${corr_L008_L002_p}). Positive correlations are more "
