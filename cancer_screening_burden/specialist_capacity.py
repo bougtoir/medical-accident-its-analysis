@@ -319,7 +319,7 @@ def build_specialist_capacity_docx(df: pd.DataFrame, inputs: Dict[str, float], p
         "generated only by false-positive individuals in a 100,000-person DTC MCED screening "
         "wave at the stated follow-up rate (initial specialist visit plus FP-specific follow-up "
         "or reassurance visits). The 'baseline cases per specialist' uses the MHLW Patient Survey "
-        "2023 total patient stock (総患者数) for each cancer."
+        "2023 total patient stock for each cancer."
     )
     doc.save(path)
 

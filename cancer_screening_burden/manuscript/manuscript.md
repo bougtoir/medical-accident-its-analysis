@@ -1,30 +1,30 @@
-# False-positive cascade and healthcare capacity burden of direct-to-consumer multi-cancer early detection blood tests in Japan: a scenario modelling study
+# False-positive cascade and healthcare capacity burden of direct-to-consumer multi-cancer early detection blood tests: a scenario modelling study
 
 ## Abstract
 
 **Background:** Direct-to-consumer (DTC) blood-based multi-cancer early detection (MCED) tests are marketed as a simple alternative to organised screening, but their positive predictive value (PPV) is low in asymptomatic populations and each screen-positive person may trigger multiple confirmatory examinations.
 
-**Methods:** We built a deterministic expected-value model parameterised with 2023 Japanese adult cancer incidence rates, 2023 population counts, and 2023 national medical-facility diagnostic volumes. Specialist capacity was additionally derived from NDB Open Data outpatient patient counts and JMSB specialist counts. We estimated true positives, false positives, downstream visits, capacity utilisation, and the per-specialist case load across follow-up rates of 0–100% and specificities of 95.0–99.9%.
+**Methods:** We built a deterministic expected-value model parameterised with 2023 adult cancer incidence rates, 2023 population counts, and 2023 national medical-facility diagnostic volumes. Specialist capacity was additionally derived from NDB Open Data outpatient patient counts and JMSB specialist counts. We estimated true positives, false positives, downstream visits, capacity utilisation, and the per-specialist case load across follow-up rates of 0–100% and specificities of 95.0–99.9%.
 
 **Results:** At 50% follow-up, a screening wave of 100,000 persons would generate 383.5 true positives and 7994.5 false positives (overall PPV 4.58%; FP/TP ratio 20.8). Total downstream visits would reach 15684.4, with maximum capacity utilisation 163.2% (specialist visits). The first illustrative capacity ceiling was exceeded at a follow-up rate of 40% (specialist total visits). PPV ranged from 0.72% (Ovarian) to 7.99% (Colorectal) across cancer types and was strongly age-dependent. Relative to the MHLW Patient Survey 2023 baseline case load, a 100,000-person DTC wave at 50% follow-up would add 168.8 false-positive specialist visits per relevant specialist, raising the effective cases per specialist from 35.1 to 204.0 (481% increase).
 
-**Conclusions:** Even with optimistic 99% specificity, a DTC MCED wave can trigger a false-positive cascade that exceeds Japanese outpatient and endoscopic capacity. Regulatory guardrails on performance claims, follow-up obligations, and reporting are needed before routine adoption.
+**Conclusions:** Even with optimistic 99% specificity, a DTC MCED wave can trigger a false-positive cascade that exceeds outpatient and endoscopic capacity. Regulatory guardrails on performance claims, follow-up obligations, and reporting are needed before routine adoption.
 
-**Keywords:** multi-cancer early detection, false positive, healthcare capacity, direct-to-consumer testing, Japan, scenario model
+**Keywords:** multi-cancer early detection, false positive, healthcare capacity, direct-to-consumer testing, scenario model
 
 ---
 
 ## Introduction
 
-Blood-based multi-cancer early detection (MCED) tests are increasingly advertised directly to consumers as a convenient “single blood draw” cancer screen [^1^]. Because most positive results in asymptomatic populations are false positives, each abnormal test generates a cascade of confirmatory imaging and specialist visits [^3^][^4^]. In Japan, where endoscopy and specialist visits are already constrained [^2^], widespread DTC use could displace routine care. We quantified this burden as a function of follow-up behaviour, test specificity, and age structure.
+Blood-based multi-cancer early detection (MCED) tests are increasingly advertised directly to consumers as a convenient “single blood draw” cancer screen [^1^]. Because most positive results in asymptomatic populations are false positives, each abnormal test generates a cascade of confirmatory imaging and specialist visits [^3^][^4^]. In this setting, where endoscopy and specialist visits are already constrained [^2^], widespread DTC use could displace routine care. We quantified this burden as a function of follow-up behaviour, test specificity, and age structure.
 
 ## Methods
 
 ### Data sources
 
-Cancer incidence by site, age, sex, and calendar year (2023) and the corresponding 2023 Japanese population by age and sex were taken from the National Cancer Center of Japan [^1^]. Annual volumes of CT, MRI, and upper/lower gastrointestinal endoscopies were derived from the 2023 Ministry of Health, Labour and Welfare Medical Facility Survey [^2^]. Test sensitivity and specificity ranges were informed by two recent systematic reviews of blood-based MCED tests [^3^][^4^], and real-world PPV evidence came from a nationwide PET/CT facility survey of N-NOSE-triggered examinations [^5^].
+Cancer incidence by site, age, sex, and calendar year (2023) and the corresponding 2023 population by age and sex were taken from the National Cancer Center of Japan [^1^]. Annual volumes of CT, MRI, and upper/lower gastrointestinal endoscopies were derived from the 2023 Ministry of Health, Labour and Welfare Medical Facility Survey [^2^]. Test sensitivity and specificity ranges were informed by two recent systematic reviews of blood-based MCED tests [^3^][^4^], and real-world PPV evidence came from a nationwide PET/CT facility survey of N-NOSE-triggered examinations [^5^].
 
-Specialist capacity was defined using NDB Open Data first/revisit outpatient patient counts and Japanese Board of Medical Specialties specialist counts (JMSB概報, digitised by 内科専攻医net) [^7^][^8^]. Disease-specific baseline patient numbers for the case-per-specialist ratio were taken from the MHLW 2023 Patient Survey [^6^].
+Specialist capacity was defined using NDB Open Data first/revisit outpatient patient counts and Japanese Board of Medical Specialties specialist counts [^7^][^8^]. Disease-specific baseline patient numbers for the case-per-specialist ratio were taken from the MHLW 2023 Patient Survey [^6^].
 
 ### Model
 
@@ -158,7 +158,7 @@ Our analysis intentionally uses scenario assumptions for test performance, diagn
 
 ### Conclusion
 
-Without regulatory guardrails—clear performance thresholds, transparent PPV reporting, and follow-up obligations—direct-to-consumer MCED tests risk converting a marketing promise into a large-scale false-positive cascade that stresses Japan’s diagnostic capacity.
+Without regulatory guardrails—clear performance thresholds, transparent PPV reporting, and follow-up obligations—direct-to-consumer MCED tests risk converting a marketing promise into a large-scale false-positive cascade that stresses diagnostic capacity.
 
 ## References
 
@@ -176,4 +176,4 @@ Without regulatory guardrails—clear performance thresholds, transparent PPV re
 
 7. Ministry of Health, Labour and Welfare. NDB Open Data 11th release (April 2024–March 2025). https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/0000177179.html
 
-8. Japanese Board of Medical Specialties. Summary of the Japanese specialist system (日本専門医制度概報), as tabulated by 内科専攻医net. https://senkoi.net/650/ and https://senkoi.net/778/
+8. Japanese Board of Medical Specialties. Summary of the Japanese specialist system, as tabulated by senkoi.net. https://senkoi.net/650/ and https://senkoi.net/778/
