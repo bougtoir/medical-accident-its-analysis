@@ -115,11 +115,12 @@ make_table(doc,
            rows2)
 add_footnote(doc,
              "SD, standard deviation; IQR, interquartile range; CV, coefficient of "
-             "variation. L002 = continuous epidural anaesthesia; L003 = caudal epidural; "
-             "L004 = spinal anaesthesia; L008 = general anaesthesia. L009 and L100 are "
-             "described in the Methods and omitted because they were not entered into "
-             "multilevel models. Areas with low claim volume are masked by the data provider "
-             "and appear as missing values.")
+             "variation. L008 = closed-circuit general anaesthesia; L002 = epidural "
+             "anaesthesia as main technique; L003 = continuous epidural infusion, "
+             "largely billed as an adjunct to general anaesthesia; L004 = spinal "
+             "anaesthesia. Areas with low claim volume are masked by the data provider "
+             "and appear as missing values; the n column reflects the number of "
+             "secondary medical areas with non-missing values for each code.")
 
 # Table 2: multilevel model
 rows3 = []
