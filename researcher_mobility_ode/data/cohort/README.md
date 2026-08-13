@@ -1,6 +1,6 @@
 # Cohort data provenance
 
-The files in this directory are derived from the OpenAlex API (`subfields/1702`, Artificial Intelligence, career-start years 2000–2023) using `src/cohort_extraction.py`.
+The files in this directory are derived from the OpenAlex snapshot (subfield `1702`, Artificial Intelligence, career-start years 2000–2023, extracted on 2026-08-09) using `src/cohort_extraction.py`.
 
 - `raw_sampled_works.json` – a stratified random sample of works used to seed the author cohort.
 - `cohort.csv` – author-level cohort (career dates, civilisation grouping, `origin_group`, and state flags used for rate estimation).

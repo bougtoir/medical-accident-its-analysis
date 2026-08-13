@@ -1,6 +1,6 @@
 Article type: Research Article
 
-Approximate word count (main text incl. tables, excl. references): 9739
+Approximate word count (main text incl. tables, excl. references): 9748
 
 Corresponding author: \[To be completed at submission\]
 
@@ -45,7 +45,7 @@ grouping; ordinary differential equations; PNR; innovation studies
 
 This study uses the OpenAlex database (subfield 1702, Artificial
 Intelligence; 2000--2023), accessed via the OpenAlex API and a full-work
-local snapshot in August 2026. The country-to-civilisation mapping,
+local snapshot on 2026-08-09. The country-to-civilisation mapping,
 extraction and analysis code, and the result CSVs used to generate this
 manuscript are available in the public GitHub repository
 https://github.com/bougtoir/researcher-mobility-ode. OpenAlex data are
@@ -470,23 +470,24 @@ Transition rates are estimated as constant per-year hazards from
 observed proportions within the cohort. For each group and each
 transition, the rate is the ratio of observed transitions to the total
 exposure time spent in the source compartment during the observation
-window, with Laplace smoothing of 1 added to both numerator and
-denominator. This avoids zero-rate singularities when the cohort is
-small. Because the data are right-censored at the end of the observation
-period, the resulting rates are lower bounds on true long-run hazards;
-equilibrium solutions therefore tend to be conservative. The non-linear
-steady-state equations are solved numerically using a trust-region
-Newton method with analytically supplied Jacobians. Elasticities are
-computed by perturbing each rate by 1%, re-solving, and taking the
-percentage change in the target stock. For point-of-no-return analysis
-we scale each rate until the active pool T reaches its coauthor
-threshold M, or the domestic PI pool P_D reaches k distinct last-author
-groups as a lower-bound PI-pool threshold, and record the critical
-factor and its proximity, \|critical factor − 1\|. A rate whose critical
-factor lies inside the scan window and is close to 1.0 is the most
-fragile lever for that group. All counterfactuals are mechanical
-perturbations of the fitted rates; they reveal which transitions the
-model treats as sensitive, not the causal impact of real-world policies.
+window, using a Laplace pseudocount of 1 for each outcome so the
+smoothed proportion is (successes + 1)/(n + 2). This avoids zero-rate
+singularities when the cohort is small. Because the data are
+right-censored at the end of the observation period, the resulting rates
+are lower bounds on true long-run hazards; equilibrium solutions
+therefore tend to be conservative. The non-linear steady-state equations
+are solved numerically using a trust-region Newton method with
+analytically supplied Jacobians. Elasticities are computed by perturbing
+each rate by 1%, re-solving, and taking the percentage change in the
+target stock. For point-of-no-return analysis we scale each rate until
+the active pool T reaches its coauthor threshold M, or the domestic PI
+pool P_D reaches k distinct last-author groups as a lower-bound PI-pool
+threshold, and record the critical factor and its proximity, \|critical
+factor − 1\|. A rate whose critical factor lies inside the scan window
+and is close to 1.0 is the most fragile lever for that group. All
+counterfactuals are mechanical perturbations of the fitted rates; they
+reveal which transitions the model treats as sensitive, not the causal
+impact of real-world policies.
 
 ## 4.5 Limitations
 
@@ -520,9 +521,9 @@ For the 2017-2026 projection we fit a linear trend to the observed
 2000-2016 rates for each group and rate. If fewer than four observations
 were available or the fit explained less than 10% of the variance, the
 historical mean was used instead. Projected rates were clipped to values
-between 0 and 1. The annual dropout rate was capped at 1.5 times the
-cohort-level per-year hazard to prevent extrapolation beyond observed
-career attrition. Projected total inflows were apportioned across
+between 0 and 1. Projected annual dropout was capped at 1.5 times the
+90th percentile of observed annual dropout rates in the 2000-2016
+training period. Projected total inflows were apportioned across
 compartments using the first-compartment distribution observed over the
 2000-2016 training period. Population composition was projected forward
 with the discrete-time recursion N(t+1) = N(t)P(t) + b(t+1), where P(t)

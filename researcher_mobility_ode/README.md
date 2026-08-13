@@ -10,7 +10,7 @@ bash reproduce.sh
 
 This installs dependencies from `requirements.txt` (Python 3.10+, `pandas`, `numpy`, `scipy`, `requests`, `matplotlib`, `python-docx`, `python-pptx`) and regenerates all `results/`, figures, and manuscript documents from the included `data/cohort/` files.
 
-The pipeline uses the pre-extracted cohort and sampled works in `data/cohort/` (extracted from the OpenAlex database in August 2026) so it can be reproduced without OpenAlex API access. To re-extract the underlying works, run `python src/openalex_client.py` before `reproduce.sh`; this uses the on-disk cache in `data/cache/`.
+The pipeline uses the pre-extracted cohort and sampled works in `data/cohort/` (OpenAlex snapshot extracted on 2026-08-09, subfield 1702) so it can be reproduced without OpenAlex API access. To re-extract the underlying works, run `python src/openalex_client.py` before `reproduce.sh`; this uses the on-disk cache in `data/cache/`.
 
 ## Main outputs
 

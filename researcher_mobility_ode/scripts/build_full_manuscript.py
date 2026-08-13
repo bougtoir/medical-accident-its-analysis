@@ -1116,7 +1116,7 @@ def _abstract_and_highlights(eq, pnr_closest):
 def _data_availability_text(blinded=False):
     base = (
         "This study uses the OpenAlex database (subfield 1702, Artificial Intelligence; "
-        "2000–2023), accessed via the OpenAlex API and a full-work local snapshot in August 2026. "
+        "2000–2023), accessed via the OpenAlex API and a full-work local snapshot on 2026-08-09. "
         "The country-to-civilisation mapping, extraction and analysis code, and the result CSVs "
         "used to generate this manuscript "
     )
@@ -1558,7 +1558,7 @@ def _add_docx_body(doc, data, fig_paths, blinded=False):
     doc.add_heading("4.4 Estimation, equilibrium and sensitivity", level=2)
     p = doc.add_paragraph()
     p.add_run("Transition rates are estimated as constant per-year hazards from observed proportions within the cohort. "
-              "For each group and each transition, the rate is the ratio of observed transitions to the total exposure time spent in the source compartment during the observation window, with Laplace smoothing of 1 added to both numerator and denominator. "
+              "For each group and each transition, the rate is the ratio of observed transitions to the total exposure time spent in the source compartment during the observation window, using a Laplace pseudocount of 1 for each outcome so the smoothed proportion is (successes + 1)/(n + 2). "
               "This avoids zero-rate singularities when the cohort is small. "
               "Because the data are right-censored at the end of the observation period, the resulting rates are lower bounds on true long-run hazards; equilibrium solutions therefore tend to be conservative. "
               "The non-linear steady-state equations are solved numerically using a trust-region Newton method with analytically supplied Jacobians. "
@@ -1589,7 +1589,7 @@ def _add_docx_body(doc, data, fig_paths, blinded=False):
     p.add_run("For the 2017-2026 projection we fit a linear trend to the observed 2000-2016 rates for each group and rate. "
               "If fewer than four observations were available or the fit explained less than 10% of the variance, the historical mean was used instead. "
               "Projected rates were clipped to values between 0 and 1. "
-              "The annual dropout rate was capped at 1.5 times the cohort-level per-year hazard to prevent extrapolation beyond observed career attrition. "
+              "Projected annual dropout was capped at 1.5 times the 90th percentile of observed annual dropout rates in the 2000-2016 training period. "
               "Projected total inflows were apportioned across compartments using the first-compartment distribution observed over the 2000-2016 training period. "
               "Population composition was projected forward with the discrete-time recursion N(t+1) = N(t)P(t) + b(t+1), where P(t) is a 6×6 row-stochastic-in-expectation matrix that preserves dropout mass: the row sum is 1 − d after scaling outgoing rates. "
               "This discrete step is the operational counterpart of the continuous-time ODE; with an annual dt it provides an early-warning signal one year ahead.")
