@@ -1117,14 +1117,14 @@ def _data_availability_text(blinded=False):
     base = (
         "This study uses the OpenAlex database (subfield 1702, Artificial Intelligence; "
         "2000–2023), accessed via the OpenAlex API. The analysis is bundled with a pre-extracted "
-        "cohort and a stratified sample of works (OpenAlex snapshot extracted on 2026-08-09); the country-to-civilisation mapping, code, and result CSVs "
+        "cohort and a stratified sample of works; the country-to-civilisation mapping, code, and result CSVs "
         "used to generate this manuscript "
     )
     if blinded:
-        return base + "will be made available in a public repository upon acceptance. OpenAlex data are released under CC0."
+        return base + "will be made available in a public repository upon acceptance. The full SQLite cohort snapshot used for extraction is available from the corresponding author on request. OpenAlex data are released under CC0."
     return (
         base + "are available in the public GitHub repository "
-        "https://github.com/bougtoir/researcher-mobility-ode. OpenAlex data are released under CC0."
+        "https://github.com/bougtoir/researcher-mobility-ode. The full SQLite cohort snapshot used for extraction is available from the corresponding author on request. OpenAlex data are released under CC0."
     )
 
 
@@ -1448,6 +1448,7 @@ def _add_docx_body(doc, data, fig_paths, blinded=False):
     p.add_run(". "
               "In that view, technological change is path-dependent and distributed: routines, organisations and institutions co-evolve, so the loss of a research community is not merely a decline in headcount but a reduction in the variety from which future trajectories can be generated. "
               "The point of no return is therefore an innovation-systems problem: once a community falls below the minimum scale needed to sustain distinct research programmes, the path-dependent process of search and selection that produces new trajectories is impaired. "
+              "This connects that macro-level, innovation-systems view of path-dependent technological change to individual career-transition data: the transition rates and PNR distances reported below can be read as an empirical early-warning indicator of whether a particular civilisational innovation system retains enough researchers to sustain a distinct technological trajectory. "
               "The result is a framework that can be updated as new data arrive and can compare the fragility of different research communities using a common metric. "
               "Because it is built on open bibliometric data and transparent transition rates, the model can be replicated and extended by other researchers and by policymakers who need a common language for discussing mobility and capacity.")
 
@@ -1510,7 +1511,7 @@ def _add_docx_body(doc, data, fig_paths, blinded=False):
     _add_table_from_df(
         doc,
         desc,
-        caption="Table 1. Descriptive statistics for the extracted AI/ML cohort by civilisation group.",
+        caption="Table 1. Descriptive statistics for the extracted AI/ML cohort by civilisation group. Civilisation labels are operational aggregations of OpenAlex country-affiliation patterns and do not imply normative cultural or political classification.",
         decimals={"n": 0, "works": 0, "active": 0, "hits": 0, "pis": 0, "career_start_mean": 1, "abroad": 0},
     )
 
@@ -1551,6 +1552,7 @@ def _add_docx_body(doc, data, fig_paths, blinded=False):
     p.add_run(". When the equilibrium active pool ")
     add_omath_inline(p, math_active_pool())
     p.add_run(" falls below M, the community can no longer produce works at the observed coauthor intensity. "
+              "In this sense, falling below M is a sufficient condition for collapse, not a necessary one; external shocks can push a community below viability even when the equilibrium active pool remains above M. "
               "The threshold is deliberately conservative: it assumes that each new work requires at least k distinct PI groups and that each work has the average number of coauthors. "
               "This overstates the number of distinct actors needed for a viable field, which means that M is a soft lower bound and that observed margins are probably smaller than they appear. "
               "A community with a margin just above M is therefore more fragile than the number itself suggests.")
@@ -1811,24 +1813,12 @@ def _add_docx_body(doc, data, fig_paths, blinded=False):
 
     doc.add_heading("5.4 Uncertainty", level=2)
     p = doc.add_paragraph()
-    p.add_run("Table 8 reports bootstrap 95% confidence intervals for the equilibrium active pool T and the domestic PI pool P_D. "
+    p.add_run("Supplementary Table 5 reports bootstrap 95% confidence intervals for the equilibrium active pool T and the domestic PI pool P_D. "
               "The intervals are wide, reflecting the model-implied cohort scale and the extrapolation from observed author-career exposure to long-run steady states. "
               "For some groups the upper bound is an order of magnitude larger than the lower bound, indicating that the equilibrium is sensitive to resampling variation in the transition rates. "
               "This uncertainty should be interpreted as a warning against over-interpreting point estimates and as a reason to view the point-of-no-return distances as indicative rather than precise thresholds. "
               "Despite the width, the lower bounds for most groups remain above the minimum viable threshold, which supports the qualitative conclusion that all groups are currently above the point of no return. "
               "For the smallest groups the lower bound is closer to M, reinforcing the need for continued monitoring and for policy buffers.")
-
-    boot_tab = boot.copy()
-    boot_tab["T 95% CI"] = boot_tab.apply(lambda r: f"[{_fmt(r['T_equilibrium_q025'], 0)}, {_fmt(r['T_equilibrium_q975'], 0)}]", axis=1)
-    boot_tab["P_D 95% CI"] = boot_tab.apply(lambda r: f"[{_fmt(r['P_D_equilibrium_q025'], 0)}, {_fmt(r['P_D_equilibrium_q975'], 0)}]", axis=1)
-    boot_tab = boot_tab[["group", "T_equilibrium_median", "T 95% CI", "P_D_equilibrium_mean", "P_D 95% CI"]]
-    boot_tab.columns = ["Group", "T median", "T 95% CI", "P_D mean", "P_D 95% CI"]
-    _add_table_from_df(
-        doc,
-        boot_tab,
-        caption="Table 8. Bootstrap 95% confidence intervals for equilibrium T and domestic PI pool P_D.",
-        decimals={"T median": 0, "P_D mean": 0},
-    )
 
     p = doc.add_paragraph()
     p.add_run("Figure 4 displays the bootstrap intervals graphically.")
@@ -1893,7 +1883,8 @@ def _add_docx_body(doc, data, fig_paths, blinded=False):
         p.add_run(f"For the active pool T = D + H_D + P_D, the projection correctly classifies whether T is below the minimum viable threshold M in {_fmt(annual_ctx['threshold_alarm_accuracy'] * 100, 1)}% of group-years "
                   f"(sensitivity {_fmt(annual_ctx['threshold_alarm_sensitivity'] * 100, 1)}%, specificity {_fmt(annual_ctx['threshold_alarm_specificity'] * 100, 1)}%). "
                   f"The model identifies {_fmt(annual_ctx.get('threshold_alarms_obs', 0), 0)} observed threshold-crossing group-years, mostly in the smallest civilisations. ")
-    p.add_run("These metrics confirm that the annual layer is useful for directional and threshold-crossing surveillance, not for precise population counts.")
+    p.add_run("These metrics confirm that the annual layer is useful for directional and threshold-crossing surveillance, not for precise population counts. "
+              "The modest year-to-year direction-agreement value is expected for small compartments and sparse transitions, and it reinforces that the projection layer should be treated as a drift-and-threshold alarm rather than a population forecast.")
     doc.add_picture(str(fig_paths["fig7"]), width=Inches(6.0))
     cap = doc.add_paragraph()
     cap.add_run("Figure 7. Observed (solid) and projected (dashed) compartment counts by civilisation, 2017-2023. The vertical dotted line marks the end of the training period (2016).").italic = True
@@ -1924,7 +1915,8 @@ def _add_docx_body(doc, data, fig_paths, blinded=False):
     p.add_run("Figure 9 combines the long-run safety ratio T/M with the closest point-of-no-return proximity for each civilisation. "
               "A point in the lower-left corner has both a low equilibrium buffer and a small proportional change needed to reach the threshold, so it is the most fragile combination. "
               "Japan sits in this region alongside the 'Other Civilizations' group, even though its T/M ratio is above one. "
-              "This dual view is useful as a model-evaluation metric: a civilisation can have a T/M ratio that looks comfortable but still be close to its PNR because the PNR depends on the proportional change in the most sensitive rate, not only on the level of T.")
+              "This dual view is useful as a model-evaluation metric: a civilisation can have a T/M ratio that looks comfortable but still be close to its PNR because the PNR depends on the proportional change in the most sensitive rate, not only on the level of T. "
+              "Japan is presented here as an illustrative case; the same diagnostic can be applied to any civilisation with sufficient OpenAlex coverage.")
     doc.add_picture(str(fig_paths["fig9"]), width=Inches(5.8))
     cap = doc.add_paragraph()
     cap.add_run("Figure 9. Equilibrium safety ratio (T/M) versus closest point-of-no-return proximity for all civilisations. Japan is shown in red.").italic = True
@@ -2019,7 +2011,8 @@ def _add_docx_body(doc, data, fig_paths, blinded=False):
               "d, the dropout rate to L, can be lowered through childcare support, dual-career accommodation, and stable non-tenure research tracks. "
               "Finally, I0 captures the pure exogenous entry flow and can be supported by research-master pipelines, undergraduate research programmes, and early doctoral fellowships. "
               "Weakening the Japanese civilisation would not be neutral for the rest of the world: it would remove a distinct institutional lineage, reduce the pool of non-Anglophone problem framings, and leave a range of health, ageing, robotics, and materials problems under-addressed. "
-              "Maintaining Japan as a viable AI/ML civilisation is therefore in the global interest, not only in Japan's national interest.")
+              "Maintaining Japan as a viable AI/ML civilisation is therefore in the global interest, not only in Japan's national interest. "
+              "The Japan-specific analysis is intended as a worked example; the same rate-ladder diagnostic can be applied to any civilisation with sufficient OpenAlex coverage.")
     doc.add_heading("6.3 Policy and management implications, and early warning", level=2)
     p = doc.add_paragraph()
     p.add_run("The policy implications can be read as an early-warning architecture. "
@@ -2039,7 +2032,7 @@ def _add_docx_body(doc, data, fig_paths, blinded=False):
               "We introduce the acronym SHIGA here, formed from the title and reflecting the research base at Shiga University.")
 
     p = doc.add_paragraph()
-    p.add_run("Table 9 maps the most sensitive transition levers to policy instruments and to the management actions that determine them. "
+    p.add_run("Table 8 maps the most sensitive transition levers to policy instruments and to the management actions that determine them. "
               "Policy instruments set incentives, while management actions determine how those incentives are implemented within institutions. "
               "Both are needed because a policy without a corresponding management process rarely changes transition rates.")
 
@@ -2063,7 +2056,7 @@ def _add_docx_body(doc, data, fig_paths, blinded=False):
     _add_table_from_df(
         doc,
         lever_policy_mgmt,
-        caption="Table 9. Transition levers, policy instruments, and management actions.",
+        caption="Table 8. Transition levers, policy instruments, and management actions.",
     )
 
     p = doc.add_paragraph()
@@ -2073,9 +2066,10 @@ def _add_docx_body(doc, data, fig_paths, blinded=False):
               "Both uses depend on transparent assumptions and regular recalibration; the model should not be used to justify one-off interventions without accompanying process evaluation.")
 
     p = doc.add_paragraph()
-    p.add_run("Table 9 distinguishes the policy instruments that governments, funding agencies and international organisations control from the management actions that universities and research institutes must take. "
+    p.add_run("Table 8 distinguishes the policy instruments that governments, funding agencies and international organisations control from the management actions that universities and research institutes must take. "
               "Policymakers set incentives—doctoral quotas, fellowships, visas, independent-lab schemes, and dual-career support—but those incentives change transition rates only if institutions translate them into hiring, promotion, and retention practices. "
               "University leadership and department heads therefore own the management levers in the right-hand column: tenure-track conversion, startup packages, mentoring pipelines, and stable non-tenure research tracks. "
+              "Mapping the model levers to actors sharpens the translation: I0 and h_D are primarily owned by national funding agencies and ministries that set doctoral, postdoctoral and independent-lab budgets; p_D and d are owned by universities and department heads through promotion, retention and work-life policies; β is influenced by diaspora networks, return grants, dual appointments and private-sector R&D recruitment. "
               "The model's value for management is to rank which local transition rates most urgently need intervention and to estimate the proportional change required to restore a safety margin.")
 
     doc.add_heading("6.4 Intra-civilisation alternatives when inter-civilisation mobility cannot be controlled", level=2)
@@ -2096,6 +2090,7 @@ def _add_docx_body(doc, data, fig_paths, blinded=False):
               "Policymakers can then intervene before the active pool falls below M, using the rate-specific elasticities in Table 3 to prioritise the smallest proportional change that restores a safety margin. "
               "This is the operational mechanism for avoiding technology monopoly and oligopoly dead ends: by keeping every major research community above its minimum viable coauthor pool, annual monitoring sustains the competitive diversity that underpins long-run technological progress. "
               "The framework is therefore not a prediction that a particular civilisation will collapse; it is a tool for ensuring that no single civilisation reaches a point where its collapse becomes self-sustaining. "
+              "The modest year-to-year direction agreement in the 2017-2023 projection confirms that this layer is a drift-and-threshold alarm, not a precise population forecast. "
               "SHIGA therefore encapsulates the practical goal: keeping the global AI/ML system heterogeneous enough that no single centre of power can monopolise the technological frontier.")
 
     doc.add_heading("6.6 Limitations", level=2)
@@ -2346,16 +2341,10 @@ def write_pptx(output_dir, data, fig_paths):
             "Create durable principal-investigator positions that train the next cohort",
         ],
     })
-    add_table_slide("Table 9: Transition levers, policy instruments, and management actions", lever_policy_mgmt, lever_policy_mgmt.columns.tolist(), width_per_col=2.2)
+    add_table_slide("Table 8: Transition levers, policy instruments, and management actions", lever_policy_mgmt, lever_policy_mgmt.columns.tolist(), width_per_col=2.2)
 
-    boot_tab = boot.copy()
-    boot_tab["T 95% CI"] = boot_tab.apply(lambda r: f"[{_fmt(r['T_equilibrium_q025'], 0)}, {_fmt(r['T_equilibrium_q975'], 0)}]", axis=1)
-    boot_tab["P_D 95% CI"] = boot_tab.apply(lambda r: f"[{_fmt(r['P_D_equilibrium_q025'], 0)}, {_fmt(r['P_D_equilibrium_q975'], 0)}]", axis=1)
-    boot_tab = boot_tab[["group", "T_equilibrium_median", "T 95% CI", "P_D_equilibrium_mean", "P_D 95% CI"]]
-    boot_tab.columns = ["Group", "T median", "T 95% CI", "P_D mean", "P_D 95% CI"]
-    for c in ["T median", "P_D mean"]:
-        boot_tab[c] = boot_tab[c].apply(lambda x: _fmt(x, 0))
-    add_table_slide("Table 8: Bootstrap 95% CI", boot_tab, boot_tab.columns.tolist(), width_per_col=2.2)
+    # Bootstrap CI is placed at the end as Supplementary Table 5.
+
 
     # Annual projection slides
     if fig_paths.get("fig5"):
@@ -2435,6 +2424,15 @@ def write_pptx(output_dir, data, fig_paths):
             width_per_col=2.2,
         )
 
+    boot_tab = boot.copy()
+    boot_tab["T 95% CI"] = boot_tab.apply(lambda r: f"[{_fmt(r['T_equilibrium_q025'], 0)}, {_fmt(r['T_equilibrium_q975'], 0)}]", axis=1)
+    boot_tab["P_D 95% CI"] = boot_tab.apply(lambda r: f"[{_fmt(r['P_D_equilibrium_q025'], 0)}, {_fmt(r['P_D_equilibrium_q975'], 0)}]", axis=1)
+    boot_tab = boot_tab[["group", "T_equilibrium_median", "T 95% CI", "P_D_equilibrium_mean", "P_D 95% CI"]]
+    boot_tab.columns = ["Group", "T median", "T 95% CI", "P_D mean", "P_D 95% CI"]
+    for c in ["T median", "P_D mean"]:
+        boot_tab[c] = boot_tab[c].apply(lambda x: _fmt(x, 0))
+    add_table_slide("Supplementary Table 5: Bootstrap 95% CI", boot_tab, boot_tab.columns.tolist(), width_per_col=2.2)
+
     path = output_dir / "manuscript_full_article_figures.pptx"
     prs.save(path)
     return path
@@ -2447,6 +2445,7 @@ def write_pptx(output_dir, data, fig_paths):
 def write_supplementary_docx(output_dir, data, fig_paths):
     """Write a supplementary-materials docx with detailed tables supporting the main manuscript."""
     annual = load_annual_data()
+    boot = data[6]
     doc = Document()
     doc.add_heading("Supplementary Material", level=0)
     p = doc.add_paragraph()
@@ -2501,6 +2500,14 @@ def write_supplementary_docx(output_dir, data, fig_paths):
         _add_table_from_df(doc, interciv_top, caption="Supplementary Table 4. Top cross-civilisation origin-destination abroad author-year pairs.", decimals={"Author-years": 0})
     else:
         doc.add_paragraph("No inter-civilisation flow data available.")
+
+    doc.add_heading("Supplementary Table 5. Bootstrap 95% confidence intervals for equilibrium T and domestic PI pool P_D", level=1)
+    boot_tab = boot.copy()
+    boot_tab["T 95% CI"] = boot_tab.apply(lambda r: f"[{_fmt(r['T_equilibrium_q025'], 0)}, {_fmt(r['T_equilibrium_q975'], 0)}]", axis=1)
+    boot_tab["P_D 95% CI"] = boot_tab.apply(lambda r: f"[{_fmt(r['P_D_equilibrium_q025'], 0)}, {_fmt(r['P_D_equilibrium_q975'], 0)}]", axis=1)
+    boot_tab = boot_tab[["group", "T_equilibrium_median", "T 95% CI", "P_D_equilibrium_mean", "P_D 95% CI"]]
+    boot_tab.columns = ["Group", "T median", "T 95% CI", "P_D mean", "P_D 95% CI"]
+    _add_table_from_df(doc, boot_tab, caption="Supplementary Table 5. Bootstrap 95% confidence intervals for equilibrium T and domestic PI pool P_D.", decimals={"T median": 0, "P_D mean": 0})
 
     sup_path = output_dir / "supplementary_material.docx"
     doc.save(sup_path)

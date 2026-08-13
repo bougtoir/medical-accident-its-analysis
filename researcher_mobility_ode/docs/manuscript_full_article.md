@@ -1,6 +1,6 @@
 Article type: Research Article
 
-Approximate word count (main text incl. tables, excl. references): 9752
+Approximate word count (main text incl. tables, excl. references): 9992
 
 Corresponding author: \[To be completed at submission\]
 
@@ -45,12 +45,12 @@ grouping; ordinary differential equations; PNR; innovation studies
 
 This study uses the OpenAlex database (subfield 1702, Artificial
 Intelligence; 2000--2023), accessed via the OpenAlex API. The analysis
-is bundled with a pre-extracted cohort and a stratified sample of works
-(OpenAlex snapshot extracted on 2026-08-09); the country-to-civilisation
-mapping, code, and result CSVs used to generate this manuscript are
-available in the public GitHub repository
-https://github.com/bougtoir/researcher-mobility-ode. OpenAlex data are
-released under CC0.
+is bundled with a pre-extracted cohort and a stratified sample of works;
+the country-to-civilisation mapping, code, and result CSVs used to
+generate this manuscript are available in the public GitHub repository
+https://github.com/bougtoir/researcher-mobility-ode. The full SQLite
+cohort snapshot used for extraction is available from the corresponding
+author on request. OpenAlex data are released under CC0.
 
 ## Declarations
 
@@ -276,12 +276,18 @@ in the variety from which future trajectories can be generated. The PNR
 is therefore an innovation-systems problem: once a community falls below
 the minimum scale needed to sustain distinct research programmes, the
 path-dependent process of search and selection that produces new
-trajectories is impaired. The result is a framework that can be updated
-as new data arrive and can compare the fragility of different research
-communities using a common metric. Because it is built on open
-bibliometric data and transparent transition rates, the model can be
-replicated and extended by other researchers and by policymakers who
-need a common language for discussing mobility and capacity.
+trajectories is impaired. This connects that macro-level,
+innovation-systems view of path-dependent technological change to
+individual career-transition data: the transition rates and PNR
+distances reported below can be read as an empirical early-warning
+indicator of whether a particular civilisational innovation system
+retains enough researchers to sustain a distinct technological
+trajectory. The result is a framework that can be updated as new data
+arrive and can compare the fragility of different research communities
+using a common metric. Because it is built on open bibliometric data and
+transparent transition rates, the model can be replicated and extended
+by other researchers and by policymakers who need a common language for
+discussing mobility and capacity.
 
 # 3. Data and grouping
 
@@ -403,7 +409,9 @@ and the equilibrium active pool must be compared jointly.
   -----------------------------------------------------------------------------------------------------------
 
 *Table 1. Descriptive statistics for the extracted AI/ML cohort by
-civilisation group.*
+civilisation group. Civilisation labels are operational aggregations of
+OpenAlex country-affiliation patterns and do not imply normative
+cultural or political classification.*
 
 # 4. Methods
 
@@ -457,13 +465,16 @@ the median number of distinct last-author groups observed per recent
 year (k). The minimum viable domestic active pool is
 $M\  = \ k\  \times \ c\bar{}$. When the equilibrium active pool
 $T\  = \ D\  + \ H_{D}\  + \ P_{D}$ falls below M, the community can no
-longer produce works at the observed coauthor intensity. The threshold
-is deliberately conservative: it assumes that each new work requires at
-least k distinct PI groups and that each work has the average number of
-coauthors. This overstates the number of distinct actors needed for a
-viable field, which means that M is a soft lower bound and that observed
-margins are probably smaller than they appear. A community with a margin
-just above M is therefore more fragile than the number itself suggests.
+longer produce works at the observed coauthor intensity. In this sense,
+falling below M is a sufficient condition for collapse, not a necessary
+one; external shocks can push a community below viability even when the
+equilibrium active pool remains above M. The threshold is deliberately
+conservative: it assumes that each new work requires at least k distinct
+PI groups and that each work has the average number of coauthors. This
+overstates the number of distinct actors needed for a viable field,
+which means that M is a soft lower bound and that observed margins are
+probably smaller than they appear. A community with a margin just above
+M is therefore more fragile than the number itself suggests.
 
 ## 4.4 Estimation, equilibrium and sensitivity
 
@@ -880,13 +891,13 @@ multi-lever interventions as well as single-rate perturbations.
 
 ## 5.4 Uncertainty
 
-Table 8 reports bootstrap 95% confidence intervals for the equilibrium
-active pool T and the domestic PI pool P_D. The intervals are wide,
-reflecting the model-implied cohort scale and the extrapolation from
-observed author-career exposure to long-run steady states. For some
-groups the upper bound is an order of magnitude larger than the lower
-bound, indicating that the equilibrium is sensitive to resampling
-variation in the transition rates. This uncertainty should be
+Supplementary Table 5 reports bootstrap 95% confidence intervals for the
+equilibrium active pool T and the domestic PI pool P_D. The intervals
+are wide, reflecting the model-implied cohort scale and the
+extrapolation from observed author-career exposure to long-run steady
+states. For some groups the upper bound is an order of magnitude larger
+than the lower bound, indicating that the equilibrium is sensitive to
+resampling variation in the transition rates. This uncertainty should be
 interpreted as a warning against over-interpreting point estimates and
 as a reason to view the point-of-no-return distances as indicative
 rather than precise thresholds. Despite the width, the lower bounds for
@@ -894,39 +905,6 @@ most groups remain above the minimum viable threshold, which supports
 the qualitative conclusion that all groups are currently above the PNR.
 For the smallest groups the lower bound is closer to M, reinforcing the
 need for continued monitoring and for policy buffers.
-
-  ---------------------------------------------------------------------------
-  **Group**       **T median**   **T 95% CI**   **P_D mean**   **P_D 95% CI**
-  --------------- -------------- -------------- -------------- --------------
-  Anglosphere     67546          \[66728,       29814          \[29158,
-  ex-US                          68334\]                       30486\]
-
-  Continental     195077         \[193718,      83476          \[82421,
-  Europe                         196316\]                      84527\]
-
-  Hindu           53407          \[52402,       30277          \[29348,
-                                 54515\]                       31258\]
-
-  Islamic         88428          \[87356,       47264          \[46155,
-                                 89880\]                       48511\]
-
-  Japanese        29372          \[28932,       7387           \[7128, 7662\]
-                                 29757\]                       
-
-  Other           59396          \[58590,       22326          \[21715,
-  Civilizations                  60178\]                       22975\]
-
-  Other Western   4829           \[4602, 5077\] 2163           \[1981, 2370\]
-
-  Sinic           303843         \[301809,      133015         \[131418,
-                                 305720\]                      134567\]
-
-  United States   146991         \[145947,      63906          \[62994,
-                                 148235\]                      64906\]
-  ---------------------------------------------------------------------------
-
-*Table 8. Bootstrap 95% confidence intervals for equilibrium T and
-domestic PI pool P_D.*
 
 Figure 4 displays the bootstrap intervals graphically.
 
@@ -1019,7 +997,10 @@ group-years (sensitivity 0.0%, specificity 100.0%). The model identifies
 5 observed threshold-crossing group-years, mostly in the smallest
 civilisations. These metrics confirm that the annual layer is useful for
 directional and threshold-crossing surveillance, not for precise
-population counts.
+population counts. The modest year-to-year direction-agreement value is
+expected for small compartments and sparse transitions, and it
+reinforces that the projection layer should be treated as a
+drift-and-threshold alarm rather than a population forecast.
 
 ![](media/image7.png){width="6.0in" height="3.8268711723534556in"}
 
@@ -1068,7 +1049,9 @@ Civilizations\' group, even though its T/M ratio is above one. This dual
 view is useful as a model-evaluation metric: a civilisation can have a
 T/M ratio that looks comfortable but still be close to its PNR because
 the PNR depends on the proportional change in the most sensitive rate,
-not only on the level of T.
+not only on the level of T. Japan is presented here as an illustrative
+case; the same diagnostic can be applied to any civilisation with
+sufficient OpenAlex coverage.
 
 ![](media/image9.png){width="5.8in" height="4.511111111111111in"}
 
@@ -1230,7 +1213,9 @@ remove a distinct institutional lineage, reduce the pool of
 non-Anglophone problem framings, and leave a range of health, ageing,
 robotics, and materials problems under-addressed. Maintaining Japan as a
 viable AI/ML civilisation is therefore in the global interest, not only
-in Japan\'s national interest.
+in Japan\'s national interest. The Japan-specific analysis is intended
+as a worked example; the same rate-ladder diagnostic can be applied to
+any civilisation with sufficient OpenAlex coverage.
 
 ## 6.3 Policy and management implications, and early warning
 
@@ -1263,7 +1248,7 @@ sustain civilisational diversity through interventions in global AI/ML
 researcher mobility. We introduce the acronym SHIGA here, formed from
 the title and reflecting the research base at Shiga University.
 
-Table 9 maps the most sensitive transition levers to policy instruments
+Table 8 maps the most sensitive transition levers to policy instruments
 and to the management actions that determine them. Policy instruments
 set incentives, while management actions determine how those incentives
 are implemented within institutions. Both are needed because a policy
@@ -1304,7 +1289,7 @@ rates.
                           PI status               next cohort
   ------------------------------------------------------------------------
 
-*Table 9. Transition levers, policy instruments, and management
+*Table 8. Transition levers, policy instruments, and management
 actions.*
 
 Operationally, the framework can be used in two complementary ways. As a
@@ -1317,7 +1302,7 @@ prioritise empirical policy evaluation. Both uses depend on transparent
 assumptions and regular recalibration; the model should not be used to
 justify one-off interventions without accompanying process evaluation.
 
-Table 9 distinguishes the policy instruments that governments, funding
+Table 8 distinguishes the policy instruments that governments, funding
 agencies and international organisations control from the management
 actions that universities and research institutes must take.
 Policymakers set incentives---doctoral quotas, fellowships, visas,
@@ -1326,9 +1311,15 @@ change transition rates only if institutions translate them into hiring,
 promotion, and retention practices. University leadership and department
 heads therefore own the management levers in the right-hand column:
 tenure-track conversion, startup packages, mentoring pipelines, and
-stable non-tenure research tracks. The model\'s value for management is
-to rank which local transition rates most urgently need intervention and
-to estimate the proportional change required to restore a safety margin.
+stable non-tenure research tracks. Mapping the model levers to actors
+sharpens the translation: I0 and h_D are primarily owned by national
+funding agencies and ministries that set doctoral, postdoctoral and
+independent-lab budgets; p_D and d are owned by universities and
+department heads through promotion, retention and work-life policies; β
+is influenced by diaspora networks, return grants, dual appointments and
+private-sector R&D recruitment. The model\'s value for management is to
+rank which local transition rates most urgently need intervention and to
+estimate the proportional change required to restore a safety margin.
 
 ## 6.4 Intra-civilisation alternatives when inter-civilisation mobility cannot be controlled
 
@@ -1371,10 +1362,12 @@ viable coauthor pool, annual monitoring sustains the competitive
 diversity that underpins long-run technological progress. The framework
 is therefore not a prediction that a particular civilisation will
 collapse; it is a tool for ensuring that no single civilisation reaches
-a point where its collapse becomes self-sustaining. SHIGA therefore
-encapsulates the practical goal: keeping the global AI/ML system
-heterogeneous enough that no single centre of power can monopolise the
-technological frontier.
+a point where its collapse becomes self-sustaining. The modest
+year-to-year direction agreement in the 2017-2023 projection confirms
+that this layer is a drift-and-threshold alarm, not a precise population
+forecast. SHIGA therefore encapsulates the practical goal: keeping the
+global AI/ML system heterogeneous enough that no single centre of power
+can monopolise the technological frontier.
 
 ## 6.6 Limitations
 

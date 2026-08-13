@@ -114,3 +114,38 @@ civilisation, 2000-2016.*
 
 *Supplementary Table 4. Top cross-civilisation origin-destination abroad
 author-year pairs.*
+
+# Supplementary Table 5. Bootstrap 95% confidence intervals for equilibrium T and domestic PI pool P_D
+
+  ---------------------------------------------------------------------------
+  **Group**       **T median**   **T 95% CI**   **P_D mean**   **P_D 95% CI**
+  --------------- -------------- -------------- -------------- --------------
+  Anglosphere     67546          \[66728,       29814          \[29158,
+  ex-US                          68334\]                       30486\]
+
+  Continental     195077         \[193718,      83476          \[82421,
+  Europe                         196316\]                      84527\]
+
+  Hindu           53407          \[52402,       30277          \[29348,
+                                 54515\]                       31258\]
+
+  Islamic         88428          \[87356,       47264          \[46155,
+                                 89880\]                       48511\]
+
+  Japanese        29372          \[28932,       7387           \[7128, 7662\]
+                                 29757\]                       
+
+  Other           59396          \[58590,       22326          \[21715,
+  Civilizations                  60178\]                       22975\]
+
+  Other Western   4829           \[4602, 5077\] 2163           \[1981, 2370\]
+
+  Sinic           303843         \[301809,      133015         \[131418,
+                                 305720\]                      134567\]
+
+  United States   146991         \[145947,      63906          \[62994,
+                                 148235\]                      64906\]
+  ---------------------------------------------------------------------------
+
+*Supplementary Table 5. Bootstrap 95% confidence intervals for
+equilibrium T and domestic PI pool P_D.*
