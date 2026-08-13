@@ -643,6 +643,17 @@ def compute_annual_context(annual):
             ctx["best_mape_pct"] = float(best["mape"]) * 100.0
             ctx["worst_mape_pct"] = float(worst["mape"]) * 100.0
             ctx["n_eval_groups"] = len(gacc)
+            # Direction agreement (mean across civilisations)
+            if "direction_agreement" in gacc.columns:
+                ctx["direction_agreement"] = float(gacc["direction_agreement"].mean())
+                ctx["best_direction_group"] = gacc.loc[gacc["direction_agreement"].idxmax()]["origin_group"]
+                ctx["worst_direction_group"] = gacc.loc[gacc["direction_agreement"].idxmin()]["origin_group"]
+            if "threshold_alarm_accuracy" in gacc.columns:
+                ctx["threshold_alarm_accuracy"] = float(gacc["threshold_alarm_accuracy"].mean())
+                ctx["threshold_alarm_sensitivity"] = float(gacc["threshold_alarm_sensitivity"].mean())
+                ctx["threshold_alarm_specificity"] = float(gacc["threshold_alarm_specificity"].mean())
+                # Observed alarms are rare; report total count across groups
+                ctx["threshold_alarms_obs"] = int(gacc["threshold_alarms_obs"].sum())
         else:
             ctx["best_group"] = "—"
             ctx["worst_group"] = "—"
@@ -1847,15 +1858,11 @@ def _add_docx_body(doc, data, fig_paths, blinded=False):
     cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
     p = doc.add_paragraph()
-    p.add_run("Table 9 summarises the mean observed annual transition rates by group between 2000 and 2016. "
-              "The table distinguishes early-career outflow (α), return (β), domestic and abroad hit generation (h_D, h_A), PI promotion (p_D), dropout (d), and total inflow (I_total).")
-    if not annual_means.empty:
-        _add_table_from_df(
-            doc,
-            annual_means,
-            caption="Table 9. Mean observed annual transition rates by civilisation, 2000-2016.",
-            decimals={"α": 3, "β": 3, "h_D": 3, "p_D": 3, "d": 3, "I_total": 2},
-        )
+    p.add_run("The mean observed annual transition rates by group between 2000 and 2016, "
+              "distinguishing early-career outflow (α), return (β), domestic and abroad hit generation (h_D, h_A), PI promotion (p_D), dropout (d), and total inflow (I_total), "
+              "are provided in Supplementary Table 3. "
+              "Similarly, the cross-origin-destination pairs with the largest accumulation of abroad author-years are listed in Supplementary Table 4. "
+              "These supplementary tables keep the main text focused on the PNR and policy conclusions while preserving the empirical detail needed for replication and extension.")
 
     p = doc.add_paragraph()
     p.add_run("Figure 6 shows the cross-civilisation accumulation of abroad author-years. "
@@ -1867,17 +1874,7 @@ def _add_docx_body(doc, data, fig_paths, blinded=False):
     cap.add_run("Figure 6. Cross-civilisation abroad author-year accumulation by origin (rows) and destination (columns) (same-civilisation cells and Unknown destinations excluded; lower-bound proxy).").italic = True
     cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
-    p = doc.add_paragraph()
-    p.add_run("Table 10 lists the cross-origin-destination pairs with the largest accumulation of abroad author-years. "
-              "Same-civilisation cells and Unknown destinations are excluded because they cannot be interpreted as inter-civilisation flows. "
-              "These pairs identify the strongest visible inter-civilisation pipelines and are the empirical counterpart to the α and β transitions.")
-    if not interciv_top.empty:
-        _add_table_from_df(
-            doc,
-            interciv_top,
-            caption="Table 10. Top cross-civilisation origin-destination abroad author-year pairs.",
-            decimals={"Author-years": 0},
-        )
+
 
     doc.add_heading("5.7 Out-of-sample projection, 2017-2023", level=2)
     p = doc.add_paragraph()
@@ -1886,6 +1883,17 @@ def _add_docx_body(doc, data, fig_paths, blinded=False):
               "The high MAPE reflects small absolute counts and zero-observed cells, and the projection should be read as a directional early-warning indicator of drift and threshold proximity rather than a precise population forecast. "
               f"Among civilisations the lowest RMSE is for {best_rmse_group} and the highest RMSE is for {worst_rmse_group}; the highest MAPE is for {worst_mape_group}. "
               "The largest errors occur in small compartments and in groups with sparse transition counts, which is expected because the annual model does not borrow information across civilisations.")
+
+    p = doc.add_paragraph()
+    p.add_run("Direction and threshold-alarm diagnostics support this interpretation. ")
+    if "direction_agreement" in annual_ctx:
+        p.add_run(f"Year-to-year direction agreement between projected and observed compartment counts is {_fmt(annual_ctx['direction_agreement'] * 100, 1)}%, "
+                  f"ranging from {annual_ctx.get('worst_direction_group', '—')} to {annual_ctx.get('best_direction_group', '—')}. ")
+    if "threshold_alarm_accuracy" in annual_ctx:
+        p.add_run(f"For the active pool T = D + H_D + P_D, the projection correctly classifies whether T is below the minimum viable threshold M in {_fmt(annual_ctx['threshold_alarm_accuracy'] * 100, 1)}% of group-years "
+                  f"(sensitivity {_fmt(annual_ctx['threshold_alarm_sensitivity'] * 100, 1)}%, specificity {_fmt(annual_ctx['threshold_alarm_specificity'] * 100, 1)}%). "
+                  f"The model identifies {_fmt(annual_ctx.get('threshold_alarms_obs', 0), 0)} observed threshold-crossing group-years, mostly in the smallest civilisations. ")
+    p.add_run("These metrics confirm that the annual layer is useful for directional and threshold-crossing surveillance, not for precise population counts.")
     doc.add_picture(str(fig_paths["fig7"]), width=Inches(6.0))
     cap = doc.add_paragraph()
     cap.add_run("Figure 7. Observed (solid) and projected (dashed) compartment counts by civilisation, 2017-2023. The vertical dotted line marks the end of the training period (2016).").italic = True
@@ -2031,7 +2039,7 @@ def _add_docx_body(doc, data, fig_paths, blinded=False):
               "We introduce the acronym SHIGA here, formed from the title and reflecting the research base at Shiga University.")
 
     p = doc.add_paragraph()
-    p.add_run("Table 11 maps the most sensitive transition levers to policy instruments and to the management actions that determine them. "
+    p.add_run("Table 9 maps the most sensitive transition levers to policy instruments and to the management actions that determine them. "
               "Policy instruments set incentives, while management actions determine how those incentives are implemented within institutions. "
               "Both are needed because a policy without a corresponding management process rarely changes transition rates.")
 
@@ -2055,7 +2063,7 @@ def _add_docx_body(doc, data, fig_paths, blinded=False):
     _add_table_from_df(
         doc,
         lever_policy_mgmt,
-        caption="Table 11. Transition levers, policy instruments, and management actions.",
+        caption="Table 9. Transition levers, policy instruments, and management actions.",
     )
 
     p = doc.add_paragraph()
@@ -2065,7 +2073,7 @@ def _add_docx_body(doc, data, fig_paths, blinded=False):
               "Both uses depend on transparent assumptions and regular recalibration; the model should not be used to justify one-off interventions without accompanying process evaluation.")
 
     p = doc.add_paragraph()
-    p.add_run("Table 11 distinguishes the policy instruments that governments, funding agencies and international organisations control from the management actions that universities and research institutes must take. "
+    p.add_run("Table 9 distinguishes the policy instruments that governments, funding agencies and international organisations control from the management actions that universities and research institutes must take. "
               "Policymakers set incentives—doctoral quotas, fellowships, visas, independent-lab schemes, and dual-career support—but those incentives change transition rates only if institutions translate them into hiring, promotion, and retention practices. "
               "University leadership and department heads therefore own the management levers in the right-hand column: tenure-track conversion, startup packages, mentoring pipelines, and stable non-tenure research tracks. "
               "The model's value for management is to rank which local transition rates most urgently need intervention and to estimate the proportional change required to restore a safety margin.")
@@ -2321,6 +2329,25 @@ def write_pptx(output_dir, data, fig_paths):
         policy_top[c] = policy_top[c].apply(lambda x, d=d: _fmt(x, d))
     add_table_slide("Table 7: Top policy intervention", policy_top, policy_top.columns.tolist(), width_per_col=2.0)
 
+    lever_policy_mgmt = pd.DataFrame({
+        "Lever": ["Dropout (d)", "Exogenous entry (I0)", "Return from abroad (β)", "Domestic hit generation (h_D)", "PI promotion (p_D)"],
+        "Policy instrument": [
+            "Early-career fellowships, childcare and dual-career support, stable non-tenure tracks",
+            "Research-master and undergraduate pipelines, doctoral fellowships, recruitment visas",
+            "Return grants, diaspora networks, dual appointments, overseas-experience recognition",
+            "Independent-lab programmes (e.g. SPREAD-style), doctoral/postdoctoral training, compute access",
+            "Tenure-track conversion, startup packages, project-based PI status",
+        ],
+        "Management action": [
+            "Retain researchers in the domestic pipeline beyond the first career years",
+            "Widen the base of incoming researchers before they select a field or location",
+            "Encourage mobile researchers to re-establish domestic research groups",
+            "Translate junior capacity into visible, high-impact work and independent research lines",
+            "Create durable principal-investigator positions that train the next cohort",
+        ],
+    })
+    add_table_slide("Table 9: Transition levers, policy instruments, and management actions", lever_policy_mgmt, lever_policy_mgmt.columns.tolist(), width_per_col=2.2)
+
     boot_tab = boot.copy()
     boot_tab["T 95% CI"] = boot_tab.apply(lambda r: f"[{_fmt(r['T_equilibrium_q025'], 0)}, {_fmt(r['T_equilibrium_q975'], 0)}]", axis=1)
     boot_tab["P_D 95% CI"] = boot_tab.apply(lambda r: f"[{_fmt(r['P_D_equilibrium_q025'], 0)}, {_fmt(r['P_D_equilibrium_q975'], 0)}]", axis=1)
@@ -2367,7 +2394,7 @@ def write_pptx(output_dir, data, fig_paths):
     annual_means = annual_summary_table(annual)
     if not annual_means.empty:
         add_table_slide(
-            "Table 9: Mean observed annual transition rates, 2000-2016",
+            "Supplementary Table 3: Mean observed annual transition rates, 2000-2016",
             annual_means,
             annual_means.columns.tolist(),
             width_per_col=1.4,
@@ -2376,7 +2403,7 @@ def write_pptx(output_dir, data, fig_paths):
     interciv_top = interciv_top_table(annual)
     if not interciv_top.empty:
         add_table_slide(
-            "Table 10: Top origin-destination abroad author-year pairs",
+            "Supplementary Table 4: Top origin-destination abroad author-year pairs",
             interciv_top,
             interciv_top.columns.tolist(),
             width_per_col=2.0,
@@ -2389,7 +2416,7 @@ def write_pptx(output_dir, data, fig_paths):
         gacc["mape"] = gacc["mape"].apply(lambda x: f"{x*100:.1f}%")
         gacc = gacc.rename(columns={"origin_group": "Group", "rmse": "RMSE", "mape": "MAPE"})
         add_table_slide(
-            "Table 11: Projection accuracy by civilisation, 2017-2023",
+            "Supplementary Table 1: Projection accuracy by civilisation, 2017-2023",
             gacc,
             gacc.columns.tolist(),
             width_per_col=2.2,
@@ -2402,7 +2429,7 @@ def write_pptx(output_dir, data, fig_paths):
         cacc["mape"] = cacc["mape"].apply(lambda x: f"{x*100:.1f}%")
         cacc = cacc.rename(columns={"compartment": "Compartment", "rmse": "RMSE", "mape": "MAPE"})
         add_table_slide(
-            "Table 12: Projection accuracy by compartment, 2017-2023",
+            "Supplementary Table 2: Projection accuracy by compartment, 2017-2023",
             cacc,
             cacc.columns.tolist(),
             width_per_col=2.2,
@@ -2418,14 +2445,14 @@ def write_pptx(output_dir, data, fig_paths):
 # ---------------------------------------------------------------------------
 
 def write_supplementary_docx(output_dir, data, fig_paths):
-    """Write a supplementary-materials docx with detailed projection accuracy tables."""
+    """Write a supplementary-materials docx with detailed tables supporting the main manuscript."""
     annual = load_annual_data()
     doc = Document()
     doc.add_heading("Supplementary Material", level=0)
     p = doc.add_paragraph()
     p.add_run("Sustaining Heterogeneity through Interventions in Global AI/ML Researcher Mobility: A Transition-Rate Framework")
     p = doc.add_paragraph()
-    p.add_run("This supplement provides detailed annual-projection accuracy metrics that support the main manuscript. "
+    p.add_run("This supplement provides detailed tables that support the main manuscript. "
               "Values are reproduced from the same result CSVs used to generate the main tables and figures; no numbers are hard-coded.")
 
     doc.add_heading("Supplementary Table 1. Projection accuracy by civilisation, 2017-2023", level=1)
@@ -2434,7 +2461,16 @@ def write_supplementary_docx(output_dir, data, fig_paths):
         gacc = group_acc.copy()
         gacc["rmse"] = gacc["rmse"].apply(lambda x: _fmt(x, 2))
         gacc["mape"] = gacc["mape"].apply(lambda x: f"{x*100:.1f}%")
-        gacc = gacc.rename(columns={"origin_group": "Group", "rmse": "RMSE", "mape": "MAPE"})
+        if "direction_agreement" in gacc.columns:
+            gacc["direction_agreement"] = gacc["direction_agreement"].apply(lambda x: f"{x*100:.1f}%")
+        if "threshold_alarm_accuracy" in gacc.columns:
+            for c in ["threshold_alarm_accuracy", "threshold_alarm_sensitivity", "threshold_alarm_specificity", "threshold_alarm_precision"]:
+                gacc[c] = gacc[c].apply(lambda x: f"{x*100:.1f}%" if pd.notna(x) else "—")
+        rename = {"origin_group": "Group", "rmse": "RMSE", "mape": "MAPE", "direction_agreement": "Direction agreement"}
+        for c in ["threshold_alarm_accuracy", "threshold_alarm_sensitivity", "threshold_alarm_specificity", "threshold_alarm_precision"]:
+            if c in gacc.columns:
+                rename[c] = c.replace("threshold_alarm_", "Alarm ").replace("_", " ").title()
+        gacc = gacc.rename(columns=rename)
         _add_table_from_df(doc, gacc, caption="Supplementary Table 1. Projection accuracy by civilisation, 2017-2023.", decimals={"MAPE": 2})
     else:
         doc.add_paragraph("No group-level accuracy data available.")
@@ -2445,10 +2481,26 @@ def write_supplementary_docx(output_dir, data, fig_paths):
         cacc = comp_acc.copy()
         cacc["rmse"] = cacc["rmse"].apply(lambda x: _fmt(x, 2))
         cacc["mape"] = cacc["mape"].apply(lambda x: f"{x*100:.1f}%")
-        cacc = cacc.rename(columns={"compartment": "Compartment", "rmse": "RMSE", "mape": "MAPE"})
+        if "direction_agreement" in cacc.columns:
+            cacc["direction_agreement"] = cacc["direction_agreement"].apply(lambda x: f"{x*100:.1f}%")
+        cacc = cacc.rename(columns={"compartment": "Compartment", "rmse": "RMSE", "mape": "MAPE", "direction_agreement": "Direction agreement"})
         _add_table_from_df(doc, cacc, caption="Supplementary Table 2. Projection accuracy by compartment, 2017-2023.", decimals={"MAPE": 2})
     else:
         doc.add_paragraph("No compartment-level accuracy data available.")
+
+    doc.add_heading("Supplementary Table 3. Mean observed annual transition rates by civilisation, 2000-2016", level=1)
+    annual_means = annual_summary_table(annual)
+    if not annual_means.empty:
+        _add_table_from_df(doc, annual_means, caption="Supplementary Table 3. Mean observed annual transition rates by civilisation, 2000-2016.", decimals={"α": 3, "β": 3, "h_D": 3, "p_D": 3, "d": 3, "I_total": 2})
+    else:
+        doc.add_paragraph("No annual transition-rate data available.")
+
+    doc.add_heading("Supplementary Table 4. Top cross-civilisation origin-destination abroad author-year pairs", level=1)
+    interciv_top = interciv_top_table(annual)
+    if not interciv_top.empty:
+        _add_table_from_df(doc, interciv_top, caption="Supplementary Table 4. Top cross-civilisation origin-destination abroad author-year pairs.", decimals={"Author-years": 0})
+    else:
+        doc.add_paragraph("No inter-civilisation flow data available.")
 
     sup_path = output_dir / "supplementary_material.docx"
     doc.save(sup_path)

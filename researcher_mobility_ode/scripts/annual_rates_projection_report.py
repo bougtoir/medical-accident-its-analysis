@@ -449,12 +449,42 @@ def project_population(states, projected_rates, train_end=2016, project_end=2026
     return pd.DataFrame(projections)
 
 
-def evaluate_projection(projected, observed, train_end=2016, project_end=2026):
-    """Compute RMSE and MAPE per group and compartment for 2017-2023.
+def _direction_category(delta, tol):
+    """Classify a year-to-year change as increase (+1), decrease (-1), or flat (0)."""
+    cat = pd.Series(np.zeros(len(delta), dtype=int), index=delta.index)
+    cat[delta > tol] = 1
+    cat[delta < -tol] = -1
+    return cat
+
+
+def _alarm_metrics(g):
+    """Return threshold-alarm confusion-matrix metrics for one group."""
+    tp = int(((g["alarm_obs"]) & (g["alarm_proj"])).sum())
+    tn = int(((~g["alarm_obs"]) & (~g["alarm_proj"])).sum())
+    fp = int(((~g["alarm_obs"]) & (g["alarm_proj"])).sum())
+    fn = int(((g["alarm_obs"]) & (~g["alarm_proj"])).sum())
+    total = tp + tn + fp + fn
+    return pd.Series({
+        "threshold_alarm_accuracy": (tp + tn) / total if total else float("nan"),
+        "threshold_alarm_sensitivity": tp / (tp + fn) if (tp + fn) else float("nan"),
+        "threshold_alarm_specificity": tn / (tn + fp) if (tn + fp) else float("nan"),
+        "threshold_alarm_precision": tp / (tp + fp) if (tp + fp) else float("nan"),
+        "threshold_alarms_obs": g["alarm_obs"].sum(),
+        "threshold_alarms_proj": g["alarm_proj"].sum(),
+    })
+
+
+def evaluate_projection(projected, observed, train_end=2016, project_end=2026, thresholds=None):
+    """Compute RMSE, MAPE, direction agreement, and threshold-alarm metrics for 2017-2023.
 
     The observed stock is reindexed to the full (group, year, compartment) grid
     so that cells with zero observed count are still compared against the
     projection, preventing the metrics from being artificially optimistic.
+
+    Direction agreement measures whether projected and observed year-to-year
+    changes have the same sign (increase / flat / decrease). Threshold-alarm
+    metrics compare observed and projected active pool T = D + H_D + P_D against
+    the group-specific minimum viable threshold M.
     """
     eval_years = list(range(train_end + 1, project_end + 1))
     full_grid = pd.MultiIndex.from_product(
@@ -466,20 +496,75 @@ def evaluate_projection(projected, observed, train_end=2016, project_end=2026):
     merged["error"] = merged["count_proj"] - merged["count_obs"]
     merged["ape"] = np.abs(merged["error"]) / (merged["count_obs"] + 1)
 
+    # Direction agreement: year-to-year change direction per group-compartment.
+    merged = merged.sort_values(["origin_group", "compartment", "year"]).reset_index(drop=True)
+    merged["delta_obs"] = merged.groupby(["origin_group", "compartment"], observed=False)["count_obs"].diff()
+    merged["delta_proj"] = merged.groupby(["origin_group", "compartment"], observed=False)["count_proj"].diff()
+    tol = merged.groupby(["origin_group", "compartment"], observed=False)["count_obs"].transform(lambda s: max(1.0, 0.05 * s.mean()))
+    merged["dir_obs"] = _direction_category(merged["delta_obs"], tol)
+    merged["dir_proj"] = _direction_category(merged["delta_proj"], tol)
+    merged["dir_agree"] = merged["dir_obs"] == merged["dir_proj"]
+    dir_rows = merged.dropna(subset=["delta_obs", "delta_proj"])
+
+    direction_group = dir_rows.groupby("origin_group", observed=False)["dir_agree"].mean().reset_index(name="direction_agreement")
+    direction_comp = dir_rows.groupby("compartment", observed=False)["dir_agree"].mean().reset_index(name="direction_agreement")
+    direction_overall = dir_rows["dir_agree"].mean()
+
     group_metrics = merged.groupby("origin_group", observed=False).agg(
         rmse=("error", lambda x: np.sqrt(np.mean(x ** 2))),
         mape=("ape", "mean"),
     ).reset_index()
+    group_metrics = group_metrics.merge(direction_group, on="origin_group", how="left")
 
     comp_metrics = merged.groupby("compartment", observed=False).agg(
         rmse=("error", lambda x: np.sqrt(np.mean(x ** 2))),
         mape=("ape", "mean"),
     ).reset_index()
+    comp_metrics = comp_metrics.merge(direction_comp, on="compartment", how="left")
+
+    # Threshold-alarm metrics: active pool T = D + H_D + P_D vs group M_threshold.
+    threshold_overall = pd.Series({
+        "threshold_alarm_accuracy": float("nan"),
+        "threshold_alarm_sensitivity": float("nan"),
+        "threshold_alarm_specificity": float("nan"),
+        "threshold_alarm_precision": float("nan"),
+    })
+    if thresholds is not None and not thresholds.empty:
+        active = merged[merged["compartment"].isin(["D", "H_D", "P_D"])].groupby(["origin_group", "year"], observed=False).agg(
+            count_obs=("count_obs", "sum"),
+            count_proj=("count_proj", "sum"),
+        ).reset_index()
+        tmap = thresholds.set_index("origin_group")["M_threshold"].to_dict()
+        active["M_threshold"] = active["origin_group"].map(tmap)
+        active["alarm_obs"] = active["count_obs"] < active["M_threshold"]
+        active["alarm_proj"] = active["count_proj"] < active["M_threshold"]
+        active["alarm_agree"] = active["alarm_obs"] == active["alarm_proj"]
+        threshold_group = active.groupby("origin_group", observed=False).apply(_alarm_metrics, include_groups=False).reset_index()
+        group_metrics = group_metrics.merge(threshold_group, on="origin_group", how="left")
+
+        tp = int(((active["alarm_obs"]) & (active["alarm_proj"])).sum())
+        tn = int(((~active["alarm_obs"]) & (~active["alarm_proj"])).sum())
+        fp = int(((~active["alarm_obs"]) & (active["alarm_proj"])).sum())
+        fn = int(((active["alarm_obs"]) & (~active["alarm_proj"])).sum())
+        total = tp + tn + fp + fn
+        if total:
+            threshold_overall = pd.Series({
+                "threshold_alarm_accuracy": (tp + tn) / total,
+                "threshold_alarm_sensitivity": tp / (tp + fn) if (tp + fn) else float("nan"),
+                "threshold_alarm_specificity": tn / (tn + fp) if (tn + fp) else float("nan"),
+                "threshold_alarm_precision": tp / (tp + fp) if (tp + fp) else float("nan"),
+            })
 
     overall = pd.DataFrame({
         "rmse": [np.sqrt(np.mean(merged["error"] ** 2))],
         "mape": [np.mean(merged["ape"])],
-    })
+        "direction_agreement": [direction_overall],
+    }, index=[0])
+    for k, v in threshold_overall.items():
+        overall[k] = v
+
+    # Drop helper columns so the public evaluation CSV stays tidy.
+    merged = merged.drop(columns=["delta_obs", "delta_proj", "dir_obs", "dir_proj", "dir_agree"], errors="ignore")
     return merged, group_metrics, comp_metrics, overall
 
 
@@ -743,7 +828,13 @@ def main():
 
     observed_for_eval = stock[stock["year"] <= 2023].copy()
     max_obs_year = int(observed_for_eval["year"].max()) if not observed_for_eval.empty else 2023
-    merged, group_metrics, comp_metrics, overall = evaluate_projection(projected_stock, observed_for_eval, project_end=min(max_obs_year, 2026))
+    eq_summary = load_equilibrium_summary()
+    thresholds = None
+    if eq_summary is not None and {"group", "M_threshold"}.issubset(eq_summary.columns):
+        thresholds = eq_summary[["group", "M_threshold"]].rename(columns={"group": "origin_group"}).drop_duplicates()
+    merged, group_metrics, comp_metrics, overall = evaluate_projection(
+        projected_stock, observed_for_eval, project_end=min(max_obs_year, 2026), thresholds=thresholds
+    )
     merged.to_csv(ANNUAL_DIR / "projection_evaluation.csv", index=False)
     group_metrics.to_csv(ANNUAL_DIR / "projection_accuracy_by_group.csv", index=False)
     comp_metrics.to_csv(ANNUAL_DIR / "projection_accuracy_by_compartment.csv", index=False)
@@ -756,7 +847,12 @@ def main():
                           group_metrics, comp_metrics, overall,
                           fig_rates, fig_heatmap, fig_projection, interciv_stock)
     print(f"Wrote {doc_path}")
-    print(f"Overall projection RMSE: {overall['rmse'].iloc[0]:.3f}, MAPE: {overall['mape'].iloc[0]:.3%}")
+    print(f"Overall projection RMSE: {overall['rmse'].iloc[0]:.3f}, MAPE: {overall['mape'].iloc[0]:.3%}, "
+          f"direction agreement: {overall['direction_agreement'].iloc[0]:.1%}")
+    if "threshold_alarm_accuracy" in overall.columns:
+        print(f"Threshold-alarm accuracy: {overall['threshold_alarm_accuracy'].iloc[0]:.1%}, "
+              f"sensitivity: {overall['threshold_alarm_sensitivity'].iloc[0]:.1%}, "
+              f"specificity: {overall['threshold_alarm_specificity'].iloc[0]:.1%}")
 
     # Generate editable PPTX and a submission zip with docx, figures, and CSVs
     pptx_script = Path(__file__).parent / "build_annual_projection_pptx.py"

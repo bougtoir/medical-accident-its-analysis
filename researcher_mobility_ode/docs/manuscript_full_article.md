@@ -1,6 +1,6 @@
 Article type: Research Article
 
-Approximate word count (main text incl. tables, excl. references): 9676
+Approximate word count (main text incl. tables, excl. references): 9739
 
 Corresponding author: \[To be completed at submission\]
 
@@ -968,38 +968,15 @@ trajectory.
 *Figure 5. Observed (solid) and projected (dashed) transition rates by
 civilisation, 2000-2026.*
 
-Table 9 summarises the mean observed annual transition rates by group
-between 2000 and 2016. The table distinguishes early-career outflow (α),
-return (β), domestic and abroad hit generation (h_D, h_A), PI promotion
-(p_D), dropout (d), and total inflow (I_total).
-
-  ------------------------------------------------------------------------------------
-  **Group**       **α**      **β**      **h_D**    **p_D**    **d**      **I_total**
-  --------------- ---------- ---------- ---------- ---------- ---------- -------------
-  Anglosphere     0.012      0.034      0.046      0.087      0.046      3771.88
-  ex-US                                                                  
-
-  Continental     0.007      0.036      0.051      0.094      0.046      9935.94
-  Europe                                                                 
-
-  Hindu           0.008      0.030      0.027      0.082      0.028      1651.12
-
-  Islamic         0.012      0.037      0.025      0.095      0.030      3002.53
-
-  Japanese        0.007      0.037      0.024      0.069      0.055      1882.76
-
-  Other           0.009      0.035      0.026      0.078      0.042      2955.29
-  Civilizations                                                          
-
-  Other Western   0.014      0.032      0.058      0.067      0.044      258.65
-
-  Sinic           0.007      0.027      0.026      0.091      0.034      11179.47
-
-  United States   0.008      0.033      0.047      0.086      0.046      7929.82
-  ------------------------------------------------------------------------------------
-
-*Table 9. Mean observed annual transition rates by civilisation,
-2000-2016.*
+The mean observed annual transition rates by group between 2000 and
+2016, distinguishing early-career outflow (α), return (β), domestic and
+abroad hit generation (h_D, h_A), PI promotion (p_D), dropout (d), and
+total inflow (I_total), are provided in Supplementary Table 3.
+Similarly, the cross-origin-destination pairs with the largest
+accumulation of abroad author-years are listed in Supplementary Table 4.
+These supplementary tables keep the main text focused on the PNR and
+policy conclusions while preserving the empirical detail needed for
+replication and extension.
 
 Figure 6 shows the cross-civilisation accumulation of abroad
 author-years. Rows represent the origin civilisation and columns
@@ -1016,40 +993,6 @@ pipelines.
 (rows) and destination (columns) (same-civilisation cells and Unknown
 destinations excluded; lower-bound proxy).*
 
-Table 10 lists the cross-origin-destination pairs with the largest
-accumulation of abroad author-years. Same-civilisation cells and Unknown
-destinations are excluded because they cannot be interpreted as
-inter-civilisation flows. These pairs identify the strongest visible
-inter-civilisation pipelines and are the empirical counterpart to the α
-and β transitions.
-
-  -----------------------------------------------------------------------
-  **Origin**              **Destination**         **Author-years**
-  ----------------------- ----------------------- -----------------------
-  United States           Sinic                   52689
-
-  United States           Continental Europe      21968
-
-  Anglosphere ex-US       Sinic                   20534
-
-  Sinic                   United States           18505
-
-  Continental Europe      Anglosphere ex-US       18156
-
-  United States           Anglosphere ex-US       17719
-
-  Continental Europe      United States           15459
-
-  Anglosphere ex-US       Continental Europe      15003
-
-  Anglosphere ex-US       United States           14422
-
-  Continental Europe      Sinic                   10535
-  -----------------------------------------------------------------------
-
-*Table 10. Top cross-civilisation origin-destination abroad author-year
-pairs.*
-
 ## 5.7 Out-of-sample projection, 2017-2023
 
 The 2017-2023 projection is compared with observed annual stocks in
@@ -1064,6 +1007,17 @@ highest MAPE is for Islamic. The largest errors occur in small
 compartments and in groups with sparse transition counts, which is
 expected because the annual model does not borrow information across
 civilisations.
+
+Direction and threshold-alarm diagnostics support this interpretation.
+Year-to-year direction agreement between projected and observed
+compartment counts is 21.6%, ranging from Hindu to Japanese. For the
+active pool T = D + H_D + P_D, the projection correctly classifies
+whether T is below the minimum viable threshold M in 92.1% of
+group-years (sensitivity 0.0%, specificity 100.0%). The model identifies
+5 observed threshold-crossing group-years, mostly in the smallest
+civilisations. These metrics confirm that the annual layer is useful for
+directional and threshold-crossing surveillance, not for precise
+population counts.
 
 ![](media/image7.png){width="6.0in" height="3.8268711723534556in"}
 
@@ -1307,7 +1261,7 @@ sustain civilisational diversity through interventions in global AI/ML
 researcher mobility. We introduce the acronym SHIGA here, formed from
 the title and reflecting the research base at Shiga University.
 
-Table 11 maps the most sensitive transition levers to policy instruments
+Table 9 maps the most sensitive transition levers to policy instruments
 and to the management actions that determine them. Policy instruments
 set incentives, while management actions determine how those incentives
 are implemented within institutions. Both are needed because a policy
@@ -1348,7 +1302,7 @@ rates.
                           PI status               next cohort
   ------------------------------------------------------------------------
 
-*Table 11. Transition levers, policy instruments, and management
+*Table 9. Transition levers, policy instruments, and management
 actions.*
 
 Operationally, the framework can be used in two complementary ways. As a
@@ -1361,7 +1315,7 @@ prioritise empirical policy evaluation. Both uses depend on transparent
 assumptions and regular recalibration; the model should not be used to
 justify one-off interventions without accompanying process evaluation.
 
-Table 11 distinguishes the policy instruments that governments, funding
+Table 9 distinguishes the policy instruments that governments, funding
 agencies and international organisations control from the management
 actions that universities and research institutes must take.
 Policymakers set incentives---doctoral quotas, fellowships, visas,
