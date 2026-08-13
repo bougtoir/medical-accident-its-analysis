@@ -1,7 +1,15 @@
 #!/usr/bin/env python3
-"""Create STROBE checklist (cross-sectional studies) for Journal of Epidemiology & Community Health submission."""
+"""Create STROBE checklist (cross-sectional studies) for Journal of Epidemiology & Community Health submission.
+
+Reads the generated main manuscript .docx, converts it to PDF, and infers the
+page numbers where each STROBE item may be found.
+"""
 import json
 import os
+import re
+import shutil
+import subprocess
+import tempfile
 from docx import Document
 from docx.shared import Pt, Cm
 from docx.enum.text import WD_ALIGN_PARAGRAPH
@@ -18,6 +26,139 @@ n_areas = meta['n_areas']
 n_prefectures = meta['n_prefectures']
 n_univ_areas = meta['n_univ_areas']
 fiscal_year = meta.get('fiscal_year', 2022)
+
+
+def _which(tool):
+    path = shutil.which(tool)
+    if not path:
+        return None
+    return path
+
+
+def get_manuscript_page_ranges():
+    """Convert the main manuscript docx to PDF and return a dict of section/table/page ranges.
+
+    If LibreOffice or pdftotext is unavailable, returns an empty dict so the STROBE
+    checklist can still be generated with blank page-number cells.
+    """
+    manuscript = os.path.join(OUTPUT_DIR, 'regional_anaesthesia_JECH_EN.docx')
+    if not os.path.exists(manuscript):
+        raise FileNotFoundError(f"Main manuscript not found: {manuscript}")
+
+    if not _which('libreoffice') or not _which('pdftotext'):
+        print("Warning: LibreOffice and/or pdftotext not found. "
+              "STROBE page-number column will be blank.")
+        return {}
+
+    tmpdir = tempfile.mkdtemp()
+    try:
+        subprocess.run(
+            ['libreoffice', '--headless', '--convert-to', 'pdf',
+             '--outdir', tmpdir, manuscript],
+            check=True, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
+        )
+        pdf_name = os.path.splitext(os.path.basename(manuscript))[0] + '.pdf'
+        pdf_path = os.path.join(tmpdir, pdf_name)
+        if not os.path.exists(pdf_path):
+            raise RuntimeError(f"LibreOffice did not produce expected PDF: {pdf_path}")
+
+        text = subprocess.run(
+            ['pdftotext', '-layout', pdf_path, '-'],
+            capture_output=True, text=True, check=True,
+        ).stdout
+        pages = [p for p in text.split('\f') if p.strip()]
+
+        headings = [
+            'ABSTRACT', 'KEY MESSAGES', 'INTRODUCTION', 'METHODS',
+            'RESULTS', 'DISCUSSION', 'CONCLUSIONS', 'REFERENCES',
+            'FIGURE LEGENDS',
+        ]
+        heading_page = {}
+        for h in headings:
+            for i, page in enumerate(pages):
+                # Headings are rendered as standalone uppercase lines.
+                if re.search(rf'\b{re.escape(h)}\b', page):
+                    heading_page[h] = i + 1
+                    break
+
+        # Document order follows the order of the headings list above.
+        order = [h for h in headings if h in heading_page]
+        ranges = {}
+        for i, h in enumerate(order):
+            start = heading_page[h]
+            if i + 1 < len(order):
+                nxt = heading_page[order[i + 1]]
+                end = start if nxt == start else nxt - 1
+            else:
+                end = len(pages)
+            ranges[h] = f"{start}" if start == end else f"{start}–{end}"
+
+        # Detect embedded tables by their captions.
+        for label in ['Table 1.', 'Table 2.', 'Table 3.']:
+            key = label.rstrip('.')
+            for i, page in enumerate(pages):
+                if label in page:
+                    ranges[key] = str(i + 1)
+                    break
+
+        return ranges
+    except subprocess.CalledProcessError as e:
+        raw = e.stderr
+        if isinstance(raw, bytes):
+            raw = raw.decode('utf-8', errors='ignore')
+        err = raw[:500] if raw else str(e)
+        raise RuntimeError(f"Failed to extract manuscript page numbers: {err}") from e
+    finally:
+        shutil.rmtree(tmpdir, ignore_errors=True)
+
+
+page_ranges = get_manuscript_page_ranges()
+
+
+def page_str_for(section, item_num=""):
+    """Return a page range string for a STROBE item.
+
+    Page numbers are item-specific where possible; 'N/A' is used for
+    non-applicable items and 'Title page' for the separate title-page file.
+    """
+    key = (section, item_num)
+    if key in (('Title and abstract', '1(a)'),):
+        abstract_pages = page_ranges.get('ABSTRACT', '')
+        return f"1, {abstract_pages}" if abstract_pages else "1"
+    if key in (('Title and abstract', '1(b)'),):
+        return page_ranges.get('ABSTRACT', '')
+    if section == 'Introduction':
+        return page_ranges.get('INTRODUCTION', '')
+    if section == 'Methods':
+        if item_num == '12(d)':
+            return 'N/A'
+        return page_ranges.get('METHODS', '')
+    if section == 'Results':
+        if item_num in ('13(c)', '16(c)'):
+            return 'N/A'
+        if item_num == '14(a)':
+            t1 = page_ranges.get('Table 1', '')
+            t2 = page_ranges.get('Table 2', '')
+            return f"{t1}, {t2}" if t1 and t2 else page_ranges.get('RESULTS', '')
+        if item_num == '14(b)':
+            return page_ranges.get('Table 2', '')
+        if item_num == '15*':
+            t1 = page_ranges.get('Table 1', '')
+            t2 = page_ranges.get('Table 2', '')
+            return f"{t1}–{t2}" if t1 and t2 else page_ranges.get('RESULTS', '')
+        if item_num == '16(a)':
+            return page_ranges.get('Table 3', '')
+        if item_num == '16(b)':
+            return page_ranges.get('FIGURE LEGENDS', '')
+        return page_ranges.get('RESULTS', '')
+    if section == 'Discussion':
+        return page_ranges.get('DISCUSSION', '')
+    if section == 'Other information':
+        if item_num == '22':
+            return 'Title page'
+        return page_ranges.get('REFERENCES', '')
+    return ''
+
 
 doc = Document()
 for s in doc.sections:
@@ -60,7 +201,7 @@ items = [
     ("", "1(b)",
      "Provide in the abstract an informative and balanced summary of what "
      "was done and what was found",
-     "Abstract: structured subheadings Background / Methods / Results / "
+     "Abstract: structured subheadings Background/aims / Methods / Results / "
      "Conclusion"),
 
     ("Introduction", "", "", ""),
@@ -201,14 +342,14 @@ items = [
      "Give the source of funding and the role of the funders for the "
      "present study and, if applicable, for the original study on which the "
      "present article is based",
-     "End Matter, 'Funding'"),
+     "Title page, 'Funding'"),
 ]
 
-table = doc.add_table(rows=1 + len(items), cols=4)
+table = doc.add_table(rows=1 + len(items), cols=5)
 table.style = 'Table Grid'
-hdrs = ["Section / Topic", "Item #", "Recommendation", "Reported on page / "
-        "section"]
-widths = [Cm(4.0), Cm(1.5), Cm(11), Cm(9)]
+hdrs = ["Section / Topic", "Item #", "Recommendation",
+        "Reported on page / section", "Page"]
+widths = [Cm(3.8), Cm(1.4), Cm(9.0), Cm(7.0), Cm(2.2)]
 for i, h in enumerate(hdrs):
     c = table.rows[0].cells[i]
     c.width = widths[i]
@@ -218,10 +359,16 @@ for i, h in enumerate(hdrs):
     r.bold = True
     r.font.size = Pt(10)
 
+current_section = "Title and abstract"
 for ri, (sect, num, rec, addr) in enumerate(items, 1):
     row = table.rows[ri].cells
     is_section_header = (num == "" and rec == "" and addr == "")
-    vals = [sect, num, rec, addr]
+    if is_section_header:
+        current_section = sect
+        page = ""
+    else:
+        page = page_str_for(current_section, num)
+    vals = [sect, num, rec, addr, page]
     for ci, val in enumerate(vals):
         row[ci].width = widths[ci]
         row[ci].text = ''

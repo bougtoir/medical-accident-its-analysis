@@ -23,6 +23,8 @@ import sys
 from string import Template
 
 from docx import Document
+from docx.oxml import OxmlElement
+from docx.oxml.ns import qn
 from docx.shared import Inches, Pt, Cm
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 
@@ -229,6 +231,21 @@ def add_run_with_refs(paragraph, text, italic=False, bold=False):
             run.font.superscript = True
 
 
+def _expand_citation(text):
+    """Expand a superscript citation such as '7-9,12' into integers."""
+    nums = []
+    for token in re.split(r',\s*', text.strip()):
+        token = token.strip()
+        if not token:
+            continue
+        if '-' in token:
+            start, end = token.split('-', 1)
+            nums.extend(range(int(start), int(end) + 1))
+        else:
+            nums.append(int(token))
+    return nums
+
+
 def renumber_references(doc, references):
     """Determine first-appearance order from superscript citations and reorder.
 
@@ -236,8 +253,10 @@ def renumber_references(doc, references):
     order in which each citation number first appears, builds an old->new
     mapping, updates all superscript citation runs in place, and returns the
     reference list reordered to match the new numbering. Uncited references
-    are dropped.
+    are dropped. Range citations (e.g. 7-9) are expanded so middle numbers are
+    not dropped.
     """
+    CITE_RE = re.compile(r'\d+(?:-\d+)?(?:,\s*\d+(?:-\d+)?)*')
     first = {}
     cited = set()
     for p in doc.paragraphs:
@@ -246,11 +265,11 @@ def renumber_references(doc, references):
             break
         for run in p.runs:
             if run.font.superscript:
-                for n in re.findall(r'\d+', run.text):
-                    n = int(n)
-                    cited.add(n)
-                    if n not in first:
-                        first[n] = len(first) + 1
+                for match in CITE_RE.finditer(run.text):
+                    for n in _expand_citation(match.group(0)):
+                        cited.add(n)
+                        if n not in first:
+                            first[n] = len(first) + 1
     mapping = {old: new for new, old in enumerate(sorted(first, key=first.get), 1)}
 
     def repl(m):
@@ -378,14 +397,14 @@ add_blank()
 add_heading("Abstract", level=1, space_before=0)
 
 add_para(
-    "Background Geographic variation in anaesthesia practice is well documented, "
+    "Background/aims: Geographic variation in anaesthesia practice is well documented, "
     "but it remains unclear whether it reflects real differences in care or "
     "artefacts of coding, reimbursement and auditing. Japan's uniform national "
     "fee schedule combined with prefecture-specific claims auditing offers a "
     "natural experiment for separating these explanations.")
 
 add_para(
-    "Methods We conducted a cross-sectional ecological study using age- and "
+    "Methods: We conducted a cross-sectional ecological study using age- and "
     "sex-standardised claim ratios for general, spinal, epidural and continuous "
     "epidural anaesthesia across ${n_areas} secondary medical areas nested "
     "within ${n_prefectures} prefectures, fiscal year ${fiscal_year}. We fitted "
@@ -394,7 +413,7 @@ add_para(
     "density, anaesthesiologist supply and plausible differential audit rates.")
 
 add_para(
-    "Results Coefficients of variation ranged from ${L008_cv}% (general "
+    "Results: Coefficients of variation ranged from ${L008_cv}% (general "
     "anaesthesia) to ${L002_cv}% (epidural). For general anaesthesia, only "
     "${L008_ml_icc} of variance lay between prefectures; university hospital "
     "presence explained ${L008_ml_r2} of total variance (β = "
@@ -406,7 +425,7 @@ add_para(
     "hospital effect for general, epidural and continuous epidural anaesthesia.")
 
 add_para(
-    "Conclusion Regional variation in anaesthesia practice is predominantly "
+    "Conclusion: Regional variation in anaesthesia practice is predominantly "
     "structural, driven by access to university hospitals rather than by "
     "prefectural auditing. In Japan and similar universal-coverage systems, "
     "this pattern signals inequitable access to neuraxial techniques and should "
@@ -1010,6 +1029,27 @@ if figure_legends:
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from jech_math import convert_docx_math_to_omml
 convert_docx_math_to_omml(doc)
+
+# Add a centered page number to the footer of each section
+for section in doc.sections:
+    footer = section.footer
+    footer.is_linked_to_previous = True
+    p = footer.paragraphs[0]
+    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    run = p.add_run()
+    fld_begin = OxmlElement('w:fldChar')
+    fld_begin.set(qn('w:fldCharType'), 'begin')
+    instr = OxmlElement('w:instrText')
+    instr.set(qn('xml:space'), 'preserve')
+    instr.text = 'PAGE'
+    fld_separate = OxmlElement('w:fldChar')
+    fld_separate.set(qn('w:fldCharType'), 'separate')
+    fld_end = OxmlElement('w:fldChar')
+    fld_end.set(qn('w:fldCharType'), 'end')
+    run._r.append(fld_begin)
+    run._r.append(instr)
+    run._r.append(fld_separate)
+    run._r.append(fld_end)
 
 # ============================================================
 # Save

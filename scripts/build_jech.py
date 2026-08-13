@@ -14,6 +14,8 @@ Runs:
 
 Requires: Python 3.10+, numpy, pandas, scipy, statsmodels, geopandas, matplotlib,
           shapely, python-docx, python-pptx
+Optional: LibreOffice + pdftotext (poppler-utils) for STROBE page-number inference.
+          Without them the STROBE checklist is still generated, but page numbers are blank.
 """
 import os
 import shutil

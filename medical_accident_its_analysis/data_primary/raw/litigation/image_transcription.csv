@@ -1,0 +1,23 @@
+# Transcription of official Supreme Court scanned specialty tables (image-only PDFs).
+# Values read from the rendered pages of the preserved raw PDFs (digitisation of an
+# official primary table, not estimation). Validation in build_litigation.py:
+#   - the 2011 column must equal the text-extracted value from lit_2017mtg_spec.pdf
+#     (an overlap check that aborts the build on any mismatch); only 2008-2010 are
+#     then taken from this file.
+# The 2008-2010 values are transcribed from lit_2012snap_spec.pdf (平成20-22年);
+# lit_2009_2011.pdf (平成21-23年) is a secondary scan kept for manual reference only.
+# source_2008-2010 = lit_2012snap_spec.pdf (Wayback 804005, 平成20-22年)
+# source_2009-2011 = lit_2009_2011.pdf     (Wayback 804009, 平成21-23年)
+specialty,2008,2009,2010,2011
+内科,228,229,237,181
+外科,180,165,142,123
+整形外科,108,105,105,93
+形成外科,18,19,24,24
+産婦人科,99,84,89,82
+小児科,22,22,22,19
+精神科,30,33,29,30
+眼科,27,23,24,22
+耳鼻咽喉科,19,19,16,9
+泌尿器科,18,22,9,15
+皮膚科,9,10,17,7
+麻酔科,8,4,6,8
