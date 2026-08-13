@@ -113,8 +113,8 @@ add_para(
     "service delivery, or is it an artefact of differential coding and auditing? "
     "Japan's uniform national fee schedule combined with prefecture-specific "
     "claims auditing provides a natural experiment for separating these "
-    "explanations. Using multilevel modelling and four pre-specified "
-    "sensitivity analyses, we show that the observed variation is "
+    "explanations. Using multilevel modelling and a series of pre-specified "
+    "sensitivity and robustness analyses, we show that the observed variation is "
     "substantial and appears to reflect structural access factors -- notably proximity to university hospitals -- "
     "rather than an audit artefact. The findings have direct implications for "
     "neuraxial anaesthesia access, postoperative pain management and workforce "
@@ -133,11 +133,12 @@ add_para(
     "was associated with the largest proportional reduction in total variance "
     "for general anaesthesia (${L008_ml_r2}) and was positive in all "
     "${n_prefectures} prefectures, with a large effect size (Cohen's d "
-    "${L008_d}). Sensitivity analyses for maximum plausible audit impact, "
-    "within-prefecture variance decomposition, code correlations and a log-"
-    "transformed linear mixed model all pointed away from differential "
-    "auditing as the main explanation; empirical Bayes shrinkage confirmed "
-    "robustness to low-volume instability.")
+    "${L008_d}). Sensitivity and robustness analyses—within-prefecture paired "
+    "comparisons, covariate adjustment, empirical Bayes shrinkage, log-transformation, "
+    "and audit-sensitivity checks (maximum audit-rate impact, code correlations and a "
+    "combined general/spinal measure)—all pointed away from differential auditing as the "
+    "main explanation; empirical Bayes shrinkage confirmed robustness to "
+    "low-volume instability.")
 
 add_para(
     "The manuscript is original, has not been previously published and is not "

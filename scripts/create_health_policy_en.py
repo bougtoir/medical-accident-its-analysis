@@ -88,8 +88,8 @@ def fmt_p(x):
     if x is None or (isinstance(x, float) and (x != x)):
         return 'NA'
     if x < 0.001:
-        return '<0.001'
-    return f'{x:.3f}'
+        return '< 0.001'
+    return f'= {x:.3f}'
 
 
 def desc(code):
@@ -415,6 +415,11 @@ def add_table_from_data(caption, headers, rows, note=None):
             txt = str(val)
             if FLAT:
                 txt = Template(txt).safe_substitute(FLAT)
+            # Clean p-value operators for table cells (the header already shows "P value").
+            if txt.startswith('< '):
+                txt = '<' + txt[2:]
+            elif txt.startswith('= '):
+                txt = txt[2:]
             r = p.add_run(txt)
             r.font.name = 'Times New Roman'
             r.font.size = Pt(10)
@@ -667,13 +672,13 @@ add_para(
     "(sometimes labelled marginal R²) measured the decrease in total "
     "(prefecture-level plus residual) variance after adding the university-"
     "hospital fixed effect. We "
-    "conducted four sensitivity analyses to test the audit hypothesis: "
+    "conducted the following sensitivity and robustness analyses: "
     "within-prefecture paired comparisons of university and non-university "
     "areas; a covariate-adjusted model adding the natural logarithm of "
     "population density and the anaesthesiologist share of all physicians; "
     "an empirical Bayes shrinkage stress-test of area-level ratios toward "
     "prefecture means; and a log-transformed multilevel model to address right-"
-    "skewed SCR distributions and influential outliers. No formal multiple-"
+    "skewed SCR distributions and influential outliers. To examine the audit hypothesis specifically, we used the multilevel variance decomposition, pairwise correlations between codes, an upper-bound estimate of the maximum prefectural audit-rate impact, and a combined general/spinal anaesthesia measure. No formal multiple-"
     "comparison adjustment was applied; reported p-values are nominal and should "
     "be interpreted as exploratory. All analyses were performed in Python 3.10 "
     "using NumPy, Pandas, SciPy and Statsmodels.")
@@ -749,16 +754,16 @@ add_para(
     "greater role of prefectural factors for that code. Adding university "
     "hospital presence as a fixed effect produced the largest proportional "
     "reduction in total variance for general anaesthesia "
-    "(${L008_ml_r2}; <m>β = ${L008_ml_coef}</m>, 95% confidence interval "
+    "(${L008_ml_r2}; β = +${L008_ml_coef}, 95% confidence interval "
     "${L008_ml_ci_low} to ${L008_ml_ci_high}) and was statistically significant "
     "for every code (all P ${L008_ml_p}) (Table 2). A log-transformed "
     "sensitivity model yielded the same direction of association for general "
-    "anaesthesia (<m>β = ${L008_ml_log_coef}</m>, 95% CI ${L008_ml_log_ci_low} to "
+    "anaesthesia (β = ${L008_ml_log_coef}, 95% CI ${L008_ml_log_ci_low} to "
     "${L008_ml_log_ci_high}, P ${L008_ml_log_p}), supporting the robustness of "
     "the linear model findings to right-skewed ratios and extreme outliers. "
     "University hospital areas had higher general anaesthesia ratios than non-"
     "university areas in ${n_prefectures} of ${n_prefectures} prefectures, with a "
-    "mean within-prefecture difference of +${L008_within_diff} points (<m>t = ${L008_within_t}</m>, "
+    "mean within-prefecture difference of +${L008_within_diff} points (t = ${L008_within_t}, "
     "P ${L008_within_p}) (Figure 2A). Cohen's d for the "
     "university hospital effect on general anaesthesia was ${L008_d}; on "
     "continuous epidural infusion ${L003_d}; on epidural anaesthesia ${L002_d}; "
@@ -816,39 +821,39 @@ add_para(
     "A covariate-adjusted sensitivity model added the natural logarithm of "
     "population density and the anaesthesiologist share of all physicians (both "
     "standardised). The university hospital coefficient was attenuated but remained "
-    "positive and statistically significant for general anaesthesia (<m>β = +${L008_mlc_coef}</m>, 95% CI ${L008_mlc_ci_low} to ${L008_mlc_ci_high}, P "
-    "${L008_mlc_p}), epidural anaesthesia (<m>β = +${L002_mlc_coef}</m>, 95% CI "
+    "positive and statistically significant for general anaesthesia (β = +${L008_mlc_coef}, 95% CI ${L008_mlc_ci_low} to ${L008_mlc_ci_high}, P "
+    "${L008_mlc_p}), epidural anaesthesia (β = +${L002_mlc_coef}, 95% CI "
 
     "${L002_mlc_ci_low} to ${L002_mlc_ci_high}, P ${L002_mlc_p}) and "
-    "continuous epidural infusion (<m>β = +${L003_mlc_coef}</m>, 95% CI "
+    "continuous epidural infusion (β = +${L003_mlc_coef}, 95% CI "
     "${L003_mlc_ci_low} to ${L003_mlc_ci_high}, P ${L003_mlc_p}). For spinal "
     "anaesthesia the point estimate was positive but no longer statistically "
-    "significant (<m>β = +${L004_mlc_coef}</m>, 95% CI ${L004_mlc_ci_low} to "
+    "significant (β = +${L004_mlc_coef}, 95% CI ${L004_mlc_ci_low} to "
 
     "${L004_mlc_ci_high}, P ${L004_mlc_p}). Population density was positively "
-    "associated with general anaesthesia ratios (<m>β = ${L008_mlc_popd_coef}</m>, P "
+    "associated with general anaesthesia ratios (β = ${L008_mlc_popd_coef}, P "
     "${L008_mlc_popd_p}) but not with the other three codes. The anaesthesiologist "
     "share was positively associated with general, epidural, continuous epidural and "
-    "spinal anaesthesia (P ${L008_mlc_anes_p}, ${L002_mlc_anes_p}, "
-    "${L003_mlc_anes_p} and ${L004_mlc_anes_p}, respectively). "
+    "spinal anaesthesia (general P ${L008_mlc_anes_p}, epidural P ${L002_mlc_anes_p}, "
+    "continuous epidural P ${L003_mlc_anes_p} and spinal P ${L004_mlc_anes_p}). "
     "The covariate-adjusted mixed models produced optimizer-convergence warnings "
     "in Statsmodels;{17} we therefore refitted them with the lbfgs and cg optimisers, "
     "and the point estimates remained stable across optimisers and sensitivity "
     "analyses."
 )
 
-add_subheading("Sensitivity analyses against the audit hypothesis")
+add_subheading("Checks against the audit hypothesis")
 add_para(
-    "All pre-specified sensitivity analyses pointed away from differential "
+    "Several lines of evidence pointed away from differential "
     "auditing as the main explanation. First, the multilevel model estimates "
     "that only ${L008_ml_icc} of general anaesthesia variance lies between "
     "prefectures, where audit policy differs, so differential auditing can account "
     "for at most a small share of observed variation. University hospital presence "
     "explained ${L008_ml_r2} of total variance in the same model, a structural "
     "component far larger than the between-prefecture share. Second, general "
-    "and spinal anaesthesia were positively correlated (<m>r = ${corr_L008_L004_r}</m>, P "
-    "${corr_L008_L004_p}), as were general and epidural anaesthesia (<m>r = "
-    "${corr_L008_L002_r}</m>, P ${corr_L008_L002_p}). Positive correlations are more "
+    "and spinal anaesthesia were positively correlated (r = ${corr_L008_L004_r}, P "
+    "${corr_L008_L004_p}), as were general and epidural anaesthesia (r = "
+    "${corr_L008_L002_r}, P ${corr_L008_L002_p}). Positive correlations are more "
     "consistent with a common supply-side factor than with audit-driven "
     "reclassification, although a uniform audit effect across all codes cannot be "
     "ruled out. Third, the maximum prefectural audit-rate difference of "
@@ -898,8 +903,8 @@ add_para(
     "was associated with the largest proportional reduction in total variance "
     "for general anaesthesia and a positive association in every prefecture, while "
     "the proportion of variance attributable to prefecture-level factors -- where "
-    "audit intensity differs -- was small. All pre-specified sensitivity analyses "
-    "pointed away from differential auditing as the main explanation. Because the "
+    "audit intensity differs -- was small. The audit-sensitivity checks and robustness "
+    "analyses pointed away from differential auditing as the main explanation. Because the "
     "outcome is a reimbursed claim ratio, the observed gradient reflects "
     "billed service delivery rather than bedside intention; however, the "
     "within-prefecture structure of the data and the audit-sensitivity "
