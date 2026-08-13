@@ -113,7 +113,7 @@ add_para(
     "service delivery, or is it an artefact of differential coding and auditing? "
     "Japan's uniform national fee schedule combined with prefecture-specific "
     "claims auditing provides a natural experiment for separating these "
-    "explanations. Using multilevel modelling and three pre-specified "
+    "explanations. Using multilevel modelling and four pre-specified "
     "sensitivity analyses, we show that the observed variation is "
     "substantial and appears to reflect structural access factors -- notably proximity to university hospitals -- "
     "rather than an audit artefact. The findings have direct implications for "
