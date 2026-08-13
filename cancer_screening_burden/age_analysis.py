@@ -142,6 +142,115 @@ def plot_ppv_by_age(age_df: pd.DataFrame, output_path: Path) -> None:
     plt.close(fig)
 
 
+def _scenario_distributions(pop_both: pd.Series) -> Dict[str, Dict[str, float]]:
+    """Return age-weight scenarios for DTC user composition sensitivity analysis.
+
+    Weights are assigned to the same age-group labels used by `AGE_COLS`.
+    'japan_total_2023' uses the full population; 'japan_adult_20plus' restricts to
+    20 years and older; the DTC scenarios approximate younger, bimodal, and
+    screening-age purchasers.
+    """
+    # Base population distributions
+    japan_total = {col: float(pop_both[col]) for col in AGE_COLS}
+    total_pop = sum(japan_total.values())
+    japan_total = {k: v / total_pop for k, v in japan_total.items()}
+
+    japan_adult = {k: v for k, v in japan_total.items() if k not in CHILD_TEEN_COLS}
+    adult_pop = sum(japan_adult.values())
+    japan_adult = {k: v / adult_pop for k, v in japan_adult.items()}
+    # Keep the same keys with zero weights for children/teens so alignment is safe
+    for col in CHILD_TEEN_COLS:
+        japan_adult[col] = 0.0
+
+    def _norm(weights: Dict[str, float]) -> Dict[str, float]:
+        total = sum(weights.values())
+        return {k: v / total for k, v in weights.items()}
+
+    # Approximate 23andMe-style bimodal pattern: peaks around 30-34 and 50-54 yrs
+    dtc_bimodal = {col: 0.0 for col in AGE_COLS}
+    dtc_bimodal["20-24 yrs."] = 0.05
+    dtc_bimodal["25-29 yrs."] = 0.10
+    dtc_bimodal["30-34 yrs."] = 0.20
+    dtc_bimodal["35-39 yrs."] = 0.10
+    dtc_bimodal["40-44 yrs."] = 0.10
+    dtc_bimodal["45-49 yrs."] = 0.10
+    dtc_bimodal["50-54 yrs."] = 0.15
+    dtc_bimodal["55-59 yrs."] = 0.10
+    dtc_bimodal["60-64 yrs."] = 0.05
+    dtc_bimodal["65-69 yrs."] = 0.03
+    dtc_bimodal["70-74 yrs."] = 0.01
+    dtc_bimodal["75-79 yrs."] = 0.01
+    dtc_bimodal = _norm(dtc_bimodal)
+
+    # Younger DTC purchaser profile
+    dtc_younger = {col: 0.0 for col in AGE_COLS}
+    dtc_younger["20-24 yrs."] = 0.15
+    dtc_younger["25-29 yrs."] = 0.25
+    dtc_younger["30-34 yrs."] = 0.25
+    dtc_younger["35-39 yrs."] = 0.15
+    dtc_younger["40-44 yrs."] = 0.10
+    dtc_younger["45-49 yrs."] = 0.05
+    dtc_younger["50-54 yrs."] = 0.03
+    dtc_younger["55-59 yrs."] = 0.01
+    dtc_younger["60-64 yrs."] = 0.01
+    dtc_younger = _norm(dtc_younger)
+
+    # Screening-age DTC purchasers (40-69 yrs), roughly uniform
+    dtc_screening = {col: 0.0 for col in AGE_COLS}
+    dtc_screening["40-44 yrs."] = 0.15
+    dtc_screening["45-49 yrs."] = 0.15
+    dtc_screening["50-54 yrs."] = 0.15
+    dtc_screening["55-59 yrs."] = 0.15
+    dtc_screening["60-64 yrs."] = 0.15
+    dtc_screening["65-69 yrs."] = 0.15
+    dtc_screening["35-39 yrs."] = 0.05
+    dtc_screening["70-74 yrs."] = 0.03
+    dtc_screening["75-79 yrs."] = 0.02
+    dtc_screening = _norm(dtc_screening)
+
+    return {
+        "japan_total_2023": japan_total,
+        "japan_adult_20plus": japan_adult,
+        "dtc_bimodal_23andme": dtc_bimodal,
+        "dtc_younger": dtc_younger,
+        "dtc_screening_age": dtc_screening,
+    }
+
+
+def plot_age_scenario_ppv(scenario_df: pd.DataFrame, output_path: Path) -> None:
+    """Bar plot of aggregate PPV by cancer under each age distribution."""
+    scenario_df = scenario_df.copy()
+    scenario_df["ppv_pct"] = scenario_df["ppv"] * 100.0
+    scenario_df["distribution"] = pd.Categorical(
+        scenario_df["distribution"],
+        categories=scenario_df["distribution"].unique(),
+        ordered=True,
+    )
+
+    cancers = sorted(scenario_df["cancer"].unique())
+    distributions = scenario_df["distribution"].unique().tolist()
+
+    x = range(len(cancers))
+    width = 0.15
+    fig, ax = plt.subplots(figsize=(12, 6))
+    for i, dist in enumerate(distributions):
+        sub = scenario_df[scenario_df["distribution"] == dist]
+        sub = sub.set_index("cancer").reindex(cancers)
+        ax.bar([p + width * (i - len(distributions) / 2) for p in x], sub["ppv_pct"], width=width, label=dist)
+
+    ax.set_xticks(list(x))
+    ax.set_xticklabels(cancers)
+    ax.set_ylabel("Aggregate PPV (%)")
+    ax.set_xlabel("Cancer")
+    ax.set_title("Aggregate PPV under alternative age-distribution scenarios")
+    ax.legend(loc="upper right")
+    ax.set_ylim(bottom=0)
+    fig.autofmt_xdate(rotation=45)
+    fig.tight_layout()
+    fig.savefig(output_path, dpi=300, bbox_inches="tight")
+    plt.close(fig)
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Age-stratified PPV analysis")
     parser.add_argument("--params", type=Path, default=Path("parameters.yaml"))
@@ -174,8 +283,19 @@ def main() -> None:
     weighted = format_csv(weighted)
     weighted.to_csv(args.output / "weighted_ppv_by_distribution.csv", index=False)
 
-    # Plot.
+    # Scenario distributions
+    scenario_records: List[Dict[str, Any]] = []
+    for dist_name, dist in _scenario_distributions(pop_both).items():
+        df = weighted_ppv_for_distribution(cancers, dist, age_df=age_df)
+        df["distribution"] = dist_name
+        scenario_records.append(df)
+    scenario_df = pd.concat(scenario_records, ignore_index=True)
+    scenario_df = format_csv(scenario_df)
+    scenario_df.to_csv(args.output / "age_scenarios.csv", index=False)
+
+    # Plots.
     plot_ppv_by_age(age_df, args.output / "ppv_by_age.png")
+    plot_age_scenario_ppv(scenario_df, args.output / "age_scenario_ppv.png")
 
     # Console summary.
     print("=" * 60)
@@ -185,6 +305,9 @@ def main() -> None:
     print("\nAggregate PPV under 2023 Japanese total population age distribution:")
     for _, row in weighted.iterrows():
         print(f"  {row['cancer']}: PPV={row['ppv']*100:.2f}%, FP/TP={row['fp_to_tp_ratio']:.1f}")
+    print("\nAggregate PPV under alternative age distributions:")
+    for _, row in scenario_df.iterrows():
+        print(f"  {row['distribution']} / {row['cancer']}: PPV={row['ppv']*100:.2f}%")
 
 
 if __name__ == "__main__":

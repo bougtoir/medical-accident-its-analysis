@@ -151,9 +151,10 @@ def add_capacity_metrics(df: pd.DataFrame, params: Dict[str, Any]) -> pd.DataFra
         "ct_visits": "ct_exams_per_year",
         "mri_visits": "mri_exams_per_year",
         "endoscopy_visits": "endoscopy_exams_per_year",
+        "primary_care_visits": "primary_care_visits_per_year",
     }
     for visits_col, cap_col in modality_map.items():
-        cap = capacity[cap_col] * scale
+        cap = capacity.get(cap_col, 0.0) * scale
         result[f"{visits_col}_utilization_pct"] = (
             100.0 * result[visits_col] / cap if cap > 0 else 0.0
         )
@@ -197,6 +198,7 @@ def aggregate_by_follow_up(df: pd.DataFrame) -> pd.DataFrame:
         "specialist_visits",
         "fp_specialist_visits",
         "tp_specialist_visits",
+        "primary_care_visits",
     ]
     grouped = df.groupby("follow_up_rate", as_index=False)[sum_cols].sum()
 
@@ -246,6 +248,7 @@ def plot_capacity_utilization(
                 "mri_visits_utilization_pct",
                 "endoscopy_visits_utilization_pct",
                 "specialist_total_visits_utilization_pct",
+                "primary_care_visits_utilization_pct",
             ]
         ]
         .sum()
@@ -258,6 +261,7 @@ def plot_capacity_utilization(
         ("mri_visits_utilization_pct", "MRI"),
         ("endoscopy_visits_utilization_pct", "Endoscopy"),
         ("specialist_total_visits_utilization_pct", "Specialist visits (incl. follow-up)"),
+        ("primary_care_visits_utilization_pct", "Primary care visits"),
     ]:
         ax.plot(
             agg["follow_up_rate"],
@@ -460,7 +464,8 @@ def main() -> None:
         f"CT={params['capacity']['ct_exams_per_year']:,}, "
         f"MRI={params['capacity']['mri_exams_per_year']:,}, "
         f"Endoscopy={params['capacity']['endoscopy_exams_per_year']:,}, "
-        f"Specialist={params['capacity']['specialist_visits_per_year']:,}"
+        f"Specialist={params['capacity']['specialist_visits_per_year']:,}, "
+        f"Primary care={params['capacity'].get('primary_care_visits_per_year', 0):,}"
     )
     print()
 

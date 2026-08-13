@@ -6,7 +6,7 @@
 
 **Methods:** We built a deterministic expected-value model parameterised with 2023 adult cancer incidence rates, 2023 population counts, and 2023 national medical-facility diagnostic volumes. Specialist capacity was additionally derived from NDB Open Data outpatient patient counts and JMSB specialist counts. We estimated true positives, false positives, downstream visits, capacity utilisation, and the per-specialist case load across follow-up rates of 0–100% and specificities of 95.0–99.9%.
 
-**Results:** At 50% follow-up, a screening wave of 100,000 persons would generate 383.5 true positives and 7994.5 false positives (overall PPV 4.58%; FP/TP ratio 20.8). Total downstream visits would reach 15684.4, with maximum capacity utilisation 163.2% (specialist visits). The first illustrative capacity ceiling was exceeded at a follow-up rate of 40% (specialist total visits). PPV ranged from 0.72% (Ovarian) to 7.99% (Colorectal) across cancer types and was strongly age-dependent. Relative to the MHLW Patient Survey 2023 baseline case load, a 100,000-person DTC wave at 50% follow-up would add 168.8 false-positive specialist visits per relevant specialist, raising the effective cases per specialist from 35.1 to 204.0 (481% increase).
+**Results:** At 50% follow-up, a screening wave of 100,000 persons would generate 383.5 true positives and 7994.5 false positives (overall PPV 4.58%; FP/TP ratio 20.8). Total downstream visits would reach 19873.4, with maximum capacity utilisation 163.2% (specialist visits). The first illustrative capacity ceiling was exceeded at a follow-up rate of 40% (specialist total visits). PPV ranged from 0.72% (Ovarian) to 7.99% (Colorectal) across cancer types and was strongly age-dependent. Relative to the MHLW Patient Survey 2023 baseline case load, a 100,000-person DTC wave at 50% follow-up would add 168.8 false-positive specialist visits per relevant specialist, raising the effective cases per specialist from 35.1 to 204.0 (481% increase).
 
 **Conclusions:** Even with optimistic 99% specificity, a DTC MCED wave can trigger a false-positive cascade that exceeds outpatient and endoscopic capacity. Regulatory guardrails on performance claims, follow-up obligations, and reporting are needed before routine adoption.
 
@@ -34,13 +34,15 @@ We used a deterministic expected-value cohort model. For each cancer \(c\):
 - True positives = actual cases × sensitivity.
 - False positives = (screened population − actual cases) × (1 − specificity).
 
-Each positive individual who followed up (follow-up rate, 0–100%) generated visits to CT, MRI, endoscopy, and specialist care according to cancer-specific pathway probabilities. Additional visits per true and false positive were added. Capacity utilisation for each resource was calculated as total visits divided by the annual capacity per 100,000 population. A full description of equations is available in `simulate.py`.
+Each positive individual who followed up (follow-up rate, 0–100%) generated a primary care visit plus visits to CT, MRI, endoscopy, and specialist care according to cancer-specific pathway probabilities. Additional visits per true and false positive were added. Capacity utilisation for each resource was calculated as total visits divided by the annual capacity per 100,000 population. A full description of equations is available in `simulate.py`.
 
 Prevalence was approximated by adult (20+) incidence because point prevalence of undiagnosed, screen-detectable cancers is not publicly reported. This is a conservative lower-bound for true positives and therefore an upper-bound for PPV and FP/TP ratios. Pathway probabilities and the share of facility capacity available for a new DTC-related wave were scenario assumptions, documented in `parameters.yaml`.
 
-### Specialist capacity definition
+### Specialist and primary care capacity definition
 
-We define baseline specialist capacity as the annual outpatient caseload per cancer-relevant specialist. We used NDB Open Data unique first/revisit outpatient patients (April 2024–March 2025) divided by the total number of basic JMSB specialists, giving an average annual caseload per specialist [^7^][^8^]. We then multiplied this by the number of cancer-relevant specialists per 100,000 population and applied the same 20% share assumed available for a DTC wave. The resulting `specialist_visits_per_year` is an illustrative capacity ceiling for a 100,000-person cohort.
+Baseline specialist capacity is defined as the annual outpatient caseload per cancer-relevant specialist. NDB Open Data unique first/revisit outpatient patient counts were used (April 2024–March 2025) divided by the total number of basic JMSB specialists, giving an average annual caseload per specialist [^7^][^8^]. This value was then multiplied by the number of cancer-relevant specialists per 100,000 population and applied the same 20% share assumed available for a DTC wave. The resulting `specialist_visits_per_year` is an illustrative capacity ceiling for a 100,000-person cohort.
+
+The same approach was applied to primary care (internal medicine and general practice) specialists to derive `primary_care_visits_per_year`.
 
 ### Scenarios
 
@@ -63,6 +65,7 @@ Table 1 summarises the data sources and base-case parameter values.
 | MRI capacity per 100k per year | 2678 | Ministry of Health, Labour and Welfare, 2023 Medical Facility Survey (Static/Dynamic), 05sisetu05.xlsx |
 | Endoscopy capacity per 100k per year | 2583 | Ministry of Health, Labour and Welfare, 2023 Medical Facility Survey (Static/Dynamic), 05sisetu05.xlsx |
 | Specialist capacity per 100k per year | 7183 | Derived from NDB Open Data first/revisit outpatient patient counts (88,408,837 + 85,182,008) and 79,117 cancer-relevant JMSB specialists; 20% share assumed available for new cancer workups. |
+| Primary care capacity per 100k per year | 11983 | Derived from NDB Open Data first/revisit outpatient patient counts (88,408,837 + 85,182,008) and 131,981 primary-care-relevant JMSB specialists (internal medicine and general practice); 20% share assumed available for new cancer workups. |
 | Gastric prevalence (per 100k) | 84.3 | National Cancer Center of Japan, Cancer Statistics in Japan 2016-2023 |
 | Colorectal prevalence (per 100k) | 123.8 | National Cancer Center of Japan, Cancer Statistics in Japan 2016-2023 |
 | Lung prevalence (per 100k) | 99.7 | National Cancer Center of Japan, Cancer Statistics in Japan 2016-2023 |
@@ -78,26 +81,26 @@ At a 50% follow-up rate, the model estimated 383.5 true positives and 7994.5 fal
 
 **Table 2. Per-cancer outcomes at 50% follow-up (per 100,000 screened).**
 
-| Cancer | Prevalence per 100k | True positives | False positives | PPV (%) | FP/TP ratio | Total visits | Max resource utilisation (%) |
-|---|---|---|---|---|---|---|---|
-| Gastric | 84.3 | 59.0 | 999.2 | 5.58 | 16.9 | 2084.3 | 19.4 |
-| Colorectal | 123.8 | 86.7 | 998.8 | 7.99 | 11.5 | 2170.7 | 20.4 |
-| Lung | 99.7 | 69.8 | 999.0 | 6.53 | 14.3 | 2295.7 | 23.8 |
-| Breast | 83.2 | 58.2 | 999.2 | 5.51 | 17.2 | 1632.4 | 19.4 |
-| Prostate | 82.1 | 57.5 | 999.2 | 5.44 | 17.4 | 1654.5 | 19.0 |
-| Liver | 26.2 | 18.4 | 999.7 | 1.81 | 54.4 | 1702.8 | 18.0 |
-| Pancreatic | 38.2 | 26.7 | 999.6 | 2.61 | 37.4 | 2144.1 | 22.0 |
-| Ovarian | 10.3 | 7.2 | 999.9 | 0.72 | 137.4 | 1999.8 | 21.2 |
+| Cancer | Prevalence per 100k | True positives | False positives | PPV (%) | FP/TP ratio | Primary care visits | Total visits | Max resource utilisation (%) |
+|---|---|---|---|---|---|---|---|---|
+| Gastric | 84.3 | 59.0 | 999.2 | 5.58 | 16.9 | 529.1 | 2613.4 | 19.4 |
+| Colorectal | 123.8 | 86.7 | 998.8 | 7.99 | 11.5 | 542.7 | 2713.4 | 20.4 |
+| Lung | 99.7 | 69.8 | 999.0 | 6.53 | 14.3 | 534.4 | 2830.1 | 23.8 |
+| Breast | 83.2 | 58.2 | 999.2 | 5.51 | 17.2 | 528.7 | 2161.1 | 19.4 |
+| Prostate | 82.1 | 57.5 | 999.2 | 5.44 | 17.4 | 528.3 | 2182.8 | 19.0 |
+| Liver | 26.2 | 18.4 | 999.7 | 1.81 | 54.4 | 509.0 | 2211.9 | 18.0 |
+| Pancreatic | 38.2 | 26.7 | 999.6 | 2.61 | 37.4 | 513.2 | 2657.3 | 22.0 |
+| Ovarian | 10.3 | 7.2 | 999.9 | 0.72 | 137.4 | 503.5 | 2503.3 | 21.2 |
 
 ### Capacity impact
 
-Total downstream visits rose from 0.0 at 0% follow-up to 31368.8 at 100% follow-up (Fig. 1). Resource utilisation is shown in Fig. 2. The first illustrative capacity ceiling was exceeded at 40% (specialist total visits). At 50% follow-up maximum utilisation was 163.2%.
+Total downstream visits rose from 0.0 at 0% follow-up to 39746.8 at 100% follow-up (Fig. 1). At 50% follow-up this included 4189.0 primary care visits (35.0% of the illustrative primary-care capacity). Resource utilisation by modality is shown in Fig. 2. The first illustrative capacity ceiling was exceeded at 40% (specialist total visits). At 50% follow-up maximum utilisation was 163.2%.
 
 ![Figure 1: Total downstream visits by follow-up rate](output/total_visits_by_followup.png)
-**Fig. 1.** Total downstream diagnostic and specialist visits generated by a blood-based MCED screening wave of 100,000 persons, by follow-up rate.
+**Fig. 1.** Total downstream diagnostic, primary care, and specialist visits generated by a blood-based MCED screening wave of 100,000 persons, by follow-up rate.
 
 ![Figure 2: Diagnostic capacity utilisation by follow-up rate](output/capacity_utilization.png)
-**Fig. 2.** Capacity utilisation (%) for CT, MRI, endoscopy, and specialist visits as follow-up rate increases. Values above 100% indicate demand exceeding the illustrative annual capacity available for a DTC screening wave.
+**Fig. 2.** Capacity utilisation (%) for CT, MRI, endoscopy, specialist, and primary care visits as follow-up rate increases. Values above 100% indicate demand exceeding the illustrative annual capacity available for a DTC screening wave.
 
 ### Specialist capacity and the false-positive cascade
 
@@ -129,19 +132,19 @@ Lowering specificity from 99% to 95% reduced aggregate PPV to roughly 0.2 of the
 
 **Table 3. Aggregate outcomes by follow-up rate (base-case specificity).**
 
-| Follow-up rate | True positives | False positives | Total positives | PPV (%) | FP/TP ratio | Total visits | Max capacity utilisation (%) |
-|---|---|---|---|---|---|---|---|
-| 0% | 383.5 | 7994.5 | 8378.0 | 4.58 | 20.8 | 0.0 | 0.0 |
-| 10% | 383.5 | 7994.5 | 8378.0 | 4.58 | 20.8 | 3136.9 | 32.6 |
-| 20% | 383.5 | 7994.5 | 8378.0 | 4.58 | 20.8 | 6273.8 | 65.3 |
-| 30% | 383.5 | 7994.5 | 8378.0 | 4.58 | 20.8 | 9410.6 | 97.9 |
-| 40% | 383.5 | 7994.5 | 8378.0 | 4.58 | 20.8 | 12547.5 | 130.6 |
-| 50% | 383.5 | 7994.5 | 8378.0 | 4.58 | 20.8 | 15684.4 | 163.2 |
-| 60% | 383.5 | 7994.5 | 8378.0 | 4.58 | 20.8 | 18821.3 | 195.9 |
-| 70% | 383.5 | 7994.5 | 8378.0 | 4.58 | 20.8 | 21958.2 | 228.5 |
-| 80% | 383.5 | 7994.5 | 8378.0 | 4.58 | 20.8 | 25095.1 | 261.2 |
-| 90% | 383.5 | 7994.5 | 8378.0 | 4.58 | 20.8 | 28231.9 | 293.8 |
-| 100% | 383.5 | 7994.5 | 8378.0 | 4.58 | 20.8 | 31368.8 | 326.4 |
+| Follow-up rate | True positives | False positives | Total positives | PPV (%) | FP/TP ratio | Primary care visits | Total visits | Max capacity utilisation (%) |
+|---|---|---|---|---|---|---|---|---|
+| 0% | 383.5 | 7994.5 | 8378.0 | 4.58 | 20.8 | 0.0 | 0.0 | 0.0 |
+| 10% | 383.5 | 7994.5 | 8378.0 | 4.58 | 20.8 | 837.8 | 3974.7 | 32.6 |
+| 20% | 383.5 | 7994.5 | 8378.0 | 4.58 | 20.8 | 1675.6 | 7949.4 | 65.3 |
+| 30% | 383.5 | 7994.5 | 8378.0 | 4.58 | 20.8 | 2513.4 | 11924.0 | 97.9 |
+| 40% | 383.5 | 7994.5 | 8378.0 | 4.58 | 20.8 | 3351.2 | 15898.7 | 130.6 |
+| 50% | 383.5 | 7994.5 | 8378.0 | 4.58 | 20.8 | 4189.0 | 19873.4 | 163.2 |
+| 60% | 383.5 | 7994.5 | 8378.0 | 4.58 | 20.8 | 5026.8 | 23848.1 | 195.9 |
+| 70% | 383.5 | 7994.5 | 8378.0 | 4.58 | 20.8 | 5864.6 | 27822.8 | 228.5 |
+| 80% | 383.5 | 7994.5 | 8378.0 | 4.58 | 20.8 | 6702.4 | 31797.5 | 261.2 |
+| 90% | 383.5 | 7994.5 | 8378.0 | 4.58 | 20.8 | 7540.2 | 35772.1 | 293.8 |
+| 100% | 383.5 | 7994.5 | 8378.0 | 4.58 | 20.8 | 8378.0 | 39746.8 | 326.4 |
 
 ![Figure 4: PPV and total positives across specificity values](output/specificity_sweep.png)
 **Fig. 4.** Aggregate positive predictive value (%) and total positive results per 100,000 screened across specificity values at a 70% follow-up rate.

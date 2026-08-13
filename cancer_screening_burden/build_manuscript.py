@@ -89,6 +89,7 @@ def make_table_1(params: Dict[str, Any]) -> List[List[str]]:
         ["MRI capacity per 100k per year", f"{cap['mri_exams_per_year']:.0f}", params["data_sources"]["diagnostic_capacity"]["source"]],
         ["Endoscopy capacity per 100k per year", f"{cap['endoscopy_exams_per_year']:.0f}", params["data_sources"]["diagnostic_capacity"]["source"]],
         ["Specialist capacity per 100k per year", f"{cap['specialist_visits_per_year']:.0f}", cap.get("specialist_capacity_note", "Illustrative scenario assumption")],
+        ["Primary care capacity per 100k per year", f"{cap.get('primary_care_visits_per_year', 0.0):.0f}", cap.get("primary_care_capacity_note", "Illustrative scenario assumption")],
     ]
     for cancer in params["cancers"]:
         table.append(
@@ -111,6 +112,7 @@ def make_table_2(by_cancer_at_50: pd.DataFrame, weighted_ppv: pd.DataFrame) -> L
             "False positives",
             "PPV (%)",
             "FP/TP ratio",
+            "Primary care visits",
             "Total visits",
             "Max resource utilisation (%)",
         ]
@@ -134,6 +136,7 @@ def make_table_2(by_cancer_at_50: pd.DataFrame, weighted_ppv: pd.DataFrame) -> L
                 f"{row['false_positives']:.1f}",
                 f"{ppv * 100:.2f}",
                 f"{fp_tp:.1f}",
+                f"{row.get('primary_care_visits', 0.0):.1f}",
                 f"{row['total_visits']:.1f}",
                 f"{row['max_capacity_utilization_pct']:.1f}",
             ]
@@ -151,6 +154,7 @@ def make_table_3(agg: pd.DataFrame) -> List[List[str]]:
             "Total positives",
             "PPV (%)",
             "FP/TP ratio",
+            "Primary care visits",
             "Total visits",
             "Max capacity utilisation (%)",
         ]
@@ -166,6 +170,7 @@ def make_table_3(agg: pd.DataFrame) -> List[List[str]]:
                 f"{row['total_positives']:.1f}",
                 f"{ppv * 100:.2f}",
                 f"{fp_tp:.1f}",
+                f"{row.get('primary_care_visits', 0.0):.1f}",
                 f"{row['total_visits']:.1f}",
                 f"{row['max_capacity_utilization_pct']:.1f}",
             ]
@@ -305,13 +310,15 @@ We used a deterministic expected-value cohort model. For each cancer \(c\):
 - True positives = actual cases × sensitivity.
 - False positives = (screened population − actual cases) × (1 − specificity).
 
-Each positive individual who followed up (follow-up rate, 0–100%) generated visits to CT, MRI, endoscopy, and specialist care according to cancer-specific pathway probabilities. Additional visits per true and false positive were added. Capacity utilisation for each resource was calculated as total visits divided by the annual capacity per 100,000 population. A full description of equations is available in `simulate.py`.
+Each positive individual who followed up (follow-up rate, 0–100%) generated a primary care visit plus visits to CT, MRI, endoscopy, and specialist care according to cancer-specific pathway probabilities. Additional visits per true and false positive were added. Capacity utilisation for each resource was calculated as total visits divided by the annual capacity per 100,000 population. A full description of equations is available in `simulate.py`.
 
 Prevalence was approximated by adult (20+) incidence because point prevalence of undiagnosed, screen-detectable cancers is not publicly reported. This is a conservative lower-bound for true positives and therefore an upper-bound for PPV and FP/TP ratios. Pathway probabilities and the share of facility capacity available for a new DTC-related wave were scenario assumptions, documented in `parameters.yaml`.
 
-### Specialist capacity definition
+### Specialist and primary care capacity definition
 
-We define baseline specialist capacity as the annual outpatient caseload per cancer-relevant specialist. We used NDB Open Data unique first/revisit outpatient patients (April 2024–March 2025) divided by the total number of basic JMSB specialists, giving an average annual caseload per specialist [^7^][^8^]. We then multiplied this by the number of cancer-relevant specialists per 100,000 population and applied the same 20% share assumed available for a DTC wave. The resulting `specialist_visits_per_year` is an illustrative capacity ceiling for a 100,000-person cohort.
+Baseline specialist capacity is defined as the annual outpatient caseload per cancer-relevant specialist. NDB Open Data unique first/revisit outpatient patient counts were used (April 2024–March 2025) divided by the total number of basic JMSB specialists, giving an average annual caseload per specialist [^7^][^8^]. This value was then multiplied by the number of cancer-relevant specialists per 100,000 population and applied the same 20% share assumed available for a DTC wave. The resulting `specialist_visits_per_year` is an illustrative capacity ceiling for a 100,000-person cohort.
+
+The same approach was applied to primary care (internal medicine and general practice) specialists to derive `primary_care_visits_per_year`.
 
 ### Scenarios
 
@@ -337,13 +344,13 @@ At a 50% follow-up rate, the model estimated {row_50['true_positives']:.1f} true
 
 ### Capacity impact
 
-Total downstream visits rose from {agg[agg['follow_up_rate']==0.0]['total_visits'].iloc[0]:.1f} at 0% follow-up to {agg[agg['follow_up_rate']==1.0]['total_visits'].iloc[0]:.1f} at 100% follow-up (Fig. 1). Resource utilisation is shown in Fig. 2. The first illustrative capacity ceiling was exceeded at {threshold_str}. At 50% follow-up maximum utilisation was {row_50['max_capacity_utilization_pct']:.1f}%.
+Total downstream visits rose from {agg[agg['follow_up_rate']==0.0]['total_visits'].iloc[0]:.1f} at 0% follow-up to {agg[agg['follow_up_rate']==1.0]['total_visits'].iloc[0]:.1f} at 100% follow-up (Fig. 1). At 50% follow-up this included {row_50['primary_care_visits']:.1f} primary care visits ({row_50['primary_care_visits_utilization_pct']:.1f}% of the illustrative primary-care capacity). Resource utilisation by modality is shown in Fig. 2. The first illustrative capacity ceiling was exceeded at {threshold_str}. At 50% follow-up maximum utilisation was {row_50['max_capacity_utilization_pct']:.1f}%.
 
 ![Figure 1: Total downstream visits by follow-up rate](output/total_visits_by_followup.png)
-**Fig. 1.** Total downstream diagnostic and specialist visits generated by a blood-based MCED screening wave of 100,000 persons, by follow-up rate.
+**Fig. 1.** Total downstream diagnostic, primary care, and specialist visits generated by a blood-based MCED screening wave of 100,000 persons, by follow-up rate.
 
 ![Figure 2: Diagnostic capacity utilisation by follow-up rate](output/capacity_utilization.png)
-**Fig. 2.** Capacity utilisation (%) for CT, MRI, endoscopy, and specialist visits as follow-up rate increases. Values above 100% indicate demand exceeding the illustrative annual capacity available for a DTC screening wave.
+**Fig. 2.** Capacity utilisation (%) for CT, MRI, endoscopy, specialist, and primary care visits as follow-up rate increases. Values above 100% indicate demand exceeding the illustrative annual capacity available for a DTC screening wave.
 
 ### Specialist capacity and the false-positive cascade
 
@@ -452,6 +459,9 @@ def build_figures_pptx(output_dir: Path, pptx_path: Path) -> None:
         ("Figure 2. Diagnostic capacity utilisation by follow-up rate", output_dir / "capacity_utilization.png"),
         ("Figure 3. Age-specific PPV by cancer type", output_dir / "ppv_by_age.png"),
         ("Figure 4. PPV and total positives across specificity values", output_dir / "specificity_sweep.png"),
+        ("Supplementary Figure S1. One-way sensitivity of maximum capacity utilisation", output_dir / "tornado_max_capacity.png"),
+        ("Supplementary Figure S2. One-way sensitivity of aggregate PPV", output_dir / "tornado_ppv.png"),
+        ("Supplementary Figure S3. Aggregate PPV under alternative age-distribution scenarios", output_dir / "age_scenario_ppv.png"),
     ]
 
     for title, img_path in figures:

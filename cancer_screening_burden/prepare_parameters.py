@@ -20,6 +20,7 @@ import pandas as pd
 import yaml
 
 from specialist_capacity import (
+    compute_primary_care_capacity_inputs,
     compute_specialist_capacity_inputs,
     load_specialist_counts,
     read_ndb_outpatient_patients,
@@ -191,6 +192,9 @@ def compute_capacity() -> Dict[str, float]:
     specialist_inputs = compute_specialist_capacity_inputs(
         ndb_outpatient, specialist_counts, AVAILABLE_CANCER_SHARE, POPULATION_2023
     )
+    primary_care_inputs = compute_primary_care_capacity_inputs(
+        ndb_outpatient, specialist_counts, AVAILABLE_CANCER_SHARE, POPULATION_2023
+    )
 
     return {
         "ct_exams_per_year": per100k_annual(ct_monthly),
@@ -202,6 +206,14 @@ def compute_capacity() -> Dict[str, float]:
             f"({ndb_outpatient['first_visit_patients']:,.0f} + {ndb_outpatient['revisit_patients']:,.0f}) "
             f"and {specialist_inputs['relevant_specialists']:,.0f} cancer-relevant JMSB specialists; "
             f"{AVAILABLE_CANCER_SHARE:.0%} share assumed available for new cancer workups."
+        ),
+        "primary_care_visits_per_year": primary_care_inputs["primary_care_visits_per_year"],
+        "primary_care_capacity_note": (
+            f"Derived from NDB Open Data first/revisit outpatient patient counts "
+            f"({ndb_outpatient['first_visit_patients']:,.0f} + {ndb_outpatient['revisit_patients']:,.0f}) "
+            f"and {primary_care_inputs['primary_care_specialists']:,.0f} primary-care-relevant JMSB specialists "
+            f"(internal medicine and general practice); {AVAILABLE_CANCER_SHARE:.0%} share assumed available "
+            f"for new cancer workups."
         ),
     }
 
@@ -216,7 +228,7 @@ def build_cancer_list() -> List[Dict[str, Any]]:
             "prevalence_per_100k": adult_incidence_per100k_total("Both", "Stomach"),
             "sensitivity": 0.70,
             "specificity": 0.99,
-            "pathway": {"ct": 0.30, "mri": 0.10, "endoscopy": 0.90, "specialist": 1.00},
+            "pathway": {"ct": 0.30, "mri": 0.10, "endoscopy": 0.90, "specialist": 1.00, "primary_care": 1.00},
             "tp_additional_visits": 4.0,
             "fp_additional_visits": 1.5,
         },
@@ -227,7 +239,7 @@ def build_cancer_list() -> List[Dict[str, Any]]:
             "prevalence_per_100k": adult_incidence_per100k_total("Both", "Colon/rectum"),
             "sensitivity": 0.70,
             "specificity": 0.99,
-            "pathway": {"ct": 0.30, "mri": 0.05, "endoscopy": 0.95, "specialist": 1.00},
+            "pathway": {"ct": 0.30, "mri": 0.05, "endoscopy": 0.95, "specialist": 1.00, "primary_care": 1.00},
             "tp_additional_visits": 4.0,
             "fp_additional_visits": 1.5,
         },
@@ -238,7 +250,7 @@ def build_cancer_list() -> List[Dict[str, Any]]:
             "prevalence_per_100k": adult_incidence_per100k_total("Both", "Lung, trachea"),
             "sensitivity": 0.70,
             "specificity": 0.99,
-            "pathway": {"ct": 0.90, "mri": 0.15, "endoscopy": 0.05, "specialist": 1.00},
+            "pathway": {"ct": 0.90, "mri": 0.15, "endoscopy": 0.05, "specialist": 1.00, "primary_care": 1.00},
             "tp_additional_visits": 5.0,
             "fp_additional_visits": 2.0,
         },
@@ -249,7 +261,7 @@ def build_cancer_list() -> List[Dict[str, Any]]:
             "prevalence_per_100k": adult_incidence_per100k_total("Both", "Breast"),
             "sensitivity": 0.70,
             "specificity": 0.99,
-            "pathway": {"ct": 0.10, "mri": 0.30, "endoscopy": 0.05, "specialist": 1.00},
+            "pathway": {"ct": 0.10, "mri": 0.30, "endoscopy": 0.05, "specialist": 1.00, "primary_care": 1.00},
             "tp_additional_visits": 4.0,
             "fp_additional_visits": 1.5,
         },
@@ -260,7 +272,7 @@ def build_cancer_list() -> List[Dict[str, Any]]:
             "prevalence_per_100k": adult_incidence_per100k_total("Male", "Prostate"),
             "sensitivity": 0.70,
             "specificity": 0.99,
-            "pathway": {"ct": 0.10, "mri": 0.40, "endoscopy": 0.05, "specialist": 1.00},
+            "pathway": {"ct": 0.10, "mri": 0.40, "endoscopy": 0.05, "specialist": 1.00, "primary_care": 1.00},
             "tp_additional_visits": 3.0,
             "fp_additional_visits": 1.5,
         },
@@ -271,7 +283,7 @@ def build_cancer_list() -> List[Dict[str, Any]]:
             "prevalence_per_100k": adult_incidence_per100k_total("Both", "Liver"),
             "sensitivity": 0.70,
             "specificity": 0.99,
-            "pathway": {"ct": 0.40, "mri": 0.30, "endoscopy": 0.10, "specialist": 1.00},
+            "pathway": {"ct": 0.40, "mri": 0.30, "endoscopy": 0.10, "specialist": 1.00, "primary_care": 1.00},
             "tp_additional_visits": 4.0,
             "fp_additional_visits": 1.5,
         },
@@ -282,7 +294,7 @@ def build_cancer_list() -> List[Dict[str, Any]]:
             "prevalence_per_100k": adult_incidence_per100k_total("Both", "Pancreas"),
             "sensitivity": 0.70,
             "specificity": 0.99,
-            "pathway": {"ct": 0.60, "mri": 0.30, "endoscopy": 0.20, "specialist": 1.00},
+            "pathway": {"ct": 0.60, "mri": 0.30, "endoscopy": 0.20, "specialist": 1.00, "primary_care": 1.00},
             "tp_additional_visits": 5.0,
             "fp_additional_visits": 2.0,
         },
@@ -293,7 +305,7 @@ def build_cancer_list() -> List[Dict[str, Any]]:
             "prevalence_per_100k": adult_incidence_per100k_total("Female", "Ovary"),
             "sensitivity": 0.70,
             "specificity": 0.99,
-            "pathway": {"ct": 0.40, "mri": 0.50, "endoscopy": 0.05, "specialist": 1.00},
+            "pathway": {"ct": 0.40, "mri": 0.50, "endoscopy": 0.05, "specialist": 1.00, "primary_care": 1.00},
             "tp_additional_visits": 5.0,
             "fp_additional_visits": 2.0,
         },

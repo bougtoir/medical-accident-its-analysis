@@ -12,7 +12,7 @@ from __future__ import annotations
 import argparse
 import re
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 import pandas as pd
 import yaml
@@ -31,6 +31,7 @@ from build_manuscript import (
     make_table_3,
     make_table_4,
     markdown_to_docx,
+    format_markdown_table,
     _fp_to_tp_ratio,
     _ppv,
 )
@@ -104,6 +105,43 @@ def _compute_context(
     total_cases = capacity_summary.get("cases_per_specialist_with_fp", baseline_cases + fp_visits)
     percent_change = capacity_summary.get("percent_change", 0.0)
 
+    pc_visits = float(row_50.get("primary_care_visits", 0.0))
+    pc_util = float(row_50.get("primary_care_visits_utilization_pct", 0.0))
+
+    # Multi-way sensitivity summary.
+    def _metric_at(df: pd.DataFrame, parameter: str, value: float, metric: str) -> float:
+        sub = df[df["parameter"] == parameter]
+        nearest = choose_summary_rate(sub["value"].tolist(), value)
+        return float(sub[sub["value"] == nearest][metric].values[0])
+
+    sens = pd.read_csv(output_dir / "sensitivity_summary.csv")
+    ppv_spec_95 = _metric_at(sens, "specificity", 0.95, "ppv_pct")
+    ppv_spec_999 = _metric_at(sens, "specificity", 0.999, "ppv_pct")
+    max_util_spec_95 = _metric_at(sens, "specificity", 0.95, "max_capacity_utilization_pct")
+    max_util_spec_999 = _metric_at(sens, "specificity", 0.999, "max_capacity_utilization_pct")
+    max_util_share_05 = _metric_at(sens, "available_share", 0.05, "max_capacity_utilization_pct")
+    max_util_share_50 = _metric_at(sens, "available_share", 0.50, "max_capacity_utilization_pct")
+    max_util_follow_10 = _metric_at(sens, "follow_up_rate", 0.10, "max_capacity_utilization_pct")
+    max_util_follow_90 = _metric_at(sens, "follow_up_rate", 0.90, "max_capacity_utilization_pct")
+
+    # Age scenario PPVs (aggregate across cancers for each distribution).
+    age_scenarios = pd.read_csv(output_dir / "age_scenarios.csv")
+    age_agg = (
+        age_scenarios.groupby("distribution")[["true_positives", "false_positives", "total_positives"]]
+        .sum()
+        .reset_index()
+    )
+    age_agg["ppv"] = age_agg["true_positives"] / age_agg["total_positives"]
+    age_agg["fp_to_tp"] = age_agg["false_positives"] / age_agg["true_positives"]
+    age_ppv = {
+        row["distribution"]: row["ppv"] * 100.0
+        for _, row in age_agg.iterrows()
+    }
+    age_fp_tp = {
+        row["distribution"]: row["fp_to_tp"]
+        for _, row in age_agg.iterrows()
+    }
+
     return {
         "row_50": row_50,
         "row_50_ppv": row_50_ppv,
@@ -118,6 +156,18 @@ def _compute_context(
         "fp_visits": fp_visits,
         "total_cases": total_cases,
         "percent_change": percent_change,
+        "primary_care_visits": pc_visits,
+        "primary_care_utilization_pct": pc_util,
+        "ppv_spec_95": ppv_spec_95,
+        "ppv_spec_999": ppv_spec_999,
+        "max_util_spec_95": max_util_spec_95,
+        "max_util_spec_999": max_util_spec_999,
+        "max_util_share_05": max_util_share_05,
+        "max_util_share_50": max_util_share_50,
+        "max_util_follow_10": max_util_follow_10,
+        "max_util_follow_90": max_util_follow_90,
+        "age_ppv": age_ppv,
+        "age_fp_tp": age_fp_tp,
     }
 
 
@@ -127,10 +177,10 @@ def _fmch_abstract(ctx: Dict[str, Any], params: Dict[str, Any]) -> str:
         "**Background:** Direct-to-consumer blood-based multi-cancer early detection "
         "(MCED) tests are advertised as a convenient single-blood-draw screen. In "
         "asymptomatic populations most positive results are false positives, each "
-        "triggering imaging, endoscopy, and specialist follow-up visits.\n\n"
+        "triggering primary care, imaging, endoscopy, and specialist follow-up visits.\n\n"
         "**Methods:** A deterministic expected-value model was parameterised with 2023 "
         "adult cancer incidence and population data, 2023 national diagnostic volumes, "
-        "and specialist capacity derived from NDB Open Data outpatient counts and "
+        "and primary care and specialist capacity derived from NDB Open Data outpatient counts and "
         "Japanese specialist-board counts. True positives, false positives, downstream "
         "visits, capacity utilisation, and per-specialist case load were estimated across "
         "follow-up rates of 0-100% and specificities of 95.0-99.9%.\n\n"
@@ -139,8 +189,9 @@ def _fmch_abstract(ctx: Dict[str, Any], params: Dict[str, Any]) -> str:
         f"{row['false_positives']:.1f} false positives (positive predictive value "
         f"{ctx['row_50_ppv']:.2f}%; false-positive/true-positive ratio "
         f"{ctx['row_50_fp_tp']:.1f}). Total downstream visits reached "
-        f"{row['total_visits']:.1f}, with maximum capacity utilisation "
-        f"{row['max_capacity_utilization_pct']:.1f}% (specialist visits). The "
+        f"{row['total_visits']:.1f}, including {ctx['primary_care_visits']:.1f} primary care visits "
+        f"({ctx['primary_care_utilization_pct']:.1f}% of the illustrative primary-care capacity). "
+        f"Maximum capacity utilisation was {row['max_capacity_utilization_pct']:.1f}% (specialist visits). The "
         f"illustrative capacity ceiling was exceeded at a follow-up rate of "
         f"{ctx['threshold_str']}. False-positive specialist visits added "
         f"{ctx['fp_visits']:.1f} visits per relevant specialist, raising the effective "
@@ -159,13 +210,13 @@ def _key_points(ctx: Dict[str, Any]) -> str:
     row = ctx["row_50"]
     return (
         "### Key points\n\n"
-        "- **Question:** What diagnostic and specialist workload is generated when "
+        "- **Question:** What primary care, diagnostic, and specialist workload is generated when "
         "direct-to-consumer blood-based multi-cancer early detection (MCED) tests return "
         "positive results in an asymptomatic population?\n"
         f"- **Finding:** A 100,000-person MCED wave at 50% follow-up produced "
         f"{row['true_positives']:.0f} true positives and {row['false_positives']:.0f} "
-        f"false positives (PPV {ctx['row_50_ppv']:.2f}%), exceeding the illustrative "
-        f"specialist capacity ceiling once follow-up exceeded "
+        f"false positives (PPV {ctx['row_50_ppv']:.2f}%), generating {ctx['primary_care_visits']:.0f} primary care visits and "
+        f"exceeding the illustrative specialist capacity ceiling once follow-up exceeded "
         f"{ctx['threshold_str'].split(' ')[0]}.\n"
         "- **Meaning:** Without regulatory guardrails on performance claims and "
         "follow-up obligations, widespread direct-to-consumer MCED screening could "
@@ -189,8 +240,9 @@ def _additional_references() -> list[str]:
     ]
 
 
-def _revise_body_for_fmch(body: str) -> str:
-    """Apply FMCH-specific language, primary-care framing, and additional citations."""
+def _revise_body_for_fmch(body: str, ctx: Dict[str, Any], output_dir: Path) -> str:
+    """Apply FMCH-specific language, primary-care framing, additional citations,
+    and insert supplementary scenario analyses."""
     # Primary-care framing in the Introduction.
     body = body.replace(
         "We quantified this burden as a function of follow-up behaviour, test specificity, and age structure.",
@@ -233,6 +285,42 @@ def _revise_body_for_fmch(body: str) -> str:
         "The analysis intentionally uses",
     )
 
+    # Scenario / sensitivity analyses section.
+    age_ppv = ctx["age_ppv"]
+    age_fp_tp = ctx["age_fp_tp"]
+    age_table = [
+        ["Age distribution scenario", "Aggregate PPV (%)", "FP/TP ratio"],
+        ["2023 total population", f"{age_ppv.get('japan_total_2023', 0.0):.2f}", f"{age_fp_tp.get('japan_total_2023', 0.0):.1f}"],
+        ["Adults 20+", f"{age_ppv.get('japan_adult_20plus', 0.0):.2f}", f"{age_fp_tp.get('japan_adult_20plus', 0.0):.1f}"],
+        ["DTC bimodal (23andMe-like)", f"{age_ppv.get('dtc_bimodal_23andme', 0.0):.2f}", f"{age_fp_tp.get('dtc_bimodal_23andme', 0.0):.1f}"],
+        ["DTC younger purchasers", f"{age_ppv.get('dtc_younger', 0.0):.2f}", f"{age_fp_tp.get('dtc_younger', 0.0):.1f}"],
+        ["DTC screening-age purchasers", f"{age_ppv.get('dtc_screening_age', 0.0):.2f}", f"{age_fp_tp.get('dtc_screening_age', 0.0):.1f}"],
+    ]
+    scenario_section = (
+        "### Additional scenario and sensitivity analyses\n\n"
+        "Aggregate PPV is highly sensitive to the age distribution of users. If direct-to-consumer purchasers "
+        "are younger than the general population, the already low PPV falls further and the FP/TP ratio rises "
+        "(Table S1). For example, a younger-purchaser profile yields an aggregate PPV of "
+        f"{age_ppv.get('dtc_younger', 0.0):.2f}% and an FP/TP ratio of {age_fp_tp.get('dtc_younger', 0.0):.1f}, compared with "
+        f"{age_ppv.get('japan_total_2023', 0.0):.2f}% and {age_fp_tp.get('japan_total_2023', 0.0):.1f} under the 2023 national total-population age distribution.\n\n"
+        "**Supplementary Table S1. Aggregate PPV under alternative age-distribution scenarios.**\n\n"
+        f"{format_markdown_table(age_table)}\n\n"
+        "Test specificity and follow-up behaviour are the dominant drivers of capacity pressure (Supplementary Table S2). At 50% follow-up, "
+        f"lowering specificity from 99.9% to 95.0% reduces aggregate PPV from {ctx['ppv_spec_999']:.2f}% to "
+        f"{ctx['ppv_spec_95']:.2f}% and raises maximum capacity utilisation from {ctx['max_util_spec_999']:.1f}% to "
+        f"{ctx['max_util_spec_95']:.1f}%. With 99% specificity, maximum utilisation ranges from "
+        f"{ctx['max_util_follow_10']:.1f}% at 10% follow-up to {ctx['max_util_follow_90']:.1f}% at 90% follow-up. "
+        f"If only 5% of the illustrative national capacity can be reallocated, the bottleneck reaches "
+        f"{ctx['max_util_share_05']:.0f}%; with a 50% share it stays at {ctx['max_util_share_50']:.0f}%. "
+        "Tornado diagrams for capacity utilisation and PPV are provided as Supplementary Figures S1 and S2.\n\n"
+        "![Supplementary Figure S1. One-way sensitivity of maximum capacity utilisation](output/tornado_max_capacity.png)\n"
+        "**Fig. S1.** Tornado diagram showing the effect of varying specificity, follow-up rate, available capacity share, and sensitivity on maximum capacity utilisation (base case = 50% follow-up, 99% specificity, 20% capacity share).\n\n"
+        "![Supplementary Figure S2. One-way sensitivity of aggregate PPV](output/tornado_ppv.png)\n"
+        "**Fig. S2.** Tornado diagram showing the effect of the same four parameters on aggregate positive predictive value.\n\n"
+        "![Supplementary Figure S3. Aggregate PPV under alternative age-distribution scenarios](output/age_scenario_ppv.png)\n"
+        "**Fig. S3.** Aggregate PPV for each cancer type under the 2023 national total-population distribution and four hypothetical direct-to-consumer purchaser age profiles."
+    )
+
     # Add a Discussion subsection on primary care / shared decision-making.
     pcare_section = (
         "### Implications for primary care and shared decision-making\n\n"
@@ -241,7 +329,7 @@ def _revise_body_for_fmch(body: str) -> str:
         "screening, and coordinate confirmatory tests. In this role, shared decision-making is essential: "
         "patients considering a DTC blood test need transparent information on the low PPV in "
         "asymptomatic populations and the likely cascade of follow-up visits [^9^]. The present figures "
-        "suggest that, at 50% follow-up, each true cancer detected is accompanied by about 21 false-positive "
+        f"suggest that, at 50% follow-up, each true cancer detected is accompanied by about {ctx['row_50_fp_tp']:.0f} false-positive "
         "workups. Primary care providers are already concerned about responsibility for interpreting "
         "results, costs, and managing subsequent evaluations [^10^], and health-system reviews identify "
         "anxiety, false reassurance, and displacement of guideline-based screening as potential harms [^11^]. "
@@ -254,7 +342,7 @@ def _revise_body_for_fmch(body: str) -> str:
     )
     body = body.replace(
         "\n### Limitations\n",
-        f"\n{pcare_section}\n\n### Limitations\n",
+        f"\n{scenario_section}\n\n{pcare_section}\n\n### Limitations\n",
     )
 
     # Conclusion: explicitly name primary care alongside specialty care.
@@ -263,10 +351,10 @@ def _revise_body_for_fmch(body: str) -> str:
         "direct-to-consumer MCED tests risk converting a marketing promise into a large-scale false-positive cascade that stresses primary care, specialty care, and diagnostic capacity.",
     )
 
-    # Expand Limitations with primary-care and PSA caveats.
+    # Expand Limitations with PSA caveats and the primary-care capacity assumption.
     body = body.replace(
         "The model is deterministic and does not capture stochastic variation, geographic maldistribution, or queueing effects.",
-        "Primary care consultations were not modelled separately; the estimated burden is therefore downstream specialist and diagnostic workload rather than a direct count of general-practice visits. "
+        "Primary care capacity was derived using the same national outpatient caseload and 20% available-share assumption as specialist capacity; actual capacity depends on local demand for chronic disease and routine care. "
         "Sensitivity and specificity were assumed to be uniform across cancers; real tests may vary by site. "
         "No probabilistic sensitivity analysis was performed because empirical distributions for test performance, follow-up behaviour, and direct-to-consumer user age structure are not publicly available. "
         "The model is deterministic and does not capture stochastic variation, geographic maldistribution, or queueing effects.",
@@ -294,8 +382,10 @@ def _post_conclusion_sections() -> str:
         "Patients or members of the public were not directly involved in the design, "
         "conduct, reporting, or dissemination of this modelling study.\n\n"
         "## Data availability\n\n"
-        "All data sources are publicly available and listed in Table 1. Analysis code, "
-        "parameters, and outputs are available at "
+        "All data sources are publicly available and listed in Table 1. The main simulation "
+        "outputs (by-cancer and aggregate follow-up sweep, specificity sweep, sensitivity summary, "
+        "age-specific PPV, age-scenario PPV, and specialist capacity impact) are generated by the "
+        "analysis scripts. Analysis code, parameters, and outputs are available at "
         "https://github.com/bougtoir/cancer-screening-burden-data-driven."
     )
 
@@ -403,8 +493,8 @@ def build_fmch_markdown(
         "\n## Results\n", f"\n{reporting}\n\n## Results\n"
     )
 
-    # Apply FMCH-specific primary-care framing and active-voice edits.
-    body_before_refs = _revise_body_for_fmch(body_before_refs)
+    # Apply FMCH-specific primary-care framing, active-voice edits, and scenario analyses.
+    body_before_refs = _revise_body_for_fmch(body_before_refs, ctx, output_dir)
 
     references = body[refs_match.start():]
 
@@ -431,6 +521,58 @@ def build_fmch_markdown(
     # Renumber references to strict Vancouver order (first appearance in body).
     fmch_md = _renumber_vancouver_references(fmch_md)
     return fmch_md
+
+
+def _make_supplementary_tables(output_dir: Path) -> Dict[str, List[List[str]]]:
+    """Return supplementary tables formatted for a separate editable .docx."""
+    age_scenarios = pd.read_csv(output_dir / "age_scenarios.csv")
+    age_agg = (
+        age_scenarios.groupby("distribution")[["true_positives", "false_positives", "total_positives"]]
+        .sum()
+        .reset_index()
+    )
+    age_agg["ppv_pct"] = age_agg["true_positives"] / age_agg["total_positives"] * 100.0
+    age_agg["fp_tp"] = age_agg["false_positives"] / age_agg["true_positives"]
+
+    label_map = {
+        "japan_total_2023": "2023 total population",
+        "japan_adult_20plus": "Adults 20+",
+        "dtc_bimodal_23andme": "DTC bimodal (23andMe-like)",
+        "dtc_younger": "DTC younger purchasers",
+        "dtc_screening_age": "DTC screening-age purchasers",
+    }
+
+    s1 = [
+        ["Age-distribution scenario", "Aggregate PPV (%)", "FP/TP ratio"],
+    ]
+    for _, row in age_agg.iterrows():
+        s1.append(
+            [
+                label_map.get(str(row["distribution"]), str(row["distribution"])),
+                f"{row['ppv_pct']:.2f}",
+                f"{row['fp_tp']:.1f}",
+            ]
+        )
+
+    sens = pd.read_csv(output_dir / "sensitivity_summary.csv")
+    s2 = [
+        ["Parameter", "Value", "Aggregate PPV (%)", "Max capacity utilisation (%)", "Total visits"],
+    ]
+    for _, row in sens.iterrows():
+        s2.append(
+            [
+                str(row["parameter"]),
+                f"{row['value']:.3f}",
+                f"{row['ppv_pct']:.2f}",
+                f"{row['max_capacity_utilization_pct']:.1f}",
+                f"{row['total_visits']:.1f}",
+            ]
+        )
+
+    return {
+        "Supplementary Table S1. Aggregate PPV under alternative age-distribution scenarios": s1,
+        "Supplementary Table S2. One-way sensitivity analysis": s2,
+    }
 
 
 def main() -> None:
@@ -469,6 +611,7 @@ def main() -> None:
         "Table 3. Aggregate outcomes by follow-up rate": make_table_3(agg),
         "Table 4. Baseline cases per specialist and incremental false-positive burden": make_table_4(capacity_impact),
     }
+    tables.update(_make_supplementary_tables(args.output))
     build_tables_docx(tables, args.manuscript / "manuscript_fmch_tables.docx")
 
     build_figures_pptx(args.output, args.manuscript / "manuscript_fmch_figures.pptx")

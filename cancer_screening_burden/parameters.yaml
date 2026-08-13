@@ -21,6 +21,11 @@ capacity:
   specialist_capacity_note: Derived from NDB Open Data first/revisit outpatient patient
     counts (88,408,837 + 85,182,008) and 79,117 cancer-relevant JMSB specialists;
     20% share assumed available for new cancer workups.
+  primary_care_visits_per_year: 11982.99426086868
+  primary_care_capacity_note: Derived from NDB Open Data first/revisit outpatient
+    patient counts (88,408,837 + 85,182,008) and 131,981 primary-care-relevant JMSB
+    specialists (internal medicine and general practice); 20% share assumed available
+    for new cancer workups.
 specificity_sweep:
   follow_up_rate: 0.7
   specificity_values:
@@ -41,6 +46,7 @@ cancers:
     mri: 0.1
     endoscopy: 0.9
     specialist: 1.0
+    primary_care: 1.0
   tp_additional_visits: 4.0
   fp_additional_visits: 1.5
 - name: Colorectal
@@ -54,6 +60,7 @@ cancers:
     mri: 0.05
     endoscopy: 0.95
     specialist: 1.0
+    primary_care: 1.0
   tp_additional_visits: 4.0
   fp_additional_visits: 1.5
 - name: Lung
@@ -67,6 +74,7 @@ cancers:
     mri: 0.15
     endoscopy: 0.05
     specialist: 1.0
+    primary_care: 1.0
   tp_additional_visits: 5.0
   fp_additional_visits: 2.0
 - name: Breast
@@ -80,6 +88,7 @@ cancers:
     mri: 0.3
     endoscopy: 0.05
     specialist: 1.0
+    primary_care: 1.0
   tp_additional_visits: 4.0
   fp_additional_visits: 1.5
 - name: Prostate
@@ -93,6 +102,7 @@ cancers:
     mri: 0.4
     endoscopy: 0.05
     specialist: 1.0
+    primary_care: 1.0
   tp_additional_visits: 3.0
   fp_additional_visits: 1.5
 - name: Liver
@@ -106,6 +116,7 @@ cancers:
     mri: 0.3
     endoscopy: 0.1
     specialist: 1.0
+    primary_care: 1.0
   tp_additional_visits: 4.0
   fp_additional_visits: 1.5
 - name: Pancreatic
@@ -119,6 +130,7 @@ cancers:
     mri: 0.3
     endoscopy: 0.2
     specialist: 1.0
+    primary_care: 1.0
   tp_additional_visits: 5.0
   fp_additional_visits: 2.0
 - name: Ovarian
@@ -132,6 +144,7 @@ cancers:
     mri: 0.5
     endoscopy: 0.05
     specialist: 1.0
+    primary_care: 1.0
   tp_additional_visits: 5.0
   fp_additional_visits: 2.0
 data_sources:

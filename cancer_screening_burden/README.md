@@ -8,7 +8,7 @@
 
 - スクリーニング陽性者のうち、実際に医療機関を受診する割合（follow-up rate）を
   0%〜100%まで変えたとき、がん種ごとにどれだけの偽陽性・真陽性・追加受診が生じるか。
-- その結果、CT・MRI・内視鏡・専門医外来などの診療能力がどの程度圧迫されるか。
+- その結果、CT・MRI・内視鏡・専門医外来・一次医療（primary care）などの診療能力がどの程度圧迫されるか。
 - 「どこかで線を引く」規制の議論に使える、仮想的な閾値や指標を提示する。
 
 ## 重要な注意
@@ -27,8 +27,10 @@ pip install -r requirements.txt
 python prepare_parameters.py   # 公開データから parameters.yaml を生成
 python simulate.py             # シミュレーション本体（CSV/PNG出力）
 python specialist_capacity.py  # 専門医あたり負荷（Table 4 の入力）を生成
-python age_analysis.py         # 年齢別PPV分析
-python build_manuscript.py     # 原稿 Markdown + 図表 PPTX/DOCX を生成
+python age_analysis.py         # 年齢別PPV分析と購買層シナリオ
+python sensitivity_analysis.py # 多感度分析（特異度・受診率・キャパシティシェア・感度）
+python build_manuscript.py     # 汎用原稿 Markdown + 図表 PPTX/DOCX
+python build_fmch_manuscript.py  # Family Medicine and Community Health 向け原稿
 ```
 
 必要な Python パッケージは `requirements.txt` に記載されています。
@@ -51,6 +53,11 @@ python build_manuscript.py     # 原稿 Markdown + 図表 PPTX/DOCX を生成
 | `specificity_sweep.csv` | 特異度を変化させた感度分析結果 |
 | `age_specific_ppv.csv` | 年齢別 PPV テーブル |
 | `weighted_ppv_by_distribution.csv` | 年齢構成で重み付けした PPV |
+| `age_scenarios.csv` | 購買層年齢シナリオ別の集計 PPV |
+| `sensitivity_summary.csv` | 多感度分析の集計表 |
+| `tornado_max_capacity.png` | 診療能力利用率への一方向感度分析（トルネード図） |
+| `tornado_ppv.png` | 集計 PPV への一方向感度分析（トルネード図） |
+| `age_scenario_ppv.png` | 購買層年齢シナリオ別の集計 PPV |
 | `total_visits_by_followup.png` | 受診率に対する総追加受診数（積み上げ） |
 | `capacity_utilization.png` | 診療能力利用率の推移 |
 | `ppv_by_age.png` | 年齢別 PPV の推移 |
@@ -65,6 +72,10 @@ python build_manuscript.py     # 原稿 Markdown + 図表 PPTX/DOCX を生成
 - `manuscript/manuscript.md`: 英語原稿 Markdown ドラフト（数値は output から再生成）
 - `manuscript/manuscript_tables.docx`: 表の編集可能ファイル
 - `manuscript/manuscript_figures.pptx`: 図の編集可能ファイル
+- `manuscript/manuscript_fmch.md`: Family Medicine and Community Health 向け Markdown 原稿
+- `manuscript/manuscript_fmch.docx`: FMCH 向け原稿（docx、図表インライン）
+- `manuscript/manuscript_fmch_tables.docx`: FMCH 向け表（Table 1-4 + Supplementary Table S1-S2）
+- `manuscript/manuscript_fmch_figures.pptx`: FMCH 向け図（Figure 1-4 + Supplementary Figure S1-S3）
 
 ## モデルの要点
 

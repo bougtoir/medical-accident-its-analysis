@@ -168,6 +168,16 @@ def load_cancer_specialty_mapping(path: Path = CANCER_SPECIALTY_CSV) -> pd.DataF
     return pd.read_csv(path)
 
 
+def _patients_per_specialist(specialist_counts: pd.DataFrame, ndb: Dict[str, float]) -> float:
+    """Return average annual unique outpatients per basic specialist from NDB counts."""
+    total_outpatient_patients = ndb["first_visit_patients"] + ndb["revisit_patients"]
+    basic = specialist_counts[specialist_counts["field"] == "basic"]
+    total_basic_specialists = float(basic["count_2023"].sum())
+    if total_basic_specialists <= 0:
+        raise ValueError("Total basic specialist count must be positive")
+    return total_outpatient_patients / total_basic_specialists
+
+
 def compute_specialist_capacity_inputs(
     ndb: Dict[str, float],
     specialist_counts: pd.DataFrame,
@@ -181,15 +191,8 @@ def compute_specialist_capacity_inputs(
       2. Multiply by cancer-relevant specialists per 100k population.
       3. Apply the share assumed available for a new DTC cancer-workup wave.
     """
-    total_outpatient_patients = ndb["first_visit_patients"] + ndb["revisit_patients"]
-    basic = specialist_counts[specialist_counts["field"] == "basic"]
-    total_basic_specialists = float(basic["count_2023"].sum())
-    if total_basic_specialists <= 0:
-        raise ValueError("Total basic specialist count must be positive")
-    patients_per_specialist = total_outpatient_patients / total_basic_specialists
+    patients_per_specialist = _patients_per_specialist(specialist_counts, ndb)
 
-    relevant = specialist_counts[specialist_counts["cancer_relevant"] == True]
-    # Use the set of specialties mapped to the simulated cancers.
     mapping = load_cancer_specialty_mapping()
     relevant_specialties = set(mapping["specialty_en"])
     relevant_counts = specialist_counts[specialist_counts["specialty_en"].isin(relevant_specialties)]
@@ -201,13 +204,52 @@ def compute_specialist_capacity_inputs(
     specialist_visits_per_year = patients_per_specialist * relevant_per_100k * available_share
 
     return {
-        "total_outpatient_patients": total_outpatient_patients,
-        "total_basic_specialists": total_basic_specialists,
+        "total_outpatient_patients": ndb["first_visit_patients"] + ndb["revisit_patients"],
+        "total_basic_specialists": float(specialist_counts[specialist_counts["field"] == "basic"]["count_2023"].sum()),
         "patients_per_specialist_per_year": patients_per_specialist,
         "relevant_specialists": relevant_specialists,
         "relevant_specialists_per_100k": relevant_per_100k,
         "available_for_cancer_share": available_share,
         "specialist_visits_per_year": specialist_visits_per_year,
+        "population": population,
+    }
+
+
+PRIMARY_CARE_SPECIALTIES = {
+    "Internal Medicine (Certified Physician)",
+    "Internal Medicine (JMSB Certified)",
+    "General Internal Medicine",
+    "General Practice",
+}
+
+
+def compute_primary_care_capacity_inputs(
+    ndb: Dict[str, float],
+    specialist_counts: pd.DataFrame,
+    available_share: float,
+    population: int = POPULATION_2023,
+) -> Dict[str, float]:
+    """Derive a national per-100k primary-care-visit capacity from NDB patient counts and JMSB counts.
+
+    The logic mirrors specialist capacity: average annual unique outpatients per basic
+    specialist × primary-care-relevant specialists per 100k × available share.
+    """
+    patients_per_specialist = _patients_per_specialist(specialist_counts, ndb)
+
+    pc_counts = specialist_counts[specialist_counts["specialty_en"].isin(PRIMARY_CARE_SPECIALTIES)]
+    pc_specialists = float(pc_counts["count_2023"].sum())
+    if pc_specialists <= 0:
+        raise ValueError("Primary care specialist count must be positive")
+
+    pc_per_100k = pc_specialists / population * 100_000.0
+    primary_care_visits_per_year = patients_per_specialist * pc_per_100k * available_share
+
+    return {
+        "primary_care_specialists": pc_specialists,
+        "primary_care_specialists_per_100k": pc_per_100k,
+        "patients_per_specialist_per_year": patients_per_specialist,
+        "available_for_cancer_share": available_share,
+        "primary_care_visits_per_year": primary_care_visits_per_year,
         "population": population,
     }
 

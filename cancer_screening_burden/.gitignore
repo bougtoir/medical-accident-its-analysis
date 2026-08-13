@@ -1,0 +1,13 @@
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Raw public data downloads (obtain from the URLs listed in README / parameters.yaml)
+data/*.zip
+data/*.pdf
+data/*.html
+data/*.txt
+
+# OS / editor files
+.DS_Store
+*.swp
