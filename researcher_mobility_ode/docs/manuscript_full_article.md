@@ -1,6 +1,6 @@
 Article type: Research Article
 
-Approximate word count (main text incl. tables, excl. references): 9689
+Approximate word count (main text incl. tables, excl. references): 9307
 
 Corresponding author: \[To be completed\]
 
@@ -28,9 +28,9 @@ non-standard mean absolute percentage error (MAPE) of 162.0% (computed
 against count_obs + 1 to avoid division by zero). That level of error is
 expected because the projection is designed as an early-warning
 indicator of directional drift and threshold crossing, not as a precise
-population forecast. Historical and saturating-inflow counterfactuals
-show that the model is most sensitive to exogenous entry and attrition.
-These results provide a quantitative framework for early,
+population forecast. Historical counterfactuals and bootstrap
+uncertainty show that the model is most sensitive to exogenous entry and
+attrition. These results provide a quantitative framework for early,
 safety-factor-bound policy scenarios that preserve civilisational
 diversity in AI/ML research.
 
@@ -708,18 +708,14 @@ reach the threshold for the stated target pool.*
 
 ## 5.1 Saturating recruitment extension
 
-Replacing linear inflow with a saturating form lowers equilibrium pools
-because each additional PI adds fewer entrants. Table 5 compares linear
-and saturating equilibrium T values. The saturating model is important
-because the observed r is often close to the stability boundary, and an
-unchecked linear inflow can produce explosive growth. Across groups, the
-saturating variant predicts equilibrium pools that are -0-0% lower than
-the linear variant, underscoring the sensitivity of long-run projections
-to the functional form of inflow. This sensitivity does not overturn the
-ranking of groups, but it shows that absolute equilibrium levels should
-be treated with caution. The saturating model is the preferred
-interpretation for policy because it acknowledges that recruitment
-cannot scale linearly with the number of PIs indefinitely.
+We also test a saturating recruitment function in which each additional
+PI adds fewer entrants. With the capacity parameter calibrated to
+observed PI stocks, the saturating equilibrium is below 0.001% for every
+group at the displayed precision, so the linear safety-factor bound
+remains the operative constraint. Table 5 reports the fitted epsilon
+values; the near-zero differences show that the results are not driven
+by unbounded linear growth, but they do not rule out stronger saturation
+at higher PI densities.
 
   -----------------------------------------------------------------------
   **Group**         **Linear T**      **Saturating T**  **ε**
@@ -872,18 +868,18 @@ multi-lever interventions as well as single-rate perturbations.
 
 Table 8 reports bootstrap 95% confidence intervals for the equilibrium
 active pool T and the domestic PI pool P_D. The intervals are wide,
-reflecting the small cohort sample and the extrapolation from individual
-careers to long-run steady states. For some groups the upper bound is an
-order of magnitude larger than the lower bound, indicating that the
-equilibrium is sensitive to resampling variation in the transition
-rates. This uncertainty should be interpreted as a warning against
-over-interpreting point estimates and as a reason to view the
-point-of-no-return distances as indicative rather than precise
-thresholds. Despite the width, the lower bounds for most groups remain
-above the minimum viable threshold, which supports the qualitative
-conclusion that all groups are currently above the PNR. For the smallest
-groups the lower bound is closer to M, reinforcing the need for
-continued monitoring and for policy buffers.
+reflecting the model-implied cohort scale and the extrapolation from
+observed author-career exposure to long-run steady states. For some
+groups the upper bound is an order of magnitude larger than the lower
+bound, indicating that the equilibrium is sensitive to resampling
+variation in the transition rates. This uncertainty should be
+interpreted as a warning against over-interpreting point estimates and
+as a reason to view the point-of-no-return distances as indicative
+rather than precise thresholds. Despite the width, the lower bounds for
+most groups remain above the minimum viable threshold, which supports
+the qualitative conclusion that all groups are currently above the PNR.
+For the smallest groups the lower bound is closer to M, reinforcing the
+need for continued monitoring and for policy buffers.
 
   ---------------------------------------------------------------------------
   **Group**       **T median**   **T 95% CI**   **P_D mean**   **P_D 95% CI**
@@ -1065,20 +1061,7 @@ D and the highest MAPE is for D. P_D and H_D show larger errors because
 small changes in PI and hit rates are amplified by the endogenous inflow
 term.
 
-## 5.8 Correction pressures in the annual model
-
-The annual projection performs best where the correction pressures in
-Section 4.7 are binding. Laplace smoothing prevents empty cells from
-being treated as impossible transitions; the unit-interval clip and the
-dropout cap prevent the trend extrapolation from producing rates that
-are incompatible with a stochastic transition matrix; and the 2016
-inflow apportionment keeps new-entrant composition close to the last
-observed regime. These pressures mean that the projection is not a
-purely mechanical forecast: it is a bounded extrapolation that stays
-within the empirical support of the 2000-2016 data and within the
-stability constraints of the compartment model.
-
-## 5.9 Japan-specific compartment and transition-rate ladder
+## 5.8 Japan-specific compartment and transition-rate ladder
 
 Figure 8 places the Japanese AI/ML research community in the compartment
 model. The fitted equilibrium is T=29332 active researchers (D=16248,
@@ -1101,7 +1084,7 @@ model, with a cross-civilisation ladder of fitted transition rates.
 Japan is highlighted in the right-hand panel; longer bars represent
 higher estimated rates.*
 
-## 5.10 A combined model-evaluation view: T/M and PNR proximity
+## 5.9 A combined model-evaluation view: T/M and PNR proximity
 
 Figure 9 combines the long-run safety ratio T/M with the closest
 point-of-no-return proximity for each civilisation. A point in the
@@ -1357,30 +1340,7 @@ prioritise empirical policy evaluation. Both uses depend on transparent
 assumptions and regular recalibration; the model should not be used to
 justify one-off interventions without accompanying process evaluation.
 
-## 6.4 Validation of correction pressures
-
-The correction pressures are not ad hoc adjustments; each maps to a
-known statistical or dynamical constraint. Laplace smoothing is
-equivalent to a weak Dirichlet prior on a multinomial transition vector;
-it guarantees that no cell has zero estimated probability and shrinks
-rare transitions toward the simplex centroid. Clipping projected rates
-to values between 0 and 1 is a feasibility constraint on probabilities;
-the dropout cap is a cross-sectional constraint that prevents projected
-attrition from exceeding the observed stock; and the inflow
-apportionment constraint keeps the composition of new entrants equal to
-the last observed recruitment pattern. In the 2017-2023 projection these
-pressures reduced the sensitivity of the forecast to sparse cells and to
-short-run fluctuations in small groups. Quantitatively, the overall RMSE
-of 12849.58 and conservative MAPE of 162.0% are consistent with a model
-that is deliberately regularised rather than optimised for in-sample
-fit. The high MAPE is driven by sparse compartments and zero-observed
-cells; the projection is therefore appropriate for monitoring
-directional drift and proximity to the PNR, not for precise count
-forecasting. The residual errors are concentrated in the smallest
-compartments, which is exactly where smoothing is most active and where
-future data will be most valuable.
-
-## 6.5 Intra-civilisation alternatives when inter-civilisation mobility cannot be controlled
+## 6.4 Intra-civilisation alternatives when inter-civilisation mobility cannot be controlled
 
 If a civilisation cannot control outflows to, or inflows from, other
 jurisdictions---whether because of visa regimes, salary differentials,
@@ -1401,7 +1361,7 @@ effect; more ambitious domestic growth would require corresponding
 evidence that the extra PIs can be absorbed without simply raising
 dropout.
 
-## 6.6 Annual updating as an early-warning layer
+## 6.5 Annual updating as an early-warning layer
 
 The 2017-2023 projection demonstrates that the framework can be rerun
 annually with a one-year time step. Each new year of OpenAlex data
@@ -1425,7 +1385,7 @@ encapsulates the practical goal: keeping the global AI/ML system
 heterogeneous enough that no single centre of power can monopolise the
 technological frontier.
 
-## 6.7 Limitations
+## 6.6 Limitations
 
 Several limitations should be acknowledged. OpenAlex affiliation and
 country assignments are noisy, especially for researchers with multiple
@@ -1444,17 +1404,18 @@ communities; for example, the Sinic grouping reflects current OpenAlex
 country metadata and does not resolve the cultural and historical ties
 between mainland China and Taiwan, which currently appear as separate
 research arenas. This is treated as an empirical limitation of the
-classification, not as a normative claim.The cohort sample is small; the
-absolute equilibrium numbers should be interpreted as model-implied
-stocks rather than as census counts. Authors with many publications are
-over-weighted relative to one-publication authors, so rate estimates
-reflect author-publication exposure rather than a uniformly
-representative sample of individuals. The endogenous inflow is capped at
-a safety factor of 0.40 relative to the critical reproduction rate;
-alternative values would shift equilibrium levels and should be reported
-in future sensitivity tables. Finally, the point-of-no-return threshold
-is a sufficient condition for collapse, not a necessary one: a community
-may decline for reasons outside the model even if T remains above M.
+classification, not as a normative claim. The cohort is a model-implied
+sample extracted from OpenAlex; absolute equilibrium numbers should be
+interpreted as model-implied stocks rather than census counts. Authors
+with many publications are over-weighted relative to less prolific
+authors, so rate estimates reflect author-publication exposure rather
+than a uniformly representative sample of individuals. The endogenous
+inflow is capped at a safety factor of 0.40 relative to the critical
+reproduction rate; alternative values would shift equilibrium levels and
+should be reported in future sensitivity tables. Finally, the
+point-of-no-return threshold is a sufficient condition for collapse, not
+a necessary one: a community may decline for reasons outside the model
+even if T remains above M.
 
 Wide bootstrap confidence intervals, especially for smaller civilisation
 groups, mean that the ordinal ranking of groups by equilibrium size or
@@ -1466,15 +1427,12 @@ lags, and behavioural responses that are outside the scope of this
 paper.
 
 From a security-studies perspective, the framework is intentionally
-non-adversarial. It does not model deliberate recruitment campaigns,
-technology transfer, or strategic denial. Instead, it treats mobility as
-an aggregate transition process and asks when a community becomes unable
-to reproduce itself. That baseline is useful because it shows where
-defensive, capacity-building policies can be most efficient, but it does
-not replace classified or diplomatic assessments of technology
-competition. Future work could add a strategic layer by distinguishing
-between civilian and defence-relevant AI/ML pipelines, or by modelling
-the effects of targeted recruitment on specific subfields.
+non-adversarial: it treats mobility as an aggregate transition process
+and asks when a community becomes unable to reproduce itself, without
+modelling deliberate recruitment campaigns, technology transfer, or
+strategic denial. Future work could add a strategic layer by
+distinguishing civilian from defence-relevant AI/ML pipelines, or by
+modelling targeted recruitment in specific subfields.
 
 # 7. Conclusion
 
