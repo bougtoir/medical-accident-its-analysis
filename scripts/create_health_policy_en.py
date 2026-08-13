@@ -150,11 +150,13 @@ def build_flat(R):
 
         m = c['multilevel']
         F[f'{code}_ml_icc'] = fmt_num(m.get('icc_null'), 3)
+        F[f'{code}_ml_icc_pct'] = fmt_num(m.get('icc_null') * 100, 1)
         F[f'{code}_ml_coef'] = fmt_num(m.get('coef_univ'))
         F[f'{code}_ml_ci_low'] = fmt_num(m.get('ci_low'))
         F[f'{code}_ml_ci_high'] = fmt_num(m.get('ci_high'))
         F[f'{code}_ml_p'] = fmt_p(m.get('p'))
         F[f'{code}_ml_r2'] = fmt_num(m.get('marginal_r2'), 3)
+        F[f'{code}_ml_r2_pct'] = fmt_num(m.get('marginal_r2') * 100, 1)
         F[f'{code}_ml_within_pct'] = fmt_num(100 * (1 - m.get('icc_null', 0)), 1)
 
         ml_log = c.get('multilevel_log')
@@ -526,8 +528,8 @@ add_para(
 
 add_para(
     "Results: Coefficients of variation ranged from ${L008_cv}% to ${L002_cv}%. "
-    "For general anaesthesia, only ${L008_ml_icc} of variance lay between "
-    "prefectures; university hospital presence explained ${L008_ml_r2} of total "
+    "For general anaesthesia, only ${L008_ml_icc_pct}% of variance lay between "
+    "prefectures; university hospital presence explained ${L008_ml_r2_pct}% of total "
     "variance (P ${L008_ml_p}). The association persisted after log "
     "transformation and covariate adjustment; audit-related ratio shifts were "
     "small relative to observed variation, supporting structural access over "
@@ -745,7 +747,7 @@ add_figure_inline(
 
 add_subheading("Multilevel model and university hospital effect")
 add_para(
-    "The null multilevel model showed that only ${L008_ml_icc} of general "
+    "The null multilevel model showed that only ${L008_ml_icc_pct}% of general "
     "anaesthesia variance was attributable to the prefecture level (intraclass "
     "correlation coefficient ${L008_ml_icc}), indicating that "
     "${L008_ml_within_pct}% occurred within prefectures where audit policy is "
@@ -754,7 +756,7 @@ add_para(
     "greater role of prefectural factors for that code. Adding university "
     "hospital presence as a fixed effect produced the largest proportional "
     "reduction in total variance for general anaesthesia "
-    "(${L008_ml_r2}; β = +${L008_ml_coef}, 95% confidence interval "
+    "(${L008_ml_r2_pct}%; β = +${L008_ml_coef}, 95% confidence interval "
     "${L008_ml_ci_low} to ${L008_ml_ci_high}) and was statistically significant "
     "for every code (all P ${L008_ml_p}) (Table 2). A log-transformed "
     "sensitivity model yielded the same direction of association for general "
@@ -846,10 +848,10 @@ add_subheading("Checks against the audit hypothesis")
 add_para(
     "Several lines of evidence pointed away from differential "
     "auditing as the main explanation. First, the multilevel model estimates "
-    "that only ${L008_ml_icc} of general anaesthesia variance lies between "
+    "that only ${L008_ml_icc_pct}% of general anaesthesia variance lies between "
     "prefectures, where audit policy differs, so differential auditing can account "
     "for at most a small share of observed variation. University hospital presence "
-    "explained ${L008_ml_r2} of total variance in the same model, a structural "
+    "explained ${L008_ml_r2_pct}% of total variance in the same model, a structural "
     "component far larger than the between-prefecture share. Second, general "
     "and spinal anaesthesia were positively correlated (r = ${corr_L008_L004_r}, P "
     "${corr_L008_L004_p}), as were general and epidural anaesthesia (r = "

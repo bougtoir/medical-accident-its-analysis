@@ -28,8 +28,10 @@ FLAT = {
     'L008_cv': fmt(R['codes']['L008']['overall']['cv']),
     'L002_cv': fmt(R['codes']['L002']['overall']['cv']),
     'L008_ml_icc': fmt(R['codes']['L008']['multilevel']['icc_null'], 3),
+    'L008_ml_icc_pct': fmt(R['codes']['L008']['multilevel']['icc_null'] * 100, 1),
     'L008_ml_within_pct': fmt(100 * (1 - R['codes']['L008']['multilevel']['icc_null']), 1),
     'L008_ml_r2': fmt(R['codes']['L008']['multilevel']['marginal_r2'], 3),
+    'L008_ml_r2_pct': fmt(R['codes']['L008']['multilevel']['marginal_r2'] * 100, 1),
     'L008_d': fmt(R['empirical_bayes']['L008']['raw_cohens_d'], 2),
 }
 
@@ -127,11 +129,11 @@ add_para(
     "nested within ${n_prefectures} prefectures. Coefficients of variation for "
     "age- and sex-standardised claim ratios ranged from ${L008_cv}% (general "
     "anaesthesia) to ${L002_cv}% (epidural anaesthesia). For general "
-    "anaesthesia, only ${L008_ml_icc} of variance lay between prefectures -- "
+    "anaesthesia, only ${L008_ml_icc_pct}% of variance lay between prefectures -- "
     "where audit policy differs -- while ${L008_ml_within_pct}% occurred within "
     "prefectures where audit policy is uniform. University hospital presence "
     "was associated with the largest proportional reduction in total variance "
-    "for general anaesthesia (${L008_ml_r2}) and was positive in all "
+    "for general anaesthesia (${L008_ml_r2_pct}%) and was positive in all "
     "${n_prefectures} prefectures, with a large effect size (Cohen's d "
     "${L008_d}). Sensitivity and robustness analyses—within-prefecture paired "
     "comparisons, covariate adjustment, empirical Bayes shrinkage, log-transformation, "
