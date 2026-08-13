@@ -502,8 +502,8 @@ add_para(
 add_blank()
 add_para("Keywords: ", bold=False)
 add_para(
-    "anaesthesia; neuraxial anaesthesia; small-area variation; multilevel analysis; "
-    "quality of care; perioperative medicine; health equity; Japan")
+    "anaesthesia; small-area variation; multilevel analysis; health equity; "
+    "universal health coverage; health policy; Japan")
 
 doc.add_page_break()
 # INTRODUCTION
