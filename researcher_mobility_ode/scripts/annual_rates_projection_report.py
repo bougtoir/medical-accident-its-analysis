@@ -194,7 +194,15 @@ def build_interciv_flows(states=None, cohort=None):
 
 
 def build_rate_table(probs, inflows, exits, states=None):
-    """Map observed transition counts to the ODE-style rate names per group-year."""
+    """Map observed transition counts to the ODE-style rate names per group-year.
+
+    Dropout cannot be reliably observed year-by-year in the training window
+    because final attrition is right-censored before 2023.  We therefore import
+    the cohort-level per-year dropout hazard from data/cohort/transition_rates.csv
+    and treat it as a constant annual rate for each group.  This keeps the annual
+    projection consistent with the ODE equilibrium while still allowing the other
+    transition rates to vary by year.
+    """
     stock = build_annual_stock(states)
     alpha = _rate(probs, "D", "A", "alpha")
     beta = _aggregate_return_rate(probs, stock)
@@ -202,7 +210,13 @@ def build_rate_table(probs, inflows, exits, states=None):
     h_A = _rate(probs, "A", "H_A", "h_A")
     p_D = _rate(probs, "H_D", "P_D", "p_D")
     p_A = _rate(probs, "H_A", "P_A", "p_A")
-    d = _dropout_rate(exits, stock)
+
+    # Cohort-level dropout hazard is a more reliable annual d than the exit counts
+    # (which are mostly zero because the reconstructed state sequence has no gaps).
+    cohort_rates = pd.read_csv(DATA_DIR / "cohort" / "transition_rates.csv")
+    cohort_d = cohort_rates[["group", "d"]].rename(columns={"group": "origin_group"})
+    d_grid = stock[["origin_group", "year"]].drop_duplicates()
+    d = d_grid.merge(cohort_d, on="origin_group", how="left").rename(columns={"d": "d"})
 
     rate_table = alpha.merge(beta, on=["origin_group", "year"], how="outer")
     for tbl in [h_D, h_A, p_D, p_A, d]:
@@ -514,16 +528,24 @@ def plot_annual_rates(rate_table, projected_rates, fig_dir=None):
 
 def plot_interciv_heatmap(flows, fig_dir=None):
     """Heatmap of total abroad stock by origin-destination pair, 2000-2023."""
+    flows = flows[
+        (flows["destination_group"] != "Unknown") &
+        (flows["origin_group"] != flows["destination_group"])
+    ].copy()
     pivot = flows.groupby(["origin_group", "destination_group"], observed=False)["count"].sum().reset_index()
     matrix = pivot.pivot(index="origin_group", columns="destination_group", values="count").fillna(0)
-    matrix = matrix.reindex(index=ORDERED_GROUPS, columns=ORDERED_GROUPS + ["Unknown"], fill_value=0)
+    matrix = matrix.reindex(index=ORDERED_GROUPS, columns=ORDERED_GROUPS, fill_value=0)
+    # Set diagonal (origin == destination) to NA so it is not plotted as a "flow"
+    for g in ORDERED_GROUPS:
+        if g in matrix.index and g in matrix.columns:
+            matrix.loc[g, g] = np.nan
     fig, ax = plt.subplots(figsize=(10, 8))
     im = ax.imshow(matrix.values, aspect="auto", cmap="YlOrRd")
     ax.set_xticks(range(len(matrix.columns)))
     ax.set_yticks(range(len(matrix.index)))
     ax.set_xticklabels(matrix.columns, rotation=45, ha="right")
     ax.set_yticklabels(matrix.index)
-    ax.set_title("Total abroad author-years by origin and destination group (2000-2023)", fontsize=11)
+    ax.set_title("Total cross-civilisation abroad author-years by origin (rows) and destination (columns), 2000-2023", fontsize=11)
     fig.colorbar(im, ax=ax, label="Author-years")
     fig.tight_layout()
     fig_dir = fig_dir or FIGURES_DIR
@@ -596,12 +618,11 @@ def build_docx(rate_table, projected, observed, eval_group, eval_comp, eval_over
 
     doc.add_heading("3. Inter-civilisation flows", level=1)
     doc.add_paragraph(
-        "Figure 2 shows the total abroad author-years accumulated by origin and destination civilisation. "
-        "Destination is approximated by the author’s recent_group for all years in which they are abroad; "
-        "this is a lower-bound approximation because the exact year-to-year destination is not recorded in the public cohort."
+        "Figure 2 shows the total cross-civilisation abroad author-years accumulated by origin and destination civilisation. "
+        "Origin-destination cells with the same civilisation and destinations labelled Unknown are excluded because the exact year-to-year destination is not recorded in the public cohort."
     )
     doc.add_picture(str(fig_heatmap), width=Inches(5.5))
-    add_caption(doc, "Figure 2. Total abroad stock by origin (rows) and destination (columns), 2000-2023.")
+    add_caption(doc, "Figure 2. Total cross-civilisation abroad author-years by origin (rows) and destination (columns), 2000-2023.")
 
     doc.add_heading("4. Projection method and correction pressures", level=1)
     doc.add_paragraph(
@@ -610,7 +631,7 @@ def build_docx(rate_table, projected, observed, eval_group, eval_comp, eval_over
         "Inflows are projected with a log1p-linear model with the same R2 guard. Correction pressures include: "
         "(a) Laplace smoothing for sparse cells; "
         "(b) replacing unreliable trends with the historical mean so that, for example, a few early returns do not extrapolate to zero beta; "
-        "(c) capping dropout at 1.5 times its 90th percentile in the training window; "
+        "(c) anchoring annual dropout to the cohort-level per-year hazard because year-to-year final attrition is right-censored before 2023; "
         "(d) keeping all rates inside the [0, 1] probability interval; and "
         "(e) apportioning new entrants to the same first-compartment distribution observed in the training period. "
         "These corrections prevent the projection from fabricating an unbounded technology monopoly/oligopoly and keep "
@@ -664,8 +685,8 @@ def build_docx(rate_table, projected, observed, eval_group, eval_comp, eval_over
             "The endogenous ODE model estimates a safety_margin (T - M) for each civilisation. "
             "Positive margins indicate that the domestic active pool is above the minimum viable size; "
             "negative margins indicate that the point-of-no-return has been crossed. "
-            "The projection in this report is constrained so that dropout does not grow faster than 1.5 times "
-            "its historical 90th percentile, which helps keep margins non-negative."
+            "The projection in this report is constrained so that annual dropout does not exceed 1.5 times "
+            "the cohort-level per-year hazard, which helps keep margins non-negative."
         )
     doc.add_paragraph(
         "The correction pressures are theoretically grounded. The linear 6-compartment system is stable only when the "

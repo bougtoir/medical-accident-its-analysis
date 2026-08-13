@@ -726,10 +726,18 @@ def annual_summary_table(annual):
 
 
 def interciv_top_table(annual, n=10):
-    """Top origin-destination abroad author-year accumulations."""
+    """Top origin-destination abroad author-year accumulations.
+
+    Unknown destinations and origin==destination domestic moves are excluded
+    because the reconstruction cannot observe the actual host civilisation.
+    """
     flows = annual.get("interciv_stock")
     if flows is None or flows.empty:
         return pd.DataFrame()
+    flows = flows[
+        (flows["destination_group"] != "Unknown") &
+        (flows["origin_group"] != flows["destination_group"])
+    ].copy()
     pivot = (
         flows.groupby(["origin_group", "destination_group"], observed=False)["count"]
         .sum()
@@ -1557,14 +1565,15 @@ def _add_docx_body(doc, data, fig_paths, blinded=False):
     p.add_run("The steady-state model in Sections 4.1-4.4 treats rates as constants. "
               "To test whether the same framework can be used for short-run monitoring, we reconstructed year-by-year compartment membership from the cohort data. "
               "For each author and year we inferred location as domestic if the author was in the origin civilisation and abroad otherwise. "
-              "From these states we computed annual transition counts for the six compartments, applied Laplace +0.5 smoothing to empty destination cells, and derived the probabilities that map to α, β, h_D, h_A, p_D, p_A and d. "
+              "From these states we computed annual transition counts for the six compartments, applied Laplace +0.5 smoothing to empty destination cells, and derived the probabilities that map to α, β, h_D, h_A and p_D, p_A. "
+              "Dropout (d) is not directly observed year-by-year in the training window because final attrition is right-censored before 2023, so we import the cohort-level per-year hazard from the full-career data and treat it as a constant annual rate for each group. "
               "Inter-civilisation flows are approximated by assigning each abroad author-year to the author's recent_group as the destination civilisation.")
 
     p = doc.add_paragraph()
     p.add_run("For the 2017-2026 projection we fit a linear trend to the observed 2000-2016 rates for each group and rate. "
               "If fewer than four observations were available or the fit explained less than 10% of the variance, the historical mean was used instead. "
               "Projected rates were clipped to values between 0 and 1. "
-              "Dropout was capped at 1.5 times the 90th percentile of observed dropout rates in the training window to prevent implausible extrapolation. "
+              "The annual dropout rate was capped at 1.5 times the cohort-level per-year hazard to prevent extrapolation beyond observed career attrition. "
               "Projected total inflows were apportioned across compartments using the first-compartment distribution observed over the 2000-2016 training period. "
               "Population composition was projected forward with the discrete-time recursion N(t+1) = N(t)P(t) + b(t+1), where P(t) is a 6×6 row-stochastic-in-expectation matrix that preserves dropout mass: the row sum is 1 − d after scaling outgoing rates. "
               "This discrete step is the operational counterpart of the continuous-time ODE; with an annual dt it provides an early-warning signal one year ahead.")
@@ -1582,7 +1591,7 @@ def _add_docx_body(doc, data, fig_paths, blinded=False):
 
     p = doc.add_paragraph()
     p.add_run("Clipping projected rates to values between 0 and 1 is a feasibility pressure: rates outside the probability simplex are inadmissible. "
-              "The dropout cap is a safety pressure motivated by the fact that unbounded linear extrapolation of observed attrition would eventually predict more leavers than the total stock. "
+              "The annual dropout rate is anchored to the cohort-level per-year hazard rather than extrapolated from year-to-year transitions, because final attrition is right-censored in the training window. "
               "The inflow apportionment pressure keeps the composition of new entrants aligned with the most recently observed recruitment pattern, rather than inventing a new distribution. "
               f"Finally, the safety factor of {_fmt(ctx['safety_factor'], 2)} on the endogenous PI-driven inflow keeps the system inside the stability boundary. "
               "Together these pressures embody the principle that projection should stay within observed empirical support and within theoretical stability limits; they are not arbitrary adjustments but transparent bounds that can be tightened or relaxed as more data become available.")
@@ -1844,22 +1853,24 @@ def _add_docx_body(doc, data, fig_paths, blinded=False):
         )
 
     p = doc.add_paragraph()
-    p.add_run("Figure 6 shows the inter-civilisation accumulation of abroad author-years. "
+    p.add_run("Figure 6 shows the cross-civilisation accumulation of abroad author-years. "
               "Rows represent the origin civilisation and columns represent the destination civilisation, approximated by the author's recent_group while abroad. "
-              "The heatmap is a lower-bound proxy because year-to-year destination switches within a spell abroad are not observed.")
+              "Origin-destination cells with the same civilisation and destinations labelled Unknown are excluded because the reconstruction cannot observe the actual host civilisation. "
+              "The remaining cells are a lower-bound proxy for the true inter-civilisation pipelines.")
     doc.add_picture(str(fig_paths["fig6"]), width=Inches(5.8))
     cap = doc.add_paragraph()
-    cap.add_run("Figure 6. Inter-civilisation abroad author-year accumulation by origin (rows) and destination (columns) (lower-bound proxy; year-to-year destination switches within a spell abroad are not observed).").italic = True
+    cap.add_run("Figure 6. Cross-civilisation abroad author-year accumulation by origin (rows) and destination (columns) (same-civilisation cells and Unknown destinations excluded; lower-bound proxy).").italic = True
     cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
     p = doc.add_paragraph()
-    p.add_run("Table 10 lists the origin-destination pairs with the largest accumulation of abroad author-years. "
+    p.add_run("Table 10 lists the cross-origin-destination pairs with the largest accumulation of abroad author-years. "
+              "Same-civilisation cells and Unknown destinations are excluded because they cannot be interpreted as inter-civilisation flows. "
               "These pairs identify the strongest visible inter-civilisation pipelines and are the empirical counterpart to the α and β transitions.")
     if not interciv_top.empty:
         _add_table_from_df(
             doc,
             interciv_top,
-            caption="Table 10. Top origin-destination abroad author-year pairs.",
+            caption="Table 10. Top cross-civilisation origin-destination abroad author-year pairs.",
             decimals={"Author-years": 0},
         )
 
@@ -2316,9 +2327,9 @@ def write_pptx(output_dir, data, fig_paths):
         )
     if fig_paths.get("fig6"):
         add_image_slide(
-            "Figure 6: Inter-civilisation abroad author-years",
+            "Figure 6: Cross-civilisation abroad author-years",
             fig_paths["fig6"],
-            "Rows are origin civilisations; columns are destination civilisations approximated by recent_group.",
+            "Rows are origin civilisations; columns are destination civilisations approximated by recent_group. Same-civilisation cells and Unknown destinations are excluded.",
         )
     if fig_paths.get("fig7"):
         add_image_slide(

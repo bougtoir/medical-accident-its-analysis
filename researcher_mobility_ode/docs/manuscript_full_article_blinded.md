@@ -1,6 +1,6 @@
 Article type: Research Article
 
-Approximate word count (main text incl. tables, excl. references): 9307
+Approximate word count (main text incl. tables, excl. references): 9372
 
 Author information removed for double-blind review
 
@@ -23,8 +23,8 @@ its current value (equivalent to a 67% proportional reduction) to drive
 the active pool to its threshold. A simulated reduction in dropout
 yields the largest margin gain per unit proportional change in every
 group in the fitted model. The 2017-2023 out-of-sample projection
-records root mean square error (RMSE) 12849.58 and a conservative,
-non-standard mean absolute percentage error (MAPE) of 162.0% (computed
+records root mean square error (RMSE) 10187.43 and a conservative,
+non-standard mean absolute percentage error (MAPE) of 130.4% (computed
 against count_obs + 1 to avoid division by zero). That level of error is
 expected because the projection is designed as an early-warning
 indicator of directional drift and threshold crossing, not as a precise
@@ -496,18 +496,21 @@ For each author and year we inferred location as domestic if the author
 was in the origin civilisation and abroad otherwise. From these states
 we computed annual transition counts for the six compartments, applied
 Laplace +0.5 smoothing to empty destination cells, and derived the
-probabilities that map to α, β, h_D, h_A, p_D, p_A and d.
-Inter-civilisation flows are approximated by assigning each abroad
-author-year to the author\'s recent_group as the destination
-civilisation.
+probabilities that map to α, β, h_D, h_A and p_D, p_A. Dropout (d) is
+not directly observed year-by-year in the training window because final
+attrition is right-censored before 2023, so we import the cohort-level
+per-year hazard from the full-career data and treat it as a constant
+annual rate for each group. Inter-civilisation flows are approximated by
+assigning each abroad author-year to the author\'s recent_group as the
+destination civilisation.
 
 For the 2017-2026 projection we fit a linear trend to the observed
 2000-2016 rates for each group and rate. If fewer than four observations
 were available or the fit explained less than 10% of the variance, the
 historical mean was used instead. Projected rates were clipped to values
-between 0 and 1. Dropout was capped at 1.5 times the 90th percentile of
-observed dropout rates in the training window to prevent implausible
-extrapolation. Projected total inflows were apportioned across
+between 0 and 1. The annual dropout rate was capped at 1.5 times the
+cohort-level per-year hazard to prevent extrapolation beyond observed
+career attrition. Projected total inflows were apportioned across
 compartments using the first-compartment distribution observed over the
 2000-2016 training period. Population composition was projected forward
 with the discrete-time recursion N(t+1) = N(t)P(t) + b(t+1), where P(t)
@@ -537,17 +540,17 @@ standard regulariser for sparse multinomial transitions.
 
 Clipping projected rates to values between 0 and 1 is a feasibility
 pressure: rates outside the probability simplex are inadmissible. The
-dropout cap is a safety pressure motivated by the fact that unbounded
-linear extrapolation of observed attrition would eventually predict more
-leavers than the total stock. The inflow apportionment pressure keeps
-the composition of new entrants aligned with the most recently observed
-recruitment pattern, rather than inventing a new distribution. Finally,
-the safety factor of 0.40 on the endogenous PI-driven inflow keeps the
-system inside the stability boundary. Together these pressures embody
-the principle that projection should stay within observed empirical
-support and within theoretical stability limits; they are not arbitrary
-adjustments but transparent bounds that can be tightened or relaxed as
-more data become available.
+annual dropout rate is anchored to the cohort-level per-year hazard
+rather than extrapolated from year-to-year transitions, because final
+attrition is right-censored in the training window. The inflow
+apportionment pressure keeps the composition of new entrants aligned
+with the most recently observed recruitment pattern, rather than
+inventing a new distribution. Finally, the safety factor of 0.40 on the
+endogenous PI-driven inflow keeps the system inside the stability
+boundary. Together these pressures embody the principle that projection
+should stay within observed empirical support and within theoretical
+stability limits; they are not arbitrary adjustments but transparent
+bounds that can be tightened or relaxed as more data become available.
 
 # 5. Results
 
@@ -959,79 +962,84 @@ return (β), domestic and abroad hit generation (h_D, h_A), PI promotion
   ------------------------------------------------------------------------------------
   **Group**       **α**      **β**      **h_D**    **p_D**    **d**      **I_total**
   --------------- ---------- ---------- ---------- ---------- ---------- -------------
-  Anglosphere     0.012      0.034      0.046      0.087      0.000      3771.88
+  Anglosphere     0.012      0.034      0.046      0.087      0.046      3771.88
   ex-US                                                                  
 
-  Continental     0.007      0.036      0.051      0.094      0.000      9935.94
+  Continental     0.007      0.036      0.051      0.094      0.046      9935.94
   Europe                                                                 
 
-  Hindu           0.008      0.030      0.027      0.082      0.000      1651.12
+  Hindu           0.008      0.030      0.027      0.082      0.028      1651.12
 
-  Islamic         0.012      0.037      0.025      0.095      0.000      3002.53
+  Islamic         0.012      0.037      0.025      0.095      0.030      3002.53
 
-  Japanese        0.007      0.037      0.024      0.069      0.000      1882.76
+  Japanese        0.007      0.037      0.024      0.069      0.055      1882.76
 
-  Other           0.009      0.035      0.026      0.078      0.000      2955.29
+  Other           0.009      0.035      0.026      0.078      0.042      2955.29
   Civilizations                                                          
 
-  Other Western   0.014      0.032      0.058      0.067      0.000      258.65
+  Other Western   0.014      0.032      0.058      0.067      0.044      258.65
 
-  Sinic           0.007      0.027      0.026      0.091      0.000      11179.47
+  Sinic           0.007      0.027      0.026      0.091      0.034      11179.47
 
-  United States   0.008      0.033      0.047      0.086      0.000      7929.82
+  United States   0.008      0.033      0.047      0.086      0.046      7929.82
   ------------------------------------------------------------------------------------
 
 *Table 9. Mean observed annual transition rates by civilisation,
 2000-2016.*
 
-Figure 6 shows the inter-civilisation accumulation of abroad
+Figure 6 shows the cross-civilisation accumulation of abroad
 author-years. Rows represent the origin civilisation and columns
 represent the destination civilisation, approximated by the author\'s
-recent_group while abroad. The heatmap is a lower-bound proxy because
-year-to-year destination switches within a spell abroad are not
-observed.
+recent_group while abroad. Origin-destination cells with the same
+civilisation and destinations labelled Unknown are excluded because the
+reconstruction cannot observe the actual host civilisation. The
+remaining cells are a lower-bound proxy for the true inter-civilisation
+pipelines.
 
-![](media/image6.png){width="5.8in" height="4.673153980752406in"}
+![](media/image6.png){width="5.8in" height="4.714864391951006in"}
 
-*Figure 6. Inter-civilisation abroad author-year accumulation by origin
-(rows) and destination (columns) (lower-bound proxy; year-to-year
-destination switches within a spell abroad are not observed).*
+*Figure 6. Cross-civilisation abroad author-year accumulation by origin
+(rows) and destination (columns) (same-civilisation cells and Unknown
+destinations excluded; lower-bound proxy).*
 
-Table 10 lists the origin-destination pairs with the largest
-accumulation of abroad author-years. These pairs identify the strongest
-visible inter-civilisation pipelines and are the empirical counterpart
-to the α and β transitions.
+Table 10 lists the cross-origin-destination pairs with the largest
+accumulation of abroad author-years. Same-civilisation cells and Unknown
+destinations are excluded because they cannot be interpreted as
+inter-civilisation flows. These pairs identify the strongest visible
+inter-civilisation pipelines and are the empirical counterpart to the α
+and β transitions.
 
   -----------------------------------------------------------------------
   **Origin**              **Destination**         **Author-years**
   ----------------------- ----------------------- -----------------------
-  Sinic                   Sinic                   111609
-
-  Continental Europe      Continental Europe      86447
-
-  United States           Unknown                 65558
-
-  Continental Europe      Unknown                 58313
-
-  United States           United States           57712
-
   United States           Sinic                   52689
 
-  Anglosphere ex-US       Anglosphere ex-US       38063
+  United States           Continental Europe      21968
 
-  Sinic                   Unknown                 37254
+  Anglosphere ex-US       Sinic                   20534
 
-  Anglosphere ex-US       Unknown                 36460
+  Sinic                   United States           18505
 
-  Other Civilizations     Other Civilizations     28095
+  Continental Europe      Anglosphere ex-US       18156
+
+  United States           Anglosphere ex-US       17719
+
+  Continental Europe      United States           15459
+
+  Anglosphere ex-US       Continental Europe      15003
+
+  Anglosphere ex-US       United States           14422
+
+  Continental Europe      Sinic                   10535
   -----------------------------------------------------------------------
 
-*Table 10. Top origin-destination abroad author-year pairs.*
+*Table 10. Top cross-civilisation origin-destination abroad author-year
+pairs.*
 
 ## 5.7 Out-of-sample projection, 2017-2023
 
 The 2017-2023 projection is compared with observed annual stocks in
-Figure 7. Overall accuracy is RMSE 12849.58 and MAPE 162.0% (a
+Figure 7. Overall accuracy is RMSE 10187.43 and MAPE 130.4% (a
 non-standard, conservative measure computed against count_obs + 1 to
 avoid division by zero). The high MAPE reflects small absolute counts
 and zero-observed cells, and the projection should be read as a
