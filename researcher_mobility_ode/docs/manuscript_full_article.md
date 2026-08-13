@@ -1,36 +1,31 @@
 Article type: Research Article
 
-Approximate word count (main text incl. tables, excl. references): 9372
+Approximate word count (main text incl. tables, excl. references): 9676
 
-Corresponding author: \[To be completed\]
+Corresponding author: \[To be completed at submission\]
 
 # Abstract
 
 Artificial intelligence (AI) and machine learning (ML) research is
-increasingly concentrated in a few regions, raising the risk that
-smaller research communities fall below a minimum viable coauthor pool
-and cannot recover. We model each civilisation as a six-compartment
-system of domestic and abroad early-career, high-impact, and
-principal-investigator (PI) researchers, and estimate transition rates
-from OpenAlex Artificial Intelligence works (subfield 1702). The minimum
-viable coauthor threshold is defined as M = k × c_bar, where c_bar is
-the mean number of authors per work and k is the median number of
-distinct last-author groups observed per recent year. Across 9 groups,
-equilibrium domestic active pools remain above their thresholds, but the
-closest point of no return (PNR) is observed for the Other Western
-group, where the exogenous entry rate (I0) must be multiplied by 0.332×
-its current value (equivalent to a 67% proportional reduction) to drive
-the active pool to its threshold. A simulated reduction in dropout
-yields the largest margin gain per unit proportional change in every
-group in the fitted model. The 2017-2023 out-of-sample projection
-records root mean square error (RMSE) 10187.43 and a conservative,
-non-standard mean absolute percentage error (MAPE) of 130.4% (computed
-against count_obs + 1 to avoid division by zero). That level of error is
-expected because the projection is designed as an early-warning
-indicator of directional drift and threshold crossing, not as a precise
-population forecast. Historical counterfactuals and bootstrap
-uncertainty show that the model is most sensitive to exogenous entry and
-attrition. These results provide a quantitative framework for early,
+increasingly concentrated, raising the risk that smaller communities
+fall below a minimum viable coauthor pool. We model each civilisation as
+a six-compartment system of domestic and abroad early-career,
+high-impact, and principal-investigator (PI) researchers, and estimate
+transition rates from OpenAlex AI/ML data (subfield 1702). The minimum
+viable threshold is M = k × c_bar, where c_bar is the mean authors per
+work and k is the median number of distinct last-author groups per year.
+Across 9 groups, equilibrium active pools remain above their thresholds,
+but the closest point of no return (PNR) is observed for the Other
+Western group, where the exogenous entry rate (I0) must be multiplied by
+0.332× (a 67% proportional reduction) to drive the active pool to its
+threshold. A simulated reduction in dropout yields the largest margin
+gain in every group in the fitted model. The 2017-2023 projection has
+RMSE 10187.43 and a conservative, non-standard MAPE of 130.4%
+(count_obs + 1 denominator). The high error is expected because the
+projection is an early-warning indicator of directional drift, not a
+precise forecast. Historical counterfactuals and bootstrap uncertainty
+show that the model is most sensitive to exogenous entry and attrition.
+These results provide a quantitative framework for early,
 safety-factor-bound policy scenarios that preserve civilisational
 diversity in AI/ML research.
 
@@ -44,8 +39,7 @@ grouping; ordinary differential equations; PNR; innovation studies
 
 - Closest PNR: Other Western via I0 (factor 0.332×).
 
-- Dropout reduction gives the largest margin gain per 10% change across
-  all groups in the fitted model.
+- Dropout reduction yields the largest margin gain across all groups.
 
 ## Data and Code Availability
 
@@ -59,11 +53,13 @@ released under CC0.
 
 ## Declarations
 
-**Funding:** \[To be completed\]
+**Funding:** \[To be completed by the authors at submission.\]
 
-**Competing interests:** \[To be completed\]
+**Competing interests:** \[To be completed by the authors at
+submission.\]
 
-**Author contributions:** \[To be completed\]
+**Author contributions:** \[To be completed by the authors at
+submission.\]
 
 **Declaration of generative AI in scientific writing:** During the
 preparation of this work the authors used AI-assisted tools to draft,
@@ -271,13 +267,20 @@ language, funding systems, and institutional networks cluster along
 civilisational lines, and that these clusters shape mobility more than
 national borders alone ^\[4\]^. It also draws on the innovation-systems
 literature, in which technological trajectories are shaped by sectoral
-and national systems of innovation ^\[13\]\ \[14\]\ \[15\]\ \[16\]^. The
-result is a framework that can be updated as new data arrive and can
-compare the fragility of different research communities using a common
-metric. Because it is built on open bibliometric data and transparent
-transition rates, the model can be replicated and extended by other
-researchers and by policymakers who need a common language for
-discussing mobility and capacity.
+and national systems of innovation ^\[13\]\ \[14\]\ \[15\]\ \[16\]^. In
+that view, technological change is path-dependent and distributed:
+routines, organisations and institutions co-evolve, so the loss of a
+research community is not merely a decline in headcount but a reduction
+in the variety from which future trajectories can be generated. The PNR
+is therefore an innovation-systems problem: once a community falls below
+the minimum scale needed to sustain distinct research programmes, the
+path-dependent process of search and selection that produces new
+trajectories is impaired. The result is a framework that can be updated
+as new data arrive and can compare the fragility of different research
+communities using a common metric. Because it is built on open
+bibliometric data and transparent transition rates, the model can be
+replicated and extended by other researchers and by policymakers who
+need a common language for discussing mobility and capacity.
 
 # 3. Data and grouping
 
@@ -317,9 +320,10 @@ Anglosphere because intra-European mobility and EU research funding
 create a separate mobility bloc. Latin American, Orthodox and
 sub-Saharan African countries are merged into Other Civilizations
 because their AI/ML author counts in the sample are too small to
-estimate stable transition rates separately. This aggregation is a
-pragmatic modelling choice and does not imply that these communities are
-culturally homogeneous.
+estimate stable transition rates separately. These civilisation labels
+are operational categories based on observed publication-affiliation
+patterns; they are not normative claims about cultural or political
+identity, and they are reported in full in Supplementary Material.
 
 ## 3.2 Sample selection and variable definitions
 
@@ -430,8 +434,9 @@ projection.
 
 New entrants are modelled as a function of the domestic PI stock. The
 linear form is $IP_{D} = I_{0} + rP_{D}$, where I_0 is the exogenous
-entry rate, r is the PI reproduction rate, and r is capped at 0.40× the
-stability-critical value (safety factor 0.40). A saturating alternative,
+entry rate, r is the PI reproduction rate, and r is capped at 0.50× the
+stability-critical value (safety factor 0.50); the most constrained
+fitted group realises 0.40×. A saturating alternative,
 $IP_{D} = I_{0} + \frac{rP_{D}}{1\  + \ \varepsilon \times P_{D}}$, is
 reported as a robustness check. The PI-driven inflow captures the idea
 that senior researchers train graduate students, attract postdoctoral
@@ -474,10 +479,12 @@ steady-state equations are solved numerically using a trust-region
 Newton method with analytically supplied Jacobians. Elasticities are
 computed by perturbing each rate by 1%, re-solving, and taking the
 percentage change in the target stock. For point-of-no-return analysis
-we scale each rate until the active pool reaches M and record the
-critical factor and its proximity, \|critical factor − 1\|. A rate whose
-critical factor lies inside the scan window and is close to 1.0 is the
-most fragile lever for that group. All counterfactuals are mechanical
+we scale each rate until the active pool T reaches its coauthor
+threshold M, or the domestic PI pool P_D reaches k distinct last-author
+groups as a lower-bound PI-pool threshold, and record the critical
+factor and its proximity, \|critical factor − 1\|. A rate whose critical
+factor lies inside the scan window and is close to 1.0 is the most
+fragile lever for that group. All counterfactuals are mechanical
 perturbations of the fitted rates; they reveal which transitions the
 model treats as sensitive, not the causal impact of real-world policies.
 
@@ -550,12 +557,14 @@ rather than extrapolated from year-to-year transitions, because final
 attrition is right-censored in the training window. The inflow
 apportionment pressure keeps the composition of new entrants aligned
 with the most recently observed recruitment pattern, rather than
-inventing a new distribution. Finally, the safety factor of 0.40 on the
-endogenous PI-driven inflow keeps the system inside the stability
-boundary. Together these pressures embody the principle that projection
-should stay within observed empirical support and within theoretical
-stability limits; they are not arbitrary adjustments but transparent
-bounds that can be tightened or relaxed as more data become available.
+inventing a new distribution. Finally, the endogenous inflow is capped
+at a safety factor of 0.50 relative to the critical reproduction rate
+(the most constrained fitted group realises 0.40), which keeps the
+system inside the stability boundary. Together these pressures embody
+the principle that projection should stay within observed empirical
+support and within theoretical stability limits; they are not arbitrary
+adjustments but transparent bounds that can be tightened or relaxed as
+more data become available.
 
 # 5. Results
 
@@ -1195,8 +1204,9 @@ policy design space.
 
 The connection to civilisational diversity is direct. Each group\'s
 safety margin can be monitored over time, and interventions can be
-adjusted before the margin disappears. Because the model uses a fixed
-safety factor of 0.40 for the endogenous inflow parameter r, the policy
+adjusted before the margin disappears. Because the endogenous inflow is
+capped at a safety factor of 0.50 relative to the critical reproduction
+rate (the most constrained fitted group realises 0.40), the policy
 recommendations are deliberately conservative: they do not push the
 system toward instability. That bounded approach is consistent with the
 goal of preserving diversity rather than maximising any single
@@ -1234,34 +1244,37 @@ Preserving multiple centres of AI/ML research is not a matter of slowing
 the frontier; it is a matter of ensuring that the frontier is not
 defined by a single set of institutions, languages, or problems.
 
-Japan is the clearest example among the large civilisations. Its fitted
-active-pool margin is T=29332 researchers, with M=1793 (T/M=16.36). As
-Figure 8 shows, Japan\'s closest PNR is the exogenous entry rate I0: if
-I0 fell to 6.1% of its current level, the active pool would reach the
-minimum viable threshold. The same figure shows that Japan\'s
-early-career outflow α (0.025) and domestic PI promotion p_D (0.064) are
-comparatively low, while return from abroad β (0.029) and domestic hit
-generation h_D (0.040) are moderate. These numbers translate directly
-into policy levers. α can be reduced by expanding postdoctoral
-fellowships and junior-faculty positions that keep promising researchers
-in the domestic pipeline; β can be raised through return grants, dual
-appointments, and recognition of overseas experience in domestic hiring.
-h_D responds to doctoral and postdoctoral training expansion, including
-the 2026 AI for Science (SPREAD) programme if it is used to create
-independent labs with their own budgets rather than merely increasing
-headcount. p_D depends on tenure-track conversion, startup packages, and
-project-based PI status for mid-career researchers. d, the dropout rate
-to L, can be lowered through childcare support, dual-career
-accommodation, and stable non-tenure research tracks. Finally, I0
-captures the pure exogenous entry flow and can be supported by
-research-master pipelines, undergraduate research programmes, and early
-doctoral fellowships. Weakening the Japanese civilisation would not be
-neutral for the rest of the world: it would remove a distinct
-institutional lineage, reduce the pool of non-Anglophone problem
-framings, and leave a range of health, ageing, robotics, and materials
-problems under-addressed. Maintaining Japan as a viable AI/ML
-civilisation is therefore in the global interest, not only in Japan\'s
-national interest.
+Japan is used as an illustrative case, not because it is the only group
+of interest, but because it combines a small absolute margin with rich
+data and a distinctive institutional lineage that makes the policy
+translation concrete. It is the clearest example among the large
+civilisations. Its fitted active-pool margin is T=29332 researchers,
+with M=1793 (T/M=16.36). As Figure 8 shows, Japan\'s closest PNR is the
+exogenous entry rate I0: if I0 fell to 6.1% of its current level, the
+active pool would reach the minimum viable threshold. The same figure
+shows that Japan\'s early-career outflow α (0.025) and domestic PI
+promotion p_D (0.064) are comparatively low, while return from abroad β
+(0.029) and domestic hit generation h_D (0.040) are moderate. These
+numbers translate directly into policy levers. α can be reduced by
+expanding postdoctoral fellowships and junior-faculty positions that
+keep promising researchers in the domestic pipeline; β can be raised
+through return grants, dual appointments, and recognition of overseas
+experience in domestic hiring. h_D responds to doctoral and postdoctoral
+training expansion, including the 2026 AI for Science (SPREAD) programme
+if it is used to create independent labs with their own budgets rather
+than merely increasing headcount. p_D depends on tenure-track
+conversion, startup packages, and project-based PI status for mid-career
+researchers. d, the dropout rate to L, can be lowered through childcare
+support, dual-career accommodation, and stable non-tenure research
+tracks. Finally, I0 captures the pure exogenous entry flow and can be
+supported by research-master pipelines, undergraduate research
+programmes, and early doctoral fellowships. Weakening the Japanese
+civilisation would not be neutral for the rest of the world: it would
+remove a distinct institutional lineage, reduce the pool of
+non-Anglophone problem framings, and leave a range of health, ageing,
+robotics, and materials problems under-addressed. Maintaining Japan as a
+viable AI/ML civilisation is therefore in the global interest, not only
+in Japan\'s national interest.
 
 ## 6.3 Policy and management implications, and early warning
 
@@ -1348,6 +1361,19 @@ prioritise empirical policy evaluation. Both uses depend on transparent
 assumptions and regular recalibration; the model should not be used to
 justify one-off interventions without accompanying process evaluation.
 
+Table 11 distinguishes the policy instruments that governments, funding
+agencies and international organisations control from the management
+actions that universities and research institutes must take.
+Policymakers set incentives---doctoral quotas, fellowships, visas,
+independent-lab schemes, and dual-career support---but those incentives
+change transition rates only if institutions translate them into hiring,
+promotion, and retention practices. University leadership and department
+heads therefore own the management levers in the right-hand column:
+tenure-track conversion, startup packages, mentoring pipelines, and
+stable non-tenure research tracks. The model\'s value for management is
+to rank which local transition rates most urgently need intervention and
+to estimate the proportional change required to restore a safety margin.
+
 ## 6.4 Intra-civilisation alternatives when inter-civilisation mobility cannot be controlled
 
 If a civilisation cannot control outflows to, or inflows from, other
@@ -1363,11 +1389,12 @@ substitutes when inter-civilisation poaching cannot be regulated. This
 is the practical meaning of civilisational-diversity preservation under
 sovereignty constraints: even without controlling the border of talent,
 a community can increase the internal reproduction of active
-researchers. The ODE safety factor of 0.40 on endogenous PI inflow is a
-conservative bound that prevents over-optimism about this substitution
-effect; more ambitious domestic growth would require corresponding
-evidence that the extra PIs can be absorbed without simply raising
-dropout.
+researchers. The endogenous inflow is capped at a safety factor of 0.50
+relative to the critical reproduction rate (the most constrained fitted
+group realises 0.40), so the model prevents over-optimism about this
+substitution effect; more ambitious domestic growth would require
+corresponding evidence that the extra PIs can be absorbed without simply
+raising dropout.
 
 ## 6.5 Annual updating as an early-warning layer
 
@@ -1418,12 +1445,12 @@ interpreted as model-implied stocks rather than census counts. Authors
 with many publications are over-weighted relative to less prolific
 authors, so rate estimates reflect author-publication exposure rather
 than a uniformly representative sample of individuals. The endogenous
-inflow is capped at a safety factor of 0.40 relative to the critical
-reproduction rate; alternative values would shift equilibrium levels and
-should be reported in future sensitivity tables. Finally, the
-point-of-no-return threshold is a sufficient condition for collapse, not
-a necessary one: a community may decline for reasons outside the model
-even if T remains above M.
+inflow is capped at a safety factor of 0.50 relative to the critical
+reproduction rate (the most constrained fitted group realises 0.40);
+alternative values would shift equilibrium levels and should be reported
+in future sensitivity tables. Finally, the point-of-no-return threshold
+is a sufficient condition for collapse, not a necessary one: a community
+may decline for reasons outside the model even if T remains above M.
 
 Wide bootstrap confidence intervals, especially for smaller civilisation
 groups, mean that the ordinal ranking of groups by equilibrium size or

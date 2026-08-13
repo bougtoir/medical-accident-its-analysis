@@ -872,8 +872,11 @@ def compute_context(cohort, eq, sat_eq, top_t, pnr_closest, period_compare, poli
     d_min_gain = d_10pct_group.sort_values("margin_gain").iloc[0]
     d_max_gain = d_10pct_group.sort_values("margin_gain").iloc[-1]
 
-    # Endogenous inflow safety factor actually used in the fitted model
-    safety_factor = float((eq["r"] / eq["r_critical"]).min())
+    # Endogenous inflow safety factor used in the fitted model.  The default code
+    # cap is 0.50 of the critical reproduction rate; the most constrained fitted
+    # group has a realised r / r_critical ratio that is lower (about 0.40).
+    safety_factor_cap = 0.50
+    min_realised_safety_ratio = float((eq["r"] / eq["r_critical"]).min())
 
     return {
         "n_groups": n_groups,
@@ -895,7 +898,8 @@ def compute_context(cohort, eq, sat_eq, top_t, pnr_closest, period_compare, poli
         "d_max_gain_group": d_max_gain["group"],
         "d_min_gain": round(d_min_gain["margin_gain"]),
         "d_max_gain": round(d_max_gain["margin_gain"]),
-        "safety_factor": safety_factor,
+        "safety_factor_cap": safety_factor_cap,
+        "min_realised_safety_ratio": min_realised_safety_ratio,
     }
 
 
@@ -1055,8 +1059,8 @@ def _abstract_and_highlights(eq, pnr_closest):
         all_top_are_d = True
         most_common_lever = "d"
     if all_top_are_d:
-        lever_text = "A simulated reduction in dropout yields the largest margin gain per unit proportional change in every group in the fitted model. "
-        highlight_lever = "Dropout reduction gives the largest margin gain per 10% change across all groups in the fitted model."
+        lever_text = "A simulated reduction in dropout yields the largest margin gain in every group in the fitted model. "
+        highlight_lever = "Dropout reduction yields the largest margin gain across all groups."
     else:
         lever_text = f"A simulated reduction in dropout is the most common single positive lever in the fitted model, although other levers dominate for some groups in the current data. "
         highlight_lever = f"Simulated {most_common_lever} adjustment yields the largest margin gain per unit proportional change for most groups in the fitted model."
@@ -1067,20 +1071,19 @@ def _abstract_and_highlights(eq, pnr_closest):
         overall_rmse = float(((ev["error"] ** 2).mean()) ** 0.5)
         overall_mape = float(ev["ape"].mean() * 100.0)
         projection_accuracy_text = (
-            f"The 2017-2023 out-of-sample projection records root mean square error (RMSE) {_fmt(overall_rmse, 2)} and a conservative, non-standard mean absolute percentage error (MAPE) of {_fmt(overall_mape, 1)}% "
-            "(computed against count_obs + 1 to avoid division by zero). "
-            "That level of error is expected because the projection is designed as an early-warning indicator of directional drift and threshold crossing, not as a precise population forecast. "
+            f"The 2017-2023 projection has RMSE {_fmt(overall_rmse, 2)} and a conservative, non-standard MAPE of {_fmt(overall_mape, 1)}% (count_obs + 1 denominator). "
+            "The high error is expected because the projection is an early-warning indicator of directional drift, not a precise forecast. "
         )
     else:
         projection_accuracy_text = ""
     abstract = (
-        "Artificial intelligence (AI) and machine learning (ML) research is increasingly concentrated in a few regions, "
-        "raising the risk that smaller research communities fall below a minimum viable coauthor pool and cannot recover. "
+        "Artificial intelligence (AI) and machine learning (ML) research is increasingly concentrated, "
+        "raising the risk that smaller communities fall below a minimum viable coauthor pool. "
         "We model each civilisation as a six-compartment system of domestic and abroad early-career, high-impact, and principal-investigator (PI) researchers, "
-        "and estimate transition rates from OpenAlex Artificial Intelligence works (subfield 1702). "
-        "The minimum viable coauthor threshold is defined as M = k × c_bar, where c_bar is the mean number of authors per work and k is the median number of distinct last-author groups observed per recent year. "
-        f"Across {len(eq)} groups, equilibrium domestic active pools remain above their thresholds, but the closest point of no return (PNR) is observed for the {closest['group']} group, "
-        f"where the {_rate_label(closest['rate_name'])} must be multiplied by {_fmt(closest['critical_factor'], 3)}× its current value (equivalent to a {closest['proximity']*100:.0f}% proportional {'reduction' if closest['critical_factor'] < 1 else 'increase'}) to drive the active pool to its threshold. "
+        "and estimate transition rates from OpenAlex AI/ML data (subfield 1702). "
+        "The minimum viable threshold is M = k × c_bar, where c_bar is the mean authors per work and k is the median number of distinct last-author groups per year. "
+        f"Across {len(eq)} groups, equilibrium active pools remain above their thresholds, but the closest point of no return (PNR) is observed for the {closest['group']} group, "
+        f"where the {_rate_label(closest['rate_name'])} must be multiplied by {_fmt(closest['critical_factor'], 3)}× (a {closest['proximity']*100:.0f}% proportional {'reduction' if closest['critical_factor'] < 1 else 'increase'}) to drive the active pool to its threshold. "
         + lever_text
         + projection_accuracy_text
         + "Historical counterfactuals and bootstrap uncertainty show that the model is most sensitive to exogenous entry and attrition. "
@@ -1171,7 +1174,7 @@ def _add_title_page(doc, word_count=None, blinded=False):
     if not blinded:
         p = doc.add_paragraph()
         p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        p.add_run("Corresponding author: [To be completed]")
+        p.add_run("Corresponding author: [To be completed at submission]")
     else:
         p = doc.add_paragraph()
         p.alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -1202,9 +1205,9 @@ def _add_front_matter(doc, abstract, keywords, highlights, blinded=False):
 
     doc.add_heading("Declarations", level=2)
     declarations = [
-        ("Funding", "[To be completed]"),
-        ("Competing interests", "[To be completed]"),
-        ("Author contributions", "[To be completed]"),
+        ("Funding", "[To be completed by the authors at submission.]"),
+        ("Competing interests", "[To be completed by the authors at submission.]"),
+        ("Author contributions", "[To be completed by the authors at submission.]"),
         (
             "Declaration of generative AI in scientific writing",
             "During the preparation of this work the authors used AI-assisted tools to draft, code, and revise the manuscript. All claims, data, and interpretations were reviewed and approved by the authors.",
@@ -1432,6 +1435,8 @@ def _add_docx_body(doc, data, fig_paths, blinded=False):
     add_citation(p, 15)
     add_citation(p, 16)
     p.add_run(". "
+              "In that view, technological change is path-dependent and distributed: routines, organisations and institutions co-evolve, so the loss of a research community is not merely a decline in headcount but a reduction in the variety from which future trajectories can be generated. "
+              "The point of no return is therefore an innovation-systems problem: once a community falls below the minimum scale needed to sustain distinct research programmes, the path-dependent process of search and selection that produces new trajectories is impaired. "
               "The result is a framework that can be updated as new data arrive and can compare the fragility of different research communities using a common metric. "
               "Because it is built on open bibliometric data and transparent transition rates, the model can be replicated and extended by other researchers and by policymakers who need a common language for discussing mobility and capacity.")
 
@@ -1458,7 +1463,7 @@ def _add_docx_body(doc, data, fig_paths, blinded=False):
               "The United States is separated from the broader Anglosphere because it is the dominant destination for AI/ML researchers and because its higher-education and funding systems differ systematically from those of other English-speaking countries. "
               "Continental Europe is kept distinct from the Anglosphere because intra-European mobility and EU research funding create a separate mobility bloc. "
               "Latin American, Orthodox and sub-Saharan African countries are merged into Other Civilizations because their AI/ML author counts in the sample are too small to estimate stable transition rates separately. "
-              "This aggregation is a pragmatic modelling choice and does not imply that these communities are culturally homogeneous.")
+              "These civilisation labels are operational categories based on observed publication-affiliation patterns; they are not normative claims about cultural or political identity, and they are reported in full in Supplementary Material.")
 
     doc.add_heading("3.2 Sample selection and variable definitions", level=2)
     p = doc.add_paragraph()
@@ -1519,7 +1524,7 @@ def _add_docx_body(doc, data, fig_paths, blinded=False):
     p.add_run("New entrants are modelled as a function of the domestic PI stock. "
               "The linear form is ")
     add_omath_inline(p, math_I_linear())
-    p.add_run(f", where I_0 is the exogenous entry rate, r is the PI reproduction rate, and r is capped at {_fmt(ctx['safety_factor'], 2)}× the stability-critical value (safety factor {_fmt(ctx['safety_factor'], 2)}). "
+    p.add_run(f", where I_0 is the exogenous entry rate, r is the PI reproduction rate, and r is capped at {_fmt(ctx['safety_factor_cap'], 2)}× the stability-critical value (safety factor {_fmt(ctx['safety_factor_cap'], 2)}); the most constrained fitted group realises {_fmt(ctx['min_realised_safety_ratio'], 2)}×. "
               "A saturating alternative, ")
     add_omath_inline(p, math_I_saturating())
     p.add_run(", is reported as a robustness check. "
@@ -1547,7 +1552,7 @@ def _add_docx_body(doc, data, fig_paths, blinded=False):
               "Because the data are right-censored at the end of the observation period, the resulting rates are lower bounds on true long-run hazards; equilibrium solutions therefore tend to be conservative. "
               "The non-linear steady-state equations are solved numerically using a trust-region Newton method with analytically supplied Jacobians. "
               "Elasticities are computed by perturbing each rate by 1%, re-solving, and taking the percentage change in the target stock. "
-              "For point-of-no-return analysis we scale each rate until the active pool reaches M and record the critical factor and its proximity, |critical factor − 1|. "
+              "For point-of-no-return analysis we scale each rate until the active pool T reaches its coauthor threshold M, or the domestic PI pool P_D reaches k distinct last-author groups as a lower-bound PI-pool threshold, and record the critical factor and its proximity, |critical factor − 1|. "
               "A rate whose critical factor lies inside the scan window and is close to 1.0 is the most fragile lever for that group. "
               "All counterfactuals are mechanical perturbations of the fitted rates; they reveal which transitions the model treats as sensitive, not the causal impact of real-world policies.")
 
@@ -1593,7 +1598,7 @@ def _add_docx_body(doc, data, fig_paths, blinded=False):
     p.add_run("Clipping projected rates to values between 0 and 1 is a feasibility pressure: rates outside the probability simplex are inadmissible. "
               "The annual dropout rate is anchored to the cohort-level per-year hazard rather than extrapolated from year-to-year transitions, because final attrition is right-censored in the training window. "
               "The inflow apportionment pressure keeps the composition of new entrants aligned with the most recently observed recruitment pattern, rather than inventing a new distribution. "
-              f"Finally, the safety factor of {_fmt(ctx['safety_factor'], 2)} on the endogenous PI-driven inflow keeps the system inside the stability boundary. "
+              f"Finally, the endogenous inflow is capped at a safety factor of {_fmt(ctx['safety_factor_cap'], 2)} relative to the critical reproduction rate (the most constrained fitted group realises {_fmt(ctx['min_realised_safety_ratio'], 2)}), which keeps the system inside the stability boundary. "
               "Together these pressures embody the principle that projection should stay within observed empirical support and within theoretical stability limits; they are not arbitrary adjustments but transparent bounds that can be tightened or relaxed as more data become available.")
 
     # Results
@@ -1971,7 +1976,7 @@ def _add_docx_body(doc, data, fig_paths, blinded=False):
     p = doc.add_paragraph()
     p.add_run("The connection to civilisational diversity is direct. "
               "Each group's safety margin can be monitored over time, and interventions can be adjusted before the margin disappears. "
-              f"Because the model uses a fixed safety factor of {_fmt(ctx['safety_factor'], 2)} for the endogenous inflow parameter r, the policy recommendations are deliberately conservative: they do not push the system toward instability. "
+              f"Because the endogenous inflow is capped at a safety factor of {_fmt(ctx['safety_factor_cap'], 2)} relative to the critical reproduction rate (the most constrained fitted group realises {_fmt(ctx['min_realised_safety_ratio'], 2)}), the policy recommendations are deliberately conservative: they do not push the system toward instability. "
               "That bounded approach is consistent with the goal of preserving diversity rather than maximising any single country's share.")
 
     p = doc.add_paragraph()
@@ -1994,7 +1999,8 @@ def _add_docx_body(doc, data, fig_paths, blinded=False):
               "Preserving multiple centres of AI/ML research is not a matter of slowing the frontier; it is a matter of ensuring that the frontier is not defined by a single set of institutions, languages, or problems.")
 
     p = doc.add_paragraph()
-    p.add_run("Japan is the clearest example among the large civilisations. "
+    p.add_run("Japan is used as an illustrative case, not because it is the only group of interest, but because it combines a small absolute margin with rich data and a distinctive institutional lineage that makes the policy translation concrete. "
+              "It is the clearest example among the large civilisations. "
               "Its fitted active-pool margin is T=" + str(ja_ctx['D'] + ja_ctx['H_D'] + ja_ctx['P_D']) + " researchers, with M=" + _fmt(ja_ctx['M'], 0) + " (T/M=" + _fmt(ja_ctx['T_over_M'], 2) + "). "
               "As Figure 8 shows, Japan's closest point of no return is the exogenous entry rate I0: if I0 fell to " + _fmt(ja_ctx['pnr_factor'] * 100, 1) + "% of its current level, the active pool would reach the minimum viable threshold. "
               "The same figure shows that Japan's early-career outflow α (" + _fmt(ja_ctx['alpha'], 3) + ") and domestic PI promotion p_D (" + _fmt(ja_ctx['p_D'], 3) + ") are comparatively low, while return from abroad β (" + _fmt(ja_ctx['beta'], 3) + ") and domestic hit generation h_D (" + _fmt(ja_ctx['h_D'], 3) + ") are moderate. "
@@ -2058,13 +2064,19 @@ def _add_docx_body(doc, data, fig_paths, blinded=False):
               "As a scenario tool, it can quantify how large a proportional change in a given rate would be required to move a community toward or away from collapse, which helps prioritise empirical policy evaluation. "
               "Both uses depend on transparent assumptions and regular recalibration; the model should not be used to justify one-off interventions without accompanying process evaluation.")
 
+    p = doc.add_paragraph()
+    p.add_run("Table 11 distinguishes the policy instruments that governments, funding agencies and international organisations control from the management actions that universities and research institutes must take. "
+              "Policymakers set incentives—doctoral quotas, fellowships, visas, independent-lab schemes, and dual-career support—but those incentives change transition rates only if institutions translate them into hiring, promotion, and retention practices. "
+              "University leadership and department heads therefore own the management levers in the right-hand column: tenure-track conversion, startup packages, mentoring pipelines, and stable non-tenure research tracks. "
+              "The model's value for management is to rank which local transition rates most urgently need intervention and to estimate the proportional change required to restore a safety margin.")
+
     doc.add_heading("6.4 Intra-civilisation alternatives when inter-civilisation mobility cannot be controlled", level=2)
     p = doc.add_paragraph()
     p.add_run("If a civilisation cannot control outflows to, or inflows from, other jurisdictions—whether because of visa regimes, salary differentials, language advantages, or targeted recruitment—it can still preserve its research community by acting on the intra-civilisation levers identified in the annual model. "
               "The annual rates show that the domestic active pool T = D + H_D + P_D responds most strongly to the dropout rate d, the domestic hit rate h_D, and the PI promotion rate p_D. "
               "Policies that reduce early-career attrition, expand domestic postdoctoral positions, or accelerate independent-lab formation therefore become defensive substitutes when inter-civilisation poaching cannot be regulated. "
               "This is the practical meaning of civilisational-diversity preservation under sovereignty constraints: even without controlling the border of talent, a community can increase the internal reproduction of active researchers. "
-              f"The ODE safety factor of {_fmt(ctx['safety_factor'], 2)} on endogenous PI inflow is a conservative bound that prevents over-optimism about this substitution effect; more ambitious domestic growth would require corresponding evidence that the extra PIs can be absorbed without simply raising dropout.")
+              f"The endogenous inflow is capped at a safety factor of {_fmt(ctx['safety_factor_cap'], 2)} relative to the critical reproduction rate (the most constrained fitted group realises {_fmt(ctx['min_realised_safety_ratio'], 2)}), so the model prevents over-optimism about this substitution effect; more ambitious domestic growth would require corresponding evidence that the extra PIs can be absorbed without simply raising dropout.")
 
     doc.add_heading("6.5 Annual updating as an early-warning layer", level=2)
     p = doc.add_paragraph()
@@ -2090,7 +2102,7 @@ def _add_docx_body(doc, data, fig_paths, blinded=False):
               "This is treated as an empirical limitation of the classification, not as a normative claim. "
               "The cohort is a model-implied sample extracted from OpenAlex; absolute equilibrium numbers should be interpreted as model-implied stocks rather than census counts. "
               "Authors with many publications are over-weighted relative to less prolific authors, so rate estimates reflect author-publication exposure rather than a uniformly representative sample of individuals. "
-              f"The endogenous inflow is capped at a safety factor of {_fmt(ctx['safety_factor'], 2)} relative to the critical reproduction rate; alternative values would shift equilibrium levels and should be reported in future sensitivity tables. "
+              f"The endogenous inflow is capped at a safety factor of {_fmt(ctx['safety_factor_cap'], 2)} relative to the critical reproduction rate (the most constrained fitted group realises {_fmt(ctx['min_realised_safety_ratio'], 2)}); alternative values would shift equilibrium levels and should be reported in future sensitivity tables. "
               "Finally, the point-of-no-return threshold is a sufficient condition for collapse, not a necessary one: a community may decline for reasons outside the model even if T remains above M.")
 
     p = doc.add_paragraph()

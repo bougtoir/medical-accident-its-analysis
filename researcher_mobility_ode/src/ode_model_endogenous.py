@@ -519,6 +519,10 @@ def run_endogenous_model(k_override=None, save=True, scan_targets=("T", "P"),
         else:
             k = k_override if k_override is not None else k_obs
         M_threshold = k * c_bar if not (np.isnan(c_bar) or c_bar == 0) else np.nan
+        # For the PI pool, the minimum viable threshold is the number of distinct
+        # PI groups that must persist for the research community to reproduce itself,
+        # not the active-pool coauthor threshold. Use k as a lower-bound heuristic.
+        M_threshold_P = float(k) if not np.isnan(k) else np.nan
 
         y_eq, T_eq = equilibrium(params, I0)
         P_eq = y_eq[4]
@@ -542,6 +546,7 @@ def run_endogenous_model(k_override=None, save=True, scan_targets=("T", "P"),
             "P_D_eq": y_eq[4],
             "P_A_eq": y_eq[5],
             "margin_to_threshold_T": T_eq - M_threshold,
+            "margin_to_threshold_P": P_eq - M_threshold_P,
             "P_D_equilibrium": P_eq,
         })
 
@@ -549,22 +554,23 @@ def run_endogenous_model(k_override=None, save=True, scan_targets=("T", "P"),
             if not compute_sensitivity and not compute_pnr:
                 continue
             target_label = {"T": "domestic_active", "P": "domestic_PIs"}.get(target, target)
+            target_M = M_threshold if target == "T" else M_threshold_P
             if compute_sensitivity:
                 sens = sensitivity_table(params, I0, target=target)
                 sens["group"] = group
                 sens["target"] = target_label
-                sens["M_threshold"] = M_threshold
+                sens["M_threshold"] = target_M
                 sensitivity_frames.append(sens)
 
             if compute_pnr:
                 for rate_name in list(params.keys()) + ["I0"]:
                     if rate_name != "I0" and params[rate_name] <= 0:
                         continue
-                    pnr = point_of_no_return(params, I0, M_threshold, rate_name, target=target)
+                    pnr = point_of_no_return(params, I0, target_M, rate_name, target=target)
                     pnr["group"] = group
                     pnr["target"] = target_label
                     pnr["T_equilibrium"] = T_eq
-                    pnr["M_threshold"] = M_threshold
+                    pnr["M_threshold"] = target_M
                     pnr_frames.append(pnr)
 
     summary_df = pd.DataFrame(summary_rows)
