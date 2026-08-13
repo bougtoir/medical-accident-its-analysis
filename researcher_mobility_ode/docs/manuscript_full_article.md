@@ -1,6 +1,6 @@
 Article type: Research Article
 
-Approximate word count (main text incl. tables, excl. references): 10259
+Approximate word count (main text incl. tables, excl. references): 9972
 
 Corresponding author: \[To be completed at submission\]
 
@@ -263,32 +263,31 @@ rates from open bibliometric data and embedding them in a compartment
 model. The model is closest in spirit to Stephan\'s economic model of
 science, in which researchers move through career stages and respond to
 incentives ^\[3\]^, but it adds a civilisational partition and a minimum
-viable coauthor threshold. The civilisational partition is not merely a
-geographic convenience. It reflects the fact that career incentives,
-language, funding systems, and institutional networks cluster along
-civilisational lines, and that these clusters shape mobility more than
-national borders alone ^\[4\]^. It also draws on the innovation-systems
-literature, in which technological trajectories are shaped by sectoral
-and national systems of innovation ^\[13\]\ \[14\]\ \[15\]\ \[16\]^. In
-that view, technological change is path-dependent and distributed:
-routines, organisations and institutions co-evolve, so the loss of a
-research community is not merely a decline in headcount but a reduction
-in the variety from which future trajectories can be generated. The PNR
-is therefore an innovation-systems problem: once a community falls below
-the minimum scale needed to sustain distinct research programmes, the
-path-dependent process of search and selection that produces new
-trajectories is impaired. This connects that macro-level,
-innovation-systems view of path-dependent technological change to
-individual career-transition data: the transition rates and PNR
-distances reported below can be read as an empirical early-warning
-indicator of whether a particular civilisational innovation system
-retains enough researchers to sustain a distinct technological
-trajectory. The result is a framework that can be updated as new data
-arrive and can compare the fragility of different research communities
-using a common metric. Because it is built on open bibliometric data and
-transparent transition rates, the model can be replicated and extended
-by other researchers and by policymakers who need a common language for
-discussing mobility and capacity.
+viable coauthor threshold. The civilisational partition reflects the
+clustering of career incentives, language, funding systems and
+institutional networks along civilisational lines, which shape mobility
+beyond national borders alone ^\[4\]^. It also draws on the
+innovation-systems literature, in which technological trajectories are
+shaped by sectoral and national systems of innovation
+^\[13\]\ \[14\]\ \[15\]\ \[16\]^. In that view, technological change is
+path-dependent and distributed: routines, organisations and institutions
+co-evolve, so the loss of a research community is not merely a decline
+in headcount but a reduction in the variety from which future
+trajectories can be generated. The PNR is therefore an
+innovation-systems problem: once a community falls below the minimum
+scale needed to sustain distinct research programmes, the path-dependent
+process of search and selection that produces new trajectories is
+impaired. This connects that macro-level, innovation-systems view of
+path-dependent technological change to individual career-transition
+data: the transition rates and PNR distances reported below can be read
+as an empirical early-warning indicator of whether a particular
+civilisational innovation system retains enough researchers to sustain a
+distinct technological trajectory. The result is a framework that can be
+updated as new data arrive and can compare the fragility of different
+research communities using a common metric. Because it is built on open
+bibliometric data and transparent transition rates, the model can be
+replicated and extended by other researchers and by policymakers who
+need a common language for discussing mobility and capacity.
 
 # 3. Data and grouping
 
@@ -1247,23 +1246,14 @@ active pool would reach the minimum viable threshold. The same figure
 shows that Japan\'s early-career outflow α (0.025) and domestic PI
 promotion p_D (0.064) are comparatively low, while return from abroad β
 (0.029) and domestic hit generation h_D (0.040) are moderate. These
-numbers translate directly into policy levers. α can be reduced by
-expanding postdoctoral fellowships and junior-faculty positions that
-keep promising researchers in the domestic pipeline; β can be raised
-through return grants, dual appointments, and recognition of overseas
-experience in domestic hiring. h_D responds to doctoral and postdoctoral
-training expansion, including the 2026 AI for Science (SPREAD) programme
-if it is used to create independent labs with their own budgets rather
-than merely increasing headcount. p_D depends on tenure-track
-conversion, startup packages, and project-based PI status for mid-career
-researchers. d, the dropout rate to L, can be lowered through childcare
-support, dual-career accommodation, and stable non-tenure research
-tracks. Finally, I0 captures the pure exogenous entry flow and can be
-supported by research-master pipelines, undergraduate research
-programmes, and early doctoral fellowships. Weakening the Japanese
-civilisation would not be neutral for the rest of the world: it would
-remove a distinct institutional lineage, reduce the pool of
-non-Anglophone problem framings, and leave a range of health, ageing,
+numbers translate into policy levers: α through retention fellowships
+and junior faculty positions; β through return grants and dual
+appointments; h_D through independent-lab programmes such as SPREAD; p_D
+through tenure-track conversion and startup packages; and d through
+childcare, dual-career support, and stable non-tenure tracks. Weakening
+the Japanese civilisation would not be neutral for the rest of the
+world: it would remove a distinct institutional lineage, reduce the pool
+of non-Anglophone problem framings, and leave a range of health, ageing,
 robotics, and materials problems under-addressed. Maintaining Japan as a
 viable AI/ML civilisation is therefore in the global interest, not only
 in Japan\'s national interest. The Japan-specific analysis is intended
@@ -1284,22 +1274,13 @@ away from a PNR. It also frames high-skilled mobility as a strategic
 competition among jurisdictions for talent ^\[20\]^, in which the
 central question is not only who wins the current round but whether the
 global system retains enough diversity for future rounds ^\[21\]^. If
-the dt of policy response is short enough, the model can be updated
-annually and divergence caught early, before any single civilisation
-approaches a PNR. This is the mechanism through which technology
-monopoly, hegemonic concentration and oligopoly dead-ends can be
-avoided: by keeping every major research community above its minimum
-viable coauthor pool, the framework sustains the competitive diversity
-that underpins long-run technological progress. The framework is
-therefore not a prediction that a particular civilisation will collapse.
-It is a tool for ensuring that no single civilisation reaches a point
-where its collapse becomes self-sustaining, and that the global AI/ML
-system retains the diversity required for continued innovation. This is
-precisely what Sustaining Heterogeneity through Interventions in Global
-AI/ML Researcher Mobility: A Transition-Rate Framework sets out to do:
-sustain civilisational diversity through interventions in global AI/ML
-researcher mobility. We introduce the acronym SHIGA here, formed from
-the title and reflecting the research base at Shiga University.
+the response lag is short enough, the model can be updated annually and
+divergence caught before any single civilisation approaches a PNR. It is
+therefore a tool for ensuring that no single civilisation reaches a
+self-sustaining collapse, and that the global AI/ML system retains the
+diversity required for continued innovation. We introduce the acronym
+SHIGA---Sustaining Heterogeneity through Interventions in Global AI/ML
+Researcher Mobility---formed from the title.
 
 Table 8 maps the most sensitive transition levers to policy instruments
 and to the management actions that determine them. Policy instruments
@@ -1355,24 +1336,12 @@ prioritise empirical policy evaluation. Both uses depend on transparent
 assumptions and regular recalibration; the model should not be used to
 justify one-off interventions without accompanying process evaluation.
 
-Table 8 distinguishes the policy instruments that governments, funding
-agencies and international organisations control from the management
-actions that universities and research institutes must take.
-Policymakers set incentives---doctoral quotas, fellowships, visas,
-independent-lab schemes, and dual-career support---but those incentives
-change transition rates only if institutions translate them into hiring,
-promotion, and retention practices. University leadership and department
-heads therefore own the management levers in the right-hand column:
-tenure-track conversion, startup packages, mentoring pipelines, and
-stable non-tenure research tracks. Mapping the model levers to actors
-sharpens the translation: I0 and h_D are primarily owned by national
-funding agencies and ministries that set doctoral, postdoctoral and
-independent-lab budgets; p_D and d are owned by universities and
-department heads through promotion, retention and work-life policies; β
-is influenced by diaspora networks, return grants, dual appointments and
-private-sector R&D recruitment. The model\'s value for management is to
-rank which local transition rates most urgently need intervention and to
-estimate the proportional change required to restore a safety margin.
+Table 8 maps each lever to the actors that control it: I0 and h_D are
+mainly owned by national funders and ministries; p_D and d by
+universities and department heads; and β by diaspora networks, return
+grants and private-sector recruiters. The model\'s management value is
+to rank which local rates most urgently need intervention and the
+proportional change needed to restore a safety margin.
 
 ## 6.4 Intra-civilisation alternatives when inter-civilisation mobility cannot be controlled
 
