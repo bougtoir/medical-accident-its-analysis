@@ -341,9 +341,6 @@ def build_cohort(sample_per_group, max_authors, client, a2g, group_to_a2):
                 if aid in batch:
                     works_by_author[aid].append(w)
 
-    if failed_batches:
-        print(f"  Recovered from transient failures in {len(failed_batches)} batch(es).")
-
     # Classify, applying origin-group overrides before mobility flags are
     # computed so that ``abroad`` and other derived fields are consistent.
     overrides = load_origin_overrides()

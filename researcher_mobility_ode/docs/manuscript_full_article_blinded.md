@@ -2,7 +2,7 @@ Article type: Research Article
 
 Approximate word count (main text incl. tables, excl. references): 9689
 
-Corresponding author: \[To be completed\]
+Author information removed for double-blind review
 
 # Abstract
 
@@ -53,9 +53,8 @@ This study uses the OpenAlex database (subfield 1702, Artificial
 Intelligence; 2000--2023), accessed via the OpenAlex API and a full-work
 local snapshot in August 2026. The country-to-civilisation mapping,
 extraction and analysis code, and the result CSVs used to generate this
-manuscript are available in the public GitHub repository
-https://github.com/bougtoir/researcher-mobility-ode. OpenAlex data are
-released under CC0.
+manuscript will be made available in a public repository upon
+acceptance. OpenAlex data are released under CC0.
 
 ## Declarations
 
@@ -70,11 +69,7 @@ preparation of this work the authors used AI-assisted tools to draft,
 code, and revise the manuscript. All claims, data, and interpretations
 were reviewed and approved by the authors.
 
-**Acknowledgments:** This study was motivated by a note.com essay by
-Yamada Y (momentumyy) that framed researcher mobility in terms of
-transition rates rather than net flows (Yamada Y (momentumyy).
-海外で当てた研究者はその後どうなるのか. note.com, 2026.
-https://note.com/momentumyy/n/n86df5d34282d (accessed 2026-08-09).).
+**Acknowledgments:** \[Removed for double-blind review\]
 
 # 1. Introduction
 
@@ -1300,8 +1295,7 @@ system retains the diversity required for continued innovation. This is
 precisely what Sustaining Heterogeneity through Interventions in Global
 AI/ML Researcher Mobility: A Transition-Rate Framework sets out to do:
 sustain civilisational diversity through interventions in global AI/ML
-researcher mobility. We introduce the acronym SHIGA here, formed from
-the title and reflecting the research base at Shiga University.
+researcher mobility. We introduce the acronym SHIGA here.
 
 Table 11 maps the most sensitive transition levers to policy instruments
 and to the management actions that determine them. Policy instruments

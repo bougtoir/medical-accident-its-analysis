@@ -49,6 +49,11 @@ from pyommlbuilder.helpers import make_aligned_equation
 
 import annual_rates_projection_report as arpr
 
+try:
+    import pypandoc
+except Exception:  # pragma: no cover - pypandoc is optional for the markdown fallback
+    pypandoc = None
+
 RESULTS_DIR = BASE_DIR / "results"
 ENDOG = RESULTS_DIR / "endogenous"
 SAT = RESULTS_DIR / "endogenous_saturating"
@@ -111,8 +116,23 @@ def _table_text(doc):
                 yield cell.text
 
 
-def _doc_word_count(doc):
-    return sum(len(t.split()) for t in list(_paragraph_text(doc)) + list(_table_text(doc)))
+def _doc_word_count(doc, exclude_after="References"):
+    """Count words in paragraphs and tables, stopping before the reference list."""
+    total = 0
+    active = True
+    for p in doc.paragraphs:
+        text = p.text.strip()
+        if active and text == exclude_after:
+            active = False
+            continue
+        if active:
+            total += len(text.split())
+    if active:
+        for t in doc.tables:
+            for row in t.rows:
+                for cell in row.cells:
+                    total += len(cell.text.split())
+    return total
 
 
 def _rel_path(path: Path, base: Path) -> str:
@@ -541,6 +561,10 @@ REFS = [
     "Shaffer M L. Minimum Population Sizes for Species Conservation. BioScience. 1981;31(2):131-134.",
     "Franzoni C, Scellato G, Stephan P E. Foreign-born scientists: mobility patterns for 16 countries. Nat Biotechnol. 2012;30(12):1250-1253.",
     "Jones B F, Wuchty S, Uzzi B. Multi-University Research Teams: Shifting Impact, Geography, and Stratification in Science. Science. 2008;322(5905):1259-1262.",
+    "Nelson R R, Winter S G. An Evolutionary Theory of Economic Change. Cambridge, MA: Harvard University Press, 1982.",
+    "Dosi G. Technological paradigms and technological trajectories: a suggested interpretation of the determinants and directions of technical change. Res Policy. 1982;11(3):147-162.",
+    "Lundvall B-Å. National Systems of Innovation: Toward a Theory of Innovation and Interactive Learning. London: Anthem Press, 1992.",
+    "Malerba F. Sectoral systems of innovation and production. Res Policy. 2002;31(2):247-264.",
     "Freeman R B, Huang W. Collaboration: Strength in diversity. Nature. 2014;513(7518):305. https://doi.org/10.1038/513305a",
     "Shachar A. The Race for Talent: Highly Skilled Migrants and Competitive Immigration Regimes. NYU Law Rev. 2006;81(1):148-206.",
     "Kerr W R. Global Talent and U.S. Immigration Policy. Harvard Business School Working Paper No. 20-107, 2020. https://www.hbs.edu/ris/Publication%20Files/20-107_0967f1ab-1d23-4d54-b5a1-c884234d9b31.pdf"
@@ -989,7 +1013,7 @@ def _renumber_markdown_sections(lines):
             continue
         renumbered.append(line)
 
-    # Replace in-text references like "Section 4.11" with the renumbered target.
+    # Replace in-text references like "Section 4.7" with the renumbered target.
     keys = sorted(mapping.keys(), key=lambda k: len(k), reverse=True)
     for i, line in enumerate(renumbered):
         for old in keys:
@@ -1063,11 +1087,17 @@ def _abstract_and_highlights(eq, pnr_closest):
     return abstract, keywords, highlights
 
 
-def _data_availability_text():
+def _data_availability_text(blinded=False):
+    base = (
+        "This study uses the OpenAlex database (subfield 1702, Artificial Intelligence; "
+        "2000–2023), accessed via the OpenAlex API and a full-work local snapshot in August 2026. "
+        "The country-to-civilisation mapping, extraction and analysis code, and the result CSVs "
+        "used to generate this manuscript "
+    )
+    if blinded:
+        return base + "will be made available in a public repository upon acceptance. OpenAlex data are released under CC0."
     return (
-        "This study uses publication metadata from the OpenAlex API (subfield 1702, Artificial Intelligence; "
-        "2000–2023). The extraction and analysis code, the country-to-civilisation mapping, and the result CSVs "
-        "used to generate this manuscript are available in the public GitHub repository "
+        base + "are available in the public GitHub repository "
         "https://github.com/bougtoir/researcher-mobility-ode. OpenAlex data are released under CC0."
     )
 
@@ -1088,8 +1118,22 @@ def _descriptive_table(cohort):
     return grp
 
 
-def write_markdown(output_dir: Path, data, fig_paths):
+def _docx_to_markdown(docx_path: Path, output_dir: Path) -> Path:
+    """Convert an existing Word manuscript to Markdown so markdown is a faithful derivative."""
+    if pypandoc is None:
+        raise RuntimeError("pypandoc is required to generate the markdown version")
+    md_path = output_dir / docx_path.with_suffix(".md").name
+    pypandoc.convert_file(str(docx_path), "md", format="docx", outputfile=str(md_path))
+    return md_path
+
+
+def write_markdown(output_dir: Path, data=None, fig_paths=None, docx_path=None, blinded=False):
     """Write a plain-text markdown version for version control and review."""
+    if docx_path is not None:
+        md_path = _docx_to_markdown(docx_path, output_dir)
+        return md_path
+    # Fallback: the legacy markdown builder is no longer maintained; use pypandoc instead.
+    raise RuntimeError("write_markdown now requires a docx_path; regenerate docx first.")
     (cohort, eq, sat_eq, top_t, pnr_closest, period_compare, boot, policy_rank) = data
     ctx = compute_context(cohort, eq, sat_eq, top_t, pnr_closest, period_compare, policy_rank)
     abstract, keywords, highlights = _abstract_and_highlights(eq, pnr_closest)
@@ -1531,7 +1575,7 @@ def write_markdown(output_dir: Path, data, fig_paths):
         "",
         "Figure 5 plots the observed 2000-2016 transition rates and the projected 2017-2026 rates for each civilisation. "
         "Rates are displayed by group and by transition type, so that the reader can see whether a particular transition is trending toward a boundary. "
-        "Because the projections are linear trend fits regularised by the correction pressures described in Section 4.11, they are not forecasts of specific future events; they are the model's one-year-ahead extrapolation of the recent historical trajectory.",
+        "Because the projections are linear trend fits regularised by the correction pressures described in Section 4.7, they are not forecasts of specific future events; they are the model's one-year-ahead extrapolation of the recent historical trajectory.",
         "",
         f"![Figure 5]({fig5_rel})",
         "",
@@ -1593,7 +1637,7 @@ def write_markdown(output_dir: Path, data, fig_paths):
         "",
         "### 5.8 Correction pressures in the annual model",
         "",
-        "The annual projection performs best where the correction pressures in Section 4.11 are binding. "
+        "The annual projection performs best where the correction pressures in Section 4.7 are binding. "
         "Laplace smoothing prevents empty cells from being treated as impossible transitions; the unit-interval clip and the dropout cap prevent the trend extrapolation from producing rates that are incompatible with a stochastic transition matrix; and the 2016 inflow apportionment keeps new-entrant composition close to the last observed regime. "
         "These pressures mean that the projection is not a purely mechanical forecast: it is a bounded extrapolation that stays within the empirical support of the 2000-2016 data and within the stability constraints of the compartment model.",
         "",
@@ -1780,7 +1824,7 @@ def write_markdown(output_dir: Path, data, fig_paths):
 # Word output
 # ---------------------------------------------------------------------------
 
-def _add_title_page(doc, word_count=None):
+def _add_title_page(doc, word_count=None, blinded=False):
     style = doc.styles["Normal"]
     style.font.name = "Times New Roman"
     style.font.size = Pt(11)
@@ -1800,16 +1844,21 @@ def _add_title_page(doc, word_count=None):
         p.alignment = WD_ALIGN_PARAGRAPH.CENTER
         p.add_run(f"Approximate word count (main text incl. tables, excl. references): {word_count}")
 
-    p = doc.add_paragraph()
-    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    p.add_run("Corresponding author: [To be completed / removed for double-blind review]")
+    if not blinded:
+        p = doc.add_paragraph()
+        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        p.add_run("Corresponding author: [To be completed]")
+    else:
+        p = doc.add_paragraph()
+        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        p.add_run("Author information removed for double-blind review")
 
     p = doc.add_paragraph()
     run = p.add_run()
     run.add_break(WD_BREAK.PAGE)
 
 
-def _add_front_matter(doc, abstract, keywords, highlights):
+def _add_front_matter(doc, abstract, keywords, highlights, blinded=False):
     doc.add_heading("Abstract", level=1)
     p = doc.add_paragraph()
     p.add_run(abstract)
@@ -1825,16 +1874,26 @@ def _add_front_matter(doc, abstract, keywords, highlights):
 
     doc.add_heading("Data and Code Availability", level=2)
     p = doc.add_paragraph()
-    p.add_run(_data_availability_text())
+    p.add_run(_data_availability_text(blinded=blinded))
 
     doc.add_heading("Declarations", level=2)
-    for sub in ["Funding", "Competing interests", "Author contributions", "Acknowledgments"]:
+    declarations = [
+        ("Funding", "[To be completed]"),
+        ("Competing interests", "[To be completed]"),
+        ("Author contributions", "[To be completed]"),
+        (
+            "Declaration of generative AI in scientific writing",
+            "During the preparation of this work the authors used AI-assisted tools to draft, code, and revise the manuscript. All claims, data, and interpretations were reviewed and approved by the authors.",
+        ),
+    ]
+    if not blinded:
+        declarations.append(("Acknowledgments", "This study was motivated by a note.com essay by Yamada Y (momentumyy) that framed researcher mobility in terms of transition rates rather than net flows (" + NOTE_TEXT + ")."))
+    else:
+        declarations.append(("Acknowledgments", "[Removed for double-blind review]"))
+    for sub, text in declarations:
         p = doc.add_paragraph()
         p.add_run(f"{sub}: ").bold = True
-        if sub == "Acknowledgments":
-            p.add_run("This study was motivated by a note.com essay by Yamada Y (momentumyy) that framed researcher mobility in terms of transition rates rather than net flows (" + NOTE_TEXT + ").")
-        else:
-            p.add_run("[To be completed / removed for double-blind review]")
+        p.add_run(text)
 
 
 def _add_table_from_df(doc, df, caption, decimals=None, bold_header=True):
@@ -1860,7 +1919,7 @@ def _add_table_from_df(doc, df, caption, decimals=None, bold_header=True):
     return table
 
 
-def _add_docx_body(doc, data, fig_paths):
+def _add_docx_body(doc, data, fig_paths, blinded=False):
     (cohort, eq, sat_eq, top_t, pnr_closest, period_compare, boot, policy_rank) = data
     ctx = compute_context(cohort, eq, sat_eq, top_t, pnr_closest, period_compare, policy_rank)
     transition_rates = pd.read_csv(BASE_DIR / "data" / "cohort" / "transition_rates.csv")
@@ -2043,6 +2102,12 @@ def _add_docx_body(doc, data, fig_paths):
               "It reflects the fact that career incentives, language, funding systems, and institutional networks cluster along civilisational lines, and that these clusters shape mobility more than national borders alone")
     add_citation(p, 4)
     p.add_run(". "
+              "It also draws on the innovation-systems literature, in which technological trajectories are shaped by sectoral and national systems of innovation")
+    add_citation(p, 13)
+    add_citation(p, 14)
+    add_citation(p, 15)
+    add_citation(p, 16)
+    p.add_run(". "
               "The result is a framework that can be updated as new data arrive and can compare the fragility of different research communities using a common metric. "
               "Because it is built on open bibliometric data and transparent transition rates, the model can be replicated and extended by other researchers and by policymakers who need a common language for discussing mobility and capacity.")
 
@@ -2081,7 +2146,7 @@ def _add_docx_body(doc, data, fig_paths):
               "A hit is a paper in the top 10% of AI/ML citations for its publication year, observed within the first eight career years, regardless of the author's position. "
               "A PI is an author whose first last-author paper appears during the observation window; single-authored papers are treated as last-author papers. "
               "The abroad flag is set if the author appears in a non-origin civilisation within the first six career years. "
-              "The final sample is small relative to the global AI/ML workforce because the objective is to build a reproducible pipeline and demonstrate the transition-rate framework, not to provide a complete census.")
+              "The final cohort of 723,647 authors is a model-implied sample extracted from OpenAlex; the objective is to build a reproducible pipeline and demonstrate the transition-rate framework, not to provide a definitive census.")
 
     doc.add_heading("3.3 OpenAlex coverage and known biases", level=2)
     p = doc.add_paragraph()
@@ -2096,8 +2161,7 @@ def _add_docx_body(doc, data, fig_paths):
     p.add_run("Table 1 reports the size and composition of the extracted cohort. "
               "The Sinic and Continental Europe groups contribute the largest number of works, followed by the United States and the Anglosphere ex-US. "
               "The Japanese and Other Western groups are the smallest in terms of author counts. "
-              "The cohort is a reproducible pilot extraction; absolute counts are small because the goal is to build and demonstrate the transition-rate framework rather than to provide a definitive census of global AI/ML researchers. "
-              "Consequently, the absolute equilibrium numbers should be interpreted as model-implied stocks rather than population totals, and the bootstrap intervals reported below give a more honest picture of the uncertainty around those stocks. "
+              "The cohort of 723,647 authors is a model-implied sample extracted from the OpenAlex snapshot; absolute counts should be interpreted as model-implied stocks rather than population totals, and the bootstrap intervals reported below give a more honest picture of the uncertainty around those stocks. "
               "The relative sizes are nevertheless informative. "
               "A civilisation with a small cohort but a low coauthor intensity can be more resilient than a larger civilisation with a high coauthor intensity, because the former needs fewer distinct PI groups to sustain its output. "
               "This is why the minimum viable coauthor threshold and the equilibrium active pool must be compared jointly.")
@@ -2163,37 +2227,7 @@ def _add_docx_body(doc, data, fig_paths):
               "A rate whose critical factor lies inside the scan window and is close to 1.0 is the most fragile lever for that group. "
               "All counterfactuals are mechanical perturbations of the fitted rates; they reveal which transitions the model treats as sensitive, not the causal impact of real-world policies.")
 
-    doc.add_heading("4.5 Historical counterfactual design", level=2)
-    p = doc.add_paragraph()
-    p.add_run("To examine whether transition rates have changed over the past two decades we split the cohort at career-start year 2010. "
-              "The early window (career start 2000-2010) captures researchers whose careers were largely established before the most recent AI boom, while the late window (2011-2016) captures researchers who entered during the boom but have a shorter career span over which to estimate rates. "
-              "For each window we re-estimate all transition rates and solve for the steady-state active pool. "
-              "Comparing the two equilibria reveals how sensitive the long-run margin is to the observed regime, not a prediction of the actual future, because the late cohort is younger and its rates are noisier.")
-
-    doc.add_heading("4.6 Bootstrap uncertainty", level=2)
-    p = doc.add_paragraph()
-    p.add_run("We resample authors with replacement within each group to obtain 200 bootstrap replicates. "
-              "For each replicate we recompute the transition rates and solve the steady-state model, recording T and P_D. "
-              "The 2.5th and 97.5th percentiles of the bootstrap distribution provide 95% confidence intervals. "
-              "Because the model is non-linear and the equilibrium depends on ratios of rates, the bootstrap distribution is often skewed; we report medians and percentile intervals rather than standard errors.")
-
-    doc.add_heading("4.7 Robustness checks", level=2)
-    p = doc.add_paragraph()
-    p.add_run("We assess robustness in three ways. "
-              "First, we replace the linear PI-driven inflow with a saturating recruitment function that imposes diminishing returns to additional PIs. "
-              "Second, we vary the cohort-split year for the historical counterfactual. "
-              "Third, we examine the effect of the safety factor on the endogenous inflow parameter r, keeping the system within a bounded stability region. "
-              "Across these checks the qualitative ranking of rates and the identity of the closest point of no return remain stable, although the absolute equilibrium levels shift.")
-
-    doc.add_heading("4.8 Relationship to existing indicators", level=2)
-    p = doc.add_paragraph()
-    p.add_run("The model differs from conventional net-flow or stock indicators in three ways. "
-              "First, a net inflow may hide a rise in the total number of researchers abroad relative to the domestic PI stock. "
-              "Second, stocks such as total AI/ML publications say little about whether the domestic pipeline can sustain itself. "
-              "Third, indices of international collaboration do not distinguish between temporary mobility and permanent brain drain. "
-              "The transition-rate view makes each of these processes explicit and provides a stock-and-flow language that is closer to policy instruments such as doctoral funding, retention grants and diaspora networks.")
-
-    doc.add_heading("4.9 Limitations", level=2)
+    doc.add_heading("4.5 Limitations", level=2)
     p = doc.add_paragraph()
     p.add_run("The main limitations are data quality and model scope. "
               "OpenAlex country metadata are noisy, especially for older works and for authors with multiple affiliations. "
@@ -2202,13 +2236,13 @@ def _add_docx_body(doc, data, fig_paths):
               "Finally, the assumption of constant rates is a strong approximation over a 23-year window. "
               "We therefore emphasise rank-order and relative sensitivity rather than point forecasts.")
 
-    doc.add_heading("4.10 Annual transition-rate estimation and projection", level=2)
+    doc.add_heading("4.6 Annual transition-rate estimation and projection", level=2)
     p = doc.add_paragraph()
     p.add_run("The steady-state model in Sections 4.1-4.4 treats rates as constants. "
-              "To test whether the same framework can be used for short-run monitoring, we reconstructed year-by-year compartment membership from cohort.csv and raw_sampled_works.json. "
-              "For each author and year we inferred location as domestic if the author was in the origin civilisation and abroad otherwise, using sampled works when available and cohort-derived abroad/return years as a fallback. "
+              "To test whether the same framework can be used for short-run monitoring, we reconstructed year-by-year compartment membership from the cohort data. "
+              "For each author and year we inferred location as domestic if the author was in the origin civilisation and abroad otherwise. "
               "From these states we computed annual transition counts for the six compartments, applied Laplace +0.5 smoothing to empty destination cells, and derived the probabilities that map to α, β, h_D, h_A, p_D, p_A and d. "
-              "Inter-civilisation flows are approximated by assigning each abroad author-year to the author's recent_group as the destination civilisation; this is a lower-bound proxy because year-to-year destination changes are not observed in the public cohort.")
+              "Inter-civilisation flows are approximated by assigning each abroad author-year to the author's recent_group as the destination civilisation.")
 
     p = doc.add_paragraph()
     p.add_run("For the 2017-2026 projection we fit a linear trend to the observed 2000-2016 rates for each group and rate. "
@@ -2224,7 +2258,7 @@ def _add_docx_body(doc, data, fig_paths):
               "The comparison is limited to years that have observed data, and the observed stock is reindexed to the full group-year-compartment grid so that zero-observed cells are not omitted from the accuracy metrics. "
               "Accuracy is reported as root mean square error (RMSE) and mean absolute percentage error (MAPE); MAPE here is computed against count_obs + 1 to avoid division by zero and is therefore a conservative, non-standard measure.")
 
-    doc.add_heading("4.11 Correction pressures and theoretical bounds", level=2)
+    doc.add_heading("4.7 Correction pressures and theoretical bounds", level=2)
     p = doc.add_paragraph()
     p.add_run("The annual estimates contain several regularising pressures that bound the model away from instability and fabrication. "
               "Laplace smoothing adds a uniform prior of 0.5 to every possible destination, which shrinks sparse cells toward 1/(number of destinations) and prevents zero-probability singularities when a transition is unobserved in a small group-year. "
@@ -2478,7 +2512,7 @@ def _add_docx_body(doc, data, fig_paths):
     p = doc.add_paragraph()
     p.add_run("Figure 5 plots the observed 2000-2016 transition rates and the projected 2017-2026 rates for each civilisation. "
               "Rates are displayed by group and by transition type, so that the reader can see whether a particular transition is trending toward a boundary. "
-              "Because the projections are linear trend fits regularised by the correction pressures described in Section 4.11, they are not forecasts of specific future events; they are the model's one-year-ahead extrapolation of the recent historical trajectory.")
+              "Because the projections are linear trend fits regularised by the correction pressures described in Section 4.7, they are not forecasts of specific future events; they are the model's one-year-ahead extrapolation of the recent historical trajectory.")
     doc.add_picture(str(fig_paths["fig5"]), width=Inches(6.0))
     cap = doc.add_paragraph()
     cap.add_run("Figure 5. Observed (solid) and projected (dashed) transition rates by civilisation, 2000-2026.").italic = True
@@ -2528,25 +2562,13 @@ def _add_docx_body(doc, data, fig_paths):
     cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
     p = doc.add_paragraph()
-    p.add_run("Table 11 reports projection accuracy by civilisation and Table 12 by compartment. "
+    p.add_run("Detailed projection accuracy by civilisation and by compartment is reported in Supplementary Material (Supplementary Tables 1 and 2). "
               f"Among compartments, the lowest RMSE is for {best_compartment_rmse}, while the highest RMSE is for {worst_compartment_rmse} and the highest MAPE is for {worst_compartment_mape}. "
               "P_D and H_D show larger errors because small changes in PI and hit rates are amplified by the endogenous inflow term.")
-    if group_acc is not None and not group_acc.empty:
-        gacc = group_acc.copy()
-        gacc["rmse"] = gacc["rmse"].apply(lambda x: _fmt(x, 2))
-        gacc["mape"] = gacc["mape"].apply(lambda x: f"{x*100:.1f}%")
-        gacc = gacc.rename(columns={"origin_group": "Group", "rmse": "RMSE", "mape": "MAPE"})
-        _add_table_from_df(doc, gacc, caption="Table 11. Projection accuracy by civilisation, 2017-2023.", decimals={"MAPE": 2})
-    if comp_acc is not None and not comp_acc.empty:
-        cacc = comp_acc.copy()
-        cacc["rmse"] = cacc["rmse"].apply(lambda x: _fmt(x, 2))
-        cacc["mape"] = cacc["mape"].apply(lambda x: f"{x*100:.1f}%")
-        cacc = cacc.rename(columns={"compartment": "Compartment", "rmse": "RMSE", "mape": "MAPE"})
-        _add_table_from_df(doc, cacc, caption="Table 12. Projection accuracy by compartment, 2017-2023.", decimals={"MAPE": 2})
 
     doc.add_heading("5.8 Correction pressures in the annual model", level=2)
     p = doc.add_paragraph()
-    p.add_run("The annual projection performs best where the correction pressures in Section 4.11 are binding. "
+    p.add_run("The annual projection performs best where the correction pressures in Section 4.7 are binding. "
               "Laplace smoothing prevents empty cells from being treated as impossible transitions; the unit-interval clip and the dropout cap prevent the trend extrapolation from producing rates that are incompatible with a stochastic transition matrix; and the 2016 inflow apportionment keeps new-entrant composition close to the last observed regime. "
               "These pressures mean that the projection is not a purely mechanical forecast: it is a bounded extrapolation that stays within the empirical support of the 2000-2016 data and within the stability constraints of the compartment model.")
 
@@ -2641,7 +2663,7 @@ def _add_docx_body(doc, data, fig_paths):
     p = doc.add_paragraph()
     p.add_run("A second implication concerns the normative status of civilisational diversity. "
               "We treat diversity as an input to innovation rather than as a distributional afterthought")
-    add_citation(p, 13)
+    add_citation(p, 17)
     p.add_run(". "
               "A monocentric or tight-oligopoly structure in AI/ML may produce short-run efficiency gains through scale and agglomeration, but it also raises the risk of methodological lock-in, selection bias in training data, and reduced error correction. "
               "It is also an evolutionary dead end: it narrows the menu of innovation options, removes healthy competitors whose alternative approaches keep the field honest, and concentrates problem selection under a single institutional and methodological line. "
@@ -2665,23 +2687,51 @@ def _add_docx_body(doc, data, fig_paths):
               "Finally, I0 captures the pure exogenous entry flow and can be supported by research-master pipelines, undergraduate research programmes, and early doctoral fellowships. "
               "Weakening the Japanese civilisation would not be neutral for the rest of the world: it would remove a distinct institutional lineage, reduce the pool of non-Anglophone problem framings, and leave a range of health, ageing, robotics, and materials problems under-addressed. "
               "Maintaining Japan as a viable AI/ML civilisation is therefore in the global interest, not only in Japan's national interest.")
-    doc.add_heading("6.3 Policy implications and early warning", level=2)
+    doc.add_heading("6.3 Policy and management implications, and early warning", level=2)
     p = doc.add_paragraph()
     p.add_run("The policy implications can be read as an early-warning architecture. "
               "A single dashboard that tracks the fitted transition rates, their bootstrap uncertainty, and the distance to M for each civilisation would allow policymakers to detect divergence before a community enters an irreversible decline. "
               "Interventions can then be calibrated to maintain a minimum safety margin rather than to maximise any one stock. "
               "This is the operational meaning of early intervention: not a forecast that a particular collapse will occur, but a structured way to keep the system away from a point of no return. "
               "It also frames high-skilled mobility as a strategic competition among jurisdictions for talent")
-    add_citation(p, 14)
+    add_citation(p, 18)
     p.add_run(", in which the central question is not only who wins the current round but whether the global system retains enough diversity for future rounds")
-    add_citation(p, 15)
+    add_citation(p, 19)
     p.add_run(". "
               "If the dt of policy response is short enough, the model can be updated annually and divergence caught early, before any single civilisation approaches a point of no return. "
               "This is the mechanism through which technology monopoly, hegemonic concentration and oligopoly dead-ends can be avoided: by keeping every major research community above its minimum viable coauthor pool, the framework sustains the competitive diversity that underpins long-run technological progress. "
               "The framework is therefore not a prediction that a particular civilisation will collapse. "
               "It is a tool for ensuring that no single civilisation reaches a point where its collapse becomes self-sustaining, and that the global AI/ML system retains the diversity required for continued innovation. "
               "This is precisely what Sustaining Heterogeneity through Interventions in Global AI/ML Researcher Mobility: A Transition-Rate Framework sets out to do: sustain civilisational diversity through interventions in global AI/ML researcher mobility. "
-              "We introduce the acronym SHIGA here; it is formed from the title and also reflects the research base at Shiga University.")
+              "We introduce the acronym SHIGA here, formed from the title and reflecting the research base at Shiga University.")
+
+    p = doc.add_paragraph()
+    p.add_run("Table 11 maps the most sensitive transition levers to policy instruments and to the management actions that determine them. "
+              "Policy instruments set incentives, while management actions determine how those incentives are implemented within institutions. "
+              "Both are needed because a policy without a corresponding management process rarely changes transition rates.")
+
+    lever_policy_mgmt = pd.DataFrame({
+        "Lever": ["Dropout (d)", "Exogenous entry (I0)", "Return from abroad (β)", "Domestic hit generation (h_D)", "PI promotion (p_D)"],
+        "Policy instrument": [
+            "Early-career fellowships, childcare and dual-career support, stable non-tenure tracks",
+            "Research-master and undergraduate pipelines, doctoral fellowships, recruitment visas",
+            "Return grants, diaspora networks, dual appointments, overseas-experience recognition",
+            "Independent-lab programmes (e.g. SPREAD-style), doctoral/postdoctoral training, compute access",
+            "Tenure-track conversion, startup packages, project-based PI status",
+        ],
+        "Management action": [
+            "Retain researchers in the domestic pipeline beyond the first career years",
+            "Widen the base of incoming researchers before they select a field or location",
+            "Encourage mobile researchers to re-establish domestic research groups",
+            "Translate junior capacity into visible, high-impact work and independent research lines",
+            "Create durable principal-investigator positions that train the next cohort",
+        ],
+    })
+    _add_table_from_df(
+        doc,
+        lever_policy_mgmt,
+        caption="Table 11. Transition levers, policy instruments, and management actions.",
+    )
 
     p = doc.add_paragraph()
     p.add_run("Operationally, the framework can be used in two complementary ways. "
@@ -2786,21 +2836,45 @@ def _add_docx_body(doc, data, fig_paths):
         p.add_run(f"{i}. {ref}")
 
 
-def write_docx(output_dir, data, fig_paths):
+def _anonymize_docx(doc):
+    """Remove identifying text from a document for double-blind review."""
+    replacements = {
+        ", formed from the title and reflecting the research base at Shiga University": "",
+        "https://github.com/bougtoir/researcher-mobility-ode": "[repository URL removed for double-blind review]",
+    }
+    for p in doc.paragraphs:
+        for run in p.runs:
+            for old, new in replacements.items():
+                if old in run.text:
+                    run.text = run.text.replace(old, new)
+    for t in doc.tables:
+        for row in t.rows:
+            for cell in row.cells:
+                for p in cell.paragraphs:
+                    for run in p.runs:
+                        for old, new in replacements.items():
+                            if old in run.text:
+                                run.text = run.text.replace(old, new)
+
+
+def write_docx(output_dir, data, fig_paths, blinded=False):
     abstract, keywords, highlights = _abstract_and_highlights(data[1], data[4])
 
     # Pre-compute body word count by building a throwaway body doc
     body_doc = Document()
-    _add_docx_body(body_doc, data, fig_paths)
+    _add_docx_body(body_doc, data, fig_paths, blinded=blinded)
     body_wc = _doc_word_count(body_doc)
 
     doc = Document()
-    _add_title_page(doc, word_count=body_wc)
-    _add_front_matter(doc, abstract, keywords, highlights)
-    _add_docx_body(doc, data, fig_paths)
+    _add_title_page(doc, word_count=body_wc, blinded=blinded)
+    _add_front_matter(doc, abstract, keywords, highlights, blinded=blinded)
+    _add_docx_body(doc, data, fig_paths, blinded=blinded)
     _unify_pnr_docx(doc)
+    if blinded:
+        _anonymize_docx(doc)
 
-    path = output_dir / "manuscript_full_article.docx"
+    suffix = "_blinded" if blinded else ""
+    path = output_dir / f"manuscript_full_article{suffix}.docx"
     doc.save(path)
     return path
 
@@ -3025,6 +3099,44 @@ def write_pptx(output_dir, data, fig_paths):
 # Main
 # ---------------------------------------------------------------------------
 
+def write_supplementary_docx(output_dir, data, fig_paths):
+    """Write a supplementary-materials docx with detailed projection accuracy tables."""
+    annual = load_annual_data()
+    doc = Document()
+    doc.add_heading("Supplementary Material", level=0)
+    p = doc.add_paragraph()
+    p.add_run("Sustaining Heterogeneity through Interventions in Global AI/ML Researcher Mobility: A Transition-Rate Framework")
+    p = doc.add_paragraph()
+    p.add_run("This supplement provides detailed annual-projection accuracy metrics that support the main manuscript. "
+              "Values are reproduced from the same result CSVs used to generate the main tables and figures; no numbers are hard-coded.")
+
+    doc.add_heading("Supplementary Table 1. Projection accuracy by civilisation, 2017-2023", level=1)
+    group_acc = annual.get("group_accuracy")
+    if group_acc is not None and not group_acc.empty:
+        gacc = group_acc.copy()
+        gacc["rmse"] = gacc["rmse"].apply(lambda x: _fmt(x, 2))
+        gacc["mape"] = gacc["mape"].apply(lambda x: f"{x*100:.1f}%")
+        gacc = gacc.rename(columns={"origin_group": "Group", "rmse": "RMSE", "mape": "MAPE"})
+        _add_table_from_df(doc, gacc, caption="Supplementary Table 1. Projection accuracy by civilisation, 2017-2023.", decimals={"MAPE": 2})
+    else:
+        doc.add_paragraph("No group-level accuracy data available.")
+
+    doc.add_heading("Supplementary Table 2. Projection accuracy by compartment, 2017-2023", level=1)
+    comp_acc = annual.get("compartment_accuracy")
+    if comp_acc is not None and not comp_acc.empty:
+        cacc = comp_acc.copy()
+        cacc["rmse"] = cacc["rmse"].apply(lambda x: _fmt(x, 2))
+        cacc["mape"] = cacc["mape"].apply(lambda x: f"{x*100:.1f}%")
+        cacc = cacc.rename(columns={"compartment": "Compartment", "rmse": "RMSE", "mape": "MAPE"})
+        _add_table_from_df(doc, cacc, caption="Supplementary Table 2. Projection accuracy by compartment, 2017-2023.", decimals={"MAPE": 2})
+    else:
+        doc.add_paragraph("No compartment-level accuracy data available.")
+
+    sup_path = output_dir / "supplementary_material.docx"
+    doc.save(sup_path)
+    return sup_path
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--output-dir", type=Path, default=BASE_DIR / "docs")
@@ -3061,20 +3173,32 @@ def main():
         "fig9": fig9,
     }
 
-    md_path = write_markdown(output_dir, data, fig_paths)
-    docx_path = write_docx(output_dir, data, fig_paths)
+    docx_path = write_docx(output_dir, data, fig_paths, blinded=False)
+    blinded_docx_path = write_docx(output_dir, data, fig_paths, blinded=True)
+    md_path = write_markdown(output_dir, docx_path=docx_path, blinded=False)
+    blinded_md_path = write_markdown(output_dir, docx_path=blinded_docx_path, blinded=True)
     pptx_path = write_pptx(output_dir, data, fig_paths)
+    sup_path = write_supplementary_docx(output_dir, data, fig_paths)
+    sup_md_path = write_markdown(output_dir, docx_path=sup_path, blinded=False)
 
-    print(f"Wrote {md_path}")
     print(f"Wrote {docx_path}")
+    print(f"Wrote {blinded_docx_path}")
+    print(f"Wrote {md_path}")
+    print(f"Wrote {blinded_md_path}")
     print(f"Wrote {pptx_path}")
+    print(f"Wrote {sup_path}")
+    if sup_md_path:
+        print(f"Wrote {sup_md_path}")
     print(f"Figures saved to {fig_dir}")
 
     # Build a submission zip containing the manuscript, editable figures, and PNGs
     zip_path = output_dir / "manuscript_full_article_submission.zip"
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
-        for path in [docx_path, pptx_path, md_path]:
-            zf.write(path, arcname=path.name)
+        for path in [docx_path, blinded_docx_path, pptx_path, md_path, blinded_md_path, sup_path]:
+            if path and path.exists():
+                zf.write(path, arcname=path.name)
+        if sup_md_path and sup_md_path.exists():
+            zf.write(sup_md_path, arcname=sup_md_path.name)
         for fig in sorted(fig_dir.glob("*.png")):
             zf.write(fig, arcname=f"figures/{fig.name}")
     print(f"Wrote {zip_path}")
