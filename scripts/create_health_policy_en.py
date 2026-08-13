@@ -28,6 +28,15 @@ from docx.shared import Inches, Pt, Cm
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__), '..', 'documents', 'Health_Policy')
+ZENODO_DOI = ''
+for _zenodo_file in [
+    os.path.join(OUTPUT_DIR, 'zenodo_doi.txt'),
+    os.path.join(os.path.dirname(__file__), '..', 'output', 'zenodo_doi.txt'),
+]:
+    if os.path.exists(_zenodo_file):
+        ZENODO_DOI = open(_zenodo_file).read().strip()
+        if ZENODO_DOI:
+            break
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
@@ -1199,15 +1208,23 @@ tp_para(
     "Human Subjects (Japan, 2021 revision).")
 tp_para(
     "Consent for publication: Not applicable.")
+if ZENODO_DOI:
+    zenodo_line = (
+        "Derived datasets and analysis code are available at "
+        "https://github.com/bougtoir/anesthesia_variation_335_region and archived "
+        f"on Zenodo (https://doi.org/{ZENODO_DOI}).")
+else:
+    zenodo_line = (
+        "Derived datasets and analysis code are available at "
+        "https://github.com/bougtoir/anesthesia_variation_335_region and will be "
+        "archived on Zenodo with a citable DOI upon acceptance.")
 tp_para(
     "Availability of data and materials: All data are publicly available. "
     "Standardised claim ratios: Cabinet Office Regional Variation Visualisation "
     "(https://www5.cao.go.jp/keizai-shimon/kaigi/special/reform/mieruka/). "
     "Physician statistics: e-Stat (https://www.e-stat.go.jp). Geographic "
     "boundary data: National Land Numerical Information "
-    "(https://nlftp.mlit.go.jp). Derived datasets and analysis code are "
-    "available at https://github.com/bougtoir/anesthesia_variation_335_region "
-    "and will be archived on Zenodo with a citable DOI upon acceptance.")
+    "(https://nlftp.mlit.go.jp). " + zenodo_line)
 tp_para(
     "Declaration of competing interests: [To be completed by the authors.] No "
     "known competing interests.")
@@ -1266,6 +1283,7 @@ metadata = {
     'fiscal_year': FLAT['fiscal_year'],
     'n_areas': FLAT['n_areas'],
     'n_prefectures': FLAT['n_prefectures'],
+    'zenodo_doi': ZENODO_DOI,
 }
 meta_path = os.path.join(OUTPUT_DIR, 'health_policy_submission_metadata.json')
 with open(meta_path, 'w') as f:

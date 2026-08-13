@@ -5,8 +5,7 @@
   "creators": [
     {
       "name": "Onishi, Tatsuki",
-      "affiliation": "[Affiliation to be completed by authors]",
-      "orcid": "[ORCID to be completed]"
+      "affiliation": "[Affiliation to be completed by authors]"
     }
   ],
   "keywords": [
@@ -20,8 +19,8 @@
   ],
   "license": "cc-by-4.0",
   "access_right": "open",
-  "publication_date": "2026-08-10",
-  "version": "1.0.0",
+  "publication_date": "2026-08-13",
+  "version": "1.0.1",
   "related_identifiers": [
     {
       "relation": "isSupplementTo",
