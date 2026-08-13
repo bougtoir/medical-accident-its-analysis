@@ -1,154 +1,190 @@
-# ---------------------------------------------------------------------------
-# Parameter file for the urban cancer-screening burden simulation
-# ---------------------------------------------------------------------------
-# IMPORTANT:
-#   - All numbers below are ORDER-OF-MAGNITUDE assumptions for discussion.
-#   - They are NOT actual registry counts or test performance guarantees.
-#   - Replace them with local data / published values before using for policy.
-# ---------------------------------------------------------------------------
-
 simulation:
-  # Number of asymptomatic people who receive the "blood-only" test in one wave.
   screened_population: 100000
-
-  # What fraction of screen-positive people actually seek confirmatory care?
-  # Values from 0.0 to 1.0 are scanned.
   follow_up_rates:
-    - 0.0
-    - 0.1
-    - 0.2
-    - 0.3
-    - 0.4
-    - 0.5
-    - 0.6
-    - 0.7
-    - 0.8
-    - 0.9
-    - 1.0
-
-  # Fixed seed only matters when stochastic extensions are added.
+  - 0.0
+  - 0.1
+  - 0.2
+  - 0.3
+  - 0.4
+  - 0.5
+  - 0.6
+  - 0.7
+  - 0.8
+  - 0.9
+  - 1.0
   random_seed: 42
-
-# Annual baseline capacity for CANCER-RELATED advanced diagnostics
-# per 100,000 residents.  These are not total scanner counts; they represent
-# the share of existing capacity that is realistically available for new cancer
-# workups.  They are order-of-magnitude placeholders for discussion.
 capacity:
-  ct_exams_per_year: 5000
-  mri_exams_per_year: 3000
-  endoscopy_exams_per_year: 3000
-  specialist_visits_per_year: 8000
-
-# Sensitivity analysis on test specificity (applied uniformly to all cancers).
-# One fixed follow-up rate is used while specificity is varied.
+  ct_exams_per_year: 5676.432035126377
+  mri_exams_per_year: 2677.556272165081
+  endoscopy_exams_per_year: 2583.0122797564964
+  specialist_visits_per_year: 7183.295754215738
+  specialist_capacity_note: Derived from NDB Open Data first/revisit outpatient patient
+    counts (88,408,837 + 85,182,008) and 79,117 cancer-relevant JMSB specialists;
+    20% share assumed available for new cancer workups.
+  primary_care_visits_per_year: 11982.99426086868
+  primary_care_capacity_note: Derived from NDB Open Data first/revisit outpatient
+    patient counts (88,408,837 + 85,182,008) and 131,981 primary-care-relevant JMSB
+    specialists (internal medicine and general practice); 20% share assumed available
+    for new cancer workups.
 specificity_sweep:
   follow_up_rate: 0.7
   specificity_values:
-    - 0.950
-    - 0.980
-    - 0.990
-    - 0.995
-    - 0.999
-
-# Cancer-type assumptions.
-# prevalence_per_100k = point prevalence of undiagnosed cancer in the screened cohort
-# sensitivity / specificity = hypothetical blood-test performance for that cancer signal
-# pathway = probability that a positive case receives each diagnostic modality
-# tp_additional_visits = expected oncology/staging/treatment visits after a true positive
-# fp_additional_visits = expected repeat-testing/follow-up visits after a false positive
+  - 0.95
+  - 0.98
+  - 0.99
+  - 0.995
+  - 0.999
 cancers:
-  - name: Gastric
-    prevalence_per_100k: 40
-    sensitivity: 0.65
-    specificity: 0.99
-    pathway:
-      ct: 0.30
-      mri: 0.10
-      endoscopy: 0.90
-      specialist: 1.00
-    tp_additional_visits: 4.0
-    fp_additional_visits: 1.5
-
-  - name: Colorectal
-    prevalence_per_100k: 60
-    sensitivity: 0.70
-    specificity: 0.99
-    pathway:
-      ct: 0.30
-      mri: 0.05
-      endoscopy: 0.95
-      specialist: 1.00
-    tp_additional_visits: 4.0
-    fp_additional_visits: 1.5
-
-  - name: Lung
-    prevalence_per_100k: 50
-    sensitivity: 0.60
-    specificity: 0.99
-    pathway:
-      ct: 0.90
-      mri: 0.15
-      endoscopy: 0.05
-      specialist: 1.00
-    tp_additional_visits: 5.0
-    fp_additional_visits: 2.0
-
-  - name: Breast
-    prevalence_per_100k: 45
-    sensitivity: 0.75
-    specificity: 0.995
-    pathway:
-      ct: 0.10
-      mri: 0.30
-      endoscopy: 0.05
-      specialist: 1.00
-    tp_additional_visits: 4.0
-    fp_additional_visits: 1.5
-
-  - name: Prostate
-    prevalence_per_100k: 35
-    sensitivity: 0.55
-    specificity: 0.99
-    pathway:
-      ct: 0.10
-      mri: 0.40
-      endoscopy: 0.05
-      specialist: 1.00
-    tp_additional_visits: 3.0
-    fp_additional_visits: 1.5
-
-  - name: Liver
-    prevalence_per_100k: 20
-    sensitivity: 0.65
-    specificity: 0.99
-    pathway:
-      ct: 0.40
-      mri: 0.30
-      endoscopy: 0.10
-      specialist: 1.00
-    tp_additional_visits: 4.0
-    fp_additional_visits: 1.5
-
-  - name: Pancreatic
-    prevalence_per_100k: 18
-    sensitivity: 0.55
-    specificity: 0.995
-    pathway:
-      ct: 0.60
-      mri: 0.30
-      endoscopy: 0.20
-      specialist: 1.00
-    tp_additional_visits: 5.0
-    fp_additional_visits: 2.0
-
-  - name: Ovarian
-    prevalence_per_100k: 12
-    sensitivity: 0.50
-    specificity: 0.995
-    pathway:
-      ct: 0.40
-      mri: 0.50
-      endoscopy: 0.05
-      specialist: 1.00
-    tp_additional_visits: 5.0
-    fp_additional_visits: 2.0
+- name: Gastric
+  site: Stomach
+  sex: Both
+  prevalence_per_100k: 84.32019042870589
+  sensitivity: 0.7
+  specificity: 0.99
+  pathway:
+    ct: 0.3
+    mri: 0.1
+    endoscopy: 0.9
+    specialist: 1.0
+    primary_care: 1.0
+  tp_additional_visits: 4.0
+  fp_additional_visits: 1.5
+- name: Colorectal
+  site: Colon/rectum
+  sex: Both
+  prevalence_per_100k: 123.84379699399274
+  sensitivity: 0.7
+  specificity: 0.99
+  pathway:
+    ct: 0.3
+    mri: 0.05
+    endoscopy: 0.95
+    specialist: 1.0
+    primary_care: 1.0
+  tp_additional_visits: 4.0
+  fp_additional_visits: 1.5
+- name: Lung
+  site: Lung, trachea
+  sex: Both
+  prevalence_per_100k: 99.70165097184592
+  sensitivity: 0.7
+  specificity: 0.99
+  pathway:
+    ct: 0.9
+    mri: 0.15
+    endoscopy: 0.05
+    specialist: 1.0
+    primary_care: 1.0
+  tp_additional_visits: 5.0
+  fp_additional_visits: 2.0
+- name: Breast
+  site: Breast
+  sex: Both
+  prevalence_per_100k: 83.1678072552693
+  sensitivity: 0.7
+  specificity: 0.99
+  pathway:
+    ct: 0.1
+    mri: 0.3
+    endoscopy: 0.05
+    specialist: 1.0
+    primary_care: 1.0
+  tp_additional_visits: 4.0
+  fp_additional_visits: 1.5
+- name: Prostate
+  site: Prostate
+  sex: Male
+  prevalence_per_100k: 82.10066666130548
+  sensitivity: 0.7
+  specificity: 0.99
+  pathway:
+    ct: 0.1
+    mri: 0.4
+    endoscopy: 0.05
+    specialist: 1.0
+    primary_care: 1.0
+  tp_additional_visits: 3.0
+  fp_additional_visits: 1.5
+- name: Liver
+  site: Liver
+  sex: Both
+  prevalence_per_100k: 26.228980868670124
+  sensitivity: 0.7
+  specificity: 0.99
+  pathway:
+    ct: 0.4
+    mri: 0.3
+    endoscopy: 0.1
+    specialist: 1.0
+    primary_care: 1.0
+  tp_additional_visits: 4.0
+  fp_additional_visits: 1.5
+- name: Pancreatic
+  site: Pancreas
+  sex: Both
+  prevalence_per_100k: 38.19510900595889
+  sensitivity: 0.7
+  specificity: 0.99
+  pathway:
+    ct: 0.6
+    mri: 0.3
+    endoscopy: 0.2
+    specialist: 1.0
+    primary_care: 1.0
+  tp_additional_visits: 5.0
+  fp_additional_visits: 2.0
+- name: Ovarian
+  site: Ovary
+  sex: Female
+  prevalence_per_100k: 10.275751702841154
+  sensitivity: 0.7
+  specificity: 0.99
+  pathway:
+    ct: 0.4
+    mri: 0.5
+    endoscopy: 0.05
+    specialist: 1.0
+    primary_care: 1.0
+  tp_additional_visits: 5.0
+  fp_additional_visits: 2.0
+data_sources:
+  cancer_incidence:
+    source: National Cancer Center of Japan, Cancer Statistics in Japan 2016-2023
+    url: https://ganjoho.jp/reg_stat/statistics/data/dl/en.html
+    file: cancer_incidenceNCR_2016-2023E.xlsx
+    note: Adult (20+) incidence rates for 2023 are used as a conservative proxy for
+      the point prevalence of screen-detectable cancers.
+  population:
+    source: National Cancer Center of Japan, population by age/sex 2023
+    url: https://ganjoho.jp/reg_stat/statistics/data/dl/en.html
+    file: cancer_incidenceNCR_2016-2023E.xlsx
+  diagnostic_capacity:
+    source: Ministry of Health, Labour and Welfare, 2023 Medical Facility Survey (Static/Dynamic),
+      05sisetu05.xlsx
+    url: https://www.mhlw.go.jp/toukei/saikin/hw/iryosd/23/
+    file: 05sisetu05.xlsx
+    note: September 2023 one-month patient counts are annualised (x12) and multiplied
+      by AVAILABLE_CANCER_SHARE (20%) to estimate the cancer-diagnostic capacity available
+      to a DTC screening wave.
+  test_performance:
+    source:
+    - 'Kahwati LC et al. Blood-Based Tests for Multiple Cancer Screening: A Systematic
+      Review. AHRQ 2025. https://www.ncbi.nlm.nih.gov/books/NBK618307/'
+    - 'Schnabel JL et al. Predictive Performance of Cell-Free Nucleic Acid-Based Multi-Cancer
+      Early Detection Tests: A Systematic Review. PubMed 2024. https://pubmed.ncbi.nlm.nih.gov/37791504/'
+    note: Base-case sensitivity 0.70 is near the MCED review median (0.73); specificity
+      0.99 is within the reported range (0.657-1.0). Per-cancer values are uniform
+      scenario assumptions; the specificity_sweep explores the effect of overall test
+      accuracy.
+  real_world_ppv:
+    source: Nagamachi S et al., nationwide PET/CT facility survey on N-NOSE-triggered
+      examinations (2024). https://jcpet.jp/2024/10/senchu-chosa.html
+    note: Observed cancer discovery rate after N-NOSE high-risk was ~2% overall and
+      <1% for the 15 target cancers; company-claimed 11.7% PPV is disputed by the
+      original survey authors.
+assumptions:
+  available_for_cancer_share: 0.2
+  pathway_note: Pathway probabilities and additional-visit counts are expert-assumption
+    scenario values based on standard diagnostic guidelines, not empirical data.
+  prevalence_proxy_note: Point prevalence of undiagnosed screen-detectable cancers
+    is not publicly reported; adult incidence is used as a lower-bound proxy.

@@ -64,6 +64,14 @@ def compute_outcomes(
         + followed_fp * cancer["fp_additional_visits"]
     )
 
+    specialist_probability = pathway.get("specialist", 0.0)
+    fp_specialist_visits = followed_fp * (
+        specialist_probability + cancer["fp_additional_visits"]
+    )
+    tp_specialist_visits = followed_tp * (
+        specialist_probability + cancer["tp_additional_visits"]
+    )
+
     total_visits = sum(modality_visits.values()) + additional_visits
 
     fp_to_tp_ratio = false_positives / true_positives if true_positives > 0 else np.inf
@@ -86,6 +94,8 @@ def compute_outcomes(
         "followed_true_positives": followed_tp,
         "followed_false_positives": followed_fp,
         "additional_visits": additional_visits,
+        "fp_specialist_visits": fp_specialist_visits,
+        "tp_specialist_visits": tp_specialist_visits,
         "total_visits": total_visits,
         "fp_to_tp_ratio": fp_to_tp_ratio,
         "visits_per_detected_case": visits_per_detected_case,
@@ -141,9 +151,10 @@ def add_capacity_metrics(df: pd.DataFrame, params: Dict[str, Any]) -> pd.DataFra
         "ct_visits": "ct_exams_per_year",
         "mri_visits": "mri_exams_per_year",
         "endoscopy_visits": "endoscopy_exams_per_year",
+        "primary_care_visits": "primary_care_visits_per_year",
     }
     for visits_col, cap_col in modality_map.items():
-        cap = capacity[cap_col] * scale
+        cap = capacity.get(cap_col, 0.0) * scale
         result[f"{visits_col}_utilization_pct"] = (
             100.0 * result[visits_col] / cap if cap > 0 else 0.0
         )
@@ -185,6 +196,9 @@ def aggregate_by_follow_up(df: pd.DataFrame) -> pd.DataFrame:
         "mri_visits",
         "endoscopy_visits",
         "specialist_visits",
+        "fp_specialist_visits",
+        "tp_specialist_visits",
+        "primary_care_visits",
     ]
     grouped = df.groupby("follow_up_rate", as_index=False)[sum_cols].sum()
 
@@ -234,6 +248,7 @@ def plot_capacity_utilization(
                 "mri_visits_utilization_pct",
                 "endoscopy_visits_utilization_pct",
                 "specialist_total_visits_utilization_pct",
+                "primary_care_visits_utilization_pct",
             ]
         ]
         .sum()
@@ -246,6 +261,7 @@ def plot_capacity_utilization(
         ("mri_visits_utilization_pct", "MRI"),
         ("endoscopy_visits_utilization_pct", "Endoscopy"),
         ("specialist_total_visits_utilization_pct", "Specialist visits (incl. follow-up)"),
+        ("primary_care_visits_utilization_pct", "Primary care visits"),
     ]:
         ax.plot(
             agg["follow_up_rate"],
@@ -352,10 +368,18 @@ def plot_specificity_sweep(
 
 
 def format_csv(df: pd.DataFrame) -> pd.DataFrame:
-    """Round numeric columns for cleaner CSV output."""
+    """Round numeric columns for cleaner CSV output.
+
+    Ratio columns (PPV, FP/TP, capacity utilisation percentages) are kept at
+    higher precision so downstream prose can recompute consistent percentages.
+    """
     out = df.copy()
+    ratio_indicators = {"ppv", "fp_to_tp_ratio", "visits_per_detected_case"}
     for col in out.select_dtypes(include=[np.floating]).columns:
-        out[col] = out[col].round(3)
+        if col in ratio_indicators or col.endswith("_utilization_pct"):
+            out[col] = out[col].round(6)
+        else:
+            out[col] = out[col].round(3)
     return out
 
 
@@ -440,7 +464,8 @@ def main() -> None:
         f"CT={params['capacity']['ct_exams_per_year']:,}, "
         f"MRI={params['capacity']['mri_exams_per_year']:,}, "
         f"Endoscopy={params['capacity']['endoscopy_exams_per_year']:,}, "
-        f"Specialist={params['capacity']['specialist_visits_per_year']:,}"
+        f"Specialist={params['capacity']['specialist_visits_per_year']:,}, "
+        f"Primary care={params['capacity'].get('primary_care_visits_per_year', 0):,}"
     )
     print()
 

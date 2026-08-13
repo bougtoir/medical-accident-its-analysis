@@ -332,6 +332,10 @@ jobs:
           BRANCH_MAP["devin/1786090370-cancer-screening-burden"]="cancer-screening-burden"
           SUBDIR_MAP["devin/1786090370-cancer-screening-burden"]="cancer_screening_burden"
 
+          # ── Data-driven cancer-screening burden scenario-modeling paper ──
+          BRANCH_MAP["devin/1786535489-cancer-data-driven"]="cancer-screening-burden-data-driven"
+          SUBDIR_MAP["devin/1786535489-cancer-data-driven"]="cancer_screening_burden"
+
           # ── File exclusion map ──
           # Space-separated list of file paths (relative to subdir root if
           # SUBDIR_MAP is set, or repo root otherwise) to exclude from sync.
