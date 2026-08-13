@@ -1,0 +1,214 @@
+# False-positive cascade and healthcare capacity burden of direct-to-consumer multi-cancer early detection blood tests: a scenario modelling study
+
+### Key points
+
+- **Question:** What diagnostic and specialist workload is generated when direct-to-consumer blood-based multi-cancer early detection (MCED) tests return positive results in an asymptomatic population?
+- **Finding:** A 100,000-person MCED wave at 50% follow-up produced 383 true positives and 7995 false positives (PPV 4.58%), exceeding the illustrative specialist capacity ceiling once follow-up exceeded 40%.
+- **Meaning:** Without regulatory guardrails on performance claims and follow-up obligations, widespread direct-to-consumer MCED screening could overload primary and specialty care with unnecessary investigations.
+
+## Abstract
+
+**Background:** Direct-to-consumer blood-based multi-cancer early detection (MCED) tests are advertised as a convenient single-blood-draw screen. In asymptomatic populations most positive results are false positives, each triggering imaging, endoscopy, and specialist follow-up visits.
+
+**Methods:** A deterministic expected-value model was parameterised with 2023 adult cancer incidence and population data, 2023 national diagnostic volumes, and specialist capacity derived from NDB Open Data outpatient counts and Japanese specialist-board counts. True positives, false positives, downstream visits, capacity utilisation, and per-specialist case load were estimated across follow-up rates of 0-100% and specificities of 95.0-99.9%.
+
+**Results:** In a 100,000-person cohort at 50% follow-up and 0.990 specificity, the model generated 383.5 true positives and 7994.5 false positives (positive predictive value 4.58%; false-positive/true-positive ratio 20.8). Total downstream visits reached 15684.4, with maximum capacity utilisation 163.2% (specialist visits). The illustrative capacity ceiling was exceeded at a follow-up rate of 40% (specialist total visits). False-positive specialist visits added 168.8 visits per relevant specialist, raising the effective cases per specialist from 35.1 to 204.0 (481% increase).
+
+**Conclusions:** Even with optimistic 99% specificity, a direct-to-consumer MCED wave can trigger a false-positive cascade that exceeds outpatient and endoscopic capacity. Transparent positive predictive value reporting, performance thresholds, and clear follow-up obligations are needed before routine adoption.
+
+**Keywords:** multi-cancer early detection, false positive, healthcare capacity, direct-to-consumer testing, scenario model
+
+---
+
+## Introduction
+
+Blood-based multi-cancer early detection (MCED) tests are increasingly advertised directly to consumers as a convenient “single blood draw” cancer screen [^1^]. Because most positive results in asymptomatic populations are false positives, each abnormal test generates a cascade of confirmatory imaging and specialist visits [^3^][^4^]. In this setting, where endoscopy and specialist visits are already constrained [^2^], widespread DTC use could displace routine care. We quantified this burden as a function of follow-up behaviour, test specificity, and age structure.
+
+## Methods
+
+### Data sources
+
+Cancer incidence by site, age, sex, and calendar year (2023) and the corresponding 2023 population by age and sex were taken from the National Cancer Center of Japan [^1^]. Annual volumes of CT, MRI, and upper/lower gastrointestinal endoscopies were derived from the 2023 Ministry of Health, Labour and Welfare Medical Facility Survey [^2^]. Test sensitivity and specificity ranges were informed by two recent systematic reviews of blood-based MCED tests [^3^][^4^], and real-world PPV evidence came from a nationwide PET/CT facility survey of N-NOSE-triggered examinations [^5^].
+
+Specialist capacity was defined using NDB Open Data first/revisit outpatient patient counts and Japanese Board of Medical Specialties specialist counts [^7^][^8^]. Disease-specific baseline patient numbers for the case-per-specialist ratio were taken from the MHLW 2023 Patient Survey [^6^].
+
+### Model
+
+We used a deterministic expected-value cohort model. For each cancer \(c\):
+
+- Actual cases = screened population × prevalence per 100,000 / 100,000.
+- True positives = actual cases × sensitivity.
+- False positives = (screened population − actual cases) × (1 − specificity).
+
+Each positive individual who followed up (follow-up rate, 0–100%) generated visits to CT, MRI, endoscopy, and specialist care according to cancer-specific pathway probabilities. Additional visits per true and false positive were added. Capacity utilisation for each resource was calculated as total visits divided by the annual capacity per 100,000 population. A full description of equations is available in `simulate.py`.
+
+Prevalence was approximated by adult (20+) incidence because point prevalence of undiagnosed, screen-detectable cancers is not publicly reported. This is a conservative lower-bound for true positives and therefore an upper-bound for PPV and FP/TP ratios. Pathway probabilities and the share of facility capacity available for a new DTC-related wave were scenario assumptions, documented in `parameters.yaml`.
+
+### Specialist capacity definition
+
+We define baseline specialist capacity as the annual outpatient caseload per cancer-relevant specialist. We used NDB Open Data unique first/revisit outpatient patients (April 2024–March 2025) divided by the total number of basic JMSB specialists, giving an average annual caseload per specialist [^7^][^8^]. We then multiplied this by the number of cancer-relevant specialists per 100,000 population and applied the same 20% share assumed available for a DTC wave. The resulting `specialist_visits_per_year` is an illustrative capacity ceiling for a 100,000-person cohort.
+
+### Scenarios
+
+Base-case sensitivity and specificity were 0.70 and 0.990. We varied follow-up rate from 0 to 100% and specificity from 0.950 to 0.999 in a sensitivity sweep. The available-for-cancer-workup share of national diagnostic capacity was set to 20%.
+
+### Reporting
+
+This scenario modelling study is reported in accordance with the Strengthening the Reporting of Observational Studies in Epidemiology (STROBE) statement and the Statistical Analyses and Methods in the Published Literature (SAMPL) guidelines where applicable.
+
+## Results
+
+### Scenario parameters
+
+Table 1 summarises the data sources and base-case parameter values.
+
+**Table 1. Data sources and scenario parameters.**
+
+| Parameter | Value | Source / assumption |
+|---|---|---|
+| Screened population | 100,000 | Model cohort |
+| Base sensitivity | 0.70 | Kahwati LC et al. Blood-Based Tests for Multiple Cancer Screening: A Systematic Review. AHRQ 2025. https://www.ncbi.nlm.nih.gov/books/NBK618307/ |
+| Base specificity | 0.990 | Kahwati LC et al. Blood-Based Tests for Multiple Cancer Screening: A Systematic Review. AHRQ 2025. https://www.ncbi.nlm.nih.gov/books/NBK618307/ |
+| CT capacity per 100k per year | 5676 | Ministry of Health, Labour and Welfare, 2023 Medical Facility Survey (Static/Dynamic), 05sisetu05.xlsx |
+| MRI capacity per 100k per year | 2678 | Ministry of Health, Labour and Welfare, 2023 Medical Facility Survey (Static/Dynamic), 05sisetu05.xlsx |
+| Endoscopy capacity per 100k per year | 2583 | Ministry of Health, Labour and Welfare, 2023 Medical Facility Survey (Static/Dynamic), 05sisetu05.xlsx |
+| Specialist capacity per 100k per year | 7183 | Derived from NDB Open Data first/revisit outpatient patient counts (88,408,837 + 85,182,008) and 79,117 cancer-relevant JMSB specialists; 20% share assumed available for new cancer workups. |
+| Gastric prevalence (per 100k) | 84.3 | National Cancer Center of Japan, Cancer Statistics in Japan 2016-2023 |
+| Colorectal prevalence (per 100k) | 123.8 | National Cancer Center of Japan, Cancer Statistics in Japan 2016-2023 |
+| Lung prevalence (per 100k) | 99.7 | National Cancer Center of Japan, Cancer Statistics in Japan 2016-2023 |
+| Breast prevalence (per 100k) | 83.2 | National Cancer Center of Japan, Cancer Statistics in Japan 2016-2023 |
+| Prostate prevalence (per 100k) | 82.1 | National Cancer Center of Japan, Cancer Statistics in Japan 2016-2023 |
+| Liver prevalence (per 100k) | 26.2 | National Cancer Center of Japan, Cancer Statistics in Japan 2016-2023 |
+| Pancreatic prevalence (per 100k) | 38.2 | National Cancer Center of Japan, Cancer Statistics in Japan 2016-2023 |
+| Ovarian prevalence (per 100k) | 10.3 | National Cancer Center of Japan, Cancer Statistics in Japan 2016-2023 |
+
+### Per-cancer burden at 50% follow-up
+
+At a 50% follow-up rate, the model estimated 383.5 true positives and 7994.5 false positives across all eight cancers (Table 2). Colorectal had the highest age-adjusted PPV (7.99%) and Ovarian the lowest (0.72%). The FP/TP ratio ranged from 11.5 to 137.4.
+
+**Table 2. Per-cancer outcomes at 50% follow-up (per 100,000 screened).**
+
+| Cancer | Prevalence per 100k | True positives | False positives | PPV (%) | FP/TP ratio | Total visits | Max resource utilisation (%) |
+|---|---|---|---|---|---|---|---|
+| Gastric | 84.3 | 59.0 | 999.2 | 5.58 | 16.9 | 2084.3 | 19.4 |
+| Colorectal | 123.8 | 86.7 | 998.8 | 7.99 | 11.5 | 2170.7 | 20.4 |
+| Lung | 99.7 | 69.8 | 999.0 | 6.53 | 14.3 | 2295.7 | 23.8 |
+| Breast | 83.2 | 58.2 | 999.2 | 5.51 | 17.2 | 1632.4 | 19.4 |
+| Prostate | 82.1 | 57.5 | 999.2 | 5.44 | 17.4 | 1654.5 | 19.0 |
+| Liver | 26.2 | 18.4 | 999.7 | 1.81 | 54.4 | 1702.8 | 18.0 |
+| Pancreatic | 38.2 | 26.7 | 999.6 | 2.61 | 37.4 | 2144.1 | 22.0 |
+| Ovarian | 10.3 | 7.2 | 999.9 | 0.72 | 137.4 | 1999.8 | 21.2 |
+
+### Capacity impact
+
+Total downstream visits rose from 0.0 at 0% follow-up to 31368.8 at 100% follow-up (Fig. 1). Resource utilisation is shown in Fig. 2. The first illustrative capacity ceiling was exceeded at 40% (specialist total visits). At 50% follow-up maximum utilisation was 163.2%.
+
+![Figure 1: Total downstream visits by follow-up rate](output/total_visits_by_followup.png)
+**Fig. 1.** Total downstream diagnostic and specialist visits generated by a blood-based MCED screening wave of 100,000 persons, by follow-up rate.
+
+![Figure 2: Diagnostic capacity utilisation by follow-up rate](output/capacity_utilization.png)
+**Fig. 2.** Capacity utilisation (%) for CT, MRI, endoscopy, and specialist visits as follow-up rate increases. Values above 100% indicate demand exceeding the illustrative annual capacity available for a DTC screening wave.
+
+### Specialist capacity and the false-positive cascade
+
+Table 4 compares the MHLW Patient Survey 2023 baseline cancer case load per specialist with the additional false-positive specialist visits generated by a 100,000-person DTC wave at 50% follow-up. Across all cancer-relevant specialties, the baseline case load is about 35.1 patients per specialist; the DTC wave adds about 168.8 false-positive specialist visits per specialist, an increase of 481%.
+
+**Table 4. Baseline cases per specialist and incremental false-positive burden at 50% follow-up.**
+
+| Cancer | Relevant specialty | Baseline cases per specialist | False-positive specialist visits per specialist | Cases per specialist with FP | Increase (%) |
+|---|---|---|---|---|---|
+| Gastric | Gastroenterology | 11.9 | 65.51 | 77.4 | 552.7 |
+| Colorectal | Gastrointestinal Surgery | 63.4 | 174.89 | 238.3 | 275.7 |
+| Lung | Respiratory Medicine | 43.9 | 245.38 | 289.2 | 559.6 |
+| Breast | Breast Surgery | 403.5 | 799.33 | 1202.8 | 198.1 |
+| Prostate | Urology | 85.5 | 221.40 | 306.9 | 258.9 |
+| Liver | Hepatology | 10.1 | 194.25 | 204.4 | 1918.5 |
+| Pancreatic | Gastroenterology | 3.8 | 78.65 | 82.4 | 2095.0 |
+| Ovarian | Obstetrics and Gynaecology | 2.2 | 84.85 | 87.0 | 3885.6 |
+
+### Age-specific positive predictive value
+
+PPV was strongly age-dependent (Fig. 3). In younger age groups PPV fell below 1% for several cancers, rising above 20% only in the oldest groups. This implies that if DTC MCED users are younger than the general screening population, aggregate PPV would be lower and the false-positive burden larger than the base-case estimate.
+
+![Figure 3: Age-specific PPV by cancer type](output/ppv_by_age.png)
+**Fig. 3.** Age-specific positive predictive value for each cancer, assuming sensitivity 0.70 and specificity 0.99.
+
+### Sensitivity to test specificity
+
+Lowering specificity from 99% to 95% reduced aggregate PPV to roughly 0.2 of the 99% value (from 4.58% to 0.95%) and dramatically increased total visits and capacity pressure (Fig. 4; Table 3).
+
+**Table 3. Aggregate outcomes by follow-up rate (base-case specificity).**
+
+| Follow-up rate | True positives | False positives | Total positives | PPV (%) | FP/TP ratio | Total visits | Max capacity utilisation (%) |
+|---|---|---|---|---|---|---|---|
+| 0% | 383.5 | 7994.5 | 8378.0 | 4.58 | 20.8 | 0.0 | 0.0 |
+| 10% | 383.5 | 7994.5 | 8378.0 | 4.58 | 20.8 | 3136.9 | 32.6 |
+| 20% | 383.5 | 7994.5 | 8378.0 | 4.58 | 20.8 | 6273.8 | 65.3 |
+| 30% | 383.5 | 7994.5 | 8378.0 | 4.58 | 20.8 | 9410.6 | 97.9 |
+| 40% | 383.5 | 7994.5 | 8378.0 | 4.58 | 20.8 | 12547.5 | 130.6 |
+| 50% | 383.5 | 7994.5 | 8378.0 | 4.58 | 20.8 | 15684.4 | 163.2 |
+| 60% | 383.5 | 7994.5 | 8378.0 | 4.58 | 20.8 | 18821.3 | 195.9 |
+| 70% | 383.5 | 7994.5 | 8378.0 | 4.58 | 20.8 | 21958.2 | 228.5 |
+| 80% | 383.5 | 7994.5 | 8378.0 | 4.58 | 20.8 | 25095.1 | 261.2 |
+| 90% | 383.5 | 7994.5 | 8378.0 | 4.58 | 20.8 | 28231.9 | 293.8 |
+| 100% | 383.5 | 7994.5 | 8378.0 | 4.58 | 20.8 | 31368.8 | 326.4 |
+
+![Figure 4: PPV and total positives across specificity values](output/specificity_sweep.png)
+**Fig. 4.** Aggregate positive predictive value (%) and total positive results per 100,000 screened across specificity values at a 70% follow-up rate.
+
+## Discussion
+
+Our scenario model shows that, even under optimistic assumptions for test accuracy, a DTC blood-based MCED screening wave can produce roughly 21 false-positive workups for every true cancer detected. At 50% follow-up the illustrative specialist capacity ceiling is exceeded by 63.2 percentage points, and the effective case load per cancer-relevant specialist rises by about 481% due to false-positive follow-up visits. The burden is not uniform: cancers with low prevalence (ovarian, liver, pancreatic) had the lowest PPV and the highest FP/TP ratios, while age strongly modulates PPV.
+
+These findings align with real-world data from the N-NOSE PET/CT survey, in which the cancer discovery rate after a high-risk result was low and well below the company's advertised PPV [^5^].
+
+### Limitations
+
+Our analysis intentionally uses scenario assumptions for test performance, diagnostic pathways, and the age distribution of DTC users, because these data are not publicly reported. Prevalence was approximated by adult incidence; true point prevalence of undiagnosed cancers may differ. Diagnostic capacity was annualised from a one-month facility survey and specialist capacity from NDB outpatient patient counts; both were reduced by an arbitrary available-for-cancer-workup share. The model is deterministic and does not capture stochastic variation, geographic maldistribution, or queueing effects.
+
+### Conclusion
+
+Without regulatory guardrails—clear performance thresholds, transparent PPV reporting, and follow-up obligations—direct-to-consumer MCED tests risk converting a marketing promise into a large-scale false-positive cascade that stresses diagnostic capacity.
+
+## Author contributions
+
+All authors contributed to the study design, data interpretation, and critical revision of the manuscript, and approved the final version.
+
+## Acknowledgements
+
+We thank colleagues in primary care and health services research for feedback on earlier drafts.
+
+## Funding
+
+No external funding was received for this study.
+
+## Competing interests
+
+The authors declare no competing interests.
+
+## Patient and public involvement
+
+Patients or members of the public were not directly involved in the design, conduct, reporting, or dissemination of this modelling study.
+
+## Data availability
+
+All data sources are publicly available and listed in Table 1. Analysis code, parameters, and outputs are available at https://github.com/bougtoir/cancer-screening-burden-data-driven.
+
+
+## References
+
+1. National Cancer Center of Japan. Cancer Statistics in Japan 2016-2023. https://ganjoho.jp/reg_stat/statistics/data/dl/en.html
+
+2. Ministry of Health, Labour and Welfare. 2023 Medical Facility Survey (Static/Dynamic). https://www.mhlw.go.jp/toukei/saikin/hw/iryosd/23/
+
+3. Kahwati LC, et al. Blood-Based Tests for Multiple Cancer Screening: A Systematic Review. AHRQ; 2025. https://www.ncbi.nlm.nih.gov/books/NBK618307/
+
+4. Schnabel JL, et al. Predictive Performance of Cell-Free Nucleic Acid-Based Multi-Cancer Early Detection Tests: A Systematic Review. PubMed; 2024. https://pubmed.ncbi.nlm.nih.gov/37791504/
+
+5. Nagamachi S, et al. Nationwide PET/CT facility survey on N-NOSE-triggered examinations. J Nucl Med Technol (Japanese report), 2024. https://jcpet.jp/2024/10/senchu-chosa.html
+
+6. Ministry of Health, Labour and Welfare. Patient Survey 2023 (r05syobyo.pdf). https://www.mhlw.go.jp/toukei/saikin/hw/kanja/10syoubyo/
+
+7. Ministry of Health, Labour and Welfare. NDB Open Data 11th release (April 2024–March 2025). https://www.mhlw.go.jp/stf/seisakunitsuite/bunya/0000177179.html
+
+8. Japanese Board of Medical Specialties. Summary of the Japanese specialist system, as tabulated by senkoi.net. https://senkoi.net/650/ and https://senkoi.net/778/
