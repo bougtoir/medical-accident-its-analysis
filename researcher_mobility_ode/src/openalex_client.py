@@ -8,12 +8,37 @@ import hashlib
 import json
 import os
 import time
+from datetime import datetime, timezone
+from email.utils import parsedate_to_datetime
 from pathlib import Path
 
 import requests
 
 OPENALEX_BASE = "https://api.openalex.org"
 DEFAULT_MAILTO = "researcher-mobility-probe@example.org"
+# Do not wait more than 30 minutes for a single Retry-After directive.
+MAX_RETRY_AFTER_SECONDS = 1800
+
+
+def _parse_retry_after(value):
+    """Parse a Retry-After header value (seconds or HTTP-date) into seconds.
+
+    Returns None if the value cannot be parsed.
+    """
+    value = (value or "").strip()
+    if not value:
+        return None
+    try:
+        return max(1, int(float(value)))
+    except ValueError:
+        pass
+    try:
+        dt = parsedate_to_datetime(value)
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        return max(1, int((dt - datetime.now(timezone.utc)).total_seconds()))
+    except Exception:
+        return None
 
 
 class OpenAlexBudgetExhausted(RuntimeError):
@@ -26,6 +51,11 @@ class OpenAlexClient:
         self.delay = delay
         self.api_key = api_key or os.environ.get("OPENALEX_API_KEY")
         self.session = requests.Session()
+        if self.api_key:
+            # Send the key in the Authorization header so it never appears in the
+            # URL query string (which would be logged by proxies/CDNs and embedded
+            # in cache filenames / exception messages).
+            self.session.headers["Authorization"] = f"Bearer {self.api_key}"
         self.cache_dir = Path(cache_dir) if cache_dir else None
         if self.cache_dir:
             self.cache_dir.mkdir(parents=True, exist_ok=True)
@@ -40,8 +70,6 @@ class OpenAlexClient:
         url = f"{OPENALEX_BASE}/{endpoint}"
         req_params = dict(params)
         req_params["mailto"] = self.mailto
-        if self.api_key:
-            req_params["api_key"] = self.api_key
         for attempt in range(8):
             if self.delay:
                 time.sleep(self.delay)
@@ -59,8 +87,9 @@ class OpenAlexClient:
                             "Add credits or wait for reset before re-extracting."
                         )
                 retry_after = r.headers.get("Retry-After")
-                if retry_after:
-                    backoff = min(120, max(1, int(retry_after)))
+                parsed_backoff = _parse_retry_after(retry_after)
+                if parsed_backoff is not None:
+                    backoff = min(parsed_backoff, MAX_RETRY_AFTER_SECONDS)
                 else:
                     backoff = min(60, 2 ** attempt)
                 time.sleep(backoff)

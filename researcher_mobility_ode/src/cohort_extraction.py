@@ -4,12 +4,13 @@ Build an AI/ML researcher cohort from OpenAlex and estimate crude transition
 rates for the per-civilisation ODE model.
 
 Usage:
-    python src/cohort_extraction.py --sample-per-group 200 --max-authors 1000
+    python src/cohort_extraction.py --sample-per-group 200 --max-authors 0
 """
 
 import argparse
 import json
 import math
+import time
 from collections import Counter, defaultdict
 from pathlib import Path
 
@@ -178,14 +179,15 @@ def classify_author(aid, works, a2g, origin_override=None):
             abroad_year = y
             break
 
-    # Hit within HIT_WINDOW years (non-last author)
+    # Hit within HIT_WINDOW years (top 10% AI/ML citation percentile,
+    # regardless of author position)
     hit = False
     hit_year = None
     for w in works:
         y = w["publication_year"]
         if y > career_start + HIT_WINDOW:
             break
-        if not is_last_author(w, aid) and is_top10(w):
+        if is_top10(w):
             hit = True
             hit_year = y
             break
@@ -304,18 +306,35 @@ def build_cohort(sample_per_group, max_authors, client, a2g, group_to_a2):
     ]
     for i, batch in enumerate(author_batches, 1):
         print(f"  Fetching batch {i}/{len(author_batches)} ({len(batch)} authors) ...")
-        try:
-            works = client.fetch_works_by_authors(
-                batch, "id,publication_year,authorships,citation_normalized_percentile",
-                subfield_id=SUBFIELD,
+        works = None
+        last_err = None
+        for attempt in range(3):
+            try:
+                works = client.fetch_works_by_authors(
+                    batch, "id,publication_year,authorships,citation_normalized_percentile",
+                    subfield_id=SUBFIELD,
+                )
+                break
+            except OpenAlexBudgetExhausted:
+                # Fail fast so an incomplete cohort is never written to disk.
+                raise
+            except Exception as e:
+                last_err = e
+                if attempt < 2:
+                    wait = 2 ** attempt
+                    print(f"    Batch {i} attempt {attempt + 1} failed: {e}. Retrying in {wait}s ...")
+                    time.sleep(wait)
+                    continue
+        if works is None:
+            failed_path = COHORT_DIR / "failed_batches.json"
+            failed_batches.append({"batch": i, "authors": batch, "error": str(last_err)})
+            with open(failed_path, "w", encoding="utf-8") as f:
+                json.dump(failed_batches, f, ensure_ascii=False, indent=2)
+            raise RuntimeError(
+                f"Batch {i}/{len(author_batches)} failed after 3 attempts: {last_err}. "
+                f"Failed batch logged to {failed_path}. Fix the API/network issue and rerun; "
+                f"incomplete cohort would be written otherwise."
             )
-        except OpenAlexBudgetExhausted:
-            # Fail fast so an incomplete cohort is never written to disk.
-            raise
-        except Exception as e:
-            print(f"  Warning: failed to fetch batch {i}: {e}. Skipping {len(batch)} authors.")
-            failed_batches.append({"batch": i, "authors": batch, "error": str(e)})
-            continue
         for w in works:
             for auth in w.get("authorships", []):
                 aid = author_id_key((auth.get("author") or {}).get("id"))
@@ -323,18 +342,7 @@ def build_cohort(sample_per_group, max_authors, client, a2g, group_to_a2):
                     works_by_author[aid].append(w)
 
     if failed_batches:
-        failed_author_count = sum(len(b["authors"]) for b in failed_batches)
-        total_author_count = len(author_order)
-        failed_frac = failed_author_count / total_author_count if total_author_count else 0
-        print(f"  Warning: {failed_author_count} authors in {len(failed_batches)} batch(es) "
-              f"could not be fetched ({failed_frac:.1%}).")
-        # If a large fraction of the cohort is missing, refuse to write a
-        # misleadingly complete cohort file.
-        if failed_frac > 0.05:
-            raise RuntimeError(
-                f"Too many author batches failed ({failed_frac:.1%} of {total_author_count}). "
-                f"Fix the API/network issue and rerun; incomplete cohort would be written otherwise."
-            )
+        print(f"  Recovered from transient failures in {len(failed_batches)} batch(es).")
 
     # Classify, applying origin-group overrides before mobility flags are
     # computed so that ``abroad`` and other derived fields are consistent.
