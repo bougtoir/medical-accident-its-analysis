@@ -95,8 +95,9 @@ def get_manuscript_page_ranges():
         # Detect embedded tables and figures by their captions.
         for label in ['Table 1.', 'Table 2.', 'Figure 1.', 'Figure 2.']:
             key = label.rstrip('.')
+            pattern = re.compile(rf'(?:^|\n)\s*{re.escape(label)}')
             for i, page in enumerate(pages):
-                if label in page:
+                if pattern.search(page):
                     ranges[key] = str(i + 1)
                     break
 

@@ -19,7 +19,6 @@ by scripts/compile_ijhpm_results.py.
 import json
 import os
 import re
-import sys
 from string import Template
 
 from docx import Document
@@ -223,8 +222,20 @@ FLAT = build_flat(R)
 _heading_state = {'section': 0, 'subsection': 0}
 
 
+def _add_text_run(paragraph, text, italic=False, bold=False):
+    run = paragraph.add_run(text)
+    run.font.name = 'Times New Roman'
+    run.font.size = Pt(12)
+    if italic:
+        run.italic = True
+    if bold:
+        run.bold = True
+    return run
+
+
 def add_run_with_refs(paragraph, text, italic=False, bold=False):
-    """Add text to a paragraph, parsing {n} or {n-m} as bracketed Vancouver citations."""
+    """Add text to a paragraph, parsing {n} or {n-m} as bracketed Vancouver citations
+    and converting Unicode superscript 2 (²) to Word-native font superscript."""
     # In Vancouver style, citations follow punctuation: move any trailing
     # punctuation that sits immediately before a citation marker to after it.
     text = re.sub(r'([.,;:])(\{[^}]+\})', r'\2\1', text)
@@ -232,17 +243,23 @@ def add_run_with_refs(paragraph, text, italic=False, bold=False):
     for part in parts:
         if not part:
             continue
-        run = paragraph.add_run(part)
-        run.font.name = 'Times New Roman'
-        run.font.size = Pt(12)
-        if italic:
-            run.italic = True
-        if bold:
-            run.bold = True
         if part.startswith('{') and part.endswith('}'):
             inner = part[1:-1]
-            run.text = f'[{inner}]'
+            run = _add_text_run(paragraph, f'[{inner}]', italic=italic, bold=bold)
             run.font.superscript = False
+            continue
+        # Convert R² to R with superscript 2 while keeping surrounding text.
+        while '²' in part:
+            idx = part.index('²')
+            if idx > 0:
+                _add_text_run(paragraph, part[:idx], italic=italic, bold=bold)
+            sup = _add_text_run(paragraph, '2', italic=italic, bold=bold)
+            sup.font.superscript = True
+            part = part[idx + 1:]
+            if not part:
+                break
+        if part:
+            _add_text_run(paragraph, part, italic=italic, bold=bold)
 
 
 CITE_RE = re.compile(r'\[\d+(?:-\d+)?(?:,\s*\d+(?:-\d+)?)*\]')
@@ -467,17 +484,13 @@ add_para(
     "rates.")
 
 add_para(
-    "Results: Coefficients of variation among the four primary codes ranged from "
-    "${L008_cv}% to ${L002_cv}%. For general anaesthesia, only ${L008_ml_icc} of "
-    "variance lay between prefectures; university hospital presence explained "
-    "${L008_ml_r2} of total variance (β = ${L008_ml_coef}, 95% CI "
-    "${L008_ml_ci_low} to ${L008_ml_ci_high}, P ${L008_ml_p}). The association "
-    "persisted with log-transformed ratios (β = ${L008_ml_log_coef}, 95% CI "
-    "${L008_ml_log_ci_low} to ${L008_ml_log_ci_high}, P ${L008_ml_log_p}). "
-    "Maximum plausible audit-related ratio shifts were small relative to the "
-    "observed interquartile range. Covariate adjustment attenuated but did not "
-    "eliminate the university-hospital effect for general, epidural and continuous "
-    "epidural anaesthesia.")
+    "Results: Coefficients of variation ranged from ${L008_cv}% to ${L002_cv}%. "
+    "For general anaesthesia, only ${L008_ml_icc} of variance lay between "
+    "prefectures; university hospital presence explained ${L008_ml_r2} of total "
+    "variance (P ${L008_ml_p}). The association persisted after log "
+    "transformation and covariate adjustment; audit-related ratio shifts were "
+    "small relative to observed variation, supporting structural access over "
+    "differential auditing.")
 
 add_para(
     "Conclusion: Regional variation in anaesthesia practice is predominantly "
@@ -1029,14 +1042,7 @@ for i, ref in enumerate(REFERENCES, 1):
     run.font.size = Pt(12)
 
 # Word-count checks and title-page placeholder updates are performed after
-# math conversion, so the counted text matches the saved docx.
-
-# Convert statistical expressions to native Word equation objects
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from jech_math import convert_docx_math_to_omml
-convert_docx_math_to_omml(doc)
-
-# Word-count checks after converting math, so the counted text matches the saved docx.
+# the manuscript body is complete, so the counted text matches the saved docx.
 abstract_paras = []
 text_paras = []
 in_abstract = False

@@ -146,12 +146,6 @@ add_footnote(doc,
              "decrease in total (prefecture + residual) variance after adding the university "
              "hospital fixed effect.")
 
-# Convert statistical symbols (β, R²) to native Word equation objects
-import sys
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from jech_math import convert_docx_math_to_omml
-convert_docx_math_to_omml(doc)
-
 out_en = os.path.join(OUTPUT_DIR, 'regional_anaesthesia_tables_Health_Policy_EN.docx')
 doc.save(out_en)
 print(f"Saved: {out_en}")
