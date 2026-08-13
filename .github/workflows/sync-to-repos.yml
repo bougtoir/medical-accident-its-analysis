@@ -316,14 +316,6 @@ jobs:
           BRANCH_MAP["devin/1785812663-sales-conversation-dynamics"]="sales-conversation-dynamics"
           SUBDIR_MAP["devin/1785812663-sales-conversation-dynamics"]="sales_conversation_dynamics"
 
-          # -- Urban cancer-screening burden simulation --
-          BRANCH_MAP["devin/1786090370-cancer-screening-burden"]="cancer-screening-burden"
-          SUBDIR_MAP["devin/1786090370-cancer-screening-burden"]="cancer_screening_burden"
-
-          # -- Data-driven cancer-screening burden scenario-modeling paper --
-          BRANCH_MAP["devin/1786535489-cancer-data-driven"]="cancer-screening-burden-data-driven"
-          SUBDIR_MAP["devin/1786535489-cancer-data-driven"]="cancer_screening_burden"
-
           # ── AI/ML researcher mobility ODE model (full-article branch is the canonical public snapshot) ──
           BRANCH_MAP["devin/researcher-mobility-ode-full-article"]="researcher-mobility-ode"
           SUBDIR_MAP["devin/researcher-mobility-ode-full-article"]="researcher_mobility_ode"
@@ -335,6 +327,14 @@ jobs:
           # ── Quantum / atomic-molecular physics researcher mobility ODE model ──
           BRANCH_MAP["devin/researcher-mobility-ode-quantum"]="researcher-mobility-ode-quantum"
           SUBDIR_MAP["devin/researcher-mobility-ode-quantum"]="researcher_mobility_ode"
+
+          # ── Urban cancer-screening burden simulation ──
+          BRANCH_MAP["devin/1786090370-cancer-screening-burden"]="cancer-screening-burden"
+          SUBDIR_MAP["devin/1786090370-cancer-screening-burden"]="cancer_screening_burden"
+
+          # ── Data-driven cancer-screening burden scenario-modeling paper ──
+          BRANCH_MAP["devin/1786535489-cancer-data-driven"]="cancer-screening-burden-data-driven"
+          SUBDIR_MAP["devin/1786535489-cancer-data-driven"]="cancer_screening_burden"
 
           # ── File exclusion map ──
           # Space-separated list of file paths (relative to subdir root if
