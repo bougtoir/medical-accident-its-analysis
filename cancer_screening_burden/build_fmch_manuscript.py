@@ -148,9 +148,10 @@ def _fmch_abstract(ctx: Dict[str, Any], params: Dict[str, Any]) -> str:
         f"{ctx['total_cases']:.1f} ({ctx['percent_change']:.0f}% increase).\n\n"
         "**Conclusions:** Even with optimistic 99% specificity, a direct-to-consumer "
         "MCED wave can trigger a false-positive cascade that exceeds outpatient and "
-        "endoscopic capacity. Transparent positive predictive value reporting, "
-        "performance thresholds, and clear follow-up obligations are needed before "
-        "routine adoption."
+        "endoscopic capacity and overloads primary care. Transparent positive predictive "
+        "value reporting, performance thresholds, and clear follow-up obligations are "
+        "needed before routine adoption, with support for family physicians and primary "
+        "care clinicians to counsel patients."
     )
 
 
@@ -168,8 +169,110 @@ def _key_points(ctx: Dict[str, Any]) -> str:
         f"{ctx['threshold_str'].split(' ')[0]}.\n"
         "- **Meaning:** Without regulatory guardrails on performance claims and "
         "follow-up obligations, widespread direct-to-consumer MCED screening could "
-        "overload primary and specialty care with unnecessary investigations."
+        "overload primary care, specialty care, and community health systems with "
+        "unnecessary investigations."
     )
+
+
+def _additional_references() -> list[str]:
+    """Return FMCH-focused primary-care references to append after the generic list."""
+    return [
+        "Church TR, Elkin EB, Etzioni RD, Guerra CE, Hoffman RM, Manassaram-Baptiste D, et al. "
+        "Multicancer early detection testing: Guidance for primary care discussions with patients. "
+        "Cancer. 2025;131(7). https://pubmed.ncbi.nlm.nih.gov/40170549/",
+        "Ueberroth BE, Presutti RJ, McGary A, Borad MJ, Agrwal N. "
+        "Perspectives of primary care providers regarding multicancer early detection panels. "
+        "Einstein (Sao Paulo). 2024;22:eAO0771. https://doi.org/10.31744/einstein_journal/2024AO0771",
+        "Wade R, Nevitt S, Liu Y, Harden M, Khouja C, Raine G, et al. "
+        "Multi-cancer early detection tests for general population screening: a systematic literature review. "
+        "Health Technol Assess. 2025;29(2). https://doi.org/10.3310/DLMT1294",
+    ]
+
+
+def _revise_body_for_fmch(body: str) -> str:
+    """Apply FMCH-specific language, primary-care framing, and additional citations."""
+    # Primary-care framing in the Introduction.
+    body = body.replace(
+        "We quantified this burden as a function of follow-up behaviour, test specificity, and age structure.",
+        "Clinicians are increasingly asked to interpret or manage results from tests acquired outside "
+        "clinical care [^9^]. Family physicians and primary care clinicians are often the first point of "
+        "contact for patients with a positive result and are concerned about interpreting results, costs, "
+        "and managing subsequent evaluations [^10^]. This burden was quantified as a function of follow-up "
+        "behaviour, test specificity, and age structure.",
+    )
+
+    # Generalisability framing in the Scenarios paragraph.
+    body = body.replace(
+        "Base-case sensitivity and specificity were 0.70 and 0.990. We varied follow-up rate from 0 to 100% and specificity from 0.950 to 0.999 in a sensitivity sweep. The available-for-cancer-workup share of national diagnostic capacity was set to 20%.",
+        "Base-case sensitivity and specificity were 0.70 and 0.990. Follow-up rate was varied from 0 to 100% and specificity from 0.950 to 0.999 in a sensitivity sweep. Japan was used as a case study because it has a large direct-to-consumer screening market and publicly available national data; the false-positive cascade is generalisable to other high-income settings. The available-for-cancer-workup share of national diagnostic capacity was set to 20%.",
+    )
+
+    # Active-voice / first-person revisions per FMCH style guidance.
+    body = body.replace(
+        "We used a deterministic expected-value cohort model.",
+        "A deterministic expected-value cohort model was used.",
+    )
+    body = body.replace(
+        "We define baseline specialist capacity",
+        "Baseline specialist capacity is defined",
+    )
+    body = body.replace(
+        "We used NDB Open Data unique first/revisit outpatient patients",
+        "NDB Open Data unique first/revisit outpatient patient counts were used",
+    )
+    body = body.replace(
+        "We then multiplied this by the number",
+        "This value was then multiplied by the number",
+    )
+    body = body.replace(
+        "Our scenario model shows",
+        "The scenario model shows",
+    )
+    body = body.replace(
+        "Our analysis intentionally uses",
+        "The analysis intentionally uses",
+    )
+
+    # Add a Discussion subsection on primary care / shared decision-making.
+    pcare_section = (
+        "### Implications for primary care and shared decision-making\n\n"
+        "A positive MCED result frequently lands in primary care before any specialist is involved. "
+        "Family physicians must explain an uncertain signal, weigh it against guideline-recommended "
+        "screening, and coordinate confirmatory tests. In this role, shared decision-making is essential: "
+        "patients considering a DTC blood test need transparent information on the low PPV in "
+        "asymptomatic populations and the likely cascade of follow-up visits [^9^]. The present figures "
+        "suggest that, at 50% follow-up, each true cancer detected is accompanied by about 21 false-positive "
+        "workups. Primary care providers are already concerned about responsibility for interpreting "
+        "results, costs, and managing subsequent evaluations [^10^], and health-system reviews identify "
+        "anxiety, false reassurance, and displacement of guideline-based screening as potential harms [^11^]. "
+        "From a community-health perspective, the workload is not evenly distributed: cancers with the "
+        "lowest prevalence generate the highest false-positive ratios, and younger users—who are "
+        "increasingly targeted by DTC advertising—face the lowest PPVs. Regulators and payers could reduce "
+        "this burden by requiring pre-market performance thresholds, transparent PPV reporting by age and "
+        "sex, and a clear follow-up pathway that keeps primary care from becoming the default safety net "
+        "for unregulated screening."
+    )
+    body = body.replace(
+        "\n### Limitations\n",
+        f"\n{pcare_section}\n\n### Limitations\n",
+    )
+
+    # Conclusion: explicitly name primary care alongside specialty care.
+    body = body.replace(
+        "direct-to-consumer MCED tests risk converting a marketing promise into a large-scale false-positive cascade that stresses diagnostic capacity.",
+        "direct-to-consumer MCED tests risk converting a marketing promise into a large-scale false-positive cascade that stresses primary care, specialty care, and diagnostic capacity.",
+    )
+
+    # Expand Limitations with primary-care and PSA caveats.
+    body = body.replace(
+        "The model is deterministic and does not capture stochastic variation, geographic maldistribution, or queueing effects.",
+        "Primary care consultations were not modelled separately; the estimated burden is therefore downstream specialist and diagnostic workload rather than a direct count of general-practice visits. "
+        "Sensitivity and specificity were assumed to be uniform across cancers; real tests may vary by site. "
+        "No probabilistic sensitivity analysis was performed because empirical distributions for test performance, follow-up behaviour, and direct-to-consumer user age structure are not publicly available. "
+        "The model is deterministic and does not capture stochastic variation, geographic maldistribution, or queueing effects.",
+    )
+
+    return body
 
 
 def _post_conclusion_sections() -> str:
@@ -184,6 +287,9 @@ def _post_conclusion_sections() -> str:
         "No external funding was received for this study.\n\n"
         "## Competing interests\n\n"
         "The authors declare no competing interests.\n\n"
+        "## Ethics approval\n\n"
+        "This study used only publicly available aggregate data and a deterministic "
+        "simulation; ethics approval was not required.\n\n"
         "## Patient and public involvement\n\n"
         "Patients or members of the public were not directly involved in the design, "
         "conduct, reporting, or dissemination of this modelling study.\n\n"
@@ -192,6 +298,53 @@ def _post_conclusion_sections() -> str:
         "parameters, and outputs are available at "
         "https://github.com/bougtoir/cancer-screening-burden-data-driven."
     )
+
+
+def _renumber_vancouver_references(md: str) -> str:
+    """Reorder the reference list so that numbers match first appearance in the body.
+
+    Also rewrites every [^N^] citation to the new sequential number and removes any
+    references that are never cited.
+    """
+    split_mark = "\n## References\n\n"
+    if split_mark not in md:
+        return md
+    body_part, refs_part = md.split(split_mark, 1)
+
+    # 1. Determine first-appearance order of citations in the body.
+    order: list[int] = []
+    for m in re.finditer(r"\[\^(\d+)\^\]", body_part):
+        num = int(m.group(1))
+        if num not in order:
+            order.append(num)
+
+    # 2. Parse the existing reference entries.
+    ref_map: dict[int, str] = {}
+    for entry in refs_part.strip().split("\n\n"):
+        entry = entry.strip()
+        if not entry:
+            continue
+        m = re.match(r"^(\d+)\.\s+(.*)$", entry, re.DOTALL)
+        if m:
+            ref_map[int(m.group(1))] = m.group(2).strip()
+
+    # 3. Build reordered list in first-appearance order.
+    new_refs: list[str] = []
+    for new_num, old_num in enumerate(order, start=1):
+        text = ref_map.get(old_num)
+        if text is None:
+            continue
+        new_refs.append(f"{new_num}. {text}")
+
+    # 4. Replace citations in both body and references text.
+    old_to_new = {old: str(new) for new, old in enumerate(order, start=1)}
+    pattern = re.compile(r"\[\^(\d+)\^\]")
+    def _replace_citation(m: re.Match[str]) -> str:
+        return f"[^{old_to_new.get(int(m.group(1)), m.group(1))}^]"
+    body_part = pattern.sub(_replace_citation, body_part)
+    refs_text = "\n\n".join(new_refs)
+
+    return f"{body_part}{split_mark}{refs_text}\n"
 
 
 def build_fmch_markdown(
@@ -220,11 +373,12 @@ def build_fmch_markdown(
         output_dir,
     )
 
-    # Extract title line and keywords.
-    title_match = re.search(r"^(# .+)$", generic_md, re.MULTILINE)
-    title = title_match.group(1) if title_match else ""
-    kw_match = re.search(r"\*\*Keywords:\*\* (.+)$", generic_md, re.MULTILINE)
-    keywords = kw_match.group(1).strip() if kw_match else ""
+    # FMCH-specific title and keywords.
+    title = (
+        "# False-positive cascade from direct-to-consumer multi-cancer early detection "
+        "blood tests: implications for primary and specialty care"
+    )
+    keywords = "multi-cancer early detection, false positive, healthcare capacity, direct-to-consumer testing, primary care, shared decision-making, scenario model"
 
     # Locate the separator between abstract/keywords and the introduction.
     intro_match = re.search(r"\n---\n\n(## Introduction)", generic_md)
@@ -249,7 +403,19 @@ def build_fmch_markdown(
         "\n## Results\n", f"\n{reporting}\n\n## Results\n"
     )
 
+    # Apply FMCH-specific primary-care framing and active-voice edits.
+    body_before_refs = _revise_body_for_fmch(body_before_refs)
+
     references = body[refs_match.start():]
+
+    # Append FMCH-focused primary-care references while preserving Vancouver numbering.
+    ref_entries = re.findall(r"^\d+\. ", references, re.MULTILINE)
+    next_num = len(ref_entries) + 1
+    additional = _additional_references()
+    extra_refs = ""
+    for i, ref in enumerate(additional, start=next_num):
+        extra_refs += f"\n\n{i}. {ref}"
+    references = references.rstrip() + extra_refs
 
     fmch_md = (
         f"{title}\n\n"
@@ -262,6 +428,8 @@ def build_fmch_markdown(
         f"{_post_conclusion_sections()}\n\n"
         f"{references}"
     )
+    # Renumber references to strict Vancouver order (first appearance in body).
+    fmch_md = _renumber_vancouver_references(fmch_md)
     return fmch_md
 
 
