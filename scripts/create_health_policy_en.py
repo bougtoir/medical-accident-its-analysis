@@ -242,22 +242,60 @@ def _add_text_run(paragraph, text, italic=False, bold=False):
     return run
 
 
+def _add_math_run(paragraph, text, italic=False, bold=False):
+    """Insert an inline Word equation (<m:oMath>) containing the supplied text."""
+    run = paragraph.add_run()
+    run.font.name = 'Cambria Math'
+    run.font.size = Pt(12)
+    if italic:
+        run.italic = True
+    if bold:
+        run.bold = True
+    omath = OxmlElement('m:oMath')
+    mrun = OxmlElement('m:r')
+    rpr = OxmlElement('m:rPr')
+    style = OxmlElement('m:sty')
+    style.set(qn('m:val'), 'p')
+    rpr.append(style)
+    mrun.append(rpr)
+    mt = OxmlElement('m:t')
+    mt.set(qn('xml:space'), 'preserve')
+    mt.text = text
+    mrun.append(mt)
+    omath.append(mrun)
+    run._r.append(omath)
+    return run
+
+
+MATH_RE = re.compile(r'(<m>.*?</m>)', re.DOTALL)
+
+
 def add_run_with_refs(paragraph, text, italic=False, bold=False):
-    """Add text to a paragraph, parsing {n} or {n-m} as bracketed Vancouver citations."""
-    # In Vancouver style, citations follow punctuation: move any trailing
-    # punctuation that sits immediately before a citation marker to after it.
-    text = re.sub(r'([.,;:])(\{[^}]+\})', r'\2\1', text)
-    parts = re.split(r'(\{[^}]+\})', text)
+    """Add text to a paragraph, parsing {n} or {n-m} as bracketed Vancouver citations
+    and <m>...</m> as inline Word equations."""
+    # Process math first so the citation/punctuation rules never touch equation text.
+    parts = MATH_RE.split(text)
     for part in parts:
         if not part:
             continue
-        if part.startswith('{') and part.endswith('}'):
-            inner = part[1:-1]
-            run = _add_text_run(paragraph, f'[{inner}]', italic=italic, bold=bold)
-            run.font.superscript = False
+        if part.startswith('<m>') and part.endswith('</m>'):
+            math_text = part[3:-4]
+            _add_math_run(paragraph, math_text, italic=italic, bold=bold)
             continue
-        if part:
-            _add_text_run(paragraph, part, italic=italic, bold=bold)
+        # In Vancouver style, citations follow punctuation: move any trailing
+        # punctuation that sits immediately before a citation marker to after it.
+        part = re.sub(r'([.,;:])(\{[^}]+\})', r'\2\1', part)
+        subparts = re.split(r'(\{[^}]+\})', part)
+        for sp in subparts:
+            if not sp:
+                continue
+            if sp.startswith('{') and sp.endswith('}'):
+                inner = sp[1:-1]
+                run = _add_text_run(paragraph, f'[{inner}]', italic=italic, bold=bold)
+                run.font.superscript = False
+                continue
+            if sp:
+                _add_text_run(paragraph, sp, italic=italic, bold=bold)
 
 
 CITE_RE = re.compile(r'\[\d+(?:-\d+)?(?:,\s*\d+(?:-\d+)?)*\]')
@@ -533,9 +571,9 @@ add_para(
     "requirements for neuraxial techniques tend to concentrate in teaching "
     "hospitals.{7-9} If access to these techniques varies by geography, "
     "patients' probability of receiving potentially beneficial care depends "
-    "on place of residence, an equity problem under universal coverage. The "
-    "FY2022 data predate the 2026 clarification of the general-anaesthesia "
-    "billing code, so any residual coding ambiguity present at that time is "
+    "on place of residence, an equity problem under universal coverage. "
+    "Because the FY2022 data predate the 2026 clarification of the general-anaesthesia "
+    "billing code, any coding ambiguity that existed during the study period is "
     "retained in the analysis.{10}")
 
 add_para(
@@ -586,7 +624,8 @@ add_para(
     "Visualisation' initiative.{12} Standardised claim ratios are computed by "
     "indirect standardisation: expected claim frequencies are calculated by applying "
     "national age- and sex-specific claim rates to the local population structure, "
-    "and the ratio is defined as 100 × (observed claims / expected claims). Ratios "
+    "and the ratio is defined as <m>100 × (O / E)</m>, where O and E are the observed "
+    "and expected claim counts. Ratios "
     "are calculated on a residence basis, so claims are attributed to the "
     "beneficiary's registered address rather than to the providing facility. "
     "Patient travel for treatment therefore does not inflate the ratio of the "
@@ -710,17 +749,17 @@ add_para(
     "greater role of prefectural factors for that code. Adding university "
     "hospital presence as a fixed effect produced the largest proportional "
     "reduction in total variance for general anaesthesia "
-    "(${L008_ml_r2}; β = ${L008_ml_coef}, 95% confidence interval "
+    "(${L008_ml_r2}; <m>β = ${L008_ml_coef}</m>, 95% confidence interval "
     "${L008_ml_ci_low} to ${L008_ml_ci_high}) and was statistically significant "
     "for every code (all P ${L008_ml_p}) (Table 2). A log-transformed "
     "sensitivity model yielded the same direction of association for general "
-    "anaesthesia (β = ${L008_ml_log_coef}, 95% CI ${L008_ml_log_ci_low} to "
+    "anaesthesia (<m>β = ${L008_ml_log_coef}</m>, 95% CI ${L008_ml_log_ci_low} to "
     "${L008_ml_log_ci_high}, P ${L008_ml_log_p}), supporting the robustness of "
     "the linear model findings to right-skewed ratios and extreme outliers. "
     "University hospital areas had higher general anaesthesia ratios than non-"
     "university areas in ${n_prefectures} of ${n_prefectures} prefectures, with a "
-    "mean within-prefecture difference of +${L008_within_diff} points (paired "
-    "t = ${L008_within_t}, P ${L008_within_p}) (Figure 2A). Cohen's d for the "
+    "mean within-prefecture difference of +${L008_within_diff} points (<m>t = ${L008_within_t}</m>, "
+    "P ${L008_within_p}) (Figure 2A). Cohen's d for the "
     "university hospital effect on general anaesthesia was ${L008_d}; on "
     "continuous epidural infusion ${L003_d}; on epidural anaesthesia ${L002_d}; "
     "and on spinal anaesthesia ${L004_d}. As a robustness check we averaged the "
@@ -760,30 +799,6 @@ add_table_from_data(
           "model. Models were estimated by restricted maximum likelihood.")
 )
 
-add_para(
-    "A covariate-adjusted sensitivity model added the natural logarithm of "
-    "population density and the anaesthesiologist share of all physicians (both "
-    "standardised). The university hospital coefficient was attenuated but remained "
-    "positive and statistically significant for general anaesthesia (β = "
-    "+${L008_mlc_coef}, 95% CI ${L008_mlc_ci_low} to ${L008_mlc_ci_high}, P "
-    "${L008_mlc_p}), epidural anaesthesia (β = +${L002_mlc_coef}, 95% CI "
-    "${L002_mlc_ci_low} to ${L002_mlc_ci_high}, P ${L002_mlc_p}) and "
-    "continuous epidural infusion (β = +${L003_mlc_coef}, 95% CI "
-    "${L003_mlc_ci_low} to ${L003_mlc_ci_high}, P ${L003_mlc_p}). For spinal "
-    "anaesthesia the point estimate was positive but no longer statistically "
-    "significant (β = +${L004_mlc_coef}, 95% CI ${L004_mlc_ci_low} to "
-    "${L004_mlc_ci_high}, P ${L004_mlc_p}). Population density was positively "
-    "associated with general anaesthesia ratios (β = ${L008_mlc_popd_coef}, P "
-    "${L008_mlc_popd_p}) but not with the other three codes. The anaesthesiologist "
-    "share was positively associated with general, epidural, continuous epidural and "
-    "spinal anaesthesia (P ${L008_mlc_anes_p}, ${L002_mlc_anes_p}, "
-    "${L003_mlc_anes_p} and ${L004_mlc_anes_p}, respectively). "
-    "The covariate-adjusted mixed models produced optimizer-convergence warnings "
-    "in Statsmodels;{17} we therefore refitted them with the lbfgs and cg optimisers, "
-    "and the point estimates remained stable across optimisers and sensitivity "
-    "analyses."
-)
-
 add_figure_inline(
     os.path.join(FIG_DIR, 'rapm_fig2_en.png'),
     "Figure 2. University hospital presence and the combined general-anaesthesia "
@@ -797,6 +812,31 @@ add_figure_inline(
     "shown in grey."
 )
 
+add_para(
+    "A covariate-adjusted sensitivity model added the natural logarithm of "
+    "population density and the anaesthesiologist share of all physicians (both "
+    "standardised). The university hospital coefficient was attenuated but remained "
+    "positive and statistically significant for general anaesthesia (<m>β = +${L008_mlc_coef}</m>, 95% CI ${L008_mlc_ci_low} to ${L008_mlc_ci_high}, P "
+    "${L008_mlc_p}), epidural anaesthesia (<m>β = +${L002_mlc_coef}</m>, 95% CI "
+
+    "${L002_mlc_ci_low} to ${L002_mlc_ci_high}, P ${L002_mlc_p}) and "
+    "continuous epidural infusion (<m>β = +${L003_mlc_coef}</m>, 95% CI "
+    "${L003_mlc_ci_low} to ${L003_mlc_ci_high}, P ${L003_mlc_p}). For spinal "
+    "anaesthesia the point estimate was positive but no longer statistically "
+    "significant (<m>β = +${L004_mlc_coef}</m>, 95% CI ${L004_mlc_ci_low} to "
+
+    "${L004_mlc_ci_high}, P ${L004_mlc_p}). Population density was positively "
+    "associated with general anaesthesia ratios (<m>β = ${L008_mlc_popd_coef}</m>, P "
+    "${L008_mlc_popd_p}) but not with the other three codes. The anaesthesiologist "
+    "share was positively associated with general, epidural, continuous epidural and "
+    "spinal anaesthesia (P ${L008_mlc_anes_p}, ${L002_mlc_anes_p}, "
+    "${L003_mlc_anes_p} and ${L004_mlc_anes_p}, respectively). "
+    "The covariate-adjusted mixed models produced optimizer-convergence warnings "
+    "in Statsmodels;{17} we therefore refitted them with the lbfgs and cg optimisers, "
+    "and the point estimates remained stable across optimisers and sensitivity "
+    "analyses."
+)
+
 add_subheading("Sensitivity analyses against the audit hypothesis")
 add_para(
     "All pre-specified sensitivity analyses pointed away from differential "
@@ -806,9 +846,9 @@ add_para(
     "for at most a small share of observed variation. University hospital presence "
     "explained ${L008_ml_r2} of total variance in the same model, a structural "
     "component far larger than the between-prefecture share. Second, general "
-    "and spinal anaesthesia were positively correlated (r = ${corr_L008_L004_r}, P "
-    "${corr_L008_L004_p}), as were general and epidural anaesthesia (r = "
-    "${corr_L008_L002_r}, P ${corr_L008_L002_p}). Positive correlations are more "
+    "and spinal anaesthesia were positively correlated (<m>r = ${corr_L008_L004_r}</m>, P "
+    "${corr_L008_L004_p}), as were general and epidural anaesthesia (<m>r = "
+    "${corr_L008_L002_r}</m>, P ${corr_L008_L002_p}). Positive correlations are more "
     "consistent with a common supply-side factor than with audit-driven "
     "reclassification, although a uniform audit effect across all codes cannot be "
     "ruled out. Third, the maximum prefectural audit-rate difference of "
@@ -860,8 +900,8 @@ add_para(
     "the proportion of variance attributable to prefecture-level factors -- where "
     "audit intensity differs -- was small. All pre-specified sensitivity analyses "
     "pointed away from differential auditing as the main explanation. Because the "
-    "outcome is a reimbursed claim ratio, the observed gradient captures "
-    "service delivery rather than bedside practice directly; however, the "
+    "outcome is a reimbursed claim ratio, the observed gradient reflects "
+    "billed service delivery rather than bedside intention; however, the "
     "within-prefecture structure of the data and the audit-sensitivity "
     "analyses make differential scrutiny an unlikely complete explanation. The "
     "remaining variation is therefore best interpreted as a geographic pattern "
@@ -965,9 +1005,9 @@ add_para(
     "Second, the observed variation in epidural and continuous epidural use "
     "suggests a potential equity gap: patients' access to techniques that may "
     "improve recovery appears to depend on whether they live near a university "
-    "hospital. Third, regulators may wish to focus on workforce and "
+    "hospital. Third, regulators may be better served by addressing workforce and "
     "organisational determinants of anaesthesia service delivery rather than "
-    "treating low regional ratios primarily as coding or fraud problems. The "
+    "treating low regional ratios primarily as coding or fraud issues. The "
     "variance-decomposition framework is transferable to other procedures and "
     "to systems with a national fee schedule and regional audit variation, but "
     "the audit-specific interpretation is limited in settings where fee and "
@@ -980,14 +1020,14 @@ add_para(
     "Regional variation in anaesthesia practice under universal coverage in "
     "Japan is substantial and appears to reflect structural access factors -- "
     "notably proximity to university hospitals -- more than prefectural claims "
-    "auditing. The pattern is best interpreted as a documented-service-delivery "
-    "gradient with potentially inequitable access to neuraxial techniques. In "
+    "auditing. The pattern is best interpreted as a documented service-delivery "
+    "gradient that reflects potentially inequitable access to neuraxial techniques. In "
     "countries without universal coverage or with heterogeneous reimbursement, "
     "the audit hypothesis cannot be isolated, although the structural-access "
     "framework can be adapted if comparable data exist. Perioperative surveillance "
     "of small-area variation would benefit from separating administrative from "
-    "structural sources before interpreting claims data as care variation or as "
-    "coding quality.")
+    "structural sources before interpreting claims data as care variation or a "
+    "coding issue.")
 # ============================================================
 # RESEARCH IN CONTEXT
 # ============================================================
@@ -1008,7 +1048,7 @@ add_para(
     "used as a surveillance signal for perioperative variation in universal "
     "coverage settings, but low regional ratios should prompt review of "
     "workforce and organisational access before being treated as coding or "
-    "fraud problems.",
+    "fraud issues.",
     style='List Bullet')
 # ============================================================
 # REFERENCES
