@@ -405,28 +405,38 @@ def write_jatm_paper():
     title_p = doc.add_paragraph()
     title_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
     run = title_p.add_run(
-        'Targeted environmental regulation and secondary market vaporizer prices: '
-        'an observational analysis of the EU desflurane phase-out')
+        'Association between the EU desflurane phase-out and secondary market '
+        'vaporizer prices: an observational time-series analysis')
     run.bold = True
     run.font.size = Pt(14)
 
     doc.add_paragraph()
-    add_para(doc, '[Author names to be inserted]', size=Pt(12), italic=True,
-             alignment=WD_ALIGN_PARAGRAPH.CENTER)
-    add_para(doc, '[Affiliations to be inserted]', size=Pt(12), italic=True,
-             alignment=WD_ALIGN_PARAGRAPH.CENTER)
+    author_p = doc.add_paragraph()
+    author_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    add_superscript_text(author_p, 'Onishi Tatsuki{1}, Tatsuyoshi Ikenoue{1,2}', size=Pt(12))
+    aff1_p = doc.add_paragraph()
+    aff1_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    add_superscript_text(aff1_p,
+        '{1}Data Science and AI Innovation Research Promotion Center, Shiga University',
+        size=Pt(12))
+    aff2_p = doc.add_paragraph()
+    aff2_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    add_superscript_text(aff2_p,
+        '{2}Department of Public Health, Faculty of Medicine, University of Miyazaki',
+        size=Pt(12))
     doc.add_paragraph()
 
     # Corresponding author
     p = doc.add_paragraph()
     add_run_styled(p, 'Corresponding author: ', bold=True, size=Pt(12))
-    add_run_styled(p, '[Name, Department, Institution, Address, Country. '
-                   'Tel: [number]; e-mail: [address]]', size=Pt(12))
+    add_run_styled(p, 'Onishi Tatsuki; Data Science and AI Innovation Research Promotion Center, '
+                   'Shiga University; 1-1-1, Bamba, Hikone, Shiga, 522-8522, Japan; '
+                   'Telephone: +81-749-27-1023; E-mail: bougtoir@gmail.com', size=Pt(12))
 
     doc.add_paragraph()
 
     # Word counts
-    add_para(doc, 'Abstract word count: ~280 (max 300)', size=Pt(10))
+    add_para(doc, 'Abstract word count: ~299 (max 300)', size=Pt(10))
     add_para(doc, 'Number of references: 22', size=Pt(10))
     add_para(doc, 'Number of tables: 2 (+1 supplementary)', size=Pt(10))
     add_para(doc, 'Number of figures: 6', size=Pt(10))
@@ -483,27 +493,28 @@ def write_jatm_paper():
     add_run_styled(p,
         f'{total_n} completed sales were analyzed ({des["total_n"]} desflurane, '
         f'{sevo["total_n"]} sevoflurane, {iso["total_n"]} isoflurane). '
-        f'Desflurane vaporizer prices showed a significant downward trend '
+        f'Desflurane vaporizer prices declined '
         f'(Spearman \u03c1={des_tr["spearman_rho"]:.2f}, P<0.001; '
         f'Kendall \u03c4={des_tr["kendall_tau"]:.2f}, '
         f'P={fmt_p(des_tr["kendall_p"])}), '
-        f'with a {des_pct:.0f}% decline from pre-ban (mean US${des["pre_mean"]:.0f} '
-        f'\u00b1 {des["pre_sd"]:.0f}) to post-ban (US${des["post_mean"]:.0f} '
-        f'\u00b1 {des["post_sd"]:.0f}; Cohen\u2019s d={des_d:.2f}). '
-        f'Neither sevoflurane (\u03c1={sevo_tr["spearman_rho"]:.2f}, '
-        f'P={fmt_p(sevo_tr["spearman_p"])}) nor isoflurane '
-        f'(\u03c1={iso_tr["spearman_rho"]:.2f}, '
-        f'P={fmt_p(iso_tr["spearman_p"])}) showed significant temporal trends.')
+        f'with a {des_pct:.0f}% decline pre- to post-restriction '
+        f'(Cohen\u2019s d={des_d:.2f}). '
+        f'Sevoflurane showed no trend. Isoflurane reached '
+        f'nominal significance in Spearman (\u03c1={iso_tr["spearman_rho"]:.2f}, '
+        f'P={fmt_p(iso_tr["spearman_p"])}) and Kendall \u03c4 (\u03c4={iso_tr["kendall_tau"]:.2f}, '
+        f'P={fmt_p(iso_tr["kendall_p"])}) tests, but the quarterly median trend was not '
+        f'significant; these isolated P values, with small effect sizes, are interpreted cautiously.')
 
     # Conclusions
     p = doc.add_paragraph()
     add_run_styled(p, 'Conclusions: ', bold=True)
     add_run_styled(p,
-        'Desflurane vaporizer prices on eBay showed an agent-specific decline over the '
-        'study period; non-regulated agents remained stable. These observational findings '
-        'are consistent with, but do not prove, an effect of the EU regulation; they '
-        'should be interpreted as hypothesis-generating given the single-platform design, '
-        'unmeasured confounders, and the small post-ban sample.')
+        'Desflurane vaporizer prices on eBay were associated with an agent-specific '
+        'decline; non-regulated agents remained comparatively stable. These observational '
+        'findings are consistent with, but do not prove, an effect of the EU desflurane '
+        'phase-out and should be interpreted as hypothesis-generating given the single-'
+        'platform design, unmeasured confounders, small post-restriction sample, and '
+        'multiple trend tests.')
 
     doc.add_page_break()
 
@@ -515,14 +526,14 @@ def write_jatm_paper():
     add_para_with_refs(doc,
         'Environmental regulation of healthcare products is accelerating. The European Union '
         'restricted desflurane\u2014the volatile anesthetic with the highest commonly reported '
-        '100-year global warming potential (GWP100 \u2248 2540 CO\u2082 equivalents){1,2,5\u20137}'
+        '100-year global warming potential (GWP100 \u2248 2540 CO\u2082 equivalents){1,2,3\u20135}'
         '\u2014for routine use from 1 January 2026 under Regulation (EU) 2024/573, while '
         'permitting documented clinical exceptions.{2} The choice of GWP metric and time '
         'horizon remains debated for short-lived halogenated anesthetics such as desflurane '
         '(atmospheric lifetime \u2248 14 years), because GWP100 may not reflect their '
-        'instantaneous radiative forcing or steady-state atmospheric concentrations.{3} '
+        'instantaneous radiative forcing or steady-state atmospheric concentrations.{6} '
         'Desflurane also has recognized pharmacokinetic advantages, including faster '
-        'emergence and extubation than sevoflurane in selected surgical populations.{4} The '
+        'emergence and extubation than sevoflurane in selected surgical populations.{7} The '
         'American Society of Anesthesiologists has recommended deactivation of central '
         'nitrous oxide piping on environmental grounds.{8} NHS England and NHS Scotland '
         'have independently decommissioned desflurane.{9,10} Each of these measures targets '
@@ -594,6 +605,11 @@ def write_jatm_paper():
         'plenary vote approving the revised F-gas Regulation (March 2023) and captures the full '
         'legislative trajectory from the European Commission\u2019s original proposal (April 2022) '
         'through to the post-ban period, encompassing all key regulatory milestones. '
+        'Because Terapeak\u2019s three-year window ends at the data extraction date (March 2026), '
+        'the post-restriction observation period is limited to approximately three months after the '
+        f'1 January 2026 effective date (n={des["post_n"]} desflurane transactions); a longer '
+        'follow-up would require either prospective data collection or a later extraction, neither '
+        'of which was possible here. '
         'We used a single marketplace (eBay) rather than integrating data from multiple '
         'platforms to avoid the risk of counting cross-listed items more than once.')
 
@@ -639,6 +655,16 @@ def write_jatm_paper():
         'using Cohen\u2019s d with 95% confidence intervals. To test whether the magnitude of the '
         'pre-/post-ban price change differed between agent types, pairwise z-tests for independent '
         'Cohen\u2019s d values were performed using the large-sample variance approximation.')
+    doc.add_paragraph(
+        'Because trend tests (Spearman, Kendall \u03c4, and quarterly Spearman) were applied '
+        'to each of three agent types, the probability of nominally significant P '
+        'values arising under the null is inflated. We did not apply a formal family-wise '
+        'multiple-testing correction; instead, P values were interpreted alongside effect '
+        'magnitude, direction, and consistency across tests. For isoflurane, both Spearman '
+        f'(P={fmt_p(iso_tr["spearman_p"])}) and Kendall \u03c4 (P={fmt_p(iso_tr["kendall_p"])}) '
+        'tests reached nominal significance at the transaction level, but the quarterly median '
+        'trend was not significant and effects were small; these P values were therefore '
+        'interpreted cautiously and not considered evidence of a true trend.')
     doc.add_paragraph(
         'Sensitivity analyses were performed to assess robustness and to address causal '
         'interpretation. First, we used bootstrap resampling (10,000 iterations) of the pre- and '
@@ -710,8 +736,9 @@ def write_jatm_paper():
         add_table_data_row(t1, data)
     p_t1fn = doc.add_paragraph()
     add_run_styled(p_t1fn, 'Note: ', bold=True, size=Pt(9))
-    add_run_styled(p_t1fn, 'The Spearman correlation for isoflurane reached nominal '
-        'significance (P=0.044), but the magnitude was small (\u03c1=0.081) and the '
+    add_run_styled(p_t1fn, 'The Spearman and Kendall \u03c4 tests for isoflurane reached '
+        f'nominal significance (P={fmt_p(iso_tr["spearman_p"])} and '
+        f'P={fmt_p(iso_tr["kendall_p"])}, respectively), but effect sizes were small and the '
         'quarterly median trend was not significant; this is therefore not interpreted '
         'as a clinically meaningful temporal trend.', size=Pt(9), italic=True)
     doc.add_paragraph()
@@ -852,14 +879,15 @@ def write_jatm_paper():
     insert_inline_figure(doc, FIGURE_MAP[4])
 
     doc.add_paragraph(
-        f'Isoflurane vaporizer prices were similarly stable. Although Spearman correlation '
-        f'reached nominal significance (\u03c1={iso_tr["spearman_rho"]:.2f}, '
-        f'P={fmt_p(iso_tr["spearman_p"])}), the magnitude was very small and the '
-        f'quarterly median trend was not significant (\u03c1={iso_tr["quarterly_rho"]:.2f}, '
-        f'P={fmt_p(iso_tr["quarterly_p"])}). A single P value below 0.05 in one of several '
-        f'trend tests is expected under multiple testing and does not indicate a consistent '
-        f'directional trend. The pre-/post-ban comparison showed a non-significant '
-        f'{abs(iso_pct):.0f}% decline (P={fmt_p(iso_u_pval)}, Mann\u2013Whitney U) (Fig. 6).')
+        f'Isoflurane vaporizer prices were similarly stable. Spearman '
+        f'(\u03c1={iso_tr["spearman_rho"]:.2f}, P={fmt_p(iso_tr["spearman_p"])}) and Kendall '
+        f'\u03c4 (\u03c4={iso_tr["kendall_tau"]:.2f}, P={fmt_p(iso_tr["kendall_p"])}) tests reached '
+        f'nominal significance at the transaction level, but the quarterly median trend was not '
+        f'significant (\u03c1={iso_tr["quarterly_rho"]:.2f}, P={fmt_p(iso_tr["quarterly_p"])}) '
+        f'and effect sizes were small. These isolated P values are expected under multiple testing '
+        f'and do not indicate a consistent directional trend. The pre-/post-ban comparison showed '
+        f'a non-significant {abs(iso_pct):.0f}% decline (P={fmt_p(iso_u_pval)}, '
+        f'Mann\u2013Whitney U) (Fig. 6).')
 
     # Insert Fig. 6 inline
     insert_inline_figure(doc, FIGURE_MAP[5])
@@ -943,6 +971,31 @@ def write_jatm_paper():
         'suggests a progressive and agent-specific desflurane price pattern. However, the '
         'single-platform, observational design precludes causal inference; the observed '
         'association may be partly or wholly attributable to concurrent secular trends.')
+    if has_revision_sensitivity:
+        did_disc = get_rev('did_transaction_level')
+        if isinstance(did_disc, dict) and 'error' not in did_disc:
+            doc.add_paragraph(
+                f'The transaction-level difference-in-differences (DiD) model did not detect a '
+                f'significant desflurane post-restriction coefficient '
+                f'(coefficient={did_disc["desflurane_post_coef"]:.3f}, '
+                f'P={fmt_p(did_disc["desflurane_post_p"])}). This null result should not be '
+                f'interpreted as evidence of no effect. Instead, the DiD parallel-trend '
+                f'assumption was violated '
+                f'(P={fmt_p(did_disc["desflurane_trend_p"])} for the pre-restriction trend '
+                f'difference), indicating that desflurane prices were already diverging from '
+                f'controls before 1 January 2026. Because the regulation was proposed in 2022 and '
+                f'adopted in 2024, market participants may have anticipated the 2026 effective date; '
+                f'the DiD violation is consistent with a gradual, anticipation-driven decline '
+                f'rather than a discrete shock. The DiD and CITS results are best interpreted as '
+                f'sensitivity, not causal, analyses.')
+    doc.add_paragraph(
+        'We did not family-wise correct trend tests across three agents. For isoflurane, '
+        f'Spearman (P={fmt_p(iso_tr["spearman_p"])}) and Kendall \u03c4 '
+        f'(P={fmt_p(iso_tr["kendall_p"])}) tests were nominally significant at the transaction '
+        'level, but the quarterly median trend was not significant and effect sizes were small; '
+        'these isolated P values are expected by chance and are not interpreted as a true trend. '
+        'The desflurane finding is supported by consistency across Spearman, Kendall \u03c4, '
+        'and quarterly median analyses.')
 
     sevo_vs_iso = es_comparisons['Sevoflurane_vs_Isoflurane']
     doc.add_paragraph(
@@ -990,7 +1043,7 @@ def write_jatm_paper():
         'advantages, the contested suitability of GWP100 for short-lived anesthetics, and '
         'the risk of reducing anesthetic diversity amid recurring propofol and sevoflurane '
         'shortages\u2014 underscore the need for cautious, evidence-based policy and for '
-        'market studies that do not rely on a single sales channel.{3,4,22}')
+        'market studies that do not rely on a single sales channel.{6,7,22}')
 
     doc.add_paragraph(
         'The timing of the price decline may have practical implications. A substantial '
@@ -1030,8 +1083,11 @@ def write_jatm_paper():
         f'substantially influence vaporizer pricing and could create compositional effects. '
         f'Fourth, the post-restriction period (January\u2013March 2026) comprised only '
         f'{des["post_n"]} desflurane, {sevo["post_n"]} sevoflurane, and '
-        f'{iso["post_n"]} isoflurane transactions, limiting statistical power for the '
-        f'pre-/post-ban comparison. Bootstrap resampling and post-hoc power simulation confirmed '
+        f'{iso["post_n"]} isoflurane transactions. This small sample reflects the Terapeak '
+        f'three-year window ending at data collection in March 2026, which constrains the '
+        f'post-restriction follow-up to approximately three months after the 1 January 2026 '
+        f'effective date and precludes extending the window without prospective data collection '
+        f'or a later extraction. Bootstrap resampling and post-hoc power simulation confirmed '
         f'that the desflurane Mann\u2013Whitney U test had low power (approximately 28%) and '
         f'that the median-difference confidence interval included zero; the Welch t-test was '
         f'more powerful (approximately 58%) and the mean-difference confidence interval '
@@ -1044,7 +1100,10 @@ def write_jatm_paper():
         f'limiting our ability to establish a true baseline unaffected by regulatory signals. The '
         f'DiD and CITS models support agent-specificity but do not satisfy the assumptions '
         f'required for causal identification; they should be interpreted as sensitivity, not '
-        f'confirmatory, analyses.')
+        f'confirmatory, analyses. Additionally, multiple trend tests across three agents '
+        f'inflate the chance of a nominally significant P value; isolated P values near 0.05 '
+        f'(e.g., isoflurane Spearman P={fmt_p(iso_tr["spearman_p"])}) are interpreted cautiously '
+        f'and in the context of effect size and consistency across tests.')
 
     add_para_with_refs(doc,
         'Looking ahead, environmental pressures are likely to prompt further regulatory '
@@ -1077,7 +1136,9 @@ def write_jatm_paper():
     # DECLARATIONS (JATM order)
     # ============================================================
     add_heading_styled(doc, 'CRediT authorship contribution statement', level=1)
-    doc.add_paragraph('[To be completed by authors using CRediT taxonomy]')
+    doc.add_paragraph('O.T.: Conceptualization, Methodology, Software, Formal analysis, '
+                      'Writing - original draft, Writing - review & editing')
+    doc.add_paragraph('T.I.: Writing - original draft, Writing - review & editing')
 
     add_heading_styled(doc, 'Disclosure statement', level=1)
     doc.add_paragraph('The authors declare that they have no known competing financial '
@@ -1108,6 +1169,13 @@ def write_jatm_paper():
     add_heading_styled(doc, 'Acknowledgments', level=1)
     doc.add_paragraph('None.')
 
+    add_heading_styled(doc, 'Declaration of Generative Artificial Intelligence (AI) in Scientific Writing', level=1)
+    doc.add_paragraph(
+        'During the preparation of this work the author used Devin (devin.ai) in order to format '
+        'the text and choose words that suited the tone, and to help writing codes. After using '
+        'this tool/service, the author reviewed and edited the content as needed and takes full '
+        'responsibility for the content of the published article.')
+
     doc.add_page_break()
 
     # ============================================================
@@ -1125,24 +1193,24 @@ def write_jatm_paper():
         '7 February 2024 on fluorinated greenhouse gases. Official Journal of the European '
         'Union. 2024;L 2024/573.',
         # 3
+        'Sherman J, Le C, Lamers V, et al. Life cycle greenhouse gas emissions of '
+        'anesthetic drugs. Anesth Analg. 2012;114:1086\u201390.',
+        # 4
+        'Hendrickx JFA, Nielsen OJ, De Hert S, et al. The science behind banning '
+        'desflurane: a narrative review. Eur J Anaesthesiol. 2022;39:818\u201324.',
+        # 5
+        'White SM, Shelton CL, Gelb AW, et al. Principles of environmentally-sustainable '
+        'anaesthesia: a global consensus statement from the World Federation of Societies of '
+        'Anaesthesiologists. Anaesthesia. 2022;77:201\u201312.',
+        # 6
         'Sulbaek Andersen MP, Nielsen OJ, Sherman JD. Assessing the potential climate impact '
         'of anaesthetic gases. Lancet Planet Health. 2023;7(7):e622\u2013e629. '
         'doi:10.1016/S2542-5196(23)00084-0.',
-        # 4
+        # 7
         'Hariyanto H, Widiastuti M, Pandrya CO, et al. Comparison of desflurane and sevoflurane '
         'as maintenance inhalational anaesthetic agents for adult patients undergoing '
         'neurosurgeries: a systematic review and meta-analysis of randomised trials. '
         'Indian J Anaesth. 2025;69(1):65\u201377. doi:10.4103/ija.ija_1215_24.',
-        # 5
-        'Sherman J, Le C, Lamers V, et al. Life cycle greenhouse gas emissions of '
-        'anesthetic drugs. Anesth Analg. 2012;114:1086\u201390.',
-        # 6
-        'Hendrickx JFA, Nielsen OJ, De Hert S, et al. The science behind banning '
-        'desflurane: a narrative review. Eur J Anaesthesiol. 2022;39:818\u201324.',
-        # 7
-        'White SM, Shelton CL, Gelb AW, et al. Principles of environmentally-sustainable '
-        'anaesthesia: a global consensus statement from the World Federation of Societies of '
-        'Anaesthesiologists. Anaesthesia. 2022;77:201\u201312.',
         # 8
         'American Society of Anesthesiologists Committee on Environmental Health. Statement on '
         'deactivating central piped nitrous oxide to mitigate avoidable health care pollution. '
