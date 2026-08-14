@@ -107,6 +107,7 @@ jobs:
           # Anesthesia regional variation 335 SMA manuscript
           # Health Policy submission supersedes the earlier JCA attempt.
           # BRANCH_MAP["devin/1723012680-jca-submission"]="anesthesia_variation_335_region"
+          # BRANCH_MAP["health-policy-submission"]="anesthesia_variation_335_region"
           BRANCH_MAP["health-policy-strobe-fixes"]="anesthesia_variation_335_region"
 
           # ── GDP / healthcare economics ──

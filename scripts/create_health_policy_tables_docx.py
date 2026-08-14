@@ -115,10 +115,12 @@ make_table(doc,
            rows2)
 add_footnote(doc,
              "SD, standard deviation; IQR, interquartile range; CV, coefficient of "
-             "variation. Primary anaesthesia codes only (L009 and L100 are described in the "
-             "Methods and omitted because they were not entered into multilevel models). "
-             "Areas with low claim volume are masked by the data provider "
-             "and appear as missing values.")
+             "variation. L008 = closed-circuit general anaesthesia; L002 = epidural "
+             "anaesthesia as main technique; L003 = continuous epidural infusion, "
+             "largely billed as an adjunct to general anaesthesia; L004 = spinal "
+             "anaesthesia. Areas with low claim volume are masked by the data provider "
+             "and appear as missing values; the n column reflects the number of "
+             "secondary medical areas with non-missing values for each code.")
 
 # Table 2: multilevel model
 rows3 = []
@@ -145,12 +147,6 @@ add_footnote(doc,
              "correlation coefficient; proportional reduction in total variance, "
              "decrease in total (prefecture + residual) variance after adding the university "
              "hospital fixed effect.")
-
-# Convert statistical symbols (β, R²) to native Word equation objects
-import sys
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from jech_math import convert_docx_math_to_omml
-convert_docx_math_to_omml(doc)
 
 out_en = os.path.join(OUTPUT_DIR, 'regional_anaesthesia_tables_Health_Policy_EN.docx')
 doc.save(out_en)

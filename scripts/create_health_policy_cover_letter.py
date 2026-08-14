@@ -28,8 +28,10 @@ FLAT = {
     'L008_cv': fmt(R['codes']['L008']['overall']['cv']),
     'L002_cv': fmt(R['codes']['L002']['overall']['cv']),
     'L008_ml_icc': fmt(R['codes']['L008']['multilevel']['icc_null'], 3),
+    'L008_ml_icc_pct': fmt(R['codes']['L008']['multilevel']['icc_null'] * 100, 1),
     'L008_ml_within_pct': fmt(100 * (1 - R['codes']['L008']['multilevel']['icc_null']), 1),
     'L008_ml_r2': fmt(R['codes']['L008']['multilevel']['marginal_r2'], 3),
+    'L008_ml_r2_pct': fmt(R['codes']['L008']['multilevel']['marginal_r2'] * 100, 1),
     'L008_d': fmt(R['empirical_bayes']['L008']['raw_cohens_d'], 2),
 }
 
@@ -113,8 +115,8 @@ add_para(
     "service delivery, or is it an artefact of differential coding and auditing? "
     "Japan's uniform national fee schedule combined with prefecture-specific "
     "claims auditing provides a natural experiment for separating these "
-    "explanations. Using multilevel modelling and three pre-specified "
-    "sensitivity analyses, we show that the observed variation is "
+    "explanations. Using multilevel modelling and a series of pre-specified "
+    "sensitivity and robustness analyses, we show that the observed variation is "
     "substantial and appears to reflect structural access factors -- notably proximity to university hospitals -- "
     "rather than an audit artefact. The findings have direct implications for "
     "neuraxial anaesthesia access, postoperative pain management and workforce "
@@ -127,17 +129,18 @@ add_para(
     "nested within ${n_prefectures} prefectures. Coefficients of variation for "
     "age- and sex-standardised claim ratios ranged from ${L008_cv}% (general "
     "anaesthesia) to ${L002_cv}% (epidural anaesthesia). For general "
-    "anaesthesia, only ${L008_ml_icc} of variance lay between prefectures -- "
+    "anaesthesia, only ${L008_ml_icc_pct}% of variance lay between prefectures -- "
     "where audit policy differs -- while ${L008_ml_within_pct}% occurred within "
     "prefectures where audit policy is uniform. University hospital presence "
     "was associated with the largest proportional reduction in total variance "
-    "for general anaesthesia (${L008_ml_r2}) and was positive in all "
+    "for general anaesthesia (${L008_ml_r2_pct}%) and was positive in all "
     "${n_prefectures} prefectures, with a large effect size (Cohen's d "
-    "${L008_d}). Sensitivity analyses for maximum plausible audit impact, "
-    "within-prefecture variance decomposition, code correlations and a log-"
-    "transformed linear mixed model all pointed away from differential "
-    "auditing as the main explanation; empirical Bayes shrinkage confirmed "
-    "robustness to low-volume instability.")
+    "${L008_d}). Sensitivity and robustness analyses—within-prefecture paired "
+    "comparisons, covariate adjustment, empirical Bayes shrinkage, log-transformation, "
+    "and audit-sensitivity checks (maximum audit-rate impact, code correlations and a "
+    "combined general/spinal measure)—all pointed away from differential auditing as the "
+    "main explanation; empirical Bayes shrinkage confirmed robustness to "
+    "low-volume instability.")
 
 add_para(
     "The manuscript is original, has not been previously published and is not "

@@ -71,7 +71,6 @@ def get_manuscript_page_ranges():
         headings = [
             'ABSTRACT', 'INTRODUCTION', 'METHODS',
             'RESULTS', 'DISCUSSION', 'CONCLUSIONS', 'REFERENCES',
-            'FIGURE LEGENDS',
         ]
         heading_page = {}
         for h in headings:
@@ -93,11 +92,12 @@ def get_manuscript_page_ranges():
                 end = len(pages)
             ranges[h] = f"{start}" if start == end else f"{start}–{end}"
 
-        # Detect embedded tables by their captions.
-        for label in ['Table 1.', 'Table 2.', 'Table 3.']:
+        # Detect embedded tables and figures by their captions.
+        for label in ['Table 1.', 'Table 2.', 'Figure 1.', 'Figure 2.']:
             key = label.rstrip('.')
+            pattern = re.compile(rf'(?:^|\n)\s*{re.escape(label)}')
             for i, page in enumerate(pages):
-                if label in page:
+                if pattern.search(page):
                     ranges[key] = str(i + 1)
                     break
 
@@ -141,15 +141,19 @@ def page_str_for(section, item_num=""):
             t2 = page_ranges.get('Table 2', '')
             return f"{t1}, {t2}" if t1 and t2 else page_ranges.get('RESULTS', '')
         if item_num == '14(b)':
-            return page_ranges.get('Table 2', '')
+            return page_ranges.get('Table 1', '')
         if item_num == '15*':
             t1 = page_ranges.get('Table 1', '')
             t2 = page_ranges.get('Table 2', '')
             return f"{t1}–{t2}" if t1 and t2 else page_ranges.get('RESULTS', '')
         if item_num == '16(a)':
-            return page_ranges.get('Table 3', '')
+            return page_ranges.get('Table 2', '')
         if item_num == '16(b)':
-            return page_ranges.get('FIGURE LEGENDS', '')
+            f1 = page_ranges.get('Figure 1', '')
+            f2 = page_ranges.get('Figure 2', '')
+            if f1 and f2:
+                return f"{f1}, {f2}"
+            return page_ranges.get('RESULTS', '')
         return page_ranges.get('RESULTS', '')
     if section == 'Discussion':
         return page_ranges.get('DISCUSSION', '')
@@ -293,7 +297,7 @@ items = [
     ("", "14(b)",
      "Indicate number of participants with missing data for each variable "
      "of interest",
-     "Table 2 column 'n'"),
+     "Table 1 column 'n'"),
     ("Outcome data", "15*",
      "Report numbers of outcome events or summary measures",
      "Results, '3.1 Study population and variation in anaesthesia practice' and Tables 1–2 (means, "
@@ -302,12 +306,12 @@ items = [
      "Give unadjusted estimates and, if applicable, confounder-adjusted "
      "estimates and their precision (e.g. 95% CI). Make clear which "
      "confounders were adjusted for and why they were included",
-     "Results, '3.2 Multilevel model and university hospital effect'; Table 3 (mixed-effects coefficients "
+     "Results, '3.2 Multilevel model and university hospital effect'; Table 2 (mixed-effects coefficients "
      "with 95% confidence intervals)"),
     ("", "16(b)",
      "Report category boundaries when continuous variables were "
      "categorized",
-     "Figure 1 and Figure 2 legends (quintile shading)"),
+     "Figure 1 and Figure 2 (quintile shading)"),
     ("", "16(c)",
      "If relevant, consider translating estimates of relative risk into "
      "absolute risk for a meaningful time period",

@@ -1,0 +1,31 @@
+{
+  "title": "Regional variation in anaesthesia practice in Japan under universal health coverage: structural determinants and claims-audit sensitivity",
+  "upload_type": "dataset",
+  "description": "Reproducible data, code and submission materials for a cross-sectional ecological study of small-area variation in anaesthesia practice across Japan's 335 secondary medical areas (fiscal year 2022). The repository contains the public data sources (standardised claim ratios, physician statistics, GIS boundaries), analysis scripts, and the Health Policy submission package (manuscript, tables, figures, highlights, cover letter, STROBE checklist).",
+  "creators": [
+    {
+      "name": "Onishi, Tatsuki",
+      "affiliation": "[Affiliation to be completed by authors]"
+    }
+  ],
+  "keywords": [
+    "anaesthesia",
+    "small-area variation",
+    "multilevel analysis",
+    "health equity",
+    "universal health coverage",
+    "health policy",
+    "Japan"
+  ],
+  "license": "cc-by-4.0",
+  "access_right": "open",
+  "publication_date": "2026-08-13",
+  "version": "1.0.1",
+  "related_identifiers": [
+    {
+      "relation": "isSupplementTo",
+      "identifier": "https://github.com/bougtoir/anesthesia_variation_335_region",
+      "resource_type": "dataset"
+    }
+  ]
+}
