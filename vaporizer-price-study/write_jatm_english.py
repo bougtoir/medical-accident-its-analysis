@@ -405,8 +405,8 @@ def write_jatm_paper():
     title_p = doc.add_paragraph()
     title_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
     run = title_p.add_run(
-        'Targeted environmental regulation and secondary market vaporizer prices: '
-        'an observational analysis of the EU desflurane phase-out')
+        'Association between the EU desflurane phase-out and secondary market '
+        'vaporizer prices: an observational time-series analysis')
     run.bold = True
     run.font.size = Pt(14)
 
@@ -426,7 +426,7 @@ def write_jatm_paper():
     doc.add_paragraph()
 
     # Word counts
-    add_para(doc, 'Abstract word count: ~280 (max 300)', size=Pt(10))
+    add_para(doc, 'Abstract word count: ~299 (max 300)', size=Pt(10))
     add_para(doc, 'Number of references: 22', size=Pt(10))
     add_para(doc, 'Number of tables: 2 (+1 supplementary)', size=Pt(10))
     add_para(doc, 'Number of figures: 6', size=Pt(10))
@@ -483,27 +483,28 @@ def write_jatm_paper():
     add_run_styled(p,
         f'{total_n} completed sales were analyzed ({des["total_n"]} desflurane, '
         f'{sevo["total_n"]} sevoflurane, {iso["total_n"]} isoflurane). '
-        f'Desflurane vaporizer prices showed a significant downward trend '
+        f'Desflurane vaporizer prices declined '
         f'(Spearman \u03c1={des_tr["spearman_rho"]:.2f}, P<0.001; '
         f'Kendall \u03c4={des_tr["kendall_tau"]:.2f}, '
         f'P={fmt_p(des_tr["kendall_p"])}), '
-        f'with a {des_pct:.0f}% decline from pre-ban (mean US${des["pre_mean"]:.0f} '
-        f'\u00b1 {des["pre_sd"]:.0f}) to post-ban (US${des["post_mean"]:.0f} '
-        f'\u00b1 {des["post_sd"]:.0f}; Cohen\u2019s d={des_d:.2f}). '
-        f'Neither sevoflurane (\u03c1={sevo_tr["spearman_rho"]:.2f}, '
-        f'P={fmt_p(sevo_tr["spearman_p"])}) nor isoflurane '
-        f'(\u03c1={iso_tr["spearman_rho"]:.2f}, '
-        f'P={fmt_p(iso_tr["spearman_p"])}) showed significant temporal trends.')
+        f'with a {des_pct:.0f}% decline pre- to post-restriction '
+        f'(Cohen\u2019s d={des_d:.2f}). '
+        f'Sevoflurane showed no consistent trend. Isoflurane reached '
+        f'nominal significance (\u03c1={iso_tr["spearman_rho"]:.2f}, '
+        f'P={fmt_p(iso_tr["spearman_p"])}), but the small correlation was not '
+        f'supported by other trend metrics; with multiple trend tests, an isolated '
+        f'P value near 0.05 is expected by chance.')
 
     # Conclusions
     p = doc.add_paragraph()
     add_run_styled(p, 'Conclusions: ', bold=True)
     add_run_styled(p,
-        'Desflurane vaporizer prices on eBay showed an agent-specific decline over the '
-        'study period; non-regulated agents remained stable. These observational findings '
-        'are consistent with, but do not prove, an effect of the EU regulation; they '
-        'should be interpreted as hypothesis-generating given the single-platform design, '
-        'unmeasured confounders, and the small post-ban sample.')
+        'Desflurane vaporizer prices on eBay were associated with an agent-specific '
+        'decline; non-regulated agents remained comparatively stable. These observational '
+        'findings are consistent with, but do not prove, an effect of the EU desflurane '
+        'phase-out and should be interpreted as hypothesis-generating given the single-'
+        'platform design, unmeasured confounders, small post-restriction sample, and '
+        'multiple trend tests.')
 
     doc.add_page_break()
 
@@ -594,6 +595,11 @@ def write_jatm_paper():
         'plenary vote approving the revised F-gas Regulation (March 2023) and captures the full '
         'legislative trajectory from the European Commission\u2019s original proposal (April 2022) '
         'through to the post-ban period, encompassing all key regulatory milestones. '
+        'Because Terapeak\u2019s three-year window ends at the data extraction date (March 2026), '
+        'the post-restriction observation period is limited to approximately three months after the '
+        f'1 January 2026 effective date (n={des["post_n"]} desflurane transactions); a longer '
+        'follow-up would require either prospective data collection or a later extraction, neither '
+        'of which was possible here. '
         'We used a single marketplace (eBay) rather than integrating data from multiple '
         'platforms to avoid the risk of counting cross-listed items more than once.')
 
@@ -639,6 +645,14 @@ def write_jatm_paper():
         'using Cohen\u2019s d with 95% confidence intervals. To test whether the magnitude of the '
         'pre-/post-ban price change differed between agent types, pairwise z-tests for independent '
         'Cohen\u2019s d values were performed using the large-sample variance approximation.')
+    doc.add_paragraph(
+        'Because trend tests (Spearman, Kendall \u03c4, and quarterly Spearman) were applied '
+        'to each of three agent types, the probability of at least one nominally significant P '
+        'value arising under the null is inflated. We did not apply a formal family-wise '
+        'multiple-testing correction; instead, P values were interpreted alongside effect '
+        'magnitude, direction, and consistency across tests. An isolated P value near 0.05 '
+        f'(e.g., isoflurane Spearman P={fmt_p(iso_tr["spearman_p"])}) was therefore not '
+        'considered evidence of a true trend.')
     doc.add_paragraph(
         'Sensitivity analyses were performed to assess robustness and to address causal '
         'interpretation. First, we used bootstrap resampling (10,000 iterations) of the pre- and '
@@ -943,6 +957,28 @@ def write_jatm_paper():
         'suggests a progressive and agent-specific desflurane price pattern. However, the '
         'single-platform, observational design precludes causal inference; the observed '
         'association may be partly or wholly attributable to concurrent secular trends.')
+    if has_revision_sensitivity:
+        did_disc = get_rev('did_transaction_level')
+        if isinstance(did_disc, dict) and 'error' not in did_disc:
+            doc.add_paragraph(
+                f'The transaction-level difference-in-differences (DiD) model did not detect a '
+                f'significant desflurane post-restriction coefficient '
+                f'(coefficient={did_disc["desflurane_post_coef"]:.3f}, '
+                f'P={fmt_p(did_disc["desflurane_post_p"])}). This null result should not be '
+                f'interpreted as evidence of no effect. Instead, the DiD parallel-trend '
+                f'assumption was violated '
+                f'(P={fmt_p(did_disc["desflurane_trend_p"])} for the pre-restriction trend '
+                f'difference), indicating that desflurane prices were already diverging from '
+                f'controls before 1 January 2026. Because the regulation was proposed in 2022 and '
+                f'adopted in 2024, market participants may have anticipated the 2026 effective date; '
+                f'the DiD violation is consistent with a gradual, anticipation-driven decline '
+                f'rather than a discrete shock. The DiD and CITS results are best interpreted as '
+                f'sensitivity, not causal, analyses.')
+    doc.add_paragraph(
+        'We did not family-wise correct trend tests across three agents; an isolated P value '
+        f'near 0.05 (e.g., isoflurane Spearman P={fmt_p(iso_tr["spearman_p"])}) is expected by '
+        f'chance. The desflurane finding is supported by consistency across Spearman, Kendall \u03c4, '
+        f'and quarterly median analyses.')
 
     sevo_vs_iso = es_comparisons['Sevoflurane_vs_Isoflurane']
     doc.add_paragraph(
@@ -1030,8 +1066,11 @@ def write_jatm_paper():
         f'substantially influence vaporizer pricing and could create compositional effects. '
         f'Fourth, the post-restriction period (January\u2013March 2026) comprised only '
         f'{des["post_n"]} desflurane, {sevo["post_n"]} sevoflurane, and '
-        f'{iso["post_n"]} isoflurane transactions, limiting statistical power for the '
-        f'pre-/post-ban comparison. Bootstrap resampling and post-hoc power simulation confirmed '
+        f'{iso["post_n"]} isoflurane transactions. This small sample reflects the Terapeak '
+        f'three-year window ending at data collection in March 2026, which constrains the '
+        f'post-restriction follow-up to approximately three months after the 1 January 2026 '
+        f'effective date and precludes extending the window without prospective data collection '
+        f'or a later extraction. Bootstrap resampling and post-hoc power simulation confirmed '
         f'that the desflurane Mann\u2013Whitney U test had low power (approximately 28%) and '
         f'that the median-difference confidence interval included zero; the Welch t-test was '
         f'more powerful (approximately 58%) and the mean-difference confidence interval '
@@ -1044,7 +1083,10 @@ def write_jatm_paper():
         f'limiting our ability to establish a true baseline unaffected by regulatory signals. The '
         f'DiD and CITS models support agent-specificity but do not satisfy the assumptions '
         f'required for causal identification; they should be interpreted as sensitivity, not '
-        f'confirmatory, analyses.')
+        f'confirmatory, analyses. Additionally, multiple trend tests across three agents '
+        f'inflate the chance of a nominally significant P value; isolated P values near 0.05 '
+        f'(e.g., isoflurane Spearman P={fmt_p(iso_tr["spearman_p"])}) are interpreted cautiously '
+        f'and in the context of effect size and consistency across tests.')
 
     add_para_with_refs(doc,
         'Looking ahead, environmental pressures are likely to prompt further regulatory '
