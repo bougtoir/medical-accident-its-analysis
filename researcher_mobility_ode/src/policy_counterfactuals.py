@@ -35,8 +35,10 @@ def run_counterfactual(cohort, rates, safety_factor, group, lever, factor, a2g=N
         a2g=a2g, stats=stats,
         compute_sensitivity=False, compute_pnr=False,
     )
-    row = summary[summary["group"] == group].iloc[0]
-    return row
+    rows = summary[summary["group"] == group]
+    if rows.empty:
+        return None
+    return rows.iloc[0]
 
 
 def main():
@@ -60,11 +62,13 @@ def main():
     base_summary = base_summary.set_index("group")
 
     rows = []
-    for group in rates.index:
+    for group in base_summary.index:
         base = base_summary.loc[group]
         for lever in LEVER_RATES:
             for f in args.factors:
                 cf = run_counterfactual(cohort, rates, args.safety_factor, group, lever, f, a2g=a2g, stats=stats)
+                if cf is None:
+                    continue
                 rows.append({
                     "group": group,
                     "lever": lever,
@@ -100,7 +104,10 @@ def main():
                     cohort_df=cohort, rates_df=rates_cf, a2g=a2g, stats=stats,
                     compute_sensitivity=False, compute_pnr=False,
                 )
-                cf = summary[summary["group"] == group].iloc[0]
+                cf_rows = summary[summary["group"] == group]
+                if cf_rows.empty:
+                    continue
+                cf = cf_rows.iloc[0]
                 rows.append({
                     "group": group,
                     "lever": f"package:{name}",

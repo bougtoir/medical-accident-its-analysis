@@ -49,6 +49,11 @@ from pyommlbuilder.helpers import make_aligned_equation
 
 import annual_rates_projection_report as arpr
 
+try:
+    import pypandoc
+except Exception:  # pragma: no cover - pypandoc is optional for the markdown fallback
+    pypandoc = None
+
 RESULTS_DIR = BASE_DIR / "results"
 ENDOG = RESULTS_DIR / "endogenous"
 SAT = RESULTS_DIR / "endogenous_saturating"
@@ -80,6 +85,25 @@ def add_footnote(para, symbol="1"):
     return run
 
 
+RATE_LABELS = {
+    "I0": "exogenous entry rate (I0)",
+    "I": "exogenous entry rate (I)",
+    "d": "dropout rate (d)",
+    "alpha": "early-career outflow rate (α)",
+    "beta": "return rate (β)",
+    "h_D": "domestic hit-generation rate (h_D)",
+    "h_A": "abroad hit-generation rate (h_A)",
+    "p_D": "domestic principal-investigator promotion rate (p_D)",
+    "p_A": "abroad principal-investigator promotion rate (p_A)",
+    "r": "principal-investigator reproduction rate (r)",
+}
+
+
+def _rate_label(name):
+    """Return a full-spelling phrase with the rate symbol in parentheses."""
+    return RATE_LABELS.get(str(name), str(name))
+
+
 def _paragraph_text(doc):
     for p in doc.paragraphs:
         yield p.text
@@ -92,8 +116,23 @@ def _table_text(doc):
                 yield cell.text
 
 
-def _doc_word_count(doc):
-    return sum(len(t.split()) for t in list(_paragraph_text(doc)) + list(_table_text(doc)))
+def _doc_word_count(doc, exclude_after="References"):
+    """Count words in paragraphs and tables, stopping before the reference list."""
+    total = 0
+    active = True
+    for p in doc.paragraphs:
+        text = p.text.strip()
+        if active and text == exclude_after:
+            active = False
+            continue
+        if active:
+            total += len(text.split())
+    if active:
+        for t in doc.tables:
+            for row in t.rows:
+                for cell in row.cells:
+                    total += len(cell.text.split())
+    return total
 
 
 def _rel_path(path: Path, base: Path) -> str:
@@ -522,6 +561,12 @@ REFS = [
     "Shaffer M L. Minimum Population Sizes for Species Conservation. BioScience. 1981;31(2):131-134.",
     "Franzoni C, Scellato G, Stephan P E. Foreign-born scientists: mobility patterns for 16 countries. Nat Biotechnol. 2012;30(12):1250-1253.",
     "Jones B F, Wuchty S, Uzzi B. Multi-University Research Teams: Shifting Impact, Geography, and Stratification in Science. Science. 2008;322(5905):1259-1262.",
+    "Nelson R R, Winter S G. An Evolutionary Theory of Economic Change. Cambridge, MA: Harvard University Press, 1982.",
+    "Dosi G. Technological paradigms and technological trajectories: a suggested interpretation of the determinants and directions of technical change. Res Policy. 1982;11(3):147-162.",
+    "Lundvall B-Å. National Systems of Innovation: Toward a Theory of Innovation and Interactive Learning. London: Anthem Press, 1992.",
+    "Malerba F. Sectoral systems of innovation and production. Res Policy. 2002;31(2):247-264.",
+    "State B, Park P, Weber I, Macy M. The mesh of civilizations in the global network of digital communication. PLoS ONE. 2015;10(5):e0122543. https://doi.org/10.1371/journal.pone.0122543",
+    "Chinchilla-Rodríguez Z, Miao L, Murray D, Robinson-García N, Costas R, Sugimoto C R. A global comparison of scientific mobility and collaboration according to national scientific capacities. Front Res Metr Anal. 2018;3:17. https://doi.org/10.3389/frma.2018.00017",
     "Freeman R B, Huang W. Collaboration: Strength in diversity. Nature. 2014;513(7518):305. https://doi.org/10.1038/513305a",
     "Shachar A. The Race for Talent: Highly Skilled Migrants and Competitive Immigration Regimes. NYU Law Rev. 2006;81(1):148-206.",
     "Kerr W R. Global Talent and U.S. Immigration Policy. Harvard Business School Working Paper No. 20-107, 2020. https://www.hbs.edu/ris/Publication%20Files/20-107_0967f1ab-1d23-4d54-b5a1-c884234d9b31.pdf"
@@ -572,8 +617,47 @@ def load_annual_data():
         "evaluation": ANNUAL / "projection_evaluation.csv",
         "group_accuracy": ANNUAL / "projection_accuracy_by_group.csv",
         "compartment_accuracy": ANNUAL / "projection_accuracy_by_compartment.csv",
+        "rate_accuracy": ANNUAL / "projection_rate_accuracy.csv",
+        "rate_accuracy_overall": ANNUAL / "projection_rate_accuracy_overall.csv",
     }
     return {k: pd.read_csv(p) if p.exists() else None for k, p in paths.items()}
+
+
+def pnr_robustness_table():
+    """Compare closest PNR levers between linear and saturating endogenous inflow."""
+    lin_path = BASE_DIR / "results" / "endogenous" / "closest_point_of_no_return.csv"
+    sat_path = BASE_DIR / "results" / "endogenous_saturating" / "closest_point_of_no_return.csv"
+    if not (lin_path.exists() and sat_path.exists()):
+        return pd.DataFrame()
+    lin = pd.read_csv(lin_path)
+    sat = pd.read_csv(sat_path)
+    # Focus on the active-pool threshold, which is the operative PNR in the main text.
+    lin = lin[lin["target"] == "domestic_active"].copy()
+    sat = sat[sat["target"] == "domestic_active"].copy()
+    lin = lin.rename(columns={
+        "group": "origin_group",
+        "rate_name": "linear_closest",
+        "critical_factor": "linear_factor",
+        "proximity": "linear_proximity",
+    })
+    sat = sat.rename(columns={
+        "group": "origin_group",
+        "rate_name": "saturating_closest",
+        "critical_factor": "saturating_factor",
+        "proximity": "saturating_proximity",
+    })
+    df = lin[["origin_group", "linear_closest", "linear_factor", "linear_proximity"]].merge(
+        sat[["origin_group", "saturating_closest", "saturating_factor", "saturating_proximity"]],
+        on="origin_group",
+        how="inner",
+    )
+    if df.empty:
+        return pd.DataFrame()
+    # Reorder to the standard group order and round.
+    df = df.set_index("origin_group").reindex(arpr.ORDERED_GROUPS).reset_index()
+    for col in ["linear_factor", "saturating_factor", "linear_proximity", "saturating_proximity"]:
+        df[col] = df[col].round(4)
+    return df
 
 
 def compute_annual_context(annual):
@@ -600,6 +684,17 @@ def compute_annual_context(annual):
             ctx["best_mape_pct"] = float(best["mape"]) * 100.0
             ctx["worst_mape_pct"] = float(worst["mape"]) * 100.0
             ctx["n_eval_groups"] = len(gacc)
+            # Direction agreement (mean across civilisations)
+            if "direction_agreement" in gacc.columns:
+                ctx["direction_agreement"] = float(gacc["direction_agreement"].mean())
+                ctx["best_direction_group"] = gacc.loc[gacc["direction_agreement"].idxmax()]["origin_group"]
+                ctx["worst_direction_group"] = gacc.loc[gacc["direction_agreement"].idxmin()]["origin_group"]
+            if "threshold_alarm_accuracy" in gacc.columns:
+                ctx["threshold_alarm_accuracy"] = float(gacc["threshold_alarm_accuracy"].mean())
+                ctx["threshold_alarm_sensitivity"] = float(gacc["threshold_alarm_sensitivity"].mean())
+                ctx["threshold_alarm_specificity"] = float(gacc["threshold_alarm_specificity"].mean())
+                # Observed alarms are rare; report total count across groups
+                ctx["threshold_alarms_obs"] = int(gacc["threshold_alarms_obs"].sum())
         else:
             ctx["best_group"] = "—"
             ctx["worst_group"] = "—"
@@ -630,6 +725,39 @@ def compute_annual_context(annual):
     else:
         ctx["obs_year_min"] = 2000
         ctx["obs_year_max"] = 2023
+
+    # Rate-level forecast accuracy (cleaner than stock-level because the fixed cohort lacks post-2016 entrants).
+    rate_overall = annual.get("rate_accuracy_overall")
+    if rate_overall is not None and not rate_overall.empty:
+        ctx["rate_overall_rmse"] = float(rate_overall["rmse"].iloc[0])
+        ctx["rate_overall_mae"] = float(rate_overall["mae"].iloc[0])
+        ctx["rate_overall_mape"] = float(rate_overall["mape"].iloc[0])
+        ctx["rate_overall_skill"] = float(rate_overall["skill"].iloc[0])
+    else:
+        ctx["rate_overall_rmse"] = float("nan")
+        ctx["rate_overall_mae"] = float("nan")
+        ctx["rate_overall_mape"] = float("nan")
+        ctx["rate_overall_skill"] = float("nan")
+
+    rate_acc = annual.get("rate_accuracy")
+    if rate_acc is not None and not rate_acc.empty:
+        # Best/worst rate by skill (naive/model RMSE ratio)
+        rate_acc = rate_acc.dropna(subset=["skill"]).copy()
+        if not rate_acc.empty:
+            ctx["best_rate_skill"] = str(rate_acc.loc[rate_acc["skill"].idxmax(), "rate"])
+            ctx["worst_rate_skill"] = str(rate_acc.loc[rate_acc["skill"].idxmin(), "rate"])
+            ctx["best_rate_skill_value"] = float(rate_acc["skill"].max())
+            ctx["worst_rate_skill_value"] = float(rate_acc["skill"].min())
+        else:
+            ctx["best_rate_skill"] = "—"
+            ctx["worst_rate_skill"] = "—"
+            ctx["best_rate_skill_value"] = float("nan")
+            ctx["worst_rate_skill_value"] = float("nan")
+    else:
+        ctx["best_rate_skill"] = "—"
+        ctx["worst_rate_skill"] = "—"
+        ctx["best_rate_skill_value"] = float("nan")
+        ctx["worst_rate_skill_value"] = float("nan")
 
     return ctx
 
@@ -683,10 +811,18 @@ def annual_summary_table(annual):
 
 
 def interciv_top_table(annual, n=10):
-    """Top origin-destination abroad author-year accumulations."""
+    """Top origin-destination abroad author-year accumulations.
+
+    Unknown destinations and origin==destination domestic moves are excluded
+    because the reconstruction cannot observe the actual host civilisation.
+    """
     flows = annual.get("interciv_stock")
     if flows is None or flows.empty:
         return pd.DataFrame()
+    flows = flows[
+        (flows["destination_group"] != "Unknown") &
+        (flows["origin_group"] != flows["destination_group"])
+    ].copy()
     pivot = (
         flows.groupby(["origin_group", "destination_group"], observed=False)["count"]
         .sum()
@@ -792,8 +928,12 @@ def compute_context(cohort, eq, sat_eq, top_t, pnr_closest, period_compare, poli
         merged = eq[["group", "T_equilibrium"]].merge(
             sat_eq[["group", "T_equilibrium"]], on="group", suffixes=("_lin", "_sat")
         )
-        pct_lower = 100.0 * (merged["T_equilibrium_lin"] - merged["T_equilibrium_sat"]) / merged["T_equilibrium_lin"]
-        sat_range_text = f"{pct_lower.min():.0f}-{pct_lower.max():.0f}% lower than the linear variant"
+        pct_diff = 100.0 * (merged["T_equilibrium_lin"] - merged["T_equilibrium_sat"]) / merged["T_equilibrium_lin"]
+        max_abs = pct_diff.abs().max()
+        if max_abs < 0.001:
+            sat_range_text = "below 0.001% for every group"
+        else:
+            sat_range_text = f"up to {max_abs:.2f}% lower than the linear variant"
 
     # Historical counterfactual
     if period_compare.empty:
@@ -817,8 +957,11 @@ def compute_context(cohort, eq, sat_eq, top_t, pnr_closest, period_compare, poli
     d_min_gain = d_10pct_group.sort_values("margin_gain").iloc[0]
     d_max_gain = d_10pct_group.sort_values("margin_gain").iloc[-1]
 
-    # Endogenous inflow safety factor actually used in the fitted model
-    safety_factor = float((eq["r"] / eq["r_critical"]).min())
+    # Endogenous inflow safety factor used in the fitted model.  The default code
+    # cap is 0.50 of the critical reproduction rate; the most constrained fitted
+    # group has a realised r / r_critical ratio that is lower (about 0.40).
+    safety_factor_cap = 0.50
+    min_realised_safety_ratio = float((eq["r"] / eq["r_critical"]).min())
 
     return {
         "n_groups": n_groups,
@@ -840,7 +983,8 @@ def compute_context(cohort, eq, sat_eq, top_t, pnr_closest, period_compare, poli
         "d_max_gain_group": d_max_gain["group"],
         "d_min_gain": round(d_min_gain["margin_gain"]),
         "d_max_gain": round(d_max_gain["margin_gain"]),
-        "safety_factor": safety_factor,
+        "safety_factor_cap": safety_factor_cap,
+        "min_realised_safety_ratio": min_realised_safety_ratio,
     }
 
 
@@ -970,7 +1114,7 @@ def _renumber_markdown_sections(lines):
             continue
         renumbered.append(line)
 
-    # Replace in-text references like "Section 4.11" with the renumbered target.
+    # Replace in-text references like "Section 4.7" with the renumbered target.
     keys = sorted(mapping.keys(), key=lambda k: len(k), reverse=True)
     for i, line in enumerate(renumbered):
         for old in keys:
@@ -1000,8 +1144,8 @@ def _abstract_and_highlights(eq, pnr_closest):
         all_top_are_d = True
         most_common_lever = "d"
     if all_top_are_d:
-        lever_text = "A simulated reduction in dropout yields the largest margin gain per unit proportional change in every group in the fitted model. "
-        highlight_lever = "Dropout reduction gives the largest margin gain per 10% change across all groups in the fitted model."
+        lever_text = "A simulated reduction in dropout yields the largest margin gain in every group in the fitted model. "
+        highlight_lever = "Dropout reduction yields the largest margin gain across all groups."
     else:
         lever_text = f"A simulated reduction in dropout is the most common single positive lever in the fitted model, although other levers dominate for some groups in the current data. "
         highlight_lever = f"Simulated {most_common_lever} adjustment yields the largest margin gain per unit proportional change for most groups in the fitted model."
@@ -1012,23 +1156,22 @@ def _abstract_and_highlights(eq, pnr_closest):
         overall_rmse = float(((ev["error"] ** 2).mean()) ** 0.5)
         overall_mape = float(ev["ape"].mean() * 100.0)
         projection_accuracy_text = (
-            f"The 2017-2023 out-of-sample projection records RMSE {_fmt(overall_rmse, 2)} and a conservative, non-standard MAPE of {_fmt(overall_mape, 1)}% "
-            "(computed against count_obs + 1 to avoid division by zero). "
-            "That level of error is expected because the projection is designed as an early-warning indicator of directional drift and threshold crossing, not as a precise population forecast. "
+            f"The 2017-2023 projection has RMSE {_fmt(overall_rmse, 2)} and a conservative, non-standard MAPE of {_fmt(overall_mape, 1)}% (count_obs + 1 denominator). "
+            "The high error is expected because the projection is an early-warning indicator of directional drift, not a precise forecast. "
         )
     else:
         projection_accuracy_text = ""
     abstract = (
-        "Artificial intelligence (AI) and machine learning (ML) research is increasingly concentrated in a few regions, "
-        "raising the risk that smaller research communities fall below a minimum viable coauthor pool and cannot recover. "
-        "We model each civilisation as a six-compartment system of domestic and abroad early-career, high-impact, and principal-investigator researchers, "
-        "and estimate transition rates from OpenAlex Artificial Intelligence works (subfield 1702). "
-        "The minimum viable coauthor threshold is defined as M = k × c_bar, where c_bar is the mean number of authors per work and k is the median number of distinct last-author groups observed per recent year. "
-        f"Across {len(eq)} groups, equilibrium domestic active pools remain above their thresholds, but the closest point of no return (PNR) is observed for the {closest['group']} group, "
-        f"where {closest['rate_name']} must be multiplied by {_fmt(closest['critical_factor'], 3)}× its current value (equivalent to a {closest['proximity']*100:.0f}% proportional {'reduction' if closest['critical_factor'] < 1 else 'increase'}) to drive the active pool to its threshold. "
+        "Artificial intelligence (AI) and machine learning (ML) research is increasingly concentrated, "
+        "raising the risk that smaller communities fall below a minimum viable coauthor pool. "
+        "We model each civilisation as a six-compartment system of domestic and abroad early-career, high-impact, and principal-investigator (PI) researchers, "
+        "and estimate transition rates from OpenAlex AI/ML data (subfield 1702). "
+        "The minimum viable threshold is M = k × c_bar, where c_bar is the mean authors per work and k is the median number of distinct last-author groups per year. "
+        f"Across {len(eq)} groups, equilibrium active pools remain above their thresholds, but the closest point of no return (PNR) is observed for the {closest['group']} group, "
+        f"where the {_rate_label(closest['rate_name'])} must be multiplied by {_fmt(closest['critical_factor'], 3)}× (a {closest['proximity']*100:.0f}% proportional {'reduction' if closest['critical_factor'] < 1 else 'increase'}) to drive the active pool to its threshold. "
         + lever_text
         + projection_accuracy_text
-        + "Historical and saturating-inflow counterfactuals show that the model is most sensitive to exogenous entry and attrition. "
+        + "Historical counterfactuals and bootstrap uncertainty show that the model is most sensitive to exogenous entry and attrition. "
         "These results provide a quantitative framework for early, safety-factor-bound policy scenarios that preserve civilisational diversity in AI/ML research."
     )
     keywords = (
@@ -1044,12 +1187,18 @@ def _abstract_and_highlights(eq, pnr_closest):
     return abstract, keywords, highlights
 
 
-def _data_availability_text():
+def _data_availability_text(blinded=False):
+    base = (
+        "This study uses the OpenAlex database (subfield 1702, Artificial Intelligence; "
+        "2000–2023), accessed via the OpenAlex API. The analysis is bundled with a pre-extracted "
+        "cohort and a stratified sample of works; the country-to-civilisation mapping, code, and result CSVs "
+        "used to generate this manuscript "
+    )
+    if blinded:
+        return base + "will be made available in a public repository upon acceptance. The extracted cohort SQLite database (a derived aggregate of OpenAlex records) is available from the corresponding author on request, subject to the OpenAlex CC0 licence and any applicable local data-use policies."
     return (
-        "This study uses publication metadata from the OpenAlex API (subfield 1702, Artificial Intelligence; "
-        "2000–2023). The extraction and analysis code, the country-to-civilisation mapping, and the result CSVs "
-        "used to generate this manuscript are available in the public GitHub repository "
-        "https://github.com/bougtoir/researcher-mobility-ode. OpenAlex data are released under CC0."
+        base + "are available in the public GitHub repository "
+        "https://github.com/bougtoir/researcher-mobility-ode. The extracted cohort SQLite database (a derived aggregate of OpenAlex records) is available from the corresponding author on request, subject to the OpenAlex CC0 licence and any applicable local data-use policies."
     )
 
 
@@ -1069,698 +1218,25 @@ def _descriptive_table(cohort):
     return grp
 
 
-def write_markdown(output_dir: Path, data, fig_paths):
-    """Write a plain-text markdown version for version control and review."""
-    (cohort, eq, sat_eq, top_t, pnr_closest, period_compare, boot, policy_rank) = data
-    ctx = compute_context(cohort, eq, sat_eq, top_t, pnr_closest, period_compare, policy_rank)
-    abstract, keywords, highlights = _abstract_and_highlights(eq, pnr_closest)
-    desc = _descriptive_table(cohort)
-    fig1_rel = _rel_path(fig_paths["fig1"], output_dir)
-    fig2_rel = _rel_path(fig_paths["fig2"], output_dir)
-    fig3_rel = _rel_path(fig_paths["fig3"], output_dir)
-    fig4_rel = _rel_path(fig_paths["fig4"], output_dir)
-    fig5_rel = _rel_path(fig_paths["fig5"], output_dir) if fig_paths.get("fig5") else ""
-    fig6_rel = _rel_path(fig_paths["fig6"], output_dir) if fig_paths.get("fig6") else ""
-    fig7_rel = _rel_path(fig_paths["fig7"], output_dir) if fig_paths.get("fig7") else ""
-    fig8_rel = _rel_path(fig_paths["fig8"], output_dir) if fig_paths.get("fig8") else ""
-    fig9_rel = _rel_path(fig_paths["fig9"], output_dir) if fig_paths.get("fig9") else ""
-
-    annual = load_annual_data()
-    transition_rates_md = pd.read_csv(BASE_DIR / "data" / "cohort" / "transition_rates.csv")
-    ja_ctx_md = compute_japan_context(eq, pnr_closest, transition_rates_md)
-    annual_ctx = compute_annual_context(annual)
-    annual_means = annual_summary_table(annual)
-    interciv_top = interciv_top_table(annual)
-    group_acc = annual.get("group_accuracy")
-    comp_acc = annual.get("compartment_accuracy")
-
-    best_rmse_group = "—"
-    worst_rmse_group = "—"
-    worst_mape_group = "—"
-    best_compartment_rmse = "—"
-    worst_compartment_rmse = "—"
-    worst_compartment_mape = "—"
-    if group_acc is not None and not group_acc.empty:
-        best_rmse_group = group_acc.loc[group_acc["rmse"].idxmin(), "origin_group"]
-        worst_rmse_group = group_acc.loc[group_acc["rmse"].idxmax(), "origin_group"]
-        worst_mape_group = group_acc.loc[group_acc["mape"].idxmax(), "origin_group"]
-    if comp_acc is not None and not comp_acc.empty:
-        best_compartment_rmse = comp_acc.loc[comp_acc["rmse"].idxmin(), "compartment"]
-        worst_compartment_rmse = comp_acc.loc[comp_acc["rmse"].idxmax(), "compartment"]
-        worst_compartment_mape = comp_acc.loc[comp_acc["mape"].idxmax(), "compartment"]
-
-    lines = [
-        "# Sustaining Heterogeneity through Interventions in Global AI/ML Researcher Mobility: A Transition-Rate Framework",
-        "",
-        "**Article type:** Research Article",
-        "",
-        "## Abstract",
-        "",
-        abstract,
-        "",
-        f"**Keywords:** {keywords}",
-        "",
-        "## Highlights",
-        "",
-    ]
-    for h in highlights:
-        lines.append(f"- {h}")
-    lines.extend(["", "## Data and Code Availability", "", _data_availability_text(), ""])
-    lines.extend([
-        "## Declarations",
-        "",
-        "**Funding:** [To be completed / removed for double-blind review]",
-        "",
-        "**Competing interests:** [To be completed / removed for double-blind review]",
-        "",
-        "**Author contributions:** [To be completed / removed for double-blind review]",
-        "",
-        "**Acknowledgments:** " + NOTE_TEXT,
-        "",
-    ])
-
-    lines.extend([
-        "## 1. Introduction",
-        "",
-        "Most debates on research mobility focus on net flows: which country gains researchers and which loses them. "
-        "Net-flow accounting is useful for headlines, but it hides the transition rates that actually move researchers between career stages and locations. "
-        "A small proportional change in one of those rates can, over time, push a research community below the minimum coauthor pool it needs to remain viable. "
-        "Once the pool falls below that threshold, recovery becomes difficult or impossible, even if policy is later reversed. "
-        "That is the point of no return (PNR) that motivates this paper.",
-        "",
-        "Artificial intelligence and machine learning have become the archetypal general-purpose technologies of the current era [5,6,7]. "
-        "Their development depends on a relatively small, highly mobile workforce of doctoral and post-doctoral researchers, principal investigators, and research engineers [1]. "
-        "The geographic concentration of this workforce has generated both scientific and geopolitical concern. "
-        "Policymakers in the United States, China, Europe, Japan, India and elsewhere now treat AI talent as a strategic input, and several governments have introduced incentives to attract or retain researchers [4,5]. "
-        "Most of those policies are evaluated by their immediate net-flow effects. "
-        "They rarely ask which transition in the career pipeline is the binding constraint, or how close a community is to a threshold where the field can no longer sustain itself.",
-        "",
-        "The civilisation framework offers a natural way to partition the global research population into culturally and institutionally coherent arenas [4]. "
-        "We adapt Huntington's nine civilisations for AI/ML mobility by keeping the United States, China (Sinic), India and nearby South Asian countries (Hindu), Japan, and the Islamic world as distinct groups, splitting the Western bloc into the United States, Anglosphere excluding the United States, Continental Europe and Other Western, and merging the smaller Latin American, Orthodox and African communities into Other Civilizations. "
-        "This grouping reflects the empirical size and mobility patterns observed in the data rather than a normative claim about civilisational identity.",
-        "",
-        "The central argument of the paper is that preserving civilisational diversity in AI/ML is not only a normative preference but also a safeguard against technological dead ends. "
-        "When a single region or a small oligopoly dominates a field, the set of research questions, evaluation norms, and institutional incentives narrows [5]. "
-        "A diverse ecosystem generates competing approaches, which increases the probability that unexpected breakthroughs and error correction survive [5]. "
-        "If transition rates can be observed with enough temporal resolution, policy can intervene before a community reaches the point of no return. "
-        "Early, proportionate interventions can prevent the emergence of a monopoly or oligopoly without requiring large ex post rescues.",
-        "",
-        "We therefore address five research questions. "
-        "First, how close is each civilisation to the point of no return (PNR) in its AI/ML research community? "
-        "Second, which transition rates have the largest effect on community size? "
-        "Third, how have transition rates changed between earlier and later career cohorts, and what would have happened if those rates had persisted? "
-        "Fourth, what safety-factor-bound single-lever and multi-lever policy scenarios can widen the margin before a point of no return (PNR) is reached? "
-        "Fifth, can the fitted rates be estimated year by year and used to project near-term population composition, and how well do those projections reproduce observed 2017-2023 counts?",
-        "",
-        "The contribution is a reproducible, data-driven transition-rate model that links OpenAlex publication records to a system of ordinary differential equations. "
-        "The model is intentionally simple: it does not explain why a rate is high or low, but it identifies which rate is closest to a threshold and therefore where early intervention is most urgent.",
-        "",
-    ])
-
-    lines.extend([
-        "## 2. Literature and conceptual framework",
-        "",
-        "Researcher mobility has long been studied under the headings of brain drain, brain circulation and brain gain [3,4,9]. "
-        "Thorn and Holm-Nielsen argue that the mobility of researchers from developing countries can become a gain when return migration and diaspora networks are supported, but it can become a drain when local research environments cannot retain or reproduce talent [7]. "
-        "Appelt et al., using a gravity framework for 1996-2011, find that scientific collaboration, economic convergence and visa restrictions are the strongest correlates of bilateral mobility [2]. "
-        "Their analysis shows that mobility is multi-directional: a large share of researcher movement is better described as circulation than as one-way migration.",
-        "",
-        "The AI/ML literature has documented the same patterns at higher resolution. "
-        "MacroPolo's Global AI Talent Tracker finds that the United States remains the leading destination for top-tier AI researchers, while China and India are expanding domestic retention [1]. "
-        "AlShebli et al. show that U.S.-China collaboration in AI is more impactful than either country working alone, and that most mobile AI scientists retain collaboration links with their origin country [8]. "
-        "Yuan et al. find that the brain-drain problem for AI scientists is increasingly serious in developing countries, and that the ties among AI elites are highly clustered [9]. "
-        "These studies establish that AI/ML talent is mobile, concentrated and strategically important.",
-        "",
-        "What is missing is a formal link between individual transition rates and the long-run viability of a research community. "
-        "The concept of a minimum viable population, introduced by Shaffer, captures the smallest isolated population that has a high probability of persisting despite demographic, environmental and genetic stochasticity [10]. "
-        "Transferred to science, the equivalent idea is a minimum viable coauthor pool: the smallest number of active researchers that can continue to produce work at the field's observed coauthor intensity. "
-        "Below that pool, collaboration networks fragment, mentorship chains break, and the field enters a self-reinforcing decline.",
-        "",
-        "This framing generates four testable hypotheses. "
-        "H1: Across all groups, the equilibrium active pool exceeds the minimum viable threshold, but the distance to the threshold varies widely. "
-        "H2: Dropout is the transition rate with the largest negative effect, because attrition removes researchers from every compartment. "
-        f"H3: {ctx['positive_lever_sentence'].rstrip('.')}. "
-        "H4: Smaller civilisations, and those with older cohort structures, sit closer to their point of no return.",
-        "",
-    ])
-
-    lines.extend([
-        "## 3. Data and grouping",
-        "",
-        "We extracted AI/ML works and author histories from the OpenAlex API for subfield `subfields/1702` (Artificial Intelligence), using works published between 2000 and 2023 [2]. "
-        "Authors were assigned to a civilisation by the majority country of their affiliated institutions. "
-        "The mapping is documented in the repository and is reproduced here only in summary. "
-        "The final groups are: United States, Anglosphere ex-US, Continental Europe, Sinic, Japanese, Hindu, Islamic, Other Western, and Other Civilizations.",
-        "",
-        "Table 1 reports the size and composition of the extracted cohort. "
-        "The sample is a reproducible pilot extraction; absolute counts are small because the goal is to demonstrate the transition-rate framework rather than to provide a definitive census of global AI/ML researchers.",
-        "",
-    ])
-
-    headers1 = ["Group", "Authors", "Works", "Active", "Hits", "PIs", "Career start", "Abroad"]
-    lines.append("| " + " | ".join(headers1) + " |")
-    lines.append("|" + "|".join(["---"] * len(headers1)) + "|")
-    for _, row in desc.iterrows():
-        lines.append(
-            f"| {row['Group']} | {row['n']} | {row['works']} | {row['active']} | {row['hits']} | {row['pis']} | {row['career_start_mean']} | {row['abroad']} |"
-        )
-    lines.append("")
-
-    lines.extend([
-        "## 4. Methods",
-        "",
-        "### 4.1 Compartment model",
-        "",
-        "Each civilisation is represented by six compartments: domestic early-career researchers (D), abroad early-career researchers (A), domestic hit researchers (H_D), abroad hit researchers (H_A), domestic principal investigators (P_D), and abroad principal investigators (P_A). "
-        "Transition rates are early-career outflow (α), return (β), hit generation at home and abroad (h_D and h_A), PI promotion at home and abroad (p_D and p_A), and dropout from all compartments (d). "
-        "The equations are written in Word equation objects in the body of the manuscript.",
-        "",
-        "### 4.2 Endogenous inflow",
-        "",
-        "New entrants are modelled as a function of the domestic PI stock. "
-        f"The linear form is I(P_D) = I_0 + r P_D, with r capped at {_fmt(ctx['safety_factor'], 2)}× the stability-critical value (safety factor {_fmt(ctx['safety_factor'], 2)}). "
-        "A saturating alternative, I(P_D) = I_0 + r P_D / (1 + ε P_D), is reported as a robustness check.",
-        "",
-        "### 4.3 Minimum viable coauthor threshold",
-        "",
-        "For each group we computed the mean number of authors per work (c_bar) and the median number of distinct last-author groups observed per recent year (k). "
-        "The minimum viable domestic active pool is M = k × c_bar. "
-        "When the equilibrium active pool T = D + H_D + P_D falls below M, the community can no longer produce works at the observed coauthor intensity.",
-        "",
-        "### 4.4 Estimation and equilibrium",
-        "",
-        "Transition rates are estimated as constant per-year hazards from observed proportions within the cohort, with Laplace smoothing to avoid zero probabilities. "
-        "The ODE system is solved at steady state for each group. "
-        "Elasticities are computed by perturbing each rate by 1% and re-solving. "
-        "For point-of-no-return analysis we scale each rate until the active pool reaches M and record the critical factor and its proximity, |critical factor − 1|. "
-        "Historical counterfactuals split the cohort at career-start year 2010 and re-estimate all rates for the early and late windows. "
-        "Bootstrap confidence intervals are obtained by resampling authors with replacement. "
-        "Policy counterfactuals apply proportional changes to individual rates and report the resulting change in safety margin.",
-        "",
-    ])
-
-    lines.extend([
-        "### 4.10 Annual transition-rate estimation and projection",
-        "",
-        "The steady-state model in Sections 4.1-4.4 treats rates as constants. "
-        "To test whether the same framework can be used for short-run monitoring, we reconstructed year-by-year compartment membership from cohort.csv and raw_sampled_works.json. "
-        "For each author and year we inferred location as domestic if the author was in the origin civilisation and abroad otherwise, using sampled works when available and cohort-derived abroad/return years as a fallback. "
-        "From these states we computed annual transition counts for the six compartments, applied Laplace +0.5 smoothing to empty destination cells, and derived the probabilities that map to α, β, h_D, h_A, p_D, p_A and d. "
-        "Inter-civilisation flows are approximated by assigning each abroad author-year to the author's recent_group as the destination civilisation; this is a lower-bound proxy because year-to-year destination changes are not observed in the public cohort.",
-        "",
-        "For the 2017-2026 projection we fit a linear trend to the observed 2000-2016 rates for each group and rate. "
-        "If fewer than four observations were available or the fit explained less than 10% of the variance, the historical mean was used instead. "
-        "Projected rates were clipped to values between 0 and 1. "
-        "Dropout was capped at 1.5 times the 90th percentile of observed dropout rates in the training window to prevent implausible extrapolation. "
-        "Projected total inflows were apportioned across compartments using the first-compartment distribution observed over the 2000-2016 training period. "
-        "Population composition was projected forward with the discrete-time recursion N(t+1) = N(t)P(t) + b(t+1), where P(t) is a 6×6 row-stochastic-in-expectation matrix that preserves dropout mass: the row sum is 1 − d after scaling outgoing rates. "
-        "This discrete step is the operational counterpart of the continuous-time ODE; with an annual dt it provides an early-warning signal one year ahead.",
-        "",
-        "We compare the 2017-2023 projection with the observed annual stock. "
-        "The comparison is limited to years that have observed data, and the observed stock is reindexed to the full group-year-compartment grid so that zero-observed cells are not omitted from the accuracy metrics. "
-        "Accuracy is reported as RMSE and MAPE; MAPE here is computed against count_obs + 1 to avoid division by zero and is therefore a conservative, non-standard measure.",
-        "",
-        "### 4.11 Correction pressures and theoretical bounds",
-        "",
-        "The annual estimates contain several regularising pressures that bound the model away from instability and fabrication. "
-        "Laplace smoothing adds a uniform prior of 0.5 to every possible destination, which shrinks sparse cells toward 1/(number of destinations) and prevents zero-probability singularities when a transition is unobserved in a small group-year. "
-        "It is equivalent to a weak Dirichlet prior and is a standard regulariser for sparse multinomial transitions.",
-        "",
-        "Clipping projected rates to values between 0 and 1 is a feasibility pressure: rates outside the probability simplex are inadmissible. "
-        "The dropout cap is a safety pressure motivated by the fact that unbounded linear extrapolation of observed attrition would eventually predict more leavers than the total stock. "
-        "The inflow apportionment pressure keeps the composition of new entrants aligned with the most recently observed recruitment pattern, rather than inventing a new distribution. "
-        f"Finally, the safety factor of {_fmt(ctx['safety_factor'], 2)} on the endogenous PI-driven inflow keeps the system inside the stability boundary. "
-        "Together these pressures embody the principle that projection should stay within observed empirical support and within theoretical stability limits; they are not arbitrary adjustments but transparent bounds that can be tightened or relaxed as more data become available.",
-        "",
-    ])
-
-    lines.extend([
-        "## 5. Results",
-        "",
-        f"Table 2 reports the equilibrium domestic active pool T, the minimum viable threshold M, and the endogenous inflow parameters for the {len(eq)} groups. "
-        "All groups remain above their threshold under the fitted model, but margins differ by an order of magnitude.",
-        "",
-    ])
-
-    headers2 = ["Group", "T_eq", "M", "Margin", "T/M", "I0", "r", "r_obs", "r_crit"]
-    col_map2 = ["group", "T_equilibrium", "M_threshold", "margin_to_threshold_T", "I0", "r", "r_obs", "r_critical"]
-    dec2 = [None, 0, 0, 0, 2, 0, 5, 5, 5]
-    lines.append("| " + " | ".join(headers2) + " |")
-    lines.append("|" + "|".join(["---"] * len(headers2)) + "|")
-    for _, row in eq.iterrows():
-        t_over_m = _fmt(row["T_equilibrium"] / row["M_threshold"], 2)
-        vals = [_fmt(row[c], dec2[i] or 2) for i, c in enumerate(col_map2)]
-        vals.insert(4, t_over_m)
-        lines.append("| " + " | ".join(vals) + " |")
-    lines.append("")
-
-    lines.extend([
-        f"![Figure 1]({fig1_rel})",
-        "",
-        "**Figure 1. Equilibrium domestic active pool (T) and minimum viable coauthor threshold (M) by group.** All groups remain above the threshold, but the margin varies widely.",
-        "",
-        f"Table 3 shows the three transition-rate elasticities with the largest absolute impact on T for each group. "
-        f"Dropout (d) is the largest negative lever in every group, with an elasticity between {_fmt(ctx['d_min_e'], 2)} and {_fmt(ctx['d_max_e'], 2)} for the active pool. "
-        f"{ctx['positive_lever_sentence']} "
-        f"The {ctx['highest_pd_group']} group shows the highest sensitivity to PI promotion (p_D), indicating that strengthening domestic promotion is especially important for that community.",
-        "",
-    ])
-
-    headers3 = ["Group", "1st rate", "1st elasticity", "2nd rate", "2nd elasticity", "3rd rate", "3rd elasticity"]
-    lines.append("| " + " | ".join(headers3) + " |")
-    lines.append("|" + "|".join(["---"] * len(headers3)) + "|")
-    for group, gdf in top_t.groupby("group"):
-        top3 = gdf.sort_values("abs_elasticity", ascending=False).head(3)
-        vals = top3[["rate", "elasticity"]].values.tolist()
-        parts = [group]
-        for rate, elas in vals:
-            parts.extend([rate, _fmt(elas, 3)])
-        lines.append("| " + " | ".join(parts) + " |")
-    lines.append("")
-
-    closest = pnr_closest.iloc[0]
-    lines.extend([
-        f"Table 4 reports, for each group, the single rate that reaches the active-pool threshold with the smallest proportional change. "
-        f"The {closest['group']} group is the most fragile: {closest['rate_name']} must be multiplied by {_fmt(closest['critical_factor'], 3)}× its current value (equivalent to a {closest['proximity']*100:.0f}% proportional {'reduction' if closest['critical_factor'] < 1 else 'increase'}) to drive the active pool to its minimum viable threshold. "
-        f"{ctx['pnr_lever_text']}.",
-        "",
-    ])
-
-    headers4 = ["Group", "Target", "Rate", "Current", "Critical factor", "Proximity"]
-    lines.append("| " + " | ".join(headers4) + " |")
-    lines.append("|" + "|".join(["---"] * len(headers4)) + "|")
-    for _, row in pnr_closest.iterrows():
-        lines.append(
-            f"| {row['group']} | {row['target']} | {row['rate_name']} | {_fmt(row['current_rate'], 4)} | {_fmt(row['critical_factor'], 3)} | {_fmt(row['proximity'], 3)} |"
-        )
-    lines.append("")
-
-    lines.extend([
-        f"![Figure 2]({fig2_rel})",
-        "",
-        "**Figure 2. Closest point-of-no-return proximity by group.** Smaller values mean a smaller proportional change in the listed rate is required to reach the threshold for the stated target pool.",
-        "",
-    ])
-
-    if sat_eq is not None:
-        lines.extend([
-            "### 5.1 Saturating recruitment extension",
-            "",
-            f"Replacing linear inflow with a saturating form lowers equilibrium pools because each additional PI adds fewer entrants. "
-            f"Across groups, saturating equilibrium T is {ctx['sat_range_text']}. "
-            "Table 5 compares linear and saturating equilibrium T values.",
-            "",
-        ])
-        headers5 = ["Group", "Linear T", "Saturating T", "ε"]
-        lines.append("| " + " | ".join(headers5) + " |")
-        lines.append("|" + "|".join(["---"] * len(headers5)) + "|")
-        merged = eq[["group", "T_equilibrium"]].merge(
-            sat_eq[["group", "T_equilibrium", "epsilon"]], on="group", suffixes=("_lin", "_sat")
-        )
-        for _, row in merged.iterrows():
-            lines.append(
-                f"| {row['group']} | {_fmt(row['T_equilibrium_lin'], 0)} | {_fmt(row['T_equilibrium_sat'], 0)} | {_fmt(row['epsilon'], 5)} |"
-            )
-        lines.append("")
-
-    # Describe actual historical-comparison groups dynamically
-    if period_compare.empty:
-        neg_groups_md, pos_groups_md = "none", "none"
-    else:
-        sorted_pc = period_compare.sort_values("delta_margin")
-        neg = sorted_pc[sorted_pc["delta_margin"] < 0]["group"].tolist()
-        pos = sorted_pc[sorted_pc["delta_margin"] > 0]["group"].tolist()[::-1]
-        neg_groups_md = ", ".join(neg) if neg else "none"
-        pos_groups_md = ", ".join(pos) if pos else "none"
-    n_compare_md = len(period_compare)
-    if ctx.get("period_all_neg"):
-        prefix = "Both" if n_compare_md == 2 else f"All {n_compare_md}"
-        period_direction_text = (
-            f"{prefix} groups with dual-window support would see smaller safety margins under late-window rates "
-            f"({ctx['period_neg']})."
-        )
-    else:
-        period_direction_text = (
-            f"Groups that would see smaller safety margins under late-window rates: {ctx['period_neg']}. "
-            f"Groups that would see larger safety margins under late-window rates: {ctx['period_pos']}."
-        )
-    lines.extend([
-        "### 5.2 Historical counterfactual",
-        "",
-        "Table 6 compares the equilibrium that would have emerged if the transition rates estimated for the early career window (2000-2010) or the late window (2011-2016) had persisted indefinitely. "
-        "The late window is shorter and its rates are estimated from younger cohorts, so the comparison should be read as a sensitivity exercise rather than a forecast. "
-        f"Only {n_compare_md} groups have enough dual-window support for reliable rate estimation in both windows; they are listed in the table. "
-        f"{period_direction_text}",
-        "",
-    ])
-
-    headers6 = ["Group", "T early", "T late", "ΔT (%)", "Margin early", "Margin late", "Δ margin"]
-    lines.append("| " + " | ".join(headers6) + " |")
-    lines.append("|" + "|".join(["---"] * len(headers6)) + "|")
-    for _, row in period_compare.iterrows():
-        lines.append(
-            f"| {row['group']} | {_fmt(row['T_early'], 0)} | {_fmt(row['T_late'], 0)} | {_fmt(row['pct_delta_T'], 1)} | {_fmt(row['margin_early'], 0)} | {_fmt(row['margin_late'], 0)} | {_fmt(row['delta_margin'], 1)} |"
-        )
-    lines.append("")
-
-    lines.extend([
-        f"![Figure 3]({fig3_rel})",
-        "",
-        "**Figure 3. Change in safety margin between early and late transition-rate regimes.** Positive values mean the late-window rates would produce a larger safety margin than the early-window rates if they persisted; negative values mean the margin would shrink. "
-        "The comparison is across two point estimates; uncertainty is substantial because the two windows have different cohort sizes and the steady-state model does not capture policy shocks.",
-        "",
-    ])
-
-    d_decrease_md = policy_rank[(policy_rank["lever"] == "d") & (policy_rank["direction"] == "decrease")].copy()
-    d_10pct_md = d_decrease_md[d_decrease_md["lever_change_pct"].abs() >= 9.9]
-    if d_10pct_md.empty:
-        d_10pct_md = d_decrease_md
-    d_10pct_group_md = d_10pct_md.loc[d_10pct_md.groupby("group")["normalised_margin_gain_per_10pct"].idxmax()]
-    policy_top_md = policy_rank.groupby("group").head(1)
-    all_top_are_d_md = (policy_top_md["lever"] == "d").all()
-    d_min_md = d_10pct_group_md.sort_values("margin_gain").iloc[0]
-    d_max_md = d_10pct_group_md.sort_values("margin_gain").iloc[-1]
-    if all_top_are_d_md:
-        lever_statement_md = "Reducing dropout is the dominant positive lever for every civilisation."
-    else:
-        lever_statement_md = "Reducing dropout is the dominant positive lever for most civilisations in the current data."
-    lines.extend([
-        "### 5.3 Policy counterfactuals",
-        "",
-        "Table 7 reports the single mechanical counterfactual with the largest margin gain per 10% lever change for each group. "
-        f"{lever_statement_md} "
-        f"A roughly 10% proportional reduction in d would add about {round(d_min_md['margin_gain'])} active researchers in the {d_min_md['group']} group and about {round(d_max_md['margin_gain'])} in the {d_max_md['group']} group, reflecting differences in cohort size and baseline attrition.",
-        "",
-    ])
-
-    policy_top = policy_rank.groupby("group").head(1).copy()
-    headers7 = ["Group", "Lever", "Direction", "Change (%)", "Margin gain", "Gain per 10%"]
-    lines.append("| " + " | ".join(headers7) + " |")
-    lines.append("|" + "|".join(["---"] * len(headers7)) + "|")
-    for _, row in policy_top.iterrows():
-        lines.append(
-            f"| {row['group']} | {row['lever']} | {row['direction']} | {_fmt(row['lever_change_pct'], 0)} | {_fmt(row['margin_gain'], 0)} | {_fmt(row['normalised_margin_gain_per_10pct'], 1)} |"
-        )
-    lines.append("")
-
-    package_text, package_df = _package_summary()
-    if package_text:
-        lines.append(package_text)
-        lines.append("")
-        if package_df is not None and not package_df.empty:
-            lines.append("| Group | Package | Baseline margin | Margin gain |")
-            lines.append("|---|---|---|---|")
-            for _, r in package_df.iterrows():
-                lines.append(
-                    f"| {r['group']} | {r['package_name']} | {_fmt(r['baseline_margin'], 0)} | {_fmt(r['delta_margin'], 0)} |"
-                )
-            lines.append("")
-
-    lines.extend([
-        "### 5.4 Uncertainty",
-        "",
-        "Table 8 reports bootstrap 95% confidence intervals for the equilibrium active pool T and the domestic PI pool P_D. "
-        "The intervals are wide, reflecting the small cohort sample and the extrapolation from individual careers to long-run steady states.",
-        "",
-    ])
-
-    headers8 = ["Group", "T median", "T 95% CI", "P_D mean", "P_D 95% CI"]
-    lines.append("| " + " | ".join(headers8) + " |")
-    lines.append("|" + "|".join(["---"] * len(headers8)) + "|")
-    for _, row in boot.iterrows():
-        t_ci = f"[{_fmt(row['T_equilibrium_q025'], 0)}, {_fmt(row['T_equilibrium_q975'], 0)}]"
-        p_ci = f"[{_fmt(row['P_D_equilibrium_q025'], 0)}, {_fmt(row['P_D_equilibrium_q975'], 0)}]"
-        lines.append(
-            f"| {row['group']} | {_fmt(row['T_equilibrium_median'], 0)} | {t_ci} | {_fmt(row['P_D_equilibrium_mean'], 0)} | {p_ci} |"
-        )
-    lines.append("")
-
-    lines.extend([
-        f"![Figure 4]({fig4_rel})",
-        "",
-        "**Figure 4. Bootstrap 95% confidence intervals for equilibrium T by group.** Intervals are asymmetric and wide, reflecting model uncertainty.",
-        "",
-    ])
-
-    lines.extend([
-        "### 5.6 Annual transition rates and inter-civilisation flows",
-        "",
-        "Figure 5 plots the observed 2000-2016 transition rates and the projected 2017-2026 rates for each civilisation. "
-        "Rates are displayed by group and by transition type, so that the reader can see whether a particular transition is trending toward a boundary. "
-        "Because the projections are linear trend fits regularised by the correction pressures described in Section 4.11, they are not forecasts of specific future events; they are the model's one-year-ahead extrapolation of the recent historical trajectory.",
-        "",
-        f"![Figure 5]({fig5_rel})",
-        "",
-        "**Figure 5. Observed (solid) and projected (dashed) transition rates by civilisation, 2000-2026.**",
-        "",
-        "Table 9 summarises the mean observed annual transition rates by group between 2000 and 2016. "
-        "The table distinguishes early-career outflow (α), return (β), domestic and abroad hit generation (h_D, h_A), PI promotion (p_D), dropout (d), and total inflow (I_total).",
-        "",
-        "| Group | α | β | h_D | p_D | d | I_total |",
-        "|---|---|---|---|---|---|---|",
-        *[f"| {row['Group']} | {_fmt(row['α'], 3)} | {_fmt(row['β'], 3)} | {_fmt(row['h_D'], 3)} | {_fmt(row['p_D'], 3)} | {_fmt(row['d'], 3)} | {_fmt(row['I_total'], 2)} |" for _, row in (annual_means if not annual_means.empty else pd.DataFrame()).iterrows()],
-        "",
-        "**Table 9. Mean observed annual transition rates by civilisation, 2000-2016.**",
-        "",
-        "Figure 6 shows the inter-civilisation accumulation of abroad author-years. "
-        "Rows represent the origin civilisation and columns represent the destination civilisation, approximated by the author's recent_group while abroad. "
-        "The heatmap is a lower-bound proxy because year-to-year destination switches within a spell abroad are not observed.",
-        "",
-        f"![Figure 6]({fig6_rel})",
-        "",
-        "**Figure 6. Inter-civilisation abroad author-year accumulation by origin (rows) and destination (columns) (lower-bound proxy; year-to-year destination switches within a spell abroad are not observed).**",
-        "",
-        "Table 10 lists the origin-destination pairs with the largest accumulation of abroad author-years. "
-        "These pairs identify the strongest visible inter-civilisation pipelines and are the empirical counterpart to the α and β transitions.",
-        "",
-        "| Origin | Destination | Author-years |",
-        "|---|---|---|",
-        *[f"| {row['Origin']} | {row['Destination']} | {_fmt(row['Author-years'], 0)} |" for _, row in (interciv_top if not interciv_top.empty else pd.DataFrame()).iterrows()],
-        "",
-        "**Table 10. Top origin-destination abroad author-year pairs.**",
-        "",
-        "### 5.7 Out-of-sample projection, 2017-2023",
-        "",
-        f"The 2017-2023 projection is compared with observed annual stocks in Figure 7. "
-        f"Overall accuracy is RMSE {_fmt(annual_ctx.get('overall_rmse', float('nan')), 2)} and MAPE {_fmt(annual_ctx.get('overall_mape_pct', float('nan')), 1)}% (a non-standard, conservative measure computed against count_obs + 1 to avoid division by zero). "
-        "The high MAPE reflects small absolute counts and zero-observed cells; the projection should be read as a directional early-warning indicator of drift and threshold proximity rather than a precise population forecast. "
-        f"Among civilisations the lowest RMSE is for {best_rmse_group} and the highest RMSE is for {worst_rmse_group}; the highest MAPE is for {worst_mape_group}. "
-        "The largest errors occur in small compartments and in groups with sparse transition counts, which is expected because the annual model does not borrow information across civilisations.",
-        "",
-        f"![Figure 7]({fig7_rel})",
-        "",
-        "**Figure 7. Observed (solid) and projected (dashed) compartment counts by civilisation, 2017-2023. The vertical dotted line marks the end of the training period (2016).**",
-        "",
-        "Table 11 reports projection accuracy by civilisation and Table 12 by compartment. "
-        f"Among compartments, the lowest RMSE is for {best_compartment_rmse}, while the highest RMSE is for {worst_compartment_rmse} and the highest MAPE is for {worst_compartment_mape}. "
-        "P_D and H_D show larger errors because small changes in PI and hit rates are amplified by the endogenous inflow term.",
-        "",
-        "| Group | RMSE | MAPE |",
-        "|---|---|---|",
-        *[f"| {row['origin_group']} | {_fmt(row['rmse'], 2)} | {row['mape']*100:.1f}% |" for _, row in ((group_acc if group_acc is not None else pd.DataFrame()) if not (group_acc if group_acc is not None else pd.DataFrame()).empty else pd.DataFrame()).iterrows()],
-        "",
-        "**Table 11. Projection accuracy by civilisation, 2017-2023.**",
-        "",
-        "| Compartment | RMSE | MAPE |",
-        "|---|---|---|",
-        *[f"| {row['compartment']} | {_fmt(row['rmse'], 2)} | {row['mape']*100:.1f}% |" for _, row in ((comp_acc if comp_acc is not None else pd.DataFrame()) if not (comp_acc if comp_acc is not None else pd.DataFrame()).empty else pd.DataFrame()).iterrows()],
-        "",
-        "**Table 12. Projection accuracy by compartment, 2017-2023.**",
-        "",
-        "### 5.8 Correction pressures in the annual model",
-        "",
-        "The annual projection performs best where the correction pressures in Section 4.11 are binding. "
-        "Laplace smoothing prevents empty cells from being treated as impossible transitions; the unit-interval clip and the dropout cap prevent the trend extrapolation from producing rates that are incompatible with a stochastic transition matrix; and the 2016 inflow apportionment keeps new-entrant composition close to the last observed regime. "
-        "These pressures mean that the projection is not a purely mechanical forecast: it is a bounded extrapolation that stays within the empirical support of the 2000-2016 data and within the stability constraints of the compartment model.",
-        "",
-        "### 5.9 Japan-specific compartment and transition-rate ladder",
-        "",
-        f"Figure 8 places the Japanese AI/ML research community in the compartment model. "
-        f"The fitted equilibrium is T={ja_ctx_md['D'] + ja_ctx_md['H_D'] + ja_ctx_md['P_D']} active researchers (D={ja_ctx_md['D']}, H_D={ja_ctx_md['H_D']}, P_D={ja_ctx_md['P_D']}) against a minimum viable threshold of M={_fmt(ja_ctx_md['M'], 0)}, so the safety ratio T/M is {_fmt(ja_ctx_md['T_over_M'], 2)}. "
-        f"The right-hand ladder compares Japan's six transition rates with those of the other civilisations. "
-        f"Japan's closest point of no return is the exogenous entry rate I0: if I0 were reduced to {_fmt(ja_ctx_md['pnr_factor'] * 100, 1)}% of its current level, the active pool would reach the minimum viable threshold. "
-        f"In the fitted rates, early-career outflow (α={_fmt(ja_ctx_md['alpha'], 3)}) and domestic PI promotion (p_D={_fmt(ja_ctx_md['p_D'], 3)}) are comparatively low, while return from abroad (β={_fmt(ja_ctx_md['beta'], 3)}) and domestic hit generation (h_D={_fmt(ja_ctx_md['h_D'], 3)}) are moderate. "
-        "The small absolute size of the abroad PI compartment (P_A) shows that few Japanese researchers who leave eventually become PIs abroad, which makes the domestic pipeline the critical margin.",
-        "",
-        f"![Figure 8]({fig8_rel})",
-        "",
-        "**Figure 8. The Japanese AI/ML research community in the six-compartment model, with a cross-civilisation ladder of fitted transition rates.** Japan is highlighted in the right-hand panel; longer bars represent higher estimated rates.",
-        "",
-        "### 5.10 A combined model-evaluation view: T/M and PNR proximity",
-        "",
-        "Figure 9 combines the long-run safety ratio T/M with the closest point-of-no-return proximity for each civilisation. "
-        "A point in the lower-left corner has both a low equilibrium buffer and a small proportional change needed to reach the threshold, so it is the most fragile combination. "
-        "Japan sits in this region alongside the 'Other Civilizations' group, even though its T/M ratio is above one. "
-        "This dual view is useful as a model-evaluation metric: a civilisation can have a T/M ratio that looks comfortable but still be close to its PNR because the PNR depends on the proportional change in the most sensitive rate, not only on the level of T.",
-        "",
-        f"![Figure 9]({fig9_rel})",
-        "",
-        "**Figure 9. Equilibrium safety ratio (T/M) versus closest point-of-no-return proximity for all civilisations.** Japan is shown in red.",
-        "",
-        "## 6. Discussion",
-        "",
-        "The results support a transition-rate view of research policy. "
-        "Rather than asking which country has a net inflow or outflow of researchers, the model asks which rate must be altered to keep a community above its minimum viable coauthor pool. "
-        "The answer is not the same for every group, but a clear pattern emerges.",
-        "",
-        f"First, {ctx['pnr_lever_text']}. "
-        "A large proportional reduction in baseline recruitment would drive most communities to their threshold before mobility rates such as return or promotion became binding. "
-        "This is consistent with the observation that AI/ML fields depend on a continuous pipeline of new graduate students and junior researchers [5,7]. "
-        "Policies that sustain that pipeline, such as doctoral funding, visa routes for early-career researchers, and stable junior positions, are therefore first-order defences against a point of no return.",
-        "",
-        f"Second, among the mobility transition rates, dropout (d) is the dominant negative lever; its active-pool elasticity ranges from {_fmt(ctx['d_min_e'], 2)} to {_fmt(ctx['d_max_e'], 2)} across groups, and in the policy counterfactuals a simulated reduction in dropout yields the largest margin gain per unit proportional change. "
-        "Attrition matters because it removes researchers from every compartment, not just one. "
-        "A 10% proportional reduction in dropout expands the safety margin more than comparably sized increases in return, hit generation or promotion. "
-        f"For {ctx['smallest_margin_group']}, the group with the smallest safety margin, even modest attrition reductions may widen the margin. "
-        "These counterfactuals are mechanical perturbations of the fitted rates; they identify the most sensitive transition levers, not the causal effect of any specific policy programme.",
-        "",
-        f"Third, {ctx['positive_lever_sentence_lower']}. "
-        f"The {ctx['highest_pd_group']} group shows the strongest response to PI promotion, suggesting that for that community expanding the domestic PI pipeline is an efficient lever. "
-        "Return from abroad (β) is also positive for most groups, though its effect is generally smaller than reducing attrition directly. "
-        "The implication for policy is that retention and promotion are usually more efficient than trying to attract returnees, but a balanced portfolio is still needed: a community without domestic PI growth cannot reproduce itself through attrition reduction alone.",
-        "",
-        f"Fourth, the historical counterfactual shows that the late-window rates, if they persisted, would alter equilibrium margins. "
-        f"{period_direction_text} "
-        "This pattern cautions against treating AI/ML mobility as a single global trend. "
-        "It also confirms that the model can detect temporal changes in transition rates, which is the prerequisite for the early intervention the framework is designed to support.",
-        "",
-        "The transition levers also interact in ways that a single-rate elasticity cannot fully capture. "
-        "For example, reducing dropout and increasing PI promotion together are likely to have a larger effect than the sum of the two individual perturbations, because more researchers survive to become PIs and those PIs then train additional early-career researchers through the endogenous inflow channel. "
-        "Conversely, a simultaneous fall in exogenous entry and a rise in dropout can push a community to its threshold faster than either change alone. "
-        "The model's steady-state and one-at-a-time counterfactuals are therefore a starting point; they identify the most sensitive margins but do not exhaust the policy design space.",
-        "",
-        "The connection to civilisational diversity is direct. "
-        "Each group's safety margin can be monitored over time, and interventions can be adjusted before the margin disappears. "
-        f"Because the model uses a fixed safety factor of {_fmt(ctx['safety_factor'], 2)} for the endogenous inflow parameter r, the policy recommendations are deliberately conservative: they do not push the system toward instability. "
-        "That bounded approach is consistent with the goal of preserving diversity rather than maximising any single country's share.",
-        "",
-        f"Japan is the clearest example among the large civilisations. "
-        f"Its fitted active-pool margin is T={ja_ctx_md['D'] + ja_ctx_md['H_D'] + ja_ctx_md['P_D']} researchers, with M={_fmt(ja_ctx_md['M'], 0)} (T/M={_fmt(ja_ctx_md['T_over_M'], 2)}). "
-        f"Figure 8 (reproduced below) shows that Japan's closest point of no return is the exogenous entry rate I0: if I0 fell to {_fmt(ja_ctx_md['pnr_factor'] * 100, 1)}% of its current level, the active pool would reach the minimum viable threshold. "
-        f"The same figure shows that Japan's early-career outflow α ({_fmt(ja_ctx_md['alpha'], 3)}) and domestic PI promotion p_D ({_fmt(ja_ctx_md['p_D'], 3)}) are comparatively low, while return from abroad β ({_fmt(ja_ctx_md['beta'], 3)}) and domestic hit generation h_D ({_fmt(ja_ctx_md['h_D'], 3)}) are moderate. "
-        "These numbers translate directly into policy levers. "
-        "α can be reduced by expanding postdoctoral fellowships and junior-faculty positions that keep promising researchers in the domestic pipeline; β can be raised through return grants, dual appointments, and recognition of overseas experience in domestic hiring. "
-        "h_D responds to doctoral and postdoctoral training expansion, including the 2026 AI for Science (SPREAD) programme if it is used to create independent labs with their own budgets rather than merely increasing headcount. "
-        "p_D depends on tenure-track conversion, startup packages, and project-based PI status for mid-career researchers. "
-        "d, the dropout rate to L, can be lowered through childcare support, dual-career accommodation, and stable non-tenure research tracks. "
-        "Finally, I0 captures the pure exogenous entry flow and can be supported by research-master pipelines, undergraduate research programmes, and early doctoral fellowships. "
-        "Weakening the Japanese civilisation would not be neutral for the rest of the world: it would remove a distinct institutional lineage, reduce the pool of non-Anglophone problem framings, and leave a range of health, ageing, robotics, and materials problems under-addressed. "
-        "Maintaining Japan as a viable AI/ML civilisation is therefore in the global interest, not only in Japan's national interest.",
-        "",
-        f"![Figure 8]({fig8_rel})",
-        "",
-        "**Figure 8 (reproduced). Japan in the six-compartment model, with cross-civilisation transition-rate ladders.**",
-        "",
-        "It is important to stress that the counterfactuals reported in Tables 3 and 7 are mechanical perturbations of the fitted transition rates, not causal estimates of specific programmes. "
-        "They identify which rates the model treats as most sensitive, and therefore where empirical policy evaluation is most urgent, but they do not by themselves show that a given intervention would achieve the simulated change.",
-        "",
-        "Several limitations should be acknowledged. "
-        "OpenAlex affiliation and country assignments are noisy, especially for researchers with multiple affiliations. "
-        "The civilisation grouping is a coarse aggregation; within-group heterogeneity is substantial. "
-        "The model is a steady-state ODE and does not capture short-term dynamics, cross-civilisation spillovers, or the non-linear effects of network externalities. "
-        "The cohort sample is small; the absolute equilibrium numbers should be interpreted as model-implied stocks rather than as census counts. "
-        "Authors with many publications are over-weighted relative to one-publication authors, so rate estimates reflect author-publication exposure rather than a uniformly representative sample of individuals. "
-        f"The endogenous inflow is capped at a safety factor of {_fmt(ctx['safety_factor'], 2)} relative to the critical reproduction rate; alternative values would shift equilibrium levels and should be reported in future sensitivity tables. "
-        "Finally, the point-of-no-return threshold is a sufficient condition for collapse, not a necessary one: a community may decline for reasons outside the model even if T remains above M.",
-        "Wide bootstrap confidence intervals, especially for smaller civilisation groups, mean that the ordinal ranking of groups by equilibrium size or proximity to threshold should be treated as descriptive rather than definitive. "
-        "The model identifies which transitions are most sensitive in a mechanical sense; turning those sensitivities into reliable policy priorities requires additional data on programme costs, implementation lags, and behavioural responses that are outside the scope of this paper.",
-        "Operationally, the framework can be used in two complementary ways. "
-        "As a monitoring tool, it can be rerun whenever new OpenAlex data are released, producing an updated set of transition rates, safety margins and proximity-to-threshold estimates. "
-        "As a scenario tool, it can quantify how large a proportional change in a given rate would be required to move a community toward or away from collapse, which helps prioritise empirical policy evaluation. "
-        "Both uses depend on transparent assumptions and regular recalibration; the model should not be used to justify one-off interventions without accompanying process evaluation.",
-        "",
-        "### 6.4 Validation of correction pressures",
-        "",
-        f"The correction pressures are not ad hoc adjustments; each maps to a known statistical or dynamical constraint. "
-        f"Laplace smoothing is equivalent to a weak Dirichlet prior on a multinomial transition vector; it guarantees that no cell has zero estimated probability and shrinks rare transitions toward the simplex centroid. "
-        f"Clipping projected rates to values between 0 and 1 is a feasibility constraint on probabilities; the dropout cap is a cross-sectional constraint that prevents projected attrition from exceeding the observed stock; and the inflow apportionment constraint keeps the composition of new entrants equal to the last observed recruitment pattern. "
-        f"In the 2017-2023 projection these pressures reduced the sensitivity of the forecast to sparse cells and to short-run fluctuations in small groups. "
-        f"Quantitatively, the overall RMSE of {_fmt(annual_ctx.get('overall_rmse', float('nan')), 2)} and conservative MAPE of {_fmt(annual_ctx.get('overall_mape_pct', float('nan')), 1)}% are consistent with a model that is deliberately regularised rather than optimised for in-sample fit. "
-        "The high MAPE is driven by sparse compartments and zero-observed cells; the projection is therefore appropriate for monitoring directional drift and proximity to the PNR, not for precise count forecasting. "
-        f"The residual errors are concentrated in the smallest compartments, which is exactly where smoothing is most active and where future data will be most valuable.",
-        "",
-        "### 6.5 Intra-civilisation alternatives when inter-civilisation mobility cannot be controlled",
-        "",
-        "If a civilisation cannot control outflows to, or inflows from, other jurisdictions—whether because of visa regimes, salary differentials, language advantages, or targeted recruitment—it can still preserve its research community by acting on the intra-civilisation levers identified in the annual model. "
-        "The annual rates show that the domestic active pool T = D + H_D + P_D responds most strongly to the dropout rate d, the domestic hit rate h_D, and the PI promotion rate p_D. "
-        "Policies that reduce early-career attrition, expand domestic postdoctoral positions, or accelerate independent-lab formation therefore become defensive substitutes when inter-civilisation poaching cannot be regulated. "
-        "This is the practical meaning of civilisational-diversity preservation under sovereignty constraints: even without controlling the border of talent, a community can increase the internal reproduction of active researchers. "
-        f"The ODE safety factor of {_fmt(ctx['safety_factor'], 2)} on endogenous PI inflow is a conservative bound that prevents over-optimism about this substitution effect; more ambitious domestic growth would require corresponding evidence that the extra PIs can be absorbed without simply raising dropout. "
-        "This is precisely what Sustaining Heterogeneity through Interventions in Global AI/ML Researcher Mobility: A Transition-Rate Framework sets out to do: sustain heterogeneity through domestic interventions when cross-border mobility cannot be controlled. "
-        "We introduce the acronym SHIGA here; it is formed from the title and also reflects the research base at Shiga University.",
-        "",
-        "### 6.6 Annual updating as an early-warning layer",
-        "",
-        "The 2017-2023 projection demonstrates that the framework can be rerun annually with a one-year time step. "
-        "Each new year of OpenAlex data updates the observed transition rates, the fitted trends, and the distance to the minimum viable coauthor threshold. "
-        "Because the model is regularised by the correction pressures, the one-year-ahead projection is not easily derailed by a single noisy observation. "
-        "Instead, successive years reveal whether a particular transition rate is drifting toward a boundary. "
-        "That drift is the early-warning signal. "
-        "Policymakers can then intervene before the active pool falls below M, using the rate-specific elasticities in Table 3 to prioritise the smallest proportional change that restores a safety margin. "
-        "This is the operational mechanism for avoiding technology monopoly and oligopoly dead ends: by keeping every major research community above its minimum viable coauthor pool, annual monitoring sustains the competitive diversity that underpins long-run technological progress. "
-        "The framework is therefore not a prediction that a particular civilisation will collapse; it is a tool for ensuring that no single civilisation reaches a point where its collapse becomes self-sustaining. "
-        "SHIGA therefore encapsulates the practical goal: keeping the global AI/ML system heterogeneous enough that no single centre of power can monopolise the technological frontier.",
-        "",
-        "### 6.7 Limitations",
-        "",
-        "Several limitations should be acknowledged. "
-        "OpenAlex affiliation and country assignments are noisy, especially for researchers with multiple affiliations. "
-        "The civilisation grouping is a coarse aggregation; within-group heterogeneity is substantial. "
-        "The annual model relies on a discrete approximation of the continuous-time ODE and does not capture within-year events or cross-civilisation spillovers. "
-        "Inter-civilisation flows are approximated by the author's recent_group while abroad, which misses year-to-year destination switching. "
-        "The civilisation label is a pragmatic aggregation of publication-affiliation patterns. "
-        "Historical civilisational boundaries do not necessarily coincide with contemporary political or value-based boundaries, and this study cannot determine whether the diversity of research ideas maps more closely onto historical civilisational groupings or onto current political and value communities; for example, the Sinic grouping reflects current OpenAlex country metadata and does not resolve the cultural and historical ties between mainland China and Taiwan, which currently appear as separate research arenas. "
-        "This is treated as an empirical limitation of the classification, not as a normative claim."
-        "The cohort sample is small; the absolute equilibrium numbers should be interpreted as model-implied stocks rather than as census counts. "
-        "Authors with many publications are over-weighted relative to one-publication authors, so rate estimates reflect author-publication exposure rather than a uniformly representative sample of individuals. "
-        f"The endogenous inflow is capped at a safety factor of {_fmt(ctx['safety_factor'], 2)} relative to the critical reproduction rate; alternative values would shift equilibrium levels and should be reported in future sensitivity tables. "
-        "Finally, the point-of-no-return threshold is a sufficient condition for collapse, not a necessary one: a community may decline for reasons outside the model even if T remains above M.",
-        "",
-    ])
-
-    lines.extend([
-        "## 7. Conclusion",
-        "",
-        "We have proposed and implemented a transition-rate framework for assessing how close AI/ML research communities are to a point of no return. "
-        "The model converts OpenAlex publication records into civilisation-specific transition rates and solves for the equilibrium active researcher pool. "
-        "All groups remain above their minimum viable coauthor threshold in the fitted model, but the distance to that threshold varies by an order of magnitude and is most sensitive to exogenous entry and dropout. "
-        f"Dropout is the dominant negative lever (active-pool elasticity {_fmt(ctx['d_min_e'], 2)} to {_fmt(ctx['d_max_e'], 2)}), and a simulated reduction is the single most efficient model-implied response for every civilisation. "
-        "However, the closest point of no return is exogenous entry for all groups in the active-pool analysis, which means that policies which sustain the pipeline of new researchers are first-order defences. "
-        "The historical counterfactual and the bootstrap intervals remind us that the future is not determined by current rates; transition rates can change, and policy can be directed at the most fragile lever before a collapse.",
-        "",
-        "The annual projection layer adds an operational dimension to this conclusion. "
-        "By estimating year-by-year transition rates and projecting one year ahead, the model turns the steady-state diagnostic into an early-warning dashboard. "
-        "A one-year time step is short enough to detect drift before the active pool approaches the minimum viable threshold, and the correction pressures keep the projection within empirical and theoretical bounds. "
-        "When inter-civilisation mobility cannot be controlled, the same framework points to intra-civilisation levers—reducing dropout, raising domestic hit rates, and accelerating PI promotion—that preserve T = D + H_D + P_D. "
-        "These two layers, steady-state and annual, together provide a coherent basis for early, safety-factor-bound intervention.",
-        "",
-        "The broader implication is that preserving civilisational diversity in AI/ML is compatible with, and may reinforce, scientific progress. "
-        "A single dominant region or a tight oligopoly may achieve short-run scale economies, but it also risks methodological lock-in and reduces the set of problems that receive sustained attention. "
-        "By monitoring transition rates and safety margins, policymakers can detect divergence early and intervene in a safety-factor-bound way. "
-        "This is the practical meaning of the aspiration to avoid technology monopoly and oligopoly dead ends: not a prediction that any one civilisation will dominate, but a structured method for keeping the global system away from points of no return. "
-        "Early, proportionate interventions that reduce attrition and sustain new recruitment can widen safety margins and preserve civilisational diversity in AI/ML.",
-        "",
-        "Future work should extend the model to network externalities, finer temporal resolution, and additional security-relevant fields such as semiconductor physics, quantum computing, biotechnology and energy materials, allowing cross-field comparisons of vulnerability. "
-        "Other priorities include systematic sensitivity scans for the safety factor and saturating parameter epsilon, country- or institution-level partitions, dynamic ODE forecasts, endogenous coauthorship matching, and integration with policy cost data to produce cost-effectiveness comparisons of alternative interventions.",
-        "",
-        "## References",
-        "",
-    ])
-    for i, ref in enumerate(REFS, 1):
-        lines.append(f"{i}. {ref}")
-
-    md_path = output_dir / "manuscript_full_article.md"
-    lines = _renumber_markdown_sections(lines)
-    text = _unify_pnr_markdown("\n".join(lines))
-    md_path.write_text(text + "\n", encoding="utf-8")
+def _docx_to_markdown(docx_path: Path, output_dir: Path) -> Path:
+    """Convert an existing Word manuscript to Markdown so markdown is a faithful derivative."""
+    if pypandoc is None:
+        raise RuntimeError("pypandoc is required to generate the markdown version")
+    md_path = output_dir / docx_path.with_suffix(".md").name
+    pypandoc.convert_file(str(docx_path), "md", format="docx", outputfile=str(md_path))
     return md_path
 
 
-# ---------------------------------------------------------------------------
-# Word output
-# ---------------------------------------------------------------------------
+def write_markdown(output_dir: Path, data=None, fig_paths=None, docx_path=None, blinded=False):
+    """Write a plain-text markdown version for version control and review."""
+    if docx_path is not None:
+        md_path = _docx_to_markdown(docx_path, output_dir)
+        return md_path
+    # Fallback: the legacy markdown builder is no longer maintained; use pypandoc instead.
+    raise RuntimeError("write_markdown now requires a docx_path; regenerate docx first.")
 
-def _add_title_page(doc, word_count=None):
+
+def _add_title_page(doc, word_count=None, blinded=False):
     style = doc.styles["Normal"]
     style.font.name = "Times New Roman"
     style.font.size = Pt(11)
@@ -1780,16 +1256,21 @@ def _add_title_page(doc, word_count=None):
         p.alignment = WD_ALIGN_PARAGRAPH.CENTER
         p.add_run(f"Approximate word count (main text incl. tables, excl. references): {word_count}")
 
-    p = doc.add_paragraph()
-    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    p.add_run("Corresponding author: [To be completed / removed for double-blind review]")
+    if not blinded:
+        p = doc.add_paragraph()
+        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        p.add_run("Corresponding author: [To be completed at submission]")
+    else:
+        p = doc.add_paragraph()
+        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        p.add_run("Author information removed for double-blind review")
 
     p = doc.add_paragraph()
     run = p.add_run()
     run.add_break(WD_BREAK.PAGE)
 
 
-def _add_front_matter(doc, abstract, keywords, highlights):
+def _add_front_matter(doc, abstract, keywords, highlights, blinded=False):
     doc.add_heading("Abstract", level=1)
     p = doc.add_paragraph()
     p.add_run(abstract)
@@ -1805,16 +1286,26 @@ def _add_front_matter(doc, abstract, keywords, highlights):
 
     doc.add_heading("Data and Code Availability", level=2)
     p = doc.add_paragraph()
-    p.add_run(_data_availability_text())
+    p.add_run(_data_availability_text(blinded=blinded))
 
     doc.add_heading("Declarations", level=2)
-    for sub in ["Funding", "Competing interests", "Author contributions", "Acknowledgments"]:
+    declarations = [
+        ("Funding", "[To be completed by the authors at submission.]"),
+        ("Competing interests", "[To be completed by the authors at submission.]"),
+        ("Author contributions", "[To be completed by the authors at submission.]"),
+        (
+            "Declaration of generative AI in scientific writing",
+            "During the preparation of this work the authors used AI-assisted tools to draft, code, and revise the manuscript. All claims, data, and interpretations were reviewed and approved by the authors.",
+        ),
+    ]
+    if not blinded:
+        declarations.append(("Acknowledgments", "This study was motivated by a note.com essay by Yamada Y (momentumyy) that framed researcher mobility in terms of transition rates rather than net flows (" + NOTE_TEXT + ")."))
+    else:
+        declarations.append(("Acknowledgments", "[Removed for double-blind review]"))
+    for sub, text in declarations:
         p = doc.add_paragraph()
         p.add_run(f"{sub}: ").bold = True
-        if sub == "Acknowledgments":
-            p.add_run("This study was motivated by a note.com essay by Yamada Y (momentumyy) that framed researcher mobility in terms of transition rates rather than net flows (" + NOTE_TEXT + ").")
-        else:
-            p.add_run("[To be completed / removed for double-blind review]")
+        p.add_run(text)
 
 
 def _add_table_from_df(doc, df, caption, decimals=None, bold_header=True):
@@ -1840,7 +1331,7 @@ def _add_table_from_df(doc, df, caption, decimals=None, bold_header=True):
     return table
 
 
-def _add_docx_body(doc, data, fig_paths):
+def _add_docx_body(doc, data, fig_paths, blinded=False):
     (cohort, eq, sat_eq, top_t, pnr_closest, period_compare, boot, policy_rank) = data
     ctx = compute_context(cohort, eq, sat_eq, top_t, pnr_closest, period_compare, policy_rank)
     transition_rates = pd.read_csv(BASE_DIR / "data" / "cohort" / "transition_rates.csv")
@@ -1880,9 +1371,9 @@ def _add_docx_body(doc, data, fig_paths):
               "The approach is deliberately stylised: it sacrifices demographic realism for transparency and for the ability to compare multiple civilisations with the same accounting framework.")
 
     p = doc.add_paragraph()
-    p.add_run("Artificial intelligence and machine learning have become the archetypal general-purpose technologies of the current era")
+    p.add_run("Artificial intelligence (AI) and machine learning (ML) have become the archetypal general-purpose technologies of the current era")
     add_citation(p, 1)
-    p.add_run(", and their development depends on a relatively small, highly mobile workforce of doctoral and post-doctoral researchers, principal investigators, and research engineers")
+    p.add_run(", and their development depends on a relatively small, highly mobile workforce of doctoral and post-doctoral researchers, principal investigators (PIs), and research engineers")
     add_citation(p, 1)
     p.add_run(". "
               "The geographic concentration of this workforce has generated both scientific and geopolitical concern. "
@@ -1926,7 +1417,7 @@ def _add_docx_body(doc, data, fig_paths):
               "This prevents any single civilisation from cornering the supply of critical talent, and thereby preserves the competitive diversity that drives long-run innovation.")
 
     p = doc.add_paragraph()
-    p.add_run("The contribution is a reproducible, data-driven transition-rate model that links OpenAlex publication records to a system of ordinary differential equations")
+    p.add_run("The contribution is a reproducible, data-driven transition-rate model that links OpenAlex publication records to a system of ordinary differential equations (ODEs)")
     add_citation(p, 6)
     p.add_run(". "
               "The model is intentionally simple: it does not explain why a rate is high or low, but it identifies which rate is closest to a threshold and therefore where early intervention is most urgent.")
@@ -2019,10 +1510,18 @@ def _add_docx_body(doc, data, fig_paths):
               "The model is closest in spirit to Stephan's economic model of science, in which researchers move through career stages and respond to incentives")
     add_citation(p, 3)
     p.add_run(", but it adds a civilisational partition and a minimum viable coauthor threshold. "
-              "The civilisational partition is not merely a geographic convenience. "
-              "It reflects the fact that career incentives, language, funding systems, and institutional networks cluster along civilisational lines, and that these clusters shape mobility more than national borders alone")
+              "The civilisational partition reflects the clustering of career incentives, language, funding systems and institutional networks along civilisational lines, which shape mobility beyond national borders alone")
     add_citation(p, 4)
     p.add_run(". "
+              "It also draws on the innovation-systems literature, in which technological trajectories are shaped by sectoral and national systems of innovation")
+    add_citation(p, 13)
+    add_citation(p, 14)
+    add_citation(p, 15)
+    add_citation(p, 16)
+    p.add_run(". "
+              "In that view, technological change is path-dependent and distributed: routines, organisations and institutions co-evolve, so the loss of a research community is not merely a decline in headcount but a reduction in the variety from which future trajectories can be generated. "
+              "The point of no return is therefore an innovation-systems problem: once a community falls below the minimum scale needed to sustain distinct research programmes, the path-dependent process of search and selection that produces new trajectories is impaired. "
+              "This connects that macro-level, innovation-systems view of path-dependent technological change to individual career-transition data: the transition rates and PNR distances reported below can be read as an empirical early-warning indicator of whether a particular civilisational innovation system retains enough researchers to sustain a distinct technological trajectory. "
               "The result is a framework that can be updated as new data arrive and can compare the fragility of different research communities using a common metric. "
               "Because it is built on open bibliometric data and transparent transition rates, the model can be replicated and extended by other researchers and by policymakers who need a common language for discussing mobility and capacity.")
 
@@ -2034,10 +1533,13 @@ def _add_docx_body(doc, data, fig_paths):
     p.add_run(". "
               "OpenAlex provides open, CC0 bibliographic metadata including authors, affiliations, countries, publication dates, venues and citation links. "
               "We built author histories by following each author's sequence of works and affiliations, assigning them to a country for each work and then to a civilisation by the modal country of their recorded affiliations. "
-              "An author is treated as active if they have at least one AI/ML work in the observation window and as a principal investigator (PI) if they appear as the last author of at least one work, a standard proxy for seniority in empirical science")
+              "The cohort is restricted to authors whose career-start year (first observed AI/ML publication year) is between 2000 and 2016 and who have at least two AI/ML works in the 2000-2023 window. "
+              "An author is treated as active if they have at least one AI/ML work in 2020-2023, and as having dropped out otherwise. "
+              "An author is classified as a principal investigator (PI) if their first last-author paper appears during the observation window; single-authored papers are treated as last-author papers so that culturally varying coauthorship norms do not bias the seniority proxy")
     add_citation(p, 3)
     p.add_run(". "
-              "A 'hit' work is defined as one whose citation count places it in the top 10% of AI/ML works in the same publication year. "
+              "A 'hit' work is a paper whose citation count places it in the top 10% of AI/ML works in the same publication year, observed within the first eight career years, regardless of the author's position on the author list. "
+              "The abroad flag is set if the author is affiliated with a non-origin civilisation within the first six career years. "
               "The final groups are: United States, Anglosphere ex-US, Continental Europe, Sinic, Japanese, Hindu, Islamic, Other Western, and Other Civilizations.")
 
     doc.add_heading("3.1 Country-to-civilisation mapping", level=2)
@@ -2046,16 +1548,24 @@ def _add_docx_body(doc, data, fig_paths):
               "The United States is separated from the broader Anglosphere because it is the dominant destination for AI/ML researchers and because its higher-education and funding systems differ systematically from those of other English-speaking countries. "
               "Continental Europe is kept distinct from the Anglosphere because intra-European mobility and EU research funding create a separate mobility bloc. "
               "Latin American, Orthodox and sub-Saharan African countries are merged into Other Civilizations because their AI/ML author counts in the sample are too small to estimate stable transition rates separately. "
-              "This aggregation is a pragmatic modelling choice and does not imply that these communities are culturally homogeneous.")
+              "These civilisation labels are operational categories based on observed publication-affiliation patterns; they are not normative claims about cultural or political identity, and they are reported in full in Supplementary Material. "
+              "Civilisation-level categories have also been shown to predict large-scale digital-communication networks")
+    add_citation(p, 17)
+    p.add_run(" and country-capacity clusters in scientific mobility and collaboration")
+    add_citation(p, 18)
+    p.add_run(", which supports the use of this aggregation as a cross-national research heuristic.")
 
     doc.add_heading("3.2 Sample selection and variable definitions", level=2)
     p = doc.add_paragraph()
-    p.add_run("The cohort is restricted to authors with at least two AI/ML works and a non-missing career-start year between 2000 and 2016. "
+    p.add_run("Authors enter the cohort if their first observed AI/ML publication year is between 2000 and 2016 and they have at least two AI/ML works in the 2000-2023 observation window. "
               "The career-start year is the first observed AI/ML publication year. "
               "Authors with exclusively unknown affiliations or with all affiliations outside the mapped countries are excluded. "
               "For each author we record the country of the majority of their affiliations and the civilisation to which that country maps. "
-              "Works with more than 100 authors are excluded to avoid distorting coauthor counts. "
-              "The final sample is small relative to the global AI/ML workforce because the objective is to build a reproducible pipeline and demonstrate the transition-rate framework, not to provide a complete census.")
+              "An author is active if they have at least one AI/ML work in 2020-2023; otherwise they are recorded as having dropped out. "
+              "A hit is a paper in the top 10% of AI/ML citations for its publication year, observed within the first eight career years, regardless of the author's position. "
+              "A PI is an author whose first last-author paper appears during the observation window; single-authored papers are treated as last-author papers. "
+              "The abroad flag is set if the author appears in a non-origin civilisation within the first six career years. "
+              "The final cohort of 723,647 authors is a model-implied sample extracted from OpenAlex; the objective is to build a reproducible pipeline and demonstrate the transition-rate framework, not to provide a definitive census.")
 
     doc.add_heading("3.3 OpenAlex coverage and known biases", level=2)
     p = doc.add_paragraph()
@@ -2070,8 +1580,7 @@ def _add_docx_body(doc, data, fig_paths):
     p.add_run("Table 1 reports the size and composition of the extracted cohort. "
               "The Sinic and Continental Europe groups contribute the largest number of works, followed by the United States and the Anglosphere ex-US. "
               "The Japanese and Other Western groups are the smallest in terms of author counts. "
-              "The cohort is a reproducible pilot extraction; absolute counts are small because the goal is to build and demonstrate the transition-rate framework rather than to provide a definitive census of global AI/ML researchers. "
-              "Consequently, the absolute equilibrium numbers should be interpreted as model-implied stocks rather than population totals, and the bootstrap intervals reported below give a more honest picture of the uncertainty around those stocks. "
+              "The cohort of 723,647 authors is a model-implied sample extracted from the OpenAlex snapshot; absolute counts should be interpreted as model-implied stocks rather than population totals, and the bootstrap intervals reported below give a more honest picture of the uncertainty around those stocks. "
               "The relative sizes are nevertheless informative. "
               "A civilisation with a small cohort but a low coauthor intensity can be more resilient than a larger civilisation with a high coauthor intensity, because the former needs fewer distinct PI groups to sustain its output. "
               "This is why the minimum viable coauthor threshold and the equilibrium active pool must be compared jointly.")
@@ -2080,7 +1589,7 @@ def _add_docx_body(doc, data, fig_paths):
     _add_table_from_df(
         doc,
         desc,
-        caption="Table 1. Descriptive statistics for the extracted AI/ML cohort by civilisation group.",
+        caption="Table 1. Descriptive statistics for the extracted AI/ML cohort by civilisation group. Civilisation labels are operational aggregations of OpenAlex country-affiliation patterns and do not imply normative cultural or political classification.",
         decimals={"n": 0, "works": 0, "active": 0, "hits": 0, "pis": 0, "career_start_mean": 1, "abroad": 0},
     )
 
@@ -2105,7 +1614,7 @@ def _add_docx_body(doc, data, fig_paths):
     p.add_run("New entrants are modelled as a function of the domestic PI stock. "
               "The linear form is ")
     add_omath_inline(p, math_I_linear())
-    p.add_run(f", with r capped at {_fmt(ctx['safety_factor'], 2)}× the stability-critical value (safety factor {_fmt(ctx['safety_factor'], 2)}). "
+    p.add_run(f", where I_0 is the exogenous entry rate, r is the PI reproduction rate, and r is capped at {_fmt(ctx['safety_factor_cap'], 2)}× the stability-critical value (safety factor {_fmt(ctx['safety_factor_cap'], 2)}); the most constrained fitted group realises {_fmt(ctx['min_realised_safety_ratio'], 2)}×. "
               "A saturating alternative, ")
     add_omath_inline(p, math_I_saturating())
     p.add_run(", is reported as a robustness check. "
@@ -2121,6 +1630,7 @@ def _add_docx_body(doc, data, fig_paths):
     p.add_run(". When the equilibrium active pool ")
     add_omath_inline(p, math_active_pool())
     p.add_run(" falls below M, the community can no longer produce works at the observed coauthor intensity. "
+              "In this sense, falling below M is a sufficient condition for collapse, not a necessary one; external shocks can push a community below viability even when the equilibrium active pool remains above M. "
               "The threshold is deliberately conservative: it assumes that each new work requires at least k distinct PI groups and that each work has the average number of coauthors. "
               "This overstates the number of distinct actors needed for a viable field, which means that M is a soft lower bound and that observed margins are probably smaller than they appear. "
               "A community with a margin just above M is therefore more fragile than the number itself suggests.")
@@ -2128,46 +1638,16 @@ def _add_docx_body(doc, data, fig_paths):
     doc.add_heading("4.4 Estimation, equilibrium and sensitivity", level=2)
     p = doc.add_paragraph()
     p.add_run("Transition rates are estimated as constant per-year hazards from observed proportions within the cohort. "
-              "For each group and each transition, the rate is the ratio of observed transitions to the total exposure time spent in the source compartment during the observation window, with Laplace smoothing of 1 added to both numerator and denominator. "
+              "For each group and each transition, the rate is the ratio of observed transitions to the total exposure time spent in the source compartment during the observation window, using a Laplace pseudocount of 1 for each outcome so the smoothed proportion is (successes + 1)/(n + 2). "
               "This avoids zero-rate singularities when the cohort is small. "
               "Because the data are right-censored at the end of the observation period, the resulting rates are lower bounds on true long-run hazards; equilibrium solutions therefore tend to be conservative. "
               "The non-linear steady-state equations are solved numerically using a trust-region Newton method with analytically supplied Jacobians. "
               "Elasticities are computed by perturbing each rate by 1%, re-solving, and taking the percentage change in the target stock. "
-              "For point-of-no-return analysis we scale each rate until the active pool reaches M and record the critical factor and its proximity, |critical factor − 1|. "
+              "For point-of-no-return analysis we scale each rate until the active pool T reaches its coauthor threshold M, or the domestic PI pool P_D reaches k distinct last-author groups as a lower-bound PI-pool threshold, and record the critical factor and its proximity, |critical factor − 1|. "
               "A rate whose critical factor lies inside the scan window and is close to 1.0 is the most fragile lever for that group. "
               "All counterfactuals are mechanical perturbations of the fitted rates; they reveal which transitions the model treats as sensitive, not the causal impact of real-world policies.")
 
-    doc.add_heading("4.5 Historical counterfactual design", level=2)
-    p = doc.add_paragraph()
-    p.add_run("To examine whether transition rates have changed over the past two decades we split the cohort at career-start year 2010. "
-              "The early window (career start 2000-2010) captures researchers whose careers were largely established before the most recent AI boom, while the late window (2011-2016) captures researchers who entered during the boom but have a shorter career span over which to estimate rates. "
-              "For each window we re-estimate all transition rates and solve for the steady-state active pool. "
-              "Comparing the two equilibria reveals how sensitive the long-run margin is to the observed regime, not a prediction of the actual future, because the late cohort is younger and its rates are noisier.")
-
-    doc.add_heading("4.6 Bootstrap uncertainty", level=2)
-    p = doc.add_paragraph()
-    p.add_run("We resample authors with replacement within each group to obtain 200 bootstrap replicates. "
-              "For each replicate we recompute the transition rates and solve the steady-state model, recording T and P_D. "
-              "The 2.5th and 97.5th percentiles of the bootstrap distribution provide 95% confidence intervals. "
-              "Because the model is non-linear and the equilibrium depends on ratios of rates, the bootstrap distribution is often skewed; we report medians and percentile intervals rather than standard errors.")
-
-    doc.add_heading("4.7 Robustness checks", level=2)
-    p = doc.add_paragraph()
-    p.add_run("We assess robustness in three ways. "
-              "First, we replace the linear PI-driven inflow with a saturating recruitment function that imposes diminishing returns to additional PIs. "
-              "Second, we vary the cohort-split year for the historical counterfactual. "
-              "Third, we examine the effect of the safety factor on the endogenous inflow parameter r, keeping the system within a bounded stability region. "
-              "Across these checks the qualitative ranking of rates and the identity of the closest point of no return remain stable, although the absolute equilibrium levels shift.")
-
-    doc.add_heading("4.8 Relationship to existing indicators", level=2)
-    p = doc.add_paragraph()
-    p.add_run("The model differs from conventional net-flow or stock indicators in three ways. "
-              "First, a net inflow may hide a rise in the total number of researchers abroad relative to the domestic PI stock. "
-              "Second, stocks such as total AI/ML publications say little about whether the domestic pipeline can sustain itself. "
-              "Third, indices of international collaboration do not distinguish between temporary mobility and permanent brain drain. "
-              "The transition-rate view makes each of these processes explicit and provides a stock-and-flow language that is closer to policy instruments such as doctoral funding, retention grants and diaspora networks.")
-
-    doc.add_heading("4.9 Limitations", level=2)
+    doc.add_heading("4.5 Limitations", level=2)
     p = doc.add_paragraph()
     p.add_run("The main limitations are data quality and model scope. "
               "OpenAlex country metadata are noisy, especially for older works and for authors with multiple affiliations. "
@@ -2176,19 +1656,20 @@ def _add_docx_body(doc, data, fig_paths):
               "Finally, the assumption of constant rates is a strong approximation over a 23-year window. "
               "We therefore emphasise rank-order and relative sensitivity rather than point forecasts.")
 
-    doc.add_heading("4.10 Annual transition-rate estimation and projection", level=2)
+    doc.add_heading("4.6 Annual transition-rate estimation and projection", level=2)
     p = doc.add_paragraph()
     p.add_run("The steady-state model in Sections 4.1-4.4 treats rates as constants. "
-              "To test whether the same framework can be used for short-run monitoring, we reconstructed year-by-year compartment membership from cohort.csv and raw_sampled_works.json. "
-              "For each author and year we inferred location as domestic if the author was in the origin civilisation and abroad otherwise, using sampled works when available and cohort-derived abroad/return years as a fallback. "
-              "From these states we computed annual transition counts for the six compartments, applied Laplace +0.5 smoothing to empty destination cells, and derived the probabilities that map to α, β, h_D, h_A, p_D, p_A and d. "
-              "Inter-civilisation flows are approximated by assigning each abroad author-year to the author's recent_group as the destination civilisation; this is a lower-bound proxy because year-to-year destination changes are not observed in the public cohort.")
+              "To test whether the same framework can be used for short-run monitoring, we reconstructed year-by-year compartment membership from the cohort data. "
+              "For each author and year we inferred location as domestic if the author was in the origin civilisation and abroad otherwise. "
+              "From these states we computed annual transition counts for the six compartments, applied Laplace smoothing with a pseudocount of 1 for each possible destination, and derived the probabilities that map to α, β, h_D, h_A and p_D, p_A. "
+              "Dropout (d) is not directly observed year-by-year in the training window because final attrition is right-censored before 2023, so we import the cohort-level per-year hazard from the full-career data and treat it as a constant annual rate for each group. "
+              "Inter-civilisation flows are approximated by assigning each abroad author-year to the author's recent_group as the destination civilisation.")
 
     p = doc.add_paragraph()
     p.add_run("For the 2017-2026 projection we fit a linear trend to the observed 2000-2016 rates for each group and rate. "
               "If fewer than four observations were available or the fit explained less than 10% of the variance, the historical mean was used instead. "
               "Projected rates were clipped to values between 0 and 1. "
-              "Dropout was capped at 1.5 times the 90th percentile of observed dropout rates in the training window to prevent implausible extrapolation. "
+              "Projected annual dropout was capped at 1.5 times the 90th percentile of observed annual dropout rates in the 2000-2016 training period. "
               "Projected total inflows were apportioned across compartments using the first-compartment distribution observed over the 2000-2016 training period. "
               "Population composition was projected forward with the discrete-time recursion N(t+1) = N(t)P(t) + b(t+1), where P(t) is a 6×6 row-stochastic-in-expectation matrix that preserves dropout mass: the row sum is 1 − d after scaling outgoing rates. "
               "This discrete step is the operational counterpart of the continuous-time ODE; with an annual dt it provides an early-warning signal one year ahead.")
@@ -2196,19 +1677,19 @@ def _add_docx_body(doc, data, fig_paths):
     p = doc.add_paragraph()
     p.add_run("We compare the 2017-2023 projection with the observed annual stock. "
               "The comparison is limited to years that have observed data, and the observed stock is reindexed to the full group-year-compartment grid so that zero-observed cells are not omitted from the accuracy metrics. "
-              "Accuracy is reported as RMSE and MAPE; MAPE here is computed against count_obs + 1 to avoid division by zero and is therefore a conservative, non-standard measure.")
+              "Accuracy is reported as root mean square error (RMSE) and mean absolute percentage error (MAPE); MAPE here is computed against count_obs + 1 to avoid division by zero and is therefore a conservative, non-standard measure.")
 
-    doc.add_heading("4.11 Correction pressures and theoretical bounds", level=2)
+    doc.add_heading("4.7 Correction pressures and theoretical bounds", level=2)
     p = doc.add_paragraph()
     p.add_run("The annual estimates contain several regularising pressures that bound the model away from instability and fabrication. "
-              "Laplace smoothing adds a uniform prior of 0.5 to every possible destination, which shrinks sparse cells toward 1/(number of destinations) and prevents zero-probability singularities when a transition is unobserved in a small group-year. "
+              "Laplace smoothing adds a uniform prior of 1 to every possible destination, which shrinks sparse cells toward 1/(number of destinations) and prevents zero-probability singularities when a transition is unobserved in a small group-year. "
               "It is equivalent to a weak Dirichlet prior and is a standard regulariser for sparse multinomial transitions.")
 
     p = doc.add_paragraph()
     p.add_run("Clipping projected rates to values between 0 and 1 is a feasibility pressure: rates outside the probability simplex are inadmissible. "
-              "The dropout cap is a safety pressure motivated by the fact that unbounded linear extrapolation of observed attrition would eventually predict more leavers than the total stock. "
+              "The annual dropout rate is anchored to the cohort-level per-year hazard rather than extrapolated from year-to-year transitions, because final attrition is right-censored in the training window. "
               "The inflow apportionment pressure keeps the composition of new entrants aligned with the most recently observed recruitment pattern, rather than inventing a new distribution. "
-              f"Finally, the safety factor of {_fmt(ctx['safety_factor'], 2)} on the endogenous PI-driven inflow keeps the system inside the stability boundary. "
+              f"Finally, the endogenous inflow is capped at a safety factor of {_fmt(ctx['safety_factor_cap'], 2)} relative to the critical reproduction rate (the most constrained fitted group realises {_fmt(ctx['min_realised_safety_ratio'], 2)}), which keeps the system inside the stability boundary. "
               "Together these pressures embody the principle that projection should stay within observed empirical support and within theoretical stability limits; they are not arbitrary adjustments but transparent bounds that can be tightened or relaxed as more data become available.")
 
     # Results
@@ -2299,12 +1780,10 @@ def _add_docx_body(doc, data, fig_paths):
     if sat_eq is not None:
         doc.add_heading("5.1 Saturating recruitment extension", level=2)
         p = doc.add_paragraph()
-        p.add_run("Replacing linear inflow with a saturating form lowers equilibrium pools because each additional PI adds fewer entrants. "
-                  "Table 5 compares linear and saturating equilibrium T values. "
-                  "The saturating model is important because the observed r is often close to the stability boundary, and an unchecked linear inflow can produce explosive growth. "
-                  f"Across groups, the saturating variant predicts equilibrium pools that are {ctx['sat_range_text']}, underscoring the sensitivity of long-run projections to the functional form of inflow. "
-                  "This sensitivity does not overturn the ranking of groups, but it shows that absolute equilibrium levels should be treated with caution. "
-                  "The saturating model is the preferred interpretation for policy because it acknowledges that recruitment cannot scale linearly with the number of PIs indefinitely.")
+        p.add_run("We also test a saturating recruitment function in which each additional PI adds fewer entrants. "
+                  "With the capacity parameter calibrated to observed PI stocks, the saturating equilibrium is "
+                  f"{ctx['sat_range_text']} at the displayed precision, so the linear safety-factor bound remains the operative constraint. "
+                  "Table 5 reports the fitted epsilon values; the near-zero differences show that the results are not driven by unbounded linear growth, but they do not rule out stronger saturation at higher PI densities.")
         merged = eq[["group", "T_equilibrium"]].merge(
             sat_eq[["group", "T_equilibrium", "epsilon"]], on="group", suffixes=("_lin", "_sat")
         )
@@ -2315,6 +1794,22 @@ def _add_docx_body(doc, data, fig_paths):
             caption="Table 5. Equilibrium T under linear and saturating PI-driven inflow.",
             decimals={"Linear T": 0, "Saturating T": 0, "ε": 5},
         )
+
+        # Robustness of PNR rankings to the functional form of endogenous inflow.
+        pnr_rob = pnr_robustness_table()
+        if not pnr_rob.empty:
+            p = doc.add_paragraph()
+            p.add_run("The closest point-of-no-return lever is the same under the saturating alternative for every civilisation: "
+                      "exogenous entry (I0) is the rate that requires the smallest proportional change to push the active pool to its minimum viable threshold. "
+                      "Table 5a reports the proportional factor and proximity for the active-pool threshold under both assumptions. "
+                      "The rank order of civilisational fragility is preserved (Spearman ρ = 1.0), and the absolute proximity values move in the same direction. "
+                      "This confirms that the policy ranking—exogenous entry first, then dropout, then domestic promotion and return—is robust to replacing the linear feedback with a saturating one.")
+            _add_table_from_df(
+                doc,
+                pnr_rob,
+                caption="Table 5a. Closest PNR lever and proximity under linear and saturating endogenous inflow (active-pool threshold).",
+                decimals={"linear_factor": 4, "saturating_factor": 4, "linear_proximity": 4, "saturating_proximity": 4},
+            )
 
     doc.add_heading("5.2 Historical counterfactual", level=2)
     n_compare = len(period_compare)
@@ -2412,24 +1907,12 @@ def _add_docx_body(doc, data, fig_paths):
 
     doc.add_heading("5.4 Uncertainty", level=2)
     p = doc.add_paragraph()
-    p.add_run("Table 8 reports bootstrap 95% confidence intervals for the equilibrium active pool T and the domestic PI pool P_D. "
-              "The intervals are wide, reflecting the small cohort sample and the extrapolation from individual careers to long-run steady states. "
+    p.add_run("Supplementary Table 5 reports bootstrap 95% confidence intervals for the equilibrium active pool T and the domestic PI pool P_D. "
+              "The intervals are wide, reflecting the model-implied cohort scale and the extrapolation from observed author-career exposure to long-run steady states. "
               "For some groups the upper bound is an order of magnitude larger than the lower bound, indicating that the equilibrium is sensitive to resampling variation in the transition rates. "
               "This uncertainty should be interpreted as a warning against over-interpreting point estimates and as a reason to view the point-of-no-return distances as indicative rather than precise thresholds. "
               "Despite the width, the lower bounds for most groups remain above the minimum viable threshold, which supports the qualitative conclusion that all groups are currently above the point of no return. "
               "For the smallest groups the lower bound is closer to M, reinforcing the need for continued monitoring and for policy buffers.")
-
-    boot_tab = boot.copy()
-    boot_tab["T 95% CI"] = boot_tab.apply(lambda r: f"[{_fmt(r['T_equilibrium_q025'], 0)}, {_fmt(r['T_equilibrium_q975'], 0)}]", axis=1)
-    boot_tab["P_D 95% CI"] = boot_tab.apply(lambda r: f"[{_fmt(r['P_D_equilibrium_q025'], 0)}, {_fmt(r['P_D_equilibrium_q975'], 0)}]", axis=1)
-    boot_tab = boot_tab[["group", "T_equilibrium_median", "T 95% CI", "P_D_equilibrium_mean", "P_D 95% CI"]]
-    boot_tab.columns = ["Group", "T median", "T 95% CI", "P_D mean", "P_D 95% CI"]
-    _add_table_from_df(
-        doc,
-        boot_tab,
-        caption="Table 8. Bootstrap 95% confidence intervals for equilibrium T and domestic PI pool P_D.",
-        decimals={"T median": 0, "P_D mean": 0},
-    )
 
     p = doc.add_paragraph()
     p.add_run("Figure 4 displays the bootstrap intervals graphically.")
@@ -2452,79 +1935,65 @@ def _add_docx_body(doc, data, fig_paths):
     p = doc.add_paragraph()
     p.add_run("Figure 5 plots the observed 2000-2016 transition rates and the projected 2017-2026 rates for each civilisation. "
               "Rates are displayed by group and by transition type, so that the reader can see whether a particular transition is trending toward a boundary. "
-              "Because the projections are linear trend fits regularised by the correction pressures described in Section 4.11, they are not forecasts of specific future events; they are the model's one-year-ahead extrapolation of the recent historical trajectory.")
+              "Because the projections are linear trend fits regularised by the correction pressures described in Section 4.7, they are not forecasts of specific future events; they are the model's one-year-ahead extrapolation of the recent historical trajectory.")
     doc.add_picture(str(fig_paths["fig5"]), width=Inches(6.0))
     cap = doc.add_paragraph()
     cap.add_run("Figure 5. Observed (solid) and projected (dashed) transition rates by civilisation, 2000-2026.").italic = True
     cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
     p = doc.add_paragraph()
-    p.add_run("Table 9 summarises the mean observed annual transition rates by group between 2000 and 2016. "
-              "The table distinguishes early-career outflow (α), return (β), domestic and abroad hit generation (h_D, h_A), PI promotion (p_D), dropout (d), and total inflow (I_total).")
-    if not annual_means.empty:
-        _add_table_from_df(
-            doc,
-            annual_means,
-            caption="Table 9. Mean observed annual transition rates by civilisation, 2000-2016.",
-            decimals={"α": 3, "β": 3, "h_D": 3, "p_D": 3, "d": 3, "I_total": 2},
-        )
+    p.add_run("The mean observed annual transition rates by group between 2000 and 2016, "
+              "distinguishing early-career outflow (α), return (β), domestic and abroad hit generation (h_D, h_A), PI promotion (p_D), dropout (d), and total inflow (I_total), "
+              "are provided in Supplementary Table 3. "
+              "Similarly, the cross-origin-destination pairs with the largest accumulation of abroad author-years are listed in Supplementary Table 4. "
+              "These supplementary tables keep the main text focused on the PNR and policy conclusions while preserving the empirical detail needed for replication and extension.")
 
     p = doc.add_paragraph()
-    p.add_run("Figure 6 shows the inter-civilisation accumulation of abroad author-years. "
+    p.add_run("Figure 6 shows the cross-civilisation accumulation of abroad author-years. "
               "Rows represent the origin civilisation and columns represent the destination civilisation, approximated by the author's recent_group while abroad. "
-              "The heatmap is a lower-bound proxy because year-to-year destination switches within a spell abroad are not observed.")
+              "Origin-destination cells with the same civilisation and destinations labelled Unknown are excluded because the reconstruction cannot observe the actual host civilisation. "
+              "The remaining cells are a lower-bound proxy for the true inter-civilisation pipelines.")
     doc.add_picture(str(fig_paths["fig6"]), width=Inches(5.8))
     cap = doc.add_paragraph()
-    cap.add_run("Figure 6. Inter-civilisation abroad author-year accumulation by origin (rows) and destination (columns) (lower-bound proxy; year-to-year destination switches within a spell abroad are not observed).").italic = True
+    cap.add_run("Figure 6. Cross-civilisation abroad author-year accumulation by origin (rows) and destination (columns) (same-civilisation cells and Unknown destinations excluded; lower-bound proxy).").italic = True
     cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
-    p = doc.add_paragraph()
-    p.add_run("Table 10 lists the origin-destination pairs with the largest accumulation of abroad author-years. "
-              "These pairs identify the strongest visible inter-civilisation pipelines and are the empirical counterpart to the α and β transitions.")
-    if not interciv_top.empty:
-        _add_table_from_df(
-            doc,
-            interciv_top,
-            caption="Table 10. Top origin-destination abroad author-year pairs.",
-            decimals={"Author-years": 0},
-        )
+
 
     doc.add_heading("5.7 Out-of-sample projection, 2017-2023", level=2)
     p = doc.add_paragraph()
     p.add_run(f"The 2017-2023 projection is compared with observed annual stocks in Figure 7. "
-              f"Overall accuracy is RMSE {_fmt(annual_ctx.get('overall_rmse', float('nan')), 2)} and MAPE {_fmt(annual_ctx.get('overall_mape_pct', float('nan')), 1)}% (a non-standard, conservative measure computed against count_obs + 1 to avoid division by zero). "
-              "The high MAPE reflects small absolute counts and zero-observed cells, and the projection should be read as a directional early-warning indicator of drift and threshold proximity rather than a precise population forecast. "
-              f"Among civilisations the lowest RMSE is for {best_rmse_group} and the highest RMSE is for {worst_rmse_group}; the highest MAPE is for {worst_mape_group}. "
-              "The largest errors occur in small compartments and in groups with sparse transition counts, which is expected because the annual model does not borrow information across civilisations.")
+              f"Stock-level accuracy is RMSE {_fmt(annual_ctx.get('overall_rmse', float('nan')), 2)} and MAPE {_fmt(annual_ctx.get('overall_mape_pct', float('nan')), 1)}% (a non-standard, conservative measure computed against count_obs + 1 to avoid division by zero). "
+              "These stock-level metrics are not a fair test of the model: the estimation cohort is fixed to authors whose careers began by 2016, so observed post-2016 counts cannot include the new entrants that the projection adds each year. "
+              "The projection therefore necessarily diverges from observed stocks for any civilisation with positive recruitment. "
+              f"A cleaner validation is at the rate level: the projected transition rates have RMSE {_fmt(annual_ctx.get('rate_overall_rmse', float('nan')), 4)} and MAE {_fmt(annual_ctx.get('rate_overall_mae', float('nan')), 4)}, and the model's skill relative to a historical-mean baseline is {_fmt(annual_ctx.get('rate_overall_skill', float('nan')), 2)}. "
+              f"By rate, the best relative skill is for {annual_ctx.get('best_rate_skill', '—')} ({_fmt(annual_ctx.get('best_rate_skill_value', float('nan')), 2)}× the historical-mean RMSE), while the weakest is for {annual_ctx.get('worst_rate_skill', '—')} ({_fmt(annual_ctx.get('worst_rate_skill_value', float('nan')), 2)}×). "
+              "These figures show that the annual layer captures rate drift at least as well as a naive mean forecast, and should be read as a directional early-warning indicator of drift and threshold proximity rather than as a precise population forecast.")
+
+    p = doc.add_paragraph()
+    p.add_run("Direction and threshold-alarm diagnostics support this interpretation. ")
+    if "direction_agreement" in annual_ctx:
+        p.add_run(f"Year-to-year direction agreement between projected and observed compartment counts is {_fmt(annual_ctx['direction_agreement'] * 100, 1)}%, "
+                  f"ranging from {annual_ctx.get('worst_direction_group', '—')} to {annual_ctx.get('best_direction_group', '—')}. ")
+    if "threshold_alarm_accuracy" in annual_ctx:
+        p.add_run(f"For the active pool T = D + H_D + P_D, the projection correctly classifies whether T is below the minimum viable threshold M in {_fmt(annual_ctx['threshold_alarm_accuracy'] * 100, 1)}% of group-years "
+                  f"(sensitivity {_fmt(annual_ctx['threshold_alarm_sensitivity'] * 100, 1)}%, specificity {_fmt(annual_ctx['threshold_alarm_specificity'] * 100, 1)}%). "
+                  f"The observed threshold-crossing group-years (n = {_fmt(annual_ctx.get('threshold_alarms_obs', 0), 0)}) all occur for the smallest civilisation in the post-2016 fixed cohort; they reflect the depletion of that cohort as careers mature, not a projected collapse. "
+                  "The projection, by construction, adds new entrants each year and therefore does not predict such within-cohort depletion. "
+                  "A zero sensitivity in this hold-out is thus a consequence of the fixed-cohort validation design, not evidence that the model misses genuine collapse events. ")
+    p.add_run("These metrics confirm that the annual layer is useful for directional and threshold-crossing surveillance, not for precise population counts. "
+              "The modest year-to-year direction-agreement value is expected for small compartments and sparse transitions, and it reinforces that the projection layer should be treated as a drift-and-threshold alarm rather than a population forecast.")
     doc.add_picture(str(fig_paths["fig7"]), width=Inches(6.0))
     cap = doc.add_paragraph()
     cap.add_run("Figure 7. Observed (solid) and projected (dashed) compartment counts by civilisation, 2017-2023. The vertical dotted line marks the end of the training period (2016).").italic = True
     cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
     p = doc.add_paragraph()
-    p.add_run("Table 11 reports projection accuracy by civilisation and Table 12 by compartment. "
+    p.add_run("Detailed projection accuracy by civilisation and by compartment is reported in Supplementary Material (Supplementary Tables 1 and 2). "
               f"Among compartments, the lowest RMSE is for {best_compartment_rmse}, while the highest RMSE is for {worst_compartment_rmse} and the highest MAPE is for {worst_compartment_mape}. "
               "P_D and H_D show larger errors because small changes in PI and hit rates are amplified by the endogenous inflow term.")
-    if group_acc is not None and not group_acc.empty:
-        gacc = group_acc.copy()
-        gacc["rmse"] = gacc["rmse"].apply(lambda x: _fmt(x, 2))
-        gacc["mape"] = gacc["mape"].apply(lambda x: f"{x*100:.1f}%")
-        gacc = gacc.rename(columns={"origin_group": "Group", "rmse": "RMSE", "mape": "MAPE"})
-        _add_table_from_df(doc, gacc, caption="Table 11. Projection accuracy by civilisation, 2017-2023.", decimals={"MAPE": 2})
-    if comp_acc is not None and not comp_acc.empty:
-        cacc = comp_acc.copy()
-        cacc["rmse"] = cacc["rmse"].apply(lambda x: _fmt(x, 2))
-        cacc["mape"] = cacc["mape"].apply(lambda x: f"{x*100:.1f}%")
-        cacc = cacc.rename(columns={"compartment": "Compartment", "rmse": "RMSE", "mape": "MAPE"})
-        _add_table_from_df(doc, cacc, caption="Table 12. Projection accuracy by compartment, 2017-2023.", decimals={"MAPE": 2})
 
-    doc.add_heading("5.8 Correction pressures in the annual model", level=2)
-    p = doc.add_paragraph()
-    p.add_run("The annual projection performs best where the correction pressures in Section 4.11 are binding. "
-              "Laplace smoothing prevents empty cells from being treated as impossible transitions; the unit-interval clip and the dropout cap prevent the trend extrapolation from producing rates that are incompatible with a stochastic transition matrix; and the 2016 inflow apportionment keeps new-entrant composition close to the last observed regime. "
-              "These pressures mean that the projection is not a purely mechanical forecast: it is a bounded extrapolation that stays within the empirical support of the 2000-2016 data and within the stability constraints of the compartment model.")
-
-    doc.add_heading("5.9 Japan-specific compartment and transition-rate ladder", level=2)
+    doc.add_heading("5.8 Japan-specific compartment and transition-rate ladder", level=2)
     p = doc.add_paragraph()
     p.add_run(f"Figure 8 places the Japanese AI/ML research community in the compartment model. "
               f"The fitted equilibrium is T={ja_ctx['D'] + ja_ctx['H_D'] + ja_ctx['P_D']} active researchers "
@@ -2539,12 +2008,13 @@ def _add_docx_body(doc, data, fig_paths):
     cap.add_run("Figure 8. The Japanese AI/ML research community in the six-compartment model, with a cross-civilisation ladder of fitted transition rates. Japan is highlighted in the right-hand panel; longer bars represent higher estimated rates.").italic = True
     cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
-    doc.add_heading("5.10 A combined model-evaluation view: T/M and PNR proximity", level=2)
+    doc.add_heading("5.9 A combined model-evaluation view: T/M and PNR proximity", level=2)
     p = doc.add_paragraph()
     p.add_run("Figure 9 combines the long-run safety ratio T/M with the closest point-of-no-return proximity for each civilisation. "
               "A point in the lower-left corner has both a low equilibrium buffer and a small proportional change needed to reach the threshold, so it is the most fragile combination. "
               "Japan sits in this region alongside the 'Other Civilizations' group, even though its T/M ratio is above one. "
-              "This dual view is useful as a model-evaluation metric: a civilisation can have a T/M ratio that looks comfortable but still be close to its PNR because the PNR depends on the proportional change in the most sensitive rate, not only on the level of T.")
+              "This dual view is useful as a model-evaluation metric: a civilisation can have a T/M ratio that looks comfortable but still be close to its PNR because the PNR depends on the proportional change in the most sensitive rate, not only on the level of T. "
+              "Japan is presented here as an illustrative case; the same diagnostic can be applied to any civilisation with sufficient OpenAlex coverage.")
     doc.add_picture(str(fig_paths["fig9"]), width=Inches(5.8))
     cap = doc.add_paragraph()
     cap.add_run("Figure 9. Equilibrium safety ratio (T/M) versus closest point-of-no-return proximity for all civilisations. Japan is shown in red.").italic = True
@@ -2604,7 +2074,7 @@ def _add_docx_body(doc, data, fig_paths):
     p = doc.add_paragraph()
     p.add_run("The connection to civilisational diversity is direct. "
               "Each group's safety margin can be monitored over time, and interventions can be adjusted before the margin disappears. "
-              f"Because the model uses a fixed safety factor of {_fmt(ctx['safety_factor'], 2)} for the endogenous inflow parameter r, the policy recommendations are deliberately conservative: they do not push the system toward instability. "
+              f"Because the endogenous inflow is capped at a safety factor of {_fmt(ctx['safety_factor_cap'], 2)} relative to the critical reproduction rate (the most constrained fitted group realises {_fmt(ctx['min_realised_safety_ratio'], 2)}), the policy recommendations are deliberately conservative: they do not push the system toward instability. "
               "That bounded approach is consistent with the goal of preserving diversity rather than maximising any single country's share.")
 
     p = doc.add_paragraph()
@@ -2615,7 +2085,7 @@ def _add_docx_body(doc, data, fig_paths):
     p = doc.add_paragraph()
     p.add_run("A second implication concerns the normative status of civilisational diversity. "
               "We treat diversity as an input to innovation rather than as a distributional afterthought")
-    add_citation(p, 13)
+    add_citation(p, 19)
     p.add_run(". "
               "A monocentric or tight-oligopoly structure in AI/ML may produce short-run efficiency gains through scale and agglomeration, but it also raises the risk of methodological lock-in, selection bias in training data, and reduced error correction. "
               "It is also an evolutionary dead end: it narrows the menu of innovation options, removes healthy competitors whose alternative approaches keep the field honest, and concentrates problem selection under a single institutional and methodological line. "
@@ -2627,40 +2097,57 @@ def _add_docx_body(doc, data, fig_paths):
               "Preserving multiple centres of AI/ML research is not a matter of slowing the frontier; it is a matter of ensuring that the frontier is not defined by a single set of institutions, languages, or problems.")
 
     p = doc.add_paragraph()
-    p.add_run("Japan is the clearest example among the large civilisations. "
+    p.add_run("Japan is used as an illustrative case, not because it is the only group of interest, but because it combines a small absolute margin with rich data and a distinctive institutional lineage that makes the policy translation concrete. "
+              "It is the clearest example among the large civilisations. "
               "Its fitted active-pool margin is T=" + str(ja_ctx['D'] + ja_ctx['H_D'] + ja_ctx['P_D']) + " researchers, with M=" + _fmt(ja_ctx['M'], 0) + " (T/M=" + _fmt(ja_ctx['T_over_M'], 2) + "). "
-              "Figure 8 (reproduced below) shows that Japan's closest point of no return is the exogenous entry rate I0: if I0 fell to " + _fmt(ja_ctx['pnr_factor'] * 100, 1) + "% of its current level, the active pool would reach the minimum viable threshold. "
+              "As Figure 8 shows, Japan's closest point of no return is the exogenous entry rate I0: if I0 fell to " + _fmt(ja_ctx['pnr_factor'] * 100, 1) + "% of its current level, the active pool would reach the minimum viable threshold. "
               "The same figure shows that Japan's early-career outflow α (" + _fmt(ja_ctx['alpha'], 3) + ") and domestic PI promotion p_D (" + _fmt(ja_ctx['p_D'], 3) + ") are comparatively low, while return from abroad β (" + _fmt(ja_ctx['beta'], 3) + ") and domestic hit generation h_D (" + _fmt(ja_ctx['h_D'], 3) + ") are moderate. "
-              "These numbers translate directly into policy levers. "
-              "α can be reduced by expanding postdoctoral fellowships and junior-faculty positions that keep promising researchers in the domestic pipeline; β can be raised through return grants, dual appointments, and recognition of overseas experience in domestic hiring. "
-              "h_D responds to doctoral and postdoctoral training expansion, including the 2026 AI for Science (SPREAD) programme if it is used to create independent labs with their own budgets rather than merely increasing headcount. "
-              "p_D depends on tenure-track conversion, startup packages, and project-based PI status for mid-career researchers. "
-              "d, the dropout rate to L, can be lowered through childcare support, dual-career accommodation, and stable non-tenure research tracks. "
-              "Finally, I0 captures the pure exogenous entry flow and can be supported by research-master pipelines, undergraduate research programmes, and early doctoral fellowships. "
+              "These numbers translate into policy levers: α through retention fellowships and junior faculty positions; β through return grants and dual appointments; h_D through independent-lab programmes such as SPREAD; p_D through tenure-track conversion and startup packages; and d through childcare, dual-career support, and stable non-tenure tracks. "
               "Weakening the Japanese civilisation would not be neutral for the rest of the world: it would remove a distinct institutional lineage, reduce the pool of non-Anglophone problem framings, and leave a range of health, ageing, robotics, and materials problems under-addressed. "
-              "Maintaining Japan as a viable AI/ML civilisation is therefore in the global interest, not only in Japan's national interest.")
-    doc.add_picture(str(fig_paths["fig8"]), width=Inches(5.0))
-    cap = doc.add_paragraph()
-    cap.add_run("Figure 8 (reproduced). Japan in the six-compartment model, with cross-civilisation transition-rate ladders.").italic = True
-    cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
-
-    doc.add_heading("6.3 Policy implications and early warning", level=2)
+              "Maintaining Japan as a viable AI/ML civilisation is therefore in the global interest, not only in Japan's national interest. "
+              "The Japan-specific analysis is intended as a worked example; the same rate-ladder diagnostic can be applied to any civilisation with sufficient OpenAlex coverage.")
+    doc.add_heading("6.3 Policy and management implications, and early warning", level=2)
     p = doc.add_paragraph()
     p.add_run("The policy implications can be read as an early-warning architecture. "
               "A single dashboard that tracks the fitted transition rates, their bootstrap uncertainty, and the distance to M for each civilisation would allow policymakers to detect divergence before a community enters an irreversible decline. "
               "Interventions can then be calibrated to maintain a minimum safety margin rather than to maximise any one stock. "
               "This is the operational meaning of early intervention: not a forecast that a particular collapse will occur, but a structured way to keep the system away from a point of no return. "
               "It also frames high-skilled mobility as a strategic competition among jurisdictions for talent")
-    add_citation(p, 14)
+    add_citation(p, 20)
     p.add_run(", in which the central question is not only who wins the current round but whether the global system retains enough diversity for future rounds")
-    add_citation(p, 15)
+    add_citation(p, 21)
     p.add_run(". "
-              "If the dt of policy response is short enough, the model can be updated annually and divergence caught early, before any single civilisation approaches a point of no return. "
-              "This is the mechanism through which technology monopoly, hegemonic concentration and oligopoly dead-ends can be avoided: by keeping every major research community above its minimum viable coauthor pool, the framework sustains the competitive diversity that underpins long-run technological progress. "
-              "The framework is therefore not a prediction that a particular civilisation will collapse. "
-              "It is a tool for ensuring that no single civilisation reaches a point where its collapse becomes self-sustaining, and that the global AI/ML system retains the diversity required for continued innovation. "
-              "This is precisely what Sustaining Heterogeneity through Interventions in Global AI/ML Researcher Mobility: A Transition-Rate Framework sets out to do: sustain civilisational diversity through interventions in global AI/ML researcher mobility. "
-              "We introduce the acronym SHIGA here; it is formed from the title and also reflects the research base at Shiga University.")
+              "If the response lag is short enough, the model can be updated annually and divergence caught before any single civilisation approaches a point of no return. "
+              "It is therefore a tool for ensuring that no single civilisation reaches a self-sustaining collapse, and that the global AI/ML system retains the diversity required for continued innovation. "
+              "We introduce the acronym SHIGA—Sustaining Heterogeneity through Interventions in Global AI/ML Researcher Mobility—formed from the title.")
+
+    p = doc.add_paragraph()
+    p.add_run("Table 8 maps the most sensitive transition levers to policy instruments and to the management actions that determine them. "
+              "Policy instruments set incentives, while management actions determine how those incentives are implemented within institutions. "
+              "Both are needed because a policy without a corresponding management process rarely changes transition rates.")
+
+    lever_policy_mgmt = pd.DataFrame({
+        "Lever": ["Dropout (d)", "Exogenous entry (I0)", "Return from abroad (β)", "Domestic hit generation (h_D)", "PI promotion (p_D)"],
+        "Policy instrument": [
+            "Early-career fellowships, childcare and dual-career support, stable non-tenure tracks",
+            "Research-master and undergraduate pipelines, doctoral fellowships, recruitment visas",
+            "Return grants, diaspora networks, dual appointments, overseas-experience recognition",
+            "Independent-lab programmes (e.g. SPREAD-style), doctoral/postdoctoral training, compute access",
+            "Tenure-track conversion, startup packages, project-based PI status",
+        ],
+        "Management action": [
+            "Retain researchers in the domestic pipeline beyond the first career years",
+            "Widen the base of incoming researchers before they select a field or location",
+            "Encourage mobile researchers to re-establish domestic research groups",
+            "Translate junior capacity into visible, high-impact work and independent research lines",
+            "Create durable principal-investigator positions that train the next cohort",
+        ],
+    })
+    _add_table_from_df(
+        doc,
+        lever_policy_mgmt,
+        caption="Table 8. Transition levers, policy instruments, and management actions.",
+    )
 
     p = doc.add_paragraph()
     p.add_run("Operationally, the framework can be used in two complementary ways. "
@@ -2668,25 +2155,19 @@ def _add_docx_body(doc, data, fig_paths):
               "As a scenario tool, it can quantify how large a proportional change in a given rate would be required to move a community toward or away from collapse, which helps prioritise empirical policy evaluation. "
               "Both uses depend on transparent assumptions and regular recalibration; the model should not be used to justify one-off interventions without accompanying process evaluation.")
 
-    doc.add_heading("6.4 Validation of correction pressures", level=2)
     p = doc.add_paragraph()
-    p.add_run("The correction pressures are not ad hoc adjustments; each maps to a known statistical or dynamical constraint. "
-              "Laplace smoothing is equivalent to a weak Dirichlet prior on a multinomial transition vector; it guarantees that no cell has zero estimated probability and shrinks rare transitions toward the simplex centroid. "
-              "Clipping projected rates to values between 0 and 1 is a feasibility constraint on probabilities; the dropout cap is a cross-sectional constraint that prevents projected attrition from exceeding the observed stock; and the inflow apportionment constraint keeps the composition of new entrants equal to the last observed recruitment pattern. "
-              "In the 2017-2023 projection these pressures reduced the sensitivity of the forecast to sparse cells and to short-run fluctuations in small groups. "
-              f"Quantitatively, the overall RMSE of {_fmt(annual_ctx.get('overall_rmse', float('nan')), 2)} and conservative MAPE of {_fmt(annual_ctx.get('overall_mape_pct', float('nan')), 1)}% are consistent with a model that is deliberately regularised rather than optimised for in-sample fit. "
-              "The high MAPE is driven by sparse compartments and zero-observed cells; the projection is therefore appropriate for monitoring directional drift and proximity to the PNR, not for precise count forecasting. "
-              "The residual errors are concentrated in the smallest compartments, which is exactly where smoothing is most active and where future data will be most valuable.")
+    p.add_run("Table 8 maps each lever to the actors that control it: I0 and h_D are mainly owned by national funders and ministries; p_D and d by universities and department heads; and β by diaspora networks, return grants and private-sector recruiters. "
+              "The model's management value is to rank which local rates most urgently need intervention and the proportional change needed to restore a safety margin.")
 
-    doc.add_heading("6.5 Intra-civilisation alternatives when inter-civilisation mobility cannot be controlled", level=2)
+    doc.add_heading("6.4 Intra-civilisation alternatives when inter-civilisation mobility cannot be controlled", level=2)
     p = doc.add_paragraph()
     p.add_run("If a civilisation cannot control outflows to, or inflows from, other jurisdictions—whether because of visa regimes, salary differentials, language advantages, or targeted recruitment—it can still preserve its research community by acting on the intra-civilisation levers identified in the annual model. "
               "The annual rates show that the domestic active pool T = D + H_D + P_D responds most strongly to the dropout rate d, the domestic hit rate h_D, and the PI promotion rate p_D. "
               "Policies that reduce early-career attrition, expand domestic postdoctoral positions, or accelerate independent-lab formation therefore become defensive substitutes when inter-civilisation poaching cannot be regulated. "
               "This is the practical meaning of civilisational-diversity preservation under sovereignty constraints: even without controlling the border of talent, a community can increase the internal reproduction of active researchers. "
-              f"The ODE safety factor of {_fmt(ctx['safety_factor'], 2)} on endogenous PI inflow is a conservative bound that prevents over-optimism about this substitution effect; more ambitious domestic growth would require corresponding evidence that the extra PIs can be absorbed without simply raising dropout.")
+              f"The endogenous inflow is capped at a safety factor of {_fmt(ctx['safety_factor_cap'], 2)} relative to the critical reproduction rate (the most constrained fitted group realises {_fmt(ctx['min_realised_safety_ratio'], 2)}), so the model prevents over-optimism about this substitution effect; more ambitious domestic growth would require corresponding evidence that the extra PIs can be absorbed without simply raising dropout.")
 
-    doc.add_heading("6.6 Annual updating as an early-warning layer", level=2)
+    doc.add_heading("6.5 Annual updating as an early-warning layer", level=2)
     p = doc.add_paragraph()
     p.add_run("The 2017-2023 projection demonstrates that the framework can be rerun annually with a one-year time step. "
               "Each new year of OpenAlex data updates the observed transition rates, the fitted trends, and the distance to the minimum viable coauthor threshold. "
@@ -2696,9 +2177,10 @@ def _add_docx_body(doc, data, fig_paths):
               "Policymakers can then intervene before the active pool falls below M, using the rate-specific elasticities in Table 3 to prioritise the smallest proportional change that restores a safety margin. "
               "This is the operational mechanism for avoiding technology monopoly and oligopoly dead ends: by keeping every major research community above its minimum viable coauthor pool, annual monitoring sustains the competitive diversity that underpins long-run technological progress. "
               "The framework is therefore not a prediction that a particular civilisation will collapse; it is a tool for ensuring that no single civilisation reaches a point where its collapse becomes self-sustaining. "
+              "The modest year-to-year direction agreement in the 2017-2023 projection confirms that this layer is a drift-and-threshold alarm, not a precise population forecast. "
               "SHIGA therefore encapsulates the practical goal: keeping the global AI/ML system heterogeneous enough that no single centre of power can monopolise the technological frontier.")
 
-    doc.add_heading("6.7 Limitations", level=2)
+    doc.add_heading("6.6 Limitations", level=2)
     p = doc.add_paragraph()
     p.add_run("Several limitations should be acknowledged. "
               "OpenAlex affiliation and country assignments are noisy, especially for researchers with multiple affiliations. "
@@ -2707,10 +2189,10 @@ def _add_docx_body(doc, data, fig_paths):
               "Inter-civilisation flows are approximated by the author's recent_group while abroad, which misses year-to-year destination switching. "
               "The civilisation label is a pragmatic aggregation of publication-affiliation patterns. "
               "Historical civilisational boundaries do not necessarily coincide with contemporary political or value-based boundaries, and this study cannot determine whether the diversity of research ideas maps more closely onto historical civilisational groupings or onto current political and value communities; for example, the Sinic grouping reflects current OpenAlex country metadata and does not resolve the cultural and historical ties between mainland China and Taiwan, which currently appear as separate research arenas. "
-              "This is treated as an empirical limitation of the classification, not as a normative claim."
-              "The cohort sample is small; the absolute equilibrium numbers should be interpreted as model-implied stocks rather than as census counts. "
-              "Authors with many publications are over-weighted relative to one-publication authors, so rate estimates reflect author-publication exposure rather than a uniformly representative sample of individuals. "
-              f"The endogenous inflow is capped at a safety factor of {_fmt(ctx['safety_factor'], 2)} relative to the critical reproduction rate; alternative values would shift equilibrium levels and should be reported in future sensitivity tables. "
+              "This is treated as an empirical limitation of the classification, not as a normative claim. "
+              "The cohort is a model-implied sample extracted from OpenAlex; absolute equilibrium numbers should be interpreted as model-implied stocks rather than census counts. "
+              "Authors with many publications are over-weighted relative to less prolific authors, so rate estimates reflect author-publication exposure rather than a uniformly representative sample of individuals. "
+              f"The endogenous inflow is capped at a safety factor of {_fmt(ctx['safety_factor_cap'], 2)} relative to the critical reproduction rate (the most constrained fitted group realises {_fmt(ctx['min_realised_safety_ratio'], 2)}); alternative values would shift equilibrium levels and should be reported in future sensitivity tables. "
               "Finally, the point-of-no-return threshold is a sufficient condition for collapse, not a necessary one: a community may decline for reasons outside the model even if T remains above M.")
 
     p = doc.add_paragraph()
@@ -2718,11 +2200,8 @@ def _add_docx_body(doc, data, fig_paths):
               "The model identifies which transitions are most sensitive in a mechanical sense; turning those sensitivities into reliable policy priorities requires additional data on programme costs, implementation lags, and behavioural responses that are outside the scope of this paper.")
 
     p = doc.add_paragraph()
-    p.add_run("From a security-studies perspective, the framework is intentionally non-adversarial. "
-              "It does not model deliberate recruitment campaigns, technology transfer, or strategic denial. "
-              "Instead, it treats mobility as an aggregate transition process and asks when a community becomes unable to reproduce itself. "
-              "That baseline is useful because it shows where defensive, capacity-building policies can be most efficient, but it does not replace classified or diplomatic assessments of technology competition. "
-              "Future work could add a strategic layer by distinguishing between civilian and defence-relevant AI/ML pipelines, or by modelling the effects of targeted recruitment on specific subfields.")
+    p.add_run("From a security-studies perspective, the framework is intentionally non-adversarial: it treats mobility as an aggregate transition process and asks when a community becomes unable to reproduce itself, without modelling deliberate recruitment campaigns, technology transfer, or strategic denial. "
+              "Future work could add a strategic layer by distinguishing civilian from defence-relevant AI/ML pipelines, or by modelling targeted recruitment in specific subfields.")
 
     # Conclusion
     doc.add_heading("7. Conclusion", level=1)
@@ -2765,21 +2244,45 @@ def _add_docx_body(doc, data, fig_paths):
         p.add_run(f"{i}. {ref}")
 
 
-def write_docx(output_dir, data, fig_paths):
+def _anonymize_docx(doc):
+    """Remove identifying text from a document for double-blind review."""
+    replacements = {
+        ", formed from the title and reflecting the research base at Shiga University": "",
+        "https://github.com/bougtoir/researcher-mobility-ode": "[repository URL removed for double-blind review]",
+    }
+    for p in doc.paragraphs:
+        for run in p.runs:
+            for old, new in replacements.items():
+                if old in run.text:
+                    run.text = run.text.replace(old, new)
+    for t in doc.tables:
+        for row in t.rows:
+            for cell in row.cells:
+                for p in cell.paragraphs:
+                    for run in p.runs:
+                        for old, new in replacements.items():
+                            if old in run.text:
+                                run.text = run.text.replace(old, new)
+
+
+def write_docx(output_dir, data, fig_paths, blinded=False):
     abstract, keywords, highlights = _abstract_and_highlights(data[1], data[4])
 
     # Pre-compute body word count by building a throwaway body doc
     body_doc = Document()
-    _add_docx_body(body_doc, data, fig_paths)
+    _add_docx_body(body_doc, data, fig_paths, blinded=blinded)
     body_wc = _doc_word_count(body_doc)
 
     doc = Document()
-    _add_title_page(doc, word_count=body_wc)
-    _add_front_matter(doc, abstract, keywords, highlights)
-    _add_docx_body(doc, data, fig_paths)
+    _add_title_page(doc, word_count=body_wc, blinded=blinded)
+    _add_front_matter(doc, abstract, keywords, highlights, blinded=blinded)
+    _add_docx_body(doc, data, fig_paths, blinded=blinded)
     _unify_pnr_docx(doc)
+    if blinded:
+        _anonymize_docx(doc)
 
-    path = output_dir / "manuscript_full_article.docx"
+    suffix = "_blinded" if blinded else ""
+    path = output_dir / f"manuscript_full_article{suffix}.docx"
     doc.save(path)
     return path
 
@@ -2908,14 +2411,27 @@ def write_pptx(output_dir, data, fig_paths):
         policy_top[c] = policy_top[c].apply(lambda x, d=d: _fmt(x, d))
     add_table_slide("Table 7: Top policy intervention", policy_top, policy_top.columns.tolist(), width_per_col=2.0)
 
-    boot_tab = boot.copy()
-    boot_tab["T 95% CI"] = boot_tab.apply(lambda r: f"[{_fmt(r['T_equilibrium_q025'], 0)}, {_fmt(r['T_equilibrium_q975'], 0)}]", axis=1)
-    boot_tab["P_D 95% CI"] = boot_tab.apply(lambda r: f"[{_fmt(r['P_D_equilibrium_q025'], 0)}, {_fmt(r['P_D_equilibrium_q975'], 0)}]", axis=1)
-    boot_tab = boot_tab[["group", "T_equilibrium_median", "T 95% CI", "P_D_equilibrium_mean", "P_D 95% CI"]]
-    boot_tab.columns = ["Group", "T median", "T 95% CI", "P_D mean", "P_D 95% CI"]
-    for c in ["T median", "P_D mean"]:
-        boot_tab[c] = boot_tab[c].apply(lambda x: _fmt(x, 0))
-    add_table_slide("Table 8: Bootstrap 95% CI", boot_tab, boot_tab.columns.tolist(), width_per_col=2.2)
+    lever_policy_mgmt = pd.DataFrame({
+        "Lever": ["Dropout (d)", "Exogenous entry (I0)", "Return from abroad (β)", "Domestic hit generation (h_D)", "PI promotion (p_D)"],
+        "Policy instrument": [
+            "Early-career fellowships, childcare and dual-career support, stable non-tenure tracks",
+            "Research-master and undergraduate pipelines, doctoral fellowships, recruitment visas",
+            "Return grants, diaspora networks, dual appointments, overseas-experience recognition",
+            "Independent-lab programmes (e.g. SPREAD-style), doctoral/postdoctoral training, compute access",
+            "Tenure-track conversion, startup packages, project-based PI status",
+        ],
+        "Management action": [
+            "Retain researchers in the domestic pipeline beyond the first career years",
+            "Widen the base of incoming researchers before they select a field or location",
+            "Encourage mobile researchers to re-establish domestic research groups",
+            "Translate junior capacity into visible, high-impact work and independent research lines",
+            "Create durable principal-investigator positions that train the next cohort",
+        ],
+    })
+    add_table_slide("Table 8: Transition levers, policy instruments, and management actions", lever_policy_mgmt, lever_policy_mgmt.columns.tolist(), width_per_col=2.2)
+
+    # Bootstrap CI is placed at the end as Supplementary Table 5.
+
 
     # Annual projection slides
     if fig_paths.get("fig5"):
@@ -2926,9 +2442,9 @@ def write_pptx(output_dir, data, fig_paths):
         )
     if fig_paths.get("fig6"):
         add_image_slide(
-            "Figure 6: Inter-civilisation abroad author-years",
+            "Figure 6: Cross-civilisation abroad author-years",
             fig_paths["fig6"],
-            "Rows are origin civilisations; columns are destination civilisations approximated by recent_group.",
+            "Rows are origin civilisations; columns are destination civilisations approximated by recent_group. Same-civilisation cells and Unknown destinations are excluded.",
         )
     if fig_paths.get("fig7"):
         add_image_slide(
@@ -2954,7 +2470,7 @@ def write_pptx(output_dir, data, fig_paths):
     annual_means = annual_summary_table(annual)
     if not annual_means.empty:
         add_table_slide(
-            "Table 9: Mean observed annual transition rates, 2000-2016",
+            "Supplementary Table 3: Mean observed annual transition rates, 2000-2016",
             annual_means,
             annual_means.columns.tolist(),
             width_per_col=1.4,
@@ -2963,7 +2479,7 @@ def write_pptx(output_dir, data, fig_paths):
     interciv_top = interciv_top_table(annual)
     if not interciv_top.empty:
         add_table_slide(
-            "Table 10: Top origin-destination abroad author-year pairs",
+            "Supplementary Table 4: Top origin-destination abroad author-year pairs",
             interciv_top,
             interciv_top.columns.tolist(),
             width_per_col=2.0,
@@ -2976,7 +2492,7 @@ def write_pptx(output_dir, data, fig_paths):
         gacc["mape"] = gacc["mape"].apply(lambda x: f"{x*100:.1f}%")
         gacc = gacc.rename(columns={"origin_group": "Group", "rmse": "RMSE", "mape": "MAPE"})
         add_table_slide(
-            "Table 11: Projection accuracy by civilisation, 2017-2023",
+            "Supplementary Table 1: Projection accuracy by civilisation, 2017-2023",
             gacc,
             gacc.columns.tolist(),
             width_per_col=2.2,
@@ -2989,11 +2505,20 @@ def write_pptx(output_dir, data, fig_paths):
         cacc["mape"] = cacc["mape"].apply(lambda x: f"{x*100:.1f}%")
         cacc = cacc.rename(columns={"compartment": "Compartment", "rmse": "RMSE", "mape": "MAPE"})
         add_table_slide(
-            "Table 12: Projection accuracy by compartment, 2017-2023",
+            "Supplementary Table 2: Projection accuracy by compartment, 2017-2023",
             cacc,
             cacc.columns.tolist(),
             width_per_col=2.2,
         )
+
+    boot_tab = boot.copy()
+    boot_tab["T 95% CI"] = boot_tab.apply(lambda r: f"[{_fmt(r['T_equilibrium_q025'], 0)}, {_fmt(r['T_equilibrium_q975'], 0)}]", axis=1)
+    boot_tab["P_D 95% CI"] = boot_tab.apply(lambda r: f"[{_fmt(r['P_D_equilibrium_q025'], 0)}, {_fmt(r['P_D_equilibrium_q975'], 0)}]", axis=1)
+    boot_tab = boot_tab[["group", "T_equilibrium_median", "T 95% CI", "P_D_equilibrium_mean", "P_D 95% CI"]]
+    boot_tab.columns = ["Group", "T median", "T 95% CI", "P_D mean", "P_D 95% CI"]
+    for c in ["T median", "P_D mean"]:
+        boot_tab[c] = boot_tab[c].apply(lambda x: _fmt(x, 0))
+    add_table_slide("Supplementary Table 5: Bootstrap 95% CI", boot_tab, boot_tab.columns.tolist(), width_per_col=2.2)
 
     path = output_dir / "manuscript_full_article_figures.pptx"
     prs.save(path)
@@ -3003,6 +2528,78 @@ def write_pptx(output_dir, data, fig_paths):
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
+
+def write_supplementary_docx(output_dir, data, fig_paths):
+    """Write a supplementary-materials docx with detailed tables supporting the main manuscript."""
+    annual = load_annual_data()
+    boot = data[6]
+    doc = Document()
+    doc.add_heading("Supplementary Material", level=0)
+    p = doc.add_paragraph()
+    p.add_run("Sustaining Heterogeneity through Interventions in Global AI/ML Researcher Mobility: A Transition-Rate Framework")
+    p = doc.add_paragraph()
+    p.add_run("This supplement provides detailed tables that support the main manuscript. "
+              "Values are reproduced from the same result CSVs used to generate the main tables and figures; no numbers are hard-coded.")
+
+    doc.add_heading("Supplementary Table 1. Projection accuracy by civilisation, 2017-2023", level=1)
+    group_acc = annual.get("group_accuracy")
+    if group_acc is not None and not group_acc.empty:
+        gacc = group_acc.copy()
+        gacc["rmse"] = gacc["rmse"].apply(lambda x: _fmt(x, 2))
+        gacc["mape"] = gacc["mape"].apply(lambda x: f"{x*100:.1f}%")
+        if "direction_agreement" in gacc.columns:
+            gacc["direction_agreement"] = gacc["direction_agreement"].apply(lambda x: f"{x*100:.1f}%")
+        if "threshold_alarm_accuracy" in gacc.columns:
+            for c in ["threshold_alarm_accuracy", "threshold_alarm_sensitivity", "threshold_alarm_specificity", "threshold_alarm_precision"]:
+                gacc[c] = gacc[c].apply(lambda x: f"{x*100:.1f}%" if pd.notna(x) else "—")
+        rename = {"origin_group": "Group", "rmse": "RMSE", "mape": "MAPE", "direction_agreement": "Direction agreement"}
+        for c in ["threshold_alarm_accuracy", "threshold_alarm_sensitivity", "threshold_alarm_specificity", "threshold_alarm_precision"]:
+            if c in gacc.columns:
+                rename[c] = c.replace("threshold_alarm_", "Alarm ").replace("_", " ").title()
+        gacc = gacc.rename(columns=rename)
+        _add_table_from_df(doc, gacc, caption="Supplementary Table 1. Projection accuracy by civilisation, 2017-2023.", decimals={"MAPE": 2})
+    else:
+        doc.add_paragraph("No group-level accuracy data available.")
+
+    doc.add_heading("Supplementary Table 2. Projection accuracy by compartment, 2017-2023", level=1)
+    comp_acc = annual.get("compartment_accuracy")
+    if comp_acc is not None and not comp_acc.empty:
+        cacc = comp_acc.copy()
+        cacc["rmse"] = cacc["rmse"].apply(lambda x: _fmt(x, 2))
+        cacc["mape"] = cacc["mape"].apply(lambda x: f"{x*100:.1f}%")
+        if "direction_agreement" in cacc.columns:
+            cacc["direction_agreement"] = cacc["direction_agreement"].apply(lambda x: f"{x*100:.1f}%")
+        cacc = cacc.rename(columns={"compartment": "Compartment", "rmse": "RMSE", "mape": "MAPE", "direction_agreement": "Direction agreement"})
+        _add_table_from_df(doc, cacc, caption="Supplementary Table 2. Projection accuracy by compartment, 2017-2023.", decimals={"MAPE": 2})
+    else:
+        doc.add_paragraph("No compartment-level accuracy data available.")
+
+    doc.add_heading("Supplementary Table 3. Mean observed annual transition rates by civilisation, 2000-2016", level=1)
+    annual_means = annual_summary_table(annual)
+    if not annual_means.empty:
+        _add_table_from_df(doc, annual_means, caption="Supplementary Table 3. Mean observed annual transition rates by civilisation, 2000-2016.", decimals={"α": 3, "β": 3, "h_D": 3, "p_D": 3, "d": 3, "I_total": 2})
+    else:
+        doc.add_paragraph("No annual transition-rate data available.")
+
+    doc.add_heading("Supplementary Table 4. Top cross-civilisation origin-destination abroad author-year pairs", level=1)
+    interciv_top = interciv_top_table(annual)
+    if not interciv_top.empty:
+        _add_table_from_df(doc, interciv_top, caption="Supplementary Table 4. Top cross-civilisation origin-destination abroad author-year pairs.", decimals={"Author-years": 0})
+    else:
+        doc.add_paragraph("No inter-civilisation flow data available.")
+
+    doc.add_heading("Supplementary Table 5. Bootstrap 95% confidence intervals for equilibrium T and domestic PI pool P_D", level=1)
+    boot_tab = boot.copy()
+    boot_tab["T 95% CI"] = boot_tab.apply(lambda r: f"[{_fmt(r['T_equilibrium_q025'], 0)}, {_fmt(r['T_equilibrium_q975'], 0)}]", axis=1)
+    boot_tab["P_D 95% CI"] = boot_tab.apply(lambda r: f"[{_fmt(r['P_D_equilibrium_q025'], 0)}, {_fmt(r['P_D_equilibrium_q975'], 0)}]", axis=1)
+    boot_tab = boot_tab[["group", "T_equilibrium_median", "T 95% CI", "P_D_equilibrium_mean", "P_D 95% CI"]]
+    boot_tab.columns = ["Group", "T median", "T 95% CI", "P_D mean", "P_D 95% CI"]
+    _add_table_from_df(doc, boot_tab, caption="Supplementary Table 5. Bootstrap 95% confidence intervals for equilibrium T and domestic PI pool P_D.", decimals={"T median": 0, "P_D mean": 0})
+
+    sup_path = output_dir / "supplementary_material.docx"
+    doc.save(sup_path)
+    return sup_path
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -3040,20 +2637,32 @@ def main():
         "fig9": fig9,
     }
 
-    md_path = write_markdown(output_dir, data, fig_paths)
-    docx_path = write_docx(output_dir, data, fig_paths)
+    docx_path = write_docx(output_dir, data, fig_paths, blinded=False)
+    blinded_docx_path = write_docx(output_dir, data, fig_paths, blinded=True)
+    md_path = write_markdown(output_dir, docx_path=docx_path, blinded=False)
+    blinded_md_path = write_markdown(output_dir, docx_path=blinded_docx_path, blinded=True)
     pptx_path = write_pptx(output_dir, data, fig_paths)
+    sup_path = write_supplementary_docx(output_dir, data, fig_paths)
+    sup_md_path = write_markdown(output_dir, docx_path=sup_path, blinded=False)
 
-    print(f"Wrote {md_path}")
     print(f"Wrote {docx_path}")
+    print(f"Wrote {blinded_docx_path}")
+    print(f"Wrote {md_path}")
+    print(f"Wrote {blinded_md_path}")
     print(f"Wrote {pptx_path}")
+    print(f"Wrote {sup_path}")
+    if sup_md_path:
+        print(f"Wrote {sup_md_path}")
     print(f"Figures saved to {fig_dir}")
 
     # Build a submission zip containing the manuscript, editable figures, and PNGs
     zip_path = output_dir / "manuscript_full_article_submission.zip"
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
-        for path in [docx_path, pptx_path, md_path]:
-            zf.write(path, arcname=path.name)
+        for path in [docx_path, blinded_docx_path, pptx_path, md_path, blinded_md_path, sup_path]:
+            if path and path.exists():
+                zf.write(path, arcname=path.name)
+        if sup_md_path and sup_md_path.exists():
+            zf.write(sup_md_path, arcname=sup_md_path.name)
         for fig in sorted(fig_dir.glob("*.png")):
             zf.write(fig, arcname=f"figures/{fig.name}")
     print(f"Wrote {zip_path}")

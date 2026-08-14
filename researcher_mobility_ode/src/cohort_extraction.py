@@ -4,18 +4,19 @@ Build an AI/ML researcher cohort from OpenAlex and estimate crude transition
 rates for the per-civilisation ODE model.
 
 Usage:
-    python src/cohort_extraction.py --sample-per-group 200 --max-authors 1000
+    python src/cohort_extraction.py --sample-per-group 200 --max-authors 0
 """
 
 import argparse
 import json
 import math
+import time
 from collections import Counter, defaultdict
 from pathlib import Path
 
 import pandas as pd
 
-from openalex_client import OpenAlexClient
+from openalex_client import OpenAlexBudgetExhausted, OpenAlexClient
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,10 +27,9 @@ COHORT_DIR = DATA_DIR / "cohort"
 SUBFIELD = "subfields/1702"
 CAREER_START_MIN = 2000
 CAREER_START_MAX = 2016
-MIN_WORKS = 10
+MIN_WORKS = 2
 ABROAD_WINDOW = 6
 HIT_WINDOW = 8
-PI_MIN_AUTHORS = 6
 DROPOUT_LATEST_YEAR = 2019  # no work in 2020-2023 -> dropout (as of 2023)
 
 
@@ -93,6 +93,16 @@ def author_position(work, target_aid):
         if aid == target_aid:
             return auth.get("author_position")
     return None
+
+
+def is_last_author(work, target_aid):
+    """Return True if the target author is the last author, treating a single
+    authored paper as last author by default."""
+    authorships = work.get("authorships", [])
+    if len(authorships) == 1:
+        aid = author_id_key(((authorships[0].get("author") or {})).get("id"))
+        return aid == target_aid
+    return author_position(work, target_aid) == "last"
 
 
 def is_top10(work):
@@ -169,23 +179,23 @@ def classify_author(aid, works, a2g, origin_override=None):
             abroad_year = y
             break
 
-    # Hit within HIT_WINDOW years (non-last author)
+    # Hit within HIT_WINDOW years (top 10% AI/ML citation percentile,
+    # regardless of author position)
     hit = False
     hit_year = None
     for w in works:
         y = w["publication_year"]
         if y > career_start + HIT_WINDOW:
             break
-        pos = author_position(w, aid)
-        if pos != "last" and is_top10(w):
+        if is_top10(w):
             hit = True
             hit_year = y
             break
 
-    # PI proxy: first last-author paper with >= PI_MIN_AUTHORS authors
+    # PI proxy: first last-author paper (single-authored papers count as last)
     pi_year = None
     for w in works:
-        if author_position(w, aid) == "last" and len(w.get("authorships", [])) >= PI_MIN_AUTHORS:
+        if is_last_author(w, aid):
             pi_year = w["publication_year"]
             break
 
@@ -287,18 +297,44 @@ def build_cohort(sample_per_group, max_authors, client, a2g, group_to_a2):
         author_order = rng.sample(author_order, max_authors)
         print(f"Capped to {len(author_order)} authors for pilot.")
 
-    # Fetch works per author in batches of 100
+    # Fetch works per author in batches of 50
     works_by_author = defaultdict(list)
-    batch_size = 100
+    failed_batches = []
+    batch_size = 50
     author_batches = [
         author_order[i:i + batch_size] for i in range(0, len(author_order), batch_size)
     ]
     for i, batch in enumerate(author_batches, 1):
         print(f"  Fetching batch {i}/{len(author_batches)} ({len(batch)} authors) ...")
-        works = client.fetch_works_by_authors(
-            batch, "id,publication_year,authorships,citation_normalized_percentile",
-            subfield_id=SUBFIELD,
-        )
+        works = None
+        last_err = None
+        for attempt in range(3):
+            try:
+                works = client.fetch_works_by_authors(
+                    batch, "id,publication_year,authorships,citation_normalized_percentile",
+                    subfield_id=SUBFIELD,
+                )
+                break
+            except OpenAlexBudgetExhausted:
+                # Fail fast so an incomplete cohort is never written to disk.
+                raise
+            except Exception as e:
+                last_err = e
+                if attempt < 2:
+                    wait = 2 ** attempt
+                    print(f"    Batch {i} attempt {attempt + 1} failed: {e}. Retrying in {wait}s ...")
+                    time.sleep(wait)
+                    continue
+        if works is None:
+            failed_path = COHORT_DIR / "failed_batches.json"
+            failed_batches.append({"batch": i, "authors": batch, "error": str(last_err)})
+            with open(failed_path, "w", encoding="utf-8") as f:
+                json.dump(failed_batches, f, ensure_ascii=False, indent=2)
+            raise RuntimeError(
+                f"Batch {i}/{len(author_batches)} failed after 3 attempts: {last_err}. "
+                f"Failed batch logged to {failed_path}. Fix the API/network issue and rerun; "
+                f"incomplete cohort would be written otherwise."
+            )
         for w in works:
             for auth in w.get("authorships", []):
                 aid = author_id_key((auth.get("author") or {}).get("id"))
@@ -400,13 +436,13 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--sample-per-group", type=int, default=200,
                         help="Number of works to sample per civilization group.")
-    parser.add_argument("--max-authors", type=int, default=1000,
-                        help="Cap on unique authors to fetch works for (pilot safety).")
+    parser.add_argument("--max-authors", type=int, default=0,
+                        help="Cap on unique authors to fetch works for (0 = no cap).")
     parser.add_argument("--subfield-id", type=str, default="subfields/1702",
                         help="OpenAlex subfield ID to build the cohort for.")
     parser.add_argument("--output-dir", type=str, default=str(COHORT_DIR),
                         help="Directory to write cohort.csv, transition_rates.csv and raw_sampled_works.json.")
-    parser.add_argument("--min-works", type=int, default=10,
+    parser.add_argument("--min-works", type=int, default=2,
                         help="Minimum number of works in the target subfield for an author to be included.")
     parser.add_argument("--cache-dir", type=str, default=str(CACHE_DIR))
     parser.add_argument("--no-cache", action="store_true")

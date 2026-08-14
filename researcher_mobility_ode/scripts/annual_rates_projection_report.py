@@ -126,9 +126,9 @@ def build_annual_transitions(states=None):
     counts["count"] = counts["count"].astype(int)
     counts = counts.merge(stock, on=["origin_group", "year", "from"], how="left")
 
-    # Laplace smoothing: +0.5 to each possible destination, including exit to L
+    # Laplace smoothing: +1 to each possible destination, including exit to L
     num_to = len(COMPARTMENTS) + 1
-    counts["prob"] = (counts["count"] + 0.5) / (counts["stock"] + 0.5 * num_to)
+    counts["prob"] = (counts["count"] + 1.0) / (counts["stock"] + 1.0 * num_to)
 
     return counts, counts
 
@@ -194,7 +194,15 @@ def build_interciv_flows(states=None, cohort=None):
 
 
 def build_rate_table(probs, inflows, exits, states=None):
-    """Map observed transition counts to the ODE-style rate names per group-year."""
+    """Map observed transition counts to the ODE-style rate names per group-year.
+
+    Dropout cannot be reliably observed year-by-year in the training window
+    because final attrition is right-censored before 2023.  We therefore import
+    the cohort-level per-year dropout hazard from data/cohort/transition_rates.csv
+    and treat it as a constant annual rate for each group.  This keeps the annual
+    projection consistent with the ODE equilibrium while still allowing the other
+    transition rates to vary by year.
+    """
     stock = build_annual_stock(states)
     alpha = _rate(probs, "D", "A", "alpha")
     beta = _aggregate_return_rate(probs, stock)
@@ -202,7 +210,13 @@ def build_rate_table(probs, inflows, exits, states=None):
     h_A = _rate(probs, "A", "H_A", "h_A")
     p_D = _rate(probs, "H_D", "P_D", "p_D")
     p_A = _rate(probs, "H_A", "P_A", "p_A")
-    d = _dropout_rate(exits, stock)
+
+    # Cohort-level dropout hazard is a more reliable annual d than the exit counts
+    # (which are mostly zero because the reconstructed state sequence has no gaps).
+    cohort_rates = pd.read_csv(DATA_DIR / "cohort" / "transition_rates.csv")
+    cohort_d = cohort_rates[["group", "d"]].rename(columns={"group": "origin_group"})
+    d_grid = stock[["origin_group", "year"]].drop_duplicates()
+    d = d_grid.merge(cohort_d, on="origin_group", how="left").rename(columns={"d": "d"})
 
     rate_table = alpha.merge(beta, on=["origin_group", "year"], how="outer")
     for tbl in [h_D, h_A, p_D, p_A, d]:
@@ -228,7 +242,7 @@ def _aggregate_return_rate(probs, stock):
     return_counts = probs[mask].groupby(["origin_group", "year"], observed=False)["count"].sum().reset_index(name="return_count")
     abroad_stock = stock[stock["compartment"].isin(["A", "H_A", "P_A"])].groupby(["origin_group", "year"], observed=False)["count"].sum().reset_index(name="abroad_stock")
     merged = return_counts.merge(abroad_stock, on=["origin_group", "year"], how="outer").fillna(0)
-    merged["beta"] = (merged["return_count"] + 0.5) / (merged["abroad_stock"] + 0.5)
+    merged["beta"] = (merged["return_count"] + 1.0) / (merged["abroad_stock"] + 2.0)
     return merged[["origin_group", "year", "beta"]]
 
 
@@ -237,7 +251,7 @@ def _dropout_rate(exits, stock):
     total_stock = stock.groupby(["origin_group", "year"], observed=False)["count"].sum().reset_index(name="total_stock")
     exit_counts = exits.groupby(["origin_group", "year"], observed=False)["exit_count"].sum().reset_index(name="exit_count")
     merged = total_stock.merge(exit_counts, on=["origin_group", "year"], how="outer").fillna(0)
-    merged["d"] = (merged["exit_count"] + 0.5) / (merged["total_stock"] + 0.5)
+    merged["d"] = (merged["exit_count"] + 1.0) / (merged["total_stock"] + 2.0)
     return merged[["origin_group", "year", "d"]]
 
 
@@ -435,12 +449,42 @@ def project_population(states, projected_rates, train_end=2016, project_end=2026
     return pd.DataFrame(projections)
 
 
-def evaluate_projection(projected, observed, train_end=2016, project_end=2026):
-    """Compute RMSE and MAPE per group and compartment for 2017-2023.
+def _direction_category(delta, tol):
+    """Classify a year-to-year change as increase (+1), decrease (-1), or flat (0)."""
+    cat = pd.Series(np.zeros(len(delta), dtype=int), index=delta.index)
+    cat[delta > tol] = 1
+    cat[delta < -tol] = -1
+    return cat
+
+
+def _alarm_metrics(g):
+    """Return threshold-alarm confusion-matrix metrics for one group."""
+    tp = int(((g["alarm_obs"]) & (g["alarm_proj"])).sum())
+    tn = int(((~g["alarm_obs"]) & (~g["alarm_proj"])).sum())
+    fp = int(((~g["alarm_obs"]) & (g["alarm_proj"])).sum())
+    fn = int(((g["alarm_obs"]) & (~g["alarm_proj"])).sum())
+    total = tp + tn + fp + fn
+    return pd.Series({
+        "threshold_alarm_accuracy": (tp + tn) / total if total else float("nan"),
+        "threshold_alarm_sensitivity": tp / (tp + fn) if (tp + fn) else float("nan"),
+        "threshold_alarm_specificity": tn / (tn + fp) if (tn + fp) else float("nan"),
+        "threshold_alarm_precision": tp / (tp + fp) if (tp + fp) else float("nan"),
+        "threshold_alarms_obs": g["alarm_obs"].sum(),
+        "threshold_alarms_proj": g["alarm_proj"].sum(),
+    })
+
+
+def evaluate_projection(projected, observed, train_end=2016, project_end=2026, thresholds=None):
+    """Compute RMSE, MAPE, direction agreement, and threshold-alarm metrics for 2017-2023.
 
     The observed stock is reindexed to the full (group, year, compartment) grid
     so that cells with zero observed count are still compared against the
     projection, preventing the metrics from being artificially optimistic.
+
+    Direction agreement measures whether projected and observed year-to-year
+    changes have the same sign (increase / flat / decrease). Threshold-alarm
+    metrics compare observed and projected active pool T = D + H_D + P_D against
+    the group-specific minimum viable threshold M.
     """
     eval_years = list(range(train_end + 1, project_end + 1))
     full_grid = pd.MultiIndex.from_product(
@@ -452,21 +496,149 @@ def evaluate_projection(projected, observed, train_end=2016, project_end=2026):
     merged["error"] = merged["count_proj"] - merged["count_obs"]
     merged["ape"] = np.abs(merged["error"]) / (merged["count_obs"] + 1)
 
+    # Direction agreement: year-to-year change direction per group-compartment.
+    merged = merged.sort_values(["origin_group", "compartment", "year"]).reset_index(drop=True)
+    merged["delta_obs"] = merged.groupby(["origin_group", "compartment"], observed=False)["count_obs"].diff()
+    merged["delta_proj"] = merged.groupby(["origin_group", "compartment"], observed=False)["count_proj"].diff()
+    tol = merged.groupby(["origin_group", "compartment"], observed=False)["count_obs"].transform(lambda s: max(1.0, 0.05 * s.mean()))
+    merged["dir_obs"] = _direction_category(merged["delta_obs"], tol)
+    merged["dir_proj"] = _direction_category(merged["delta_proj"], tol)
+    merged["dir_agree"] = merged["dir_obs"] == merged["dir_proj"]
+    dir_rows = merged.dropna(subset=["delta_obs", "delta_proj"])
+
+    direction_group = dir_rows.groupby("origin_group", observed=False)["dir_agree"].mean().reset_index(name="direction_agreement")
+    direction_comp = dir_rows.groupby("compartment", observed=False)["dir_agree"].mean().reset_index(name="direction_agreement")
+    direction_overall = dir_rows["dir_agree"].mean()
+
     group_metrics = merged.groupby("origin_group", observed=False).agg(
         rmse=("error", lambda x: np.sqrt(np.mean(x ** 2))),
         mape=("ape", "mean"),
     ).reset_index()
+    group_metrics = group_metrics.merge(direction_group, on="origin_group", how="left")
 
     comp_metrics = merged.groupby("compartment", observed=False).agg(
         rmse=("error", lambda x: np.sqrt(np.mean(x ** 2))),
         mape=("ape", "mean"),
     ).reset_index()
+    comp_metrics = comp_metrics.merge(direction_comp, on="compartment", how="left")
+
+    # Threshold-alarm metrics: active pool T = D + H_D + P_D vs group M_threshold.
+    threshold_overall = pd.Series({
+        "threshold_alarm_accuracy": float("nan"),
+        "threshold_alarm_sensitivity": float("nan"),
+        "threshold_alarm_specificity": float("nan"),
+        "threshold_alarm_precision": float("nan"),
+    })
+    if thresholds is not None and not thresholds.empty:
+        active = merged[merged["compartment"].isin(["D", "H_D", "P_D"])].groupby(["origin_group", "year"], observed=False).agg(
+            count_obs=("count_obs", "sum"),
+            count_proj=("count_proj", "sum"),
+        ).reset_index()
+        tmap = thresholds.set_index("origin_group")["M_threshold"].to_dict()
+        active["M_threshold"] = active["origin_group"].map(tmap)
+        active["alarm_obs"] = active["count_obs"] < active["M_threshold"]
+        active["alarm_proj"] = active["count_proj"] < active["M_threshold"]
+        active["alarm_agree"] = active["alarm_obs"] == active["alarm_proj"]
+        threshold_group = active.groupby("origin_group", observed=False).apply(_alarm_metrics, include_groups=False).reset_index()
+        group_metrics = group_metrics.merge(threshold_group, on="origin_group", how="left")
+
+        tp = int(((active["alarm_obs"]) & (active["alarm_proj"])).sum())
+        tn = int(((~active["alarm_obs"]) & (~active["alarm_proj"])).sum())
+        fp = int(((~active["alarm_obs"]) & (active["alarm_proj"])).sum())
+        fn = int(((active["alarm_obs"]) & (~active["alarm_proj"])).sum())
+        total = tp + tn + fp + fn
+        if total:
+            threshold_overall = pd.Series({
+                "threshold_alarm_accuracy": (tp + tn) / total,
+                "threshold_alarm_sensitivity": tp / (tp + fn) if (tp + fn) else float("nan"),
+                "threshold_alarm_specificity": tn / (tn + fp) if (tn + fp) else float("nan"),
+                "threshold_alarm_precision": tp / (tp + fp) if (tp + fp) else float("nan"),
+            })
 
     overall = pd.DataFrame({
         "rmse": [np.sqrt(np.mean(merged["error"] ** 2))],
         "mape": [np.mean(merged["ape"])],
-    })
+        "direction_agreement": [direction_overall],
+    }, index=[0])
+    for k, v in threshold_overall.items():
+        overall[k] = v
+
+    # Drop helper columns so the public evaluation CSV stays tidy.
+    merged = merged.drop(columns=["delta_obs", "delta_proj", "dir_obs", "dir_proj", "dir_agree"], errors="ignore")
     return merged, group_metrics, comp_metrics, overall
+
+
+def evaluate_rate_projection(rate_table, projected_rates, train_end=2016, project_end=2023):
+    """Evaluate projected transition rates (not inflow or stock counts) against observed rates.
+
+    The observed rate_table contains the ODE-style rates for all years with data,
+    including 2017-2023.  We compare these with the projected_rates for the same
+    years.  A historical-mean baseline is computed from the training window
+    (<= train_end) and used to calculate a skill ratio (naive RMSE / model RMSE).
+    """
+    rate_names = ["alpha", "beta", "h_D", "h_A", "p_D", "p_A", "d"]
+    target_years = list(range(train_end + 1, project_end + 1))
+
+    obs = rate_table[rate_table["year"].isin(target_years)][["origin_group", "year"] + rate_names].copy()
+    proj = projected_rates[projected_rates["year"].isin(target_years)][["origin_group", "year"] + rate_names].copy()
+
+    if obs.empty or proj.empty:
+        return pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
+
+    merged = obs.merge(proj, on=["origin_group", "year"], suffixes=("_obs", "_proj"), how="inner")
+    for name in rate_names:
+        merged[name + "_error"] = merged[name + "_proj"] - merged[name + "_obs"]
+        merged[name + "_abserr"] = np.abs(merged[name + "_error"])
+        # Denominator guard: avoid division by zero and extreme outliers for near-zero observed rates.
+        merged[name + "_ape"] = merged[name + "_abserr"] / (merged[name + "_obs"] + 0.001)
+
+    # Historical-mean baseline from training window.
+    train = rate_table[rate_table["year"] <= train_end].copy()
+    means = train.groupby("origin_group")[rate_names].mean().reset_index()
+    baseline_grid = pd.DataFrame({
+        "year": np.repeat(target_years, len(means)),
+        "origin_group": np.tile(means["origin_group"].values, len(target_years)),
+    })
+    baseline = baseline_grid.merge(means, on="origin_group", how="left")
+    baseline_merged = obs.merge(baseline, on=["origin_group", "year"], suffixes=("_obs", "_base"), how="inner")
+
+    per_rate = []
+    for name in rate_names:
+        rmse = float(np.sqrt(np.mean(merged[name + "_error"] ** 2)))
+        mae = float(np.mean(merged[name + "_abserr"]))
+        mape = float(np.mean(merged[name + "_ape"]) * 100.0)
+        naive_rmse = float(np.sqrt(np.mean((baseline_merged[name + "_base"] - baseline_merged[name + "_obs"]) ** 2)))
+        skill = float(naive_rmse / rmse) if rmse > 1e-12 else float("nan")
+        per_rate.append({
+            "rate": name,
+            "rmse": rmse,
+            "mae": mae,
+            "mape": mape,
+            "naive_rmse": naive_rmse,
+            "skill": skill,
+        })
+    per_rate_df = pd.DataFrame(per_rate)
+
+    # Overall across all group-year-rate observations.
+    all_errors = pd.concat([merged[name + "_error"] for name in rate_names], ignore_index=True)
+    all_abs = pd.concat([merged[name + "_abserr"] for name in rate_names], ignore_index=True)
+    all_ape = pd.concat([merged[name + "_ape"] for name in rate_names], ignore_index=True)
+    overall_rmse = float(np.sqrt(np.mean(all_errors ** 2)))
+    overall_mae = float(np.mean(all_abs))
+    overall_mape = float(np.mean(all_ape) * 100.0)
+
+    base_errors = pd.concat([baseline_merged[name + "_base"] - baseline_merged[name + "_obs"] for name in rate_names], ignore_index=True)
+    overall_naive_rmse = float(np.sqrt(np.mean(base_errors ** 2)))
+    overall_skill = float(overall_naive_rmse / overall_rmse) if overall_rmse > 1e-12 else float("nan")
+    overall = pd.DataFrame({
+        "rmse": [overall_rmse],
+        "mae": [overall_mae],
+        "mape": [overall_mape],
+        "naive_rmse": [overall_naive_rmse],
+        "skill": [overall_skill],
+    })
+
+    return merged, per_rate_df, overall
 
 
 def load_equilibrium_summary():
@@ -514,16 +686,24 @@ def plot_annual_rates(rate_table, projected_rates, fig_dir=None):
 
 def plot_interciv_heatmap(flows, fig_dir=None):
     """Heatmap of total abroad stock by origin-destination pair, 2000-2023."""
+    flows = flows[
+        (flows["destination_group"] != "Unknown") &
+        (flows["origin_group"] != flows["destination_group"])
+    ].copy()
     pivot = flows.groupby(["origin_group", "destination_group"], observed=False)["count"].sum().reset_index()
     matrix = pivot.pivot(index="origin_group", columns="destination_group", values="count").fillna(0)
-    matrix = matrix.reindex(index=ORDERED_GROUPS, columns=ORDERED_GROUPS + ["Unknown"], fill_value=0)
+    matrix = matrix.reindex(index=ORDERED_GROUPS, columns=ORDERED_GROUPS, fill_value=0)
+    # Set diagonal (origin == destination) to NA so it is not plotted as a "flow"
+    for g in ORDERED_GROUPS:
+        if g in matrix.index and g in matrix.columns:
+            matrix.loc[g, g] = np.nan
     fig, ax = plt.subplots(figsize=(10, 8))
     im = ax.imshow(matrix.values, aspect="auto", cmap="YlOrRd")
     ax.set_xticks(range(len(matrix.columns)))
     ax.set_yticks(range(len(matrix.index)))
     ax.set_xticklabels(matrix.columns, rotation=45, ha="right")
     ax.set_yticklabels(matrix.index)
-    ax.set_title("Total abroad author-years by origin and destination group (2000-2023)", fontsize=11)
+    ax.set_title("Total cross-civilisation abroad author-years by origin (rows) and destination (columns), 2000-2023", fontsize=11)
     fig.colorbar(im, ax=ax, label="Author-years")
     fig.tight_layout()
     fig_dir = fig_dir or FIGURES_DIR
@@ -571,6 +751,7 @@ def add_caption(doc, text, style="Caption"):
 
 
 def build_docx(rate_table, projected, observed, eval_group, eval_comp, eval_overall,
+               rate_per_rate, rate_overall,
                fig_rates, fig_heatmap, fig_projection, interciv_flows):
     doc = Document()
     title = doc.add_heading("Annual transition rates, inter-civilisation flows, and 2017-2026 projection report", level=0)
@@ -588,7 +769,7 @@ def build_docx(rate_table, projected, observed, eval_group, eval_comp, eval_over
     doc.add_heading("2. Annual ODE-style transition rates", level=1)
     doc.add_paragraph(
         "Transition probabilities are estimated as count / stock for each civilisation and year. "
-        "Laplace smoothing (add-0.5) is applied to empty cells. Rates are mapped to the model parameters: "
+        "Laplace smoothing (add-1 per possible destination) is applied to empty cells. Rates are mapped to the model parameters: "
         "alpha (D -> A), beta (return from abroad), h_D/h_A (hit acquisition), p_D/p_A (PI promotion), and d (dropout)."
     )
     doc.add_picture(str(fig_rates), width=Inches(6.5))
@@ -596,12 +777,11 @@ def build_docx(rate_table, projected, observed, eval_group, eval_comp, eval_over
 
     doc.add_heading("3. Inter-civilisation flows", level=1)
     doc.add_paragraph(
-        "Figure 2 shows the total abroad author-years accumulated by origin and destination civilisation. "
-        "Destination is approximated by the author’s recent_group for all years in which they are abroad; "
-        "this is a lower-bound approximation because the exact year-to-year destination is not recorded in the public cohort."
+        "Figure 2 shows the total cross-civilisation abroad author-years accumulated by origin and destination civilisation. "
+        "Origin-destination cells with the same civilisation and destinations labelled Unknown are excluded because the exact year-to-year destination is not recorded in the public cohort."
     )
     doc.add_picture(str(fig_heatmap), width=Inches(5.5))
-    add_caption(doc, "Figure 2. Total abroad stock by origin (rows) and destination (columns), 2000-2023.")
+    add_caption(doc, "Figure 2. Total cross-civilisation abroad author-years by origin (rows) and destination (columns), 2000-2023.")
 
     doc.add_heading("4. Projection method and correction pressures", level=1)
     doc.add_paragraph(
@@ -610,7 +790,7 @@ def build_docx(rate_table, projected, observed, eval_group, eval_comp, eval_over
         "Inflows are projected with a log1p-linear model with the same R2 guard. Correction pressures include: "
         "(a) Laplace smoothing for sparse cells; "
         "(b) replacing unreliable trends with the historical mean so that, for example, a few early returns do not extrapolate to zero beta; "
-        "(c) capping dropout at 1.5 times its 90th percentile in the training window; "
+        "(c) anchoring annual dropout to the cohort-level per-year hazard because year-to-year final attrition is right-censored before 2023; "
         "(d) keeping all rates inside the [0, 1] probability interval; and "
         "(e) apportioning new entrants to the same first-compartment distribution observed in the training period. "
         "These corrections prevent the projection from fabricating an unbounded technology monopoly/oligopoly and keep "
@@ -657,6 +837,37 @@ def build_docx(rate_table, projected, observed, eval_group, eval_comp, eval_over
         "projection linearly extrapolates noisy training rates."
     )
 
+    doc.add_heading("5a. Rate-level forecast validation", level=1)
+    doc.add_paragraph(
+        "Stock-level projection is sensitive to the fact that the fixed cohort has no post-2016 new entrants, "
+        "so the rate-level forecast provides a cleaner validation of the annual layer. "
+        "Table 3 reports RMSE, MAE and a skill ratio against a historical-mean baseline for each transition rate. "
+        "A skill ratio above 1.0 indicates that the projected rates improve on the baseline."
+    )
+    table3 = doc.add_table(rows=1, cols=6)
+    table3.style = "Table Grid"
+    h3 = table3.rows[0].cells
+    h3[0].text = "Rate"
+    h3[1].text = "RMSE"
+    h3[2].text = "MAE"
+    h3[3].text = "MAPE"
+    h3[4].text = "Naive RMSE"
+    h3[5].text = "Skill"
+    for _, row in rate_per_rate.iterrows():
+        r = table3.add_row().cells
+        r[0].text = str(row["rate"])
+        r[1].text = f"{row['rmse']:.4f}"
+        r[2].text = f"{row['mae']:.4f}"
+        r[3].text = f"{row['mape']:.1f}%"
+        r[4].text = f"{row['naive_rmse']:.4f}"
+        r[5].text = f"{row['skill']:.2f}"
+    add_caption(doc, "Table 3. Rate-level projection accuracy, 2017-2023.")
+    if not rate_overall.empty:
+        doc.add_paragraph(
+            f"Overall rate-level RMSE = {rate_overall['rmse'].iloc[0]:.4f}, MAE = {rate_overall['mae'].iloc[0]:.4f}, "
+            f"MAPE = {rate_overall['mape'].iloc[0]:.1f}%, skill = {rate_overall['skill'].iloc[0]:.2f}."
+        )
+
     doc.add_heading("6. Validation and civilisational diversity", level=1)
     summary = load_equilibrium_summary()
     if summary is not None and "safety_margin" in summary.columns:
@@ -664,8 +875,8 @@ def build_docx(rate_table, projected, observed, eval_group, eval_comp, eval_over
             "The endogenous ODE model estimates a safety_margin (T - M) for each civilisation. "
             "Positive margins indicate that the domestic active pool is above the minimum viable size; "
             "negative margins indicate that the point-of-no-return has been crossed. "
-            "The projection in this report is constrained so that dropout does not grow faster than 1.5 times "
-            "its historical 90th percentile, which helps keep margins non-negative."
+            "The projection in this report is constrained so that annual dropout does not exceed 1.5 times "
+            "the cohort-level per-year hazard, which helps keep margins non-negative."
         )
     doc.add_paragraph(
         "The correction pressures are theoretically grounded. The linear 6-compartment system is stable only when the "
@@ -722,10 +933,22 @@ def main():
 
     observed_for_eval = stock[stock["year"] <= 2023].copy()
     max_obs_year = int(observed_for_eval["year"].max()) if not observed_for_eval.empty else 2023
-    merged, group_metrics, comp_metrics, overall = evaluate_projection(projected_stock, observed_for_eval, project_end=min(max_obs_year, 2026))
+    eq_summary = load_equilibrium_summary()
+    thresholds = None
+    if eq_summary is not None and {"group", "M_threshold"}.issubset(eq_summary.columns):
+        thresholds = eq_summary[["group", "M_threshold"]].rename(columns={"group": "origin_group"}).drop_duplicates()
+    merged, group_metrics, comp_metrics, overall = evaluate_projection(
+        projected_stock, observed_for_eval, project_end=min(max_obs_year, 2026), thresholds=thresholds
+    )
     merged.to_csv(ANNUAL_DIR / "projection_evaluation.csv", index=False)
     group_metrics.to_csv(ANNUAL_DIR / "projection_accuracy_by_group.csv", index=False)
     comp_metrics.to_csv(ANNUAL_DIR / "projection_accuracy_by_compartment.csv", index=False)
+
+    # Rate-level forecast validation: compare projected vs observed transition rates.
+    rate_merged, rate_per_rate, rate_overall = evaluate_rate_projection(rate_table, projected_rates, project_end=min(max_obs_year, 2023))
+    rate_merged.to_csv(ANNUAL_DIR / "projection_rate_evaluation.csv", index=False)
+    rate_per_rate.to_csv(ANNUAL_DIR / "projection_rate_accuracy.csv", index=False)
+    rate_overall.to_csv(ANNUAL_DIR / "projection_rate_accuracy_overall.csv", index=False)
 
     fig_rates = plot_annual_rates(rate_table, projected_rates)
     fig_heatmap = plot_interciv_heatmap(interciv_stock)
@@ -733,9 +956,15 @@ def main():
 
     doc_path = build_docx(rate_table, projected_stock, observed_for_eval,
                           group_metrics, comp_metrics, overall,
+                          rate_per_rate, rate_overall,
                           fig_rates, fig_heatmap, fig_projection, interciv_stock)
     print(f"Wrote {doc_path}")
-    print(f"Overall projection RMSE: {overall['rmse'].iloc[0]:.3f}, MAPE: {overall['mape'].iloc[0]:.3%}")
+    print(f"Overall projection RMSE: {overall['rmse'].iloc[0]:.3f}, MAPE: {overall['mape'].iloc[0]:.3%}, "
+          f"direction agreement: {overall['direction_agreement'].iloc[0]:.1%}")
+    if "threshold_alarm_accuracy" in overall.columns:
+        print(f"Threshold-alarm accuracy: {overall['threshold_alarm_accuracy'].iloc[0]:.1%}, "
+              f"sensitivity: {overall['threshold_alarm_sensitivity'].iloc[0]:.1%}, "
+              f"specificity: {overall['threshold_alarm_specificity'].iloc[0]:.1%}")
 
     # Generate editable PPTX and a submission zip with docx, figures, and CSVs
     pptx_script = Path(__file__).parent / "build_annual_projection_pptx.py"

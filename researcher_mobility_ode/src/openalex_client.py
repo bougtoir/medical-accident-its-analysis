@@ -8,19 +8,54 @@ import hashlib
 import json
 import os
 import time
+from datetime import datetime, timezone
+from email.utils import parsedate_to_datetime
 from pathlib import Path
 
 import requests
 
 OPENALEX_BASE = "https://api.openalex.org"
 DEFAULT_MAILTO = "researcher-mobility-probe@example.org"
+# Do not wait more than 30 minutes for a single Retry-After directive.
+MAX_RETRY_AFTER_SECONDS = 1800
+
+
+def _parse_retry_after(value):
+    """Parse a Retry-After header value (seconds or HTTP-date) into seconds.
+
+    Returns None if the value cannot be parsed.
+    """
+    value = (value or "").strip()
+    if not value:
+        return None
+    try:
+        return max(1, int(float(value)))
+    except ValueError:
+        pass
+    try:
+        dt = parsedate_to_datetime(value)
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        return max(1, int((dt - datetime.now(timezone.utc)).total_seconds()))
+    except Exception:
+        return None
+
+
+class OpenAlexBudgetExhausted(RuntimeError):
+    """Raised when the OpenAlex account has no remaining API budget."""
 
 
 class OpenAlexClient:
-    def __init__(self, cache_dir=None, mailto=DEFAULT_MAILTO, delay=0.05):
+    def __init__(self, cache_dir=None, mailto=DEFAULT_MAILTO, delay=0.05, api_key=None):
         self.mailto = mailto
         self.delay = delay
+        self.api_key = api_key or os.environ.get("OPENALEX_API_KEY")
         self.session = requests.Session()
+        if self.api_key:
+            # Send the key in the Authorization header so it never appears in the
+            # URL query string (which would be logged by proxies/CDNs and embedded
+            # in cache filenames / exception messages).
+            self.session.headers["Authorization"] = f"Bearer {self.api_key}"
         self.cache_dir = Path(cache_dir) if cache_dir else None
         if self.cache_dir:
             self.cache_dir.mkdir(parents=True, exist_ok=True)
@@ -39,10 +74,22 @@ class OpenAlexClient:
             if self.delay:
                 time.sleep(self.delay)
             r = self.session.get(url, params=req_params, timeout=90)
-            if r.status_code in (429, 503):
+            if r.status_code in (429, 500, 502, 503, 504):
+                # Fail fast only if both daily and prepaid budgets are exhausted.
+                if r.status_code == 429:
+                    try:
+                        body = r.json()
+                    except Exception:
+                        body = {}
+                    if body.get("dailyRemainingUsd", 1) == 0 and body.get("prepaidRemainingUsd", 1) == 0:
+                        raise OpenAlexBudgetExhausted(
+                            f"OpenAlex budget exhausted ({body.get('message', 'no budget')}). "
+                            "Add credits or wait for reset before re-extracting."
+                        )
                 retry_after = r.headers.get("Retry-After")
-                if retry_after:
-                    backoff = max(1, int(retry_after))
+                parsed_backoff = _parse_retry_after(retry_after)
+                if parsed_backoff is not None:
+                    backoff = min(parsed_backoff, MAX_RETRY_AFTER_SECONDS)
                 else:
                     backoff = min(60, 2 ** attempt)
                 time.sleep(backoff)
@@ -112,12 +159,15 @@ class OpenAlexClient:
                         break
         return results[:n]
 
-    def fetch_works_by_authors(self, author_ids, select_fields, per_page=200, subfield_id="subfields/1702"):
+    def fetch_works_by_authors(self, author_ids, select_fields, per_page=200, subfield_id="subfields/1702", publication_year=None):
         """Return all works in the target subfield for a list of author IDs (<=100 for OR)."""
         if not author_ids:
             return []
         ids = "|".join(sorted(author_ids))
-        base_filter = f"authorships.author.id:{ids},topics.subfield.id:{subfield_id}"
+        filters = [f"authorships.author.id:{ids}", f"topics.subfield.id:{subfield_id}"]
+        if publication_year:
+            filters.append(f"publication_year:{publication_year}")
+        base_filter = ",".join(filters)
         results = []
         for page in self.paginate(
             "works",
