@@ -812,9 +812,9 @@ def build_manuscript():
     table(doc,
           ["Specialty", f"Physicians {BIEN[0]}", f"Physicians {BIEN[-1]}",
            f"Lit. rate {BIEN[0]}", f"Lit. rate {BIEN[-1]}",
-           f"Hospitals {BIEN[0]}", f"Hospitals {BIEN[-1]}"],
+           f"Hospital facilities {BIEN[0]}", f"Hospital facilities {BIEN[-1]}"],
           rows,
-          f"Table 1. Physicians, litigation rate (per {_per} physicians) and hospitals by "
+          f"Table 1. Physicians, litigation rate (per {_per} physicians) and hospital facilities by "
           "specialty, first and last waves.")
 
     head(doc, "Primary association and equivalence", level=2)
@@ -840,10 +840,10 @@ def build_manuscript():
     trow = [
         ["Physician growth ~ lagged rate", f"{fmt(PHYS['coef'],4)}",
          f"{fmt(PHYS['ci_low'],4)}, {fmt(PHYS['ci_high'],4)}", f"{PHYS['p']:.2f}", PHYS['n_obs']],
-        ["Hospital growth ~ lagged rate", f"{fmt(HOSP['coef'],4)}",
+        ["Hospital facility-count growth ~ lagged rate", f"{fmt(HOSP['coef'],4)}",
          f"{fmt(HOSP['ci_low'],4)}, {fmt(HOSP['ci_high'],4)}", f"{HOSP['p']:.2f}", HOSP['n_obs']],
         ["Counts contrast (physician)", f"{fmt(CNT['coef'],4)}", "\u2014", f"{CNT['p']:.2f}", CNT['n_obs']],
-        ["Annual hospital (sensitivity)", f"{fmt(ANN['coef'],4)}", "\u2014", f"{ANN['p']:.2f}", ANN['n_obs']],
+        ["Annual hospital facility-count growth (sensitivity)", f"{fmt(ANN['coef'],4)}", "\u2014", f"{ANN['p']:.2f}", ANN['n_obs']],
         ["Interpolated physician (sensitivity)", f"{fmt(INT['coef'],4)}", "\u2014", f"{INT['p']:.2f}", INT['n_obs']],
         ["Reverse (workforce\u2192litigation)", f"{fmt(REV['coef'],3)}", "\u2014", f"{REV['p']:.2f}", REV['n_obs']],
     ]

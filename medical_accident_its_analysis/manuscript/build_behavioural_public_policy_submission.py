@@ -638,7 +638,7 @@ def build_manuscript():
         f"per {PER:,} physicians in each specialty-year, which removes specialty-size confounding because large "
         f"specialties generate more claims for reasons unrelated to per-physician risk. The primary analysis "
         f"used the {len(BIEN)} measured biennial physician waves ({BIEN[0]}-{BIEN[-1]}). For each specialty "
-        f"we computed the biennial log-change in physicians (and, separately, in hospitals) and regressed it on "
+        f"we computed the biennial log-change in physicians (and, separately, in hospital facility counts) and regressed it on "
         f"the lagged litigation rate at the start of the interval, in a panel with specialty and wave fixed effects, "
         f"cluster-robust standard errors, and a JOCS-CP indicator for obstetrics and gynaecology from 2009 onward.{{angrist}} "
         f"Clusters are defined by specialty, so G={N} and the small-cluster correction uses a t-distribution with "
@@ -647,7 +647,7 @@ def build_manuscript():
     m(doc, r"\Delta \log(Y_{st}) = \alpha_s + \delta_t + \beta \cdot \text{litrate}_{s,t-1} + \gamma \cdot \text{JOCS-CP}_{s,t-1} + \epsilon_{st}")
     b(
         doc,
-        "Here, Y is either physicians or hospitals, alpha_s are specialty fixed effects, "
+        "Here, Y is either physician counts or hospital facility counts, alpha_s are specialty fixed effects, "
         "delta_t are wave fixed effects, and standard errors are clustered by specialty. "
         "For the equivalence analysis we standardised litrate to a z-score, so beta gives the "
         "expected biennial log-change per one-SD increase in the litigation rate.",
@@ -724,11 +724,11 @@ def build_manuscript():
             f"Physicians {BIEN[-1]}",
             f"Lit. rate {BIEN[0]}",
             f"Lit. rate {BIEN[-1]}",
-            f"Hospitals {BIEN[0]}",
-            f"Hospitals {BIEN[-1]}",
+            f"Hospital facilities {BIEN[0]}",
+            f"Hospital facilities {BIEN[-1]}",
         ],
         rows,
-        f"Table 1. Physicians, litigation rate (per {PER:,} physicians) and hospitals by specialty, first and last waves.",
+        f"Table 1. Physicians, litigation rate (per {PER:,} physicians) and hospital facilities by specialty, first and last waves.",
     )
 
     h(doc, "Primary association and equivalence", level=2)
@@ -764,7 +764,7 @@ def build_manuscript():
             PHYS["n_obs"],
         ],
         [
-            "Hospital growth ~ lagged rate",
+            "Hospital facility-count growth ~ lagged rate",
             ha.fmt(HOSP["coef"], 4),
             f"{ha.fmt(HOSP['ci_low'], 4)}, {ha.fmt(HOSP['ci_high'], 4)}",
             f"{HOSP['p']:.2f}",
@@ -778,7 +778,7 @@ def build_manuscript():
             CNT["n_obs"],
         ],
         [
-            "Annual hospital (sensitivity)",
+            "Annual hospital facility-count growth (sensitivity)",
             ha.fmt(ANN["coef"], 4),
             " -- ",
             f"{ANN['p']:.2f}",
