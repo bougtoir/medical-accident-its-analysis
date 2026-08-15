@@ -100,7 +100,7 @@ def plot_equivalence(eq, outfile, title, margin1=0.01, margin2=0.02):
         ax.plot([e["ci90_low"], e["ci90_high"]], [y, y], "b-", lw=2)
         ax.plot(e["coef_per_SD"], y, "bo", ms=7)
     for mg, c in [(margin1, "orange"), (margin2, "red")]:
-        ax.axvline(mg, color=c, ls="--", lw=1, label=f"±{int(mg*100)}% margin")
+        ax.axvline(mg, color=c, ls="--", lw=1, label=f"+/-{int(mg*100)}% margin")
         ax.axvline(-mg, color=c, ls="--", lw=1)
     ax.axvline(0, color="k", lw=0.8)
     ax.set_yticks(ys)
@@ -179,9 +179,9 @@ def plot_workflow(outfile, title):
     arrow(0.89, 0.83)
     box("Healthcare workforce allocation\nas a resource-allocation decision\n(policy lever: litigation risk)", 0.80, color="#e8e8e8")
     arrow(0.77, 0.71)
-    box("Two observational fallacies to avoid\n• Counts are confounded by specialty size\n• Interpolation inflates apparent panel size", 0.67)
+    box("Two observational fallacies to avoid\n* Counts are confounded by specialty size\n* Interpolation inflates apparent panel size", 0.67)
     arrow(0.63, 0.57)
-    box("Primary analytical choices\n• Exposure: rate per 1,000 physicians\n• Frequency: measured biennial waves\n• Model: specialty + wave fixed effects\n• Cluster-robust SEs (G=12; df=G-1=11)\n• Equivalence testing (TOST) with ±1% / ±2% margins", 0.51)
+    box("Primary analytical choices\n* Exposure: rate per 1,000 physicians\n* Frequency: measured biennial waves\n* Model: specialty + wave fixed effects\n* Cluster-robust SEs (G=12; df=G-1=11)\n* Equivalence testing (TOST) with +/-1% / +/-2% margins", 0.51)
     arrow(0.45, 0.37)
     box("Sensitivity-analysis dimensions\n1. Counts vs. rates\n2. Biennial vs. interpolated-annual physician data\n3. Annual hospital data\n4. JMSR report rate, media coverage, JOCS-CP indicator", 0.31)
     arrow(0.25, 0.17)
@@ -273,7 +273,7 @@ def main():
     # Base figures (retained for other manuscripts)
     plot_litigation_rate(
         P, L, bien, "fig1_litigation_rate.png",
-        "Figure 1. Litigation rate by specialty (rate, not count), 2008–2024")
+        "Figure 1. Litigation rate by specialty (rate, not count), 2008-2024")
     plot_physician_index(
         P, bien, "fig2_physician_index.png",
         "Figure 2. Physician workforce by specialty, indexed to 2008")
@@ -319,7 +319,7 @@ def main():
         "litigation risk as a healthcare workforce-allocation lever.")
     plot_litigation_rate(
         P, L, bien, "ha_Supplementary_Figure_2.png",
-        "Supplementary Figure 2. Litigation rate by specialty (rate, not count), 2008–2024")
+        "Supplementary Figure 2. Litigation rate by specialty (rate, not count), 2008-2024")
     plot_physician_index(
         P, bien, "ha_Supplementary_Figure_3.png",
         "Supplementary Figure 3. Physician workforce by specialty, indexed to 2008")

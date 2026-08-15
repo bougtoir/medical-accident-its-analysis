@@ -237,9 +237,9 @@ REFS = {
     "jocscp": "Japan Council for Quality Health Care. Japan Obstetric Compensation System for Cerebral Palsy. Tokyo: Japan Council for Quality Health Care; 2009.",
     "phys": "Ministry of Health, Labour and Welfare. Statistics of Physicians, Dentists and Pharmacists. Tokyo: MHLW; 2024. Available from: https://www.mhlw.go.jp/toukei/list/33-20b.html (accessed 11 August 2026).",
     "court": "Supreme Court of Japan, Committee on Medical Litigation. Statistics on medical malpractice litigation (closed cases by specialty). Tokyo: Supreme Court of Japan; 2024. Available from: https://www.courts.go.jp/ (accessed 11 August 2026).",
-    "mhlw_senkoi2018": "Ministry of Health, Labour and Welfare. 新専門医制度における専攻医の採用状況等について（平成30年度新専門医制度スタートに向けて）. Tokyo: MHLW; 2018. Available from: https://www.mhlw.go.jp/content/10803000/000452411.pdf (accessed 15 August 2026).",
-    "mhlw_3_5yr": "Ministry of Health, Labour and Welfare. 医籍登録後３～５年目の医師数（主たる診療科別）. Tokyo: MHLW; 2015. Available from: https://www.mhlw.go.jp/file/06-Seisakujouhou-10800000-Iseikyoku/323.pdf (accessed 15 August 2026).",
-    "facil": "Ministry of Health, Labour and Welfare. Survey of Medical Institutions (Dynamic). Tokyo: MHLW; 2024. Available from: https://www.mhlw.go.jp/toukei/list/79-1a.html (accessed 11 August 2026).",   
+    "mhlw_senkoi2018": "Ministry of Health, Labour and Welfare. Adoption status of specialist trainees under the new specialist training system (toward the FY2018 launch). Tokyo: MHLW; 2018. Available from: https://www.mhlw.go.jp/content/10803000/000452411.pdf (accessed 15 August 2026).",
+    "mhlw_3_5yr": "Ministry of Health, Labour and Welfare. Number of physicians 3-5 years after medical registration, by principal specialty. Tokyo: MHLW; 2015. Available from: https://www.mhlw.go.jp/file/06-Seisakujouhou-10800000-Iseikyoku/323.pdf (accessed 15 August 2026).",
+    "facil": "Ministry of Health, Labour and Welfare. Survey of Medical Institutions (Dynamic). Tokyo: MHLW; 2024. Available from: https://www.mhlw.go.jp/toukei/list/79-1a.html (accessed 11 August 2026).",
     "mais": "Act on the Promotion of Medical Safety; Medical Accident Investigation System (2015). Tokyo: MHLW; 2015.",
     "jmsr_data": "Japan Medical Safety Research Organisation. Annual reports of medical accident investigations (2015-2024). Tokyo: JMSR; 2025.",
     "nikkei": "Nikkei Inc. Nikkei Telecom 21. Tokyo: Nikkei Inc. Accessed 2024. Available from: https://telecom.nikkei.co.jp/",
@@ -308,6 +308,72 @@ def p_tost_fmt(p, digits=3):
     fmt_str = f"{{p:.{digits}f}}"
     s = fmt_str.format(p=p)
     return "<0.001" if s == "0." + "0" * digits else s
+
+
+# Map common non-ASCII punctuation to ASCII equivalents. This keeps the
+# manuscript free of double-byte or multi-byte textual characters while
+# leaving Word OMML equations (which live under m:oMath, not w:r) untouched.
+_ASCII_MAP = {
+    "\u2013": "-",   # en dash
+    "\u2014": "--", # em dash
+    "\u00b1": "+/-", # plus-minus sign
+    "\u2192": "->",  # rightwards arrow
+    "\u2022": "*",   # bullet
+    "\u2212": "-",   # minus sign
+    "\u00d7": "x",   # multiplication sign
+    "\u2018": "'",   # left single quotation mark
+    "\u2019": "'",   # right single quotation mark
+    "\u201c": '"',   # left double quotation mark
+    "\u201d": '"',   # right double quotation mark
+    "\u2026": "...", # horizontal ellipsis
+}
+
+
+def _is_in_math(run):
+    """Return True if a run lives inside a Word OMML equation."""
+    el = run._element
+    while el is not None:
+        if el.tag.endswith("oMath") or el.tag.endswith("oMathPara"):
+            return True
+        el = el.getparent()
+    return False
+
+
+def _normalize_text(text: str) -> str:
+    for src, dst in _ASCII_MAP.items():
+        text = text.replace(src, dst)
+    return text
+
+
+def normalize_docx(doc):
+    """Replace non-ASCII punctuation in all paragraphs and tables of a docx."""
+    for p in doc.paragraphs:
+        for run in p.runs:
+            if _is_in_math(run):
+                continue
+            if run.text:
+                run.text = _normalize_text(run.text)
+    for table in doc.tables:
+        for row in table.rows:
+            for cell in row.cells:
+                for p in cell.paragraphs:
+                    for run in p.runs:
+                        if _is_in_math(run):
+                            continue
+                        if run.text:
+                            run.text = _normalize_text(run.text)
+
+
+def normalize_pptx(prs):
+    """Replace non-ASCII punctuation in all text frames of a pptx."""
+    for slide in prs.slides:
+        for shape in slide.shapes:
+            if hasattr(shape, "text_frame"):
+                tf = shape.text_frame
+                for p in tf.paragraphs:
+                    for run in p.runs:
+                        if run.text:
+                            run.text = _normalize_text(run.text)
 
 
 def cite_number(keys):
@@ -404,18 +470,18 @@ def field(doc, label, text):
 
 
 def figure(doc, fn, caption, width=Inches(5.8)):
+    p = doc.add_paragraph()
+    p.paragraph_format.space_before = Pt(14)
+    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    img = os.path.join(OUT, fn)
+    if os.path.exists(img):
+        p.add_run().add_picture(img, width=width)
     cap = doc.add_paragraph()
-    cap.paragraph_format.space_before = Pt(14)
     cap.paragraph_format.space_after = Pt(6)
     rc = cap.add_run(caption)
     rc.bold = True
     rc.font.size = Pt(10)
     rc.font.name = "Times New Roman"
-    p = doc.add_paragraph()
-    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    img = os.path.join(OUT, fn)
-    if os.path.exists(img):
-        p.add_run().add_picture(img, width=width)
     doc.add_paragraph()
 
 
@@ -1087,6 +1153,7 @@ def build_manuscript():
         r.font.name = "Times New Roman"
 
     out = os.path.join(BASE, "ha_manuscript_en.docx")
+    normalize_docx(doc)
     doc.save(out)
     main_wc = sum(wc(t) for t in BODY_TEXTS)
     print(f"wrote {out}; abstract {abstract_wc} words; main body ~{main_wc} words")
@@ -1126,6 +1193,7 @@ def build_title_page(main_word_count):
         r.font.name = "Times New Roman"
 
     out = os.path.join(BASE, "ha_title_page.docx")
+    normalize_docx(doc)
     doc.save(out)
     print("wrote", out)
 
@@ -1157,6 +1225,7 @@ def build_highlights():
         p.paragraph_format.line_spacing = 1.5
         p.paragraph_format.space_after = Pt(4)
     out = os.path.join(BASE, "ha_highlights.docx")
+    normalize_docx(doc)
     doc.save(out)
     print("wrote", out)
 
@@ -1225,6 +1294,7 @@ def build_cover_letter():
             r.font.name = "Times New Roman"
 
     out = os.path.join(BASE, "ha_cover_letter.docx")
+    normalize_docx(doc)
     doc.save(out)
     print("wrote", out)
 
@@ -1464,6 +1534,7 @@ def build_supplementary():
           "STROBE checklist for observational cohort studies.")
 
     out = os.path.join(BASE, "ha_supplementary.docx")
+    normalize_docx(doc)
     doc.save(out)
     print("wrote", out)
 
@@ -1513,6 +1584,7 @@ def build_figure_pptx():
     for fn, num, cap in main_figs:
         add_slide(prs, fn, num, cap)
     out = os.path.join(BASE, "ha_figures.pptx")
+    normalize_pptx(prs)
     prs.save(out)
     print("wrote", out)
 
@@ -1522,6 +1594,7 @@ def build_figure_pptx():
     for fn, num, cap in supp_figs:
         add_slide(prs2, fn, num, cap)
     out2 = os.path.join(BASE, "ha_supplementary_figures.pptx")
+    normalize_pptx(prs2)
     prs2.save(out2)
     print("wrote", out2)
 
