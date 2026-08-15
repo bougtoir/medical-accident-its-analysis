@@ -476,7 +476,7 @@ def m(doc, latex, inline=False, para=None):
     return ha.add_math(doc, latex, inline=inline, para=para)
 
 
-def build_manuscript():
+def build_manuscript(inline=False):
     # Reset citation order and body-text accumulator shared with ha module
     ha._CITE_ORDER.clear()
     ha.BODY_TEXTS.clear()
@@ -527,8 +527,12 @@ def build_manuscript():
         return ha.para(doc, _cite(text), **kw)
 
     global f, t, b, p
-    f = f_bpp
-    t = t_bpp
+    if inline:
+        f = lambda doc, fn, caption, width=Inches(5.8): ha.figure(doc, fn, caption, width=width)
+        t = lambda doc, headers, rows, caption: ha.table(doc, headers, rows, caption)
+    else:
+        f = f_bpp
+        t = t_bpp
     b = b_bpp
     p = p_bpp
 
@@ -1285,13 +1289,18 @@ def build_manuscript():
         "identifiable data or patient records; no ethics approval was required.",
     )
 
-    out = os.path.join(BASE, "bpp_manuscript_en.docx")
+    out = os.path.join(BASE, "bpp_manuscript_en_inline.docx" if inline else "bpp_manuscript_en.docx")
     ha.normalize_docx(doc)
     doc.save(out)
     main_wc = sum(ha.wc(t) for t in ha.BODY_TEXTS)
     total_wc = sum(ha.wc(p.text) for p in doc.paragraphs if p.text.strip())
     print(f"wrote {out}; abstract {abstract_wc} words; main body ~{main_wc} words; total ~{total_wc} words")
     return main_wc, abstract_wc, total_wc
+
+
+def build_inline_manuscript():
+    """Build a manuscript with figures and tables placed inline at first mention."""
+    return build_manuscript(inline=True)
 
 
 def build_title_page(main_word_count, total_word_count):
@@ -1482,6 +1491,7 @@ def create_submission_zip():
     zip_path = os.path.join(OUT, "bpp_submission.zip")
     file_map = [
         (os.path.join(BASE, "bpp_manuscript_en.docx"), "bpp_manuscript_en.docx"),
+        (os.path.join(BASE, "bpp_manuscript_en_inline.docx"), "bpp_manuscript_en_inline.docx"),
         (os.path.join(BASE, "bpp_title_page.docx"), "bpp_title_page.docx"),
         (os.path.join(BASE, "bpp_cover_letter.docx"), "bpp_cover_letter.docx"),
         (os.path.join(BASE, "bpp_highlights.docx"), "bpp_highlights.docx"),
@@ -1529,6 +1539,7 @@ def create_figures_upload_zip():
 
 def main():
     main_wc, abstract_wc, total_wc = build_manuscript()
+    build_inline_manuscript()
     build_title_page(main_wc, total_wc)
     build_highlights()
     build_cover_letter()
