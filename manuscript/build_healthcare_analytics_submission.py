@@ -78,6 +78,20 @@ def sens(label_key):
     raise KeyError(label_key)
 
 
+def het(label_key):
+    for r in RES.get("heterogeneity", []):
+        if label_key in r["label"]:
+            return r
+    raise KeyError(label_key)
+
+
+def trend(label_key):
+    for r in RES.get("trend_sensitivity", []):
+        if label_key in r["label"]:
+            return r
+    raise KeyError(label_key)
+
+
 PHYS = prim("physician growth ~ lagged litigation rate")
 HOSP = prim("hospital growth ~ lagged litigation rate")
 REV = prim("Reverse")
@@ -1099,7 +1113,7 @@ def build_title_page(main_word_count):
         f"Word count (main text): approximately {main_word_count} words (excluding abstract, references, declarations, tables and figure legends)",
         "Article type: Original research article",
         "Target journal: Healthcare Analytics (Elsevier)",
-        "Tables: 2  Figures: 4  Supplementary tables: 7  Supplementary figures: 3",
+        "Tables: 2  Figures: 4  Supplementary tables: 9  Supplementary figures: 3",
         "Conflicts of interest: none declared",
         "Funding: none",
         f"Data availability: all primary data and analysis code are openly available in the project repository ({PUBLIC_REPO}).",
@@ -1218,6 +1232,45 @@ def build_cover_letter():
 def build_supplementary():
     doc = _setup_doc()
     head(doc, "Supplementary material", level=1, numbered=False)
+
+    # Supplementary Note 1: detailed statistical methods (supports Methods section simplification)
+    head(doc, "Supplementary Note 1. Detailed statistical methods", level=2, numbered=False)
+    para(doc,
+         "This note records the full model specification, equivalence-testing rationale, and power "
+         "diagnostics summarised in the main text. It also describes the heterogeneity and trend-"
+         "robustness checks reported in Supplementary Table 9.")
+    para(doc,
+         "Primary estimating equation. Let s index specialty, t index the biennial wave, and Y be "
+         "the count of physicians or hospitals. The baseline model is")
+    add_math(doc, r"\Delta \log(Y_{st}) = \alpha_s + \delta_t + \beta \cdot \text{litrate}_{s,t-1} + \gamma \cdot \text{JOCS-CP}_{s,t-1} + \epsilon_{st}")
+    para(doc,
+         "where alpha_s are specialty fixed effects, delta_t are wave fixed effects, litrate is closed "
+         "malpractice claims per 1,000 physicians, and JOCS-CP is an obstetrics-and-gynaecology-specific "
+         "indicator from 2009 onward. Standard errors are clustered by specialty and inference uses a "
+         "t-distribution with G-1 degrees of freedom, where G=12.")
+    para(doc,
+         "Equivalence testing. Two one-sided tests (TOST) evaluate whether the per-SD litigation-rate "
+         "coefficient beta lies inside a pre-specified symmetric margin m. The null hypotheses are")
+    add_math(doc, r"H_0: \beta \leq -m \quad \text{and} \quad H_0: \beta \geq +m")
+    para(doc,
+         "Equivalence is declared when both one-sided tests yield p < 0.05. Margins of 1% and 2% biennial "
+         "workforce change were chosen because they are smaller than typical policy targets for specialty "
+         "rebalancing.")
+    para(doc,
+         "Power diagnostics. The minimum detectable effect (MDE) at 80% power for the per-SD coefficient "
+         "is (t(0.975, df) + t(0.80, df)) x SE. The power to declare equivalence within margin m when the "
+         "true effect is zero is 2 x F_t(m / SE) - 1, where F_t is the cumulative distribution function of "
+         "the t(df) distribution. These quantities make the limited information in a 12-cluster panel explicit.")
+    para(doc,
+         "Heterogeneity and trend robustness. To test whether the association differed by baseline "
+         "litigation risk or surgical orientation, the model was augmented with an interaction between "
+         "litrate and a binary group indicator:")
+    add_math(doc, r"\Delta \log(Y_{st}) = \alpha_s + \delta_t + \beta \cdot \text{litrate}_{s,t-1} + \delta_g \cdot (\text{litrate}_{s,t-1} \times \text{Group}_s) + \epsilon_{st}")
+    para(doc,
+         "Group_s is either high-litigation (above the median specialty mean lagged litigation rate) "
+         "or surgical (surgery, orthopaedics, obstetrics and gynaecology, urology). The main effect of "
+         "Group is absorbed by the specialty fixed effects and is omitted. A separate robustness check "
+         "added specialty-specific linear trends, C(specialty) x year, to the baseline specification.")
 
     para(doc, "Supplementary Figure 1. Sensitivity-analysis framework for evaluating "
               "malpractice-litigation risk as a healthcare workforce-allocation lever.")
@@ -1348,6 +1401,36 @@ def build_supplementary():
               "Supplementary Table 8. Specialist-trainee coverage by specialty. "
               "Coverage is the number of 2018 first-year specialist trainees divided by the number "
               "of physicians reported 3\u20135 years after medical registration in 2014, by primary specialty.")
+
+    # Supplementary Table 9: heterogeneity and trend robustness
+    het_rows = []
+    for r in RES.get("heterogeneity", []):
+        het_rows.append([
+            "Physician growth" if "physician" in r["label"].lower() else "Hospital growth",
+            r["group"].capitalize(),
+            f"{fmt(r['coef'], 4)} ({fmt(r['se'], 4)})",
+            f"{r['p']:.2f}",
+            f"{fmt(r['interact_coef'], 4)} ({fmt(r['interact_se'], 4)})",
+            f"{r['interact_p']:.2f}",
+            r["n_obs"],
+        ])
+    for r in RES.get("trend_sensitivity", []):
+        het_rows.append([
+            "Physician growth" if "physician" in r["label"].lower() else "Hospital growth",
+            "Specialty trends",
+            f"{fmt(r['coef'], 4)} ({fmt(r['se'], 4)})",
+            f"{r['p']:.2f}",
+            "\u2014", "\u2014",
+            r["n_obs"],
+        ])
+    table(doc,
+          ["Outcome", "Group / check", "Main coefficient (SE)", "p",
+           "Interaction coefficient (SE)", "p", "n"],
+          het_rows,
+          "Supplementary Table 9. Heterogeneity and trend-robustness checks. "
+          "High-litigation and surgical models include an interaction between the lagged litigation rate "
+          "and a binary group indicator (the main effect of the group is absorbed by specialty fixed effects). "
+          "The trend-robustness model adds specialty-specific linear time trends.")
 
     # STROBE checklist
     head(doc, "STROBE checklist", level=1, numbered=False)
