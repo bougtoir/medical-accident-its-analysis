@@ -116,6 +116,11 @@ _BPP_CITE_SHORT = {
 _CITE_RE = re.compile(r"\{([^}]+)\}")
 
 
+def _bpp_get_cite_year(ref: str, key: str) -> str:
+    """Return the publication year with a Harvard-style a/b/c suffix when needed."""
+    return _bpp_get_year(ref) + _BPP_YEAR_SUFFIX.get(key, "")
+
+
 def _bpp_get_year(ref: str) -> str:
     """Extract a 4-digit publication year from a reference string."""
     m = re.search(r";\s*(\d{4})", ref)
@@ -131,6 +136,24 @@ def _bpp_get_year(ref: str) -> str:
     if m:
         return m.group(0)
     return "????"
+
+
+def _bpp_build_year_suffixes(refs: dict) -> dict:
+    """Assign a/b/c suffixes to references with the same author and year."""
+    groups = {}
+    for key, ref in refs.items():
+        year = _bpp_get_year(ref)
+        author_raw = ref.split(". ", 1)[0].strip().lower()
+        groups.setdefault((author_raw, year), []).append(key)
+    suffix = {}
+    for (author, year), keys in groups.items():
+        if len(keys) > 1:
+            for i, k in enumerate(sorted(keys, key=lambda kk: refs[kk].lower())):
+                suffix[k] = chr(ord("a") + i)
+    return suffix
+
+
+_BPP_YEAR_SUFFIX = _bpp_build_year_suffixes(ha.REFS)
 
 
 def _bpp_has_initials(token: str) -> bool:
@@ -290,7 +313,8 @@ def _bpp_harvard_reference(ref: str, key: str) -> str:
             "Nikkei Inc (2024), Nikkei Telecom 21. Nikkei Inc, Tokyo. "
             "Available at: https://telecom21.nikkei.co.jp/ (Accessed 2024)."
         )
-    year = _bpp_get_year(ref)
+    base_year = _bpp_get_year(ref)
+    year = base_year + _BPP_YEAR_SUFFIX.get(key, "")
     # Split on '. ' but not within a doi or a URL/access line; this separates
     # authors, title and tail.
     parts = re.split(r"\. (?!doi|Available|Accessed|\(accessed)", ref, flags=re.IGNORECASE)
@@ -311,7 +335,7 @@ def _bpp_harvard_reference(ref: str, key: str) -> str:
         journal_tail = _bpp_fmt_journal_tail(tail)
         return f"{author_str} ({year}), {title} {journal}. {journal_tail}"
     # Reports, books and web pages
-    rest = _bpp_fmt_book_tail(tail, year)
+    rest = _bpp_fmt_book_tail(tail, base_year)
     return f"{author_str} ({year}), {title} {rest}"
 
 
@@ -395,7 +419,7 @@ def build_manuscript():
                     _cite_order.append(k)
                 ref = ha.REFS[k]
                 author = _bpp_in_text_author(ref, k)
-                year = _bpp_get_year(ref)
+                year = _bpp_get_cite_year(ref, k)
                 entries.append(f"{author}, {year}")
             return " (" + "; ".join(entries) + ")"
 
@@ -530,8 +554,8 @@ def build_manuscript():
         f"specialty from the biennial Statistics of Physicians, Dentists and Pharmacists{{phys}}; "
         f"closed malpractice claims by specialty from the Supreme Court of Japan{{court}}; and hospital "
         f"counts by specialty from the annual Survey of Medical Institutions.{{facil}} Two sensitivity "
-        f"series were also used: annual medical accident investigation reports by specialty from the "
-        f"Japan Medical Safety Research Organisation (JMSR, 2015-2024){{jmsr_data}} and total national "
+        f"series were also used: annual medical accident investigation reports by specialty (2015-2024) "
+        f"from the Japan Medical Safety Research Organisation{{jmsr_data}} and total national "
         f"newspaper article counts from Nikkei Telecom 21 (2004-2018; the sensitivity analysis uses "
         f"{MEDIA_START}-{MEDIA_END}; keywords: medical error + medical malpractice).{{nikkei}} The full "
         f"extraction pipeline (with source identifiers and SHA-256 checksums) is documented in the "
@@ -845,7 +869,7 @@ def build_manuscript():
     b(
         doc,
         f"We also evaluated JMSR medical-accident investigation report counts as a potential confounder or "
-        f"competing exposure.{{mais}} From {ha.JMSR_CORR['years'][0]} to {ha.JMSR_CORR['years'][-1]}, raw "
+        f"competing exposure.{{jmsr_data}} From {ha.JMSR_CORR['years'][0]} to {ha.JMSR_CORR['years'][-1]}, raw "
         f"litigation and JMSR report counts were strongly correlated across specialties (Pearson "
         f"r={ha.JMSR_CORR['pooled_r']:.2f}), because large specialties generate more of both. After removing "
         f"specialty-specific levels and trends, however, the within-specialty correlation was negligible "
@@ -1145,7 +1169,8 @@ def build_manuscript():
     for k in _cite_order:
         entry = _bpp_harvard_reference(ha.REFS[k], k)
         author_token = entry.split(" (", 1)[0].split(",")[0].strip().lower()
-        _harvard_entries.append((entry, author_token, _bpp_get_year(ha.REFS[k])))
+        year_token = _bpp_get_year(ha.REFS[k]) + _BPP_YEAR_SUFFIX.get(k, "")
+        _harvard_entries.append((entry, author_token, year_token))
     _harvard_entries.sort(key=lambda x: (x[1], x[2]))
     for entry, _, _ in _harvard_entries:
         p_ref = doc.add_paragraph()
