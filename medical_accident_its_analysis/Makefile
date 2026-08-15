@@ -17,8 +17,5 @@ analysis: data
 figures: analysis
 	$(PY) manuscript/build_figures_en.py
 
-bpp_submission: figures
-	$(PY) manuscript/build_behavioural_public_policy_submission.py
-
 clean:
 	rm -rf data_primary/__pycache__ manuscript/__pycache__

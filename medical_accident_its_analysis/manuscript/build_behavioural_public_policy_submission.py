@@ -933,26 +933,23 @@ def build_cover_letter():
 
 
 def build_supplementary():
-    """Create a BPP-named copy of the Healthcare Analytics supplementary file."""
+    """Build the Healthcare Analytics supplementary file and copy it to a BPP-named file."""
+    # Always regenerate so the supplementary tables match the latest results JSON.
+    ha.build_supplementary()
     src = os.path.join(BASE, "ha_supplementary.docx")
-    if not os.path.exists(src):
-        ha.build_supplementary()
     dst = os.path.join(BASE, "bpp_supplementary.docx")
     shutil.copyfile(src, dst)
     print("wrote", dst)
 
 
 def build_figure_pptx():
-    """Create BPP-named copies of the Healthcare Analytics editable figure PPTX files."""
+    """Build the Healthcare Analytics editable figure PPTX files and copy them to BPP-named files."""
+    # Always regenerate so the embedded figures match the latest output/ha_*.png files.
+    ha.build_figure_pptx()
     pairs = [
         ("ha_figures.pptx", "bpp_figures.pptx"),
         ("ha_supplementary_figures.pptx", "bpp_supplementary_figures.pptx"),
     ]
-    for src_name, dst_name in pairs:
-        src = os.path.join(BASE, src_name)
-        if not os.path.exists(src):
-            ha.build_figure_pptx()
-            break
     for src_name, dst_name in pairs:
         src = os.path.join(BASE, src_name)
         dst = os.path.join(BASE, dst_name)
