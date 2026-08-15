@@ -251,6 +251,19 @@ def build_manuscript():
         "general incident-reporting system and is not used as an exposure here.{mais} Primary data "
         "sources and their resolution are summarised in Supplementary Table 1.",
     )
+    b(
+        doc,
+        "The 12 specialties are not arbitrary selections but represent the core clinical categories "
+        "in which Japanese physicians typically obtain initial board certification. Japan's specialist "
+        "training programme is a two-tiered system: physicians first complete residency and gain "
+        "certification in one of the core specialties (e.g., internal medicine, surgery, obstetrics and "
+        "gynaecology, paediatrics, anaesthesiology), after which some proceed to a narrower subspecialty "
+        "within that primary field. Biennial physician counts and Supreme Court litigation statistics are "
+        "both reported at this primary-specialty level, so our analysis captures the broad workforce-allocation "
+        "decision at the first tier of the training pipeline. Subspecialties are not separately tracked in "
+        "the official biennial series, so we analyse the 12 primary fields as the relevant units of "
+        "specialty choice and policy intervention.",
+    )
 
     h(doc, "Statistical analysis", level=2)
     b(
@@ -710,8 +723,10 @@ def build_manuscript():
     h(doc, "Limitations", level=2)
     b(
         doc,
-        f"This is an ecological, specialty-level analysis and cannot establish individual-level causality. The physician "
-        f"census is biennial, giving {len(BIEN)} measured waves; we addressed the limited power directly through equivalence "
+        f"This is an ecological, specialty-level analysis and cannot establish individual-level causality. The 12 specialties "
+        f"correspond to the primary-specialty tier of Japan's two-tiered specialist training programme; the analysis therefore "
+        f"describes workforce allocation at the initial board-certification stage and may not extend to narrower subspecialties that "
+        f"are not separately tracked in the biennial census. The physician census is biennial, giving {len(BIEN)} measured waves; we addressed the limited power directly through equivalence "
         f"testing and by pooling across specialties, but residual power constraints remain and the equivalence margins are a "
         f"judgement. Litigation rates may be endogenous to physician supply if a smaller workforce increases workload and hence "
         f"incidents; the lagged exposure, fixed effects, and reverse specification make reverse causation unlikely, yet unobserved "
