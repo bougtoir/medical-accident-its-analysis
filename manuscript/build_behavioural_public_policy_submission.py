@@ -77,12 +77,18 @@ def _senkoi_summary():
         return None
     coverages = [(v["coverage_pct"], k) for k, v in SENKOI.items()]
     lo, hi = min(coverages), max(coverages)
+    total_senkoi = sum(v["senkoi_2018"] for v in SENKOI.values())
+    total_pool = sum(v["physicians_3_5_yr_2014"] for v in SENKOI.values())
+    weighted = 100 * total_senkoi / total_pool if total_pool else 0
     return {
         "min_val": lo[0],
         "min_spec": lo[1],
         "max_val": hi[0],
         "max_spec": hi[1],
         "mean_val": sum(c[0] for c in coverages) / len(coverages),
+        "weighted_val": weighted,
+        "total_senkoi": total_senkoi,
+        "total_pool": total_pool,
     }
 
 SENKOI_SUM = _senkoi_summary()
@@ -912,8 +918,8 @@ def build_manuscript():
         b(
             doc,
             f"As a reference for the size of the specialist-training pipeline, first-year specialist-trainee "
-            f"(senkoi) positions in 2018 covered {SENKOI_SUM['mean_val']:.1f}% of physicians in the third to "
-            f"fifth year after medical registration in 2014, with specialty-specific coverage ranging from "
+            f"(senkoi) positions in 2018 covered {SENKOI_SUM['weighted_val']:.1f}% of physicians in the third to "
+            f"fifth year after medical registration in 2014 (weighted by specialty stock), with specialty-specific coverage ranging from "
             f"{SENKOI_SUM['min_val']:.1f}% ({ha.EN[SENKOI_SUM['min_spec']].lower()}) to "
             f"{SENKOI_SUM['max_val']:.1f}% ({ha.EN[SENKOI_SUM['max_spec']].lower()}).{{mhlw_senkoi2018,mhlw_3_5yr}} "
             f"These coverage rates are not an outcome of the litigation-risk model, but they confirm that "
