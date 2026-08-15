@@ -1,0 +1,100 @@
+{
+  "source": "最高裁判所 医事関係訴訟委員会 診療科目別既済件数",
+  "note": "annual; broad specialties as published; 2024 provisional (速報値); overlaps cross-checked between sources",
+  "mismatches": [
+    [
+      2017,
+      "内科",
+      "lit_2025stat_2017-2024.pdf",
+      179,
+      "lit_2017mtg_spec.pdf",
+      181
+    ],
+    [
+      2017,
+      "内科",
+      "lit_2024mtg_spec.pdf",
+      179,
+      "lit_2017mtg_spec.pdf",
+      181
+    ],
+    [
+      2017,
+      "内科",
+      "lit_2022stat_2015-2021.pdf",
+      179,
+      "lit_2017mtg_spec.pdf",
+      181
+    ]
+  ],
+  "files": [
+    {
+      "file": "lit_2025stat_2017-2024.pdf",
+      "kind": "text",
+      "years": [
+        2017,
+        2018,
+        2019,
+        2020,
+        2021,
+        2022,
+        2023,
+        2024
+      ],
+      "sha256": "fe2c7953a6de52b89ef9d2f7b20216dc270fb5c70d1a0fe5c60ef12812871a28"
+    },
+    {
+      "file": "lit_2024mtg_spec.pdf",
+      "kind": "text",
+      "years": [
+        2017,
+        2018,
+        2019,
+        2020,
+        2021,
+        2022,
+        2023
+      ],
+      "sha256": "b67f3f9b97a729c6d8f1518b8b329b5b770ea65a0c0f4ca9323be2f4ffffca3d"
+    },
+    {
+      "file": "lit_2022stat_2015-2021.pdf",
+      "kind": "text",
+      "years": [
+        2015,
+        2016,
+        2017,
+        2018,
+        2019,
+        2020,
+        2021
+      ],
+      "sha256": "64d722a9baadaec35bd2365e5b4ac24c7336378660644cae40f4088b65f68e2e"
+    },
+    {
+      "file": "lit_2017mtg_spec.pdf",
+      "kind": "text",
+      "years": [
+        2011,
+        2012,
+        2013,
+        2014,
+        2015,
+        2016,
+        2017
+      ],
+      "sha256": "ba2691682468643ef3cada290da25437dfa0562c9dc92b787d14a8df28b74f9b"
+    },
+    {
+      "file": "image_transcription.csv",
+      "kind": "digitised-scan",
+      "years": [
+        2008,
+        2009,
+        2010
+      ],
+      "sha256": "46d754a3a29cd63455a87692c23e4e6f0665c4918149c1f2713baa5f74ca61b1",
+      "validated": "2011 overlap == lit_2017mtg_spec.pdf"
+    }
+  ]
+}
