@@ -69,6 +69,22 @@ SP = ha.SP
 n_pos = sum(1 for v in SP.values() if v["rho"] > 0)
 n_sig = sum(1 for v in SP.values() if v["p"] < 0.05)
 DESCR = ha.DESCR
+SENKOI = ha.SENKOI
+
+def _senkoi_summary():
+    if SENKOI is None:
+        return None
+    coverages = [(v["coverage_pct"], k) for k, v in SENKOI.items()]
+    lo, hi = min(coverages), max(coverages)
+    return {
+        "min_val": lo[0],
+        "min_spec": lo[1],
+        "max_val": hi[0],
+        "max_spec": hi[1],
+        "mean_val": sum(c[0] for c in coverages) / len(coverages),
+    }
+
+SENKOI_SUM = _senkoi_summary()
 
 BPP_TITLE = (
     "Perceived malpractice risk and real workforce allocation: "
@@ -264,6 +280,18 @@ def build_manuscript():
         "the official biennial series, so we analyse the 12 primary fields as the relevant units of "
         "specialty choice and policy intervention.",
     )
+    if SENKOI_SUM is not None:
+        b(
+            doc,
+            f"As a reference for the size of the specialist-training pipeline, first-year specialist-trainee "
+            f"(senkoi) positions in 2018 covered {SENKOI_SUM['mean_val']:.1f}% of physicians in the third to "
+            f"fifth year after medical registration in 2014, with specialty-specific coverage ranging from "
+            f"{SENKOI_SUM['min_val']:.1f}% ({ha.EN[SENKOI_SUM['min_spec']].lower()}) to "
+            f"{SENKOI_SUM['max_val']:.1f}% ({ha.EN[SENKOI_SUM['max_spec']].lower()}).{{mhlw_senkoi2018,mhlw_3_5yr}} "
+            f"These coverage rates are not an outcome of the litigation-risk model, but they confirm that "
+            "the 12 primary specialties capture the main initial specialization decision in Japan; "
+            "Supplementary Table 8 reports the counts by specialty.",
+        )
 
     h(doc, "Statistical analysis", level=2)
     b(
@@ -818,7 +846,7 @@ def build_title_page(main_word_count):
         f"Word count (main text): approximately {main_word_count} words (excluding abstract, references, declarations, tables and figure legends)",
         "Article type: Original research article",
         "Target journal: Behavioural Public Policy (Cambridge Core)",
-        "Tables: 2  Figures: 4  Supplementary tables: 7  Supplementary figures: 3",
+        "Tables: 2  Figures: 4  Supplementary tables: 8  Supplementary figures: 3",
         "Conflicts of interest: none declared",
         "Funding: none",
         f"Data availability: all primary data and analysis code are openly available in the project repository ({PUBLIC_REPO}).",
