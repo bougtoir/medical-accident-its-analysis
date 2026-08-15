@@ -482,7 +482,7 @@ def build_manuscript():
         f"malpractice litigation pushes physicians away from high-risk specialties, but this may "
         f"reflect salient adverse events more than actual decisions. Using national administrative data "
         f"for {N} clinical specialties in Japan ({BIEN[0]}-{BIEN[-1]}), we tested whether "
-        f"litigation risk predicts physician and hospital supply. We measured exposure as closed "
+        f"litigation risk predicts physician supply and hospital facility counts. We measured exposure as closed "
         f"malpractice claims per {PER:,} physicians and regressed biennial log-changes in physician "
         f"and hospital counts on the lagged litigation rate in a panel with specialty and wave fixed "
         f"effects, cluster-robust standard errors, and equivalence tests. The workforce grew in {GREW} "
@@ -583,7 +583,7 @@ def build_manuscript():
         f"litigation. Three official primary series drove the main analysis: physician counts by "
         f"specialty from the biennial Statistics of Physicians, Dentists and Pharmacists{{phys}}; "
         f"closed malpractice claims by specialty from the Supreme Court of Japan{{court}}; and hospital "
-        f"counts by specialty from the annual Survey of Medical Institutions.{{facil}} Two sensitivity "
+        f"counts by specialty from the annual Survey of Medical Institutions.{{facil}} Hospital counts are the number of facilities reporting each specialty, not beds or staffing. Two sensitivity "
         f"series were also used: annual medical accident investigation reports by specialty (2015-2024) "
         f"from the Japan Medical Safety Research Organisation{{jmsr_data}} and total national "
         f"newspaper article counts from Nikkei Telecom 21 (2004-2018; the sensitivity analysis uses "
@@ -1159,7 +1159,7 @@ def build_manuscript():
     h(doc, "Limitations", level=2)
     b(
         doc,
-        f"This is an ecological, specialty-level analysis and cannot establish individual-level causality. The 12 specialties "
+        f"This is an ecological, specialty-level analysis and cannot establish individual-level causality. We do not directly observe individual physicians' subjective risk perceptions, so the behavioural interpretation of the null result in terms of availability, loss aversion and status-quo bias is theoretically informed rather than directly tested. The 12 specialties "
         f"correspond to the primary-specialty tier of Japan's two-tiered specialist training programme; the analysis "
         f"describes workforce allocation at the initial board-certification stage and may not extend to narrower subspecialties that "
         f"are not separately tracked in the biennial census. The physician census is biennial, giving {len(BIEN)} measured waves; we addressed the limited power directly through equivalence "
