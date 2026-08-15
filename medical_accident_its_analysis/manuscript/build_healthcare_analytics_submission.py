@@ -378,19 +378,10 @@ def normalize_pptx(prs):
 
 
 _ZIP_ASCII_REPLACEMENTS = {
-    # Greek/math symbols -> ASCII (keeps Word OMML equations readable)
-    "Δ": "Delta",
-    "α": "alpha",
-    "β": "beta",
-    "γ": "gamma",
-    "δ": "delta",
-    "ϵ": "epsilon",
-    "·": "*",
-    "−": "-",
-    "×": "*",
-    "≤": "&lt;=",
-    "≥": ">=",
-    "»": ">>",
+    # Greek letters and common math symbols are intentionally NOT replaced here.
+    # sanitize_zip encodes any remaining non-ASCII characters as numeric XML
+    # character references (&#...;), so equations stay visually correct while
+    # the file itself contains only ASCII bytes.
     # East-Asian theme fonts -> ASCII font names
     "ＭＳ 明朝": "MS Mincho",
     "ＭＳ ゴシック": "MS Gothic",
@@ -417,10 +408,10 @@ def _sanitize_xml_text(text: str) -> str:
 def sanitize_zip(path: str) -> None:
     """Rewrite a .docx or .pptx so its XML contains only ASCII characters.
 
-    Replaces non-ASCII math symbols with ASCII equivalents and normalises
-    East-Asian font names in theme/fontTable XML. This is a post-processing
-    step so that the final files contain no full-width or multibyte characters
-    while remaining valid Office documents.
+    Applies ASCII replacements for punctuation and East-Asian font names, then
+    encodes any remaining non-ASCII characters as numeric XML character references
+    (&#...;).  This keeps Word OMML equations (Greek letters, math symbols)
+    visually intact while ensuring no multibyte bytes remain in the file.
     """
     import tempfile, shutil
 
@@ -435,7 +426,7 @@ def sanitize_zip(path: str) -> None:
                 if item.filename.endswith(".xml") or item.filename.endswith(".rels"):
                     text = data.decode("utf-8", errors="replace")
                     text = _sanitize_xml_text(text)
-                    data = text.encode("utf-8")
+                    data = text.encode("ascii", "xmlcharrefreplace")
                 zout.writestr(item, data)
     finally:
         os.remove(tmp)
