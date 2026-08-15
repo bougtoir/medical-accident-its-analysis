@@ -100,6 +100,9 @@ BPP_TITLE = (
 # and in the cover letter, which are removed during double-blind peer review.
 ANON_REPO = "URL omitted for anonymised peer review"
 
+# Placeholder for the title-page data-availability line during anonymised peer review.
+TITLE_REPO_PLACEHOLDER = "[repository URL to be inserted on acceptance]"
+
 # Short in-text author names for organisational references
 _BPP_CITE_SHORT = {
     "phys": "Ministry of Health, Labour and Welfare",
@@ -1209,7 +1212,7 @@ def build_manuscript():
         doc,
         "All primary data files, extraction scripts and analysis code are openly available in the project "
         f"repository ({ANON_REPO}), enabling full reproduction of every reported number. The full repository URL "
-        "is provided in the title page.",
+        "is provided to the editor on request.",
     )
 
     h(doc, "Ethics approval", level=1)
@@ -1253,7 +1256,7 @@ def build_title_page(main_word_count, total_word_count):
         "Tables: 2  Figures: 4  Supplementary tables: 8  Supplementary figures: 3",
         "Conflicts of interest: none declared",
         "Funding: none",
-        f"Data availability: all primary data and analysis code are openly available in the project repository ({PUBLIC_REPO}).",
+        f"Data availability: all primary data and analysis code are openly available in the project repository ({TITLE_REPO_PLACEHOLDER}).",
     ]
     for line in lines:
         p = doc.add_paragraph()
