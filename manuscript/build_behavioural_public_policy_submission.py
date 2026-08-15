@@ -913,7 +913,7 @@ def build_manuscript():
         "The null result is not merely a failure to detect an effect. The narrow confidence intervals, "
         "pre-specified equivalence margins, and power diagnostics allow us to say that, if litigation risk "
         "does influence specialty-level workforce growth, the magnitude is too small to matter for workforce "
-        "planning. For behavioural public policy, this is a important distinction: a widely discussed risk can "
+        "planning. For behavioural public policy, this is an important distinction: a widely discussed risk can "
         "be highly available and emotionally salient without being a reliable policy lever. The public policy "
         "question is not whether physicians worry about litigation, but whether a policy that reduces litigation "
         "risk would materially change aggregate specialty supply. Our evidence suggests it would not.",
@@ -1061,6 +1061,19 @@ def build_manuscript():
     )
     b(
         doc,
+        "A choice-architecture framing makes this logic more concrete. The Japanese training system is not a neutral menu of options: "
+        "residency placement, examination schedules, and seniority-based promotion create a default path that most trainees follow. "
+        "Default effects are among the most robust findings in behavioural science: when one option is made salient and easy, uptake rises "
+        "even if alternatives are objectively superior. In specialist medicine, the default is to remain in the specialty where training "
+        "investment has already been made, and the reference point is the income and professional identity associated with that specialty. "
+        "No-fault compensation and payment design do not change the headline probability of a lawsuit; they change the financial and career "
+        "consequences attached to the risk, which is what matters for a loss-averse trainee deciding whether to leave the default path. "
+        "Training subsidies and loan forgiveness can alter the default at the entry margin by lowering the cost of entering high-risk "
+        "fields before sunk costs accumulate. These interventions are therefore not simply neoclassical incentives; they are "
+        "choice-architecture tools that shift the reference point and make the socially desirable specialty the easier default.",
+    )
+    b(
+        doc,
         "For policymakers, the lesson is that litigation-avoidance campaigns are a weak instrument compared with redesigning "
         "the choice architecture that physicians face. Defaults can be shifted in several ways. No-fault compensation schemes remove "
         "the adversarial framing of patient injury and reduce the tail risk of large damages, thereby altering the perceived loss "
@@ -1073,6 +1086,17 @@ def build_manuscript():
         "simply publicising that malpractice claims are rare is unlikely to override the availability heuristic that makes vivid cases "
         "salient, or the status-quo bias that keeps established specialists in place. Behavioural public policy is therefore better "
         "served by structural redesign than by risk communication alone.{lin2022}",
+    )
+    b(
+        doc,
+        "This framing also explains why information campaigns that publicise the rarity of malpractice claims are unlikely to alter "
+        "aggregate supply. The availability heuristic means that vivid, recent cases dominate decision weights regardless of their "
+        "frequency, so a national trend line does not remove salient exemplars from memory or media coverage. If anything, repeated "
+        "reminders that claims are 'rare' can keep the issue accessible. By contrast, no-fault compensation removes the adversarial "
+        "courtroom as a possible future scene, payment design changes the income reference point, and training subsidies change the entry "
+        "default. Our empirical results situate this behavioural prediction in administrative data: the aggregate workforce does not "
+        "respond to the litigation rate, consistent with the view that structural defaults and loss aversion dominate rare-event risk "
+        "perception.",
     )
     h(doc, "Limitations", level=2)
     b(
@@ -1109,7 +1133,10 @@ def build_manuscript():
         f"maldistribution in this setting. Policymakers may more productively target structural incentives, especially no-fault "
         f"compensation and payment design, rather than rely on the assumption that reducing litigation will retain physicians in "
         f"high-risk specialties. The transparent, reproducible sensitivity-analysis framework used here is exportable to other "
-        f"healthcare workforce-policy levers.",
+        f"healthcare workforce-policy levers. More generally, the results caution against treating highly salient risks as "
+        f"reliable policy levers when the underlying choice architecture preserves strong structural incentives. Behavioural public "
+        f"policy is most effective when it redesigns the decision context rather than attempting to counteract it through "
+        f"information alone.",
     )
 
     # References (Harvard style, alphabetical by first author surname)
