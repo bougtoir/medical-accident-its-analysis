@@ -157,6 +157,34 @@ HOSP_DF = load("facilities_hospital_by_specialty.csv")
 CLINIC_DF = load("facilities_clinic_by_specialty.csv")
 LIT_DF = load("litigation_by_specialty.csv")
 
+# Specialist-trainee coverage context (optional reference table)
+def _load_senkoi():
+    path = os.path.join(DP, "senkoi_coverage.csv")
+    if not os.path.exists(path):
+        return None
+    df = pd.read_csv(path)
+    df = df.set_index("specialty_ja")
+    df = df.reindex(CORE)
+    return df.to_dict(orient="index")
+
+SENKOI = _load_senkoi()
+
+def _senkoi_table_rows():
+    if SENKOI is None:
+        return []
+    rows = []
+    for s in CORE:
+        v = SENKOI[s]
+        rows.append([
+            v["specialty_en"],
+            f"{v['senkoi_2018']:,}",
+            f"{v['physicians_3_5_yr_2014']:,}",
+            f"{v['yr3_2012_cohort']:,}",
+            f"{v['yr5_2012_cohort']:,}",
+            f"{v['coverage_pct']:.1f}%",
+        ])
+    return rows
+
 
 def _resolution(df):
     diffs = [df.columns[i + 1] - df.columns[i] for i in range(len(df.columns) - 1)]
@@ -195,7 +223,9 @@ REFS = {
     "jocscp": "Japan Council for Quality Health Care. Japan Obstetric Compensation System for Cerebral Palsy. Tokyo: Japan Council for Quality Health Care; 2009.",
     "phys": "Ministry of Health, Labour and Welfare. Statistics of Physicians, Dentists and Pharmacists. Tokyo: MHLW; 2024. Available from: https://www.mhlw.go.jp/english/database/db-hw/ (accessed 11 August 2026).",
     "court": "Supreme Court of Japan, Committee on Medical Litigation. Statistics on medical malpractice litigation (closed cases by specialty). Tokyo: Supreme Court of Japan; 2024. Available from: https://www.courts.go.jp/ (accessed 11 August 2026).",
-    "facil": "Ministry of Health, Labour and Welfare. Survey of Medical Institutions (Dynamic). Tokyo: MHLW; 2024. Available from: https://www.mhlw.go.jp/english/database/db-hw/ (accessed 11 August 2026).",
+    "mhlw_senkoi2018": "Ministry of Health, Labour and Welfare. 新専門医制度における専攻医の採用状況等について（平成30年度新専門医制度スタートに向けて）. Tokyo: MHLW; 2018. Available from: https://www.mhlw.go.jp/content/10803000/000452411.pdf (accessed 15 August 2026).",
+    "mhlw_3_5yr": "Ministry of Health, Labour and Welfare. 医籍登録後３～５年目の医師数（主たる診療科別）. Tokyo: MHLW; 2015. Available from: https://www.mhlw.go.jp/file/06-Seisakujouhou-10800000-Iseikyoku/323.pdf (accessed 15 August 2026).",
+    "facil": "Ministry of Health, Labour and Welfare. Survey of Medical Institutions (Dynamic). Tokyo: MHLW; 2024. Available from: https://www.mhlw.go.jp/english/database/db-hw/ (accessed 11 August 2026).", 
     "mais": "Act on the Promotion of Medical Safety; Medical Accident Investigation System (2015). Tokyo: MHLW; 2015.",
     "jmsr_data": "Japan Medical Safety Research Organisation. Annual reports of medical accident investigations (2015-2024). Tokyo: JMSR; 2025.",
     "nikkei": "Nikkei Inc. Nikkei Telecom 21. Tokyo: Nikkei Inc. Accessed 2024. Available from: https://telecom21.nikkei.co.jp/.",
@@ -524,6 +554,10 @@ def build_manuscript():
          "(2004-2018; the sensitivity analysis uses 2009-2018; keywords: medical error + medical malpractice).{nikkei} "
          f"The full extraction pipeline (with source identifiers and SHA-256 checksums) is "
          f"documented in the accompanying repository ({PUBLIC_REPO}).")
+    body(doc,
+         "As context for the specialty-training pipeline, first-year specialist-trainee (senkoi) counts "
+         "in 2018 and counts of physicians 3\u20135 years after medical registration in 2014 were summarised "
+         "by specialty; coverage rates range widely across the 12 primary fields (Supplementary Table 8).{mhlw_senkoi2018,mhlw_3_5yr}")
     body(doc,
          "Physician counts use the principal specialty classification; broad categories were matched to the Supreme Court's "
          "specialty labels, and subspecialties were aggregated in code. Because the "
@@ -1303,6 +1337,17 @@ def build_supplementary():
           "Supplementary Table 7. Counterfactual 2034 physician counts by specialty and policy lever. "
           "Counts are projected from observed biennial baseline drift plus the indicated effect; "
           "marginal percentage changes are shown in Figure 4.")
+
+    # Supplementary Table 8: specialist-trainee coverage context
+    if SENKOI is not None:
+        table(doc,
+              ["Specialty", "2018 specialist trainees (senkoi)",
+               "Physicians 3\u20135 yr after registration (2014)",
+               "H24 cohort 3rd year (2012)", "H24 cohort 5th year (2014)", "Coverage"],
+              _senkoi_table_rows(),
+              "Supplementary Table 8. Specialist-trainee coverage by specialty. "
+              "Coverage is the number of 2018 first-year specialist trainees divided by the number "
+              "of physicians reported 3\u20135 years after medical registration in 2014, by primary specialty.")
 
     # STROBE checklist
     head(doc, "STROBE checklist", level=1, numbered=False)
