@@ -314,7 +314,7 @@ def _bpp_harvard_reference(ref: str, key: str) -> str:
     if key == "nikkei":
         return (
             "Nikkei Inc (2024), Nikkei Telecom 21. Nikkei Inc, Tokyo. "
-            "Available at: https://telecom21.nikkei.co.jp/ (Accessed 2024)."
+            "Available at: https://telecom.nikkei.co.jp/ (Accessed 2024)."
         )
     base_year = _bpp_get_year(ref)
     year = base_year + _BPP_YEAR_SUFFIX.get(key, "")
@@ -589,18 +589,6 @@ def build_manuscript():
         "the official biennial series, so we analyse the 12 primary fields as the relevant units of "
         "specialty choice and policy intervention.",
     )
-    if SENKOI_SUM is not None:
-        b(
-            doc,
-            f"As a reference for the size of the specialist-training pipeline, first-year specialist-trainee "
-            f"(senkoi) positions in 2018 covered {SENKOI_SUM['mean_val']:.1f}% of physicians in the third to "
-            f"fifth year after medical registration in 2014, with specialty-specific coverage ranging from "
-            f"{SENKOI_SUM['min_val']:.1f}% ({ha.EN[SENKOI_SUM['min_spec']].lower()}) to "
-            f"{SENKOI_SUM['max_val']:.1f}% ({ha.EN[SENKOI_SUM['max_spec']].lower()}).{{mhlw_senkoi2018,mhlw_3_5yr}} "
-            f"These coverage rates are not an outcome of the litigation-risk model, but they confirm that "
-            "the 12 primary specialties capture the main initial specialization decision in Japan; "
-            "Supplementary Table 8 reports the counts by specialty.",
-        )
 
     h(doc, "Statistical analysis", level=2)
     b(
@@ -633,7 +621,7 @@ def build_manuscript():
         f"typical policy targets for specialty rebalancing.{{lakens,schuir}} Equivalence is declared when the per-SD "
         f"coefficient lies inside the margin. Inference was complemented by a cluster block-bootstrap (B = 1,999) and by "
         f"the minimum detectable effect (MDE) at 80% power and the power to declare equivalence when the true effect is "
-        f"zero. Full formulas and the heterogeneity and time-trend robustness checks are given in Supplementary Note 1 and Supplementary Table 9.",
+        f"zero. Full formulas and the heterogeneity and time-trend robustness checks are given in Supplementary Note 1.",
     )
 
     h(doc, "Policy lever simulation", level=2)
@@ -777,51 +765,6 @@ def build_manuscript():
         "Table 2. Panel fixed-effects models and sensitivity analyses.",
     )
 
-    h(doc, "Small-cluster robustness and power", level=2)
-    b(
-        doc,
-        f"Because inference is based on only {N} specialty clusters, we checked the primary results with "
-        f"a cluster block-bootstrap (B = 1,999). For physician growth the bootstrap 95% CI for the lagged "
-        f"litigation-rate coefficient was {ha.fmt(BS_PHYS['coef_boot_ci_low'], 4)} to "
-        f"{ha.fmt(BS_PHYS['coef_boot_ci_high'], 4)} and the bootstrap p-value was {BS_PHYS['p_bootstrap']:.2f}; "
-        f"for hospital growth the bootstrap 95% CI was {ha.fmt(BS_HOSP['coef_boot_ci_low'], 4)} to "
-        f"{ha.fmt(BS_HOSP['coef_boot_ci_high'], 4)} and the bootstrap p-value was {BS_HOSP['p_bootstrap']:.2f}. "
-        f"Both intervals comfortably contain zero. Power diagnostics make the panel information explicit. "
-        f"For physician growth, the minimum detectable effect was {EQP['mde_80pct']:.2f}% per SD at 80% power, "
-        f"and the power to declare equivalence within the \u00b1{MARGIN1}% margin if the true effect were zero "
-        f"was {EQP['tests'][0]['power_if_null']*100:.1f}%. For hospital growth the minimum detectable effect was "
-        f"{EQH['mde_80pct']:.2f}% per SD and the equivalent power for the \u00b1{MARGIN1}% margin was "
-        f"{EQH['tests'][0]['power_if_null']*100:.1f}%. The panel is therefore informative enough to rule out "
-        f"policy-relevant effects for physicians, and to bound any hospital effect within a small margin.",
-    )
-
-    h(doc, "Heterogeneity and trend robustness", level=2)
-    het_phys_hi = _HET_DICT.get(("dlog_phys", "high litigation"))
-    het_phys_surg = _HET_DICT.get(("dlog_phys", "surgical"))
-    het_hosp_hi = _HET_DICT.get(("dlog_hosp", "high litigation"))
-    het_hosp_surg = _HET_DICT.get(("dlog_hosp", "surgical"))
-    trend_phys = _TREND_DICT.get("dlog_phys")
-    trend_hosp = _TREND_DICT.get("dlog_hosp")
-    b(
-        doc,
-        "We tested whether the null association concealed a differential response in high-litigation "
-        "or surgical specialties, or whether it depended on assuming common wave fixed effects. "
-        f"In high-litigation specialties the main litigation coefficient for physician growth was "
-        f"{ha.fmt(het_phys_hi['coef'], 4)} (p={het_phys_hi['p']:.2f}) and the interaction was "
-        f"{ha.fmt(het_phys_hi['interact_coef'], 4)} (p={het_phys_hi['interact_p']:.2f}); for hospital growth the "
-        f"main coefficient was {ha.fmt(het_hosp_hi['coef'], 4)} (p={het_hosp_hi['p']:.2f}) and the interaction was "
-        f"{ha.fmt(het_hosp_hi['interact_coef'], 4)} (p={het_hosp_hi['interact_p']:.2f}). "
-        f"For the surgical-specialty interaction the physician main effect was {ha.fmt(het_phys_surg['coef'], 4)} "
-        f"(p={het_phys_surg['p']:.2f}) and the interaction was {ha.fmt(het_phys_surg['interact_coef'], 4)} "
-        f"(p={het_phys_surg['interact_p']:.2f}); for hospital growth the main effect was "
-        f"{ha.fmt(het_hosp_surg['coef'], 4)} (p={het_hosp_surg['p']:.2f}) and the interaction was "
-        f"{ha.fmt(het_hosp_surg['interact_coef'], 4)} (p={het_hosp_surg['interact_p']:.2f}). "
-        f"Allowing specialty-specific linear trends also left the litigation coefficient small and non-significant "
-        f"for physician growth ({ha.fmt(trend_phys['coef'], 4)}; p={trend_phys['p']:.2f}) and hospital growth "
-        f"({ha.fmt(trend_hosp['coef'], 4)}; p={trend_hosp['p']:.2f}). None of the interactions or trend-robustness "
-        "checks suggest that a negative litigation effect is hiding in a clinically exposed subgroup (Supplementary Table 9).",
-    )
-
     h(doc, "Counts versus rates, and confounders", level=2)
     b(
         doc,
@@ -896,6 +839,27 @@ def build_manuscript():
         f"adjusted p-values for the exploratory sensitivity family are reported in Supplementary Table 5.",
     )
 
+    h(doc, "Small-cluster robustness and power", level=2)
+    b(
+        doc,
+        f"Because inference is based on only {N} specialty clusters, we checked the primary results with "
+        f"a cluster block-bootstrap (B = 1,999). For physician growth the bootstrap 95% CI for the lagged "
+        f"litigation-rate coefficient was {ha.fmt(BS_PHYS['coef_boot_ci_low'], 4)} to "
+        f"{ha.fmt(BS_PHYS['coef_boot_ci_high'], 4)} and the bootstrap p-value was {BS_PHYS['p_bootstrap']:.2f}; "
+        f"for hospital growth the bootstrap 95% CI was {ha.fmt(BS_HOSP['coef_boot_ci_low'], 4)} to "
+        f"{ha.fmt(BS_HOSP['coef_boot_ci_high'], 4)} and the bootstrap p-value was {BS_HOSP['p_bootstrap']:.2f}. "
+        f"Both intervals comfortably contain zero. Power diagnostics make the panel information explicit. "
+        f"For physician growth, the minimum detectable effect was {EQP['mde_80pct']:.2f}% per SD at 80% power, "
+        f"and the power to declare equivalence within the \u00b1{MARGIN1}% margin if the true effect were zero "
+        f"was {EQP['tests'][0]['power_if_null']*100:.1f}%. For hospital growth the minimum detectable effect was "
+        f"{EQH['mde_80pct']:.2f}% per SD and the equivalent power for the \u00b1{MARGIN1}% margin was "
+        f"{EQH['tests'][0]['power_if_null']*100:.1f}%. The panel is therefore informative enough to rule out "
+        f"policy-relevant effects for physicians, and to bound any hospital effect within a small margin.",
+    )
+    b(
+        doc,
+        "Full bootstrap diagnostics and power calculations are reported in Supplementary Table 6.",
+    )
     h(doc, "Counterfactual simulation", level=2)
     b(
         doc,
@@ -922,6 +886,46 @@ def build_manuscript():
         "specialty relative to the projected baseline drift. The MDE benchmark is the minimum detectable "
         "per-SD effect from the primary analysis.",
     )
+    if SENKOI_SUM is not None:
+        h(doc, "Training-system context", level=2)
+        b(
+            doc,
+            f"As a reference for the size of the specialist-training pipeline, first-year specialist-trainee "
+            f"(senkoi) positions in 2018 covered {SENKOI_SUM['mean_val']:.1f}% of physicians in the third to "
+            f"fifth year after medical registration in 2014, with specialty-specific coverage ranging from "
+            f"{SENKOI_SUM['min_val']:.1f}% ({ha.EN[SENKOI_SUM['min_spec']].lower()}) to "
+            f"{SENKOI_SUM['max_val']:.1f}% ({ha.EN[SENKOI_SUM['max_spec']].lower()}).{{mhlw_senkoi2018,mhlw_3_5yr}} "
+            f"These coverage rates are not an outcome of the litigation-risk model, but they confirm that "
+            "the 12 primary specialties capture the main initial specialization decision in Japan; "
+            "Supplementary Table 8 reports the counts by specialty.",
+        )
+    h(doc, "Heterogeneity and trend robustness", level=2)
+    het_phys_hi = _HET_DICT.get(("dlog_phys", "high litigation"))
+    het_phys_surg = _HET_DICT.get(("dlog_phys", "surgical"))
+    het_hosp_hi = _HET_DICT.get(("dlog_hosp", "high litigation"))
+    het_hosp_surg = _HET_DICT.get(("dlog_hosp", "surgical"))
+    trend_phys = _TREND_DICT.get("dlog_phys")
+    trend_hosp = _TREND_DICT.get("dlog_hosp")
+    b(
+        doc,
+        "We tested whether the null association concealed a differential response in high-litigation "
+        "or surgical specialties, or whether it depended on assuming common wave fixed effects. "
+        f"In high-litigation specialties the main litigation coefficient for physician growth was "
+        f"{ha.fmt(het_phys_hi['coef'], 4)} (p={het_phys_hi['p']:.2f}) and the interaction was "
+        f"{ha.fmt(het_phys_hi['interact_coef'], 4)} (p={het_phys_hi['interact_p']:.2f}); for hospital growth the "
+        f"main coefficient was {ha.fmt(het_hosp_hi['coef'], 4)} (p={het_hosp_hi['p']:.2f}) and the interaction was "
+        f"{ha.fmt(het_hosp_hi['interact_coef'], 4)} (p={het_hosp_hi['interact_p']:.2f}). "
+        f"For the surgical-specialty interaction the physician main effect was {ha.fmt(het_phys_surg['coef'], 4)} "
+        f"(p={het_phys_surg['p']:.2f}) and the interaction was {ha.fmt(het_phys_surg['interact_coef'], 4)} "
+        f"(p={het_phys_surg['interact_p']:.2f}); for hospital growth the main effect was "
+        f"{ha.fmt(het_hosp_surg['coef'], 4)} (p={het_hosp_surg['p']:.2f}) and the interaction was "
+        f"{ha.fmt(het_hosp_surg['interact_coef'], 4)} (p={het_hosp_surg['interact_p']:.2f}). "
+        f"Allowing specialty-specific linear trends also left the litigation coefficient small and non-significant "
+        f"for physician growth ({ha.fmt(trend_phys['coef'], 4)}; p={trend_phys['p']:.2f}) and hospital growth "
+        f"({ha.fmt(trend_hosp['coef'], 4)}; p={trend_hosp['p']:.2f}). None of the interactions or trend-robustness "
+        "checks suggest that a negative litigation effect is hiding in a clinically exposed subgroup (Supplementary Table 9).",
+    )
+
 
     # Discussion
     h(doc, "Discussion", level=1)
@@ -1253,7 +1257,7 @@ def build_title_page(main_word_count, total_word_count):
         f"main text excluding abstract and references is approximately {main_word_count} words",
         "Article type: Original research article",
         "Target journal: Behavioural Public Policy (Cambridge Core)",
-        "Tables: 2  Figures: 4  Supplementary tables: 8  Supplementary figures: 3",
+        "Tables: 2  Figures: 4  Supplementary tables: 9  Supplementary figures: 3",
         "Conflicts of interest: none declared",
         "Funding: none",
         f"Data availability: all primary data and analysis code are openly available in the project repository ({TITLE_REPO_PLACEHOLDER}).",
