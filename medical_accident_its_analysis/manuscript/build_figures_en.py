@@ -287,14 +287,14 @@ def main():
     plot_workflow(
         "fig5_workflow.png",
         "Figure 5. Sensitivity-analysis framework for evaluating litigation risk "
-        "as a healthcare workforce-allocation lever.")
+        "as a healthcare workforce-allocation instrument.")
     plot_hospital_counts_vs_rates(
         H, P, L, bien, "fig7_hospital_counts_vs_rates.png",
         "Figure 7. Hospital facility counts vs. rates: association disappears under size adjustment",
         colored=False)
     plot_policy_simulation(
         res["policy_simulation"], "fig6_policy_simulation.png",
-        "Figure 6. Counterfactual policy-lever simulation: marginal 10-year change in "
+        "Figure 6. Counterfactual policy-instrument simulation: marginal 10-year change in "
         "physician counts relative to baseline drift")
 
     # Healthcare Analytics-specific figures with correct numbering
@@ -311,12 +311,12 @@ def main():
         colored=True)
     plot_policy_simulation(
         res["policy_simulation"], "ha_Figure_4.png",
-        "Figure 4. Counterfactual policy-lever simulation: marginal 10-year change in "
+        "Figure 4. Counterfactual policy-instrument simulation: marginal 10-year change in "
         "physician counts relative to baseline drift")
     plot_workflow(
         "ha_Supplementary_Figure_1.png",
         "Supplementary Figure 1. Sensitivity-analysis framework for evaluating "
-        "litigation risk as a healthcare workforce-allocation lever.")
+        "litigation risk as a healthcare workforce-allocation instrument.")
     plot_litigation_rate(
         P, L, bien, "ha_Supplementary_Figure_2.png",
         "Supplementary Figure 2. Litigation rate by specialty (rate, not count), 2008-2024")

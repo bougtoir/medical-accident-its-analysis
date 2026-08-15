@@ -25,6 +25,7 @@ import re
 import shutil
 import zipfile
 import build_healthcare_analytics_submission as ha
+from PIL import Image
 from docx import Document
 from docx.shared import Inches, Pt, Cm
 from docx.enum.text import WD_ALIGN_PARAGRAPH
@@ -93,7 +94,7 @@ def _senkoi_summary():
 
 SENKOI_SUM = _senkoi_summary()
 
-# Look-up tables for the new heterogeneity and trend-robustness results.
+# Look-up tables for the new heterogeneity and trend-sensitivity results.
 _HET_DICT = {(r["outcome"], r["group"]): r for r in ha.RES.get("heterogeneity", [])}
 _TREND_DICT = {r["outcome"]: r for r in ha.RES.get("trend_sensitivity", [])}
 
@@ -250,17 +251,62 @@ def _bpp_in_text_author(ref: str, key: str) -> str:
 
 
 def _bpp_ensure_title_end(title: str) -> str:
-    """Ensure a title ends with terminal punctuation suitable for Harvard style."""
+    """Ensure a book/report title ends with terminal punctuation before the publisher tail."""
     title = title.strip()
     if title and title[-1] not in ".?!":
         return title + "."
     return title
 
 
+def _bpp_article_title(title: str) -> str:
+    """Return a sentence-case article title with no trailing terminal punctuation."""
+    title = _bpp_sentence_case(title.strip()).strip()
+    return title.rstrip(".")
+
+
+def _bpp_sentence_case(title: str) -> str:
+    """Convert an article title to sentence case for BPP Harvard references.
+
+    Only the first word and the first word after a full sentence boundary
+    (. ? !) are capitalised; common proper nouns and acronyms are protected.
+    """
+    proper = {
+        "Japan", "Japanese", "Korea", "Korean", "Taiwan", "Taiwanese",
+        "United", "States", "Texas", "STROBE", "PLoS", "Defensive", "Medicine",
+        "Nationwide", "Obstetric", "Compensation", "System", "Cerebral", "Palsy",
+    }
+    protected = {
+        "United States": "@@US@@",
+        "New Zealand": "@@NZ@@",
+        '"Defensive Medicine"': "@@DEFMED@@",
+        "Defensive Medicine": "@@DEFMED@@",
+        "Nationwide Obstetric Compensation System": "@@NOCS@@",
+    }
+    for phrase, placeholder in protected.items():
+        title = title.replace(phrase, placeholder)
+    words = title.split(" ")
+    new = []
+    start = True
+    for w in words:
+        core = re.sub(r"[^\w\-\']+$", "", w)
+        if start or core in proper:
+            new.append(w)
+        else:
+            if w and w[0].isupper() and not w.isupper():
+                new.append(w[0].lower() + w[1:])
+            else:
+                new.append(w)
+        start = bool(re.search(r"[.?!:]$", w.rstrip("\"'")))
+    text = " ".join(new)
+    for phrase, placeholder in protected.items():
+        text = text.replace(placeholder, phrase)
+    return text
+
+
 def _bpp_fmt_journal_tail(tail: str) -> str:
     """Format a Vancouver year;volume(issue):pages tail for BPP Harvard style.
 
-    BPP expects: volume (issue), pages.
+    BPP expects: volume(issue): pages (no space before issue, colon before pages).
     """
     parts = re.split(r"(?i)\s*doi[\s:]", tail, maxsplit=1)
     core = parts[0].strip().rstrip(".")
@@ -276,11 +322,11 @@ def _bpp_fmt_journal_tail(tail: str) -> str:
     pages = pages.strip()
     if not vol:
         return tail
-    # Separate volume and issue with a space, e.g. 44(4) -> 44 (4)
-    vol = re.sub(r"(\d)(\()", r"\1 \2", vol)
+    # Use en dash for page ranges
+    pages = pages.replace("-", "\u2013")
     out = f"{vol}"
     if pages:
-        out += f", {pages}"
+        out += f": {pages}"
     out += "."
     if doi:
         out += f" doi:{doi}"
@@ -305,12 +351,12 @@ def _bpp_fmt_book_tail(tail: str, year: str) -> str:
         if url:
             return f"Available at: {url}."
         return ""
-    # Vancouver uses "Place: Publisher"; BPP uses "Publisher, Place."
+    # BPP published style uses "Place: Publisher."
     if ":" in core:
         place, publisher = core.split(":", 1)
         place = place.strip().strip(".; ")
         publisher = publisher.strip().strip(".; ")
-        out = f"{publisher}, {place}."
+        out = f"{place}: {publisher}."
     else:
         out = f"{core}."
     if url:
@@ -333,12 +379,12 @@ def _bpp_harvard_segments(ref: str, key: str):
     if key == "mais":
         text = (
             "Medical Accident Investigation System (2015), Act on the Promotion of "
-            "Medical Safety. Ministry of Health, Labour and Welfare, Tokyo."
+            "Medical Safety. Tokyo: Ministry of Health, Labour and Welfare."
         )
         return [(text, False, False)]
     if key == "nikkei":
         text = (
-            "Nikkei Inc (2024), Nikkei Telecom 21. Nikkei Inc, Tokyo. "
+            "Nikkei Inc (2024), Nikkei Telecom 21. Tokyo: Nikkei Inc. "
             "Available at: https://telecom.nikkei.co.jp/ (Accessed 2024)."
         )
         return [(text, False, False)]
@@ -348,7 +394,7 @@ def _bpp_harvard_segments(ref: str, key: str):
         return [
             (f"{author} (2009), ", False, False),
             ("Mostly Harmless Econometrics: An Empiricist's Companion", True, False),
-            (", Princeton: Princeton University Press.", False, False),
+            (". Princeton: Princeton University Press.", False, False),
         ]
     # In-text citations use institutional abbreviations after the first mention, so the
     # reference list uses the full organisational name.
@@ -356,13 +402,13 @@ def _bpp_harvard_segments(ref: str, key: str):
         return [
             ("Japan Council for Quality Health Care (JOCS-CP) (2009), ", False, False),
             ("Japan Obstetric Compensation System for Cerebral Palsy", True, False),
-            (", Japan Council for Quality Health Care, Tokyo.", False, False),
+            (". Tokyo: Japan Council for Quality Health Care.", False, False),
         ]
     if key == "jmsr_data":
         return [
             ("Japan Medical Safety Research Organisation (JMSR) (2025), ", False, False),
             ("Annual reports of medical accident investigations (2015-2024)", True, False),
-            (", JMSR, Tokyo.", False, False),
+            (". Tokyo: JMSR.", False, False),
         ]
     base_year = _bpp_get_year(ref)
     year = base_year + _BPP_YEAR_SUFFIX.get(key, "")
@@ -379,25 +425,27 @@ def _bpp_harvard_segments(ref: str, key: str):
         return [(f"{prefix}, ", False, False), (title, True, False)]
     # General case: title may span multiple parts, journal is second-to-last
     title_parts = parts[1:-2] if len(parts) > 3 else [parts[1]]
-    title = _bpp_ensure_title_end(". ".join(title_parts).strip()).rstrip(".")
+    raw_title = ". ".join(title_parts).strip()
     journal = parts[-2].strip()
     tail = parts[-1].strip()
     # Journal articles have a year;volume tail (Vancouver style: year;vol:pages)
     if re.search(r"^\d{4};", tail):
+        title = _bpp_article_title(raw_title)
         journal_tail = _bpp_fmt_journal_tail(tail)
         return [
             (f"{prefix}, '", False, False),
             (title, False, False),
-            (f"', ", False, False),
+            ("', ", False, False),
             (journal, True, False),
             (f". {journal_tail}", False, False),
         ]
     # Reports, books and web pages
+    title = _bpp_ensure_title_end(_bpp_sentence_case(raw_title))
     rest = _bpp_fmt_book_tail(tail, base_year)
     return [
         (f"{prefix}, ", False, False),
         (title, True, False),
-        (f", {rest}", False, False),
+        (f" {rest}", False, False),
     ]
 
 
@@ -493,25 +541,22 @@ def build_manuscript():
     rt.font.size = Pt(14)
     rt.font.name = "Times New Roman"
 
-    # Abstract (unstructured, one paragraph; BPP limit 200 words)
+    # Abstract (unstructured, one paragraph; BPP limit 200 words; target ~150)
     abstract_text = (
-        f"Specialty maldistribution is a workforce problem. A common assumption is that "
-        f"malpractice litigation pushes physicians away from high-risk specialties, but this may "
-        f"reflect salient adverse events more than decisions. Using national administrative data "
-        f"for {N} clinical specialties in Japan ({BIEN[0]}-{BIEN[-1]}), we tested whether "
-        f"litigation risk predicts physician supply and hospital facility counts. We measured exposure as "
-        f"malpractice claims per {PER:,} physicians and regressed biennial log-changes in physician "
-        f"and hospital facility counts on the lagged litigation rate in a panel with specialty and wave fixed "
-        f"effects, cluster-robust standard errors, and equivalence tests. The workforce grew in {GREW} "
-        f"of {N} specialties; only {SURG_DESC}, declined. Litigation rate was unrelated to physician "
-        f"growth (coefficient {ha.fmt(PHYS['coef'], 4)}; 95% CI {ha.fmt(PHYS['ci_low'], 4)} to "
-        f"{ha.fmt(PHYS['ci_high'], 4)}; p={PHYS['p']:.2f}) or hospital facility-count growth (p={HOSP['p']:.2f}), "
+        f"Specialty maldistribution is a persistent workforce problem, and malpractice litigation is "
+        f"often assumed to push physicians away from high-risk fields. Using national administrative data "
+        f"for {N} clinical specialties in Japan ({BIEN[0]}-{BIEN[-1]}), we tested whether litigation risk "
+        f"predicts physician supply and hospital facility counts. Exposure was malpractice "
+        f"claims per {PER:,} physicians; we regressed biennial log-changes in physician and facility counts "
+        f"on the lagged litigation rate using specialty and wave fixed effects, clustered "
+        f"standard errors, and equivalence tests. Litigation rate was unrelated to physician growth "
+        f"(coefficient {ha.fmt(PHYS['coef'], 4)}; 95% CI {ha.fmt(PHYS['ci_low'], 4)} to "
+        f"{ha.fmt(PHYS['ci_high'], 4)}; p={PHYS['p']:.2f}) or facility-count growth (p={HOSP['p']:.2f}), "
         f"and a one-SD higher rate shifted physician growth by less than +/-{MARGIN1}% "
-        f"(TOST p={ha.p_tost_fmt(EQP['tests'][0]['p_tost'])}). Despite high perceived risk, structural "
-        f"incentives -- training costs, fee-for-service income, and status-quo bias -- appear to keep "
-        f"physicians in high-risk fields. Reducing civil litigation exposure is unlikely to be "
-        f"an effective policy lever for correcting specialty maldistribution; structural incentives "
-        f"such as no-fault compensation and payment design are more promising."
+        f"(TOST p={ha.p_tost_fmt(EQP['tests'][0]['p_tost'])}). Although perceived risk is high, structural "
+        f"incentives -- training costs, fee-for-service income, and status-quo bias -- keep "
+        f"physicians in high-risk fields. Reducing litigation exposure is unlikely to correct "
+        f"specialty maldistribution; no-fault compensation and payment design are more promising."
     )
     abstract_wc = ha.wc(abstract_text)
     if abstract_wc > 200:
@@ -545,7 +590,7 @@ def build_manuscript():
         "widely perceived as understaffed across many health systems.{maldist} A recurring policy "
         "intuition is that the fear of malpractice litigation and medical safety incidents pushes "
         "physicians away from these high-risk specialties.{malprac,defmed} If this behavioural "
-        "assumption were true, reducing litigation exposure would be a lever for correcting "
+        "assumption were true, reducing litigation exposure would be an instrument for correcting "
         "workforce maldistribution.",
     )
     b(
@@ -558,7 +603,7 @@ def build_manuscript():
         "costs, switching costs and status-quo bias.{samuelson1988} The relevant policy question is "
         "not whether physicians report anxiety about litigation, but whether that anxiety "
         "translates into aggregate workforce shifts. We treat the litigation-workforce question as a "
-        "test case for evaluating a behavioural public policy lever: can a salient, cognitively "
+        "test case for evaluating a behavioural public policy instrument: can a salient, cognitively "
         "available risk be used to change the specialty distribution of physicians?",
     )
     b(
@@ -654,7 +699,7 @@ def build_manuscript():
         f"used the {len(BIEN)} measured biennial physician waves ({BIEN[0]}-{BIEN[-1]}). For each specialty "
         f"we computed the biennial log-change in physicians (and, separately, in hospital facility counts) and regressed it on "
         f"the lagged litigation rate at the start of the interval, in a panel with specialty and wave fixed effects, "
-        f"cluster-robust standard errors, and a JOCS-CP indicator for obstetrics and gynaecology from 2009 onward.{{angrist}} "
+        f"clustered standard errors, and a JOCS-CP indicator for obstetrics and gynaecology from 2009 onward.{{angrist}} "
         f"Clusters are defined by specialty, so G={N} and the small-cluster correction uses a t-distribution with "
         f"G-1 degrees of freedom.{{cameron2015}} The primary estimating equation, for specialty s and wave t, was as follows.",
     )
@@ -670,25 +715,25 @@ def build_manuscript():
         doc,
         f"We assessed equivalence to a null effect using two one-sided tests (TOST) with pre-specified margins "
         f"of +/-{MARGIN1}% and +/-{MARGIN2}% biennial workforce change. The margins were chosen to be smaller than "
-        f"the policy-relevant workforce shifts that structural levers have produced: for example, targeted residency "
+        f"the policy-relevant workforce shifts that structural tools have produced: for example, targeted residency "
         f"subsidies raised primary-care physician supply by about 4% in a comparable setting.{{mcnamara2025}} That 4% is a "
         f"total programme effect, whereas our +/-{MARGIN1}% and +/-{MARGIN2}% margins are biennial, so the margins are "
         f"substantially smaller than the policy-relevant shift and therefore conservative. The TOST procedure itself is "
         f"standard for equivalence testing.{{lakens,schuir}} Equivalence is declared when the per-SD coefficient lies inside the margin. Inference "
         f"was complemented by a cluster block-bootstrap (B = 1,999) and by the minimum detectable effect (MDE) at 80% "
         f"power and the power to declare equivalence when the true effect is zero. Full formulas and the heterogeneity "
-        f"and time-trend robustness checks are given in Supplementary Note 1.",
+        f"and time-trend sensitivity checks are given in Supplementary Note 1.",
     )
 
-    h(doc, "Policy lever simulation", level=2)
+    h(doc, "Policy simulation", level=2)
     b(
         doc,
         "To translate the regression results into a practical policy benchmark, we projected "
-        "physician counts to 2034 under three stylised policy levers. The baseline used each "
+        "physician counts to 2034 under three stylised policy scenarios. The baseline used each "
         "specialty's observed mean biennial log-growth from 2004 to 2024. The two litigation-reduction "
-        "levers set the litigation rate to zero and applied the point estimate and the 95% lower-bound "
+        "scenarios set the litigation rate to zero and applied the point estimate and the 95% lower-bound "
         "coefficient, respectively, so they show both the central projection and the most favourable "
-        "effect consistent with the data. The third lever added the minimum detectable per-SD effect "
+        "effect consistent with the data. The third scenario added the minimum detectable per-SD effect "
         f"({EQP['mde_80pct']:.2f}% per biennium) to baseline growth as a benchmark for the smallest "
         "policy effect this panel could detect with 80% power. The projections are deterministic "
         "counterfactuals, not forecasts, and are reported as the marginal percent change in 2034 "
@@ -895,7 +940,7 @@ def build_manuscript():
         f"adjusted p-values for the exploratory sensitivity family are reported in Supplementary Table 5.",
     )
 
-    h(doc, "Small-cluster robustness and power", level=2)
+    h(doc, "Small-cluster validation and power", level=2)
     b(
         doc,
         f"Because inference is based on only {N} specialty clusters, we checked the primary results with "
@@ -924,21 +969,21 @@ def build_manuscript():
         f"{TOTAL_SIM.get('marginal_pct_lit_point', 0):.1f}% to the projected 2034 national physician stock "
         f"relative to baseline drift. Even under the 95% lower-bound (most favourable) coefficient it would add "
         f"{TOTAL_SIM.get('marginal_pct_lit_lower', 0):.1f}%, comparable to the "
-        f"{TOTAL_SIM.get('marginal_pct_mde', 0):.1f}% gain from a generic lever equal to the minimum detectable "
+        f"{TOTAL_SIM.get('marginal_pct_mde', 0):.1f}% gain from a generic benchmark equal to the minimum detectable "
         f"effect. General surgery, the only specialty with negative baseline drift, illustrates the break-even "
         f"arithmetic: its projected 2024-2034 decline of {SURG_SIM.get('pct_change_baseline', 0):.1f}% would be "
         f"reduced to {SURG_SIM.get('pct_change_lit_zero_point', 0):.1f}% under the point estimate and reversed to "
         f"{SURG_SIM.get('pct_change_lit_zero_lower', 0):.1f}% under the 95% lower bound. The latter requires "
         f"eliminating every remaining closed claim and assumes the most adverse (most negative) coefficient "
         f"compatible with the data; a more realistic policy would achieve far less. Full projected 2034 physician "
-        f"counts by specialty and lever are reported in Supplementary Table 7; Figure 4 summarises the same "
-        f"information as marginal percentage changes. Litigation reduction is not a high-leverage "
+        f"counts by specialty and scenario are reported in Supplementary Table 7; Figure 4 summarises the same "
+        f"information as marginal percentage changes. Litigation reduction is not a high-impact "
         f"instrument for workforce allocation in this setting.",
     )
     f(
         doc,
         "ha_Figure_4.png",
-        "Figure 4. Counterfactual policy-lever simulation: marginal 10-year change in physician counts by "
+        "Figure 4. Counterfactual policy simulation: marginal 10-year change in physician counts by "
         "specialty relative to the projected baseline drift. The MDE benchmark is the minimum detectable "
         "per-SD effect from the primary analysis.",
     )
@@ -955,7 +1000,7 @@ def build_manuscript():
             "the 12 primary specialties capture the main initial specialization decision in Japan; "
             "Supplementary Table 8 reports the counts by specialty.",
         )
-    h(doc, "Heterogeneity and trend robustness", level=2)
+    h(doc, "Heterogeneity and trend sensitivity", level=2)
     het_phys_hi = _HET_DICT.get(("dlog_phys", "high litigation"))
     het_phys_surg = _HET_DICT.get(("dlog_phys", "surgical"))
     het_hosp_hi = _HET_DICT.get(("dlog_hosp", "high litigation"))
@@ -978,7 +1023,7 @@ def build_manuscript():
         f"{ha.fmt(het_hosp_surg['interact_coef'], 4)} (p={het_hosp_surg['interact_p']:.2f}). "
         f"Allowing specialty-specific linear trends also left the litigation coefficient small and non-significant "
         f"for physician growth ({ha.fmt(trend_phys['coef'], 4)}; p={trend_phys['p']:.2f}) and hospital facility-count growth "
-        f"({ha.fmt(trend_hosp['coef'], 4)}; p={trend_hosp['p']:.2f}). None of the interactions or trend-robustness "
+        f"({ha.fmt(trend_hosp['coef'], 4)}; p={trend_hosp['p']:.2f}). None of the interactions or trend-stability "
         "checks suggest that a negative litigation effect is hiding in a clinically exposed subgroup (Supplementary Table 9).",
     )
 
@@ -1001,7 +1046,7 @@ def build_manuscript():
         "pre-specified equivalence margins, and power diagnostics allow us to say that, if litigation risk "
         "does influence specialty-level workforce growth, the magnitude is too small to matter for workforce "
         "planning. For behavioural public policy, this is an important distinction: a widely discussed risk can "
-        "be highly available and emotionally salient without being a reliable policy lever. The public policy "
+        "be highly available and emotionally salient without being a reliable policy tool. The public policy "
         "question is not whether physicians worry about litigation, but whether a policy that reduces litigation "
         "risk would materially change aggregate specialty supply. Our evidence suggests it would not.",
     )
@@ -1013,7 +1058,7 @@ def build_manuscript():
         "(specialty exit). Kessler and McClellan showed that U.S. malpractice reforms reduced medical "
         "expenditures for elderly heart-disease patients without increasing mortality or complications, "
         "suggesting that defensive practice is one margin of adjustment to liability pressure.{kessler1996} "
-        "Subsequent reassessments have debated the magnitude and robustness of this effect, but the conceptual "
+        "Subsequent reassessments have debated the magnitude and consistency of this effect, but the conceptual "
         "point remains: physicians can respond to liability risk by changing how they practise rather than by "
         "exiting a specialty.{sloan2008} Fee-for-service reimbursement in Japan rewards the high-acuity "
         "procedural work that also carries litigation exposure, so the financial return to remaining in surgery, "
@@ -1039,7 +1084,7 @@ def build_manuscript():
         "physician has incurred the sunk cost of specialty training, leaving feels like a sure loss, while the rare "
         "possibility of a malpractice judgment remains an abstract, low-probability event. No-fault compensation, "
         "payment design, and training subsidies change the payoff structure directly; litigation-avoidance "
-        "messaging targets only the perceived risk. Our results suggest that the former are the more reliable levers.",
+        "messaging targets only the perceived risk. Our results suggest that the former are the more reliable tools.",
     )
     h(doc, "Institutional context and international evidence", level=2)
     b(
@@ -1098,10 +1143,10 @@ def build_manuscript():
     h(doc, "Policy implications", level=2)
     b(
         doc,
-        f"Reducing civil malpractice litigation is unlikely to be a powerful lever for correcting specialty maldistribution. "
+        f"Reducing civil malpractice litigation is unlikely to be a powerful tool for correcting specialty maldistribution. "
         f"The 10-year counterfactual showed that eliminating all claims would add only {TOTAL_SIM.get('marginal_pct_lit_point', 0):.1f}% "
         f"to the projected national physician stock under the point estimate, and {TOTAL_SIM.get('marginal_pct_lit_lower', 0):.1f}% "
-        f"under the most favourable 95% lower-bound coefficient. A generic lever equal to the minimum detectable effect would add "
+        f"under the most favourable 95% lower-bound coefficient. A generic benchmark equal to the minimum detectable effect would add "
         f"{TOTAL_SIM.get('marginal_pct_mde', 0):.1f}%. Effects of this size are too small to rebalance a workforce whose distribution "
         f"is shaped by training costs, reimbursement and seniority.",
     )
@@ -1111,7 +1156,7 @@ def build_manuscript():
         "a specialty, the costs of switching -- foregone fellowship income, lost seniority and professional identity -- generate "
         "powerful status-quo bias, while fee-for-service income rewards the high-acuity work that also carries litigation risk. "
         "No-fault compensation, payment design and training subsidies alter the payoffs and defaults that matter for a loss-averse "
-        "trainee; they are more reliable levers than risk communication.{samuelson1988,kahneman1979} New Zealand and the Nordic "
+        "trainee; they are more reliable tools than risk communication.{samuelson1988,kahneman1979} New Zealand and the Nordic "
         "administrative-compensation systems show how separating compensation from blame can protect patients and providers "
         "without relying on litigation, and Japan's JOCS-CP moves in the same direction for obstetric cerebral "
         "palsy.{bismark2006,mello2011,hasegawa2016}",
@@ -1137,7 +1182,7 @@ def build_manuscript():
         f"incidents; the lagged exposure, fixed effects, and reverse specification make reverse causation unlikely, yet unobserved "
         f"confounders at the specialty or prefecture level cannot be fully ruled out. Cluster block-bootstrap and power diagnostics "
         f"are reported in Supplementary Table 6. Because clusters are defined by the {N} specialties, the small-cluster correction "
-        f"uses G-1={PHYS['df']} degrees of freedom; this is the minimum at which cluster-robust t inference is recommended and is "
+        f"uses G-1={PHYS['df']} degrees of freedom; this is the minimum at which cluster-level t inference is recommended and is "
         f"inherent to the data. Specialty-specific litigation counts could be recovered only from {BIEN[0]}; pre-{BIEN[0]} specialty "
         f"tables were not retrievable from primary sources. Clinic counts by specialty are published only every "
         f"{ha.CLINIC_RES} years and were used descriptively. JMSR report counts are available only from {ha.JMSR_CORR['years'][0]} "
@@ -1156,12 +1201,12 @@ def build_manuscript():
         doc,
         f"Across {YEARS}, specialty-level malpractice-litigation risk was not associated with physician or hospital decline in "
         f"these national data, and the physician effect was statistically equivalent to null within a small margin. From a "
-        f"behavioural public policy perspective, malpractice litigation is not a reliable lever for correcting specialty "
+        f"behavioural public policy perspective, malpractice litigation is not a reliable tool for correcting specialty "
         f"maldistribution in this setting. Policymakers may more productively target structural incentives, especially no-fault "
         f"compensation and payment design, rather than rely on the assumption that reducing litigation will retain physicians in "
         f"high-risk specialties. The transparent, reproducible sensitivity-analysis framework used here is exportable to other "
-        f"healthcare workforce-policy levers. More generally, the results caution against treating highly salient risks as "
-        f"reliable policy levers when the underlying choice architecture preserves strong structural incentives. Behavioural public "
+        f"healthcare workforce-policy tools. More generally, the results caution against treating highly salient risks as "
+        f"reliable policy tools when the underlying choice architecture preserves strong structural incentives. Behavioural public "
         f"policy is most effective when it redesigns the decision context rather than attempting to counteract it through "
         f"information alone.",
     )
@@ -1296,7 +1341,7 @@ def build_highlights():
         "Rate-based, measured-only designs remove size confounding and sparse-panel bias.",
         "Equivalence and power diagnostics support an informative null result.",
         "Perceived risk and real workforce allocation diverge because of structural incentives and status-quo bias.",
-        "Structural incentives, not litigation-avoidance messaging, are the more promising policy lever.",
+        "Structural incentives, not litigation-avoidance messaging, are the more promising policy tool.",
     ]
     for h_item in highlights:
         if len(h_item) > 120:
@@ -1349,14 +1394,14 @@ def build_cover_letter():
         "Behavioural Public Policy advances rigorous, multidisciplinary research that connects the study of human "
         "behaviour to public policy. Our study sits squarely within this agenda. It uses a well-documented "
         "healthcare workforce problem -- specialty maldistribution -- as a policy test case and asks whether a "
-        "salient, cognitively available risk (malpractice litigation) actually changes aggregate career behaviour. "
+        "salient, cognitively available risk (malpractice litigation) changes aggregate career behaviour. "
         "Using national administrative data from Japan, we find no association between litigation risk and specialty "
         "physician supply, and we bound any effect within a small equivalence margin. The result is informative for "
         "behavioural public policy because it shows that a widely perceived risk need not translate into a policy "
-        "lever when structural incentives, switching costs and status-quo bias constrain individual choice.",
+        "tool when structural incentives, switching costs and status-quo bias constrain individual choice.",
         "The behavioural contribution is threefold. First, we show how two common observational fallacies -- "
         "size confounding in raw administrative counts and interpolation of sparse panel data -- can distort the "
-        "evidence base for a behavioural policy lever. Second, we combine fixed-effects panel methods, equivalence "
+        "evidence base for a behavioural policy tool. Second, we combine fixed-effects panel methods, equivalence "
         "testing, cluster block-bootstrap and power diagnostics to produce an informative null result rather than a "
         "mere failure to reject the null. Third, we interpret the null through the lens of behavioural economics: "
         "availability, loss aversion and status-quo bias explain why perceived litigation risk can be high while "
@@ -1414,6 +1459,24 @@ def build_figure_pptx():
         print("wrote", dst)
 
 
+def _tiff_path(png_path: str) -> str:
+    """Return the TIFF counterpart path for a PNG figure file."""
+    return os.path.splitext(png_path)[0] + ".tiff"
+
+
+def _ensure_tiff(png_path: str) -> str:
+    """Convert a PNG figure to a TIFF while preserving resolution metadata."""
+    tiff_path = _tiff_path(png_path)
+    if os.path.exists(tiff_path):
+        return tiff_path
+    img = Image.open(png_path)
+    dpi = img.info.get("dpi")
+    if dpi is None:
+        dpi = (300, 300)
+    img.save(tiff_path, format="TIFF", dpi=dpi, compression="tiff_lzw")
+    return tiff_path
+
+
 def create_submission_zip():
     """Bundle the BPP submission files."""
     zip_path = os.path.join(OUT, "bpp_submission.zip")
@@ -1425,14 +1488,16 @@ def create_submission_zip():
         (os.path.join(BASE, "bpp_supplementary.docx"), "bpp_supplementary.docx"),
         (os.path.join(BASE, "bpp_figures.pptx"), "bpp_figures.pptx"),
         (os.path.join(BASE, "bpp_supplementary_figures.pptx"), "bpp_supplementary_figures.pptx"),
-        (os.path.join(OUT, "ha_Figure_1.png"), "Figure_1.png"),
-        (os.path.join(OUT, "ha_Figure_2.png"), "Figure_2.png"),
-        (os.path.join(OUT, "ha_Figure_3.png"), "Figure_3.png"),
-        (os.path.join(OUT, "ha_Figure_4.png"), "Figure_4.png"),
-        (os.path.join(OUT, "ha_Supplementary_Figure_1.png"), "Supplementary_Figure_1.png"),
-        (os.path.join(OUT, "ha_Supplementary_Figure_2.png"), "Supplementary_Figure_2.png"),
-        (os.path.join(OUT, "ha_Supplementary_Figure_3.png"), "Supplementary_Figure_3.png"),
     ]
+    figure_names = [
+        "Figure_1", "Figure_2", "Figure_3", "Figure_4",
+        "Supplementary_Figure_1", "Supplementary_Figure_2", "Supplementary_Figure_3",
+    ]
+    for arc in figure_names:
+        png = os.path.join(OUT, f"ha_{arc}.png")
+        tiff = _ensure_tiff(png)
+        file_map.append((png, f"{arc}.png"))
+        file_map.append((tiff, f"{arc}.tiff"))
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as z:
         for path, arcname in file_map:
             if not os.path.exists(path):
@@ -1444,15 +1509,16 @@ def create_submission_zip():
 def create_figures_upload_zip():
     """Create a separate high-resolution (300 dpi) figure upload archive."""
     zip_path = os.path.join(OUT, "bpp_figures_for_upload.zip")
-    files = [
-        (os.path.join(OUT, "ha_Figure_1.png"), "Figure_1.png"),
-        (os.path.join(OUT, "ha_Figure_2.png"), "Figure_2.png"),
-        (os.path.join(OUT, "ha_Figure_3.png"), "Figure_3.png"),
-        (os.path.join(OUT, "ha_Figure_4.png"), "Figure_4.png"),
-        (os.path.join(OUT, "ha_Supplementary_Figure_1.png"), "Supplementary_Figure_1.png"),
-        (os.path.join(OUT, "ha_Supplementary_Figure_2.png"), "Supplementary_Figure_2.png"),
-        (os.path.join(OUT, "ha_Supplementary_Figure_3.png"), "Supplementary_Figure_3.png"),
+    figure_names = [
+        "Figure_1", "Figure_2", "Figure_3", "Figure_4",
+        "Supplementary_Figure_1", "Supplementary_Figure_2", "Supplementary_Figure_3",
     ]
+    files = []
+    for arc in figure_names:
+        png = os.path.join(OUT, f"ha_{arc}.png")
+        tiff = _ensure_tiff(png)
+        files.append((png, f"{arc}.png"))
+        files.append((tiff, f"{arc}.tiff"))
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as z:
         for path, arcname in files:
             if not os.path.exists(path):
