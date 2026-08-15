@@ -325,6 +325,114 @@
       "r_lit_media": 0.10376940681120421
     }
   ],
+  "heterogeneity": [
+    {
+      "label": "Heterogeneity (high-litigation) physician growth ~ lagged litigation rate",
+      "outcome": "dlog_phys",
+      "predictor": "litrate_lag",
+      "group": "high litigation",
+      "n_obs": 96,
+      "n_specialties": 12,
+      "n_waves": 8,
+      "coef": 0.009805390292326889,
+      "se": 0.008414910475971081,
+      "t": 1.1652400011059352,
+      "df": 11,
+      "p": 0.26856829342312405,
+      "interact_coef": -0.011891474609105827,
+      "interact_se": 0.009570602405952198,
+      "interact_t": -1.2425001169947485,
+      "interact_p": 0.23988758016525918
+    },
+    {
+      "label": "Heterogeneity (surgical) physician growth ~ lagged litigation rate",
+      "outcome": "dlog_phys",
+      "predictor": "litrate_lag",
+      "group": "surgical",
+      "n_obs": 96,
+      "n_specialties": 12,
+      "n_waves": 8,
+      "coef": -0.004546084528317444,
+      "se": 0.0036525862135470756,
+      "t": -1.2446207324159724,
+      "df": 11,
+      "p": 0.23913634195520683,
+      "interact_coef": 0.005746689938155698,
+      "interact_se": 0.006437607522239955,
+      "interact_t": 0.8926747892447079,
+      "interact_p": 0.39114195675871044
+    },
+    {
+      "label": "Heterogeneity (high-litigation) hospital growth ~ lagged litigation rate",
+      "outcome": "dlog_hosp",
+      "predictor": "litrate_lag",
+      "group": "high litigation",
+      "n_obs": 96,
+      "n_specialties": 12,
+      "n_waves": 8,
+      "coef": -5.261546281624843e-05,
+      "se": 0.0034277855320147452,
+      "t": -0.015349695109227766,
+      "df": 11,
+      "p": 0.9880280651285749,
+      "interact_coef": 0.0003999361824361515,
+      "interact_se": 0.00430150643558057,
+      "interact_t": 0.09297584193482034,
+      "interact_p": 0.9275945407416252
+    },
+    {
+      "label": "Heterogeneity (surgical) hospital growth ~ lagged litigation rate",
+      "outcome": "dlog_hosp",
+      "predictor": "litrate_lag",
+      "group": "surgical",
+      "n_obs": 96,
+      "n_specialties": 12,
+      "n_waves": 8,
+      "coef": 0.004428877980060384,
+      "se": 0.0026582867462704406,
+      "t": 1.6660648014267354,
+      "df": 11,
+      "p": 0.12389065285666712,
+      "interact_coef": -0.006558353949934844,
+      "interact_se": 0.0031835789535271243,
+      "interact_t": -2.06005695026623,
+      "interact_p": 0.06385910912963425
+    }
+  ],
+  "trend_sensitivity": [
+    {
+      "label": "Trend robustness: physician growth ~ lagged litigation rate + specialty trends",
+      "outcome": "dlog_phys",
+      "predictor": "litrate_lag",
+      "n_obs": 96,
+      "n_specialties": 12,
+      "n_waves": 8,
+      "coef": 0.0009832850726838507,
+      "se": 0.0027517615876944245,
+      "t": 0.35732931118778366,
+      "df": 11,
+      "ci_low": -0.005073301345917872,
+      "ci_high": 0.0070398714912855735,
+      "p": 0.727606483896476,
+      "direction": "positive"
+    },
+    {
+      "label": "Trend robustness: hospital growth ~ lagged litigation rate + specialty trends",
+      "outcome": "dlog_hosp",
+      "predictor": "litrate_lag",
+      "n_obs": 96,
+      "n_specialties": 12,
+      "n_waves": 8,
+      "coef": 0.002674653774876461,
+      "se": 0.0015593955549633948,
+      "t": 1.7151862247928786,
+      "df": 11,
+      "ci_low": -0.0007575527002972853,
+      "ci_high": 0.0061068602500502075,
+      "p": 0.11430684932382341,
+      "direction": "positive"
+    }
+  ],
   "equivalence": [
     {
       "outcome": "dlog_phys",
@@ -458,7 +566,7 @@
       {
         "label": "Biennial hospital growth ~ lagged litigation rate (JOCS-CP indicator)",
         "raw_p": 0.013171659711580455,
-        "holm_p": 0.11854493740422409
+        "holm_p": 0.25026153452002864
       },
       {
         "label": "COUNTS contrast: physician growth ~ lagged litigation COUNT",
@@ -493,6 +601,56 @@
       {
         "label": "Media-adjusted annual hospital growth (2009-2018) ~ lit rate + media count (media count)",
         "raw_p": 0.20908541527810545,
+        "holm_p": 1.0
+      },
+      {
+        "label": "Heterogeneity (high-litigation) physician growth ~ lagged litigation rate (main effect)",
+        "raw_p": 0.26856829342312405,
+        "holm_p": 1.0
+      },
+      {
+        "label": "Heterogeneity (high-litigation) physician growth ~ lagged litigation rate (interaction)",
+        "raw_p": 0.23988758016525918,
+        "holm_p": 1.0
+      },
+      {
+        "label": "Heterogeneity (surgical) physician growth ~ lagged litigation rate (main effect)",
+        "raw_p": 0.23913634195520683,
+        "holm_p": 1.0
+      },
+      {
+        "label": "Heterogeneity (surgical) physician growth ~ lagged litigation rate (interaction)",
+        "raw_p": 0.39114195675871044,
+        "holm_p": 1.0
+      },
+      {
+        "label": "Heterogeneity (high-litigation) hospital growth ~ lagged litigation rate (main effect)",
+        "raw_p": 0.9880280651285749,
+        "holm_p": 1.0
+      },
+      {
+        "label": "Heterogeneity (high-litigation) hospital growth ~ lagged litigation rate (interaction)",
+        "raw_p": 0.9275945407416252,
+        "holm_p": 1.0
+      },
+      {
+        "label": "Heterogeneity (surgical) hospital growth ~ lagged litigation rate (main effect)",
+        "raw_p": 0.12389065285666712,
+        "holm_p": 1.0
+      },
+      {
+        "label": "Heterogeneity (surgical) hospital growth ~ lagged litigation rate (interaction)",
+        "raw_p": 0.06385910912963425,
+        "holm_p": 1.0
+      },
+      {
+        "label": "Trend robustness: physician growth ~ lagged litigation rate + specialty trends",
+        "raw_p": 0.727606483896476,
+        "holm_p": 1.0
+      },
+      {
+        "label": "Trend robustness: hospital growth ~ lagged litigation rate + specialty trends",
+        "raw_p": 0.11430684932382341,
         "holm_p": 1.0
       }
     ]

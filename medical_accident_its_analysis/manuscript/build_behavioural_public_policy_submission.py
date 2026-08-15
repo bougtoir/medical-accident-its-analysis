@@ -21,6 +21,7 @@ introduction, discussion, cover letter and declarations are re-written for
 Behavioural Public Policy.
 """
 import os
+import re
 import shutil
 import zipfile
 import build_healthcare_analytics_submission as ha
@@ -86,11 +87,140 @@ def _senkoi_summary():
 
 SENKOI_SUM = _senkoi_summary()
 
+# Look-up tables for the new heterogeneity and trend-robustness results.
+_HET_DICT = {(r["outcome"], r["group"]): r for r in ha.RES.get("heterogeneity", [])}
+_TREND_DICT = {r["outcome"]: r for r in ha.RES.get("trend_sensitivity", [])}
+
 BPP_TITLE = (
-    "Perceived malpractice risk and real workforce allocation: "
-    "a behavioural-economics analysis of litigation risk and physician "
-    "specialty supply in Japan"
+    "Litigation risk and physician specialty supply: "
+    "a Japanese test of behavioural risk perception"
 )
+
+# Anonymous manuscript placeholder; the real repository URL is on the title page
+# and in the cover letter, which are removed during double-blind peer review.
+ANON_REPO = "URL omitted for anonymised peer review"
+
+# Short in-text author names for organisational references
+_BPP_CITE_SHORT = {
+    "phys": "Ministry of Health, Labour and Welfare",
+    "facil": "Ministry of Health, Labour and Welfare",
+    "mhlw_senkoi2018": "Ministry of Health, Labour and Welfare",
+    "mhlw_3_5yr": "Ministry of Health, Labour and Welfare",
+    "court": "Supreme Court of Japan",
+    "jocscp": "JOCS-CP",
+    "mais": "Medical Accident Investigation System",
+    "jmsr_data": "JMSR",
+    "nikkei": "Nikkei Inc",
+}
+
+_CITE_RE = re.compile(r"\{([^}]+)\}")
+
+
+def _bpp_surname(author_part: str) -> str:
+    """Return the surname component of an author token."""
+    m = re.search(r"^(.*)\s+([A-Z]{1,2})$", author_part)
+    if m and len(m.group(2)) <= 2:
+        return m.group(1)
+    return author_part
+
+
+def _bpp_get_year(ref: str) -> str:
+    """Extract a 4-digit publication year from a reference string."""
+    m = re.search(r";\s*(\d{4})", ref)
+    if m:
+        return m.group(1)
+    m = re.search(r"(\d{4});", ref)
+    if m:
+        return m.group(1)
+    m = re.search(r"Accessed\s+(\d{4})", ref)
+    if m:
+        return m.group(1)
+    m = re.search(r"\b(19|20)\d{2}\b", ref)
+    if m:
+        return m.group(0)
+    return "????"
+
+
+def _bpp_in_text_author(ref: str, key: str) -> str:
+    """Return the in-text author string for a Harvard-style citation."""
+    if key in _BPP_CITE_SHORT:
+        return _BPP_CITE_SHORT[key]
+    first = ref.split(". ", 1)[0]
+    parts = [p.strip() for p in first.split(",") if p.strip()]
+    if parts and "et al" in parts[-1].lower():
+        parts = parts[:-1]
+        surnames = [_bpp_surname(p) for p in parts]
+        return f"{surnames[0]} et al." if surnames else first
+    surnames = [_bpp_surname(p) for p in parts]
+    if len(surnames) >= 4:
+        return f"{surnames[0]} et al."
+    if len(surnames) == 3:
+        return f"{surnames[0]}, {surnames[1]} and {surnames[2]}"
+    if len(surnames) == 2:
+        return f"{surnames[0]} and {surnames[1]}"
+    return surnames[0] if surnames else first
+
+
+def _bpp_fmt_journal_tail(tail: str, year: str) -> str:
+    """Format a journal volume(issue):pages tail for Harvard referencing."""
+    if year + ";" in tail:
+        s = tail.split(year + ";", 1)[1]
+    else:
+        s = tail
+    m = re.match(r"^([\w\d()\-–]+):(.*)$", s)
+    if not m:
+        return s
+    vol = m.group(1)
+    rest = m.group(2).strip()
+    parts = re.split(r"(?i)\s*doi[:\s]", rest, maxsplit=1)
+    pages = parts[0].strip().rstrip(".")
+    doi = parts[1].strip() if len(parts) > 1 else ""
+    if pages:
+        pages_str = f", {pages}" if re.fullmatch(r"e\d+", pages) else f", pp. {pages}"
+    else:
+        pages_str = ""
+    if doi:
+        return f"{vol}{pages_str}. doi:{doi}"
+    return f"{vol}{pages_str}."
+
+
+def _bpp_harvard_reference(ref: str, key: str) -> str:
+    """Convert a Vancouver-style reference string to a Harvard-style entry."""
+    # Manual overrides for sources whose original string does not parse cleanly
+    if key == "mais":
+        return (
+            "Medical Accident Investigation System (2015) Act on the Promotion of "
+            "Medical Safety. Tokyo: Ministry of Health, Labour and Welfare."
+        )
+    if key == "nikkei":
+        return (
+            "Nikkei Inc (2024) Nikkei Telecom 21. Tokyo: Nikkei Inc. "
+            "Available at: https://telecom21.nikkei.co.jp/ (Accessed 2024)."
+        )
+    year = _bpp_get_year(ref)
+    # Do not split on '. ' that introduces a doi: keep the doi with the tail
+    parts = re.split(r"\. (?!doi)", ref)
+    authors = parts[0]
+    # Restore 'et al.' period if the split consumed it
+    if "et al" in authors and not authors.endswith("et al."):
+        authors = re.sub(r"et al\.?$", "et al.", authors)
+    tail = parts[-1]
+    is_journal = bool(re.search(r"\d{4};", tail))
+    if is_journal and len(parts) >= 3:
+        title = ". ".join(parts[1:-2]) if len(parts) > 3 else parts[1]
+        journal = parts[-2]
+        t = _bpp_fmt_journal_tail(tail, year)
+        return f"{authors} ({year}) '{title}', {journal}, {t}"
+    # Reports, books and web pages
+    title = parts[1] if len(parts) > 1 else ""
+    rest = ". ".join(parts[2:]) if len(parts) > 2 else ""
+    rest = re.sub(r";\s*\d{4}", "", rest)
+    rest = rest.replace("Available from:", "Available at:")
+    rest = re.sub(r"\(accessed ([^)]+)\)", r"(Accessed \1)", rest)
+    rest = re.sub(r"\s+", " ", rest).strip().rstrip(".")
+    if rest:
+        return f"{authors} ({year}) {title}. {rest}."
+    return f"{authors} ({year}) {title}."
 
 
 def h(doc, text, level=1):
@@ -127,6 +257,70 @@ def build_manuscript():
 
     doc = ha._setup_doc()
 
+    # BPP requires figures and tables on separate sheets at the end of the
+    # manuscript, after References. We collect them here and place placeholders
+    # at their first mention in the text.
+    _figures = []
+    _tables = []
+    _fig_n = [0]
+    _tab_n = [0]
+
+    def f_bpp(doc, fn, caption, width=Inches(5.8)):
+        _fig_n[0] += 1
+        n = _fig_n[0]
+        placeholder = doc.add_paragraph()
+        placeholder.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        r = placeholder.add_run(f"Figure {n} about here")
+        r.italic = True
+        r.font.name = "Times New Roman"
+        r.font.size = Pt(10)
+        _figures.append((fn, caption, width))
+        return placeholder
+
+    def t_bpp(doc, headers, rows, caption):
+        _tab_n[0] += 1
+        n = _tab_n[0]
+        placeholder = doc.add_paragraph()
+        placeholder.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        r = placeholder.add_run(f"Table {n} about here")
+        r.italic = True
+        r.font.name = "Times New Roman"
+        r.font.size = Pt(10)
+        _tables.append((headers, rows, caption))
+        return placeholder
+
+    # Harvard-style citation state for BPP
+    _cite_order = []
+
+    def _cite(text: str) -> str:
+        def _repl(match):
+            keys = [k.strip() for k in match.group(1).split(",") if k.strip()]
+            entries = []
+            for k in keys:
+                if k not in ha.REFS:
+                    raise KeyError(f"Unknown citation key: {k}")
+                if k not in _cite_order:
+                    _cite_order.append(k)
+                ref = ha.REFS[k]
+                author = _bpp_in_text_author(ref, k)
+                year = _bpp_get_year(ref)
+                entries.append(f"{author}, {year}")
+            return " (" + "; ".join(entries) + ")"
+
+        return _CITE_RE.sub(_repl, text)
+
+    def b_bpp(doc, text, **kw):
+        return ha.body(doc, _cite(text), **kw)
+
+    def p_bpp(doc, text, **kw):
+        return ha.para(doc, _cite(text), **kw)
+
+    global f, t, b, p
+    f = f_bpp
+    t = t_bpp
+    b = b_bpp
+    p = p_bpp
+
     # Title
     tp = doc.add_paragraph()
     tp.alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -136,33 +330,29 @@ def build_manuscript():
     rt.font.size = Pt(14)
     rt.font.name = "Times New Roman"
 
-    # Abstract (unstructured, one paragraph)
+    # Abstract (unstructured, one paragraph; BPP limit 200 words)
     abstract_text = (
-        f"Specialty maldistribution is a persistent healthcare workforce problem. "
-        f"A common behavioural assumption is that fear of malpractice litigation pushes physicians "
-        f"away from high-risk specialties, but this belief may rest more on the availability of "
-        f"salient adverse events and loss aversion than on actual career decisions. "
-        f"We used national administrative data for {N} clinical specialties in "
-        f"Japan ({BIEN[0]}\u2013{BIEN[-1]}) to test whether litigation risk is associated with "
-        f"subsequent physician or hospital supply. Applying a transparent, reproducible analytical "
-        f"framework that removes size confounding and sparse-panel bias, we measured exposure as "
-        f"closed malpractice claims per {PER:,} physicians and regressed biennial "
-        f"log-changes in physicians and hospitals on the lagged litigation rate in a panel with "
-        f"specialty and wave fixed effects, cluster-robust standard errors with a small-cluster "
-        f"correction, a cluster block-bootstrap, two one-sided equivalence (TOST) tests, and power "
-        f"diagnostics. The workforce grew in {GREW} of {N} specialties; {SURG_DESC}, was the "
-        f"exception. The lagged litigation rate was unrelated to physician growth (coefficient "
-        f"{ha.fmt(PHYS['coef'], 4)}; 95% CI {ha.fmt(PHYS['ci_low'], 4)} to "
-        f"{ha.fmt(PHYS['ci_high'], 4)}; p={PHYS['p']:.2f}) or hospital growth "
-        f"(p={HOSP['p']:.2f}). A one-SD higher rate shifted physician growth by less than "
-        f"\u00b1{MARGIN1}% (TOST p={ha.p_tost_fmt(EQP['tests'][0]['p_tost'])}). The results "
-        f"suggest that, despite high perceived risk, structural incentives\u2014training costs, "
-        f"fee-for-service income, and status-quo bias\u2014keep physicians in high-risk fields. "
-        f"Reducing civil litigation exposure is therefore unlikely to be an effective behavioural "
-        f"public policy lever for correcting specialty maldistribution; structural incentives such "
-        f"as no-fault compensation and payment design are more promising."
+        f"Specialty maldistribution is a workforce problem. A common assumption is that "
+        f"malpractice litigation pushes physicians away from high-risk specialties, but this may "
+        f"reflect salient adverse events more than actual decisions. Using national administrative data "
+        f"for {N} clinical specialties in Japan ({BIEN[0]}\u2013{BIEN[-1]}), we tested whether "
+        f"litigation risk predicts physician and hospital supply. We measured exposure as closed "
+        f"malpractice claims per {PER:,} physicians and regressed biennial log-changes in physician "
+        f"and hospital counts on the lagged litigation rate in a panel with specialty and wave fixed "
+        f"effects, cluster-robust standard errors, and equivalence tests. The workforce grew in {GREW} "
+        f"of {N} specialties; only {SURG_DESC}, declined. Litigation rate was unrelated to physician "
+        f"growth (coefficient {ha.fmt(PHYS['coef'], 4)}; 95% CI {ha.fmt(PHYS['ci_low'], 4)} to "
+        f"{ha.fmt(PHYS['ci_high'], 4)}; p={PHYS['p']:.2f}) or hospital growth (p={HOSP['p']:.2f}), "
+        f"and a one-SD higher rate shifted physician growth by less than \u00b1{MARGIN1}% "
+        f"(TOST p={ha.p_tost_fmt(EQP['tests'][0]['p_tost'])}). Despite high perceived risk, structural "
+        f"incentives\u2014training costs, fee-for-service income, and status-quo bias\u2014appear to keep "
+        f"physicians in high-risk fields. Reducing civil litigation exposure is therefore unlikely to be "
+        f"an effective policy lever for correcting specialty maldistribution; structural incentives "
+        f"such as no-fault compensation and payment design are more promising."
     )
     abstract_wc = ha.wc(abstract_text)
+    if abstract_wc > 200:
+        raise SystemExit(f"Abstract is {abstract_wc} words; BPP limit is 200")
 
     h(doc, "Abstract", level=1)
     ap = doc.add_paragraph()
@@ -253,7 +443,7 @@ def build_manuscript():
         f"newspaper article counts from Nikkei Telecom 21 (2004-2018; the sensitivity analysis uses "
         f"{MEDIA_START}-{MEDIA_END}; keywords: medical error + medical malpractice).{{nikkei}} The full "
         f"extraction pipeline (with source identifiers and SHA-256 checksums) is documented in the "
-        f"accompanying repository ({PUBLIC_REPO}).",
+        f"accompanying repository ({ANON_REPO}).",
     )
     b(
         doc,
@@ -296,22 +486,20 @@ def build_manuscript():
     h(doc, "Statistical analysis", level=2)
     b(
         doc,
-        f"We formalised the evaluation as a sensitivity-analysis framework that varies the exposure "
-        f"definition (counts versus rates), panel frequency (measured biennial waves versus interpolated "
-        f"annual values), and potential confounders (JMSR reports, media coverage, JOCS-CP period) while "
-        f"holding the specialty-level panel structure constant. The exposure was the litigation rate, "
-        f"defined as closed claims per {PER:,} physicians in each specialty-year, which removes "
-        f"specialty-size confounding because large specialties generate more claims for reasons unrelated "
-        f"to per-physician risk. The primary analysis used the {len(BIEN)} measured biennial physician "
-        f"waves ({BIEN[0]}\u2013{BIEN[-1]}). For each specialty we computed the biennial log-change in "
-        f"physicians (and, separately, in hospitals) and regressed it on the litigation rate at the start "
-        f"of the interval, in a panel with specialty and wave fixed effects and standard errors clustered "
-        f"by specialty.{{angrist}} Clusters are defined by specialty, so G={N} and the small-cluster "
-        f"correction uses a t-distribution with G-1 degrees of freedom for all cluster-robust inference. "
-        f"Supplementary Figure 1 summarises the sensitivity-analysis framework. The primary estimating "
-        f"equation, for specialty s and wave t, was as follows.",
+        f"We used a transparent sensitivity-analysis framework that varies the exposure definition "
+        f"(counts versus rates), panel frequency (measured biennial waves versus interpolated annual values), "
+        f"and potential confounders while holding the specialty-level panel structure constant. Supplementary "
+        f"Figure 1 summarises the framework. The exposure was the litigation rate, defined as closed claims "
+        f"per {PER:,} physicians in each specialty-year, which removes specialty-size confounding because large "
+        f"specialties generate more claims for reasons unrelated to per-physician risk. The primary analysis "
+        f"used the {len(BIEN)} measured biennial physician waves ({BIEN[0]}\u2013{BIEN[-1]}). For each specialty "
+        f"we computed the biennial log-change in physicians (and, separately, in hospitals) and regressed it on "
+        f"the lagged litigation rate at the start of the interval, in a panel with specialty and wave fixed effects, "
+        f"cluster-robust standard errors, and a JOCS-CP indicator for obstetrics and gynaecology from 2009 onward.{{angrist}} "
+        f"Clusters are defined by specialty, so G={N} and the small-cluster correction uses a t-distribution with "
+        f"G-1 degrees of freedom.{{cameron2015}} The primary estimating equation, for specialty s and wave t, was as follows.",
     )
-    m(doc, r"\Delta \log(Y_{st}) = \alpha_s + \delta_t + \beta \cdot \text{litrate}_{s,t-1} + \epsilon_{st}")
+    m(doc, r"\Delta \log(Y_{st}) = \alpha_s + \delta_t + \beta \cdot \text{litrate}_{s,t-1} + \gamma \cdot \text{JOCS-CP}_{s,t-1} + \epsilon_{st}")
     b(
         doc,
         "Here, Y is either physicians or hospitals, alpha_s are specialty fixed effects, "
@@ -321,29 +509,12 @@ def build_manuscript():
     )
     b(
         doc,
-        "We assessed equivalence to a null effect using two one-sided tests (TOST).{lakens,schuir} "
-        f"For a pre-specified margin m, the two one-sided null hypotheses are",
-    )
-    m(doc, r"H_0: \beta \leq -m \quad \text{and} \quad H_0: \beta \geq +m")
-    b(
-        doc,
-        f"Equivalence is declared when both one-sided tests yield p < alpha. We used margins of "
-        f"{MARGIN1}% and {MARGIN2}% biennial workforce change because they are smaller than typical policy "
-        f"targets for specialty workforce rebalancing and represent changes that workforce planners would "
-        f"consider substantively small.",
-    )
-    b(
-        doc,
-        "We complemented the analytical small-cluster inference with two diagnostic quantities. "
-        "First, a cluster block-bootstrap with B = 1,999 replications resampled specialties with "
-        "replacement, re-fitted the primary model, and reported percentile bootstrap 95% confidence "
-        "intervals and a bootstrap p-value based on the distribution of absolute t-statistics. "
-        "Second, we report the minimum detectable effect (MDE) at 80% power for the per-SD "
-        "litigation-rate coefficient and the power to declare equivalence when the true effect is "
-        "zero. The MDE is (t(0.975, df) + t(0.80, df)) \u00d7 SE; the equivalence power is "
-        "2\u00b7F_t(m/SE) \u2212 1, where F_t is the cumulative distribution of the t(df) distribution. "
-        "These diagnostics make the limited-panel information explicit to policymakers evaluating "
-        "this behavioural lever.",
+        f"We assessed equivalence to a null effect using two one-sided tests (TOST) with pre-specified margins "
+        f"of \u00b1{MARGIN1}% and \u00b1{MARGIN2}% biennial workforce change, chosen because they are smaller than "
+        f"typical policy targets for specialty rebalancing.{{lakens,schuir}} Equivalence is declared when the per-SD "
+        f"coefficient lies inside the margin. Inference was complemented by a cluster block-bootstrap (B = 1,999) and by "
+        f"the minimum detectable effect (MDE) at 80% power and the power to declare equivalence when the true effect is "
+        f"zero. Full formulas and the heterogeneity and time-trend robustness checks are given in Supplementary Note 1 and Supplementary Table 9.",
     )
 
     h(doc, "Policy lever simulation", level=2)
@@ -362,19 +533,14 @@ def build_manuscript():
     )
     b(
         doc,
-        f"All reported confidence intervals and two-sided p-values use a t-distribution with G-1 = "
-        f"{PHYS['df']} degrees of freedom, the small-cluster correction recommended by Cameron and "
-        f"Miller.{{cameron2015}} An indicator for obstetrics and gynaecology from 2009 onward captured the "
-        f"JOCS-CP period.{{jocscp}} Sensitivity analyses repeated the models on (i) the annual hospital "
-        f"series, (ii) a linearly interpolated annual physician series (with degrees of freedom governed "
-        f"by the measured waves, not the interpolated n), (iii) raw counts instead of rates, (iv) the annual "
-        f"hospital series {JMSR_START}-2024 additionally controlling for the JMSR report rate, and (v) the "
-        f"annual hospital series {MEDIA_START}\u2013{MEDIA_END} additionally controlling for total Nikkei Telecom "
-        f"article counts. Because the article-count series is a national yearly variable, it is collinear with "
-        f"full wave fixed effects; this sensitivity therefore uses specialty fixed effects plus a linear time "
-        f"trend rather than wave dummies. The JOCS-CP indicator and all sensitivity models are exploratory; "
-        f"we report raw p-values and Holm step-down adjusted p-values for this family. Analyses used Python "
-        f"(statsmodels); code and data are openly available at {PUBLIC_REPO}.",
+        f"All confidence intervals and two-sided p-values use the small-cluster correction with G-1 = "
+        f"{PHYS['df']} degrees of freedom.{{cameron2015}} The JOCS-CP indicator captures the post-2009 "
+        f"obstetrics-and-gynaecology period.{{jocscp}} Sensitivity analyses repeat the models on the annual "
+        f"hospital series, an interpolated annual-physician series, raw counts instead of rates, and annual "
+        f"hospital series controlling for the JMSR report rate ({JMSR_START}-2024) or total Nikkei Telecom "
+        f"article counts ({MEDIA_START}-{MEDIA_END}); details are in Supplementary Table 1. The JOCS-CP "
+        f"indicator and all sensitivity models are exploratory; we report raw and Holm step-down adjusted "
+        f"p-values. Code and data are available in the accompanying repository ({ANON_REPO}).",
     )
 
     # Results
@@ -508,6 +674,33 @@ def build_manuscript():
         f"{EQH['mde_80pct']:.2f}% per SD and the equivalent power for the \u00b1{MARGIN1}% margin was "
         f"{EQH['tests'][0]['power_if_null']*100:.1f}%. The panel is therefore informative enough to rule out "
         f"policy-relevant effects for physicians, and to bound any hospital effect within a small margin.",
+    )
+
+    h(doc, "Heterogeneity and trend robustness", level=2)
+    het_phys_hi = _HET_DICT.get(("dlog_phys", "high litigation"))
+    het_phys_surg = _HET_DICT.get(("dlog_phys", "surgical"))
+    het_hosp_hi = _HET_DICT.get(("dlog_hosp", "high litigation"))
+    het_hosp_surg = _HET_DICT.get(("dlog_hosp", "surgical"))
+    trend_phys = _TREND_DICT.get("dlog_phys")
+    trend_hosp = _TREND_DICT.get("dlog_hosp")
+    b(
+        doc,
+        "We tested whether the null association concealed a differential response in high-litigation "
+        "or surgical specialties, or whether it depended on assuming common wave fixed effects. "
+        f"In high-litigation specialties the main litigation coefficient for physician growth was "
+        f"{ha.fmt(het_phys_hi['coef'], 4)} (p={het_phys_hi['p']:.2f}) and the interaction was "
+        f"{ha.fmt(het_phys_hi['interact_coef'], 4)} (p={het_phys_hi['interact_p']:.2f}); for hospital growth the "
+        f"main coefficient was {ha.fmt(het_hosp_hi['coef'], 4)} (p={het_hosp_hi['p']:.2f}) and the interaction was "
+        f"{ha.fmt(het_hosp_hi['interact_coef'], 4)} (p={het_hosp_hi['interact_p']:.2f}). "
+        f"For the surgical-specialty interaction the physician main effect was {ha.fmt(het_phys_surg['coef'], 4)} "
+        f"(p={het_phys_surg['p']:.2f}) and the interaction was {ha.fmt(het_phys_surg['interact_coef'], 4)} "
+        f"(p={het_phys_surg['interact_p']:.2f}); for hospital growth the main effect was "
+        f"{ha.fmt(het_hosp_surg['coef'], 4)} (p={het_hosp_surg['p']:.2f}) and the interaction was "
+        f"{ha.fmt(het_hosp_surg['interact_coef'], 4)} (p={het_hosp_surg['interact_p']:.2f}). "
+        f"Allowing specialty-specific linear trends also left the litigation coefficient small and non-significant "
+        f"for physician growth ({ha.fmt(trend_phys['coef'], 4)}; p={trend_phys['p']:.2f}) and hospital growth "
+        f"({ha.fmt(trend_hosp['coef'], 4)}; p={trend_hosp['p']:.2f}). None of the interactions or trend-robustness "
+        "checks suggest that a negative litigation effect is hiding in a clinically exposed subgroup (Supplementary Table 9).",
     )
 
     h(doc, "Counts versus rates, and confounders", level=2)
@@ -659,6 +852,16 @@ def build_manuscript():
         "not a contradiction; it is exactly what one would expect when a vivid, low-probability risk meets strong "
         "economic and institutional incentives to remain.",
     )
+    b(
+        doc,
+        "For behavioural public policy, the lesson is that changing the perceived risk alone is unlikely to alter "
+        "aggregate workforce allocation when the underlying choice architecture preserves strong structural "
+        "incentives to remain. Status-quo bias and loss aversion now work in the opposite direction: once a "
+        "physician has incurred the sunk cost of specialty training, leaving feels like a sure loss, while the rare "
+        "possibility of a malpractice judgment remains an abstract, low-probability event. No-fault compensation, "
+        "payment design, and training subsidies change the payoff structure directly; litigation-avoidance "
+        "messaging targets only the perceived risk. Our results suggest that the former are the more reliable levers.",
+    )
     h(doc, "Institutional context and international evidence", level=2)
     b(
         doc,
@@ -703,15 +906,8 @@ def build_manuscript():
     b(
         doc,
         "International evidence on tort reform and physician supply is consistent with a small or context-specific "
-        "effect. A review of U.S. evidence by Helland and Seabury concluded that the measured impacts on physician "
-        "supply are generally modest and sensitive to specification.{helland2015} Matsa found that U.S. state damage "
-        "caps increased the supply of frontier rural specialists by 10-12 percent, but did not affect physician supply "
-        "for the average resident.{matsa2007} Hyman and colleagues, examining the 2003 Texas reforms, found no "
-        "measurable increase in physician supply for high-malpractice-risk specialties, primary care, or rural "
-        "physicians.{hyman2015} Frakes and colleagues showed that negligence-standard reforms could shift the composition "
-        "of the physician workforce toward surgery in some regions, yet the effect was localised and modest.{frakes2020} "
-        "Against this backdrop, a null effect of civil litigation risk on specialty supply is not surprising, especially in "
-        "a system with comparatively low litigation volume and predictable damages.",
+        "effect, especially in systems with low litigation volume and predictable damages.{helland2015,matsa2007,hyman2015,frakes2020} "
+        "Against this backdrop, a null effect of civil litigation risk on Japanese specialty supply is not surprising.",
     )
     b(
         doc,
@@ -735,6 +931,14 @@ def build_manuscript():
         f"and provider-patient trust. But our evidence does not support the claim, at least from these data, that lowering "
         f"litigation risk will retain physicians in high-risk specialties. Policymakers should therefore target structural "
         f"incentives before relying on litigation-avoidance messaging.",
+    )
+    b(
+        doc,
+        "For behavioural public policy, the key insight is that the choice architecture of specialist "
+        "training and reimbursement can override salient risk perceptions, so interventions should redesign "
+        "defaults rather than merely amplify risk information. This aligns with the behavioural finding that "
+        "default options and loss-framed financial incentives shape long-run career decisions more than rare "
+        "adverse events.",
     )
     b(
         doc,
@@ -786,7 +990,34 @@ def build_manuscript():
         f"healthcare workforce-policy levers.",
     )
 
-    # AI declaration (Cambridge / BPP requirement)
+    # References (Harvard style, alphabetical by first author)
+    h(doc, "References", level=1)
+    _harvard_entries = [
+        (
+            _bpp_harvard_reference(ha.REFS[k], k),
+            _bpp_in_text_author(ha.REFS[k], k).lower(),
+            _bpp_get_year(ha.REFS[k]),
+        )
+        for k in _cite_order
+    ]
+    _harvard_entries.sort(key=lambda x: (x[1], x[2]))
+    for entry, _, _ in _harvard_entries:
+        p_ref = doc.add_paragraph()
+        p_ref.paragraph_format.line_spacing = 1.5
+        r_ref = p_ref.add_run(entry)
+        r_ref.font.size = Pt(10)
+        r_ref.font.name = "Times New Roman"
+
+    # Figures and tables on separate sheets at the end of the manuscript
+    # (Cambridge / BPP requirement).
+    for fn, caption, width in _figures:
+        doc.add_page_break()
+        ha.figure(doc, fn, caption, width=width)
+    for headers, rows, caption in _tables:
+        doc.add_page_break()
+        ha.table(doc, headers, rows, caption)
+
+    # Declarations (Cambridge / BPP back-matter requirement)
     h(doc, "Declaration of artificial intelligence use", level=1)
     p(
         doc,
@@ -796,26 +1027,26 @@ def build_manuscript():
         "who take full responsibility for the final content.",
     )
 
-    # Declarations
-    h(doc, "Declarations", level=1)
+    h(doc, "Funding", level=1)
+    p(doc, "This research received no specific grant from any funding agency in the public, commercial or not-for-profit sectors.")
+
+    h(doc, "Competing interests", level=1)
+    p(doc, "The authors declare no competing interests.")
+
+    h(doc, "Data availability", level=1)
     p(
         doc,
-        "Funding: none. Competing interests: none declared. Ethics approval: this study used publicly "
-        "available aggregated national statistics and did not involve human subjects, identifiable data or "
-        "patient records; no ethics approval was required. "
-        f"Data and code availability: all primary data files, extraction scripts and analysis code are "
-        f"openly available in the project repository ({PUBLIC_REPO}), enabling full reproduction of every "
-        "reported number.",
+        "All primary data files, extraction scripts and analysis code are openly available in the project "
+        f"repository ({ANON_REPO}), enabling full reproduction of every reported number. The full repository URL "
+        "is provided in the title page.",
     )
 
-    # References
-    h(doc, "References", level=1)
-    for i, k in enumerate(ha._CITE_ORDER, 1):
-        p_ref = doc.add_paragraph()
-        p_ref.paragraph_format.line_spacing = 1.5
-        r_ref = p_ref.add_run(f"{i}. {ha.REFS[k]}")
-        r_ref.font.size = Pt(10)
-        r_ref.font.name = "Times New Roman"
+    h(doc, "Ethics approval", level=1)
+    p(
+        doc,
+        "This study used publicly available aggregated national statistics and did not involve human subjects, "
+        "identifiable data or patient records; no ethics approval was required.",
+    )
 
     out = os.path.join(BASE, "bpp_manuscript_en.docx")
     doc.save(out)

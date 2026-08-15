@@ -75,6 +75,10 @@ CORE_EN = {"内科": "Internal medicine", "外科": "Surgery",
            "耳鼻咽喉科": "Otolaryngology", "泌尿器科": "Urology",
            "皮膚科": "Dermatology", "麻酔科": "Anaesthesiology"}
 
+# Procedure-oriented specialties used in heterogeneity checks.
+SURGICAL = ["外科", "整形外科", "産婦人科", "泌尿器科"]
+
+
 
 def load(name):
     df = pd.read_csv(os.path.join(HERE, name))
@@ -180,6 +184,78 @@ def panel_fit(d, outcome, predictor, label, year_fe=True):
         "direction": "negative" if coef < 0 else "positive",
         "jocscp_coef": jocscp_coef, "jocscp_se": jocscp_se,
         "jocscp_t": jocscp_t, "jocscp_df": df, "jocscp_p": jocscp_p,
+    }
+
+
+def panel_fit_with_trends(d, outcome, predictor, label):
+    """Primary model augmented with specialty-specific linear time trends."""
+    dd = d.dropna(subset=[outcome, predictor]).copy()
+    rhs = f"{predictor} + C(specialty) + C(year) + C(specialty):year"
+    if "jocscp_lag" in dd and dd["jocscp_lag"].nunique() > 1:
+        rhs += " + jocscp_lag"
+    m = smf.ols(f"{outcome} ~ {rhs}", data=dd).fit(
+        cov_type="cluster", cov_kwds={"groups": dd["specialty"]})
+    G = int(dd.specialty.nunique())
+    df = G - 1
+    coef = float(m.params[predictor])
+    se = float(m.bse[predictor])
+    tstat = coef / se if se > 0 else 0.0
+    p = 2.0 * stats.t.sf(abs(tstat), df)
+    tcrit95 = stats.t.ppf(0.975, df)
+    ci_low, ci_high = coef - tcrit95 * se, coef + tcrit95 * se
+    return {
+        "label": label, "outcome": outcome, "predictor": predictor,
+        "n_obs": int(dd.shape[0]), "n_specialties": G,
+        "n_waves": int(dd.year.nunique()),
+        "coef": coef, "se": se, "t": tstat, "df": df,
+        "ci_low": ci_low, "ci_high": ci_high, "p": p,
+        "direction": "negative" if coef < 0 else "positive",
+    }
+
+
+def heterogeneity_fit(d, outcome, predictor, label, group_col, group_kind):
+    """Estimate a model with an interaction between the exposure and a
+    time-invariant binary group indicator (e.g. high baseline litigation or
+    surgical specialty). Only the interaction is included; a main effect for
+    the group would be collinear with specialty fixed effects."""
+    dd = d.dropna(subset=[outcome, predictor]).copy()
+    if group_kind == "litrate":
+        # high-litigation = above-median specialty mean lagged litigation rate
+        group_mean = dd.groupby("specialty")[group_col].transform("mean")
+        dd["high_group"] = (group_mean > group_mean.median()).astype(int)
+        group_label = "high litigation"
+    elif group_kind == "surgical":
+        dd["high_group"] = dd["specialty"].isin(SURGICAL).astype(int)
+        group_label = "surgical"
+    else:
+        raise ValueError(group_kind)
+    rhs = f"{predictor} + {predictor}:high_group + C(specialty) + C(year)"
+    if "jocscp_lag" in dd and dd["jocscp_lag"].nunique() > 1:
+        rhs += " + jocscp_lag"
+    m = smf.ols(f"{outcome} ~ {rhs}", data=dd).fit(
+        cov_type="cluster", cov_kwds={"groups": dd["specialty"]})
+    G = int(dd.specialty.nunique())
+    df = G - 1
+
+    def _inf(coef, se):
+        t = coef / se if se > 0 else 0.0
+        p = 2.0 * stats.t.sf(abs(t), df)
+        return coef, se, t, p
+
+    main_coef = float(m.params[predictor])
+    main_se = float(m.bse[predictor])
+    main_t, main_p = _inf(main_coef, main_se)[2:]
+    interact_coef = float(m.params[f"{predictor}:high_group"])
+    interact_se = float(m.bse[f"{predictor}:high_group"])
+    interact_t, interact_p = _inf(interact_coef, interact_se)[2:]
+    return {
+        "label": label, "outcome": outcome, "predictor": predictor,
+        "group": group_label,
+        "n_obs": int(dd.shape[0]), "n_specialties": G,
+        "n_waves": int(dd.year.nunique()),
+        "coef": main_coef, "se": main_se, "t": main_t, "df": df, "p": main_p,
+        "interact_coef": interact_coef, "interact_se": interact_se,
+        "interact_t": interact_t, "interact_p": interact_p,
     }
 
 
@@ -548,7 +624,8 @@ def policy_simulation(res):
 
 
 def main():
-    res = {"grid": {}, "descriptive": {}, "primary": [], "sensitivity": []}
+    res = {"grid": {}, "descriptive": {}, "primary": [], "sensitivity": [],
+           "heterogeneity": [], "trend_sensitivity": []}
 
     # ---- biennial measured grid (PRIMARY) ----
     bien = list(range(2008, 2025, 2))
@@ -638,6 +715,32 @@ def main():
                                                      load_media())
     res["sensitivity"].append(media_hospital_sensitivity())
 
+    # ---- HETEROGENEITY: high-litigation and surgical-specialty interactions ----
+    res["heterogeneity"].append(heterogeneity_fit(
+        dbi, "dlog_phys", "litrate_lag",
+        "Heterogeneity (high-litigation) physician growth ~ lagged litigation rate",
+        "litrate_lag", "litrate"))
+    res["heterogeneity"].append(heterogeneity_fit(
+        dbi, "dlog_phys", "litrate_lag",
+        "Heterogeneity (surgical) physician growth ~ lagged litigation rate",
+        "litrate_lag", "surgical"))
+    res["heterogeneity"].append(heterogeneity_fit(
+        dbi, "dlog_hosp", "litrate_lag",
+        "Heterogeneity (high-litigation) hospital growth ~ lagged litigation rate",
+        "litrate_lag", "litrate"))
+    res["heterogeneity"].append(heterogeneity_fit(
+        dbi, "dlog_hosp", "litrate_lag",
+        "Heterogeneity (surgical) hospital growth ~ lagged litigation rate",
+        "litrate_lag", "surgical"))
+
+    # ---- SENSITIVITY (e): specialty-specific linear time trends ----
+    res["trend_sensitivity"].append(panel_fit_with_trends(
+        dbi, "dlog_phys", "litrate_lag",
+        "Trend robustness: physician growth ~ lagged litigation rate + specialty trends"))
+    res["trend_sensitivity"].append(panel_fit_with_trends(
+        dbi, "dlog_hosp", "litrate_lag",
+        "Trend robustness: hospital growth ~ lagged litigation rate + specialty trends"))
+
     # ---- MULTIPLE COMPARISON ADJUSTMENT (exploratory tests only) ----
     # Primary equivalence tests are confirmatory and not adjusted. Sensitivity
     # and JOCS-CP indicator tests are exploratory; report Holm-adjusted p-values.
@@ -658,6 +761,13 @@ def main():
         if "media_p" in r:
             exploratory.append({"label": f"{r['label']} (media count)",
                                 "raw_p": r["media_p"]})
+    for r in res.get("heterogeneity", []):
+        exploratory.append({"label": f"{r['label']} (main effect)",
+                            "raw_p": r["p"]})
+        exploratory.append({"label": f"{r['label']} (interaction)",
+                            "raw_p": r["interact_p"]})
+    for r in res.get("trend_sensitivity", []):
+        exploratory.append({"label": r["label"], "raw_p": r["p"]})
     raw_ps = [e["raw_p"] for e in exploratory]
     adj_ps = holm_adjust(raw_ps)
     res["multiple_comparison"] = {
@@ -696,6 +806,14 @@ def main():
         else:
             print("  %s: coef=%.5f p=%.4f n=%s" % (r["label"], r.get("coef", np.nan),
                   r.get("p", np.nan), r["n_obs"]))
+    print("\nHETEROGENEITY:")
+    for r in res.get("heterogeneity", []):
+        print("  %s: main coef=%.5f p=%.4f; interact coef=%.5f p=%.4f n=%s" % (
+            r["label"], r["coef"], r["p"], r["interact_coef"], r["interact_p"], r["n_obs"]))
+    print("\nTREND SENSITIVITY:")
+    for r in res.get("trend_sensitivity", []):
+        print("  %s: coef=%.5f p=%.4f n=%s" % (
+            r["label"], r["coef"], r["p"], r["n_obs"]))
     print("\nJMSR-LITIGATION CORRELATION (2015-2024):")
     c = res["jmsr_correlation"]
     print("  pooled r=%.3f p=%.4f; detrended r=%.3f p=%.4f" % (
