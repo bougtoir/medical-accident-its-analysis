@@ -247,7 +247,7 @@ def _bpp_fmt_journal_tail(tail: str) -> str:
     """
     parts = re.split(r"(?i)\s*doi[\s:]", tail, maxsplit=1)
     core = parts[0].strip().rstrip(".")
-    doi = parts[1].strip() if len(parts) > 1 else ""
+    doi = parts[1].strip().rstrip(".,;") if len(parts) > 1 else ""
     # Drop the year prefix (year already appears before the title)
     m = re.search(r";\s*(.*)$", core)
     vol_pages = m.group(1) if m else core
@@ -296,26 +296,56 @@ def _bpp_fmt_book_tail(tail: str, year: str) -> str:
         out = f"{publisher}, {place}."
     else:
         out = f"{core}."
-    if accessed:
-        out += f" (Accessed {accessed})."
     if url:
-        out += f" Available at: {url}."
+        if accessed:
+            out += f" Available at: {url} (Accessed {accessed})."
+        else:
+            out += f" Available at: {url}."
+    elif accessed:
+        out += f" (Accessed {accessed})."
     return out
 
 
-def _bpp_harvard_reference(ref: str, key: str) -> str:
-    """Convert a Vancouver-style reference string to BPP Harvard 6th style."""
+def _bpp_harvard_segments(ref: str, key: str):
+    """Convert a Vancouver-style reference string to BPP Harvard-style text runs.
+
+    Returns a list of (text, italic, bold) tuples so that journal/book titles
+    can be italicised and article titles can be quoted while remaining plain text.
+    """
     # Manual overrides for sources whose original string does not parse cleanly
     if key == "mais":
-        return (
+        text = (
             "Medical Accident Investigation System (2015), Act on the Promotion of "
             "Medical Safety. Ministry of Health, Labour and Welfare, Tokyo."
         )
+        return [(text, False, False)]
     if key == "nikkei":
-        return (
+        text = (
             "Nikkei Inc (2024), Nikkei Telecom 21. Nikkei Inc, Tokyo. "
             "Available at: https://telecom.nikkei.co.jp/ (Accessed 2024)."
         )
+        return [(text, False, False)]
+    # Use the full subtitle for the main econometrics text
+    if key == "angrist":
+        author = _bpp_format_author_list("Angrist JD, Pischke JS")
+        return [
+            (f"{author} (2009), ", False, False),
+            ("Mostly Harmless Econometrics: An Empiricist's Companion", True, False),
+            (", Princeton: Princeton University Press.", False, False),
+        ]
+    # In-text citations use institutional abbreviations, so the reference list must match
+    if key == "jocscp":
+        return [
+            ("JOCS-CP (2009), ", False, False),
+            ("Japan Obstetric Compensation System for Cerebral Palsy", True, False),
+            (", Japan Council for Quality Health Care, Tokyo.", False, False),
+        ]
+    if key == "jmsr_data":
+        return [
+            ("JMSR (2025), ", False, False),
+            ("Annual reports of medical accident investigations (2015-2024)", True, False),
+            (", JMSR, Tokyo.", False, False),
+        ]
     base_year = _bpp_get_year(ref)
     year = base_year + _BPP_YEAR_SUFFIX.get(key, "")
     # Split on '. ' but not within a doi or a URL/access line; this separates
@@ -323,23 +353,34 @@ def _bpp_harvard_reference(ref: str, key: str) -> str:
     parts = re.split(r"\. (?!doi|Available|Accessed|\(accessed)", ref, flags=re.IGNORECASE)
     author_part = parts[0].strip()
     author_str = _bpp_format_author_list(author_part)
+    prefix = f"{author_str} ({year})"
     if len(parts) == 1:
-        return f"{author_str} ({year})."
+        return [(f"{prefix}.", False, False)]
     if len(parts) == 2:
         title = _bpp_ensure_title_end(parts[1].strip())
-        return f"{author_str} ({year}), {title}"
+        return [(f"{prefix}, ", False, False), (title, True, False)]
     # General case: title may span multiple parts, journal is second-to-last
     title_parts = parts[1:-2] if len(parts) > 3 else [parts[1]]
-    title = _bpp_ensure_title_end(". ".join(title_parts).strip())
+    title = _bpp_ensure_title_end(". ".join(title_parts).strip()).rstrip(".")
     journal = parts[-2].strip()
     tail = parts[-1].strip()
     # Journal articles have a year;volume tail (Vancouver style: year;vol:pages)
     if re.search(r"^\d{4};", tail):
         journal_tail = _bpp_fmt_journal_tail(tail)
-        return f"{author_str} ({year}), {title} {journal}. {journal_tail}"
+        return [
+            (f"{prefix}, '", False, False),
+            (title, False, False),
+            (f"', ", False, False),
+            (journal, True, False),
+            (f". {journal_tail}", False, False),
+        ]
     # Reports, books and web pages
     rest = _bpp_fmt_book_tail(tail, base_year)
-    return f"{author_str} ({year}), {title} {rest}"
+    return [
+        (f"{prefix}, ", False, False),
+        (title, True, False),
+        (f", {rest}", False, False),
+    ]
 
 
 def h(doc, text, level=1):
@@ -477,7 +518,7 @@ def build_manuscript():
     b(
         doc,
         "Specialty maldistribution is a persistent healthcare workforce problem: high-acuity "
-        "fields such as surgery, obstetrics and gynaecology, paediatrics and emergency care are "
+        "fields such as surgery, obstetrics and gynaecology, paediatrics and anaesthesiology are "
         "widely perceived as understaffed across many health systems.{maldist} A recurring policy "
         "intuition is that the fear of malpractice litigation and medical safety incidents pushes "
         "physicians away from these high-risk specialties.{malprac,defmed} If this behavioural "
@@ -494,7 +535,7 @@ def build_manuscript():
         "costs, switching costs and status-quo bias.{samuelson1988} The relevant policy question is "
         "not whether physicians report anxiety about litigation, but whether that anxiety "
         "translates into aggregate workforce shifts. We treat the litigation-workforce question as a "
-        "test case for evaluating a behavioural public policy lever: can a salient, emotionally "
+        "test case for evaluating a behavioural public policy lever: can a salient, cognitively "
         "available risk be used to change the specialty distribution of physicians?",
     )
     b(
@@ -1154,26 +1195,41 @@ def build_manuscript():
     h(doc, "References", level=1)
     _harvard_entries = []
     for k in _cite_order:
-        entry = _bpp_harvard_reference(ha.REFS[k], k)
-        author_token = entry.split(" (", 1)[0].split(",")[0].strip().lower()
+        segments = _bpp_harvard_segments(ha.REFS[k], k)
+        author_token = segments[0][0].split(" (", 1)[0].split(",")[0].strip().lower()
         year_token = _bpp_get_year(ha.REFS[k]) + _BPP_YEAR_SUFFIX.get(k, "")
-        _harvard_entries.append((entry, author_token, year_token))
+        _harvard_entries.append((segments, author_token, year_token))
     _harvard_entries.sort(key=lambda x: (x[1], x[2]))
-    for entry, _, _ in _harvard_entries:
+    for segments, _, _ in _harvard_entries:
         p_ref = doc.add_paragraph()
         p_ref.paragraph_format.line_spacing = 1.5
-        r_ref = p_ref.add_run(entry)
-        r_ref.font.size = Pt(10)
-        r_ref.font.name = "Times New Roman"
+        for text, italic, bold in segments:
+            r_ref = p_ref.add_run(text)
+            r_ref.font.size = Pt(10)
+            r_ref.font.name = "Times New Roman"
+            r_ref.italic = italic
+            r_ref.bold = bold
 
     # Figures and tables are placed at the end of the main document, after the
-    # reference list, per Cambridge BPP author instructions.
+    # reference list, per Cambridge BPP author instructions.  Figures are *not*
+    # embedded in the manuscript file; captions are listed here and the editable
+    # image files are supplied separately in the submission zip.
+    def _add_figure_caption(doc, caption):
+        cap = doc.add_paragraph()
+        cap.paragraph_format.space_before = Pt(14)
+        cap.paragraph_format.space_after = Pt(6)
+        rc = cap.add_run(caption)
+        rc.bold = True
+        rc.font.size = Pt(10)
+        rc.font.name = "Times New Roman"
+        doc.add_paragraph()
+
     if end_objects:
         h(doc, "Figures and Tables", level=1)
         for obj in end_objects:
             if obj[0] == "fig":
                 _, fn, caption, width = obj
-                ha.figure(doc, fn, caption, width=width)
+                _add_figure_caption(doc, caption)
             else:
                 _, headers, rows, caption = obj
                 ha.table(doc, headers, rows, caption)
@@ -1318,7 +1374,7 @@ def build_cover_letter():
         "Behavioural Public Policy advances rigorous, multidisciplinary research that connects the study of human "
         "behaviour to public policy. Our study sits squarely within this agenda. It uses a well-documented "
         "healthcare workforce problem -- specialty maldistribution -- as a policy test case and asks whether a "
-        "salient, emotionally available risk (malpractice litigation) actually changes aggregate career behaviour. "
+        "salient, cognitively available risk (malpractice litigation) actually changes aggregate career behaviour. "
         "Using national administrative data from Japan, we find no association between litigation risk and specialty "
         "physician supply, and we bound any effect within a small equivalence margin. The result is informative for "
         "behavioural public policy because it shows that a widely perceived risk need not translate into a policy "
@@ -1417,6 +1473,10 @@ def main():
     build_cover_letter()
     build_supplementary()
     build_figure_pptx()
+    # Sanitise all generated Office files so no multibyte characters remain in XML.
+    for fn in os.listdir(BASE):
+        if fn.endswith((".docx", ".pptx")):
+            ha.sanitize_zip(os.path.join(BASE, fn))
     create_submission_zip()
 
 

@@ -376,6 +376,70 @@ def normalize_pptx(prs):
                             run.text = _normalize_text(run.text)
 
 
+_ZIP_ASCII_REPLACEMENTS = {
+    # Greek/math symbols -> ASCII (keeps Word OMML equations readable)
+    "Δ": "Delta",
+    "α": "alpha",
+    "β": "beta",
+    "γ": "gamma",
+    "δ": "delta",
+    "ϵ": "epsilon",
+    "·": "*",
+    "−": "-",
+    "×": "*",
+    "≤": "&lt;=",
+    "≥": ">=",
+    "»": ">>",
+    # East-Asian theme fonts -> ASCII font names
+    "ＭＳ 明朝": "MS Mincho",
+    "ＭＳ ゴシック": "MS Gothic",
+    "ＭＳ Ｐ明朝": "MS PMincho",
+    "ＭＳ Ｐゴシック": "MS PGothic",
+    "맑은 고딕": "Malgun Gothic",
+    "宋体": "SimSun",
+    "新細明體": "PMingLiU",
+    # Bullets and slide-number placeholders
+    "\uf0b7": "*",
+    "•": "*",
+    "–": "-",
+    "‹#›": "#",
+}
+
+
+def _sanitize_xml_text(text: str) -> str:
+    # Longest first so multi-char font names are replaced before any subcomponent.
+    for src, dst in sorted(_ZIP_ASCII_REPLACEMENTS.items(), key=lambda kv: -len(kv[0])):
+        text = text.replace(src, dst)
+    return text
+
+
+def sanitize_zip(path: str) -> None:
+    """Rewrite a .docx or .pptx so its XML contains only ASCII characters.
+
+    Replaces non-ASCII math symbols with ASCII equivalents and normalises
+    East-Asian font names in theme/fontTable XML. This is a post-processing
+    step so that the final files contain no full-width or multibyte characters
+    while remaining valid Office documents.
+    """
+    import tempfile, shutil
+
+    tmp = tempfile.mkstemp(suffix=os.path.splitext(path)[1])[1]
+    shutil.move(path, tmp)
+    try:
+        with zipfile.ZipFile(tmp, "r") as zin, zipfile.ZipFile(
+            path, "w", zipfile.ZIP_DEFLATED
+        ) as zout:
+            for item in zin.infolist():
+                data = zin.read(item.filename)
+                if item.filename.endswith(".xml") or item.filename.endswith(".rels"):
+                    text = data.decode("utf-8", errors="replace")
+                    text = _sanitize_xml_text(text)
+                    data = text.encode("utf-8")
+                zout.writestr(item, data)
+    finally:
+        os.remove(tmp)
+
+
 def cite_number(keys):
     nums = []
     for k in keys:
