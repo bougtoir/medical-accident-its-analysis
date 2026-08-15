@@ -116,14 +116,6 @@ _BPP_CITE_SHORT = {
 _CITE_RE = re.compile(r"\{([^}]+)\}")
 
 
-def _bpp_surname(author_part: str) -> str:
-    """Return the surname component of an author token."""
-    m = re.search(r"^(.*)\s+([A-Z]{1,2})$", author_part)
-    if m and len(m.group(2)) <= 2:
-        return m.group(1)
-    return author_part
-
-
 def _bpp_get_year(ref: str) -> str:
     """Extract a 4-digit publication year from a reference string."""
     m = re.search(r";\s*(\d{4})", ref)
@@ -141,86 +133,186 @@ def _bpp_get_year(ref: str) -> str:
     return "????"
 
 
+def _bpp_has_initials(token: str) -> bool:
+    """Return True if the token is an individual author of the form Surname INITIALS."""
+    token = token.strip()
+    if "et al" in token.lower():
+        return False
+    return bool(re.fullmatch(r".+?\s+[A-Z]{1,2}", token))
+
+
+def _bpp_split_authors(author_part: str):
+    """Split an author string into individual author tokens.
+
+    Organisational/group authors without trailing initials are kept as a single
+    token even if their name contains commas.
+    """
+    raw = [t.strip() for t in re.split(r",\s*", author_part) if t.strip()]
+    et_al = any("et al" in t.lower() for t in raw)
+    author_like = sum(1 for t in raw if _bpp_has_initials(t))
+    if et_al or author_like >= 2:
+        return raw
+    return [author_part.strip()]
+
+
+def _bpp_parse_author_token(token: str) -> str:
+    """Format a single author token as 'Surname, I.I.' or return it unchanged."""
+    token = token.strip()
+    if "et al" in token.lower():
+        return "et al."
+    m = re.fullmatch(r"(.+?)\s+([A-Z]{1,2})", token)
+    if m:
+        surname = m.group(1).strip()
+        initials = m.group(2).strip()
+        dotted = ".".join(initials) + "."
+        return f"{surname}, {dotted}"
+    return token
+
+
+def _bpp_format_author_list(author_part: str) -> str:
+    """Format an author string for the reference list in Harvard style."""
+    tokens = _bpp_split_authors(author_part)
+    parsed = [_bpp_parse_author_token(t) for t in tokens if t.strip()]
+    if not parsed:
+        return author_part.strip()
+    if len(parsed) == 1:
+        return parsed[0]
+    # If the last token is 'et al.', list all preceding names then 'et al.'
+    if parsed[-1].lower().startswith("et al"):
+        return ", ".join(parsed)
+    if len(parsed) == 2:
+        return f"{parsed[0]} and {parsed[1]}"
+    return ", ".join(parsed[:-1]) + f" and {parsed[-1]}"
+
+
 def _bpp_in_text_author(ref: str, key: str) -> str:
     """Return the in-text author string for a Harvard-style citation."""
     if key in _BPP_CITE_SHORT:
         return _BPP_CITE_SHORT[key]
     first = ref.split(". ", 1)[0]
-    parts = [p.strip() for p in first.split(",") if p.strip()]
-    if parts and "et al" in parts[-1].lower():
-        parts = parts[:-1]
-        surnames = [_bpp_surname(p) for p in parts]
-        return f"{surnames[0]} et al." if surnames else first
-    surnames = [_bpp_surname(p) for p in parts]
-    if len(surnames) >= 4:
-        return f"{surnames[0]} et al."
-    if len(surnames) == 3:
-        return f"{surnames[0]}, {surnames[1]} and {surnames[2]}"
-    if len(surnames) == 2:
-        return f"{surnames[0]} and {surnames[1]}"
-    return surnames[0] if surnames else first
+    tokens = _bpp_split_authors(first)
+    et_al = any("et al" in t.lower() for t in tokens)
+    parsed = [_bpp_parse_author_token(t) for t in tokens]
+    surnames = [p.split(",")[0].strip() for p in parsed if p]
+    # Remove any unhandled 'et al.' token and use the first real surname
+    clean_surnames = [s for s in surnames if not s.lower().startswith("et al")]
+    first_surname = clean_surnames[0] if clean_surnames else surnames[0]
+    if et_al or len(clean_surnames) >= 4:
+        return f"{first_surname} et al."
+    if len(clean_surnames) == 3:
+        return f"{clean_surnames[0]}, {clean_surnames[1]} and {clean_surnames[2]}"
+    if len(clean_surnames) == 2:
+        return f"{clean_surnames[0]} and {clean_surnames[1]}"
+    return first_surname
 
 
-def _bpp_fmt_journal_tail(tail: str, year: str) -> str:
-    """Format a journal volume(issue):pages tail for Harvard referencing."""
-    if year + ";" in tail:
-        s = tail.split(year + ";", 1)[1]
-    else:
-        s = tail
-    m = re.match(r"^([\w\d()\-–]+):(.*)$", s)
-    if not m:
-        return s
-    vol = m.group(1)
-    rest = m.group(2).strip()
-    parts = re.split(r"(?i)\s*doi[:\s]", rest, maxsplit=1)
-    pages = parts[0].strip().rstrip(".")
+def _bpp_ensure_title_end(title: str) -> str:
+    """Ensure a title ends with terminal punctuation suitable for Harvard style."""
+    title = title.strip()
+    if title and title[-1] not in ".?!":
+        return title + "."
+    return title
+
+
+def _bpp_fmt_journal_tail(tail: str) -> str:
+    """Format a Vancouver year;volume(issue):pages tail for BPP Harvard style.
+
+    BPP expects: volume (issue), pages.
+    """
+    parts = re.split(r"(?i)\s*doi[\s:]", tail, maxsplit=1)
+    core = parts[0].strip().rstrip(".")
     doi = parts[1].strip() if len(parts) > 1 else ""
-    if pages:
-        pages_str = f", {pages}" if re.fullmatch(r"e\d+", pages) else f", pp. {pages}"
+    # Drop the year prefix (year already appears before the title)
+    m = re.search(r";\s*(.*)$", core)
+    vol_pages = m.group(1) if m else core
+    if ":" in vol_pages:
+        vol, pages = vol_pages.split(":", 1)
     else:
-        pages_str = ""
+        vol, pages = vol_pages, ""
+    vol = vol.strip()
+    pages = pages.strip()
+    if not vol:
+        return tail
+    # Separate volume and issue with a space, e.g. 44(4) -> 44 (4)
+    vol = re.sub(r"(\d)(\()", r"\1 \2", vol)
+    out = f"{vol}"
+    if pages:
+        out += f", {pages}"
+    out += "."
     if doi:
-        return f"{vol}{pages_str}. doi:{doi}"
-    return f"{vol}{pages_str}."
+        out += f" doi:{doi}"
+    return out
+
+
+def _bpp_fmt_book_tail(tail: str, year: str) -> str:
+    """Format a report/book tail (place:publisher;year url) for BPP Harvard style."""
+    # Extract URL / accessed components
+    url_match = re.search(r"(?i)Available (?:from|at):\s*(\S+)", tail)
+    access_match = re.search(r"\(accessed ([^)]+)\)", tail, re.IGNORECASE)
+    url = url_match.group(1) if url_match else ""
+    accessed = access_match.group(1) if access_match else ""
+    # Strip URL/access/year from the remaining tail
+    core = re.sub(r"(?i)\s*Available (?:from|at):\s*\S+", "", tail)
+    core = re.sub(r"\(accessed [^)]+\)", "", core, flags=re.IGNORECASE)
+    core = re.sub(r"[;,]?\s*" + re.escape(year) + r"\b", "", core)
+    core = core.strip().strip(".; ").strip()
+    if not core:
+        if accessed:
+            return f"(Accessed {accessed})."
+        if url:
+            return f"Available at: {url}."
+        return ""
+    # Vancouver uses "Place: Publisher"; BPP uses "Publisher, Place."
+    if ":" in core:
+        place, publisher = core.split(":", 1)
+        place = place.strip().strip(".; ")
+        publisher = publisher.strip().strip(".; ")
+        out = f"{publisher}, {place}."
+    else:
+        out = f"{core}."
+    if accessed:
+        out += f" (Accessed {accessed})."
+    if url:
+        out += f" Available at: {url}."
+    return out
 
 
 def _bpp_harvard_reference(ref: str, key: str) -> str:
-    """Convert a Vancouver-style reference string to a Harvard-style entry."""
+    """Convert a Vancouver-style reference string to BPP Harvard 6th style."""
     # Manual overrides for sources whose original string does not parse cleanly
     if key == "mais":
         return (
-            "Medical Accident Investigation System (2015) Act on the Promotion of "
-            "Medical Safety. Tokyo: Ministry of Health, Labour and Welfare."
+            "Medical Accident Investigation System (2015), Act on the Promotion of "
+            "Medical Safety. Ministry of Health, Labour and Welfare, Tokyo."
         )
     if key == "nikkei":
         return (
-            "Nikkei Inc (2024) Nikkei Telecom 21. Tokyo: Nikkei Inc. "
+            "Nikkei Inc (2024), Nikkei Telecom 21. Nikkei Inc, Tokyo. "
             "Available at: https://telecom21.nikkei.co.jp/ (Accessed 2024)."
         )
     year = _bpp_get_year(ref)
-    # Do not split on '. ' that introduces a doi: keep the doi with the tail
-    parts = re.split(r"\. (?!doi)", ref)
-    authors = parts[0]
-    # Restore 'et al.' period if the split consumed it
-    if "et al" in authors and not authors.endswith("et al."):
-        authors = re.sub(r"et al\.?$", "et al.", authors)
-    tail = parts[-1]
-    is_journal = bool(re.search(r"\d{4};", tail))
-    if is_journal and len(parts) >= 3:
-        title = ". ".join(parts[1:-2]) if len(parts) > 3 else parts[1]
-        journal = parts[-2]
-        t = _bpp_fmt_journal_tail(tail, year)
-        return f"{authors} ({year}) '{title}', {journal}, {t}"
+    # Split on '. ' but not within a doi or a URL/access line; this separates
+    # authors, title and tail.
+    parts = re.split(r"\. (?!doi|Available|Accessed|\(accessed)", ref, flags=re.IGNORECASE)
+    author_part = parts[0].strip()
+    author_str = _bpp_format_author_list(author_part)
+    if len(parts) == 1:
+        return f"{author_str} ({year})."
+    if len(parts) == 2:
+        title = _bpp_ensure_title_end(parts[1].strip())
+        return f"{author_str} ({year}), {title}"
+    # General case: title may span multiple parts, journal is second-to-last
+    title_parts = parts[1:-2] if len(parts) > 3 else [parts[1]]
+    title = _bpp_ensure_title_end(". ".join(title_parts).strip())
+    journal = parts[-2].strip()
+    tail = parts[-1].strip()
+    # Journal articles have a year;volume tail (Vancouver style: year;vol:pages)
+    if re.search(r"^\d{4};", tail):
+        journal_tail = _bpp_fmt_journal_tail(tail)
+        return f"{author_str} ({year}), {title} {journal}. {journal_tail}"
     # Reports, books and web pages
-    title = parts[1] if len(parts) > 1 else ""
-    rest = ". ".join(parts[2:]) if len(parts) > 2 else ""
-    rest = re.sub(r";\s*\d{4}", "", rest)
-    rest = rest.replace("Available from:", "Available at:")
-    rest = re.sub(r"\(accessed ([^)]+)\)", r"(Accessed \1)", rest)
-    rest = re.sub(r"\s+", " ", rest).strip().rstrip(".")
-    if rest:
-        return f"{authors} ({year}) {title}. {rest}."
-    return f"{authors} ({year}) {title}."
+    rest = _bpp_fmt_book_tail(tail, year)
+    return f"{author_str} ({year}), {title} {rest}"
 
 
 def h(doc, text, level=1):
@@ -952,6 +1044,36 @@ def build_manuscript():
         "analysis without a protracted adversarial process. Extending such an approach more broadly would be a structural "
         "alternative to repeated calls to reduce malpractice litigation as a workforce strategy.",
     )
+    b(
+        doc,
+        "Understanding why litigation risk does not shape specialty supply requires moving from individual risk perception to "
+        "the institutional architecture of career choice. In Japan, medical graduates do not freely select a specialty in response to "
+        "annual lawsuit probabilities; they enter a residency training system that channels them into one of the primary specialties "
+        "and then into subspecialty programmes. Once on that path, the costs of switching are large: foregone fellowship income, "
+        "loss of seniority, and disruption of professional identity. These features generate powerful status-quo bias. Samuelson and "
+        "Zeckhauser showed that decision makers disproportionately stick with the status quo when alternatives are risky and when "
+        "switching is costly, even when the status quo is not objectively superior.{samuelson1988} In specialist medicine, the "
+        "status quo is also the income-maximising option for high-acuity procedural work, because fee-for-service reimbursement "
+        "rewards the very activities that carry litigation exposure. The result is that risk perception may influence the intensive "
+        "margin of behaviour\u2014how physicians practise\u2014without changing the extensive margin of whether they remain in the "
+        "specialty. This is consistent with the broader behavioural finding that loss aversion and status-quo bias can dominate "
+        "small-probability risks when the alternative to the current path is seen as a sure loss.{kahneman1979}",
+    )
+    b(
+        doc,
+        "For policymakers, the lesson is that litigation-avoidance campaigns are a weak instrument compared with redesigning "
+        "the choice architecture that physicians face. Defaults can be shifted in several ways. No-fault compensation schemes remove "
+        "the adversarial framing of patient injury and reduce the tail risk of large damages, thereby altering the perceived loss "
+        "distribution without changing the legal standard of care. New Zealand and the Nordic countries have long used administrative "
+        "compensation to separate redress from blame, and Japan's JOCS-CP extends this logic to obstetric cerebral palsy.{bismark2006,mello2011,hasegawa2016} "
+        "Payment design is a second lever: relative values for rural or high-acuity services can raise the expected income of "
+        "unpopular specialties, offsetting any perceived litigation penalty. Training subsidies, loan forgiveness, and guaranteed "
+        "fellowship positions can lower the entry cost into high-risk fields and create a new default for entrants. These "
+        "interventions operate on the payoff structure and opportunity costs that actually determine long-run supply. By contrast, "
+        "simply publicising that malpractice claims are rare is unlikely to override the availability heuristic that makes vivid cases "
+        "salient, or the status-quo bias that keeps established specialists in place. Behavioural public policy is therefore better "
+        "served by structural redesign than by risk communication alone.{lin2022}",
+    )
     h(doc, "Limitations", level=2)
     b(
         doc,
@@ -990,16 +1112,13 @@ def build_manuscript():
         f"healthcare workforce-policy levers.",
     )
 
-    # References (Harvard style, alphabetical by first author)
+    # References (Harvard style, alphabetical by first author surname)
     h(doc, "References", level=1)
-    _harvard_entries = [
-        (
-            _bpp_harvard_reference(ha.REFS[k], k),
-            _bpp_in_text_author(ha.REFS[k], k).lower(),
-            _bpp_get_year(ha.REFS[k]),
-        )
-        for k in _cite_order
-    ]
+    _harvard_entries = []
+    for k in _cite_order:
+        entry = _bpp_harvard_reference(ha.REFS[k], k)
+        author_token = entry.split(" (", 1)[0].split(",")[0].strip().lower()
+        _harvard_entries.append((entry, author_token, _bpp_get_year(ha.REFS[k])))
     _harvard_entries.sort(key=lambda x: (x[1], x[2]))
     for entry, _, _ in _harvard_entries:
         p_ref = doc.add_paragraph()
@@ -1051,11 +1170,12 @@ def build_manuscript():
     out = os.path.join(BASE, "bpp_manuscript_en.docx")
     doc.save(out)
     main_wc = sum(ha.wc(t) for t in ha.BODY_TEXTS)
-    print(f"wrote {out}; abstract {abstract_wc} words; main body ~{main_wc} words")
-    return main_wc, abstract_wc
+    total_wc = sum(ha.wc(p.text) for p in doc.paragraphs if p.text.strip())
+    print(f"wrote {out}; abstract {abstract_wc} words; main body ~{main_wc} words; total ~{total_wc} words")
+    return main_wc, abstract_wc, total_wc
 
 
-def build_title_page(main_word_count):
+def build_title_page(main_word_count, total_word_count):
     doc = ha._setup_doc()
     for _ in range(4):
         doc.add_paragraph()
@@ -1074,7 +1194,8 @@ def build_title_page(main_word_count):
         "1-1-1 Bamba, Hikone, Shiga 522-8522, Japan",
         "Corresponding author: Onishi Tatsuki",
         "ORCID: [corresponding author ORCID]    Email: [corresponding author email]",
-        f"Word count (main text): approximately {main_word_count} words (excluding abstract, references, declarations, tables and figure legends)",
+        f"Word count: approximately {total_word_count} words in total, including abstract and references; "
+        f"main text excluding abstract and references is approximately {main_word_count} words",
         "Article type: Original research article",
         "Target journal: Behavioural Public Policy (Cambridge Core)",
         "Tables: 2  Figures: 4  Supplementary tables: 8  Supplementary figures: 3",
@@ -1244,8 +1365,8 @@ def create_submission_zip():
 
 
 def main():
-    main_wc, abstract_wc = build_manuscript()
-    build_title_page(main_wc)
+    main_wc, abstract_wc, total_wc = build_manuscript()
+    build_title_page(main_wc, total_wc)
     build_highlights()
     build_cover_letter()
     build_supplementary()
