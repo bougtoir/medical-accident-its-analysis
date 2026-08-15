@@ -94,7 +94,7 @@ def plot_physician_index(P, bien, outfile, title):
 
 def plot_equivalence(eq, outfile, title, margin1=0.01, margin2=0.02):
     fig, ax = plt.subplots(figsize=(9, 4))
-    labels = ["Physician growth", "Hospital growth"]
+    labels = ["Physician growth", "Hospital facility-count growth"]
     ys = [1, 0]
     for e, y in zip(eq, ys):
         ax.plot([e["ci90_low"], e["ci90_high"]], [y, y], "b-", lw=2)
@@ -226,7 +226,7 @@ def plot_hospital_counts_vs_rates(H, P, L, bien, outfile, title, colored=True):
         axs[0].scatter(dgrow["cnt"], dgrow["g"], s=12, alpha=0.6)
         axs[1].scatter(dgrow["rate"], dgrow["g"], s=12, alpha=0.6, color="green")
     axs[0].set_xlabel("Litigation COUNT (lagged)")
-    axs[0].set_ylabel("Biennial hospital log-growth")
+    axs[0].set_ylabel("Biennial hospital facility-count log-growth")
     axs[0].set_title("(a) Count exposure (size-confounded)")
     axs[1].set_xlabel("Litigation RATE per 1,000 physicians (lagged)")
     axs[1].set_title("(b) Rate exposure (size-adjusted)")
@@ -290,7 +290,7 @@ def main():
         "as a healthcare workforce-allocation lever.")
     plot_hospital_counts_vs_rates(
         H, P, L, bien, "fig7_hospital_counts_vs_rates.png",
-        "Figure 7. Hospital counts vs. rates: association disappears under size adjustment",
+        "Figure 7. Hospital facility counts vs. rates: association disappears under size adjustment",
         colored=False)
     plot_policy_simulation(
         res["policy_simulation"], "fig6_policy_simulation.png",
@@ -307,7 +307,7 @@ def main():
         colored=True)
     plot_hospital_counts_vs_rates(
         H, P, L, bien, "ha_Figure_3.png",
-        "Figure 3. Hospital counts vs. rates: association disappears under size adjustment",
+        "Figure 3. Hospital facility counts vs. rates: association disappears under size adjustment",
         colored=True)
     plot_policy_simulation(
         res["policy_simulation"], "ha_Figure_4.png",
