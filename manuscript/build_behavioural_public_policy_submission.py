@@ -125,6 +125,14 @@ _BPP_CITE_SHORT = {
     "nikkei": "Nikkei Inc",
 }
 
+# Full author names to use on first in-text citation (subsequent citations use the abbreviation)
+_BPP_CITE_FIRST = {
+    "jocscp": "Japan Council for Quality Health Care (JOCS-CP)",
+    "jmsr_data": "Japan Medical Safety Research Organisation (JMSR)",
+    "mais": "Medical Accident Investigation System",
+    "court": "Supreme Court of Japan",
+}
+
 _CITE_RE = re.compile(r"\{([^}]+)\}")
 
 
@@ -342,16 +350,17 @@ def _bpp_harvard_segments(ref: str, key: str):
             ("Mostly Harmless Econometrics: An Empiricist's Companion", True, False),
             (", Princeton: Princeton University Press.", False, False),
         ]
-    # In-text citations use institutional abbreviations, so the reference list must match
+    # In-text citations use institutional abbreviations after the first mention, so the
+    # reference list uses the full organisational name.
     if key == "jocscp":
         return [
-            ("JOCS-CP (2009), ", False, False),
+            ("Japan Council for Quality Health Care (JOCS-CP) (2009), ", False, False),
             ("Japan Obstetric Compensation System for Cerebral Palsy", True, False),
             (", Japan Council for Quality Health Care, Tokyo.", False, False),
         ]
     if key == "jmsr_data":
         return [
-            ("JMSR (2025), ", False, False),
+            ("Japan Medical Safety Research Organisation (JMSR) (2025), ", False, False),
             ("Annual reports of medical accident investigations (2015-2024)", True, False),
             (", JMSR, Tokyo.", False, False),
         ]
@@ -440,6 +449,7 @@ def build_manuscript():
 
     # Harvard-style citation state for BPP
     _cite_order = []
+    _first_cite = set()
 
     def _cite(text: str) -> str:
         def _repl(match):
@@ -451,7 +461,11 @@ def build_manuscript():
                 if k not in _cite_order:
                     _cite_order.append(k)
                 ref = ha.REFS[k]
-                author = _bpp_in_text_author(ref, k)
+                if k in _BPP_CITE_FIRST and k not in _first_cite:
+                    author = _BPP_CITE_FIRST[k]
+                else:
+                    author = _bpp_in_text_author(ref, k)
+                _first_cite.add(k)
                 year = _bpp_get_cite_year(ref, k)
                 entries.append(f"{author}, {year}")
             return " (" + "; ".join(entries) + ")"
@@ -657,9 +671,10 @@ def build_manuscript():
         f"We assessed equivalence to a null effect using two one-sided tests (TOST) with pre-specified margins "
         f"of +/-{MARGIN1}% and +/-{MARGIN2}% biennial workforce change. The margins were chosen to be smaller than "
         f"the policy-relevant workforce shifts that structural levers have produced: for example, targeted residency "
-        f"subsidies raised primary-care physician supply by about 4% in a comparable setting.{{mcnamara2025}} This makes "
-        f"the margins conservative but still policy-relevant, and the TOST procedure itself is standard for equivalence "
-        f"testing.{{lakens,schuir}} Equivalence is declared when the per-SD coefficient lies inside the margin. Inference "
+        f"subsidies raised primary-care physician supply by about 4% in a comparable setting.{{mcnamara2025}} That 4% is a "
+        f"total programme effect, whereas our +/-{MARGIN1}% and +/-{MARGIN2}% margins are biennial, so the margins are "
+        f"substantially smaller than the policy-relevant shift and therefore conservative. The TOST procedure itself is "
+        f"standard for equivalence testing.{{lakens,schuir}} Equivalence is declared when the per-SD coefficient lies inside the margin. Inference "
         f"was complemented by a cluster block-bootstrap (B = 1,999) and by the minimum detectable effect (MDE) at 80% "
         f"power and the power to declare equivalence when the true effect is zero. Full formulas and the heterogeneity "
         f"and time-trend robustness checks are given in Supplementary Note 1.",
@@ -1010,7 +1025,7 @@ def build_manuscript():
         "well-documented behavioural-economics mechanisms. Media coverage of sensational malpractice or "
         "criminal prosecutions makes litigation risk highly available to physicians and trainees, and loss aversion "
         "can cause a rare but salient adverse outcome to be overweighted in career deliberations."
-        "{tversky1973,kahneman1979} Yet the actual decision to leave a specialty is governed by expected income, "
+        "{tversky1973,kahneman1979} Yet the decision to leave a specialty is governed by expected income, "
         "sunk training costs, switching costs and status-quo bias, all of which discourage exit even when "
         "perceived risk is high.{samuelson1988} The gap between reported anxiety and measured supply is "
         "not a contradiction; it is exactly what one would expect when a vivid, low-probability risk meets strong "
@@ -1426,6 +1441,26 @@ def create_submission_zip():
     print("wrote", zip_path)
 
 
+def create_figures_upload_zip():
+    """Create a separate high-resolution (300 dpi) figure upload archive."""
+    zip_path = os.path.join(OUT, "bpp_figures_for_upload.zip")
+    files = [
+        (os.path.join(OUT, "ha_Figure_1.png"), "Figure_1.png"),
+        (os.path.join(OUT, "ha_Figure_2.png"), "Figure_2.png"),
+        (os.path.join(OUT, "ha_Figure_3.png"), "Figure_3.png"),
+        (os.path.join(OUT, "ha_Figure_4.png"), "Figure_4.png"),
+        (os.path.join(OUT, "ha_Supplementary_Figure_1.png"), "Supplementary_Figure_1.png"),
+        (os.path.join(OUT, "ha_Supplementary_Figure_2.png"), "Supplementary_Figure_2.png"),
+        (os.path.join(OUT, "ha_Supplementary_Figure_3.png"), "Supplementary_Figure_3.png"),
+    ]
+    with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as z:
+        for path, arcname in files:
+            if not os.path.exists(path):
+                raise SystemExit(f"figure upload zip missing file: {path}")
+            z.write(path, arcname=arcname)
+    print("wrote", zip_path)
+
+
 def main():
     main_wc, abstract_wc, total_wc = build_manuscript()
     build_title_page(main_wc, total_wc)
@@ -1438,6 +1473,7 @@ def main():
         if fn.endswith((".docx", ".pptx")):
             ha.sanitize_zip(os.path.join(BASE, fn))
     create_submission_zip()
+    create_figures_upload_zip()
 
 
 if __name__ == "__main__":
