@@ -376,37 +376,17 @@ def build_manuscript():
 
     doc = ha._setup_doc()
 
-    # BPP requires figures and tables on separate sheets at the end of the
-    # manuscript, after References. We collect them here and place placeholders
-    # at their first mention in the text.
-    _figures = []
-    _tables = []
-    _fig_n = [0]
-    _tab_n = [0]
+    # Figures and tables are collected at their first in-text mention and then
+    # placed at the end of the manuscript, after the reference list, following
+    # Cambridge/BPP submission guidance (figures and tables should not be
+    # embedded in the body; separate PNG/PPTX files are also supplied).
+    end_objects = []
 
     def f_bpp(doc, fn, caption, width=Inches(5.8)):
-        _fig_n[0] += 1
-        n = _fig_n[0]
-        placeholder = doc.add_paragraph()
-        placeholder.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        r = placeholder.add_run(f"Figure {n} about here")
-        r.italic = True
-        r.font.name = "Times New Roman"
-        r.font.size = Pt(10)
-        _figures.append((fn, caption, width))
-        return placeholder
+        end_objects.append(("fig", fn, caption, width))
 
     def t_bpp(doc, headers, rows, caption):
-        _tab_n[0] += 1
-        n = _tab_n[0]
-        placeholder = doc.add_paragraph()
-        placeholder.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        r = placeholder.add_run(f"Table {n} about here")
-        r.italic = True
-        r.font.name = "Times New Roman"
-        r.font.size = Pt(10)
-        _tables.append((headers, rows, caption))
-        return placeholder
+        end_objects.append(("table", headers, rows, caption))
 
     # Harvard-style citation state for BPP
     _cite_order = []
@@ -454,7 +434,7 @@ def build_manuscript():
         f"Specialty maldistribution is a workforce problem. A common assumption is that "
         f"malpractice litigation pushes physicians away from high-risk specialties, but this may "
         f"reflect salient adverse events more than actual decisions. Using national administrative data "
-        f"for {N} clinical specialties in Japan ({BIEN[0]}\u2013{BIEN[-1]}), we tested whether "
+        f"for {N} clinical specialties in Japan ({BIEN[0]}-{BIEN[-1]}), we tested whether "
         f"litigation risk predicts physician and hospital supply. We measured exposure as closed "
         f"malpractice claims per {PER:,} physicians and regressed biennial log-changes in physician "
         f"and hospital counts on the lagged litigation rate in a panel with specialty and wave fixed "
@@ -462,10 +442,10 @@ def build_manuscript():
         f"of {N} specialties; only {SURG_DESC}, declined. Litigation rate was unrelated to physician "
         f"growth (coefficient {ha.fmt(PHYS['coef'], 4)}; 95% CI {ha.fmt(PHYS['ci_low'], 4)} to "
         f"{ha.fmt(PHYS['ci_high'], 4)}; p={PHYS['p']:.2f}) or hospital growth (p={HOSP['p']:.2f}), "
-        f"and a one-SD higher rate shifted physician growth by less than \u00b1{MARGIN1}% "
+        f"and a one-SD higher rate shifted physician growth by less than +/-{MARGIN1}% "
         f"(TOST p={ha.p_tost_fmt(EQP['tests'][0]['p_tost'])}). Despite high perceived risk, structural "
-        f"incentives\u2014training costs, fee-for-service income, and status-quo bias\u2014appear to keep "
-        f"physicians in high-risk fields. Reducing civil litigation exposure is therefore unlikely to be "
+        f"incentives -- training costs, fee-for-service income, and status-quo bias -- appear to keep "
+        f"physicians in high-risk fields. Reducing civil litigation exposure is unlikely to be "
         f"an effective policy lever for correcting specialty maldistribution; structural incentives "
         f"such as no-fault compensation and payment design are more promising."
     )
@@ -512,7 +492,7 @@ def build_manuscript():
         "overweighted in career deliberations.{tversky1973,kahneman1979} At the same time, the "
         "decision to enter or leave a specialty is constrained by expected income, sunk training "
         "costs, switching costs and status-quo bias.{samuelson1988} The relevant policy question is "
-        "therefore not whether physicians report anxiety about litigation, but whether that anxiety "
+        "not whether physicians report anxiety about litigation, but whether that anxiety "
         "translates into aggregate workforce shifts. We treat the litigation-workforce question as a "
         "test case for evaluating a behavioural public policy lever: can a salient, emotionally "
         "available risk be used to change the specialty distribution of physicians?",
@@ -599,7 +579,7 @@ def build_manuscript():
         f"Figure 1 summarises the framework. The exposure was the litigation rate, defined as closed claims "
         f"per {PER:,} physicians in each specialty-year, which removes specialty-size confounding because large "
         f"specialties generate more claims for reasons unrelated to per-physician risk. The primary analysis "
-        f"used the {len(BIEN)} measured biennial physician waves ({BIEN[0]}\u2013{BIEN[-1]}). For each specialty "
+        f"used the {len(BIEN)} measured biennial physician waves ({BIEN[0]}-{BIEN[-1]}). For each specialty "
         f"we computed the biennial log-change in physicians (and, separately, in hospitals) and regressed it on "
         f"the lagged litigation rate at the start of the interval, in a panel with specialty and wave fixed effects, "
         f"cluster-robust standard errors, and a JOCS-CP indicator for obstetrics and gynaecology from 2009 onward.{{angrist}} "
@@ -617,7 +597,7 @@ def build_manuscript():
     b(
         doc,
         f"We assessed equivalence to a null effect using two one-sided tests (TOST) with pre-specified margins "
-        f"of \u00b1{MARGIN1}% and \u00b1{MARGIN2}% biennial workforce change, chosen because they are smaller than "
+        f"of +/-{MARGIN1}% and +/-{MARGIN2}% biennial workforce change, chosen because they are smaller than "
         f"typical policy targets for specialty rebalancing.{{lakens,schuir}} Equivalence is declared when the per-SD "
         f"coefficient lies inside the margin. Inference was complemented by a cluster block-bootstrap (B = 1,999) and by "
         f"the minimum detectable effect (MDE) at 80% power and the power to declare equivalence when the true effect is "
@@ -658,8 +638,8 @@ def build_manuscript():
         f"Litigation rates per {PER:,} physicians varied several-fold across specialties and fell over time "
         f"in {FELL} of {N} fields (Supplementary Figure 2). Over the same period the physician workforce "
         f"grew in {GREW} of {N} specialties (Supplementary Figure 3; Table 1); the only exception was "
-        f"general surgery, which was essentially flat ({SURG_PCT:+.1f}% across {SPAN} years). Exposure and "
-        f"workforce therefore did not move in opposite directions as a flight-from-risk account would predict.",
+        f"general surgery, which was nearly flat ({SURG_PCT:+.1f}% across {SPAN} years). Exposure and "
+        f"workforce did not move in opposite directions as a flight-from-risk account would predict.",
     )
     rows = []
     for s in ha.CORE:
@@ -698,12 +678,12 @@ def build_manuscript():
         f"{ha.fmt(PHYS['ci_high'], 4)}; p={PHYS['p']:.2f}; n={PHYS['n_obs']}) or with hospital growth "
         f"(coefficient {ha.fmt(HOSP['coef'], 4)}; p={HOSP['p']:.2f}). Equivalence testing (Figure 1; Table 2) "
         f"showed that a 1-SD higher litigation rate changed biennial physician growth by less than "
-        f"\u00b1{MARGIN1}% (TOST p={ha.p_tost_fmt(EQP['tests'][0]['p_tost'])}; point estimate "
+        f"+/-{MARGIN1}% (TOST p={ha.p_tost_fmt(EQP['tests'][0]['p_tost'])}; point estimate "
         f"{EQP['coef_per_SD']*100:+.2f}% with 90% CI {EQP['ci90_low']*100:+.2f}% to "
         f"{EQP['ci90_high']*100:+.2f}%). For hospital growth the point estimate was "
         f"{EQH['coef_per_SD']*100:+.2f}% (90% CI {EQH['ci90_low']*100:+.2f}% to "
-        f"{EQH['ci90_high']*100:+.2f}%): it was within the \u00b1{MARGIN2}% margin "
-        f"(p={ha.p_tost_fmt(EQH['tests'][1]['p_tost'])}) but not the stricter \u00b1{MARGIN1}% margin "
+        f"{EQH['ci90_high']*100:+.2f}%): it was within the +/-{MARGIN2}% margin "
+        f"(p={ha.p_tost_fmt(EQH['tests'][1]['p_tost'])}) but not the stricter +/-{MARGIN1}% margin "
         f"(p={ha.p_tost_fmt(EQH['tests'][0]['p_tost'])}). Thus the data are consistent with the absence "
         f"of a policy-relevant effect on physician growth, and with at most a small effect on hospital growth. "
         f"Detailed TOST results by margin are reported in Supplementary Table 2.",
@@ -711,8 +691,8 @@ def build_manuscript():
     f(
         doc,
         "ha_Figure_1.png",
-        f"Figure 1. Equivalence (TOST) of the litigation-rate effect against \u00b1{MARGIN1}% and "
-        f"\u00b1{MARGIN2}% margins; horizontal bars are 90% confidence intervals.",
+        f"Figure 1. Equivalence (TOST) of the litigation-rate effect against +/-{MARGIN1}% and "
+        f"+/-{MARGIN2}% margins; horizontal bars are 90% confidence intervals.",
     )
     trow = [
         [
@@ -732,28 +712,28 @@ def build_manuscript():
         [
             "Counts contrast (physician)",
             ha.fmt(CNT["coef"], 4),
-            "\u2014",
+            " -- ",
             f"{CNT['p']:.2f}",
             CNT["n_obs"],
         ],
         [
             "Annual hospital (sensitivity)",
             ha.fmt(ANN["coef"], 4),
-            "\u2014",
+            " -- ",
             f"{ANN['p']:.2f}",
             ANN["n_obs"],
         ],
         [
             "Interpolated physician (sensitivity)",
             ha.fmt(INT["coef"], 4),
-            "\u2014",
+            " -- ",
             f"{INT['p']:.2f}",
             INT["n_obs"],
         ],
         [
-            "Reverse (workforce\u2192litigation)",
+            "Reverse (workforce->litigation)",
             ha.fmt(REV["coef"], 3),
-            "\u2014",
+            " -- ",
             f"{REV['p']:.2f}",
             REV["n_obs"],
         ],
@@ -773,11 +753,11 @@ def build_manuscript():
         f"confounded by specialty size (panel a), whereas the rate-adjusted exposure is not (panel b); "
         f"points are coloured and shaped by specialty so readers can identify which fields drive any "
         f"apparent pattern. The annual hospital and interpolated annual-physician sensitivity analyses were "
-        f"also null (p={ANN['p']:.2f} and p={INT['p']:.2f}), confirming that the null result is robust to panel "
+        f"also null (p={ANN['p']:.2f} and p={INT['p']:.2f}), confirming that the null result holds across panel "
         f"frequency and exposure definition. The JOCS-CP indicator was positive in sign in the obstetric-hospital "
         f"model (coefficient {ha.fmt(HOSP['jocscp_coef'], 3)}, raw p={HOSP['jocscp_p']:.3f}), but it did not "
         f"remain significant after the small-cluster correction and Holm adjustment for the exploratory "
-        f"sensitivity family (Holm p={JOCS_HOLM:.3f}); we therefore treat it as exploratory and do not "
+        f"sensitivity family (Holm p={JOCS_HOLM:.3f}); we treat it as exploratory and do not "
         f"interpret it as a causal policy effect.",
     )
     f(
@@ -804,7 +784,7 @@ def build_manuscript():
         doc,
         f"Descriptively, per-specialty rank correlations between the lagged litigation rate and physician "
         f"growth were positive in {n_pos} of {N} specialties and statistically significant in {n_sig}; the "
-        f"direction is therefore, if anything, opposite to a flight-from-risk hypothesis.",
+        f"direction is, if anything, opposite to a flight-from-risk hypothesis.",
     )
     b(
         doc,
@@ -821,9 +801,9 @@ def build_manuscript():
         f"specialty-specific levels and trends, however, the within-specialty correlation was negligible "
         f"(r={ha.JMSR_CORR['detrended_r']:.2f}). A model of annual hospital growth for {JMSR_START}-2024 that "
         f"included both the lagged litigation rate and the lagged JMSR report rate left the litigation "
-        f"coefficient essentially unchanged ({ha.fmt(JMSR['lit_coef'], 4)}; p={JMSR['lit_p']:.2f}) and the JMSR "
+        f"coefficient little changed ({ha.fmt(JMSR['lit_coef'], 4)}; p={JMSR['lit_p']:.2f}) and the JMSR "
         f"term was not associated with hospital growth (p={JMSR['med_p']:.2f}; Supplementary Table 3). The null "
-        f"litigation result is therefore neither explained nor masked by broader medical-accident reporting.",
+        f"litigation result is neither explained nor masked by broader medical-accident reporting.",
     )
     b(
         doc,
@@ -833,9 +813,9 @@ def build_manuscript():
         f"greater public attention in high-litigation years. Within the annual hospital panel, however, the "
         f"lagged litigation rate and the media-count series were only weakly correlated. A model of annual "
         f"hospital growth for {MEDIA_START}-{MEDIA_END} that included both the lagged litigation rate and the "
-        f"lagged article count (per 1,000 articles) left the litigation coefficient essentially unchanged and "
+        f"lagged article count (per 1,000 articles) left the litigation coefficient little changed and "
         f"the media term was not associated with hospital growth (p={MEDIA['media_p']:.2f}; Supplementary "
-        f"Table 4). Media coverage therefore does not explain the null litigation effect either. Holm step-down "
+        f"Table 4). Media coverage does not explain the null litigation effect either. Holm step-down "
         f"adjusted p-values for the exploratory sensitivity family are reported in Supplementary Table 5.",
     )
 
@@ -850,10 +830,10 @@ def build_manuscript():
         f"{ha.fmt(BS_HOSP['coef_boot_ci_high'], 4)} and the bootstrap p-value was {BS_HOSP['p_bootstrap']:.2f}. "
         f"Both intervals comfortably contain zero. Power diagnostics make the panel information explicit. "
         f"For physician growth, the minimum detectable effect was {EQP['mde_80pct']:.2f}% per SD at 80% power, "
-        f"and the power to declare equivalence within the \u00b1{MARGIN1}% margin if the true effect were zero "
+        f"and the power to declare equivalence within the +/-{MARGIN1}% margin if the true effect were zero "
         f"was {EQP['tests'][0]['power_if_null']*100:.1f}%. For hospital growth the minimum detectable effect was "
-        f"{EQH['mde_80pct']:.2f}% per SD and the equivalent power for the \u00b1{MARGIN1}% margin was "
-        f"{EQH['tests'][0]['power_if_null']*100:.1f}%. The panel is therefore informative enough to rule out "
+        f"{EQH['mde_80pct']:.2f}% per SD and the equivalent power for the +/-{MARGIN1}% margin was "
+        f"{EQH['tests'][0]['power_if_null']*100:.1f}%. The panel is informative enough to rule out "
         f"policy-relevant effects for physicians, and to bound any hospital effect within a small margin.",
     )
     b(
@@ -876,7 +856,7 @@ def build_manuscript():
         f"eliminating every remaining closed claim and assumes the most adverse (most negative) coefficient "
         f"compatible with the data; a more realistic policy would achieve far less. Full projected 2034 physician "
         f"counts by specialty and lever are reported in Supplementary Table 7; Figure 4 summarises the same "
-        f"information as marginal percentage changes. Litigation reduction is therefore not a high-leverage "
+        f"information as marginal percentage changes. Litigation reduction is not a high-leverage "
         f"instrument for workforce allocation in this setting.",
     )
     f(
@@ -936,7 +916,7 @@ def build_manuscript():
         f"subsequent physician or hospital decline. Equivalence testing showed that any effect of litigation risk "
         f"on biennial physician growth is smaller than {MARGIN1}% (90% CI within the {MARGIN1}% margin), and any "
         f"effect on hospital growth is smaller than {MARGIN2}% (but not confidently smaller than {MARGIN1}%). "
-        f"These data therefore do not support the hypothesis that physicians systematically abandon "
+        f"These data do not support the hypothesis that physicians systematically abandon "
         f"high-litigation specialties over {SPAN} years of official statistics.",
     )
     b(
@@ -971,7 +951,7 @@ def build_manuscript():
         "can cause a rare but salient adverse outcome to be overweighted in career deliberations."
         "{tversky1973,kahneman1979} Yet the actual decision to leave a specialty is governed by expected income, "
         "sunk training costs, switching costs and status-quo bias, all of which discourage exit even when "
-        "perceived risk is high.{samuelson1988} The gap between reported anxiety and measured supply is therefore "
+        "perceived risk is high.{samuelson1988} The gap between reported anxiety and measured supply is "
         "not a contradiction; it is exactly what one would expect when a vivid, low-probability risk meets strong "
         "economic and institutional incentives to remain.",
     )
@@ -992,7 +972,7 @@ def build_manuscript():
         "Taniguchi and colleagues analysed all closed malpractice claims reported by the Supreme Court from 2006 "
         "to 2021 and found that more than half ended in settlement, plaintiffs won only about a quarter of "
         "judgments, and the number of claims has been declining, especially in obstetrics and gynaecology."
-        "{taniguchi2023} The Court data we use therefore describe a civil system that is low-volume, "
+        "{taniguchi2023} The Court data we use describe a civil system that is low-volume, "
         "settlement-prone, and comparatively favourable to physicians. This context makes it unlikely that routine "
         "civil litigation risk alone would drive physicians out of high-risk fields.",
     )
@@ -1013,7 +993,7 @@ def build_manuscript():
     b(
         doc,
         "The obstetrics and gynaecology case is the most discussed example of the litigation-workforce nexus, "
-        "and it is consistent with our interpretation. A recent Japan\u2013U.S. comparison of medical-legal claims in "
+        "and it is consistent with our interpretation. A recent Japan-U.S. comparison of medical-legal claims in "
         "obstetrics and gynaecology found that the proportion of malpractice claims in this specialty fell from "
         "15.1 percent in 2004 to 5.2 percent in 2022, and that claims per 100 OB/GYN physicians fell from 0.9 in "
         "2007 to 0.4 in 2016, while maternal and neonatal mortality also declined.{kamijo2025} The authors attribute "
@@ -1052,7 +1032,7 @@ def build_manuscript():
         f"The JOCS-CP experience supports the former; the country's fee-for-service schedule and rural/urban payment "
         f"adjustments illustrate the latter. Malpractice reform may still matter for defensive medicine, patient compensation, "
         f"and provider-patient trust. But our evidence does not support the claim, at least from these data, that lowering "
-        f"litigation risk will retain physicians in high-risk specialties. Policymakers should therefore target structural "
+        f"litigation risk will retain physicians in high-risk specialties. Policymakers should target structural "
         f"incentives before relying on litigation-avoidance messaging.",
     )
     b(
@@ -1070,8 +1050,8 @@ def build_manuscript():
         "extended coverage to all treatment injuries; this separated compensation from negligence findings and largely barred "
         "malpractice litigation.{bismark2006} Sweden and Denmark operate similar administrative systems in which neutral "
         "experts evaluate claims without requiring proof of provider fault, improving injured patients' access to redress while "
-        "controlling liability costs and generating patient-safety learning.{mello2011} The JOCS-CP is narrower in scope\u2014"
-        "it covers only obstetric cerebral palsy\u2014but it moves in the same direction: it provides compensation and cause "
+        "controlling liability costs and generating patient-safety learning.{mello2011} The JOCS-CP is narrower in scope -- "
+        "it covers only obstetric cerebral palsy -- but it moves in the same direction: it provides compensation and cause "
         "analysis without a protracted adversarial process. Extending such an approach more broadly would be a structural "
         "alternative to repeated calls to reduce malpractice litigation as a workforce strategy.",
     )
@@ -1086,7 +1066,7 @@ def build_manuscript():
         "switching is costly, even when the status quo is not objectively superior.{samuelson1988} In specialist medicine, the "
         "status quo is also the income-maximising option for high-acuity procedural work, because fee-for-service reimbursement "
         "rewards the very activities that carry litigation exposure. The result is that risk perception may influence the intensive "
-        "margin of behaviour\u2014how physicians practise\u2014without changing the extensive margin of whether they remain in the "
+        "margin of behaviour -- how physicians practise -- without changing the extensive margin of whether they remain in the "
         "specialty. This is consistent with the broader behavioural finding that loss aversion and status-quo bias can dominate "
         "small-probability risks when the alternative to the current path is seen as a sure loss.{kahneman1979}",
     )
@@ -1094,13 +1074,13 @@ def build_manuscript():
         doc,
         "A choice-architecture framing makes this logic more concrete. The Japanese training system is not a neutral menu of options: "
         "residency placement, examination schedules, and seniority-based promotion create a default path that most trainees follow. "
-        "Default effects are among the most robust findings in behavioural science: when one option is made salient and easy, uptake rises "
+        "Default effects are among the most reliable findings in behavioural science: when one option is made salient and easy, uptake rises "
         "even if alternatives are objectively superior. In specialist medicine, the default is to remain in the specialty where training "
         "investment has already been made, and the reference point is the income and professional identity associated with that specialty. "
         "No-fault compensation and payment design do not change the headline probability of a lawsuit; they change the financial and career "
         "consequences attached to the risk, which is what matters for a loss-averse trainee deciding whether to leave the default path. "
         "Training subsidies and loan forgiveness can alter the default at the entry margin by lowering the cost of entering high-risk "
-        "fields before sunk costs accumulate. These interventions are therefore not simply neoclassical incentives; they are "
+        "fields before sunk costs accumulate. These interventions are not simply neoclassical incentives; they are "
         "choice-architecture tools that shift the reference point and make the socially desirable specialty the easier default.",
     )
     b(
@@ -1115,7 +1095,7 @@ def build_manuscript():
         "fellowship positions can lower the entry cost into high-risk fields and create a new default for entrants. These "
         "interventions operate on the payoff structure and opportunity costs that actually determine long-run supply. By contrast, "
         "simply publicising that malpractice claims are rare is unlikely to override the availability heuristic that makes vivid cases "
-        "salient, or the status-quo bias that keeps established specialists in place. Behavioural public policy is therefore better "
+        "salient, or the status-quo bias that keeps established specialists in place. Behavioural public policy is better "
         "served by structural redesign than by risk communication alone.{lin2022}",
     )
     b(
@@ -1133,7 +1113,7 @@ def build_manuscript():
     b(
         doc,
         f"This is an ecological, specialty-level analysis and cannot establish individual-level causality. The 12 specialties "
-        f"correspond to the primary-specialty tier of Japan's two-tiered specialist training programme; the analysis therefore "
+        f"correspond to the primary-specialty tier of Japan's two-tiered specialist training programme; the analysis "
         f"describes workforce allocation at the initial board-certification stage and may not extend to narrower subspecialties that "
         f"are not separately tracked in the biennial census. The physician census is biennial, giving {len(BIEN)} measured waves; we addressed the limited power directly through equivalence "
         f"testing and by pooling across specialties, but residual power constraints remain and the equivalence margins are a "
@@ -1148,9 +1128,9 @@ def build_manuscript():
         f"and were used in a {JMSR_START}-2024 sensitivity. Media article counts are available only for {MEDIA_START}-{MEDIA_END} and "
         f"are a national total, so they cannot be decomposed by specialty and are collinear with full wave fixed effects. Litigation "
         f"counts are assigned to a principal specialty and, by the Court's own note, do not measure intrinsic specialty risk.{{court}} "
-        f"Finally, these findings are embedded in the country's particular legal, cultural and institutional context\u2014including its "
+        f"Finally, these findings are embedded in the country's particular legal, cultural and institutional context -- including its "
         f"no-fault obstetric compensation scheme, its fee-for-service reimbursement structure and its comparatively low-volume "
-        f"malpractice-litigation culture\u2014so physician responses to litigation risk may differ in health systems with different "
+        f"malpractice-litigation culture -- so physician responses to litigation risk may differ in health systems with different "
         f"liability regimes, compensation mechanisms or professional norms; the results should not be assumed to generalise across "
         f"cultural spheres.",
     )
@@ -1186,14 +1166,17 @@ def build_manuscript():
         r_ref.font.size = Pt(10)
         r_ref.font.name = "Times New Roman"
 
-    # Figures and tables on separate sheets at the end of the manuscript
-    # (Cambridge / BPP requirement).
-    for fn, caption, width in _figures:
-        doc.add_page_break()
-        ha.figure(doc, fn, caption, width=width)
-    for headers, rows, caption in _tables:
-        doc.add_page_break()
-        ha.table(doc, headers, rows, caption)
+    # Figures and tables are placed at the end of the main document, after the
+    # reference list, per Cambridge BPP author instructions.
+    if end_objects:
+        h(doc, "Figures and Tables", level=1)
+        for obj in end_objects:
+            if obj[0] == "fig":
+                _, fn, caption, width = obj
+                ha.figure(doc, fn, caption, width=width)
+            else:
+                _, headers, rows, caption = obj
+                ha.table(doc, headers, rows, caption)
 
     # Declarations (Cambridge / BPP back-matter requirement)
     h(doc, "Declaration of artificial intelligence use", level=1)
@@ -1227,6 +1210,7 @@ def build_manuscript():
     )
 
     out = os.path.join(BASE, "bpp_manuscript_en.docx")
+    ha.normalize_docx(doc)
     doc.save(out)
     main_wc = sum(ha.wc(t) for t in ha.BODY_TEXTS)
     total_wc = sum(ha.wc(p.text) for p in doc.paragraphs if p.text.strip())
@@ -1270,6 +1254,7 @@ def build_title_page(main_word_count, total_word_count):
         r.font.name = "Times New Roman"
 
     out = os.path.join(BASE, "bpp_title_page.docx")
+    ha.normalize_docx(doc)
     doc.save(out)
     print("wrote", out)
 
@@ -1302,6 +1287,7 @@ def build_highlights():
         p.paragraph_format.space_after = Pt(4)
 
     out = os.path.join(BASE, "bpp_highlights.docx")
+    ha.normalize_docx(doc)
     doc.save(out)
     print("wrote", out)
 
@@ -1331,14 +1317,14 @@ def build_cover_letter():
         f'We submit an original research article, "{BPP_TITLE}", for consideration by Behavioural Public Policy.',
         "Behavioural Public Policy advances rigorous, multidisciplinary research that connects the study of human "
         "behaviour to public policy. Our study sits squarely within this agenda. It uses a well-documented "
-        "healthcare workforce problem\u2014specialty maldistribution\u2014as a policy test case and asks whether a "
+        "healthcare workforce problem -- specialty maldistribution -- as a policy test case and asks whether a "
         "salient, emotionally available risk (malpractice litigation) actually changes aggregate career behaviour. "
         "Using national administrative data from Japan, we find no association between litigation risk and specialty "
         "physician supply, and we bound any effect within a small equivalence margin. The result is informative for "
         "behavioural public policy because it shows that a widely perceived risk need not translate into a policy "
         "lever when structural incentives, switching costs and status-quo bias constrain individual choice.",
-        "The behavioural contribution is threefold. First, we show how two common observational fallacies\u2014"
-        "size confounding in raw administrative counts and interpolation of sparse panel data\u2014can distort the "
+        "The behavioural contribution is threefold. First, we show how two common observational fallacies -- "
+        "size confounding in raw administrative counts and interpolation of sparse panel data -- can distort the "
         "evidence base for a behavioural policy lever. Second, we combine fixed-effects panel methods, equivalence "
         "testing, cluster block-bootstrap and power diagnostics to produce an informative null result rather than a "
         "mere failure to reject the null. Third, we interpret the null through the lens of behavioural economics: "
@@ -1367,6 +1353,7 @@ def build_cover_letter():
             r.font.name = "Times New Roman"
 
     out = os.path.join(BASE, "bpp_cover_letter.docx")
+    ha.normalize_docx(doc)
     doc.save(out)
     print("wrote", out)
 
@@ -1399,27 +1386,27 @@ def build_figure_pptx():
 def create_submission_zip():
     """Bundle the BPP submission files."""
     zip_path = os.path.join(OUT, "bpp_submission.zip")
-    files = [
-        os.path.join(BASE, "bpp_manuscript_en.docx"),
-        os.path.join(BASE, "bpp_title_page.docx"),
-        os.path.join(BASE, "bpp_cover_letter.docx"),
-        os.path.join(BASE, "bpp_highlights.docx"),
-        os.path.join(BASE, "bpp_supplementary.docx"),
-        os.path.join(BASE, "bpp_figures.pptx"),
-        os.path.join(BASE, "bpp_supplementary_figures.pptx"),
-        os.path.join(OUT, "ha_Figure_1.png"),
-        os.path.join(OUT, "ha_Figure_2.png"),
-        os.path.join(OUT, "ha_Figure_3.png"),
-        os.path.join(OUT, "ha_Figure_4.png"),
-        os.path.join(OUT, "ha_Supplementary_Figure_1.png"),
-        os.path.join(OUT, "ha_Supplementary_Figure_2.png"),
-        os.path.join(OUT, "ha_Supplementary_Figure_3.png"),
+    file_map = [
+        (os.path.join(BASE, "bpp_manuscript_en.docx"), "bpp_manuscript_en.docx"),
+        (os.path.join(BASE, "bpp_title_page.docx"), "bpp_title_page.docx"),
+        (os.path.join(BASE, "bpp_cover_letter.docx"), "bpp_cover_letter.docx"),
+        (os.path.join(BASE, "bpp_highlights.docx"), "bpp_highlights.docx"),
+        (os.path.join(BASE, "bpp_supplementary.docx"), "bpp_supplementary.docx"),
+        (os.path.join(BASE, "bpp_figures.pptx"), "bpp_figures.pptx"),
+        (os.path.join(BASE, "bpp_supplementary_figures.pptx"), "bpp_supplementary_figures.pptx"),
+        (os.path.join(OUT, "ha_Figure_1.png"), "Figure_1.png"),
+        (os.path.join(OUT, "ha_Figure_2.png"), "Figure_2.png"),
+        (os.path.join(OUT, "ha_Figure_3.png"), "Figure_3.png"),
+        (os.path.join(OUT, "ha_Figure_4.png"), "Figure_4.png"),
+        (os.path.join(OUT, "ha_Supplementary_Figure_1.png"), "Supplementary_Figure_1.png"),
+        (os.path.join(OUT, "ha_Supplementary_Figure_2.png"), "Supplementary_Figure_2.png"),
+        (os.path.join(OUT, "ha_Supplementary_Figure_3.png"), "Supplementary_Figure_3.png"),
     ]
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as z:
-        for path in files:
+        for path, arcname in file_map:
             if not os.path.exists(path):
                 raise SystemExit(f"submission zip missing file: {path}")
-            z.write(path, arcname=os.path.basename(path))
+            z.write(path, arcname=arcname)
     print("wrote", zip_path)
 
 
