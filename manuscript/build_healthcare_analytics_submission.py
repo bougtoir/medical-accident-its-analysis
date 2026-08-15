@@ -258,6 +258,7 @@ REFS = {
     "bismark2006": "Bismark M, Paterson R. No-fault compensation in New Zealand: harmonizing injury compensation, provider accountability, and patient safety. Health Aff. 2006;25(1):278-286.",
     "mello2011": "Mello MM, Kachalia A, Studdert DM. Administrative compensation for medical injuries: lessons from three foreign systems. New York: The Commonwealth Fund; 2011.",
     "kamijo2025": "Kamijo K, Wada Y, Ishida K, Warsof SL, Saade G, Kawakita T. Medical-legal claims in obstetrics and gynecology: Japan versus the United States. J Healthc Risk Manag. 2025;44(4):5-11. doi:10.1002/jhrm.70001.",
+    "mcnamara2025": "McNamara C, Pineda-Torres M. Medical residency subsidies and physician shortages. J Public Econ. 2025;251:105494. doi:10.1016/j.jpubeco.2025.105494.",
     "lin2022": "Lin PL, Huang JP, Fujii T, Cho EH, Huang MC. A survey of specialty choice among obstetrics and gynecology residents in Japan, Korea, and Taiwan. J Obstet Gynaecol Res. 2022;48(7):1968-1977.",
     "tversky1973": "Tversky A, Kahneman D. Availability: a heuristic for judging frequency and probability. Cogn Psychol. 1973;5(2):207-232.",
     "kahneman1979": "Kahneman D, Tversky A. Prospect theory: an analysis of decision under risk. Econometrica. 1979;47(2):263-291.",
@@ -650,7 +651,7 @@ def build_manuscript():
          "physicians away from high-risk specialties toward lower-risk practice."
          "{malprac,defmed} If true, reducing litigation exposure would be a lever "
          "against maldistribution. Japan provides a well-documented national setting in which to test this "
-         "intuition: it tracks closed malpractice claims, physician counts and hospital counts by specialty, "
+         "intuition: it tracks closed malpractice claims, physician counts and hospital facility counts by specialty, "
          "and it faces the same fee-for-service and specialty-training pressures seen in other high-income countries.")
     body(doc,
          "Prior work in this area often related raw annual counts of incidents or "
@@ -690,7 +691,7 @@ def build_manuscript():
          "specialty-specific litigation. Three official primary series drove the main "
          "analysis: physician counts by specialty from the biennial Statistics of "
          "Physicians, Dentists and Pharmacists{phys}; closed malpractice claims by "
-         "specialty from the Supreme Court of Japan{court}; and hospital counts by "
+         "specialty from the Supreme Court of Japan{court}; and hospital facility counts by "
          "specialty from the annual Survey of Medical Institutions{facil}. Two sensitivity "
          "series were also used: annual medical accident investigation reports by "
          "specialty from the Japan Medical Safety Research Organisation (JMSR, 2015-2024){jmsr_data} "
@@ -831,7 +832,7 @@ def build_manuscript():
          f"the \u00b1{MARGIN2}% margin (p={p_tost_fmt(EQH['tests'][1]['p_tost'])}) but not the stricter "
          f"\u00b1{MARGIN1}% margin (p={p_tost_fmt(EQH['tests'][0]['p_tost'])}). Thus the data are "
          "consistent with the absence of a policy-relevant effect on physician growth, "
-         "and with at most a small effect on hospital growth. Detailed TOST results by "
+         "and with at most a small effect on hospital facility-count growth. Detailed TOST results by "
          "margin are reported in Supplementary Table 2.")
     figure(doc, "ha_Figure_1.png",
            f"Figure 1. Equivalence (TOST) of the litigation-rate effect against \u00b1{MARGIN1}% and "
@@ -857,14 +858,14 @@ def build_manuscript():
          "primary results with a cluster block-bootstrap (B = 1,999). For physician "
          f"growth the bootstrap 95% CI for the lagged litigation-rate coefficient was "
          f"{fmt(BS_PHYS['coef_boot_ci_low'],4)} to {fmt(BS_PHYS['coef_boot_ci_high'],4)} and the "
-         f"bootstrap p-value was {BS_PHYS['p_bootstrap']:.2f}; for hospital growth the "
+         f"bootstrap p-value was {BS_PHYS['p_bootstrap']:.2f}; for hospital facility-count growth the "
          f"bootstrap 95% CI was {fmt(BS_HOSP['coef_boot_ci_low'],4)} to "
          f"{fmt(BS_HOSP['coef_boot_ci_high'],4)} and the bootstrap p-value was "
          f"{BS_HOSP['p_bootstrap']:.2f}. Both intervals comfortably contain zero. "
          "Power diagnostics make the panel information explicit. For physician growth, "
          f"the minimum detectable effect was {EQP['mde_80pct']:.2f}% per SD at 80% power, "
          f"and the power to declare equivalence within the \u00b1{MARGIN1}% margin if the true "
-         f"effect were zero was {EQP['tests'][0]['power_if_null']*100:.1f}%. For hospital growth the minimum "
+         f"effect were zero was {EQP['tests'][0]['power_if_null']*100:.1f}%. For hospital facility-count growth the minimum "
          f"detectable effect was {EQH['mde_80pct']:.2f}% per SD and the equivalent power "
          f"for the \u00b1{MARGIN1}% margin was {EQH['tests'][0]['power_if_null']*100:.1f}%. The panel is therefore "
          "informative enough to rule out policy-relevant effects for physicians, and to "
@@ -890,11 +891,11 @@ def build_manuscript():
            "(a) counts and (b) rates. Points are coloured by specialty; the count panel shows "
            "the size confounding that the rate panel removes.")
     body(doc,
-         "The same count-versus-rate contrast for biennial hospital growth is shown in "
+         "The same count-versus-rate contrast for biennial hospital facility-count growth is shown in "
          "Figure 3. As with physician growth, the count exposure creates a spurious size "
          "confound that disappears once the rate-adjusted exposure is used.")
     figure(doc, "ha_Figure_3.png",
-           "Figure 3. Biennial hospital growth against lagged litigation exposure measured as "
+           "Figure 3. Biennial hospital facility-count growth against lagged litigation exposure measured as "
            "(a) counts and (b) rates. Points are coloured by specialty; the rate-adjusted "
            "panel shows no systematic association.")
     body(doc,
@@ -913,10 +914,10 @@ def build_manuscript():
          f"correlated across specialties (Pearson r={JMSR_CORR['pooled_r']:.2f}), because large "
          "specialties generate more of both. After removing specialty-specific levels and "
          f"trends, however, the within-specialty correlation was negligible (r={JMSR_CORR['detrended_r']:.2f}). "
-         f"A model of annual hospital growth for {JMSR_START}-2024 that included both the "
+         f"A model of annual hospital facility-count growth for {JMSR_START}-2024 that included both the "
          "lagged litigation rate and the lagged JMSR report rate left the litigation "
          f"coefficient essentially unchanged ({fmt(JMSR['lit_coef'],4)}; p={JMSR['lit_p']:.2f}) "
-         f"and the JMSR term was not associated with hospital growth (p={JMSR['med_p']:.2f}; "
+         f"and the JMSR term was not associated with hospital facility-count growth (p={JMSR['med_p']:.2f}; "
          "Supplementary Table 3). The null litigation result is therefore neither explained nor "
          "masked by broader medical-accident reporting.")
     body(doc,
@@ -926,10 +927,10 @@ def build_manuscript():
          f"(Pearson r={MEDIA_CORR['total_r']:.2f}), consistent with greater public attention in "
          f"high-litigation years. Within the annual hospital panel, however, the lagged "
          "litigation rate and the media-count series were only weakly correlated. "
-         f"A model of annual hospital growth for {MEDIA_START}-{MEDIA_END} that included both the "
+         f"A model of annual hospital facility-count growth for {MEDIA_START}-{MEDIA_END} that included both the "
          f"lagged litigation rate and the lagged article count (per 1,000 articles) left the "
          "litigation coefficient essentially unchanged and the media term was not associated "
-         f"with hospital growth (p={MEDIA['media_p']:.2f}; Supplementary Table 4). Media coverage "
+         f"with hospital facility-count growth (p={MEDIA['media_p']:.2f}; Supplementary Table 4). Media coverage "
          "therefore does not explain the null litigation effect either. "
          "Holm step-down adjusted p-values for the exploratory sensitivity family are "
          "reported in Supplementary Table 5.")
@@ -967,7 +968,7 @@ def build_manuscript():
          "malpractice-litigation risk and subsequent physician or hospital decline. "
          f"Equivalence testing showed that any effect of litigation risk on biennial physician "
          f"growth is smaller than {MARGIN1}% (90% CI within the {MARGIN1}% margin), and any "
-         f"effect on hospital growth is smaller than {MARGIN2}% (but not confidently smaller than "
+         f"effect on hospital facility-count growth is smaller than {MARGIN2}% (but not confidently smaller than "
          f"{MARGIN1}%). These data therefore do not support the hypothesis that physicians "
          f"systematically abandon high-litigation specialties over {SPAN} years of official statistics.")
     body(doc,
@@ -1329,7 +1330,7 @@ def build_cover_letter():
         "measure exposure as a size-adjusted rate (closed malpractice claims per "
         f"{_per} physicians) and estimate panel fixed-effects models with small-cluster "
         "inference, equivalence (TOST) testing, and bootstrap robustness checks. The effect of "
-        "litigation risk on physician and hospital growth is statistically equivalent to a null "
+        "litigation risk on physician and hospital facility-count growth is statistically equivalent to a null "
         "within policy-relevant margins. We show that count-based associations disappear once "
         "specialty-size confounding and interpolation are removed, and we discuss how "
         "behavioural-economics mechanisms (saliency, loss aversion, status-quo bias) and "
@@ -1473,7 +1474,7 @@ def build_supplementary():
           ["Exposure", "Coefficient", "p", "n"],
           [["Lagged litigation rate", fmt(JMSR["lit_coef"], 4), f"{JMSR['lit_p']:.2f}", JMSR["n_obs"]],
            ["Lagged JMSR report rate", fmt(JMSR["med_coef"], 4), f"{JMSR['med_p']:.2f}", JMSR["n_obs"]]],
-          f"Supplementary Table 3. JMSR-adjusted annual hospital growth model "
+          f"Supplementary Table 3. JMSR-adjusted annual hospital facility-count growth model "
           f"({JMSR_START}-2024) with both exposures entered simultaneously.")
 
     # Supplementary Table 4: media-adjusted hospital model
@@ -1481,7 +1482,7 @@ def build_supplementary():
           ["Exposure", "Coefficient", "p", "n"],
           [["Lagged litigation rate", fmt(MEDIA["lit_coef"], 4), f"{MEDIA['lit_p']:.2f}", MEDIA["n_obs"]],
            ["Lagged media count (per 1,000 articles)", fmt(MEDIA["media_coef"], 4), f"{MEDIA['media_p']:.2f}", MEDIA["n_obs"]]],
-          f"Supplementary Table 4. Media-adjusted annual hospital growth model "
+          f"Supplementary Table 4. Media-adjusted annual hospital facility-count growth model "
           f"({MEDIA_START}-{MEDIA_END}) with a linear time trend; full year fixed effects are "
           "omitted because the national article-count series is collinear with them.")
 
@@ -1616,7 +1617,7 @@ def build_figure_pptx():
         ("ha_Figure_2.png", "Figure 2",
          "Biennial physician growth against lagged litigation exposure measured as (a) counts and (b) rates. Points are coloured by specialty; the count panel shows the size confounding that the rate panel removes."),
         ("ha_Figure_3.png", "Figure 3",
-         "Biennial hospital growth against lagged litigation exposure measured as (a) counts and (b) rates. Points are coloured by specialty; the rate-adjusted panel shows no systematic association."),
+         "Biennial hospital facility-count growth against lagged litigation exposure measured as (a) counts and (b) rates. Points are coloured by specialty; the rate-adjusted panel shows no systematic association."),
         ("ha_Figure_4.png", "Figure 4",
          "Counterfactual policy-lever simulation: marginal 10-year change in physician counts by specialty relative to the projected baseline drift. The MDE benchmark is the minimum detectable per-SD effect from the primary analysis."),
     ]

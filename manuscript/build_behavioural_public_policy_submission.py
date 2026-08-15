@@ -98,8 +98,8 @@ _HET_DICT = {(r["outcome"], r["group"]): r for r in ha.RES.get("heterogeneity", 
 _TREND_DICT = {r["outcome"]: r for r in ha.RES.get("trend_sensitivity", [])}
 
 BPP_TITLE = (
-    "Litigation risk and physician specialty supply: "
-    "a Japanese test of behavioural risk perception"
+    "Risk perception versus structural incentives in physician specialty choice: "
+    "a Japanese panel study"
 )
 
 # Anonymous manuscript placeholder; the real repository URL is on the title page
@@ -108,6 +108,9 @@ ANON_REPO = "URL omitted for anonymised peer review"
 
 # Placeholder for the title-page data-availability line during anonymised peer review.
 TITLE_REPO_PLACEHOLDER = "[repository URL to be inserted on acceptance]"
+
+# Placeholder for the cover-letter repository line until an anonymised git link is ready.
+COVER_REPO_PLACEHOLDER = "[anonymous GitHub repository URL to be supplied]"
 
 # Short in-text author names for organisational references
 _BPP_CITE_SHORT = {
@@ -480,15 +483,15 @@ def build_manuscript():
     abstract_text = (
         f"Specialty maldistribution is a workforce problem. A common assumption is that "
         f"malpractice litigation pushes physicians away from high-risk specialties, but this may "
-        f"reflect salient adverse events more than actual decisions. Using national administrative data "
+        f"reflect salient adverse events more than decisions. Using national administrative data "
         f"for {N} clinical specialties in Japan ({BIEN[0]}-{BIEN[-1]}), we tested whether "
-        f"litigation risk predicts physician supply and hospital facility counts. We measured exposure as closed "
+        f"litigation risk predicts physician supply and hospital facility counts. We measured exposure as "
         f"malpractice claims per {PER:,} physicians and regressed biennial log-changes in physician "
-        f"and hospital counts on the lagged litigation rate in a panel with specialty and wave fixed "
+        f"and hospital facility counts on the lagged litigation rate in a panel with specialty and wave fixed "
         f"effects, cluster-robust standard errors, and equivalence tests. The workforce grew in {GREW} "
         f"of {N} specialties; only {SURG_DESC}, declined. Litigation rate was unrelated to physician "
         f"growth (coefficient {ha.fmt(PHYS['coef'], 4)}; 95% CI {ha.fmt(PHYS['ci_low'], 4)} to "
-        f"{ha.fmt(PHYS['ci_high'], 4)}; p={PHYS['p']:.2f}) or hospital growth (p={HOSP['p']:.2f}), "
+        f"{ha.fmt(PHYS['ci_high'], 4)}; p={PHYS['p']:.2f}) or hospital facility-count growth (p={HOSP['p']:.2f}), "
         f"and a one-SD higher rate shifted physician growth by less than +/-{MARGIN1}% "
         f"(TOST p={ha.p_tost_fmt(EQP['tests'][0]['p_tost'])}). Despite high perceived risk, structural "
         f"incentives -- training costs, fee-for-service income, and status-quo bias -- appear to keep "
@@ -548,7 +551,7 @@ def build_manuscript():
         doc,
         "Japan provides a well-documented national setting in which to examine this question. "
         "The Supreme Court reports closed malpractice claims by specialty, the Ministry of Health, "
-        "Labour and Welfare publishes biennial physician counts and annual hospital counts, and the "
+        "Labour and Welfare publishes biennial physician counts and annual hospital facility counts, and the "
         "country shares the fee-for-service pressures seen in other high-income countries.{court,phys,facil} "
         "It also introduced the Japan Obstetric Compensation System for Cerebral Palsy (JOCS-CP) "
         "in 2009, a no-fault scheme intended partly to address obstetric workforce concerns.{jocscp,hasegawa2016} "
@@ -590,6 +593,14 @@ def build_manuscript():
         f"{MEDIA_START}-{MEDIA_END}; keywords: medical error + medical malpractice).{{nikkei}} The full "
         f"extraction pipeline (with source identifiers and SHA-256 checksums) is documented in the "
         f"accompanying repository ({ANON_REPO}).",
+    )
+    b(
+        doc,
+        "One source disagreement is documented in the extraction provenance. The 2017 internal medicine "
+        "count is 179 in the consolidated Supreme Court releases (2022/2024/2025) and 181 in the "
+        "contemporaneous 2017 committee minutes; we retained 179 in the primary series because it is the "
+        "figure in the released statistics.{court} The disagreement does not alter the rate-based "
+        "exposure materially, but it is recorded for transparency.",
     )
     b(
         doc,
@@ -644,11 +655,14 @@ def build_manuscript():
     b(
         doc,
         f"We assessed equivalence to a null effect using two one-sided tests (TOST) with pre-specified margins "
-        f"of +/-{MARGIN1}% and +/-{MARGIN2}% biennial workforce change, chosen because they are smaller than "
-        f"typical policy targets for specialty rebalancing.{{lakens,schuir}} Equivalence is declared when the per-SD "
-        f"coefficient lies inside the margin. Inference was complemented by a cluster block-bootstrap (B = 1,999) and by "
-        f"the minimum detectable effect (MDE) at 80% power and the power to declare equivalence when the true effect is "
-        f"zero. Full formulas and the heterogeneity and time-trend robustness checks are given in Supplementary Note 1.",
+        f"of +/-{MARGIN1}% and +/-{MARGIN2}% biennial workforce change. The margins were chosen to be smaller than "
+        f"the policy-relevant workforce shifts that structural levers have produced: for example, targeted residency "
+        f"subsidies raised primary-care physician supply by about 4% in a comparable setting.{{mcnamara2025}} This makes "
+        f"the margins conservative but still policy-relevant, and the TOST procedure itself is standard for equivalence "
+        f"testing.{{lakens,schuir}} Equivalence is declared when the per-SD coefficient lies inside the margin. Inference "
+        f"was complemented by a cluster block-bootstrap (B = 1,999) and by the minimum detectable effect (MDE) at 80% "
+        f"power and the power to declare equivalence when the true effect is zero. Full formulas and the heterogeneity "
+        f"and time-trend robustness checks are given in Supplementary Note 1.",
     )
 
     h(doc, "Policy lever simulation", level=2)
@@ -722,17 +736,17 @@ def build_manuscript():
         doc,
         f"The lagged litigation rate was not associated with biennial physician growth "
         f"(coefficient {ha.fmt(PHYS['coef'], 4)}; 95% CI {ha.fmt(PHYS['ci_low'], 4)} to "
-        f"{ha.fmt(PHYS['ci_high'], 4)}; p={PHYS['p']:.2f}; n={PHYS['n_obs']}) or with hospital growth "
+        f"{ha.fmt(PHYS['ci_high'], 4)}; p={PHYS['p']:.2f}; n={PHYS['n_obs']}) or with hospital facility-count growth "
         f"(coefficient {ha.fmt(HOSP['coef'], 4)}; p={HOSP['p']:.2f}). Equivalence testing (Figure 1; Table 2) "
         f"showed that a 1-SD higher litigation rate changed biennial physician growth by less than "
         f"+/-{MARGIN1}% (TOST p={ha.p_tost_fmt(EQP['tests'][0]['p_tost'])}; point estimate "
         f"{EQP['coef_per_SD']*100:+.2f}% with 90% CI {EQP['ci90_low']*100:+.2f}% to "
-        f"{EQP['ci90_high']*100:+.2f}%). For hospital growth the point estimate was "
+        f"{EQP['ci90_high']*100:+.2f}%). For hospital facility-count growth the point estimate was "
         f"{EQH['coef_per_SD']*100:+.2f}% (90% CI {EQH['ci90_low']*100:+.2f}% to "
         f"{EQH['ci90_high']*100:+.2f}%): it was within the +/-{MARGIN2}% margin "
         f"(p={ha.p_tost_fmt(EQH['tests'][1]['p_tost'])}) but not the stricter +/-{MARGIN1}% margin "
         f"(p={ha.p_tost_fmt(EQH['tests'][0]['p_tost'])}). Thus the data are consistent with the absence "
-        f"of a policy-relevant effect on physician growth, and with at most a small effect on hospital growth. "
+        f"of a policy-relevant effect on physician growth, and with at most a small effect on hospital facility-count growth. "
         f"Detailed TOST results by margin are reported in Supplementary Table 2.",
     )
     f(
@@ -816,14 +830,14 @@ def build_manuscript():
     )
     b(
         doc,
-        "The same count-versus-rate contrast for biennial hospital growth is shown in Figure 3. As "
+        "The same count-versus-rate contrast for biennial hospital facility-count growth is shown in Figure 3. As "
         "with physician growth, the count exposure creates a spurious size confound that disappears once "
         "the rate-adjusted exposure is used.",
     )
     f(
         doc,
         "ha_Figure_3.png",
-        "Figure 3. Biennial hospital growth against lagged litigation exposure measured as "
+        "Figure 3. Biennial hospital facility-count growth against lagged litigation exposure measured as "
         "(a) counts and (b) rates. Points are coloured by specialty; the rate-adjusted panel shows "
         "no systematic association.",
     )
@@ -846,10 +860,10 @@ def build_manuscript():
         f"litigation and JMSR report counts were strongly correlated across specialties (Pearson "
         f"r={ha.JMSR_CORR['pooled_r']:.2f}), because large specialties generate more of both. After removing "
         f"specialty-specific levels and trends, however, the within-specialty correlation was negligible "
-        f"(r={ha.JMSR_CORR['detrended_r']:.2f}). A model of annual hospital growth for {JMSR_START}-2024 that "
+        f"(r={ha.JMSR_CORR['detrended_r']:.2f}). A model of annual hospital facility-count growth for {JMSR_START}-2024 that "
         f"included both the lagged litigation rate and the lagged JMSR report rate left the litigation "
         f"coefficient little changed ({ha.fmt(JMSR['lit_coef'], 4)}; p={JMSR['lit_p']:.2f}) and the JMSR "
-        f"term was not associated with hospital growth (p={JMSR['med_p']:.2f}; Supplementary Table 3). The null "
+        f"term was not associated with hospital facility-count growth (p={JMSR['med_p']:.2f}; Supplementary Table 3). The null "
         f"litigation result is neither explained nor masked by broader medical-accident reporting.",
     )
     b(
@@ -859,9 +873,9 @@ def build_manuscript():
         f"litigation counts were correlated (Pearson r={ha.MEDIA_CORR['total_r']:.2f}), consistent with "
         f"greater public attention in high-litigation years. Within the annual hospital panel, however, the "
         f"lagged litigation rate and the media-count series were only weakly correlated. A model of annual "
-        f"hospital growth for {MEDIA_START}-{MEDIA_END} that included both the lagged litigation rate and the "
+        f"hospital facility-count growth for {MEDIA_START}-{MEDIA_END} that included both the lagged litigation rate and the "
         f"lagged article count (per 1,000 articles) left the litigation coefficient little changed and "
-        f"the media term was not associated with hospital growth (p={MEDIA['media_p']:.2f}; Supplementary "
+        f"the media term was not associated with hospital facility-count growth (p={MEDIA['media_p']:.2f}; Supplementary "
         f"Table 4). Media coverage does not explain the null litigation effect either. Holm step-down "
         f"adjusted p-values for the exploratory sensitivity family are reported in Supplementary Table 5.",
     )
@@ -873,12 +887,12 @@ def build_manuscript():
         f"a cluster block-bootstrap (B = 1,999). For physician growth the bootstrap 95% CI for the lagged "
         f"litigation-rate coefficient was {ha.fmt(BS_PHYS['coef_boot_ci_low'], 4)} to "
         f"{ha.fmt(BS_PHYS['coef_boot_ci_high'], 4)} and the bootstrap p-value was {BS_PHYS['p_bootstrap']:.2f}; "
-        f"for hospital growth the bootstrap 95% CI was {ha.fmt(BS_HOSP['coef_boot_ci_low'], 4)} to "
+        f"for hospital facility-count growth the bootstrap 95% CI was {ha.fmt(BS_HOSP['coef_boot_ci_low'], 4)} to "
         f"{ha.fmt(BS_HOSP['coef_boot_ci_high'], 4)} and the bootstrap p-value was {BS_HOSP['p_bootstrap']:.2f}. "
         f"Both intervals comfortably contain zero. Power diagnostics make the panel information explicit. "
         f"For physician growth, the minimum detectable effect was {EQP['mde_80pct']:.2f}% per SD at 80% power, "
         f"and the power to declare equivalence within the +/-{MARGIN1}% margin if the true effect were zero "
-        f"was {EQP['tests'][0]['power_if_null']*100:.1f}%. For hospital growth the minimum detectable effect was "
+        f"was {EQP['tests'][0]['power_if_null']*100:.1f}%. For hospital facility-count growth the minimum detectable effect was "
         f"{EQH['mde_80pct']:.2f}% per SD and the equivalent power for the +/-{MARGIN1}% margin was "
         f"{EQH['tests'][0]['power_if_null']*100:.1f}%. The panel is informative enough to rule out "
         f"policy-relevant effects for physicians, and to bound any hospital effect within a small margin.",
@@ -939,16 +953,16 @@ def build_manuscript():
         "or surgical specialties, or whether it depended on assuming common wave fixed effects. "
         f"In high-litigation specialties the main litigation coefficient for physician growth was "
         f"{ha.fmt(het_phys_hi['coef'], 4)} (p={het_phys_hi['p']:.2f}) and the interaction was "
-        f"{ha.fmt(het_phys_hi['interact_coef'], 4)} (p={het_phys_hi['interact_p']:.2f}); for hospital growth the "
+        f"{ha.fmt(het_phys_hi['interact_coef'], 4)} (p={het_phys_hi['interact_p']:.2f}); for hospital facility-count growth the "
         f"main coefficient was {ha.fmt(het_hosp_hi['coef'], 4)} (p={het_hosp_hi['p']:.2f}) and the interaction was "
         f"{ha.fmt(het_hosp_hi['interact_coef'], 4)} (p={het_hosp_hi['interact_p']:.2f}). "
         f"For the surgical-specialty interaction the physician main effect was {ha.fmt(het_phys_surg['coef'], 4)} "
         f"(p={het_phys_surg['p']:.2f}) and the interaction was {ha.fmt(het_phys_surg['interact_coef'], 4)} "
-        f"(p={het_phys_surg['interact_p']:.2f}); for hospital growth the main effect was "
+        f"(p={het_phys_surg['interact_p']:.2f}); for hospital facility-count growth the main effect was "
         f"{ha.fmt(het_hosp_surg['coef'], 4)} (p={het_hosp_surg['p']:.2f}) and the interaction was "
         f"{ha.fmt(het_hosp_surg['interact_coef'], 4)} (p={het_hosp_surg['interact_p']:.2f}). "
         f"Allowing specialty-specific linear trends also left the litigation coefficient small and non-significant "
-        f"for physician growth ({ha.fmt(trend_phys['coef'], 4)}; p={trend_phys['p']:.2f}) and hospital growth "
+        f"for physician growth ({ha.fmt(trend_phys['coef'], 4)}; p={trend_phys['p']:.2f}) and hospital facility-count growth "
         f"({ha.fmt(trend_hosp['coef'], 4)}; p={trend_hosp['p']:.2f}). None of the interactions or trend-robustness "
         "checks suggest that a negative litigation effect is hiding in a clinically exposed subgroup (Supplementary Table 9).",
     )
@@ -962,7 +976,7 @@ def build_manuscript():
         f"observations, we found no association between specialty-level malpractice-litigation risk and "
         f"subsequent physician or hospital decline. Equivalence testing showed that any effect of litigation risk "
         f"on biennial physician growth is smaller than {MARGIN1}% (90% CI within the {MARGIN1}% margin), and any "
-        f"effect on hospital growth is smaller than {MARGIN2}% (but not confidently smaller than {MARGIN1}%). "
+        f"effect on hospital facility-count growth is smaller than {MARGIN2}% (but not confidently smaller than {MARGIN1}%). "
         f"These data do not support the hypothesis that physicians systematically abandon "
         f"high-litigation specialties over {SPAN} years of official statistics.",
     )
@@ -1069,92 +1083,32 @@ def build_manuscript():
     h(doc, "Policy implications", level=2)
     b(
         doc,
-        f"What do these findings imply for behavioural public policy? Reducing civil malpractice litigation is unlikely "
-        f"to be a powerful lever for correcting specialty maldistribution in this national setting. The 10-year counterfactual "
-        f"simulation showed that eliminating all litigation would add only {TOTAL_SIM.get('marginal_pct_lit_point', 0):.1f}% "
-        f"to the projected national physician stock under the point estimate, and even "
-        f"{TOTAL_SIM.get('marginal_pct_lit_lower', 0):.1f}% under the most favourable 95% lower-bound coefficient, before "
-        f"accounting for the implausibility of zero claims. Structural incentives are more promising: no-fault compensation "
-        f"can de-risk high-acuity specialties, and payment design can reward service in underserved settings and activities. "
-        f"The JOCS-CP experience supports the former; the country's fee-for-service schedule and rural/urban payment "
-        f"adjustments illustrate the latter. Malpractice reform may still matter for defensive medicine, patient compensation, "
-        f"and provider-patient trust. But our evidence does not support the claim, at least from these data, that lowering "
-        f"litigation risk will retain physicians in high-risk specialties. Policymakers should target structural "
-        f"incentives before relying on litigation-avoidance messaging.",
+        f"Reducing civil malpractice litigation is unlikely to be a powerful lever for correcting specialty maldistribution. "
+        f"The 10-year counterfactual showed that eliminating all claims would add only {TOTAL_SIM.get('marginal_pct_lit_point', 0):.1f}% "
+        f"to the projected national physician stock under the point estimate, and {TOTAL_SIM.get('marginal_pct_lit_lower', 0):.1f}% "
+        f"under the most favourable 95% lower-bound coefficient. A generic lever equal to the minimum detectable effect would add "
+        f"{TOTAL_SIM.get('marginal_pct_mde', 0):.1f}%. Effects of this size are too small to rebalance a workforce whose distribution "
+        f"is shaped by training costs, reimbursement and seniority.",
     )
     b(
         doc,
-        "For behavioural public policy, the key insight is that the choice architecture of specialist "
-        "training and reimbursement can override salient risk perceptions, so interventions should redesign "
-        "defaults rather than merely amplify risk information. This aligns with the behavioural finding that "
-        "default options and loss-framed financial incentives shape long-run career decisions more than rare "
-        "adverse events.",
+        "The weak response reflects the institutional structure of career choice, not a lack of concern. Once a physician has entered "
+        "a specialty, the costs of switching -- foregone fellowship income, lost seniority and professional identity -- generate "
+        "powerful status-quo bias, while fee-for-service income rewards the high-acuity work that also carries litigation risk. "
+        "No-fault compensation, payment design and training subsidies alter the payoffs and defaults that matter for a loss-averse "
+        "trainee; they are more reliable levers than risk communication.{samuelson1988,kahneman1979} New Zealand and the Nordic "
+        "administrative-compensation systems show how separating compensation from blame can protect patients and providers "
+        "without relying on litigation, and Japan's JOCS-CP moves in the same direction for obstetric cerebral "
+        "palsy.{bismark2006,mello2011,hasegawa2016}",
     )
     b(
         doc,
-        "International experience with no-fault compensation is consistent with this policy orientation. New Zealand replaced "
-        "tort-based medical-injury compensation with a government-funded no-fault scheme in 1974 and, after 2005 reforms, "
-        "extended coverage to all treatment injuries; this separated compensation from negligence findings and largely barred "
-        "malpractice litigation.{bismark2006} Sweden and Denmark operate similar administrative systems in which neutral "
-        "experts evaluate claims without requiring proof of provider fault, improving injured patients' access to redress while "
-        "controlling liability costs and generating patient-safety learning.{mello2011} The JOCS-CP is narrower in scope -- "
-        "it covers only obstetric cerebral palsy -- but it moves in the same direction: it provides compensation and cause "
-        "analysis without a protracted adversarial process. Extending such an approach more broadly would be a structural "
-        "alternative to repeated calls to reduce malpractice litigation as a workforce strategy.",
-    )
-    b(
-        doc,
-        "Understanding why litigation risk does not shape specialty supply requires moving from individual risk perception to "
-        "the institutional architecture of career choice. In Japan, medical graduates do not freely select a specialty in response to "
-        "annual lawsuit probabilities; they enter a residency training system that channels them into one of the primary specialties "
-        "and then into subspecialty programmes. Once on that path, the costs of switching are large: foregone fellowship income, "
-        "loss of seniority, and disruption of professional identity. These features generate powerful status-quo bias. Samuelson and "
-        "Zeckhauser showed that decision makers disproportionately stick with the status quo when alternatives are risky and when "
-        "switching is costly, even when the status quo is not objectively superior.{samuelson1988} In specialist medicine, the "
-        "status quo is also the income-maximising option for high-acuity procedural work, because fee-for-service reimbursement "
-        "rewards the very activities that carry litigation exposure. The result is that risk perception may influence the intensive "
-        "margin of behaviour -- how physicians practise -- without changing the extensive margin of whether they remain in the "
-        "specialty. This is consistent with the broader behavioural finding that loss aversion and status-quo bias can dominate "
-        "small-probability risks when the alternative to the current path is seen as a sure loss.{kahneman1979}",
-    )
-    b(
-        doc,
-        "A choice-architecture framing makes this logic more concrete. The Japanese training system is not a neutral menu of options: "
-        "residency placement, examination schedules, and seniority-based promotion create a default path that most trainees follow. "
-        "Default effects are among the most reliable findings in behavioural science: when one option is made salient and easy, uptake rises "
-        "even if alternatives are objectively superior. In specialist medicine, the default is to remain in the specialty where training "
-        "investment has already been made, and the reference point is the income and professional identity associated with that specialty. "
-        "No-fault compensation and payment design do not change the headline probability of a lawsuit; they change the financial and career "
-        "consequences attached to the risk, which is what matters for a loss-averse trainee deciding whether to leave the default path. "
-        "Training subsidies and loan forgiveness can alter the default at the entry margin by lowering the cost of entering high-risk "
-        "fields before sunk costs accumulate. These interventions are not simply neoclassical incentives; they are "
-        "choice-architecture tools that shift the reference point and make the socially desirable specialty the easier default.",
-    )
-    b(
-        doc,
-        "For policymakers, the lesson is that litigation-avoidance campaigns are a weak instrument compared with redesigning "
-        "the choice architecture that physicians face. Defaults can be shifted in several ways. No-fault compensation schemes remove "
-        "the adversarial framing of patient injury and reduce the tail risk of large damages, thereby altering the perceived loss "
-        "distribution without changing the legal standard of care. New Zealand and the Nordic countries have long used administrative "
-        "compensation to separate redress from blame, and Japan's JOCS-CP extends this logic to obstetric cerebral palsy.{bismark2006,mello2011,hasegawa2016} "
-        "Payment design is a second lever: relative values for rural or high-acuity services can raise the expected income of "
-        "unpopular specialties, offsetting any perceived litigation penalty. Training subsidies, loan forgiveness, and guaranteed "
-        "fellowship positions can lower the entry cost into high-risk fields and create a new default for entrants. These "
-        "interventions operate on the payoff structure and opportunity costs that actually determine long-run supply. By contrast, "
-        "simply publicising that malpractice claims are rare is unlikely to override the availability heuristic that makes vivid cases "
-        "salient, or the status-quo bias that keeps established specialists in place. Behavioural public policy is better "
-        "served by structural redesign than by risk communication alone.{lin2022}",
-    )
-    b(
-        doc,
-        "This framing also explains why information campaigns that publicise the rarity of malpractice claims are unlikely to alter "
-        "aggregate supply. The availability heuristic means that vivid, recent cases dominate decision weights regardless of their "
-        "frequency, so a national trend line does not remove salient exemplars from memory or media coverage. If anything, repeated "
-        "reminders that claims are 'rare' can keep the issue accessible. By contrast, no-fault compensation removes the adversarial "
-        "courtroom as a possible future scene, payment design changes the income reference point, and training subsidies change the entry "
-        "default. Our empirical results situate this behavioural prediction in administrative data: the aggregate workforce does not "
-        "respond to the litigation rate, consistent with the view that structural defaults and loss aversion dominate rare-event risk "
-        "perception.",
+        "Information campaigns that publicise the rarity of claims are therefore unlikely to alter aggregate supply. The availability "
+        "heuristic means that vivid cases dominate decision weights regardless of their frequency, so a national trend line does not "
+        "remove salient exemplars from memory or media coverage.{tversky1973,kahneman1979,lin2022} The behavioural lesson is that "
+        "policymakers should redesign the choice architecture -- payment, training slots and compensation rules -- rather than expect "
+        "litigation-avoidance messaging to drive career decisions. Our null result is evidence that structural defaults and loss aversion "
+        "outweigh rare-event risk perception in the aggregate workforce.",
     )
     h(doc, "Limitations", level=2)
     b(
@@ -1394,7 +1348,7 @@ def build_cover_letter():
         "aggregate workforce response is negligible.",
         "The national administrative data we use come from Japan, a setting that provides a complete, long-running "
         "test case. The analysis is fully reproducible from openly available primary files and code in the project "
-        f"repository ({PUBLIC_REPO}). We believe the manuscript will be of interest to behavioural economists, health "
+        f"repository ({COVER_REPO_PLACEHOLDER}). We believe the manuscript will be of interest to behavioural economists, health "
         "policy scholars, and public-policy analysts concerned with how risk perception and institutional incentives "
         "shape workforce behaviour.",
         "The work is original, is not under consideration elsewhere, and all authors approve the submission. We declare no conflicts of interest.",
