@@ -1373,7 +1373,7 @@ def build_supplementary():
     para(doc,
          "This note records the full model specification, equivalence-testing rationale, and power "
          "diagnostics summarised in the main text. It also describes the heterogeneity and trend-"
-         "robustness checks reported in Supplementary Table 9.")
+         "stability checks reported in Supplementary Table 9.")
     para(doc,
          "Primary estimating equation. Let s index specialty, t index the biennial wave, and Y be "
          "the count of physicians or hospitals. The baseline model is")
@@ -1397,18 +1397,18 @@ def build_supplementary():
          "true effect is zero is 2 x F_t(m / SE) - 1, where F_t is the cumulative distribution function of "
          "the t(df) distribution. These quantities make the limited information in a 12-cluster panel explicit.")
     para(doc,
-         "Heterogeneity and trend robustness. To test whether the association differed by baseline "
+         "Heterogeneity and trend stability. To test whether the association differed by baseline "
          "litigation risk or surgical orientation, the model was augmented with an interaction between "
          "litrate and a binary group indicator:")
     add_math(doc, r"\Delta \log(Y_{st}) = \alpha_s + \delta_t + \beta \cdot \text{litrate}_{s,t-1} + \delta_g \cdot (\text{litrate}_{s,t-1} \times \text{Group}_s) + \epsilon_{st}")
     para(doc,
          "Group_s is either high-litigation (above the median specialty mean lagged litigation rate) "
          "or surgical (surgery, orthopaedics, obstetrics and gynaecology, urology). The main effect of "
-         "Group is absorbed by the specialty fixed effects and is omitted. A separate robustness check "
+         "Group is absorbed by the specialty fixed effects and is omitted. A separate stability check "
          "added specialty-specific linear trends, C(specialty) x year, to the baseline specification.")
 
     para(doc, "Supplementary Figure 1. Sensitivity-analysis framework for evaluating "
-              "malpractice-litigation risk as a healthcare workforce-allocation lever.")
+              "malpractice-litigation risk as a healthcare workforce-allocation instrument.")
     p = doc.add_paragraph()
     p.alignment = WD_ALIGN_PARAGRAPH.CENTER
     img = os.path.join(OUT, "ha_Supplementary_Figure_1.png")
@@ -1522,7 +1522,7 @@ def build_supplementary():
           ["Specialty", "2024 count", "Baseline 2034", "Litigation zero (point)",
            "Litigation zero (95% lower)", "MDE benchmark"],
           _simulation_table_rows(),
-          "Supplementary Table 7. Counterfactual 2034 physician counts by specialty and policy lever. "
+          "Supplementary Table 7. Counterfactual 2034 physician counts by specialty and policy instrument. "
           "Counts are projected from observed biennial baseline drift plus the indicated effect; "
           "marginal percentage changes are shown in Figure 4.")
 
@@ -1537,7 +1537,7 @@ def build_supplementary():
               "Coverage is the number of 2018 first-year specialist trainees divided by the number "
               "of physicians reported 3\u20135 years after medical registration in 2014, by primary specialty.")
 
-    # Supplementary Table 9: heterogeneity and trend robustness
+    # Supplementary Table 9: heterogeneity and trend stability
     het_rows = []
     for r in RES.get("heterogeneity", []):
         het_rows.append([
@@ -1562,10 +1562,10 @@ def build_supplementary():
           ["Outcome", "Group / check", "Main coefficient (SE)", "p",
            "Interaction coefficient (SE)", "p", "n"],
           het_rows,
-          "Supplementary Table 9. Heterogeneity and trend-robustness checks. "
+          "Supplementary Table 9. Heterogeneity and trend-stability checks. "
           "High-litigation and surgical models include an interaction between the lagged litigation rate "
           "and a binary group indicator (the main effect of the group is absorbed by specialty fixed effects). "
-          "The trend-robustness model adds specialty-specific linear time trends.")
+          "The trend-stability model adds specialty-specific linear time trends.")
 
     # STROBE checklist
     head(doc, "STROBE checklist", level=1, numbered=False)
@@ -1619,11 +1619,11 @@ def build_figure_pptx():
         ("ha_Figure_3.png", "Figure 3",
          "Biennial hospital facility-count growth against lagged litigation exposure measured as (a) counts and (b) rates. Points are coloured by specialty; the rate-adjusted panel shows no systematic association."),
         ("ha_Figure_4.png", "Figure 4",
-         "Counterfactual policy-lever simulation: marginal 10-year change in physician counts by specialty relative to the projected baseline drift. The MDE benchmark is the minimum detectable per-SD effect from the primary analysis."),
+         "Counterfactual policy-instrument simulation: marginal 10-year change in physician counts by specialty relative to the projected baseline drift. The MDE benchmark is the minimum detectable per-SD effect from the primary analysis."),
     ]
     supp_figs = [
         ("ha_Supplementary_Figure_1.png", "Supplementary Figure 1",
-         "Sensitivity-analysis framework for evaluating malpractice-litigation risk as a healthcare workforce-allocation lever."),
+         "Sensitivity-analysis framework for evaluating malpractice-litigation risk as a healthcare workforce-allocation instrument."),
         ("ha_Supplementary_Figure_2.png", "Supplementary Figure 2",
          f"Closed malpractice claims per {_per} physicians by specialty, 2008\u20132024 (rates, not counts)."),
         ("ha_Supplementary_Figure_3.png", "Supplementary Figure 3",
