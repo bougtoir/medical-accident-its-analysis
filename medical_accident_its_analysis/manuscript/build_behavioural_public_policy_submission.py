@@ -23,10 +23,15 @@ Behavioural Public Policy.
 import os
 import re
 import shutil
+import subprocess
 import zipfile
 import build_healthcare_analytics_submission as ha
 from PIL import Image
 from docx import Document
+try:
+    from docxcompose.composer import Composer
+except Exception:  # pragma: no cover - optional dependency for the all-inline docx
+    Composer = None
 from docx.shared import Inches, Pt, Cm
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from pptx import Presentation
@@ -1299,8 +1304,50 @@ def build_manuscript(inline=False):
 
 
 def build_inline_manuscript():
-    """Build a manuscript with figures and tables placed inline at first mention."""
-    return build_manuscript(inline=True)
+    """Build a manuscript with figures and tables placed inline at first mention.
+
+    The inline version includes the main figures and tables inline, plus the
+    full supplementary material appended, so that every figure and table is
+    visible in a single document for mobile/pre-submission review while the
+    BPP-compliant `bpp_manuscript_en.docx` remains un-embedded for editorial
+    submission."""
+    main_wc, abstract_wc, total_wc = build_manuscript(inline=True)
+    _merge_supplementary_into_inline()
+    return main_wc, abstract_wc, total_wc
+
+
+def _merge_supplementary_into_inline():
+    """Append bpp_supplementary.docx to bpp_manuscript_en_inline.docx."""
+    if Composer is None:
+        print("docxcompose not installed; skipping supplementary merge")
+        return
+    base_path = os.path.join(BASE, "bpp_manuscript_en_inline.docx")
+    sup_path = os.path.join(BASE, "bpp_supplementary.docx")
+    if not os.path.exists(sup_path):
+        print("supplementary docx not found; skipping supplementary merge")
+        return
+    master = Document(base_path)
+    composer = Composer(master)
+    composer.append(Document(sup_path))
+    composer.save(base_path)
+    print("merged supplementary into", base_path)
+
+
+def _convert_to_pdf(docx_path: str, out_dir: str):
+    """Convert a docx to PDF with LibreOffice if available."""
+    if shutil.which("libreoffice") is None:
+        print("libreoffice not found; skipping PDF conversion for", docx_path)
+        return
+    subprocess.run(
+        ["libreoffice", "--headless", "--convert-to", "pdf", "--outdir", out_dir, docx_path],
+        check=False,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+    pdf_name = os.path.splitext(os.path.basename(docx_path))[0] + ".pdf"
+    pdf_path = os.path.join(out_dir, pdf_name)
+    if os.path.exists(pdf_path):
+        print("wrote", pdf_path)
 
 
 def build_title_page(main_word_count, total_word_count):
@@ -1492,6 +1539,7 @@ def create_submission_zip():
     file_map = [
         (os.path.join(BASE, "bpp_manuscript_en.docx"), "bpp_manuscript_en.docx"),
         (os.path.join(BASE, "bpp_manuscript_en_inline.docx"), "bpp_manuscript_en_inline.docx"),
+        (os.path.join(OUT, "bpp_manuscript_en_inline.pdf"), "bpp_manuscript_en_inline.pdf"),
         (os.path.join(BASE, "bpp_title_page.docx"), "bpp_title_page.docx"),
         (os.path.join(BASE, "bpp_cover_letter.docx"), "bpp_cover_letter.docx"),
         (os.path.join(BASE, "bpp_highlights.docx"), "bpp_highlights.docx"),
@@ -1539,12 +1587,15 @@ def create_figures_upload_zip():
 
 def main():
     main_wc, abstract_wc, total_wc = build_manuscript()
+    build_supplementary()
     build_inline_manuscript()
     build_title_page(main_wc, total_wc)
     build_highlights()
     build_cover_letter()
-    build_supplementary()
     build_figure_pptx()
+    inline_path = os.path.join(BASE, "bpp_manuscript_en_inline.docx")
+    if os.path.exists(inline_path):
+        _convert_to_pdf(inline_path, OUT)
     # Sanitise all generated Office files so no multibyte characters remain in XML.
     for fn in os.listdir(BASE):
         if fn.endswith((".docx", ".pptx")):
