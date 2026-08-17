@@ -23,6 +23,9 @@ EN = {"内科": "Internal medicine", "外科": "Surgery", "整形外科": "Ortho
       "耳鼻咽喉科": "Otolaryngology", "泌尿器科": "Urology", "皮膚科": "Dermatology",
       "麻酔科": "Anaesthesiology"}
 
+PER = 1000
+_per = f"{PER:,}"
+
 
 def load(name):
     df = pd.read_csv(os.path.join(DP, name)).set_index("specialty")
@@ -313,6 +316,21 @@ def main():
         res["policy_simulation"], "ha_Figure_4.png",
         "Figure 4. Counterfactual policy-instrument simulation: marginal 10-year change in "
         "physician counts relative to baseline drift")
+
+    # BPP main-numbered versions of the former supplementary figures
+    plot_workflow(
+        "ha_Figure_5.png",
+        "Figure 5. Sensitivity-analysis framework for evaluating "
+        "malpractice-litigation risk as a healthcare workforce-allocation instrument.")
+    plot_litigation_rate(
+        P, L, bien, "ha_Figure_6.png",
+        f"Figure 6. Closed malpractice claims per {_per} physicians by specialty, "
+        f"2008–2024 (rates, not counts).")
+    plot_physician_index(
+        P, bien, "ha_Figure_7.png",
+        "Figure 7. Physician workforce by specialty, indexed to 2008 (=100).")
+
+    # Healthcare Analytics supplementary versions (retained for the HA submission package)
     plot_workflow(
         "ha_Supplementary_Figure_1.png",
         "Supplementary Figure 1. Sensitivity-analysis framework for evaluating "

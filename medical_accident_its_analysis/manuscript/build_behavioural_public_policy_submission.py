@@ -34,6 +34,7 @@ except Exception:  # pragma: no cover - optional dependency for the all-inline d
     Composer = None
 from docx.shared import Inches, Pt, Cm
 from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.oxml.ns import qn
 from pptx import Presentation
 from pptx.util import Inches as PInches, Pt as PPt
 
@@ -481,6 +482,69 @@ def m(doc, latex, inline=False, para=None):
     return ha.add_math(doc, latex, inline=inline, para=para)
 
 
+def _remap_labels(text: str) -> str:
+    """Remap supplementary figure/table references to main numbering.
+
+    Supplementary Figure 1-3 -> Figure 5-7; Supplementary Table 1-9 -> Table 3-11.
+    """
+    def _fig_repl(m):
+        return f"Figure {int(m.group(1)) + 4}"
+
+    def _tbl_repl(m):
+        return f"Table {int(m.group(1)) + 2}"
+
+    text = re.sub(r"Supplementary Figure (\d+)", _fig_repl, text)
+    text = re.sub(r"Supplementary Table (\d+)", _tbl_repl, text)
+    return text
+
+
+def _parse_supplementary_docx():
+    """Parse the HA supplementary docx to get renumbered main captions and tables."""
+    ha.build_supplementary()
+    path = os.path.join(BASE, "ha_supplementary.docx")
+    doc = Document(path)
+    para_by_elem = {p._element: p for p in doc.paragraphs}
+    figs = {}
+    tables = []
+    last_tbl_caption = None
+    for child in doc.element.body:
+        if child.tag == qn("w:p"):
+            para = para_by_elem.get(child)
+            if not para:
+                continue
+            text = para.text.strip()
+            m = re.match(r"Supplementary Figure (\d+)\. (.*)", text)
+            if m:
+                n = int(m.group(1))
+                rest = m.group(2).strip()
+                figs[n] = (f"ha_Figure_{n + 4}.png", f"Figure {n + 4}. {rest}")
+            t = re.match(r"Supplementary Table (\d+)\. (.*)", text)
+            if t:
+                last_tbl_caption = (int(t.group(1)), t.group(2).strip())
+        elif child.tag == qn("w:tbl"):
+            if last_tbl_caption:
+                n, rest = last_tbl_caption
+                tbl = next((tt for tt in doc.tables if tt._element is child), None)
+                if tbl:
+                    headers = [cell.text for cell in tbl.rows[0].cells]
+                    rows = [[cell.text for cell in r.cells] for r in tbl.rows[1:]]
+                    caption = f"Table {n + 2}. {rest}"
+                    tables.append((headers, rows, caption))
+                last_tbl_caption = None
+    fig_list = [figs[n] for n in sorted(figs)]
+    table_list = sorted(tables, key=lambda x: int(re.match(r"Table (\d+)", x[2]).group(1)))
+    return fig_list, table_list
+
+
+def _add_supplementary_figures_and_tables(doc):
+    """Add the former supplementary figures/tables as main-numbered objects."""
+    figs, tables = _parse_supplementary_docx()
+    for fn, caption in figs:
+        f(doc, fn, caption)
+    for headers, rows, caption in tables:
+        t(doc, headers, rows, caption)
+
+
 def build_manuscript(inline=False):
     # Reset citation order and body-text accumulator shared with ha module
     ha._CITE_ORDER.clear()
@@ -526,10 +590,10 @@ def build_manuscript(inline=False):
         return _CITE_RE.sub(_repl, text)
 
     def b_bpp(doc, text, **kw):
-        return ha.body(doc, _cite(text), **kw)
+        return ha.body(doc, _cite(_remap_labels(text)), **kw)
 
     def p_bpp(doc, text, **kw):
-        return ha.para(doc, _cite(text), **kw)
+        return ha.para(doc, _cite(_remap_labels(text)), **kw)
 
     global f, t, b, p
     if inline:
@@ -731,7 +795,7 @@ def build_manuscript(inline=False):
         f"standard for equivalence testing.{{lakens,schuir}} Equivalence is declared when the per-SD coefficient lies inside the margin. Inference "
         f"was complemented by a cluster block-bootstrap (B = 1,999) and by the minimum detectable effect (MDE) at 80% "
         f"power and the power to declare equivalence when the true effect is zero. Full formulas and the heterogeneity "
-        f"and time-trend sensitivity checks are given in Supplementary Note 1.",
+        f"and time-trend sensitivity checks are documented in the analysis code repository.",
     )
 
     h(doc, "Policy simulation", level=2)
@@ -1036,6 +1100,7 @@ def build_manuscript(inline=False):
         "checks suggest that a negative litigation effect is hiding in a clinically exposed subgroup (Supplementary Table 9).",
     )
 
+    _add_supplementary_figures_and_tables(doc)
 
     # Discussion
     h(doc, "Discussion", level=1)
@@ -1263,6 +1328,9 @@ def build_manuscript(inline=False):
                 _, headers, rows, caption = obj
                 ha.table(doc, headers, rows, caption)
 
+    if inline:
+        reposition_inline_objects(doc)
+
     # Declarations (Cambridge / BPP back-matter requirement)
     h(doc, "Declaration of artificial intelligence use", level=1)
     p(
@@ -1303,34 +1371,138 @@ def build_manuscript(inline=False):
     return main_wc, abstract_wc, total_wc
 
 
+def reposition_inline_objects(doc):
+    """Move each inline figure/table block so it follows the paragraph where it is first cited.
+
+    The function is applied to the inline manuscript only. It preserves main figure/table
+    placement when already correctly positioned and relocates any blocks that were inserted
+    later in the document to their first in-text citation."""
+    body = doc.element.body
+    children = list(body)
+    para_by_elem = {p._element: p for p in doc.paragraphs}
+    caption_re = re.compile(r"^(Figure|Table)\s+(\d+)")
+    cite_re = re.compile(r"\b(Figure|Table)\s+(\d+)")
+
+    def _has_drawing(el):
+        for e in el.iter():
+            if e.tag.endswith("}drawing"):
+                return True
+        return False
+
+    def _is_blank_para(el):
+        if el.tag != qn("w:p"):
+            return False
+        para = para_by_elem.get(el)
+        return (para.text or "") == "" and not _has_drawing(el)
+
+    # Identify object blocks: figure blocks are [drawing paragraph, caption, blank];
+    # table blocks are [caption, table, blank].
+    blocks = []
+    used = set()
+    for i, child in enumerate(children):
+        if child in used or child.tag != qn("w:p"):
+            continue
+        para = para_by_elem.get(child)
+        if para is None:
+            continue
+        m = caption_re.match(para.text or "")
+        if not m:
+            continue
+        label = f"{m.group(1)} {m.group(2)}"
+        block = [child]
+        used.add(child)
+
+        if m.group(1) == "Figure":
+            if i - 1 >= 0:
+                prev = children[i - 1]
+                if prev.tag == qn("w:p") and prev not in used:
+                    p_prev = para_by_elem.get(prev)
+                    if p_prev and (p_prev.text or "") == "" and _has_drawing(prev):
+                        block.insert(0, prev)
+                        used.add(prev)
+            if i + 1 < len(children):
+                nxt = children[i + 1]
+                if nxt.tag == qn("w:p") and nxt not in used and _is_blank_para(nxt):
+                    block.append(nxt)
+                    used.add(nxt)
+        else:  # Table
+            if i + 1 < len(children) and children[i + 1].tag == qn("w:tbl"):
+                block.append(children[i + 1])
+                used.add(children[i + 1])
+            if i + 2 < len(children):
+                nxt = children[i + 2]
+                if nxt.tag == qn("w:p") and nxt not in used and _is_blank_para(nxt):
+                    block.append(nxt)
+                    used.add(nxt)
+        blocks.append({"label": label, "elements": block})
+
+    if not blocks:
+        return
+
+    block_elements = {el for b in blocks for el in b["elements"]}
+    for el in block_elements:
+        body.remove(el)
+
+    # Map each figure/table to the paragraph where it is first cited (ignoring captions).
+    remaining = list(body)
+    para_by_elem = {p._element: p for p in doc.paragraphs}
+    insert_info = {}
+    para_index = {}
+    p_idx = 0
+    for child in remaining:
+        if child.tag == qn("w:p"):
+            para = para_by_elem.get(child)
+            if para is not None:
+                para_index[child] = p_idx
+                p_idx += 1
+
+    for child in remaining:
+        if child.tag != qn("w:p"):
+            continue
+        para = para_by_elem.get(child)
+        if para is None:
+            continue
+        text = para.text or ""
+        if caption_re.match(text):
+            continue
+        for m in cite_re.finditer(text):
+            label = f"{m.group(1)} {m.group(2)}"
+            if label not in insert_info:
+                insert_info[label] = (para_index[child], m.start(), child)
+
+    # Order blocks by their first in-text citation paragraph, then by citation position.
+    ordered = sorted(
+        [b for b in blocks if b["label"] in insert_info],
+        key=lambda b: (insert_info[b["label"]][0], insert_info[b["label"]][1]),
+    )
+
+    # Build a new child list, inserting blocks after the appropriate paragraph.
+    insertions = {}
+    for b in ordered:
+        _, _, anchor = insert_info[b["label"]]
+        insertions.setdefault(anchor, []).append(b["elements"])
+
+    new_children = []
+    for child in remaining:
+        new_children.append(child)
+        if child in insertions:
+            for group in insertions[child]:
+                new_children.extend(group)
+
+    # Rebuild body element order.
+    for child in list(body):
+        body.remove(child)
+    for child in new_children:
+        body.append(child)
+
+
 def build_inline_manuscript():
-    """Build a manuscript with figures and tables placed inline at first mention.
+    """Build a manuscript with all figures and tables placed inline.
 
-    The inline version includes the main figures and tables inline, plus the
-    full supplementary material appended, so that every figure and table is
-    visible in a single document for mobile/pre-submission review while the
-    BPP-compliant `bpp_manuscript_en.docx` remains un-embedded for editorial
-    submission."""
-    main_wc, abstract_wc, total_wc = build_manuscript(inline=True)
-    _merge_supplementary_into_inline()
-    return main_wc, abstract_wc, total_wc
-
-
-def _merge_supplementary_into_inline():
-    """Append bpp_supplementary.docx to bpp_manuscript_en_inline.docx."""
-    if Composer is None:
-        print("docxcompose not installed; skipping supplementary merge")
-        return
-    base_path = os.path.join(BASE, "bpp_manuscript_en_inline.docx")
-    sup_path = os.path.join(BASE, "bpp_supplementary.docx")
-    if not os.path.exists(sup_path):
-        print("supplementary docx not found; skipping supplementary merge")
-        return
-    master = Document(base_path)
-    composer = Composer(master)
-    composer.append(Document(sup_path))
-    composer.save(base_path)
-    print("merged supplementary into", base_path)
+    The inline version embeds every figure and table in the body so the
+    manuscript can be reviewed on mobile devices, while the BPP-compliant
+    `bpp_manuscript_en.docx` keeps captions at the end for editorial submission."""
+    return build_manuscript(inline=True)
 
 
 def _convert_to_pdf(docx_path: str, out_dir: str):
@@ -1373,7 +1545,7 @@ def build_title_page(main_word_count, total_word_count):
         f"main text excluding abstract and references is approximately {main_word_count} words",
         "Article type: Original research article",
         "Target journal: Behavioural Public Policy (Cambridge Core)",
-        "Tables: 2  Figures: 4  Supplementary tables: 9  Supplementary figures: 3",
+        "Tables: 11  Figures: 7",
         "Conflicts of interest: none declared",
         "Funding: none",
         f"Data availability: all primary data and analysis code are openly available in the project repository ({TITLE_REPO_PLACEHOLDER}).",
@@ -1490,29 +1662,53 @@ def build_cover_letter():
     print("wrote", out)
 
 
-def build_supplementary():
-    """Build the Healthcare Analytics supplementary file and copy it to a BPP-named file."""
-    # Always regenerate so the supplementary tables match the latest results JSON.
-    ha.build_supplementary()
-    src = os.path.join(BASE, "ha_supplementary.docx")
-    dst = os.path.join(BASE, "bpp_supplementary.docx")
-    shutil.copyfile(src, dst)
-    print("wrote", dst)
-
-
 def build_figure_pptx():
-    """Build the Healthcare Analytics editable figure PPTX files and copy them to BPP-named files."""
-    # Always regenerate so the embedded figures match the latest output/ha_*.png files.
-    ha.build_figure_pptx()
-    pairs = [
-        ("ha_figures.pptx", "bpp_figures.pptx"),
-        ("ha_supplementary_figures.pptx", "bpp_supplementary_figures.pptx"),
+    """Build a single editable PPTX with all seven main figures."""
+    prs = Presentation()
+    prs.slide_width = PInches(13.333)
+    prs.slide_height = PInches(7.5)
+    blank = prs.slide_layouts[6]
+
+    main_figs = [
+        ("ha_Figure_1.png", "Figure 1",
+         f"Equivalence (TOST) of the litigation-rate effect against +/-{MARGIN1}% and "
+         f"+/-{MARGIN2}% margins; horizontal bars are 90% confidence intervals."),
+        ("ha_Figure_2.png", "Figure 2",
+         "Biennial physician growth against lagged litigation exposure measured as (a) counts and (b) rates. "
+         "Points are coloured by specialty; the count panel shows the size confounding that the rate panel removes."),
+        ("ha_Figure_3.png", "Figure 3",
+         "Biennial hospital facility-count growth against lagged litigation exposure measured as (a) counts and (b) rates. "
+         "Points are coloured by specialty; the rate-adjusted panel shows no systematic association."),
+        ("ha_Figure_4.png", "Figure 4",
+         "Counterfactual policy-instrument simulation: marginal 10-year change in physician counts by specialty "
+         "relative to the projected baseline drift. The MDE benchmark is the minimum detectable per-SD effect from the primary analysis."),
     ]
-    for src_name, dst_name in pairs:
-        src = os.path.join(BASE, src_name)
-        dst = os.path.join(BASE, dst_name)
-        shutil.copyfile(src, dst)
-        print("wrote", dst)
+    supp_figs, _ = _parse_supplementary_docx()
+    # _parse_supplementary_docx returns ha_Figure_5..7 filenames and captions including "Figure N."
+    all_figs = main_figs + [(fn, cap.split(". ")[0], cap.split(". ", 1)[1]) for fn, cap in supp_figs]
+
+    def add_slide(fn, title, cap):
+        s = prs.slides.add_slide(blank)
+        tb = s.shapes.add_textbox(PInches(0.5), PInches(0.2), PInches(12.3), PInches(0.7))
+        tf = tb.text_frame
+        tf.text = title
+        tf.paragraphs[0].runs[0].font.size = PPt(24)
+        tf.paragraphs[0].runs[0].font.bold = True
+        img = os.path.join(OUT, fn)
+        if os.path.exists(img):
+            s.shapes.add_picture(img, PInches(1.2), PInches(1.1), height=PInches(5.2))
+        cb = s.shapes.add_textbox(PInches(0.5), PInches(6.5), PInches(12.3), PInches(0.9))
+        cf = cb.text_frame
+        cf.word_wrap = True
+        cf.text = cap
+        cf.paragraphs[0].runs[0].font.size = PPt(14)
+
+    for fn, title, cap in all_figs:
+        add_slide(fn, title, cap)
+    out = os.path.join(BASE, "bpp_figures.pptx")
+    ha.normalize_pptx(prs)
+    prs.save(out)
+    print("wrote", out)
 
 
 def _tiff_path(png_path: str) -> str:
@@ -1543,14 +1739,9 @@ def create_submission_zip():
         (os.path.join(BASE, "bpp_title_page.docx"), "bpp_title_page.docx"),
         (os.path.join(BASE, "bpp_cover_letter.docx"), "bpp_cover_letter.docx"),
         (os.path.join(BASE, "bpp_highlights.docx"), "bpp_highlights.docx"),
-        (os.path.join(BASE, "bpp_supplementary.docx"), "bpp_supplementary.docx"),
         (os.path.join(BASE, "bpp_figures.pptx"), "bpp_figures.pptx"),
-        (os.path.join(BASE, "bpp_supplementary_figures.pptx"), "bpp_supplementary_figures.pptx"),
     ]
-    figure_names = [
-        "Figure_1", "Figure_2", "Figure_3", "Figure_4",
-        "Supplementary_Figure_1", "Supplementary_Figure_2", "Supplementary_Figure_3",
-    ]
+    figure_names = [f"Figure_{i}" for i in range(1, 8)]
     for arc in figure_names:
         png = os.path.join(OUT, f"ha_{arc}.png")
         tiff = _ensure_tiff(png)
@@ -1567,10 +1758,7 @@ def create_submission_zip():
 def create_figures_upload_zip():
     """Create a separate high-resolution (300 dpi) figure upload archive."""
     zip_path = os.path.join(OUT, "bpp_figures_for_upload.zip")
-    figure_names = [
-        "Figure_1", "Figure_2", "Figure_3", "Figure_4",
-        "Supplementary_Figure_1", "Supplementary_Figure_2", "Supplementary_Figure_3",
-    ]
+    figure_names = [f"Figure_{i}" for i in range(1, 8)]
     files = []
     for arc in figure_names:
         png = os.path.join(OUT, f"ha_{arc}.png")
@@ -1587,7 +1775,6 @@ def create_figures_upload_zip():
 
 def main():
     main_wc, abstract_wc, total_wc = build_manuscript()
-    build_supplementary()
     build_inline_manuscript()
     build_title_page(main_wc, total_wc)
     build_highlights()
