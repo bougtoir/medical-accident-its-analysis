@@ -10,6 +10,7 @@ data:
 	$(PY) data_primary/build_physicians.py
 	$(PY) data_primary/build_litigation.py
 	$(PY) data_primary/build_facilities.py
+	$(PY) data_primary/build_senkoi_coverage.py
 
 analysis: data
 	$(PY) data_primary/build_reanalysis.py

@@ -360,13 +360,13 @@ jobs:
           # outputs out of the public repo; reproduce.py (figures + in-text numbers)
           # and the data/analysis code remain public for reproducibility.
           EXCLUDE_MAP["devin/1784904207-transport-policy"]="build_submission.py output/Manuscript_TransportPolicy.docx output/Cover_Letter_TransportPolicy.docx output/Title_Page_TransportPolicy.docx output/Submission_Checklist_TransportPolicy.docx output/Highlights_TransportPolicy.docx output/Highlights_TransportPolicy.txt output/TransportPolicy_submission_package.zip output/VALIDATION.txt output/Citation_Audit.csv output/Reference_Verification.csv output/Reporting_Guideline_PRISMA-ScR.docx"
-          # Keep manuscript/cover-letter generators and their prose-bearing outputs in wip;
-          # the public repo retains data, analysis code, figures and the reproducible JSON results.
+          # Public reproducibility for the BPP submission: the builder, manuscript
+          # files, figures, and submission zips are mirrored along with data/code.
           # EXCLUDE_MAP["devin/17851786415018-ha-reviewer-fixes"]=...
           # EXCLUDE_MAP["devin/17851786415018-figure-colors-and-review"]=...
           # EXCLUDE_MAP["devin/1786420258-remove-japanese"]=...
           # EXCLUDE_MAP["devin/1786439000-cover-letter"]=...
-          EXCLUDE_MAP["devin/1786764182-bpp-submission"]="manuscript/build_healthcare_analytics_submission.py manuscript/build_behavioural_public_policy_submission.py manuscript/build_hp_submission.py manuscript/build_manuscript_en.py manuscript/build_package_en.py manuscript/ha_manuscript_en.docx manuscript/ha_title_page.docx manuscript/ha_cover_letter.docx manuscript/ha_highlights.docx manuscript/ha_supplementary.docx manuscript/ha_figures.pptx manuscript/ha_supplementary_figures.pptx output/ha_submission.zip manuscript/bpp_manuscript_en.docx manuscript/bpp_title_page.docx manuscript/bpp_cover_letter.docx manuscript/bpp_highlights.docx manuscript/bpp_supplementary.docx manuscript/bpp_figures.pptx manuscript/bpp_supplementary_figures.pptx output/bpp_submission.zip"
+          EXCLUDE_MAP["devin/1786764182-bpp-submission"]=""
           # yoshika-software-impacts is branched from the monorepo root, so the
           # yoshika project (yoshika/, tests/, paper/, pyproject.toml, README,
           # LICENSE) sits alongside many unrelated project folders. Exclude every

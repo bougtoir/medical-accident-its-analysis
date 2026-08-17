@@ -94,13 +94,13 @@ def plot_physician_index(P, bien, outfile, title):
 
 def plot_equivalence(eq, outfile, title, margin1=0.01, margin2=0.02):
     fig, ax = plt.subplots(figsize=(9, 4))
-    labels = ["Physician growth", "Hospital growth"]
+    labels = ["Physician growth", "Hospital facility-count growth"]
     ys = [1, 0]
     for e, y in zip(eq, ys):
         ax.plot([e["ci90_low"], e["ci90_high"]], [y, y], "b-", lw=2)
         ax.plot(e["coef_per_SD"], y, "bo", ms=7)
     for mg, c in [(margin1, "orange"), (margin2, "red")]:
-        ax.axvline(mg, color=c, ls="--", lw=1, label=f"±{int(mg*100)}% margin")
+        ax.axvline(mg, color=c, ls="--", lw=1, label=f"+/-{int(mg*100)}% margin")
         ax.axvline(-mg, color=c, ls="--", lw=1)
     ax.axvline(0, color="k", lw=0.8)
     ax.set_yticks(ys)
@@ -179,9 +179,9 @@ def plot_workflow(outfile, title):
     arrow(0.89, 0.83)
     box("Healthcare workforce allocation\nas a resource-allocation decision\n(policy lever: litigation risk)", 0.80, color="#e8e8e8")
     arrow(0.77, 0.71)
-    box("Two observational fallacies to avoid\n• Counts are confounded by specialty size\n• Interpolation inflates apparent panel size", 0.67)
+    box("Two observational fallacies to avoid\n* Counts are confounded by specialty size\n* Interpolation inflates apparent panel size", 0.67)
     arrow(0.63, 0.57)
-    box("Primary analytical choices\n• Exposure: rate per 1,000 physicians\n• Frequency: measured biennial waves\n• Model: specialty + wave fixed effects\n• Cluster-robust SEs (G=12; df=G-1=11)\n• Equivalence testing (TOST) with ±1% / ±2% margins", 0.51)
+    box("Primary analytical choices\n* Exposure: rate per 1,000 physicians\n* Frequency: measured biennial waves\n* Model: specialty + wave fixed effects\n* Cluster-robust SEs (G=12; df=G-1=11)\n* Equivalence testing (TOST) with +/-1% / +/-2% margins", 0.51)
     arrow(0.45, 0.37)
     box("Sensitivity-analysis dimensions\n1. Counts vs. rates\n2. Biennial vs. interpolated-annual physician data\n3. Annual hospital data\n4. JMSR report rate, media coverage, JOCS-CP indicator", 0.31)
     arrow(0.25, 0.17)
@@ -226,7 +226,7 @@ def plot_hospital_counts_vs_rates(H, P, L, bien, outfile, title, colored=True):
         axs[0].scatter(dgrow["cnt"], dgrow["g"], s=12, alpha=0.6)
         axs[1].scatter(dgrow["rate"], dgrow["g"], s=12, alpha=0.6, color="green")
     axs[0].set_xlabel("Litigation COUNT (lagged)")
-    axs[0].set_ylabel("Biennial hospital log-growth")
+    axs[0].set_ylabel("Biennial hospital facility-count log-growth")
     axs[0].set_title("(a) Count exposure (size-confounded)")
     axs[1].set_xlabel("Litigation RATE per 1,000 physicians (lagged)")
     axs[1].set_title("(b) Rate exposure (size-adjusted)")
@@ -273,7 +273,7 @@ def main():
     # Base figures (retained for other manuscripts)
     plot_litigation_rate(
         P, L, bien, "fig1_litigation_rate.png",
-        "Figure 1. Litigation rate by specialty (rate, not count), 2008–2024")
+        "Figure 1. Litigation rate by specialty (rate, not count), 2008-2024")
     plot_physician_index(
         P, bien, "fig2_physician_index.png",
         "Figure 2. Physician workforce by specialty, indexed to 2008")
@@ -287,14 +287,14 @@ def main():
     plot_workflow(
         "fig5_workflow.png",
         "Figure 5. Sensitivity-analysis framework for evaluating litigation risk "
-        "as a healthcare workforce-allocation lever.")
+        "as a healthcare workforce-allocation instrument.")
     plot_hospital_counts_vs_rates(
         H, P, L, bien, "fig7_hospital_counts_vs_rates.png",
-        "Figure 7. Hospital counts vs. rates: association disappears under size adjustment",
+        "Figure 7. Hospital facility counts vs. rates: association disappears under size adjustment",
         colored=False)
     plot_policy_simulation(
         res["policy_simulation"], "fig6_policy_simulation.png",
-        "Figure 6. Counterfactual policy-lever simulation: marginal 10-year change in "
+        "Figure 6. Counterfactual policy-instrument simulation: marginal 10-year change in "
         "physician counts relative to baseline drift")
 
     # Healthcare Analytics-specific figures with correct numbering
@@ -307,19 +307,19 @@ def main():
         colored=True)
     plot_hospital_counts_vs_rates(
         H, P, L, bien, "ha_Figure_3.png",
-        "Figure 3. Hospital counts vs. rates: association disappears under size adjustment",
+        "Figure 3. Hospital facility counts vs. rates: association disappears under size adjustment",
         colored=True)
     plot_policy_simulation(
         res["policy_simulation"], "ha_Figure_4.png",
-        "Figure 4. Counterfactual policy-lever simulation: marginal 10-year change in "
+        "Figure 4. Counterfactual policy-instrument simulation: marginal 10-year change in "
         "physician counts relative to baseline drift")
     plot_workflow(
         "ha_Supplementary_Figure_1.png",
         "Supplementary Figure 1. Sensitivity-analysis framework for evaluating "
-        "litigation risk as a healthcare workforce-allocation lever.")
+        "litigation risk as a healthcare workforce-allocation instrument.")
     plot_litigation_rate(
         P, L, bien, "ha_Supplementary_Figure_2.png",
-        "Supplementary Figure 2. Litigation rate by specialty (rate, not count), 2008–2024")
+        "Supplementary Figure 2. Litigation rate by specialty (rate, not count), 2008-2024")
     plot_physician_index(
         P, bien, "ha_Supplementary_Figure_3.png",
         "Supplementary Figure 3. Physician workforce by specialty, indexed to 2008")
