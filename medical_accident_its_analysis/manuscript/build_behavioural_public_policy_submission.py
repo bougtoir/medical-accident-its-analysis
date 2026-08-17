@@ -104,6 +104,32 @@ SENKOI_SUM = _senkoi_summary()
 _HET_DICT = {(r["outcome"], r["group"]): r for r in ha.RES.get("heterogeneity", [])}
 _TREND_DICT = {r["outcome"]: r for r in ha.RES.get("trend_sensitivity", [])}
 
+# Sequential numbering by first appearance in the BPP manuscript.
+# Old labels (as used in the source text / HA supplementary docx) -> new labels.
+_FIGURE_LABEL_MAP = {
+    "Supplementary Figure 1": "Figure 1",
+    "Supplementary Figure 2": "Figure 2",
+    "Supplementary Figure 3": "Figure 3",
+    "Figure 1": "Figure 4",
+    "Figure 2": "Figure 5",
+    "Figure 3": "Figure 6",
+    "Figure 4": "Figure 7",
+}
+_TABLE_LABEL_MAP = {
+    "Supplementary Table 1": "Table 1",
+    "Table 1": "Table 2",
+    "Table 2": "Table 3",
+    "Supplementary Table 2": "Table 4",
+    "Supplementary Table 3": "Table 5",
+    "Supplementary Table 4": "Table 6",
+    "Supplementary Table 5": "Table 7",
+    "Supplementary Table 6": "Table 8",
+    "Supplementary Table 7": "Table 9",
+    "Supplementary Table 8": "Table 10",
+    "Supplementary Table 9": "Table 11",
+}
+_LABEL_MAP = {**_FIGURE_LABEL_MAP, **_TABLE_LABEL_MAP}
+
 BPP_TITLE = (
     "Risk perception versus structural incentives in physician specialty choice: "
     "a Japanese panel study"
@@ -483,23 +509,19 @@ def m(doc, latex, inline=False, para=None):
 
 
 def _remap_labels(text: str) -> str:
-    """Remap supplementary figure/table references to main numbering.
+    """Remap figure/table references to sequential order of first appearance."""
+    def _repl(m):
+        prefix = m.group(1) or ""
+        kind = m.group(2)
+        n = m.group(3)
+        old = f"{'Supplementary ' if prefix else ''}{kind} {n}"
+        return _LABEL_MAP.get(old, old)
 
-    Supplementary Figure 1-3 -> Figure 5-7; Supplementary Table 1-9 -> Table 3-11.
-    """
-    def _fig_repl(m):
-        return f"Figure {int(m.group(1)) + 4}"
-
-    def _tbl_repl(m):
-        return f"Table {int(m.group(1)) + 2}"
-
-    text = re.sub(r"Supplementary Figure (\d+)", _fig_repl, text)
-    text = re.sub(r"Supplementary Table (\d+)", _tbl_repl, text)
-    return text
+    return re.sub(r"(Supplementary\s+)?(Figure|Table)\s+(\d+)", _repl, text)
 
 
 def _parse_supplementary_docx():
-    """Parse the HA supplementary docx to get renumbered main captions and tables."""
+    """Parse the HA supplementary docx and remap captions to sequential BPP numbering."""
     ha.build_supplementary()
     path = os.path.join(BASE, "ha_supplementary.docx")
     doc = Document(path)
@@ -517,7 +539,12 @@ def _parse_supplementary_docx():
             if m:
                 n = int(m.group(1))
                 rest = m.group(2).strip()
-                figs[n] = (f"ha_Figure_{n + 4}.png", f"Figure {n + 4}. {rest}")
+                old_label = f"Supplementary Figure {n}"
+                new_label = _FIGURE_LABEL_MAP.get(old_label, f"Figure {n}")
+                new_num = int(new_label.split()[1])
+                # source file ha_Figure_5..7 already exists for old supplementary 1..3
+                src = f"ha_Figure_{n + 4}.png"
+                figs[n] = (src, f"{new_label}. {rest}")
             t = re.match(r"Supplementary Table (\d+)\. (.*)", text)
             if t:
                 last_tbl_caption = (int(t.group(1)), t.group(2).strip())
@@ -528,11 +555,13 @@ def _parse_supplementary_docx():
                 if tbl:
                     headers = [cell.text for cell in tbl.rows[0].cells]
                     rows = [[cell.text for cell in r.cells] for r in tbl.rows[1:]]
-                    caption = f"Table {n + 2}. {rest}"
+                    old_label = f"Supplementary Table {n}"
+                    new_label = _TABLE_LABEL_MAP.get(old_label, f"Table {n}")
+                    caption = f"{new_label}. {rest}"
                     tables.append((headers, rows, caption))
                 last_tbl_caption = None
     fig_list = [figs[n] for n in sorted(figs)]
-    table_list = sorted(tables, key=lambda x: int(re.match(r"Table (\d+)", x[2]).group(1)))
+    table_list = sorted(tables, key=lambda x: int(re.match(r"(Figure|Table) (\d+)", x[2]).group(2)))
     return fig_list, table_list
 
 
@@ -861,7 +890,7 @@ def build_manuscript(inline=False):
             f"Hospital facilities {BIEN[-1]}",
         ],
         rows,
-        f"Table 1. Physicians, litigation rate (per {PER:,} physicians) and hospital facilities by specialty, first and last waves.",
+        f"Table 2. Physicians, litigation rate (per {PER:,} physicians) and hospital facilities by specialty, first and last waves.",
     )
 
     h(doc, "Primary association and equivalence", level=2)
@@ -885,7 +914,7 @@ def build_manuscript(inline=False):
     f(
         doc,
         "ha_Figure_1.png",
-        f"Figure 1. Equivalence (TOST) of the litigation-rate effect against +/-{MARGIN1}% and "
+        f"Figure 4. Equivalence (TOST) of the litigation-rate effect against +/-{MARGIN1}% and "
         f"+/-{MARGIN2}% margins; horizontal bars are 90% confidence intervals.",
     )
     trow = [
@@ -936,7 +965,7 @@ def build_manuscript(inline=False):
         doc,
         ["Model", "Coefficient", "95% CI", "p", "n"],
         trow,
-        "Table 2. Panel fixed-effects models and sensitivity analyses.",
+        "Table 3. Panel fixed-effects models and sensitivity analyses.",
     )
 
     h(doc, "Counts versus rates, and confounders", level=2)
@@ -957,7 +986,7 @@ def build_manuscript(inline=False):
     f(
         doc,
         "ha_Figure_2.png",
-        "Figure 2. Biennial physician growth against lagged litigation exposure measured as "
+        "Figure 5. Biennial physician growth against lagged litigation exposure measured as "
         "(a) counts and (b) rates. Points are coloured by specialty; the count panel shows the size "
         "confounding that the rate panel removes.",
     )
@@ -970,7 +999,7 @@ def build_manuscript(inline=False):
     f(
         doc,
         "ha_Figure_3.png",
-        "Figure 3. Biennial hospital facility-count growth against lagged litigation exposure measured as "
+        "Figure 6. Biennial hospital facility-count growth against lagged litigation exposure measured as "
         "(a) counts and (b) rates. Points are coloured by specialty; the rate-adjusted panel shows "
         "no systematic association.",
     )
@@ -1056,7 +1085,7 @@ def build_manuscript(inline=False):
     f(
         doc,
         "ha_Figure_4.png",
-        "Figure 4. Counterfactual policy simulation: marginal 10-year change in physician counts by "
+        "Figure 7. Counterfactual policy simulation: marginal 10-year change in physician counts by "
         "specialty relative to the projected baseline drift. The MDE benchmark is the minimum detectable "
         "per-SD effect from the primary analysis.",
     )
@@ -1320,6 +1349,13 @@ def build_manuscript(inline=False):
 
     if end_objects:
         h(doc, "Figures and Tables", level=1)
+        def _obj_order(obj):
+            caption = obj[2] if obj[0] == "fig" else obj[3]
+            m = re.search(r"\b(Figure|Table)\s+(\d+)", caption)
+            n = int(m.group(2)) if m else 999
+            kind_num = {"fig": 0, "table": 1}
+            return (kind_num.get(obj[0], 99), n)
+        end_objects.sort(key=_obj_order)
         for obj in end_objects:
             if obj[0] == "fig":
                 _, fn, caption, width = obj
@@ -1663,29 +1699,29 @@ def build_cover_letter():
 
 
 def build_figure_pptx():
-    """Build a single editable PPTX with all seven main figures."""
+    """Build a single editable PPTX with all seven main figures in sequential order."""
     prs = Presentation()
     prs.slide_width = PInches(13.333)
     prs.slide_height = PInches(7.5)
     blank = prs.slide_layouts[6]
 
+    supp_figs, _ = _parse_supplementary_docx()
+    supp_list = [(fn, cap.split(". ")[0], cap.split(". ", 1)[1]) for fn, cap in supp_figs]
     main_figs = [
-        ("ha_Figure_1.png", "Figure 1",
+        ("ha_Figure_1.png", "Figure 4",
          f"Equivalence (TOST) of the litigation-rate effect against +/-{MARGIN1}% and "
          f"+/-{MARGIN2}% margins; horizontal bars are 90% confidence intervals."),
-        ("ha_Figure_2.png", "Figure 2",
+        ("ha_Figure_2.png", "Figure 5",
          "Biennial physician growth against lagged litigation exposure measured as (a) counts and (b) rates. "
          "Points are coloured by specialty; the count panel shows the size confounding that the rate panel removes."),
-        ("ha_Figure_3.png", "Figure 3",
+        ("ha_Figure_3.png", "Figure 6",
          "Biennial hospital facility-count growth against lagged litigation exposure measured as (a) counts and (b) rates. "
          "Points are coloured by specialty; the rate-adjusted panel shows no systematic association."),
-        ("ha_Figure_4.png", "Figure 4",
+        ("ha_Figure_4.png", "Figure 7",
          "Counterfactual policy-instrument simulation: marginal 10-year change in physician counts by specialty "
          "relative to the projected baseline drift. The MDE benchmark is the minimum detectable per-SD effect from the primary analysis."),
     ]
-    supp_figs, _ = _parse_supplementary_docx()
-    # _parse_supplementary_docx returns ha_Figure_5..7 filenames and captions including "Figure N."
-    all_figs = main_figs + [(fn, cap.split(". ")[0], cap.split(". ", 1)[1]) for fn, cap in supp_figs]
+    all_figs = supp_list + main_figs
 
     def add_slide(fn, title, cap):
         s = prs.slides.add_slide(blank)
@@ -1741,9 +1777,18 @@ def create_submission_zip():
         (os.path.join(BASE, "bpp_highlights.docx"), "bpp_highlights.docx"),
         (os.path.join(BASE, "bpp_figures.pptx"), "bpp_figures.pptx"),
     ]
-    figure_names = [f"Figure_{i}" for i in range(1, 8)]
-    for arc in figure_names:
-        png = os.path.join(OUT, f"ha_{arc}.png")
+    # Map sequential Figure 1-7 to their source PNGs (new order = supp 1-3 then main 1-4)
+    figure_sources = [
+        ("ha_Figure_5.png", "Figure_1"),
+        ("ha_Figure_6.png", "Figure_2"),
+        ("ha_Figure_7.png", "Figure_3"),
+        ("ha_Figure_1.png", "Figure_4"),
+        ("ha_Figure_2.png", "Figure_5"),
+        ("ha_Figure_3.png", "Figure_6"),
+        ("ha_Figure_4.png", "Figure_7"),
+    ]
+    for src, arc in figure_sources:
+        png = os.path.join(OUT, src)
         tiff = _ensure_tiff(png)
         file_map.append((png, f"{arc}.png"))
         file_map.append((tiff, f"{arc}.tiff"))
@@ -1758,10 +1803,18 @@ def create_submission_zip():
 def create_figures_upload_zip():
     """Create a separate high-resolution (300 dpi) figure upload archive."""
     zip_path = os.path.join(OUT, "bpp_figures_for_upload.zip")
-    figure_names = [f"Figure_{i}" for i in range(1, 8)]
+    figure_sources = [
+        ("ha_Figure_5.png", "Figure_1"),
+        ("ha_Figure_6.png", "Figure_2"),
+        ("ha_Figure_7.png", "Figure_3"),
+        ("ha_Figure_1.png", "Figure_4"),
+        ("ha_Figure_2.png", "Figure_5"),
+        ("ha_Figure_3.png", "Figure_6"),
+        ("ha_Figure_4.png", "Figure_7"),
+    ]
     files = []
-    for arc in figure_names:
-        png = os.path.join(OUT, f"ha_{arc}.png")
+    for src, arc in figure_sources:
+        png = os.path.join(OUT, src)
         tiff = _ensure_tiff(png)
         files.append((png, f"{arc}.png"))
         files.append((tiff, f"{arc}.tiff"))
