@@ -2,7 +2,7 @@
 # Every reported number is regenerated from data_primary/ and results/.
 PY=python3
 
-.PHONY: all data analysis figures clean
+.PHONY: all data analysis figures ssm_submission clean
 
 all: data analysis figures
 
@@ -17,6 +17,9 @@ analysis: data
 
 figures: analysis
 	$(PY) manuscript/build_figures_en.py
+
+ssm_submission: figures
+	$(PY) manuscript/build_social_science_medicine_submission.py
 
 clean:
 	rm -rf data_primary/__pycache__ manuscript/__pycache__
