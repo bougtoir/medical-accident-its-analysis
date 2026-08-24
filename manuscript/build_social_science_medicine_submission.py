@@ -604,9 +604,9 @@ def build_manuscript(inline=False):
     b(
         doc,
         "From a social-science perspective, however, the link between risk and career choice is "
-        "mediated by institutional context. Rare but salient adverse events are highly available in "
-        "memory and in media coverage, and loss aversion can cause a low-probability outcome to be "
-        "overweighted in career deliberations.{tversky1973,kahneman1979} At the same time, the "
+        "mediated by institutional context. Rare but salient adverse events come readily to mind, "
+        "especially when they are covered in the media, and loss aversion can cause a low-probability "
+        "outcome to be overweighted in career deliberations.{tversky1973,kahneman1979} At the same time, the "
         "decision to enter, remain in, or leave a specialty is constrained by expected income, "
         "sunk training costs, switching costs and status-quo bias.{samuelson1988} The relevant "
         "policy question is therefore not whether physicians report anxiety about litigation, but "
@@ -709,12 +709,41 @@ def build_manuscript(inline=False):
         f"G-1 degrees of freedom.{{cameron2015}} The primary estimating equation, for specialty s and wave t, was as follows.",
     )
     m(doc, r"\Delta \log(Y_{st}) = \alpha_s + \delta_t + \beta \cdot \text{litrate}_{s,t-1} + \gamma \cdot \text{JOCS-CP}_{s,t-1} + \epsilon_{st}")
-    b(
-        doc,
-        "Here, Y is either physician counts or hospital facility counts, alpha_s are specialty fixed effects, "
-        "delta_t are wave fixed effects, and standard errors are clustered by specialty. "
-        "For the equivalence analysis we standardised litrate to a z-score, so beta gives the "
-        "expected biennial log-change per one-SD increase in the litigation rate.",
+
+    p_def = doc.add_paragraph()
+    p_def.paragraph_format.line_spacing = 2.0
+    p_def.paragraph_format.space_after = Pt(6)
+
+    def _run(text, italic=False):
+        r = p_def.add_run(text)
+        r.font.name = "Times New Roman"
+        r.font.size = Pt(12)
+        r.italic = italic
+        return r
+
+    _run("Here, ")
+    _run("Y", italic=True)
+    _run(" is either physician counts or hospital facility counts; ")
+    m(doc, r"\alpha_s", inline=True, para=p_def)
+    _run(" denotes specialty fixed effects, ")
+    m(doc, r"\delta_t", inline=True, para=p_def)
+    _run(" wave fixed effects, ")
+    m(doc, r"\beta", inline=True, para=p_def)
+    _run(" is the coefficient on the litigation rate, ")
+    m(doc, r"\gamma", inline=True, para=p_def)
+    _run(" is the coefficient on the JOCS-CP indicator, and ")
+    m(doc, r"\epsilon_{st}", inline=True, para=p_def)
+    _run(" is the error term. Standard errors are clustered by specialty. For the equivalence analysis we standardised ")
+    _run("litrate", italic=True)
+    _run(" to a z-score, so ")
+    m(doc, r"\beta", inline=True, para=p_def)
+    _run(" gives the expected biennial log-change per one-SD increase in the litigation rate.")
+
+    ha.BODY_TEXTS.append(
+        "Here, Y is either physician counts or hospital facility counts; alpha_s denotes specialty fixed effects, "
+        "delta_t wave fixed effects, and beta is the coefficient on the litigation rate, gamma is the coefficient on the JOCS-CP indicator, "
+        "and epsilon_st is the error term. Standard errors are clustered by specialty. For the equivalence analysis we standardised litrate to a z-score, "
+        "so beta gives the expected biennial log-change per one-SD increase in the litigation rate."
     )
     b(
         doc,
@@ -960,7 +989,7 @@ def build_manuscript(inline=False):
         f"was {EQP['tests'][0]['power_if_null']*100:.1f}%. For hospital facility-count growth the minimum detectable effect was "
         f"{EQH['mde_80pct']:.2f}% per SD and the equivalent power for the +/-{MARGIN1}% margin was "
         f"{EQH['tests'][0]['power_if_null']*100:.1f}%. The panel is informative enough to rule out "
-        f"policy-relevant effects for physicians, and to bound any hospital effect within a small margin.",
+        f"policy-relevant physician effects and to bound any hospital effect within a small margin.",
     )
     b(
         doc,
@@ -1002,7 +1031,7 @@ def build_manuscript(inline=False):
             f"{SENKOI_SUM['min_val']:.1f}% ({ha.EN[SENKOI_SUM['min_spec']].lower()}) to "
             f"{SENKOI_SUM['max_val']:.1f}% ({ha.EN[SENKOI_SUM['max_spec']].lower()}).{{mhlw_senkoi2018,mhlw_3_5yr}} "
             f"These coverage rates are not an outcome of the litigation-risk model, but they confirm that "
-            "the 12 primary specialties capture the main initial specialization decision in Japan; "
+            "the 12 primary specialties capture the main initial specialty choice in Japan; "
             "Supplementary Table 8 reports the counts by specialty.",
         )
     h(doc, "Heterogeneity and trend sensitivity", level=2)
@@ -1040,9 +1069,9 @@ def build_manuscript(inline=False):
         doc,
         f"Using national primary data, rates rather than counts, and only measured biennial "
         f"physician observations, we found no association between specialty-level malpractice-litigation "
-        f"risk and subsequent physician or hospital decline. Equivalence testing showed that any effect of "
+        f"risk and subsequent physician and hospital facility-count growth. Equivalence testing showed that any effect of "
         f"litigation risk on biennial physician growth is smaller than +/-{MARGIN1}% (90% CI within the +/-{MARGIN1}% "
-        f"margin), and any effect on hospital facility-count growth is meaningfully bounded. "
+        f"margin), and the effect on hospital facility-count growth is bounded within the pre-specified +/-{MARGIN2}% margin. "
         f"These data do not support the assumption that physicians systematically abandon "
         f"high-litigation specialties over {SPAN} years of official statistics.",
     )
@@ -1074,21 +1103,21 @@ def build_manuscript(inline=False):
         doc,
         "Second, the discrepancy between perceived risk and measured workforce supply is consistent with "
         "well-documented behavioural mechanisms. Media coverage of sensational malpractice or criminal "
-        "prosecutions makes litigation risk highly available to physicians and trainees, and loss aversion "
+        "prosecutions keeps litigation risk salient in memory for physicians and trainees, and loss aversion "
         "can cause a rare but salient adverse outcome to be overweighted in career deliberations."
         "{tversky1973,kahneman1979} Yet the decision to leave a specialty is governed by expected income, "
         "sunk training costs, switching costs and status-quo bias, all of which discourage exit even when "
         "perceived risk is high.{samuelson1988} The gap between reported anxiety and measured supply is "
-        "not a contradiction; it is what one would expect when a vivid, low-probability risk meets strong "
+        "therefore not a contradiction, but what one would expect when a vivid, low-probability risk meets strong "
         "economic and institutional incentives to remain.",
     )
     b(
         doc,
         "For health policy, the lesson is that changing the perceived risk alone is unlikely to alter "
         "aggregate workforce allocation when the underlying choice architecture preserves strong structural "
-        "incentives to remain. Status-quo bias and loss aversion now work in the opposite direction: once a "
-        "physician has incurred the sunk cost of specialty training, leaving feels like a sure loss, while the "
-        "rare possibility of a malpractice judgment remains an abstract, low-probability event. No-fault "
+        "incentives to remain. Once a physician has incurred the sunk cost of specialty training, "
+        "status-quo bias and loss aversion make leaving feel like a sure loss, while the rare possibility "
+        "of a malpractice judgment remains an abstract, low-probability event. No-fault "
         "compensation, payment design, and training subsidies change the payoff structure directly; "
         "litigation-avoidance messaging targets only the perceived risk. Our results suggest that the former "
         "are the more reliable tools.",
@@ -1159,7 +1188,7 @@ def build_manuscript(inline=False):
     )
     b(
         doc,
-        "The weak response reflects the institutional structure of career choice, not a lack of concern. Once a physician has entered "
+        "The muted response reflects the institutional structure of career choice, not a lack of concern. Once a physician has entered "
         "a specialty, the costs of switching -- foregone fellowship income, lost seniority and professional identity -- generate "
         "powerful status-quo bias, while fee-for-service income rewards the high-acuity work that also carries litigation risk. "
         "No-fault compensation, payment design and training subsidies alter the payoffs and defaults that matter for a loss-averse "
@@ -1174,8 +1203,8 @@ def build_manuscript(inline=False):
         "heuristic means that vivid cases dominate decision weights regardless of their frequency, so a national trend line does not "
         "remove salient exemplars from memory or media coverage.{tversky1973,kahneman1979,lin2022} The policy lesson is that "
         "governments should redesign the choice architecture -- payment, training slots and compensation rules -- rather than expect "
-        "litigation-avoidance messaging to drive career decisions. Our null result is evidence that structural defaults and loss aversion "
-        "outweigh rare-event risk perception in the aggregate workforce.",
+        "litigation-avoidance messaging to drive career decisions. Our results are consistent with the interpretation that structural defaults "
+        "and loss aversion outweigh rare-event risk perception in the aggregate workforce.",
     )
     h(doc, "Limitations", level=2)
     b(

@@ -1369,14 +1369,45 @@ def build_supplementary():
          "Primary estimating equation. Let s index specialty, t index the biennial wave, and Y be "
          "the count of physicians or hospitals. The baseline model is")
     add_math(doc, r"\Delta \log(Y_{st}) = \alpha_s + \delta_t + \beta \cdot \text{litrate}_{s,t-1} + \gamma \cdot \text{JOCS-CP}_{s,t-1} + \epsilon_{st}")
-    para(doc,
-         "where alpha_s are specialty fixed effects, delta_t are wave fixed effects, litrate is closed "
-         "malpractice claims per 1,000 physicians, and JOCS-CP is an obstetrics-and-gynaecology-specific "
-         "indicator from 2009 onward. Standard errors are clustered by specialty and inference uses a "
-         "t-distribution with G-1 degrees of freedom, where G=12.")
-    para(doc,
-         "Equivalence testing. Two one-sided tests (TOST) evaluate whether the per-SD litigation-rate "
-         "coefficient beta lies inside a pre-specified symmetric margin m. The null hypotheses are")
+    p_eq = doc.add_paragraph()
+    p_eq.paragraph_format.line_spacing = 2.0
+    p_eq.paragraph_format.space_after = Pt(6)
+
+    def _r(txt, italic=False):
+        r = p_eq.add_run(txt)
+        r.font.name = "Times New Roman"
+        r.font.size = Pt(12)
+        r.italic = italic
+        return r
+
+    _r("where ")
+    _r("Y", italic=True)
+    _r(" is either physicians or hospitals, ")
+    add_math(doc, r"\alpha_s", inline=True, para=p_eq)
+    _r(" are specialty fixed effects, ")
+    add_math(doc, r"\delta_t", inline=True, para=p_eq)
+    _r(" are wave fixed effects, ")
+    _r("litrate", italic=True)
+    _r(" is closed malpractice claims per 1,000 physicians, and ")
+    _r("JOCS-CP", italic=True)
+    _r(" is an obstetrics-and-gynaecology-specific indicator from 2009 onward. "
+       "Standard errors are clustered by specialty and inference uses a t-distribution with ")
+    _r("G-1", italic=True)
+    _r(" degrees of freedom, where ")
+    _r("G=12", italic=True)
+    _r(".")
+    p_tost = doc.add_paragraph()
+    p_tost.paragraph_format.line_spacing = 2.0
+    p_tost.paragraph_format.space_after = Pt(6)
+    r = p_tost.add_run("Equivalence testing. Two one-sided tests (TOST) evaluate whether the per-SD litigation-rate coefficient ")
+    r.font.name = "Times New Roman"; r.font.size = Pt(12)
+    add_math(doc, r"\beta", inline=True, para=p_tost)
+    r = p_tost.add_run(" lies inside a pre-specified symmetric margin ")
+    r.font.name = "Times New Roman"; r.font.size = Pt(12)
+    r = p_tost.add_run("m")
+    r.font.name = "Times New Roman"; r.font.size = Pt(12); r.italic = True
+    r = p_tost.add_run(". The null hypotheses are")
+    r.font.name = "Times New Roman"; r.font.size = Pt(12)
     add_math(doc, r"H_0: \beta \leq -m \quad \text{and} \quad H_0: \beta \geq +m")
     para(doc,
          "Equivalence is declared when both one-sided tests yield p < 0.05. Margins of 1% and 2% biennial "
@@ -1384,19 +1415,30 @@ def build_supplementary():
          "rebalancing.")
     para(doc,
          "Power diagnostics. The minimum detectable effect (MDE) at 80% power for the per-SD coefficient "
-         "is (t(0.975, df) + t(0.80, df)) x SE. The power to declare equivalence within margin m when the "
-         "true effect is zero is 2 x F_t(m / SE) - 1, where F_t is the cumulative distribution function of "
-         "the t(df) distribution. These quantities make the limited information in a 12-cluster panel explicit.")
+         "is given by the following expressions, where F_t denotes the cumulative distribution function of the "
+         "t(df) distribution.")
+    add_math(doc, r"\text{MDE} = (t_{0.975,df} + t_{0.80,df}) \times \text{SE}")
+    add_math(doc, r"\text{Power}_{\text{equiv}} = 2 \cdot F_t(m / \text{SE}) - 1")
+    para(doc,
+         "These quantities make the limited information in a 12-cluster panel explicit.")
     para(doc,
          "Heterogeneity and trend stability. To test whether the association differed by baseline "
          "litigation risk or surgical orientation, the model was augmented with an interaction between "
          "litrate and a binary group indicator:")
     add_math(doc, r"\Delta \log(Y_{st}) = \alpha_s + \delta_t + \beta \cdot \text{litrate}_{s,t-1} + \delta_g \cdot (\text{litrate}_{s,t-1} \times \text{Group}_s) + \epsilon_{st}")
-    para(doc,
-         "Group_s is either high-litigation (above the median specialty mean lagged litigation rate) "
-         "or surgical (surgery, orthopaedics, obstetrics and gynaecology, urology). The main effect of "
-         "Group is absorbed by the specialty fixed effects and is omitted. A separate stability check "
-         "added specialty-specific linear trends, C(specialty) x year, to the baseline specification.")
+    p_het = doc.add_paragraph()
+    p_het.paragraph_format.line_spacing = 2.0
+    p_het.paragraph_format.space_after = Pt(6)
+    add_math(doc, r"\text{Group}_s", inline=True, para=p_het)
+    r = p_het.add_run(" is either high-litigation (above the median specialty mean lagged litigation rate) or surgical (surgery, orthopaedics, obstetrics and gynaecology, urology). The main effect of ")
+    r.font.name = "Times New Roman"; r.font.size = Pt(12)
+    add_math(doc, r"\text{Group}", inline=True, para=p_het)
+    r = p_het.add_run(" is absorbed by the specialty fixed effects and is omitted. A separate stability check added specialty-specific linear trends, ")
+    r.font.name = "Times New Roman"; r.font.size = Pt(12)
+    r = p_het.add_run("C(specialty) x year")
+    r.font.name = "Times New Roman"; r.font.size = Pt(12); r.italic = True
+    r = p_het.add_run(", to the baseline specification.")
+    r.font.name = "Times New Roman"; r.font.size = Pt(12)
 
     para(doc, "Supplementary Figure 1. Sensitivity-analysis framework for evaluating "
               "malpractice-litigation risk as a healthcare workforce-allocation instrument.")
