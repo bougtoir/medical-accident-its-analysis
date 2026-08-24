@@ -228,6 +228,20 @@ def _ssm_format_author_list(author_part: str) -> str:
     return ", ".join(parsed[:-1]) + f" and {parsed[-1]}"
 
 
+# Nobiliary particles that precede the sortable surname in some author names.
+_SURN_PARTICLES = frozenset(
+    ["von", "van", "de", "der", "den", "di", "da", "del", "dal", "la", "le", "les", "lo", "du", "zu", "zur", "af", "of", "ten", "ter"]
+)
+
+
+def _ssm_sort_surname(name: str) -> str:
+    """Return a sortable surname, ignoring leading nobiliary particles."""
+    parts = name.strip().lower().split()
+    while parts and parts[0] in _SURN_PARTICLES and len(parts) > 1:
+        parts.pop(0)
+    return " ".join(parts) if parts else name.lower()
+
+
 def _ssm_in_text_author(ref: str, key: str) -> str:
     """Return the in-text author string for a Harvard-style citation."""
     if key in _SSM_CITE_SHORT:
@@ -544,25 +558,23 @@ def build_manuscript(inline=False):
     rt.font.size = Pt(14)
     rt.font.name = "Times New Roman"
 
-    # Abstract (structured, <=250 words; target ~220)
+    # Abstract (single unstructured paragraph, <=250 words; target ~220)
     abstract_text = (
-        f"Rationale: Specialty maldistribution is a persistent health-workforce problem, and malpractice "
-        f"litigation is widely assumed to push physicians away from high-risk specialties. "
-        f"Objective: To test whether specialty-level malpractice-litigation risk predicts subsequent "
-        f"physician supply and hospital facility counts in Japan. "
-        f"Methods: We used national administrative data for {N} clinical specialties from {BIEN[0]} to {BIEN[-1]}. "
-        f"Exposure was malpractice claims per {PER:,} physicians; outcomes were biennial log-changes in "
-        f"physician counts and annual log-changes in hospital facility counts. We estimated "
-        f"specialty-and-wave fixed-effects panels with clustered standard errors and applied two one-sided "
-        f"equivalence tests with pre-specified margins of +/-{MARGIN1}% and +/-{MARGIN2}%. "
-        f"Results: The lagged litigation rate was not associated with physician growth (coefficient "
-        f"{ha.fmt(PHYS['coef'], 4)}; 95% CI {ha.fmt(PHYS['ci_low'], 4)} to {ha.fmt(PHYS['ci_high'], 4)}; "
-        f"p={PHYS['p']:.2f}; n={PHYS['n_obs']}) or facility-count growth (p={HOSP['p']:.2f}; n={HOSP['n_obs']}). "
-        f"Equivalence testing showed that a one-SD higher rate shifted physician growth by less than +/-{MARGIN1}% "
+        f"Specialty maldistribution is a persistent health-workforce problem, and malpractice litigation is "
+        f"widely assumed to push physicians away from high-risk specialties. We tested whether specialty-level "
+        f"malpractice-litigation risk predicts subsequent physician supply and hospital facility counts in Japan, "
+        f"using national administrative data for {N} clinical specialties from {BIEN[0]} to {BIEN[-1]}. Exposure was "
+        f"malpractice claims per {PER:,} physicians; outcomes were biennial log-changes in physician counts and "
+        f"annual log-changes in hospital facility counts. We estimated specialty-and-wave fixed-effects panels "
+        f"with clustered standard errors and applied two one-sided equivalence tests with pre-specified margins "
+        f"of +/-{MARGIN1}% and +/-{MARGIN2}%. The lagged litigation rate was not associated with physician growth "
+        f"(coefficient {ha.fmt(PHYS['coef'], 4)}; 95% CI {ha.fmt(PHYS['ci_low'], 4)} to {ha.fmt(PHYS['ci_high'], 4)}; "
+        f"p={PHYS['p']:.2f}; n={PHYS['n_obs']}) or facility-count growth (p={HOSP['p']:.2f}; n={HOSP['n_obs']}). Equivalence "
+        f"testing showed that a one-SD higher rate shifted physician growth by less than +/-{MARGIN1}% "
         f"(TOST p={ha.p_tost_fmt(EQP['tests'][0]['p_tost'])}; point estimate {EQP['coef_per_SD']*100:+.2f}%; "
-        f"90% CI {EQP['ci90_low']*100:+.2f}% to {EQP['ci90_high']*100:+.2f}%). "
-        f"Conclusions: Malpractice litigation risk does not appear to drive aggregate specialty maldistribution in Japan. "
-        f"Structural incentives remain more promising policy levers for rebalancing the workforce."
+        f"90% CI {EQP['ci90_low']*100:+.2f}% to {EQP['ci90_high']*100:+.2f}%). Malpractice litigation risk does not "
+        f"appear to drive aggregate specialty maldistribution in Japan; structural incentives remain more "
+        f"promising policy levers for rebalancing the workforce."
     )
     abstract_wc = ha.wc(abstract_text)
     if abstract_wc > 250:
@@ -1216,7 +1228,7 @@ def build_manuscript(inline=False):
         f"testing and by pooling across specialties, but residual power constraints remain and the equivalence margins are a "
         f"judgement. Litigation rates may be endogenous to physician supply if a smaller workforce increases workload and hence "
         f"incidents; the lagged exposure, fixed effects, and reverse specification make reverse causation unlikely, yet unobserved "
-        f"confounders at the specialty or prefecture level cannot be fully ruled out. Cluster block-bootstrap and power diagnostics "
+        f"confounders at the specialty or national-policy level cannot be fully ruled out. Cluster block-bootstrap and power diagnostics "
         f"are reported in Supplementary Table 6. Because clusters are defined by the {N} specialties, the small-cluster correction "
         f"uses G-1={PHYS['df']} degrees of freedom; this is the minimum at which cluster-level t inference is recommended and is "
         f"inherent to the data. Specialty-specific litigation counts could be recovered only from {BIEN[0]}; pre-{BIEN[0]} specialty "
@@ -1249,9 +1261,10 @@ def build_manuscript(inline=False):
     _harvard_entries = []
     for k in _cite_order:
         segments = _ssm_harvard_segments(ha.REFS[k], k)
-        author_token = segments[0][0].split(" (", 1)[0].split(",")[0].strip().lower()
+        author_token = segments[0][0].split(" (", 1)[0].split(",")[0].strip()
+        sort_key = _ssm_sort_surname(author_token)
         year_token = _ssm_get_year(ha.REFS[k]) + _SSM_YEAR_SUFFIX.get(k, "")
-        _harvard_entries.append((segments, author_token, year_token))
+        _harvard_entries.append((segments, sort_key, year_token))
     _harvard_entries.sort(key=lambda x: (x[1], x[2]))
     for segments, _, _ in _harvard_entries:
         p_ref = doc.add_paragraph()
@@ -1263,10 +1276,10 @@ def build_manuscript(inline=False):
             r_ref.italic = italic
             r_ref.bold = bold
 
-    # Figures and tables are placed at the end of the main document, after the
-    # reference list, per Cambridge SSM author instructions.  Figures are *not*
-    # embedded in the manuscript file; captions are listed here and the editable
-    # image files are supplied separately in the submission zip.
+    # Figures and tables are inserted inline in the main manuscript, immediately
+    # after their first citation, per the SSM author instructions and the user's
+    # preference.  Editable image and table files are also supplied separately
+    # in the submission zip.
     def _add_figure_caption(doc, caption):
         cap = doc.add_paragraph()
         cap.paragraph_format.space_before = Pt(14)
