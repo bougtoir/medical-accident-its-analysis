@@ -1,0 +1,880 @@
+{
+  "grid": {
+    "biennial_years": [
+      2008,
+      2010,
+      2012,
+      2014,
+      2016,
+      2018,
+      2020,
+      2022,
+      2024
+    ],
+    "n_measured_waves": 9
+  },
+  "descriptive": {
+    "biennial_first_last": {
+      "first": 2008,
+      "last": 2024,
+      "by_specialty": {
+        "Internal medicine": {
+          "phys_first": 102388,
+          "phys_last": 124010,
+          "litrate_first": 2.227,
+          "litrate_last": 1.484,
+          "hosp_first": 7725,
+          "hosp_last": 7163
+        },
+        "Surgery": {
+          "phys_first": 27525,
+          "phys_last": 26885,
+          "litrate_first": 6.54,
+          "litrate_last": 2.827,
+          "hosp_first": 4994,
+          "hosp_last": 4300
+        },
+        "Orthopaedics": {
+          "phys_first": 19273,
+          "phys_last": 22630,
+          "litrate_first": 5.604,
+          "litrate_last": 2.872,
+          "hosp_first": 5094,
+          "hosp_last": 4844
+        },
+        "Plastic surgery": {
+          "phys_first": 2520,
+          "phys_last": 5074,
+          "litrate_first": 7.143,
+          "litrate_last": 8.277,
+          "hosp_first": 1090,
+          "hosp_last": 1475
+        },
+        "Obstetrics & gynaecology": {
+          "phys_first": 11961,
+          "phys_last": 13908,
+          "litrate_first": 8.277,
+          "litrate_last": 2.229,
+          "hosp_first": 1319,
+          "hosp_last": 1052
+        },
+        "Paediatrics": {
+          "phys_first": 15236,
+          "phys_last": 18009,
+          "litrate_first": 1.444,
+          "litrate_last": 0.444,
+          "hosp_first": 2932,
+          "hosp_last": 2446
+        },
+        "Psychiatry": {
+          "phys_first": 13534,
+          "phys_last": 17259,
+          "litrate_first": 2.217,
+          "litrate_last": 1.796,
+          "hosp_first": 2618,
+          "hosp_last": 2881
+        },
+        "Ophthalmology": {
+          "phys_first": 12627,
+          "phys_last": 13436,
+          "litrate_first": 2.138,
+          "litrate_last": 1.042,
+          "hosp_first": 2501,
+          "hosp_last": 2310
+        },
+        "Otolaryngology": {
+          "phys_first": 8936,
+          "phys_last": 9330,
+          "litrate_first": 2.126,
+          "litrate_last": 1.393,
+          "hosp_first": 2039,
+          "hosp_last": 1937
+        },
+        "Urology": {
+          "phys_first": 6324,
+          "phys_last": 8069,
+          "litrate_first": 2.846,
+          "litrate_last": 2.107,
+          "hosp_first": 2799,
+          "hosp_last": 2893
+        },
+        "Dermatology": {
+          "phys_first": 8214,
+          "phys_last": 10043,
+          "litrate_first": 1.096,
+          "litrate_last": 1.394,
+          "hosp_first": 3040,
+          "hosp_last": 3066
+        },
+        "Anaesthesiology": {
+          "phys_first": 7067,
+          "phys_last": 10628,
+          "litrate_first": 1.132,
+          "litrate_last": 0.376,
+          "hosp_first": 2525,
+          "hosp_last": 2798
+        }
+      }
+    },
+    "spearman_litrate_vs_physgrowth": {
+      "Internal medicine": {
+        "rho": 0.5476190476190477,
+        "p": 0.1600256425388966,
+        "n": 8
+      },
+      "Surgery": {
+        "rho": 0.5000000000000001,
+        "p": 0.20703124999999997,
+        "n": 8
+      },
+      "Orthopaedics": {
+        "rho": 0.5000000000000001,
+        "p": 0.20703124999999997,
+        "n": 8
+      },
+      "Plastic surgery": {
+        "rho": -0.523809523809524,
+        "p": 0.18272075053971484,
+        "n": 8
+      },
+      "Obstetrics & gynaecology": {
+        "rho": 0.5714285714285715,
+        "p": 0.1389599571607067,
+        "n": 8
+      },
+      "Paediatrics": {
+        "rho": 0.5714285714285715,
+        "p": 0.1389599571607067,
+        "n": 8
+      },
+      "Psychiatry": {
+        "rho": 0.5714285714285715,
+        "p": 0.1389599571607067,
+        "n": 8
+      },
+      "Ophthalmology": {
+        "rho": 0.11904761904761905,
+        "p": 0.7788857260523797,
+        "n": 8
+      },
+      "Otolaryngology": {
+        "rho": 0.5000000000000001,
+        "p": 0.20703124999999997,
+        "n": 8
+      },
+      "Urology": {
+        "rho": -0.3333333333333334,
+        "p": 0.4197530864197531,
+        "n": 8
+      },
+      "Dermatology": {
+        "rho": 0.38095238095238104,
+        "p": 0.35181255311756476,
+        "n": 8
+      },
+      "Anaesthesiology": {
+        "rho": 0.2142857142857143,
+        "p": 0.6103444156452669,
+        "n": 8
+      }
+    }
+  },
+  "primary": [
+    {
+      "label": "Biennial physician growth ~ lagged litigation rate",
+      "outcome": "dlog_phys",
+      "predictor": "litrate_lag",
+      "n_obs": 96,
+      "n_specialties": 12,
+      "n_waves": 8,
+      "coef": -0.0009357623030693467,
+      "se": 0.0015413346931402673,
+      "t": -0.6071116852387548,
+      "df": 11,
+      "ci_low": -0.004328217089392081,
+      "ci_high": 0.0024566924832533873,
+      "p": 0.5561010210584092,
+      "direction": "negative",
+      "jocscp_coef": -0.014736850310984808,
+      "jocscp_se": 0.01209733564435723,
+      "jocscp_t": -1.2181897522086835,
+      "jocscp_df": 11,
+      "jocscp_p": 0.24863567188932603
+    },
+    {
+      "label": "Biennial hospital growth ~ lagged litigation rate",
+      "outcome": "dlog_hosp",
+      "predictor": "litrate_lag",
+      "n_obs": 96,
+      "n_specialties": 12,
+      "n_waves": 8,
+      "coef": 0.00030863288570044363,
+      "se": 0.0024125675857588186,
+      "t": 0.1279271459677554,
+      "df": 11,
+      "ci_low": -0.005001392568251863,
+      "ci_high": 0.005618658339652751,
+      "p": 0.9005154208030596,
+      "direction": "positive",
+      "jocscp_coef": 0.024208310785256745,
+      "jocscp_se": 0.008201759256445548,
+      "jocscp_t": 2.9515997761373045,
+      "jocscp_df": 11,
+      "jocscp_p": 0.013171659711580455
+    },
+    {
+      "label": "Reverse: change in litigation rate ~ lagged log physicians",
+      "coef": 0.09652733126369917,
+      "se": 0.49825375583337694,
+      "df": 11,
+      "p": 0.849917384941799,
+      "n_obs": 96
+    }
+  ],
+  "sensitivity": [
+    {
+      "label": "COUNTS contrast: physician growth ~ lagged litigation COUNT",
+      "outcome": "dlog_phys",
+      "predictor": "lit_lag",
+      "n_obs": 96,
+      "n_specialties": 12,
+      "n_waves": 8,
+      "coef": 0.00020775270399208247,
+      "se": 0.0003021012453209574,
+      "t": 0.6876923124608856,
+      "df": 11,
+      "ci_low": -0.00045716765380192316,
+      "ci_high": 0.0008726730617860881,
+      "p": 0.5058885072954538,
+      "direction": "positive",
+      "jocscp_coef": -0.0048778287926549285,
+      "jocscp_se": 0.0054457772459397214,
+      "jocscp_t": -0.895708467747511,
+      "jocscp_df": 11,
+      "jocscp_p": 0.3895888194505279
+    },
+    {
+      "label": "Annual hospital growth ~ lagged litigation rate (2008-2024)",
+      "outcome": "dlog_hosp",
+      "predictor": "litrate_lag",
+      "n_obs": 192,
+      "n_specialties": 12,
+      "n_waves": 16,
+      "coef": 1.3417699138745538e-05,
+      "se": 0.0017397204526948566,
+      "t": 0.0077125604392138366,
+      "df": 11,
+      "ci_low": -0.0038156811999354237,
+      "ci_high": 0.0038425165982129148,
+      "p": 0.993984425915641,
+      "direction": "positive",
+      "jocscp_coef": 0.0031103657481271344,
+      "jocscp_se": 0.0069842716572653864,
+      "jocscp_t": 0.44533859803284964,
+      "jocscp_df": 11,
+      "jocscp_p": 0.6647119609416088
+    },
+    {
+      "label": "SENSITIVITY interpolated-annual physician growth ~ lag rate",
+      "outcome": "dlog_phys",
+      "predictor": "litrate_lag",
+      "n_obs": 192,
+      "n_specialties": 12,
+      "n_waves": 16,
+      "coef": -0.0009672079207747033,
+      "se": 0.0010788872979515434,
+      "t": -0.8964865214477148,
+      "df": 11,
+      "ci_low": -0.003341822852968041,
+      "ci_high": 0.0014074070114186345,
+      "p": 0.38919117357230126,
+      "direction": "negative",
+      "jocscp_coef": -0.008606695866408057,
+      "jocscp_se": 0.005573243322145245,
+      "jocscp_t": -1.5442885531678492,
+      "jocscp_df": 11,
+      "jocscp_p": 0.15078431045137958,
+      "note": "physicians linearly interpolated between the 9 measured biennial waves; standard errors are clustered by specialty so inference df = clusters - 1 = 11 and the interpolated observation count does not inflate the degrees of freedom"
+    },
+    {
+      "label": "JMSR-adjusted annual hospital growth (2016-2024) ~ lit rate + JMSR rate",
+      "outcome": "dlog_hosp",
+      "n_obs": 108,
+      "n_specialties": 12,
+      "n_waves": 9,
+      "lit_coef": 0.0021078718819725357,
+      "lit_se": 0.0018683004319022568,
+      "lit_p": 0.2832294487030226,
+      "med_coef": -0.00094463105072919,
+      "med_se": 0.0021183031247939904,
+      "med_p": 0.6642922984823505,
+      "r_lit_med": 0.21370199719387165
+    },
+    {
+      "label": "Media-adjusted annual hospital growth (2009-2018) ~ lit rate + media count",
+      "outcome": "dlog_hosp",
+      "n_obs": 120,
+      "n_specialties": 12,
+      "n_waves": 10,
+      "lit_coef": -0.0003073727471535207,
+      "lit_se": 0.0008297673996217527,
+      "lit_p": 0.7180943944576983,
+      "media_coef": -0.0013582431399635263,
+      "media_se": 0.0010179825559721778,
+      "media_p": 0.20908541527810545,
+      "r_lit_media": 0.10376940681120421
+    }
+  ],
+  "heterogeneity": [
+    {
+      "label": "Heterogeneity (high-litigation) physician growth ~ lagged litigation rate",
+      "outcome": "dlog_phys",
+      "predictor": "litrate_lag",
+      "group": "high litigation",
+      "n_obs": 96,
+      "n_specialties": 12,
+      "n_waves": 8,
+      "coef": 0.009805390292326889,
+      "se": 0.008414910475971081,
+      "t": 1.1652400011059352,
+      "df": 11,
+      "p": 0.26856829342312405,
+      "interact_coef": -0.011891474609105827,
+      "interact_se": 0.009570602405952198,
+      "interact_t": -1.2425001169947485,
+      "interact_p": 0.23988758016525918
+    },
+    {
+      "label": "Heterogeneity (surgical) physician growth ~ lagged litigation rate",
+      "outcome": "dlog_phys",
+      "predictor": "litrate_lag",
+      "group": "surgical",
+      "n_obs": 96,
+      "n_specialties": 12,
+      "n_waves": 8,
+      "coef": -0.004546084528317444,
+      "se": 0.0036525862135470756,
+      "t": -1.2446207324159724,
+      "df": 11,
+      "p": 0.23913634195520683,
+      "interact_coef": 0.005746689938155698,
+      "interact_se": 0.006437607522239955,
+      "interact_t": 0.8926747892447079,
+      "interact_p": 0.39114195675871044
+    },
+    {
+      "label": "Heterogeneity (high-litigation) hospital growth ~ lagged litigation rate",
+      "outcome": "dlog_hosp",
+      "predictor": "litrate_lag",
+      "group": "high litigation",
+      "n_obs": 96,
+      "n_specialties": 12,
+      "n_waves": 8,
+      "coef": -5.261546281624843e-05,
+      "se": 0.0034277855320147452,
+      "t": -0.015349695109227766,
+      "df": 11,
+      "p": 0.9880280651285749,
+      "interact_coef": 0.0003999361824361515,
+      "interact_se": 0.00430150643558057,
+      "interact_t": 0.09297584193482034,
+      "interact_p": 0.9275945407416252
+    },
+    {
+      "label": "Heterogeneity (surgical) hospital growth ~ lagged litigation rate",
+      "outcome": "dlog_hosp",
+      "predictor": "litrate_lag",
+      "group": "surgical",
+      "n_obs": 96,
+      "n_specialties": 12,
+      "n_waves": 8,
+      "coef": 0.004428877980060384,
+      "se": 0.0026582867462704406,
+      "t": 1.6660648014267354,
+      "df": 11,
+      "p": 0.12389065285666712,
+      "interact_coef": -0.006558353949934844,
+      "interact_se": 0.0031835789535271243,
+      "interact_t": -2.06005695026623,
+      "interact_p": 0.06385910912963425
+    }
+  ],
+  "trend_sensitivity": [
+    {
+      "label": "Trend robustness: physician growth ~ lagged litigation rate + specialty trends",
+      "outcome": "dlog_phys",
+      "predictor": "litrate_lag",
+      "n_obs": 96,
+      "n_specialties": 12,
+      "n_waves": 8,
+      "coef": 0.0009832850726838507,
+      "se": 0.0027517615876944245,
+      "t": 0.35732931118778366,
+      "df": 11,
+      "ci_low": -0.005073301345917872,
+      "ci_high": 0.0070398714912855735,
+      "p": 0.727606483896476,
+      "direction": "positive"
+    },
+    {
+      "label": "Trend robustness: hospital growth ~ lagged litigation rate + specialty trends",
+      "outcome": "dlog_hosp",
+      "predictor": "litrate_lag",
+      "n_obs": 96,
+      "n_specialties": 12,
+      "n_waves": 8,
+      "coef": 0.002674653774876461,
+      "se": 0.0015593955549633948,
+      "t": 1.7151862247928786,
+      "df": 11,
+      "ci_low": -0.0007575527002972853,
+      "ci_high": 0.0061068602500502075,
+      "p": 0.11430684932382341,
+      "direction": "positive"
+    }
+  ],
+  "equivalence": [
+    {
+      "outcome": "dlog_phys",
+      "coef_per_SD": -0.002127531259019852,
+      "se": 0.003504349052651417,
+      "df": 11,
+      "ci90_low": -0.008420938522115116,
+      "ci90_high": 0.0041658760040754125,
+      "mde_80pct": 1.0781182909867626,
+      "sd_litrate": 2.273580857063443,
+      "tests": [
+        {
+          "margin": 0.01,
+          "p_tost": 0.023086759083317615,
+          "equivalent": true,
+          "power_if_null": 0.9843045954944034,
+          "interpretation": "a 1-SD higher litigation rate shifts biennial physician growth by <1%"
+        },
+        {
+          "margin": 0.02,
+          "p_tost": 0.00017200152253693472,
+          "equivalent": true,
+          "power_if_null": 0.9998632697349543,
+          "interpretation": "a 1-SD higher litigation rate shifts biennial physician growth by <2%"
+        }
+      ]
+    },
+    {
+      "outcome": "dlog_hosp",
+      "coef_per_SD": 0.0007017018207886175,
+      "se": 0.005485167479353014,
+      "df": 11,
+      "ci90_low": -0.00914902718342853,
+      "ci90_high": 0.010552430825005767,
+      "mde_80pct": 1.6875200785555082,
+      "sd_litrate": 2.273580857063443,
+      "tests": [
+        {
+          "margin": 0.01,
+          "p_tost": 0.059064408119823046,
+          "equivalent": false,
+          "power_if_null": 0.9044455772699491,
+          "interpretation": "a 1-SD higher litigation rate shifts biennial facility growth by <1%"
+        },
+        {
+          "margin": 0.02,
+          "p_tost": 0.0024065393386384633,
+          "equivalent": true,
+          "power_if_null": 0.9961537964085292,
+          "interpretation": "a 1-SD higher litigation rate shifts biennial facility growth by <2%"
+        }
+      ]
+    }
+  ],
+  "bootstrap": [
+    {
+      "label": "Biennial physician growth ~ lagged litigation rate",
+      "outcome": "dlog_phys",
+      "predictor": "litrate_lag",
+      "R": 1999,
+      "t_obs": 0.6071116852387548,
+      "p_bootstrap": 0.5732866433216608,
+      "coef_boot_mean": -0.0009896007682890385,
+      "coef_boot_ci_low": -0.004760606062637683,
+      "coef_boot_ci_high": 0.002124211828092299,
+      "obs_coef": -0.0009357623030693467,
+      "obs_p": 0.5561010210584092
+    },
+    {
+      "label": "Biennial hospital growth ~ lagged litigation rate",
+      "outcome": "dlog_hosp",
+      "predictor": "litrate_lag",
+      "R": 1999,
+      "t_obs": 0.1279271459677554,
+      "p_bootstrap": 0.9029514757378689,
+      "coef_boot_mean": 4.468599823133558e-05,
+      "coef_boot_ci_low": -0.004309840007638514,
+      "coef_boot_ci_high": 0.004159330612129998,
+      "obs_coef": 0.00030863288570044363,
+      "obs_p": 0.9005154208030596
+    }
+  ],
+  "jmsr_correlation": {
+    "years": [
+      2015,
+      2016,
+      2017,
+      2018,
+      2019,
+      2020,
+      2021,
+      2022,
+      2023,
+      2024
+    ],
+    "n_specialty_years": 120,
+    "pooled_r": 0.8150124315997399,
+    "pooled_p": 9.714279758380036e-30,
+    "detrended_r": -0.020025348031789382,
+    "detrended_p": 0.8281363640103732
+  },
+  "media_correlation": {
+    "years": [
+      2008,
+      2009,
+      2010,
+      2011,
+      2012,
+      2013,
+      2014,
+      2015,
+      2016,
+      2017,
+      2018
+    ],
+    "total_r": 0.8117357736912594,
+    "total_p": 0.0024126998124069363,
+    "panel_r": 0.11473288454133092,
+    "panel_p": 0.19020484565396334,
+    "n_total": 11,
+    "n_panel": 132
+  },
+  "multiple_comparison": {
+    "note": "Holm step-down adjustment applied to exploratory sensitivity tests and the JOCS-CP indicator; primary equivalence tests are confirmatory and not included in this family.",
+    "tests": [
+      {
+        "label": "Biennial physician growth ~ lagged litigation rate (JOCS-CP indicator)",
+        "raw_p": 0.24863567188932603,
+        "holm_p": 1.0
+      },
+      {
+        "label": "Biennial hospital growth ~ lagged litigation rate (JOCS-CP indicator)",
+        "raw_p": 0.013171659711580455,
+        "holm_p": 0.25026153452002864
+      },
+      {
+        "label": "COUNTS contrast: physician growth ~ lagged litigation COUNT",
+        "raw_p": 0.5058885072954538,
+        "holm_p": 1.0
+      },
+      {
+        "label": "Annual hospital growth ~ lagged litigation rate (2008-2024)",
+        "raw_p": 0.993984425915641,
+        "holm_p": 1.0
+      },
+      {
+        "label": "SENSITIVITY interpolated-annual physician growth ~ lag rate",
+        "raw_p": 0.38919117357230126,
+        "holm_p": 1.0
+      },
+      {
+        "label": "JMSR-adjusted annual hospital growth (2016-2024) ~ lit rate + JMSR rate (litigation rate)",
+        "raw_p": 0.2832294487030226,
+        "holm_p": 1.0
+      },
+      {
+        "label": "JMSR-adjusted annual hospital growth (2016-2024) ~ lit rate + JMSR rate (JMSR report rate)",
+        "raw_p": 0.6642922984823505,
+        "holm_p": 1.0
+      },
+      {
+        "label": "Media-adjusted annual hospital growth (2009-2018) ~ lit rate + media count (litigation rate)",
+        "raw_p": 0.7180943944576983,
+        "holm_p": 1.0
+      },
+      {
+        "label": "Media-adjusted annual hospital growth (2009-2018) ~ lit rate + media count (media count)",
+        "raw_p": 0.20908541527810545,
+        "holm_p": 1.0
+      },
+      {
+        "label": "Heterogeneity (high-litigation) physician growth ~ lagged litigation rate (main effect)",
+        "raw_p": 0.26856829342312405,
+        "holm_p": 1.0
+      },
+      {
+        "label": "Heterogeneity (high-litigation) physician growth ~ lagged litigation rate (interaction)",
+        "raw_p": 0.23988758016525918,
+        "holm_p": 1.0
+      },
+      {
+        "label": "Heterogeneity (surgical) physician growth ~ lagged litigation rate (main effect)",
+        "raw_p": 0.23913634195520683,
+        "holm_p": 1.0
+      },
+      {
+        "label": "Heterogeneity (surgical) physician growth ~ lagged litigation rate (interaction)",
+        "raw_p": 0.39114195675871044,
+        "holm_p": 1.0
+      },
+      {
+        "label": "Heterogeneity (high-litigation) hospital growth ~ lagged litigation rate (main effect)",
+        "raw_p": 0.9880280651285749,
+        "holm_p": 1.0
+      },
+      {
+        "label": "Heterogeneity (high-litigation) hospital growth ~ lagged litigation rate (interaction)",
+        "raw_p": 0.9275945407416252,
+        "holm_p": 1.0
+      },
+      {
+        "label": "Heterogeneity (surgical) hospital growth ~ lagged litigation rate (main effect)",
+        "raw_p": 0.12389065285666712,
+        "holm_p": 1.0
+      },
+      {
+        "label": "Heterogeneity (surgical) hospital growth ~ lagged litigation rate (interaction)",
+        "raw_p": 0.06385910912963425,
+        "holm_p": 1.0
+      },
+      {
+        "label": "Trend robustness: physician growth ~ lagged litigation rate + specialty trends",
+        "raw_p": 0.727606483896476,
+        "holm_p": 1.0
+      },
+      {
+        "label": "Trend robustness: hospital growth ~ lagged litigation rate + specialty trends",
+        "raw_p": 0.11430684932382341,
+        "holm_p": 1.0
+      }
+    ]
+  },
+  "policy_simulation": {
+    "horizon_biennia": 5,
+    "horizon_year": 2034,
+    "mde_per_biennium": 0.010781182909867626,
+    "specialties": [
+      {
+        "specialty": "Internal medicine",
+        "phys_2024": 124010,
+        "baseline_growth_per_biennium": 0.01979,
+        "mean_litigation_rate": 1.712,
+        "projected_baseline": 136909,
+        "projected_litigation_zero_point": 138010,
+        "projected_litigation_zero_lower": 142075,
+        "projected_mde_lever": 144492,
+        "pct_change_baseline": 10.4,
+        "pct_change_lit_zero_point": 11.29,
+        "pct_change_lit_zero_lower": 14.57,
+        "pct_change_mde": 16.52,
+        "marginal_pct_lit_point": 0.8,
+        "marginal_pct_lit_lower": 3.77,
+        "marginal_pct_mde": 5.54
+      },
+      {
+        "specialty": "Surgery",
+        "phys_2024": 26885,
+        "baseline_growth_per_biennium": -0.00441,
+        "mean_litigation_rate": 4.454,
+        "projected_baseline": 26299,
+        "projected_litigation_zero_point": 26853,
+        "projected_litigation_zero_lower": 28960,
+        "projected_mde_lever": 27755,
+        "pct_change_baseline": -2.18,
+        "pct_change_lit_zero_point": -0.12,
+        "pct_change_lit_zero_lower": 7.72,
+        "pct_change_mde": 3.24,
+        "marginal_pct_lit_point": 2.11,
+        "marginal_pct_lit_lower": 10.12,
+        "marginal_pct_mde": 5.54
+      },
+      {
+        "specialty": "Orthopaedics",
+        "phys_2024": 22630,
+        "baseline_growth_per_biennium": 0.0187,
+        "mean_litigation_rate": 4.246,
+        "projected_baseline": 24848,
+        "projected_litigation_zero_point": 25346,
+        "projected_litigation_zero_lower": 27239,
+        "projected_mde_lever": 26224,
+        "pct_change_baseline": 9.8,
+        "pct_change_lit_zero_point": 12.0,
+        "pct_change_lit_zero_lower": 20.37,
+        "pct_change_mde": 15.88,
+        "marginal_pct_lit_point": 2.0,
+        "marginal_pct_lit_lower": 9.62,
+        "marginal_pct_mde": 5.54
+      },
+      {
+        "specialty": "Plastic surgery",
+        "phys_2024": 5074,
+        "baseline_growth_per_biennium": 0.08789,
+        "mean_litigation_rate": 8.068,
+        "projected_baseline": 7874,
+        "projected_litigation_zero_point": 8177,
+        "projected_litigation_zero_lower": 9376,
+        "projected_mde_lever": 8310,
+        "pct_change_baseline": 55.18,
+        "pct_change_lit_zero_point": 61.15,
+        "pct_change_lit_zero_lower": 84.79,
+        "pct_change_mde": 63.78,
+        "marginal_pct_lit_point": 3.85,
+        "marginal_pct_lit_lower": 19.08,
+        "marginal_pct_mde": 5.54
+      },
+      {
+        "specialty": "Obstetrics & gynaecology",
+        "phys_2024": 13908,
+        "baseline_growth_per_biennium": 0.01346,
+        "mean_litigation_rate": 4.469,
+        "projected_baseline": 14877,
+        "projected_litigation_zero_point": 15191,
+        "projected_litigation_zero_lower": 16387,
+        "projected_mde_lever": 15700,
+        "pct_change_baseline": 6.97,
+        "pct_change_lit_zero_point": 9.22,
+        "pct_change_lit_zero_lower": 17.82,
+        "pct_change_mde": 12.88,
+        "marginal_pct_lit_point": 2.11,
+        "marginal_pct_lit_lower": 10.15,
+        "marginal_pct_mde": 5.53
+      },
+      {
+        "specialty": "Paediatrics",
+        "phys_2024": 18009,
+        "baseline_growth_per_biennium": 0.02046,
+        "mean_litigation_rate": 0.795,
+        "projected_baseline": 19949,
+        "projected_litigation_zero_point": 20023,
+        "projected_litigation_zero_lower": 20295,
+        "projected_mde_lever": 21054,
+        "pct_change_baseline": 10.77,
+        "pct_change_lit_zero_point": 11.18,
+        "pct_change_lit_zero_lower": 12.69,
+        "pct_change_mde": 16.91,
+        "marginal_pct_lit_point": 0.37,
+        "marginal_pct_lit_lower": 1.73,
+        "marginal_pct_mde": 5.54
+      },
+      {
+        "specialty": "Psychiatry",
+        "phys_2024": 17259,
+        "baseline_growth_per_biennium": 0.03146,
+        "mean_litigation_rate": 2.022,
+        "projected_baseline": 20199,
+        "projected_litigation_zero_point": 20391,
+        "projected_litigation_zero_lower": 21102,
+        "projected_mde_lever": 21317,
+        "pct_change_baseline": 17.03,
+        "pct_change_lit_zero_point": 18.15,
+        "pct_change_lit_zero_lower": 22.27,
+        "pct_change_mde": 23.51,
+        "marginal_pct_lit_point": 0.95,
+        "marginal_pct_lit_lower": 4.47,
+        "marginal_pct_mde": 5.53
+      },
+      {
+        "specialty": "Ophthalmology",
+        "phys_2024": 13436,
+        "baseline_growth_per_biennium": 0.00761,
+        "mean_litigation_rate": 1.54,
+        "projected_baseline": 13957,
+        "projected_litigation_zero_point": 14058,
+        "projected_litigation_zero_lower": 14430,
+        "projected_mde_lever": 14730,
+        "pct_change_baseline": 3.88,
+        "pct_change_lit_zero_point": 4.63,
+        "pct_change_lit_zero_lower": 7.4,
+        "pct_change_mde": 9.63,
+        "marginal_pct_lit_point": 0.72,
+        "marginal_pct_lit_lower": 3.39,
+        "marginal_pct_mde": 5.54
+      },
+      {
+        "specialty": "Otolaryngology",
+        "phys_2024": 9330,
+        "baseline_growth_per_biennium": 0.00276,
+        "mean_litigation_rate": 1.368,
+        "projected_baseline": 9460,
+        "projected_litigation_zero_point": 9520,
+        "projected_litigation_zero_lower": 9744,
+        "projected_mde_lever": 9984,
+        "pct_change_baseline": 1.39,
+        "pct_change_lit_zero_point": 2.04,
+        "pct_change_lit_zero_lower": 4.44,
+        "pct_change_mde": 7.01,
+        "marginal_pct_lit_point": 0.63,
+        "marginal_pct_lit_lower": 3.0,
+        "marginal_pct_mde": 5.54
+      },
+      {
+        "specialty": "Urology",
+        "phys_2024": 8069,
+        "baseline_growth_per_biennium": 0.0291,
+        "mean_litigation_rate": 2.097,
+        "projected_baseline": 9333,
+        "projected_litigation_zero_point": 9425,
+        "projected_litigation_zero_lower": 9766,
+        "projected_mde_lever": 9849,
+        "pct_change_baseline": 15.66,
+        "pct_change_lit_zero_point": 16.81,
+        "pct_change_lit_zero_lower": 21.03,
+        "pct_change_mde": 22.06,
+        "marginal_pct_lit_point": 0.99,
+        "marginal_pct_lit_lower": 4.64,
+        "marginal_pct_mde": 5.53
+      },
+      {
+        "specialty": "Dermatology",
+        "phys_2024": 10043,
+        "baseline_growth_per_biennium": 0.02553,
+        "mean_litigation_rate": 1.284,
+        "projected_baseline": 11411,
+        "projected_litigation_zero_point": 11479,
+        "projected_litigation_zero_lower": 11732,
+        "projected_mde_lever": 12042,
+        "pct_change_baseline": 13.62,
+        "pct_change_lit_zero_point": 14.3,
+        "pct_change_lit_zero_lower": 16.82,
+        "pct_change_mde": 19.9,
+        "marginal_pct_lit_point": 0.6,
+        "marginal_pct_lit_lower": 2.81,
+        "marginal_pct_mde": 5.53
+      },
+      {
+        "specialty": "Anaesthesiology",
+        "phys_2024": 10628,
+        "baseline_growth_per_biennium": 0.05077,
+        "mean_litigation_rate": 0.724,
+        "projected_baseline": 13699,
+        "projected_litigation_zero_point": 13745,
+        "projected_litigation_zero_lower": 13915,
+        "projected_mde_lever": 14458,
+        "pct_change_baseline": 28.9,
+        "pct_change_lit_zero_point": 29.33,
+        "pct_change_lit_zero_lower": 30.93,
+        "pct_change_mde": 36.04,
+        "marginal_pct_lit_point": 0.34,
+        "marginal_pct_lit_lower": 1.58,
+        "marginal_pct_mde": 5.54
+      }
+    ],
+    "totals": {
+      "phys_2024": 279281,
+      "base_2034": 308815,
+      "lit_zero_point_2034": 312218,
+      "lit_zero_lower_2034": 325021,
+      "mde_2034": 325915,
+      "marginal_pct_lit_point": 1.1,
+      "marginal_pct_lit_lower": 5.25,
+      "marginal_pct_mde": 5.54
+    },
+    "note": "Projected physician counts are deterministic extrapolations of observed baseline growth plus the indicated policy effect. They are intended as decision-analytics counterfactuals, not forecasts."
+  }
+}
