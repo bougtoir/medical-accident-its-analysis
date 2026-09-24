@@ -1,0 +1,125 @@
+{
+  "source": "MHLW 医療施設(動態)調査 診療科目別施設数（重複計上）",
+  "note": "hospital: annual 2008-2024 (一般+精神科病院), used as facility time-series outcome. clinic: specialty detail only in the 3-yearly 静態 survey (2008,2011,2014,2017,2020,2023); descriptive only. per-standing counts, no subspecialty summing (重複計上).",
+  "files": [
+    {
+      "year": 2008,
+      "file": "facil_2008.xls",
+      "sha256": "2c0b878f7c4db3ab74d67c52234e466b5a2b2cb6664732f6b2592fdfa694f5bf",
+      "hospital_specialties": 12,
+      "clinic_specialties": 12
+    },
+    {
+      "year": 2009,
+      "file": "facil_2009.xls",
+      "sha256": "4e102fb80d8afb1782f96ea0909ae83b633e43e7e1b62f6a5eef72edd1bf2840",
+      "hospital_specialties": 12,
+      "clinic_specialties": 0
+    },
+    {
+      "year": 2010,
+      "file": "facil_2010.xls",
+      "sha256": "ce23471ef790d8d42f0dd703262a963feef89516012dbddb163eee2152bbc9b1",
+      "hospital_specialties": 12,
+      "clinic_specialties": 0
+    },
+    {
+      "year": 2011,
+      "file": "facil_2011.xls",
+      "sha256": "1efbf1a726cfad1f9bbc36eb1f320a90b3e12f78862ceae64afcbaad3df27096",
+      "hospital_specialties": 12,
+      "clinic_specialties": 12
+    },
+    {
+      "year": 2012,
+      "file": "facil_2012.xls",
+      "sha256": "a17b2dd9ef5f81768f634c2dd2de361852d373a84810ce6097fde306c275b097",
+      "hospital_specialties": 12,
+      "clinic_specialties": 0
+    },
+    {
+      "year": 2013,
+      "file": "facil_2013.xls",
+      "sha256": "8b61446d1a2534bce935c85e6902bc7eda340d4415d6c368b1c40d680c8acb77",
+      "hospital_specialties": 12,
+      "clinic_specialties": 0
+    },
+    {
+      "year": 2014,
+      "file": "facil_2014.xls",
+      "sha256": "36a6018536c3feab3c917d07140059de3bec9bffe49234a7524561a0d925e671",
+      "hospital_specialties": 12,
+      "clinic_specialties": 12
+    },
+    {
+      "year": 2015,
+      "file": "facil_2015.xls",
+      "sha256": "96ffe3f51040b378a6bba01ed3ffa3e95817af7f5d354d716bc7c58ce391d963",
+      "hospital_specialties": 12,
+      "clinic_specialties": 0
+    },
+    {
+      "year": 2016,
+      "file": "facil_2016.xls",
+      "sha256": "1a835440fe687066ffae1a0f073a284a87f9782f753bd23d5d0e418f4b30230e",
+      "hospital_specialties": 12,
+      "clinic_specialties": 0
+    },
+    {
+      "year": 2017,
+      "file": "facil_2017.xls",
+      "sha256": "90dad1d13c0b7ef4d9c9a4524d5a5dabb67cca4dce46b132c30d41f0e6b983fb",
+      "hospital_specialties": 12,
+      "clinic_specialties": 12
+    },
+    {
+      "year": 2018,
+      "file": "facil_2018.xls",
+      "sha256": "5e8251efdb75233d9c871667cea073b2aff5d39fbe7b55b2121762854bafa001",
+      "hospital_specialties": 12,
+      "clinic_specialties": 0
+    },
+    {
+      "year": 2019,
+      "file": "facil_2019.xlsx",
+      "sha256": "87079a5e8ab5f5415acd72ec0cb8f1866fee1bb20f450b69ac0f05500e6b2062",
+      "hospital_specialties": 12,
+      "clinic_specialties": 0
+    },
+    {
+      "year": 2020,
+      "file": "facil_2020.xlsx",
+      "sha256": "7468fded2e363f98d7b703d3dc8f9c7cd0fa3f79105fa344e7e6fe9c8ec567a5",
+      "hospital_specialties": 12,
+      "clinic_specialties": 12
+    },
+    {
+      "year": 2021,
+      "file": "facil_2021.xlsx",
+      "sha256": "d98a568808e36fdbce5c7f2f857ebed8431b84f7990806e5fb8621316be7c0e9",
+      "hospital_specialties": 12,
+      "clinic_specialties": 0
+    },
+    {
+      "year": 2022,
+      "file": "facil_2022.xlsx",
+      "sha256": "ca0be97db2f89beb66a3d9bc626a9d18bcf7081d86a5bb238092c9e10956831c",
+      "hospital_specialties": 12,
+      "clinic_specialties": 0
+    },
+    {
+      "year": 2023,
+      "file": "facil_2023.xlsx",
+      "sha256": "289cd68aee271b7f6337e543db7a49b7d59e95826f3060b91ad8d3508c9ca271",
+      "hospital_specialties": 12,
+      "clinic_specialties": 12
+    },
+    {
+      "year": 2024,
+      "file": "facil_2024.xlsx",
+      "sha256": "dfdc00dfd1328a9fa920aa9e228ffe330e9da2b7fd02de8937d14b76fe4ef896",
+      "hospital_specialties": 12,
+      "clinic_specialties": 0
+    }
+  ]
+}

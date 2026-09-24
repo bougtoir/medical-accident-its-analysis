@@ -1,0 +1,268 @@
+{
+  "n_specialties": 12,
+  "definitions": [
+    "litigation",
+    "jmsr"
+  ],
+  "granger_significant_forward": [
+    {
+      "specialty": "Internal medicine",
+      "definition": "litigation",
+      "outcome": "physicians",
+      "F": 7.74,
+      "p": 0.0133,
+      "lag": 1
+    },
+    {
+      "specialty": "General surgery",
+      "definition": "litigation",
+      "outcome": "physicians",
+      "F": 7.77,
+      "p": 0.006,
+      "lag": 2
+    },
+    {
+      "specialty": "General surgery",
+      "definition": "litigation",
+      "outcome": "facilities",
+      "F": 18.03,
+      "p": 0.0007,
+      "lag": 1
+    },
+    {
+      "specialty": "General surgery",
+      "definition": "jmsr",
+      "outcome": "physicians",
+      "F": 23.04,
+      "p": 0.003,
+      "lag": 1
+    },
+    {
+      "specialty": "Orthopaedic surgery",
+      "definition": "litigation",
+      "outcome": "physicians",
+      "F": 15.21,
+      "p": 0.0013,
+      "lag": 1
+    },
+    {
+      "specialty": "Orthopaedic surgery",
+      "definition": "litigation",
+      "outcome": "facilities",
+      "F": 9.13,
+      "p": 0.0043,
+      "lag": 3
+    },
+    {
+      "specialty": "Plastic surgery",
+      "definition": "litigation",
+      "outcome": "physicians",
+      "F": 19.9,
+      "p": 0.0006,
+      "lag": 4
+    },
+    {
+      "specialty": "Plastic surgery",
+      "definition": "litigation",
+      "outcome": "facilities",
+      "F": 8.2,
+      "p": 0.0118,
+      "lag": 1
+    },
+    {
+      "specialty": "Obstetrics & gynaecology",
+      "definition": "litigation",
+      "outcome": "physicians",
+      "F": 46.66,
+      "p": 0.0,
+      "lag": 1
+    },
+    {
+      "specialty": "Obstetrics & gynaecology",
+      "definition": "litigation",
+      "outcome": "facilities",
+      "F": 16.34,
+      "p": 0.0004,
+      "lag": 2
+    },
+    {
+      "specialty": "Paediatrics",
+      "definition": "litigation",
+      "outcome": "physicians",
+      "F": 15.48,
+      "p": 0.0004,
+      "lag": 3
+    },
+    {
+      "specialty": "Paediatrics",
+      "definition": "litigation",
+      "outcome": "facilities",
+      "F": 12.35,
+      "p": 0.0015,
+      "lag": 3
+    },
+    {
+      "specialty": "Psychiatry",
+      "definition": "litigation",
+      "outcome": "physicians",
+      "F": 20.89,
+      "p": 0.0001,
+      "lag": 3
+    },
+    {
+      "specialty": "Psychiatry",
+      "definition": "litigation",
+      "outcome": "facilities",
+      "F": 9.48,
+      "p": 0.0038,
+      "lag": 3
+    },
+    {
+      "specialty": "Psychiatry",
+      "definition": "jmsr",
+      "outcome": "physicians",
+      "F": 9.48,
+      "p": 0.0217,
+      "lag": 1
+    },
+    {
+      "specialty": "Ophthalmology",
+      "definition": "litigation",
+      "outcome": "physicians",
+      "F": 4.95,
+      "p": 0.0233,
+      "lag": 3
+    },
+    {
+      "specialty": "Ophthalmology",
+      "definition": "litigation",
+      "outcome": "facilities",
+      "F": 6.02,
+      "p": 0.0268,
+      "lag": 1
+    },
+    {
+      "specialty": "Otolaryngology",
+      "definition": "litigation",
+      "outcome": "facilities",
+      "F": 8.38,
+      "p": 0.0111,
+      "lag": 1
+    },
+    {
+      "specialty": "Dermatology",
+      "definition": "litigation",
+      "outcome": "physicians",
+      "F": 9.33,
+      "p": 0.0076,
+      "lag": 1
+    },
+    {
+      "specialty": "Anaesthesiology",
+      "definition": "litigation",
+      "outcome": "facilities",
+      "F": 20.34,
+      "p": 0.0004,
+      "lag": 1
+    }
+  ],
+  "granger_significant_reverse": [
+    {
+      "specialty": "Internal medicine",
+      "definition": "litigation",
+      "outcome": "facilities",
+      "F": 9.23,
+      "p": 0.0083,
+      "lag": 1
+    },
+    {
+      "specialty": "General surgery",
+      "definition": "jmsr",
+      "outcome": "physicians",
+      "F": 32.37,
+      "p": 0.0013,
+      "lag": 1
+    },
+    {
+      "specialty": "General surgery",
+      "definition": "jmsr",
+      "outcome": "facilities",
+      "F": 31.91,
+      "p": 0.0013,
+      "lag": 1
+    },
+    {
+      "specialty": "Obstetrics & gynaecology",
+      "definition": "litigation",
+      "outcome": "physicians",
+      "F": 6.13,
+      "p": 0.0123,
+      "lag": 3
+    },
+    {
+      "specialty": "Obstetrics & gynaecology",
+      "definition": "litigation",
+      "outcome": "facilities",
+      "F": 13.81,
+      "p": 0.0021,
+      "lag": 1
+    },
+    {
+      "specialty": "Obstetrics & gynaecology",
+      "definition": "jmsr",
+      "outcome": "physicians",
+      "F": 14.04,
+      "p": 0.0095,
+      "lag": 1
+    },
+    {
+      "specialty": "Obstetrics & gynaecology",
+      "definition": "jmsr",
+      "outcome": "facilities",
+      "F": 15.28,
+      "p": 0.0079,
+      "lag": 1
+    },
+    {
+      "specialty": "Paediatrics",
+      "definition": "litigation",
+      "outcome": "physicians",
+      "F": 4.15,
+      "p": 0.0404,
+      "lag": 2
+    },
+    {
+      "specialty": "Paediatrics",
+      "definition": "litigation",
+      "outcome": "facilities",
+      "F": 23.92,
+      "p": 0.0002,
+      "lag": 1
+    },
+    {
+      "specialty": "Ophthalmology",
+      "definition": "litigation",
+      "outcome": "facilities",
+      "F": 4.69,
+      "p": 0.0469,
+      "lag": 1
+    },
+    {
+      "specialty": "Otolaryngology",
+      "definition": "litigation",
+      "outcome": "facilities",
+      "F": 7.12,
+      "p": 0.0175,
+      "lag": 1
+    },
+    {
+      "specialty": "Dermatology",
+      "definition": "litigation",
+      "outcome": "facilities",
+      "F": 4.11,
+      "p": 0.0436,
+      "lag": 2
+    }
+  ],
+  "var_models_fitted": 47
+}
