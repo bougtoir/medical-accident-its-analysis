@@ -1,0 +1,758 @@
+# Devin single-VM autonomous sequential revision prompt
+# Target journal: Public Health (Elsevier / Royal Society for Public Health)
+# Manuscript: "Litigation risk and specialty-level physician and hospital supply in Japan, 2008–2024: a rate-based analysis with equivalence testing"
+# Source manuscript: hpt_manuscript_en_inline.docx
+# Goal: Reposition and finish the existing manuscript for transfer/submission to Public Health after desk rejection from Health Policy and Technology.
+# Important: This is a revision/repositioning task, not a new study.
+
+You are to work autonomously in ONE VM, SEQUENTIALLY. Do not spawn parallel agents or parallel VMs. Complete each phase, verify it, then proceed to the next.
+
+======================================================================
+0. CONTEXT AND NON-NEGOTIABLE FACTS
+======================================================================
+
+The manuscript has already undergone multiple submissions and desk/editorial rejections. The relevant recent history is:
+
+- BMJ: submitted 2026-03-31, rejected 2026-04-02
+- BMJ Open: submitted 2026-04-08, rejected 2026-07-03
+- JMA Journal: submitted 2026-07-09, resubmitted 2026-07-13, rejected 2026-07-31
+- Health Policy: submitted 2026-08-01, rejected 2026-08-11
+- Healthcare Analytics: submitted 2026-08-14, rejected 2026-08-15
+- Behavioural Public Policy: submitted 2026-08-17, rejected 2026-08-24
+- Social Science & Medicine: submitted 2026-08-26, rejected 2026-09-05
+- Health Policy: submitted 2026-09-07, rejected 2026-09-23
+- Health Policy and Technology: submitted 2026-09-24, rejected 2026-09-30
+
+Health Policy and Technology did NOT provide substantive scientific criticism. The Editor-in-Chief stated that the manuscript was not appropriate for HPT readership and explicitly suggested transfer to Public Health, with an automated/Elsevier scope match reported as approximately:
+- Public Health: 80%
+- Health Policy and Technology: 56%
+
+Therefore, the main objective is NOT to add analyses merely because of the rejection history. The objective is to make the manuscript unmistakably a PUBLIC-HEALTH WORKFORCE / HEALTH-SYSTEM CAPACITY paper rather than a medico-legal paper.
+
+Use the existing manuscript as the scientific source of truth unless a clear internal inconsistency or factual/reference problem is identified.
+
+Core existing results that must be preserved unless verification shows a transcription error:
+- 12 clinical specialties
+- Japan
+- 2008–2024
+- 9 measured biennial physician waves
+- litigation exposure = closed malpractice claims per 1,000 physicians
+- panel models with specialty and wave fixed effects
+- cluster-robust inference by specialty
+- physician growth primary coefficient approximately -0.0009, 95% CI -0.0043 to +0.0025, p=0.56
+- hospital growth coefficient approximately +0.0003, 95% CI -0.0050 to +0.0056, p=0.90
+- physician equivalence: 1-SD higher litigation rate within ±1% biennial growth margin, TOST p=0.023; point estimate approximately -0.21%, 90% CI -0.84% to +0.42%
+- hospital equivalence within ±2%, p=0.002
+- JOCS-CP term is exploratory, not a causal policy estimate
+- secondary/sensitivity analyses are supportive, not the main claim
+- p values must NOT be deleted merely for stylistic reasons. Preserve p values together with effect estimates and confidence intervals where they are currently substantively relevant.
+- do not fabricate new empirical findings
+- do not introduce individual-level causal claims from specialty-level ecological data
+- analysis should be treated as FROZEN unless a reproducibility/integrity check reveals a genuine mismatch, bug, or transcription error.
+
+======================================================================
+1. PRIMARY SCIENTIFIC REPOSITIONING
+======================================================================
+
+Reframe the paper from:
+
+    "Does malpractice litigation drive physicians away from risky specialties?"
+
+to:
+
+    "How much does malpractice litigation explain specialty-level physician supply and service-capacity change, and is any association large enough to matter for public-health workforce planning?"
+
+The paper should read primarily as a study of:
+- specialty workforce maldistribution,
+- health-system workforce capacity,
+- determinants of physician supply,
+- service-capacity change,
+- policy-relevant effect size,
+- equivalence testing as a way to distinguish 'no evidence of effect' from 'evidence against an effect of policy-relevant magnitude'.
+
+Litigation is the EXPOSURE / candidate determinant, not the disciplinary identity of the paper.
+
+The conceptual hierarchy should be:
+
+1. Specialty maldistribution and workforce capacity are public-health system problems.
+2. Multiple structural determinants influence supply.
+3. Litigation risk is frequently invoked as a deterrent in high-acuity specialties.
+4. Prior analyses can be distorted by raw counts, specialty size, and interpolation.
+5. The key policy question is not merely whether a coefficient is statistically non-zero, but whether litigation could plausibly produce workforce changes of policy-relevant magnitude.
+6. National Japanese longitudinal data allow this proposition to be tested.
+7. The central contribution is the equivalence result, not a conventional null p value.
+
+Do NOT oversell Japan as universally representative.
+Instead, present Japan as a national health-system setting that permits a long-run, specialty-level test of a widely invoked workforce mechanism.
+
+======================================================================
+2. JOURNAL FIT CHECK — PUBLIC HEALTH
+======================================================================
+
+Before editing, verify the CURRENT official Public Health journal scope, article types, author guidelines, word limits, abstract format, required declarations, highlights requirements if any, title-page/blinding requirements, reference style, table/figure limits, supplementary-material policy, and AI-disclosure policy.
+
+Use official publisher/journal pages as the primary source.
+
+Create:
+- PUBLIC_HEALTH_FIT_AUDIT.md
+
+This audit must contain:
+A. current scope statements relevant to the paper
+B. manuscript elements that already fit
+C. elements likely to trigger desk rejection
+D. concrete changes needed
+E. any formatting or submission requirements
+F. a final binary recommendation:
+   - GO FOR PUBLIC HEALTH
+   - or NO-GO ONLY if a newly verified hard scope mismatch exists
+
+Do not substitute a vague journal-fit paragraph. Make it operational.
+
+======================================================================
+3. HOSTILE EDITOR / REVIEWER PRE-MORTEM
+======================================================================
+
+Read the entire current manuscript before modifying it.
+
+Create:
+- HOSTILE_REVIEW_PUBLIC_HEALTH.md
+
+Review it as:
+1. a Public Health editor performing initial screening,
+2. a health-workforce epidemiologist,
+3. a health-services researcher,
+4. a skeptical methods reviewer.
+
+Identify every plausible objection, especially:
+
+- "This is a malpractice-law paper, not a public-health paper."
+- "The ecological unit is specialty, so individual physician behavior cannot be inferred."
+- "There are only 12 specialty clusters."
+- "Equivalence margins are judgment-based."
+- "The manuscript overstates what a null ecological association proves."
+- "The JOCS-CP coefficient is interpreted causally without a causal design."
+- "No-fault compensation is recommended more strongly than the design supports."
+- "Hospital counts are not workforce."
+- "The comparison of counts versus rates is described too strongly."
+- "Interpolation is criticized more strongly than the evidence demonstrates."
+- "The international relevance is not sufficiently articulated."
+- "The policy conclusion exceeds the identification strategy."
+- "The manuscript spends too much space on medico-legal detail relative to workforce implications."
+- "The public-interest summary may use language stronger than the empirical design allows."
+- "The study may appear to prove 'no effect' beyond the pre-specified equivalence range."
+- "The equivalence margin needs an explicit policy rationale."
+
+For each objection, classify:
+- fatal
+- major but fixable
+- minor
+- already adequately addressed
+
+Then implement fixes for every fixable item.
+
+======================================================================
+4. ANALYSIS FREEZE AND INTEGRITY CHECK
+======================================================================
+
+Default rule: DO NOT add new analyses.
+
+Do not perform fishing analyses, subgroup analyses, alternate lag searches, different outcomes, new margins, or alternative model shopping merely to improve publishability.
+
+Allowed:
+- rerun existing code to verify existing reported values,
+- fix a genuine code or transcription error,
+- verify that manuscript, tables, figures, supplement, and code agree,
+- regenerate a figure only if required for clarity or journal format,
+- verify that the TOST calculations correspond to the stated margins,
+- verify sample sizes and CI/p-value reporting.
+
+If any numerical discrepancy is found:
+1. document it in FINAL_HANDOFF.md,
+2. correct the manuscript,
+3. do not conceal it.
+
+Do not turn this into a software-release-grade reproducibility audit.
+Minimum reproducibility standard:
+- seed where relevant,
+- preserved inputs/source provenance,
+- analysis code present,
+- main reported numbers reproducible,
+- major figures/tables regenerable,
+- no obvious fatal execution breakage.
+
+======================================================================
+5. TITLE REPOSITIONING
+======================================================================
+
+Evaluate at least these title families:
+
+A.
+"Malpractice litigation and specialty-level physician supply in Japan, 2008–2024: a national equivalence analysis"
+
+B.
+"Malpractice litigation, physician supply and service capacity in Japan: a national equivalence analysis, 2008–2024"
+
+C.
+"Is malpractice litigation a determinant of specialty workforce supply? National evidence from Japan, 2008–2024"
+
+Prefer a title that:
+- foregrounds workforce / supply,
+- does not imply individual physician behavior,
+- does not overclaim causality,
+- makes the equivalence design visible if useful,
+- remains concise.
+
+Use "service capacity" rather than calling hospital counts "workforce."
+
+Select one final title and document why in FINAL_HANDOFF.md.
+
+======================================================================
+6. ABSTRACT REWRITE
+======================================================================
+
+Rewrite the abstract to fit the current Public Health article format and word limit.
+
+The abstract must:
+- open with specialty workforce maldistribution / health-system capacity, not malpractice law,
+- state why litigation is a candidate determinant,
+- clearly identify the national longitudinal specialty-level design,
+- distinguish the conventional association result from the equivalence result,
+- preserve effect estimates, confidence intervals, and p values where informative,
+- foreground the TOST result as the central inferential contribution,
+- state the ecological limitation compactly,
+- avoid "proving no effect,"
+- avoid causal claims for JOCS-CP,
+- end with a restrained public-health workforce implication.
+
+Preferred conceptual conclusion:
+"Litigation exposure alone is unlikely to explain specialty-level workforce change of a magnitude relevant to workforce planning in Japan."
+
+Do NOT use stronger language such as:
+- "litigation does not matter"
+- "physicians do not respond to litigation"
+- "reducing litigation is ineffective"
+unless specifically qualified to the measured specialty-level supply outcome and equivalence margin.
+
+======================================================================
+7. INTRODUCTION REBUILD
+======================================================================
+
+Rebuild the Introduction around public-health workforce planning.
+
+Suggested architecture:
+
+Paragraph 1:
+- specialty maldistribution and uneven service capacity as a health-system/public-health problem
+- high-acuity specialties often face recruitment/retention concerns
+
+Paragraph 2:
+- litigation risk is one commonly proposed deterrent
+- distinguish perception, defensive practice, and actual specialty-level supply
+
+Paragraph 3:
+- explain methodological problems in previous ecological/time-series claims:
+  * raw counts scale with specialty size
+  * physician observations are biennial
+  * interpolated annual series do not create new independent information
+  * failure to reject H0 is not positive evidence of a negligible effect
+
+Paragraph 4:
+- explain why equivalence testing is policy-relevant
+- the key question is whether plausible litigation effects are large enough to materially alter workforce planning
+
+Paragraph 5:
+- Japan as a useful national setting
+- litigation environment, national administrative data, and JOCS-CP as context, not as the paper's central intervention study
+
+Final paragraph:
+state concise aims:
+1. test lagged litigation-rate association with physician supply change;
+2. test whether the effect is statistically equivalent to a small policy-relevant margin;
+3. examine hospital/service-capacity outcome and prespecified sensitivity analyses.
+
+Do not bloat the Introduction.
+Do not turn it into a legal-system review.
+
+======================================================================
+8. METHODS — PRESERVE, CLARIFY, DO NOT REINVENT
+======================================================================
+
+Keep the existing design unless an integrity issue is found.
+
+Clarify:
+- ecological, specialty-level observational panel design,
+- 12 specialties,
+- 2008–2024,
+- biennial physician observations,
+- litigation rate definition,
+- hospital-count outcome as service capacity/facility supply, not physician workforce,
+- specialty FE and wave FE,
+- cluster-robust standard errors by specialty,
+- lag structure,
+- JOCS-CP term as contextual/exploratory adjustment,
+- TOST logic,
+- why 90% CI corresponds to the two one-sided 5% tests,
+- rationale for ±1% physician and ±2% hospital equivalence margins.
+
+The equivalence-margin rationale must be explicit and defensible.
+Do not pretend the margins were externally mandated if they were researcher-chosen.
+Use wording such as:
+"chosen a priori for the present analysis as changes small enough to be unlikely to alter national specialty-workforce planning over a biennial interval"
+ONLY if that is genuinely consistent with the prior protocol/history.
+If "a priori" cannot be verified, use:
+"specified for the present analysis"
+or equivalent.
+
+Avoid claiming cluster robustness solves all small-cluster inference concerns.
+If needed, acknowledge the 12-cluster limitation.
+
+Do not remove p values.
+For key estimates report:
+- coefficient/effect estimate
+- confidence interval
+- p value
+and for equivalence:
+- equivalence margin
+- 90% CI where relevant
+- TOST p value
+
+======================================================================
+9. RESULTS — PRIORITIZE THE EQUIVALENCE RESULT
+======================================================================
+
+Reorder Results if useful:
+
+1. descriptive workforce and litigation trends
+2. primary association estimates
+3. equivalence tests
+4. service-capacity outcome
+5. sensitivity analyses
+6. exploratory JOCS-CP finding
+7. reverse model / JMSR / media checks as secondary material
+
+The main narrative should make clear:
+
+A conventional null:
+- physician growth association p=0.56
+- hospital growth association p=0.90
+
+AND, separately, positive equivalence evidence:
+- physician effect within ±1% margin, TOST p=0.023
+- hospital effect within ±2% margin, p=0.002
+
+Avoid wording like:
+"confirmed that size confounding and interpolation can create spurious associations"
+unless the actual analysis directly demonstrates creation of such a spurious association.
+Use more defensible wording:
+"did not alter the substantive conclusion" / "illustrated the importance of exposure scaling" / "did not recover evidence of a negative association."
+
+The statement that per-specialty rank correlations were positive in 10/12 specialties can remain descriptive but must not be rhetorically overused.
+
+======================================================================
+10. DISCUSSION — COMPLETE REPOSITIONING
+======================================================================
+
+Rewrite the Discussion with this hierarchy.
+
+Paragraph 1: principal finding
+- specialty-level litigation exposure was not associated with subsequent physician or facility-supply decline
+- more importantly, the physician effect was statistically equivalent to a small effect within the specified margin
+- therefore litigation exposure alone is unlikely to explain workforce change of a magnitude relevant to national specialty planning in this setting
+
+Paragraph 2: why equivalence matters
+- distinguish "absence of statistical significance" from "evidence that the effect lies within a small margin"
+- state exactly what was and was not excluded
+
+Paragraph 3: public-health workforce interpretation
+- workforce distribution is likely shaped by multiple structural determinants
+- this analysis narrows the plausible contribution of routine civil-litigation exposure
+- do not claim that litigation has no effects on behavior, defensive medicine, stress, specialty preference, or individual career decisions
+
+Paragraph 4: comparison with international literature
+- retain relevant U.S. tort-reform literature
+- present heterogeneity by jurisdiction and specialty
+- avoid implying direct transportability to Japan
+
+Paragraph 5: Japan context
+- low-volume civil litigation / settlement context if correctly referenced
+- JOCS-CP as contextual background
+- explicitly distinguish civil litigation from criminal prosecution and high-salience events
+
+Paragraph 6: JOCS-CP
+CRITICAL:
+- downgrade to exploratory
+- remove wording implying a causal "structural policy effect"
+- use wording such as:
+  "The positive JOCS-CP-period coefficient is an exploratory association and cannot isolate the compensation scheme from contemporaneous obstetric policies or secular change."
+- do not use it as evidence that no-fault compensation increases hospital supply
+
+Paragraph 7: policy implications
+Replace prescriptive wording such as:
+"Policies should focus on no-fault compensation rather than reducing litigation"
+with something more defensible:
+"These findings suggest that workforce planning should not assume that reducing routine civil-litigation exposure alone will materially increase specialty supply. Evaluation of other structural determinants—including remuneration, training pipelines, workload, geographic incentives, and compensation arrangements—remains necessary."
+
+No policy intervention should be presented as proven superior by this design.
+
+Paragraph 8: limitations
+Explicitly include:
+- ecological specialty-level design
+- inability to infer individual career decisions
+- only 12 specialty clusters
+- equivalence margins are substantively chosen judgments
+- closed claims are an exposure signal, not intrinsic incident risk
+- inability to measure perceived litigation risk directly
+- limited years for JMSR/media sensitivity data
+- Japan-specific institutional context
+- hospital count is only one proxy for service capacity
+- residual confounding / policy co-interventions
+- no causal identification of JOCS-CP
+
+Final paragraph:
+conclude narrowly and strongly:
+the data argue against routine specialty-level malpractice litigation being a major determinant of national physician-supply change within the tested effect-size range in Japan.
+
+======================================================================
+11. PUBLIC INTEREST / HIGHLIGHTS / KEY MESSAGES
+======================================================================
+
+If Public Health requires or benefits from Highlights / Key Messages / Public Health significance text, create them according to CURRENT instructions.
+
+Avoid:
+"The belief that physicians flee high-litigation specialties is unsupported"
+if this sounds too categorical.
+
+Prefer:
+"Across 12 specialties over 16 years, higher litigation rates were not followed by lower physician or hospital supply, and the physician effect was statistically equivalent to less than a ±1% biennial change."
+
+Create only submission components actually required or useful.
+
+======================================================================
+12. FIGURES AND TABLES
+======================================================================
+
+Retain existing figures unless a clearer presentation materially improves editorial readability.
+
+Figure 1 should remain the conceptual centerpiece if allowed:
+- point estimates
+- 90% CI
+- equivalence bounds
+- clear labeling
+- legible at journal size
+- no ambiguity between physician and hospital outcomes
+
+Ensure figure legend explains:
+- 90% CI is used for TOST equivalence assessment
+- margins correspond to the two outcomes
+
+Figure 2:
+- do not overstate it as proof of confounding
+- label count exposure vs rate exposure clearly
+- if the figure is not essential for the main public-health story, consider moving it to Supplementary Material rather than deleting it automatically
+
+Tables:
+- preserve key effect estimates, 95% CI, p values, n
+- make primary vs sensitivity analyses visually obvious
+- ensure no mismatch between text and table
+
+Do not use decorative graphics.
+
+======================================================================
+13. REFERENCES AND CLAIM VERIFICATION
+======================================================================
+
+Perform a focused reference audit.
+
+Verify:
+- existence
+- authors
+- year
+- title
+- journal/report
+- volume/issue/pages or article number
+- DOI where available
+- whether each citation actually supports the adjacent claim
+
+Pay particular attention to:
+- Japan specialty maldistribution references
+- Supreme Court litigation statistics
+- JOCS-CP sources
+- Matsa
+- Hyman et al.
+- Frakes et al.
+- Kessler & McClellan
+- Sloan & Shadle
+- Taniguchi et al.
+- Morita
+- Kamijo et al.
+- no-fault compensation international references
+- any statements about low litigation volume, settlement, physician-favorable environment, or comparative systems
+
+Do not expand the reference list unnecessarily.
+Do not add references solely to make the manuscript look more international.
+
+Create:
+- REFERENCE_AUDIT.md
+
+======================================================================
+14. CLAIM CALIBRATION AUDIT
+======================================================================
+
+Create:
+- CLAIM_CALIBRATION_AUDIT.md
+
+Search systematically for overclaiming words:
+- causes
+- drives
+- confirms
+- proves
+- demonstrates
+- effect
+- impact
+- leads to
+- prevents
+- supports policy
+- should
+- more promising
+- unlikely
+- no effect
+- null
+- irrelevant
+- retain
+- flight
+
+For every strong claim, verify whether the design supports:
+- association
+- equivalence within margin
+- description
+- causation
+
+Replace unsupported causal/prescriptive language.
+
+Keep appropriately strong language where equivalence testing genuinely justifies it:
+e.g. "statistically equivalent to a change smaller than ±1% under the prespecified/specified margin."
+
+======================================================================
+15. STROBE
+======================================================================
+
+Because this is an observational study, verify the manuscript against STROBE.
+
+Prepare a STROBE checklist only if Public Health requires it or if it is useful for submission.
+
+If created, populate it with actual manuscript page/section locations.
+Do not produce a generic unchecked checklist.
+
+======================================================================
+16. COVER LETTER — PUBLIC HEALTH
+======================================================================
+
+Create a new:
+- COVER_LETTER_Public_Health.docx
+
+The cover letter should be concise, professional, and specific to Public Health.
+
+It should say, in substance:
+- the study addresses specialty-level physician supply and service capacity as a public-health workforce issue;
+- national Japanese data from 2008–2024 were used;
+- the methodological contribution is rate-based exposure plus equivalence testing;
+- the key contribution is not simply a non-significant association but quantitative evidence that any specialty-level physician-supply association lies within a small policy-relevant margin;
+- the paper is relevant to workforce planning and public-health system capacity;
+- the manuscript is original and not under consideration elsewhere;
+- ethics/data statements as appropriate.
+
+Do NOT mention the full rejection history.
+
+Because this manuscript is being offered through Elsevier's transfer service from Health Policy and Technology, one restrained sentence may mention:
+"The manuscript was suggested for transfer to Public Health following editorial assessment at Health Policy and Technology on the basis of closer journal scope."
+Only include this if appropriate under the transfer workflow.
+
+Do not imply endorsement or pre-review by Public Health.
+
+======================================================================
+17. AUTHOR INFORMATION AND DECLARATIONS
+======================================================================
+
+Preserve author information as present in source files unless a template requires separation.
+
+Author formatting preference:
+- family name first where relevant: Onishi Tatsuki
+- affiliation: Shiga Univ. DSAI in the user's standard institutional form
+
+Do not invent missing ORCID, funding, ethics identifiers, acknowledgments, or conflicts.
+
+AI disclosure:
+retain and adapt to current Elsevier/Public Health wording if required.
+Current manuscript states use of Cognition Devin for analysis-code assistance, figure generation, and drafting, followed by human review.
+Do not conceal this.
+Do not overstate AI autonomy.
+
+======================================================================
+18. WORD / EQUATION FORMAT
+======================================================================
+
+For any Word document:
+- use native Word styles cleanly
+- all equations, mathematical variables, Greek letters, subscripts, superscripts, fractions, and formal mathematical expressions should be implemented with Microsoft Word native equation format (OMML) wherever applicable
+- do not replace formal mathematical notation with crude Unicode/plain-text approximations
+- figures/tables should be embedded in the inline manuscript where appropriate
+
+======================================================================
+19. FINAL MANUSCRIPT OUTPUTS
+======================================================================
+
+Produce at minimum:
+
+1. PUBLIC_HEALTH_MAIN_inline.docx
+   - complete revised manuscript
+   - figures and tables embedded in-line for review
+   - no placeholders except unavoidable author/admin details
+
+2. PUBLIC_HEALTH_MAIN_clean.docx
+   - submission-ready clean manuscript according to journal instructions
+
+3. COVER_LETTER_Public_Health.docx
+
+4. PUBLIC_HEALTH_FIT_AUDIT.md
+
+5. HOSTILE_REVIEW_PUBLIC_HEALTH.md
+
+6. CLAIM_CALIBRATION_AUDIT.md
+
+7. REFERENCE_AUDIT.md
+
+8. FINAL_HANDOFF.md
+
+9. If required:
+   - STROBE checklist
+   - highlights
+   - separate title page
+   - supplementary file(s)
+
+10. PUBLIC_HEALTH_submission_FINAL.zip
+    containing all required submission files
+
+Also include this exact prompt as:
+- DEVIN_PUBLIC_HEALTH_TRANSFER_PROMPT.txt
+
+======================================================================
+20. FINAL QUALITY GATE
+======================================================================
+
+Before packaging, run a final sequential audit.
+
+A. Journal fit
+- Does the title/abstract unmistakably read as public-health workforce / health-system capacity research?
+- Would an editor understand the public-health relevance within the first 150 words?
+
+B. Scientific accuracy
+- Are all numbers consistent?
+- Are p values retained where appropriate?
+- Are effect sizes and CIs reported?
+- Is TOST interpretation correct?
+- Are physician and hospital outcomes distinguished conceptually?
+
+C. Claim discipline
+- No individual physician behavior inferred from ecological data
+- No claim that litigation has zero effect in every dimension
+- No causal JOCS-CP claim
+- No unsupported superiority claim for no-fault compensation
+- No universal generalization outside Japan
+
+D. Novelty
+The manuscript must clearly articulate:
+1. national longitudinal specialty-level linkage of litigation and workforce/service-capacity data;
+2. rate-based exposure that avoids mechanical specialty-size scaling;
+3. use of measured biennial physician waves rather than treating interpolation as new information;
+4. equivalence testing to quantify whether litigation effects are large enough to matter for workforce planning.
+
+E. Desk-rejection defense
+Ask:
+"If I were the Public Health editor, what single sentence would make me reject this as out of scope?"
+If such a sentence still exists in the manuscript's framing, revise it.
+
+F. Formatting
+- current Public Health instructions followed
+- references consistent
+- tables/figures legible
+- no broken cross-references
+- no visible tracked changes/comments
+- no temporary filenames
+- no placeholder citations
+- no duplicated figures/tables
+- no malformed equations
+
+======================================================================
+21. FINAL HANDOFF CONTENT
+======================================================================
+
+FINAL_HANDOFF.md must summarize:
+
+- final title
+- final manuscript word count
+- journal article type
+- exact major repositioning changes
+- whether analyses were changed
+- any numerical corrections
+- final key estimates
+- final equivalence interpretation
+- any unresolved limitations
+- Public Health fit rationale
+- files included in the ZIP
+- explicit final status:
+  READY FOR PUBLIC HEALTH TRANSFER
+  or
+  NOT READY, with exact blocking reasons
+
+Do not stop for approval between phases unless there is a truly blocking ambiguity that cannot be resolved from the manuscript or official journal instructions.
+
+======================================================================
+22. STYLE RULES
+======================================================================
+
+Use restrained, publication-grade academic English.
+
+Avoid:
+- promotional language
+- rhetorical exaggeration
+- "proves"
+- "definitively"
+- "physicians flee" as an unqualified conclusion
+- implying causal identification where there is none
+
+Prefer:
+- "was not associated with"
+- "was statistically equivalent within the specified margin"
+- "is unlikely to explain specialty-level change of this magnitude"
+- "suggests"
+- "is consistent with"
+- "cannot distinguish"
+- "cannot isolate"
+
+The paper should finish as a tight public-health workforce analysis, not as a broad argument about tort reform.
+
+======================================================================
+23. EXECUTION ORDER
+======================================================================
+
+Execute strictly in this order:
+
+Phase 1: inspect files and current manuscript
+Phase 2: verify current Public Health instructions and scope
+Phase 3: produce fit audit and hostile review
+Phase 4: integrity check / analysis freeze verification
+Phase 5: revise title, abstract, introduction
+Phase 6: revise methods and results for precision
+Phase 7: completely reposition discussion and conclusion
+Phase 8: claim-calibration audit
+Phase 9: reference verification
+Phase 10: tables/figures/submission-format cleanup
+Phase 11: cover letter + required checklists
+Phase 12: full manuscript consistency audit
+Phase 13: generate inline DOCX and clean DOCX
+Phase 14: package final ZIP
+Phase 15: write FINAL_HANDOFF.md
+
+Do not parallelize these phases.
+
+The final objective is not to maximize the apparent novelty by adding analyses. It is to present the existing evidence with the strongest defensible public-health framing and the smallest possible gap between the statistical design and the policy claims.

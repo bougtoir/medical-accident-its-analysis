@@ -1,0 +1,15 @@
+{
+  "senkoi_source": {
+    "file": "data_primary/raw/senkoi/000452411.pdf",
+    "url": "https://www.mhlw.go.jp/content/10803000/000452411.pdf",
+    "description": "MHLW, H30 (2018) newly admitted specialist trainees (専攻医) and H24-cohort 3rd/5th-year physician counts by specialty.",
+    "accessed": "2026-08-15"
+  },
+  "pool_source": {
+    "file": "data_primary/raw/senkoi/mhlw_323.pdf",
+    "url": "https://www.mhlw.go.jp/file/06-Seisakujouhou-10800000-Iseikyoku/323.pdf",
+    "description": "MHLW, 平成27年度 report of physicians 3-5 years after medical registration by main specialty (H26 survey, 2014).",
+    "accessed": "2026-08-15"
+  },
+  "notes": "Coverage = 2018 first-year specialist trainees / 2014 physicians 3-5 years after registration, by specialty."
+}

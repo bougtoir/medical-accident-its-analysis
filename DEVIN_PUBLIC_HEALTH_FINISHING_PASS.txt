@@ -1,0 +1,464 @@
+# Devin single-VM sequential finishing-pass prompt
+# Target journal: Public Health
+# Package: PUBLIC_HEALTH_submission_FINAL.zip
+# Goal: submission-readiness finishing pass only
+# IMPORTANT: Do NOT redesign the study, add analyses, or materially rewrite the scientific argument.
+
+Work in ONE VM only, sequentially. Do not parallelize.
+
+======================================================================
+0. SOURCE FILES TO USE
+======================================================================
+
+Use the current Public Health submission package as the source of truth, especially:
+
+- ph_manuscript_en.docx
+- ph_manuscript_en_inline.docx
+- ph_title_page.docx
+- ph_cover_letter.docx
+- ph_tables.docx
+- ph_figure_legends.docx
+- ph_supplementary.docx
+- ph_figures.pptx
+- ph_supplementary_figures.pptx
+- ph_declaration_of_interests.docx
+- existing figure image files
+
+Do NOT revert to the earlier HPT manuscript unless needed to resolve a specific inconsistency.
+
+======================================================================
+1. SCOPE OF THIS PASS
+======================================================================
+
+This is a SHORT FINAL FINISHING PASS, not a new revision cycle.
+
+Allowed:
+- remove placeholders
+- fix formatting
+- fix broken cross-references
+- reconcile title wording
+- verify consistency across abstract, text, tables, figures, supplement
+- verify references and adjacent claims
+- verify current Public Health submission requirements
+- update cover letter / title page / declarations
+- correct clear typos or factual inconsistencies
+- make very small wording changes for claim calibration
+
+Not allowed unless a genuine error is discovered:
+- new analyses
+- new subgroup analyses
+- alternative lag searches
+- new outcomes
+- new equivalence margins
+- model shopping
+- changing the study question
+- adding speculative interpretation
+- major restructuring
+- changing numerical results simply for presentation
+
+Treat the analysis as FROZEN.
+
+If any genuine numerical discrepancy is found, document and correct it, but do not otherwise alter the analysis.
+
+======================================================================
+2. VERIFY CURRENT PUBLIC HEALTH REQUIREMENTS
+======================================================================
+
+Check the CURRENT official Public Health journal instructions on Elsevier.
+
+Verify:
+- article type
+- abstract structure and word limit
+- manuscript word limit if any
+- title page requirements
+- anonymization/blinding requirements
+- author details
+- corresponding-author details
+- highlights/key points requirements
+- figure/table handling
+- supplementary-material requirements
+- declaration of interests
+- funding statement
+- ethics statement
+- data/code availability
+- generative-AI disclosure
+- reference style
+- whether line numbering is required
+- whether figures/tables should be embedded, uploaded separately, or both
+
+Use official journal/Elsevier instructions as primary authority.
+
+Do not make cosmetic changes that are not required.
+
+======================================================================
+3. PLACEHOLDER SWEEP — MANDATORY
+======================================================================
+
+Search ALL submission files for placeholders such as:
+
+- [Date]
+- [corresponding author email]
+- [telephone]
+- [main degrees (two only)]
+- [insert...]
+- [add...]
+- [TBD]
+- XXX
+- TODO
+- placeholder text
+- dummy addresses
+- unresolved brackets
+
+Known likely locations include:
+- ph_cover_letter.docx
+- ph_title_page.docx
+
+Do not invent missing personal information.
+
+If author email, phone number, academic degrees, or other personal submission metadata are absent from the available source files:
+- leave a clearly marked final handoff note identifying exactly what the user must fill manually
+- do NOT silently invent them
+- keep the submission documents otherwise complete
+
+Where possible, remove unnecessary placeholders rather than leaving bracketed text in submission-ready files.
+
+======================================================================
+4. TITLE CONSISTENCY
+======================================================================
+
+Current title family:
+"Malpractice litigation and specialty-level physician and hospital supply in Japan, 2008–2024: a national equivalence analysis"
+
+Check whether "hospital supply" is consistent with the revised manuscript's preferred terminology of "service capacity".
+
+If the manuscript consistently treats hospital count as service/facility capacity, consider the minimal title refinement:
+
+"Malpractice litigation, physician supply and service capacity in Japan, 2008–2024: a national equivalence analysis"
+
+Only make this change if it improves conceptual consistency without creating scope or formatting problems.
+
+Whichever title is selected:
+- use the IDENTICAL title in manuscript, title page, cover letter, declarations if present, supplementary file, and metadata-facing text
+- document the final title in FINAL_HANDOFF.md
+
+======================================================================
+5. MAIN CLAIM FREEZE
+======================================================================
+
+Preserve the current central framing:
+
+- this is a public-health workforce / health-system capacity study
+- litigation is a candidate determinant, not the disciplinary identity of the paper
+- conventional association results are null
+- equivalence testing is the central inferential contribution
+- physician equivalence is within ±1% biennial growth
+- hospital/service-capacity equivalence is within ±2%
+- JOCS-CP is exploratory/contextual, not causal
+- no-fault compensation is not established as superior by this design
+- ecological data cannot establish individual physician behavior
+
+Do NOT re-strengthen any claims that were already calibrated.
+
+Preferred final implication:
+"Litigation exposure alone is unlikely to explain specialty-level workforce change of a magnitude relevant to workforce planning in Japan."
+
+Avoid:
+- "litigation does not matter"
+- "physicians do not respond to litigation"
+- "reducing litigation is ineffective"
+- "JOCS-CP increased hospital supply"
+- "no-fault compensation should replace litigation"
+unless explicitly qualified in a way justified by the design.
+
+======================================================================
+6. NUMERICAL CONSISTENCY AUDIT
+======================================================================
+
+Cross-check the manuscript, tables, figures, supplement, abstract, and cover letter for:
+
+- 12 specialties
+- 2008–2024
+- 9 measured biennial physician waves
+- physician growth coefficient approximately -0.0009
+- physician 95% CI approximately -0.0043 to +0.0025
+- physician p=0.56
+- hospital growth coefficient approximately +0.0003
+- hospital 95% CI approximately -0.0050 to +0.0056
+- hospital p=0.90
+- physician equivalence:
+  * 1-SD higher litigation rate
+  * point estimate approximately -0.21%
+  * 90% CI approximately -0.84% to +0.42%
+  * margin ±1%
+  * TOST p=0.023
+- hospital/service-capacity equivalence:
+  * margin ±2%
+  * TOST p=0.002
+- n values
+- JOCS-CP coefficient and CI/p value
+- sensitivity-analysis values
+- figure labels
+- table labels
+- supplementary numbering
+
+Do not delete p values.
+Preserve effect estimates + confidence intervals + p values where they are currently substantively relevant.
+
+If any discrepancy is discovered:
+1. identify the source of truth from existing analysis outputs/code
+2. correct all affected locations
+3. record the correction in FINAL_HANDOFF.md
+
+======================================================================
+7. EQUIVALENCE PRESENTATION
+======================================================================
+
+Verify that:
+- 90% confidence intervals are correctly used/explained for TOST
+- the ±1% physician margin and ±2% hospital/service-capacity margin are clearly linked to their respective outcomes
+- the manuscript does not imply universal "zero effect"
+- the interpretation remains "equivalent within the specified policy-relevant margin"
+
+Check that the rationale for the margins is explicit but not falsely presented as externally mandated or formally preregistered if it was not.
+
+Use:
+"specified for the present analysis"
+rather than "a priori" unless the analysis history clearly supports the latter.
+
+======================================================================
+8. FIGURE/TABLE FINAL CHECK
+======================================================================
+
+Check all figures visually at journal-readable size.
+
+Figure 1:
+- should remain the main equivalence figure
+- verify 90% CI
+- verify ±1% and ±2% bounds
+- verify axis labeling
+- verify physician vs hospital/service-capacity labeling
+- verify legend
+- ensure no clipping or unreadable text
+
+Figure 2:
+- keep only if it materially helps the manuscript
+- do not describe it as proving size confounding
+- use restrained wording such as "illustrates the difference between count and rate exposure definitions"
+- if main-text space is tight and journal format favors fewer figures, moving it to Supplementary Material is acceptable
+- do not remove it merely for aesthetics
+
+Tables:
+- primary and sensitivity analyses must be clearly separated
+- all CIs/p values/n must agree with text
+- no duplicated or orphaned rows
+- no malformed specialty names
+- no layout overflow
+
+======================================================================
+9. REFERENCE AND CLAIM CHECK
+======================================================================
+
+Perform a focused final reference audit.
+
+Check especially:
+- Supreme Court of Japan litigation statistics
+- MHLW physician statistics
+- Survey of Medical Institutions
+- JMSR / Medical Accident Investigation System
+- JOCS-CP
+- Matsa
+- Hyman et al.
+- Frakes et al.
+- Kessler & McClellan
+- Sloan & Shadle
+- Taniguchi et al.
+- Morita
+- Kamijo et al.
+- international no-fault compensation references
+
+Verify:
+- citation exists
+- bibliographic details are correct
+- adjacent claim is actually supported
+- no source is cited more strongly than warranted
+
+Do NOT expand the bibliography unless a current unsupported claim requires it.
+
+======================================================================
+10. COVER LETTER FINALIZATION
+======================================================================
+
+Revise ph_cover_letter.docx only as needed.
+
+The final cover letter should:
+- identify the manuscript as a public-health workforce / health-system capacity study
+- state national Japanese data, 2008–2024
+- foreground the equivalence-testing contribution
+- explain that the paper quantifies whether litigation exposure is large enough to matter for workforce planning
+- avoid overselling causality
+- avoid recounting the full rejection history
+- if appropriate, briefly state that Health Policy and Technology suggested transfer to Public Health because of closer scope alignment
+- not imply endorsement by Public Health
+- state originality / not under consideration elsewhere if accurate
+
+Remove `[Date]` if the submission system does not require the date in the letter, or populate only if a reliable current date is available within the workflow.
+
+Do not invent email, telephone number, or academic degree.
+
+======================================================================
+11. TITLE PAGE FINALIZATION
+======================================================================
+
+Revise ph_title_page.docx.
+
+Check:
+- exact final title
+- author order
+- author names
+- affiliations
+- corresponding author
+- degrees only if required
+- email/telephone only if required
+- running title if required
+- word count if required
+- number of tables/figures if required
+
+Author-name preference:
+- family name first where journal/system formatting permits: Onishi Tatsuki
+
+Affiliation should use the user's established Shiga University DSAI form already present in source files.
+
+Do not invent missing metadata.
+
+======================================================================
+12. AI DISCLOSURE
+======================================================================
+
+Check the current Elsevier/Public Health generative-AI policy.
+
+Preserve the manuscript's transparent disclosure of Cognition Devin use for:
+- data-analysis coding assistance
+- figure generation
+- manuscript drafting assistance
+
+Ensure the statement also makes clear that:
+- the author reviewed and edited the output
+- the author takes full responsibility for the manuscript
+
+Do not conceal or minimize AI use.
+Do not add unnecessary detail beyond journal requirements.
+
+======================================================================
+13. DOCX QUALITY
+======================================================================
+
+For all Word files:
+- remove tracked changes unless journal specifically requires them
+- remove comments
+- remove hidden temporary text
+- ensure headings use consistent Word styles
+- ensure tables do not break badly
+- ensure references are readable
+- ensure no broken internal cross-references
+- ensure all figure/table callouts exist
+- use OMML for mathematical expressions where applicable
+- no crude plain-text equation substitutions
+- preserve figure quality
+
+======================================================================
+14. INLINE VS CLEAN MANUSCRIPT
+======================================================================
+
+Maintain both:
+
+1. ph_manuscript_en_inline.docx
+   - figures/tables embedded near first mention
+   - optimized for human review
+
+2. ph_manuscript_en.docx
+   - clean submission version according to current journal requirements
+
+If the journal accepts an inline manuscript directly, still preserve the clean version unless redundant.
+
+Do not leave contradictory versions.
+
+======================================================================
+15. FINAL AUDIT FILES
+======================================================================
+
+Create these internal quality-control files even though they are NOT necessarily for upload to the journal:
+
+- PUBLIC_HEALTH_FIT_AUDIT.md
+- HOSTILE_REVIEW_PUBLIC_HEALTH.md
+- CLAIM_CALIBRATION_AUDIT.md
+- REFERENCE_AUDIT.md
+- FINAL_HANDOFF.md
+
+Keep them concise.
+
+PUBLIC_HEALTH_FIT_AUDIT.md:
+- current scope fit
+- article type
+- formatting requirements
+- any remaining submission risks
+- final GO/NO-GO
+
+HOSTILE_REVIEW_PUBLIC_HEALTH.md:
+- only unresolved plausible reviewer/editor objections
+- do not repeat resolved items at length
+
+CLAIM_CALIBRATION_AUDIT.md:
+- list strong claims checked
+- note any wording changes
+
+REFERENCE_AUDIT.md:
+- identify references checked
+- flag any unresolved bibliographic uncertainty
+
+FINAL_HANDOFF.md:
+must include:
+- final title
+- manuscript word count
+- article type
+- whether analyses changed (expected: NO)
+- whether any numerical corrections were made
+- final key estimates
+- final equivalence interpretation
+- exact remaining manual fields, if any
+- files included
+- final verdict:
+  READY FOR PUBLIC HEALTH TRANSFER
+  or
+  NOT READY — with blocking reasons
+
+======================================================================
+16. FINAL PACKAGE
+======================================================================
+
+Create:
+
+PUBLIC_HEALTH_submission_FINAL_v2.zip
+
+Include all submission-ready files required by Public Health.
+
+Also include the internal audit files in a clearly separated folder such as:
+_internal_QC/
+
+Do not upload internal audit files as journal submission components unless explicitly required.
+
+Also save this prompt as:
+DEVIN_PUBLIC_HEALTH_FINISHING_PASS.txt
+
+======================================================================
+17. STOP RULE
+======================================================================
+
+This pass should remain narrow.
+
+If the manuscript is scientifically coherent and the numbers match:
+STOP after technical cleanup and submission-readiness verification.
+
+Do NOT generate new analyses simply because reviewer objections are imaginable.
+
+Final objective:
+a clean, internally consistent, journal-compliant Public Health transfer package with no avoidable technical reason for desk rejection.

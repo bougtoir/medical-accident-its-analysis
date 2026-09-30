@@ -1,0 +1,378 @@
+# Devin single-VM sequential micro-revision prompt
+# Target journal: Public Health
+# Source package: PUBLIC_HEALTH_submission_FINAL_v2.zip
+# Goal: make the scientific contribution more explicit in the Discussion and propagate only the necessary corresponding changes to the Abstract, Introduction, Conclusion, and Cover Letter.
+# IMPORTANT: This is a MICRO-REVISION / CLAIM-CLARIFICATION PASS, not a new scientific revision.
+
+Work in ONE VM only and execute sequentially.
+Do not spawn parallel VMs or parallel agents.
+
+======================================================================
+0. SOURCE OF TRUTH
+======================================================================
+
+Use the CURRENT Public Health v2 package as the source of truth, especially:
+
+- ph_manuscript_en.docx
+- ph_manuscript_en_inline.docx
+- ph_cover_letter.docx
+- ph_title_page.docx
+- ph_tables.docx
+- ph_figure_legends.docx
+- ph_supplementary.docx
+- ph_declaration_of_interests.docx
+- current figure files
+
+Do NOT revert to earlier HPT wording unless needed to resolve a specific inconsistency.
+
+The current scientific framing is already correct:
+- public-health workforce / health-system capacity
+- litigation as a candidate determinant
+- conventional association result is null
+- equivalence testing is the key inferential contribution
+- JOCS-CP is exploratory/contextual, not causal
+- hospital counts are treated as service capacity / facility supply, not workforce
+- ecological limitations are acknowledged
+- no-fault compensation is not established as superior by this design
+
+Preserve all of this.
+
+======================================================================
+1. NON-NEGOTIABLES
+======================================================================
+
+DO NOT:
+- add new analyses
+- rerun exploratory model searches
+- change the primary model
+- change any equivalence margin
+- change any numerical result unless a genuine transcription inconsistency is discovered
+- strengthen causal interpretation
+- infer individual physician behavior from specialty-level data
+- re-expand the JOCS-CP policy interpretation
+- introduce new policy recommendations
+- add speculative mechanisms not already supported
+- lengthen the manuscript substantially
+- remove p values
+
+KEEP:
+- effect estimates
+- confidence intervals
+- p values
+- TOST results
+- the current restrained conclusion
+- current Public Health framing
+
+Treat the analysis as FROZEN.
+
+======================================================================
+2. SCIENTIFIC CONTRIBUTION TO MAKE EXPLICIT
+======================================================================
+
+The current manuscript already explains that equivalence testing is more informative than a conventional non-significant result.
+
+However, the paper should more explicitly articulate the SCIENTIFIC CONTRIBUTION:
+
+This study does not merely report "no significant association."
+
+Its contribution is to QUANTITATIVELY NARROW THE PLAUSIBLE MAGNITUDE of the specialty-level litigation–workforce relationship.
+
+The conceptual distinction is:
+
+Conventional null inference:
+    "We did not detect an association."
+
+Current study's stronger but still calibrated inference:
+    "Within the specified equivalence margin and this Japanese specialty-level setting, the data constrain the plausible association to a range that is unlikely to represent a major workforce-planning effect."
+
+This is an EFFECT-SIZE BOUNDING contribution.
+
+The manuscript should also make clear that:
+- this converts a commonly invoked workforce hypothesis into a quantitatively bounded empirical proposition;
+- equivalence-based inference is valuable for workforce-policy questions where the relevant scientific question is whether a candidate determinant is large enough to matter, not merely whether beta differs statistically from zero;
+- this contribution is setting-specific and does NOT imply universal absence of litigation effects;
+- litigation may still affect defensive medicine, perceived risk, physician well-being, case selection, or individual career decisions.
+
+Do NOT use "effect-size pruning" in the manuscript unless it reads completely natural in conventional academic prose.
+Prefer:
+- "narrows the plausible magnitude"
+- "places an empirical bound on the magnitude"
+- "constrains the plausible contribution"
+- "rules out effects beyond a specified policy-relevant range" ONLY where statistically justified.
+
+======================================================================
+3. DISCUSSION — PRIMARY EDIT
+======================================================================
+
+This is the main revision.
+
+Locate the early Discussion section, ideally immediately after the paragraph distinguishing a conventional null result from equivalence inference.
+
+Add or integrate approximately 2 concise sentences with the following meaning:
+
+Suggested sentence 1:
+"More broadly, this analysis narrows the plausible contribution of litigation to specialty-level workforce change: rather than merely failing to detect an association, it places an empirical bound on the magnitude that such an association could reasonably take within this setting."
+
+Suggested sentence 2:
+"This illustrates the value of equivalence-based inference for workforce-policy questions in which ruling out effects of practically important magnitude may be more informative than testing only for statistical departure from zero."
+
+You may edit for journal style and flow.
+
+Requirements:
+- retain "within this setting" or equivalent
+- do not imply universal generalizability
+- do not imply causal identification
+- do not claim zero effect
+- do not claim individual behavior is unaffected
+- do not make the paragraph rhetorically repetitive
+
+Also ensure the Discussion clearly distinguishes:
+A. conventional null association
+B. equivalence within the specified margin
+C. broader interpretation: effect-size bounding for workforce-policy inference
+
+======================================================================
+4. ABSTRACT — REVISE ONLY IF NEEDED
+======================================================================
+
+Review the Abstract after the Discussion edit.
+
+Goal:
+Make sure the Abstract already communicates the same central scientific contribution.
+
+If it already clearly states that:
+- the association was non-significant,
+- equivalence testing bounded the physician effect within ±1% and hospital/service-capacity effect within ±2%,
+- litigation exposure alone is unlikely to explain workforce change of policy-relevant magnitude,
+
+then make only minimal or no changes.
+
+If needed, refine the final 1–2 sentences so that the Abstract conveys:
+- this is not merely a null result,
+- the contribution is quantitative constraint of plausible effect size.
+
+Preferred meaning:
+"Equivalence testing constrained the plausible specialty-level effect of litigation to a range unlikely to be large enough to explain workforce change of practical relevance in Japan."
+
+Do NOT make the Abstract more technical than necessary.
+Do NOT use jargon like "effect-size pruning."
+Do NOT lengthen beyond current journal requirements.
+
+======================================================================
+5. INTRODUCTION — REVISE ONLY IF NEEDED
+======================================================================
+
+Review the final 1–2 paragraphs of the Introduction.
+
+The Introduction should motivate the inferential problem before the Methods:
+- prior studies may ask whether litigation is associated with supply;
+- a conventional non-significant test cannot establish that any plausible effect is small;
+- for workforce planning, the scientifically relevant question is whether the effect could be large enough to matter;
+- equivalence testing addresses this policy-relevant magnitude question.
+
+If this logic is already sufficiently explicit, do NOT rewrite the Introduction unnecessarily.
+
+If needed, add ONE concise sentence near the study objective, such as:
+
+"Accordingly, the relevant policy question is not only whether litigation exposure is associated with workforce change, but whether any such association is large enough to be meaningful for specialty-level planning."
+
+Then keep the existing aims.
+
+Do NOT turn the Introduction into a methods tutorial.
+Do NOT add new literature unless essential.
+
+======================================================================
+6. CONCLUSION — MINIMAL ALIGNMENT
+======================================================================
+
+Review the final Conclusion.
+
+Only if needed, refine it so the final scientific message matches the Discussion:
+
+Preferred meaning:
+"These findings do not merely indicate an absence of statistical association; within the specified equivalence margins, they constrain the plausible specialty-level litigation–workforce relationship to a range unlikely to represent a major determinant of workforce change in Japan."
+
+Calibration:
+- retain "within the specified equivalence margins"
+- retain "in Japan" / "in this setting"
+- avoid "proves"
+- avoid "no effect"
+- avoid causal wording
+- do not imply the same bound applies internationally
+
+If the existing Conclusion already achieves this cleanly, do not force a rewrite.
+
+======================================================================
+7. COVER LETTER — UPDATE TO MATCH THE SCIENTIFIC CONTRIBUTION
+======================================================================
+
+Revise ph_cover_letter.docx only as needed.
+
+The cover letter should clearly state that the manuscript's contribution is NOT simply a null association.
+
+It should communicate, concisely, that:
+- the study uses national Japanese longitudinal data across 12 specialties, 2008–2024;
+- litigation exposure is measured as a rate rather than a raw count;
+- physician observations are based on measured biennial waves;
+- equivalence testing is used to determine whether any association is large enough to matter for workforce planning;
+- the study therefore narrows the plausible magnitude of the litigation–workforce relationship rather than merely failing to reject a null;
+- this is relevant to Public Health because it informs workforce planning and health-system capacity.
+
+Suggested wording for the scientific-contribution sentence:
+
+"Importantly, the contribution is not limited to a non-significant association: equivalence testing places an empirical bound on the plausible magnitude of the litigation–workforce relationship, showing that any specialty-level effect is unlikely to be large enough to account for workforce change of practical relevance in this setting."
+
+Calibrate if necessary to match the exact results.
+
+Do NOT:
+- mention the full rejection history
+- claim Public Health has pre-approved the paper
+- imply the transfer recommendation guarantees review
+- oversell novelty
+- make causal claims
+
+======================================================================
+8. TITLE — DO NOT CHANGE UNLESS REQUIRED FOR CONSISTENCY
+======================================================================
+
+Keep the current title unless a genuine inconsistency exists.
+
+Current preferred title:
+"Malpractice litigation, physician supply and service capacity in Japan, 2008–2024: a national equivalence analysis"
+
+Do not change the title merely to insert "effect-size" language.
+
+======================================================================
+9. METHODS AND RESULTS — NO SUBSTANTIVE CHANGES
+======================================================================
+
+Do not materially change Methods or Results.
+
+Only verify that:
+- equivalence margins are described correctly
+- TOST interpretation is correct
+- 90% CI logic is correct
+- physician ±1% result is accurately described
+- hospital/service-capacity ±2% result is accurately described
+- any non-equivalent margin is not accidentally presented as equivalent
+- p values remain
+- terminology is consistent with the revised Discussion
+
+If a wording change is required only for consistency, keep it minimal.
+
+======================================================================
+10. CLAIM CALIBRATION CHECK
+======================================================================
+
+After edits, search the manuscript and cover letter for:
+
+- no effect
+- proves
+- confirms
+- demonstrates
+- rules out
+- causes
+- drives
+- prevents
+- major determinant
+- irrelevant
+- does not matter
+- should
+
+For each strong statement, verify whether the study supports:
+- descriptive association
+- equivalence within a specified margin
+- policy interpretation
+- causation
+
+Preferred language:
+- "was not associated with"
+- "was statistically equivalent within the specified margin"
+- "narrows the plausible magnitude"
+- "places an empirical bound"
+- "is unlikely to explain change of this magnitude"
+- "within this setting"
+- "in Japan"
+
+======================================================================
+11. CONSISTENCY ACROSS DOCUMENTS
+======================================================================
+
+After the Discussion edit and any corresponding edits, verify consistency across:
+
+- ph_manuscript_en.docx
+- ph_manuscript_en_inline.docx
+- ph_cover_letter.docx
+- ph_title_page.docx
+- ph_tables.docx
+- ph_figure_legends.docx
+- ph_supplementary.docx
+
+The scientific-contribution wording does NOT need to be identical everywhere, but it must be conceptually consistent.
+
+No document should revert to:
+- "litigation has no effect"
+- "physicians flee / do not flee" as an individual-level conclusion
+- "no-fault compensation is superior"
+- causal JOCS-CP interpretation
+
+======================================================================
+12. INTERNAL MICRO-AUDIT
+======================================================================
+
+Create:
+SCIENTIFIC_CONTRIBUTION_ALIGNMENT.md
+
+Keep it concise.
+
+It must contain:
+1. exact Discussion text added/changed
+2. whether Abstract changed, with exact sentence
+3. whether Introduction changed, with exact sentence
+4. whether Conclusion changed, with exact sentence
+5. whether Cover Letter changed, with exact sentence
+6. confirmation that no analysis changed
+7. confirmation that no numerical result changed
+8. confirmation that no causal claim was strengthened
+9. final judgment:
+   - CONTRIBUTION NOW EXPLICIT AND ALIGNED
+   - or NEEDS FURTHER REVISION, with exact reason
+
+======================================================================
+13. FINAL OUTPUTS
+======================================================================
+
+Produce:
+
+1. ph_manuscript_en_v3.docx
+2. ph_manuscript_en_inline_v3.docx
+3. ph_cover_letter_v3.docx
+4. SCIENTIFIC_CONTRIBUTION_ALIGNMENT.md
+5. PUBLIC_HEALTH_submission_FINAL_v3.zip
+
+The ZIP should contain the updated submission files and all unchanged required submission components from v2.
+
+Do not omit title page, tables, figures, supplementary files, declaration of interests, figure legends, or other required submission files.
+
+Also save this prompt as:
+DEVIN_PUBLIC_HEALTH_CONTRIBUTION_ALIGNMENT_PROMPT.txt
+
+======================================================================
+14. FINAL STOP RULE
+======================================================================
+
+This pass should be SMALL.
+
+If the Discussion now explicitly communicates:
+- conventional null ≠ positive evidence of negligible effect,
+- equivalence inference constrains plausible effect size,
+- the plausible specialty-level litigation contribution is bounded to a range unlikely to be large enough for workforce planning in this setting,
+
+then STOP.
+
+Do not continue revising for stylistic perfection.
+Do not add analyses.
+Do not broaden the policy argument.
+
+Final objective:
+make the scientific contribution unmistakable to the editor and reviewer while preserving the current calibrated, submission-ready Public Health manuscript.
