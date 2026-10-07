@@ -1,0 +1,4 @@
+- Litigation rates and workforce supply in 12 Japanese specialties, 2008-2024 (75 chars)
+- Exposure scaled to specialty size; measured biennial census waves only (70 chars)
+- Physician-supply effect bounded within ±1% biennial change (TOST) (65 chars)
+- Equivalence bounds help planners rank candidate workforce determinants (70 chars)

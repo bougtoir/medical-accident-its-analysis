@@ -1,0 +1,502 @@
+# Devin single-VM autonomous sequential revision prompt
+# Target journal: Journal of Health Services Research & Policy (JHSRP)
+# Source package: use the latest completed Public Health submission package (v3/v4, whichever is newest and complete)
+# Goal: reposition and format the completed study for JHSRP without changing the analysis.
+
+Work in ONE VM only, sequentially. Do not parallelize.
+
+1. VERIFY CURRENT JHSRP REQUIREMENTS FIRST
+Check the current official JHSRP/SAGE Aims & Scope and Author Instructions before editing.
+At the time of preparation, quantitative Original Research is expected to require:
+- up to 3,500 words excluding abstract, references, tables and figures
+- up to 30 references
+- up to five figures/tables/boxes total
+- structured abstract: Objectives, Methods, Results, Conclusions
+- abstract up to 300 words
+- observational studies reported according to STROBE
+- attention to SMAPL guidance for statistical reporting
+- British English
+- A4, double spacing, margins >=20 mm, minimum 12-point font
+- separate cover letter and identifying title page
+Reverify all of these live before finalization.
+
+Create JHSRP_REQUIREMENTS_AUDIT.md containing:
+- article type
+- word limit
+- abstract format/limit
+- reference limit
+- figure/table/box limit
+- title-page/blinding requirements
+- supplement rules
+- STROBE requirement
+- AI disclosure requirements
+- funding/conflict/data availability requirements
+- submission-system fields
+
+2. EDITORIAL CONTEXT
+The paper has already been scientifically stabilized.
+Most recent Public Health rejection explicitly suggested considering a health services journal.
+Do not mention the rejection history in the manuscript or cover letter.
+The next version should read unmistakably as:
+HEALTH SERVICES RESEARCH / HEALTH SYSTEMS / WORKFORCE PLANNING.
+
+3. CENTRAL REPOSITIONING
+Reframe from broad public-health positioning to:
+- physician specialty supply as a health-services planning problem
+- hospital/facility counts as service-capacity outcomes
+- litigation exposure as one proposed system-level determinant
+- policy relevance defined by effect magnitude, not merely p<0.05
+- equivalence testing as the key inferential contribution
+
+Preferred identity:
+A health-services workforce determinants paper with an equivalence-inference contribution.
+
+4. ANALYSIS FREEZE
+Do NOT:
+- add analyses
+- search new lags
+- add outcomes
+- change fixed effects
+- change cluster definitions
+- change equivalence margins
+- add subgroup analyses
+- model-shop
+- strengthen JOCS-CP analysis
+- alter numerical results
+
+Allowed:
+- rerun existing code only to verify reported values
+- correct genuine transcription errors
+- regenerate figures/tables for formatting
+
+5. CORE RESULTS TO PRESERVE
+Physician:
+- coefficient about -0.0009
+- 95% CI about -0.0043 to +0.0025
+- p=0.56
+
+Hospital/service capacity:
+- coefficient about +0.0003
+- 95% CI about -0.0050 to +0.0056
+- p=0.90
+
+Equivalence:
+- 1-SD increase in litigation rate
+- physician point estimate about -0.21%
+- physician 90% CI about -0.84% to +0.42%
+- physician equivalence margin +/-1%
+- TOST p=0.023
+- hospital/service-capacity margin +/-2%
+- TOST p=0.002
+
+Central inference:
+The study does not merely fail to detect an association; it quantitatively constrains the plausible magnitude of the specialty-level litigation-workforce relationship.
+
+Preferred language:
+- narrows the plausible magnitude
+- places an empirical bound
+- constrains the plausible contribution
+- unlikely to explain workforce change of a magnitude relevant to planning in this setting
+
+Avoid:
+- proves no effect
+- litigation does not matter
+- physicians do not respond to litigation
+- universal generalization outside Japan
+
+6. JHSRP HOSTILE EDITOR PRE-MORTEM
+Create JHSRP_HOSTILE_EDITOR_REVIEW.md.
+Evaluate:
+- Is this still a malpractice-law paper rather than health services research?
+- Why should an international audience care about Japan-only data?
+- Are transferable implications explicit?
+- Are equivalence margins adequately justified?
+- Does the 12-cluster design limit inference?
+- Are ecological claims overextended?
+- Is hospital count an imperfect service-capacity proxy?
+- Are policy implications too strong?
+- Is the paper >3,500 words?
+- Are there >30 references?
+- Are there >5 figures/tables/boxes?
+- Does JOCS-CP distract from the core contribution?
+- Is international comparison useful rather than decorative?
+- Is “what this study adds” obvious?
+- Can a reader unfamiliar with Japan understand the system context?
+
+Fix all defensible issues without adding analyses.
+
+7. TITLE
+Default title:
+“Malpractice litigation, physician supply and service capacity in Japan, 2008–2024: a national equivalence analysis”
+
+Keep unless a shorter JHSRP title clearly improves precision.
+Do not add rhetorical wording or causal language.
+
+8. ABSTRACT
+Use:
+Objectives
+Methods
+Results
+Conclusions
+
+Stay <= current journal limit, expected 300 words.
+
+Objectives:
+- specialty physician supply/service capacity as health-services planning
+- litigation as proposed determinant
+- aim includes policy-relevant magnitude, not only association
+
+Methods:
+- Japan
+- 12 specialties
+- 2008–2024
+- national administrative data
+- litigation rate per 1,000 physicians
+- measured biennial physician waves
+- specialty and wave fixed effects
+- cluster-robust inference
+- TOST equivalence testing
+
+Results:
+- key effect estimate + 95% CI + p
+- service-capacity result
+- physician +/-1% TOST
+- hospital/service-capacity +/-2% TOST
+
+Conclusions:
+- more than a conventional null
+- equivalence constrains plausible effect magnitude
+- litigation exposure alone is unlikely to account for workforce change large enough to drive planning in this setting
+- no individual-level or causal claims
+
+9. INTRODUCTION
+Keep concise.
+Suggested structure:
+1) specialty workforce/service capacity as health-services problem
+2) litigation as proposed determinant
+3) count-vs-rate and biennial-data inferential problems
+4) why conventional p>0.05 is insufficient
+5) why equivalence is relevant to workforce planning
+6) Japan as a national health-system case with internationally relevant cross-system implications
+7) study aims
+
+Do not turn the Introduction into a malpractice-law review.
+
+10. INTERNATIONAL RELEVANCE
+JHSRP explicitly evaluates international relevance.
+Make the manuscript understandable to readers unfamiliar with Japan.
+
+Add only necessary context:
+- how specialty supply is measured
+- nature of the civil litigation exposure
+- relevant institutional context
+- JOCS-CP only as contextual background
+
+Transferable question:
+“How should health systems evaluate a widely invoked workforce determinant when the relevant decision is whether its effect is large enough to matter operationally?”
+
+Do not imply Japan represents all health systems.
+
+11. METHODS
+Preserve design.
+Clearly state:
+- ecological specialty-level panel
+- 12 specialties
+- 2008–2024
+- data sources
+- litigation rate exposure
+- physician growth primary outcome
+- hospital/facility count as service-capacity proxy
+- measured biennial waves
+- specialty FE + wave FE
+- clustered SE by specialty
+- lag structure
+- TOST
+- outcome-specific equivalence margins
+- rationale for margins
+- JOCS-CP exploratory/contextual
+- sensitivity analyses
+- software
+
+Audit against SMAPL-style reporting:
+- effect size
+- CI
+- p value
+- n
+- estimand clarity
+- no binary significance rhetoric
+
+Do not delete p values.
+
+If “a priori” cannot be verified, use “specified for the present analysis.”
+
+12. RESULTS
+Compress aggressively for JHSRP.
+Prioritize:
+1) descriptive trends
+2) primary physician association
+3) physician equivalence
+4) service-capacity result
+5) essential sensitivities
+6) JOCS-CP in one restrained exploratory sentence
+
+Move nonessential detail to one supplement if needed.
+
+13. DISCUSSION
+Preserve the scientific-contribution paragraph from the latest Public Health version.
+
+Early Discussion should distinguish:
+A) conventional null association
+B) equivalence within specified margins
+C) empirical bounding of plausible effect magnitude
+
+Preserve or refine wording equivalent to:
+“More broadly, this analysis narrows the plausible contribution of litigation to specialty-level workforce change: rather than merely failing to detect an association, it places an empirical bound on the magnitude that such an association could reasonably take within this setting.”
+
+And:
+“This illustrates the value of equivalence-based inference for workforce-policy questions in which ruling out effects of practically important magnitude may be more informative than testing only for statistical departure from zero.”
+
+Then structure:
+- main finding
+- why magnitude matters for health-services planning
+- international literature
+- what the study does NOT address: defensive medicine, well-being, perceived risk, case selection, individual career choice
+- Japan context
+- JOCS-CP exploratory/non-causal
+- health-services policy implications
+- limitations
+- concise conclusion
+
+14. POLICY/PRACTICE IMPLICATIONS
+Use health-services language.
+Good:
+- prioritize determinants according to empirically plausible effect size
+- do not assume routine civil-litigation reduction is a major supply lever in this setting
+- distinguish liability policy from workforce policy
+- evaluate remuneration, workload, training pipelines, geography, organizational structure
+
+Avoid:
+- saying no-fault compensation is superior
+- saying litigation reform is useless
+- causal policy claims
+
+15. HARD WORD LIMIT
+Current expected quantitative limit: 3,500 words excluding abstract, references, tables, figures.
+
+Target 3,350–3,480 words.
+
+If over:
+1) remove repeated framing
+2) compress Japan institutional detail
+3) compress sensitivity prose
+4) compress international literature
+5) move secondary technical details to supplement
+6) shorten limitations without deleting key limitations
+
+Do not remove:
+- key estimates
+- equivalence interpretation
+- ecological limitation
+- 12-cluster limitation
+- equivalence-margin judgment
+- Japan-context limitation
+- international relevance
+- core policy implication
+
+16. REFERENCES — HARD LIMIT
+Current expected limit: 30 references.
+
+Audit all references.
+Do not add JHSRP citations merely for journal fit.
+
+Use citation ecology ethically:
+- add a JHSRP paper only if it substantively supports a specific claim/method/policy comparison
+- remove redundant background references if needed
+- retain primary data sources
+- retain core equivalence-method references
+- retain strongest international comparative literature
+- retain Japan-specific sources required to understand context
+
+Create JHSRP_REFERENCE_AUDIT.md.
+
+17. FIGURES/TABLES/BOXES — MAX FIVE TOTAL
+Current expected main-text maximum: five total.
+
+Prioritize:
+- Table 1 if essential
+- Table 2
+- Figure 1 equivalence plot as the visual centerpiece
+- Figure 2 only if truly necessary
+
+Move secondary figure/table material to supplement if required.
+Do not delete Figure 1.
+
+18. SUPPLEMENT
+Prefer one consolidated online supplement if journal rules allow.
+Include:
+- source details
+- detailed TOST results
+- secondary sensitivity models
+- supplementary figures
+- reproducibility details as appropriate
+
+Do not move essential scientific information out of the main text.
+
+19. STROBE
+Create a completed STROBE checklist with actual page/section references:
+JHSRP_STROBE_CHECKLIST.docx
+
+No blank/generic checklist.
+
+20. COVER LETTER
+Create JHSRP_cover_letter.docx.
+
+The cover letter must establish:
+WHY THIS IS A HEALTH SERVICES PAPER:
+- physician supply and service capacity are health-services planning outcomes
+- litigation is a candidate system-level determinant
+
+WHAT THIS STUDY ADDS:
+- national longitudinal specialty-level evidence
+- rate-based exposure rather than raw counts
+- measured biennial workforce waves
+- equivalence testing
+- empirical bounding of a widely invoked workforce mechanism
+
+WHY JHSRP:
+- direct fit with health services/health systems/policy
+- substantive workforce question plus methodological inference
+- country-specific estimate with internationally transferable research question
+
+Suggested core sentence:
+“The contribution goes beyond a non-significant association. Equivalence testing places an empirical bound on the plausible magnitude of the litigation–workforce relationship, showing that any specialty-level physician-supply association lies within a small, policy-relevant range unlikely to account for workforce change of practical relevance in this setting.”
+
+Do not mention the rejection history.
+Do not mention Public Health’s rejection.
+Do not imply prior endorsement.
+
+21. TITLE PAGE / BLINDING
+Follow current JHSRP requirements exactly.
+Create:
+- JHSRP_title_page.docx
+- JHSRP_manuscript_blinded.docx if required
+
+Do not invent missing ORCID, degrees, phone, email, funding IDs.
+List unresolved metadata in FINAL_HANDOFF_JHSRP.md.
+
+22. AI DISCLOSURE
+Check current SAGE/JHSRP AI policy.
+Adapt the existing transparent disclosure of Cognition Devin use for:
+- analysis coding assistance
+- figure generation
+- manuscript drafting assistance
+with human review and author responsibility.
+
+Do not hide AI use.
+Do not list AI as author.
+
+23. WORD FORMATTING
+Follow current JHSRP requirements.
+Expected:
+- British English
+- A4
+- double spacing
+- >=20 mm margins
+- >=12 pt font
+
+Where permitted:
+- Times New Roman
+- body 12 pt
+- captions/legends 10 pt
+- visible text black
+- no Markdown asterisks
+- no comments/tracked changes
+
+Use native Word OMML for formal mathematical expressions where applicable.
+
+24. OUTPUTS
+Produce at minimum:
+1. JHSRP_main_manuscript.docx
+2. JHSRP_main_manuscript_inline.docx
+3. JHSRP_title_page.docx
+4. JHSRP_cover_letter.docx
+5. JHSRP_tables.docx if required
+6. JHSRP_figure_legends.docx if required
+7. JHSRP_supplement.docx
+8. JHSRP_STROBE_CHECKLIST.docx
+9. declarations/conflict file if required
+10. final figure files
+11. JHSRP_REQUIREMENTS_AUDIT.md
+12. JHSRP_HOSTILE_EDITOR_REVIEW.md
+13. JHSRP_REFERENCE_AUDIT.md
+14. JHSRP_CLAIM_CALIBRATION.md
+15. FINAL_HANDOFF_JHSRP.md
+16. DEVIN_JHSRP_REVISION_PROMPT.txt
+17. JHSRP_SUBMISSION_FINAL.zip
+
+25. FINAL QC
+Check:
+- first paragraph unmistakably reads as health services research
+- physician supply/service capacity is the main problem, not malpractice law
+- international relevance is visible
+- empirical-bounding contribution is explicit
+- no individual-level inference from ecological data
+- no universal zero-effect claim
+- no causal JOCS-CP claim
+- no unsupported no-fault recommendation
+- all numerical values match
+- p values retained
+- TOST interpretation correct
+- <= current 3,500-word limit
+- <= current 30-reference limit
+- <= current five main figure/table/box total
+- structured abstract <= current 300-word limit
+- British English
+- STROBE completed
+- no placeholders
+- no stale Public Health filenames or version labels
+- no tracked changes/comments
+
+26. FINAL HANDOFF
+FINAL_HANDOFF_JHSRP.md must report:
+- final title
+- article type
+- abstract word count
+- main-text word count
+- reference count
+- number of main figures/tables/boxes
+- whether analysis changed (expected NO)
+- whether numerical results changed
+- final main estimates
+- final equivalence interpretation
+- exact international relevance statement
+- exact “what this study adds” statement
+- files in the submission ZIP
+- unresolved manual metadata
+- final status:
+READY FOR JHSRP SUBMISSION
+or
+NOT READY FOR JHSRP SUBMISSION — with exact blockers
+
+27. EXECUTION ORDER
+Phase 1 inspect latest source package
+Phase 2 verify live JHSRP instructions
+Phase 3 requirements audit
+Phase 4 hostile-editor pre-mortem
+Phase 5 analysis freeze/integrity check
+Phase 6 title + abstract
+Phase 7 Introduction repositioning
+Phase 8 Methods compression/SMAPL audit
+Phase 9 Results compression
+Phase 10 Discussion international/health-services alignment
+Phase 11 word/reference/figure hard-limit gate
+Phase 12 citation/reference audit
+Phase 13 STROBE
+Phase 14 cover letter + title page
+Phase 15 DOCX formatting
+Phase 16 consistency/claim audit
+Phase 17 package ZIP
+Phase 18 FINAL_HANDOFF_JHSRP.md
+
+Final objective:
+Turn the completed manuscript into a concise, internationally legible JHSRP Original Research paper whose central contribution is clear: national health-services evidence that quantitatively bounds, rather than merely fails to detect, the specialty-level workforce association with routine malpractice-litigation exposure.

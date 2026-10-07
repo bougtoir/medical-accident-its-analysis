@@ -1,0 +1,30 @@
+{
+  "source": "MHLW 医師・歯科医師・薬剤師統計",
+  "note": "biennial; broad categories matched to Supreme Court litigation specialties; see build_physicians.py header",
+  "files": [
+    {
+      "years": "2000-2018 (used 2004-2018)",
+      "sheet": "参考２",
+      "file": "phys_2018_toukeihyo.xls",
+      "sha256": "f3825733760ecf37b2dce365d34975dd95b64cbac440349e1238ef43a935f419"
+    },
+    {
+      "year": 2020,
+      "sheet": "表４",
+      "file": "phys_2020_hyo.xlsx",
+      "sha256": "5e7f6d95d5b5071d759d14a094e12363773b2ab6e9a49c3d4e824569dff391d6"
+    },
+    {
+      "year": 2022,
+      "sheet": "表４",
+      "file": "phys_2022_hyo.xlsx",
+      "sha256": "37d28b66469d62bf88d2cfd46a11ece83d1e55f0f552df6a5645014dffb147bb"
+    },
+    {
+      "year": 2024,
+      "sheet": "表４",
+      "file": "phys_2024_hyo.xlsx",
+      "sha256": "fa92a8b930b7fdd4ea3c1a5ed9dd1fe6a4ea3e2b695cb7f7781487a815082595"
+    }
+  ]
+}

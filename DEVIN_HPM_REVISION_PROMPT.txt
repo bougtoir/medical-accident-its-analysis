@@ -1,0 +1,505 @@
+# Devin single-VM autonomous sequential revision prompt
+# Target journal: The International Journal of Health Planning and Management (Wiley)
+# Short label: HPM
+# Source package: use the latest complete JHSRP/Public Health manuscript package, prioritising the most recent scientifically final version.
+# Goal: adapt the completed study for HPM as a Research Article, preserving the scientific analysis while strengthening fit with health policy, planning and management.
+
+Work in ONE VM only, sequentially. Do not parallelize.
+
+1. VERIFY CURRENT HPM REQUIREMENTS FIRST
+Before editing, verify the CURRENT official Wiley HPM author guidelines and Aims & Scope.
+As of current guidance, HPM:
+- focuses on health politics, policy making and implementation, health planning and management;
+- explicitly welcomes country- and region-specific studies when they advance understanding of the health sector;
+- is international and multidisciplinary;
+- accepts Research Articles up to 7,000 words, excluding abstract, keywords, highlights, tables, figures and up to 50 references;
+- requires an abstract <=250 words;
+- requires four mandatory Highlights for Research Articles, each <=80 characters including spaces;
+- requires up to seven keywords;
+- expects STROBE for observational research;
+- expects a data-availability statement;
+- requires the submitting author to provide an ORCID iD;
+- current guidance asks the cover letter to indicate the most suitable theme:
+  Theme 1: Health financing and economics
+  Theme 2: Health Management, digital health, and analytics
+  Theme 3: Global health, health planning and interventions
+- current guidance requires an anonymised main document for peer review.
+
+Because Wiley may show legacy pages alongside newer guidance, determine which CURRENT official HPM submission instructions are authoritative and follow the newest ones.
+
+Create HPM_REQUIREMENTS_AUDIT.md containing:
+- article type
+- submission portal
+- abstract limit
+- word limit
+- reference limit
+- highlights requirements
+- keyword limit
+- cover-letter requirements
+- editorial-theme requirement
+- blinded/anonymised manuscript requirement
+- figure/table handling
+- supplement handling
+- STROBE requirement
+- AI disclosure requirement
+- ORCID requirement
+- funding/conflict/data-availability requirements
+
+2. EDITORIAL POSITIONING
+Do not mention prior rejection history in the manuscript or cover letter.
+Position this as:
+HEALTH POLICY / HEALTH PLANNING / HEALTH SYSTEMS / WORKFORCE PLANNING.
+
+The paper should not read primarily as:
+- a medico-legal paper
+- malpractice epidemiology
+- defensive-medicine research
+- a narrow Japan-only descriptive study
+
+3. CENTRAL HPM FRAMING
+Reframe around:
+1) Specialty physician supply and service capacity are planning outcomes.
+2) Health systems face many plausible workforce determinants competing for policy attention.
+3) Malpractice-litigation exposure is one widely invoked determinant.
+4) Planning needs to know not merely whether a coefficient differs from zero, but whether the effect is large enough to matter operationally.
+5) National longitudinal Japanese administrative data allow this proposition to be tested.
+6) Equivalence inference places an empirical bound on the plausible magnitude of the litigation-workforce relationship.
+
+Preferred identity:
+A HEALTH PLANNING / WORKFORCE POLICY PAPER WITH AN EFFECT-MAGNITUDE INFERENCE CONTRIBUTION.
+
+4. ANALYSIS FREEZE
+Treat the analysis as FROZEN.
+Do NOT:
+- add new analyses
+- add subgroups
+- change lags
+- change fixed effects
+- change cluster definitions
+- change equivalence margins
+- add outcomes
+- model-shop
+- alter JOCS-CP specification
+- alter numerical results unless correcting a genuine error
+
+Allowed:
+- rerun existing code to verify values
+- correct genuine transcription errors
+- regenerate tables/figures for formatting
+- verify TOST calculations and all CIs/p values
+
+5. CORE RESULTS TO PRESERVE
+Physician supply:
+- coefficient approximately -0.0009
+- 95% CI approximately -0.0043 to +0.0025
+- p=0.56
+
+Service capacity/hospital:
+- coefficient approximately +0.0003
+- 95% CI approximately -0.0050 to +0.0056
+- p=0.90
+
+Equivalence:
+- 1-SD increase in litigation rate
+- physician point estimate approximately -0.21%
+- physician 90% CI approximately -0.84% to +0.42%
+- physician equivalence margin +/-1%
+- TOST p=0.023
+- service-capacity equivalence margin +/-2%
+- TOST p=0.002
+
+Central inference:
+The study does not merely fail to detect an association; it quantitatively narrows the plausible magnitude of the specialty-level litigation-workforce relationship.
+
+Preferred language:
+- narrows the plausible magnitude
+- places an empirical bound
+- constrains the plausible contribution
+- unlikely to account for workforce change of a magnitude relevant to planning
+
+Avoid:
+- proves no effect
+- litigation does not matter
+- physicians do not respond to litigation
+- universal zero-effect claims
+
+6. HPM HOSTILE EDITOR PRE-MORTEM
+Create HPM_HOSTILE_EDITOR_REVIEW.md and test:
+- Still a malpractice-law paper rather than health planning?
+- Link to planning/management too weak?
+- Too country-specific?
+- Japanese institutional context insufficient?
+- Equivalence margins arbitrary?
+- Ecological claims overextended?
+- Twelve specialty clusters too few?
+- Hospital count imperfect as capacity proxy?
+- Policy implications too strong?
+- JOCS-CP distracts?
+- Says what is not important but not why that matters for planning?
+- International contribution unclear?
+- Wrong editorial theme?
+- Highlights weak or over character limit?
+- Blinding/anonymisation incorrect?
+
+Classify each as resolved / needs micro-edit / major issue and fix defensibly without new analyses.
+
+7. SELECT HPM THEME
+Evaluate all three current themes.
+Likely best fit:
+Theme 3: Global health, health planning and interventions
+But verify against live guidance and manuscript content.
+State the selected theme explicitly in the cover letter.
+Document the rationale in FINAL_HANDOFF_HPM.md.
+
+8. TITLE
+Default:
+“Malpractice litigation, physician supply and service capacity in Japan, 2008–2024: a national equivalence analysis”
+
+Keep unless a shorter HPM title clearly improves precision.
+Create a running title <70 characters.
+
+9. ABSTRACT <=250 WORDS
+Prepare a concise HPM abstract <=250 words.
+If headings are not mandatory, use a clear structured flow.
+
+Include:
+- specialty physician supply/service capacity as health-planning outcomes
+- litigation as proposed determinant
+- focus on whether magnitude is large enough to matter
+- Japan, 12 specialties, 2008–2024
+- national administrative data
+- claims per 1,000 physicians
+- measured biennial physician waves
+- specialty and wave fixed effects
+- cluster-robust inference
+- TOST equivalence testing
+- physician coefficient + 95% CI + p
+- service-capacity result
+- physician +/-1% equivalence
+- service-capacity +/-2% equivalence
+- conclusion that equivalence constrains plausible effect magnitude
+
+No citations in abstract.
+
+10. MANDATORY HIGHLIGHTS
+Create exactly FOUR highlights, each <=80 characters INCLUDING SPACES.
+They must cover:
+- what was studied
+- key methodological distinction
+- main equivalence result
+- planning implication/international relevance
+
+Programmatically count characters and verify <=80.
+
+Output HPM_HIGHLIGHTS.txt and include them where required.
+
+11. INTRODUCTION — PLANNING FIRST
+Structure:
+Paragraph 1: health systems allocate workforce and service capacity; multiple plausible determinants compete for attention.
+Paragraph 2: malpractice pressure as a widely invoked deterrent; distinguish perceived risk/defensive practice from actual system-level supply.
+Paragraph 3: analytic problems—raw counts scale with specialty size; workforce data are biennial; interpolation does not create independent information; p>0.05 does not show practical irrelevance.
+Paragraph 4: planning needs to know whether an effect is large enough to matter; equivalence testing addresses magnitude.
+Paragraph 5: Japan as a national health-system case with longitudinal administrative data and a distinct liability context; state aims.
+
+Do not over-expand medico-legal background.
+
+12. INTERNATIONAL RELEVANCE
+Make the transferable question explicit:
+“How should health systems decide whether a highly salient candidate workforce determinant is actually large enough to matter for planning?”
+
+Do not claim Japan is representative.
+Explain comparative value:
+- national workforce/facility data
+- routine civil litigation exposure
+- institutional differences from tort-heavy systems
+- planning implications
+
+Preferred conceptual line if appropriate:
+“Country-specific estimates can inform international planning when they bound mechanisms that are often assumed, rather than measured, to influence workforce supply.”
+
+13. METHODS
+Preserve design.
+Clearly state:
+- ecological specialty-level panel
+- 12 specialties
+- 2008–2024
+- physician census data
+- hospital/facility service-capacity data
+- litigation rate exposure
+- measured biennial waves
+- specialty FE + wave FE
+- clustered SE
+- lag structure
+- TOST
+- physician +/-1% margin
+- service-capacity +/-2% margin
+- rationale for margins
+- exploratory JOCS-CP term
+- sensitivity analyses
+- software
+- data/code availability
+
+Do NOT delete p values.
+If “pre-specified” or “a priori” cannot be verified, use “specified for the present analysis.”
+
+14. RESULTS
+No aggressive compression is required.
+Use order:
+1) descriptive trends
+2) physician association
+3) physician equivalence
+4) service-capacity association/equivalence
+5) sensitivity analyses
+6) JOCS-CP exploratory result
+7) secondary checks
+
+Avoid repetition.
+Do not describe count-vs-rate comparison as definitive proof of confounding; use “illustrates the distinction” or equivalent.
+
+15. DISCUSSION — PLANNING VALUE
+Preserve the strong contribution paragraph from the latest version.
+Early Discussion must distinguish:
+1) conventional non-significant association
+2) equivalence within specified margins
+3) empirical bounding of plausible effect magnitude
+4) why that matters for planning
+
+Preserve/refine wording equivalent to:
+“More broadly, this analysis narrows the plausible contribution of litigation to specialty-level workforce change: rather than merely failing to detect an association, it places an empirical bound on the magnitude that such an association could reasonably take within this setting.”
+
+And:
+“This illustrates the value of equivalence-based inference for planning questions in which ruling out effects of practically important magnitude may be more informative than testing only for statistical departure from zero.”
+
+Then structure:
+A. main result
+B. planning significance
+C. international evidence
+D. alternative pathways not tested
+E. Japan context
+F. exploratory JOCS-CP
+G. policy/planning implications
+H. limitations
+I. concise conclusion
+
+16. POLICY/PLANNING IMPLICATIONS
+The implication is NOT “litigation reform is useless.”
+The implication IS:
+- health planners should distinguish salient mechanisms from mechanisms large enough to alter supply;
+- routine civil-litigation exposure should not automatically be prioritised as a major specialty-supply lever in this setting;
+- workforce planning should compare candidate determinants by plausible effect size;
+- remuneration, workload, training pipelines, geography and organisational factors remain alternative planning domains requiring direct evidence.
+
+Do not claim no-fault compensation is causally superior.
+Do not overstate JOCS-CP.
+
+17. WORD COUNT / REFERENCES
+Current expected Research Article limit:
+- 7,000 words excluding abstract, keywords, highlights, tables, figures
+- up to 50 references
+
+Do not artificially expand toward the limit.
+Keep the manuscript tight.
+
+Perform citation-ecology audit:
+- add HPM-relevant planning/health-system literature only if directly useful
+- do not add HPM citations cosmetically
+- retain strongest international comparative liability/workforce studies
+- retain official Japanese data-source references
+- retain equivalence-method references
+
+Create HPM_REFERENCE_AUDIT.md.
+
+18. FIGURES/TABLES
+Retain the scientifically useful display set.
+Figure 1 equivalence plot remains the visual centrepiece.
+Check:
+- 90% CI explanation
+- outcome-specific margins
+- service-capacity terminology
+- readability
+- no clipping
+
+Tables must retain:
+- effect estimates
+- 95% CIs
+- p values
+- n
+
+Do not add decorative displays.
+
+19. STROBE
+Reuse/update completed checklist as needed.
+Output HPM_STROBE_CHECKLIST.docx with final page/section references.
+
+20. DATA SHARING / REPRODUCIBILITY
+Create a precise Data Availability Statement consistent with actual licensing.
+Preserve:
+- primary data provenance
+- open analysis code
+- repository information if valid
+- reproducibility statement
+
+If any source has redistribution restrictions, distinguish source availability from redistribution status.
+
+21. COVER LETTER — STRONG, JOURNAL-SPECIFIC
+Create HPM_cover_letter.docx.
+Do NOT reuse the JHSRP letter verbatim.
+
+The letter must:
+- name the selected HPM Theme explicitly
+- open with the health-planning problem, not malpractice
+- explain operational importance
+- state the empirical-bound contribution
+- explain why Japan-specific evidence informs international planning
+- emphasise theory-practice balance
+- avoid rejection history
+
+Suggested central sentence:
+“The contribution goes beyond a non-significant association: equivalence testing places an empirical bound on the plausible magnitude of the litigation–workforce relationship, showing that any specialty-level physician-supply association lies within a small, policy-relevant range unlikely to account for workforce change of practical relevance in this setting.”
+
+Use a warm, energetic, editor-facing tone without hype.
+
+22. ANONYMISATION / TITLE PAGE
+Follow CURRENT HPM blinding requirements exactly.
+If anonymised main document is required:
+- remove author names
+- remove affiliations
+- remove acknowledgements
+- neutralise self-citations where needed
+- scrub file metadata
+- ensure figures/tables do not reveal identity
+- place identifying information in title-page file only
+
+Create:
+- HPM_main_manuscript_blinded.docx
+- HPM_title_page.docx
+
+23. AUTHOR DETAILS
+Use established source details:
+Onishi Tatsuki
+Data Science and AI Innovation Research Promotion Center, Shiga University
+ORCID: 0000-0001-7261-9062
+
+Do not invent missing telephone or metadata.
+Flag unresolved required fields in FINAL_HANDOFF_HPM.md.
+
+24. AI DISCLOSURE
+Check current Wiley AI policy.
+Preserve transparent disclosure of Cognition Devin assistance with:
+- analysis-code support
+- figure generation
+- manuscript drafting
+with human review and author responsibility.
+
+Do not list AI as author.
+
+25. DOCX FORMATTING
+Follow current HPM rules.
+Where compatible:
+- Times New Roman
+- body 12 pt
+- captions/legends 10 pt
+- black visible text
+- no Markdown asterisks
+- no tracked changes/comments
+- clean styles
+- OMML for formal equations
+
+Use British spelling unless current journal guidance clearly permits otherwise and consistency is better served.
+
+26. OUTPUTS
+Produce at minimum:
+1. HPM_main_manuscript_blinded.docx
+2. HPM_main_manuscript_inline.docx
+3. HPM_title_page.docx
+4. HPM_cover_letter.docx
+5. HPM_HIGHLIGHTS.txt
+6. HPM_tables.docx if separate tables are needed
+7. HPM_figure_legends.docx if separate legends are needed
+8. HPM_supplement.docx
+9. HPM_STROBE_CHECKLIST.docx
+10. declaration/conflict file if required
+11. final figure files
+12. HPM_REQUIREMENTS_AUDIT.md
+13. HPM_HOSTILE_EDITOR_REVIEW.md
+14. HPM_REFERENCE_AUDIT.md
+15. HPM_CLAIM_CALIBRATION.md
+16. FINAL_HANDOFF_HPM.md
+17. DEVIN_HPM_REVISION_PROMPT.txt
+18. HPM_SUBMISSION_FINAL.zip
+
+27. FINAL QC
+Verify:
+- first paragraph unmistakably reads as health planning/policy research
+- physician supply/service capacity is the main problem
+- litigation is a candidate determinant, not the disciplinary identity
+- international relevance is explicit
+- empirical-bound contribution is explicit
+- no individual-level inference from ecological data
+- no universal zero-effect claim
+- no causal JOCS-CP claim
+- no unsupported no-fault superiority claim
+- all numbers match source analyses
+- p values retained
+- TOST interpretation correct
+- Research Article <= current 7,000-word limit
+- references <= current 50-reference limit
+- abstract <= current 250-word limit
+- exactly 4 highlights, each <=80 characters
+- <=7 keywords
+- correct Theme named in cover letter
+- ORCID included as required
+- STROBE complete
+- data availability statement present
+- anonymisation requirements satisfied
+- no placeholders
+- no stale JHSRP/Public Health filenames/text
+
+28. FINAL HANDOFF
+FINAL_HANDOFF_HPM.md must report:
+- final title
+- running title
+- article type
+- selected HPM theme and rationale
+- abstract word count
+- main-text word count
+- reference count
+- four highlights with character counts
+- keyword count
+- whether analysis changed: expected NO
+- whether numerical results changed
+- final key estimates
+- final equivalence interpretation
+- exact planning-relevance statement
+- exact international-relevance statement
+- exact “what this study adds” statement
+- files included in final ZIP
+- unresolved manual metadata
+- final status:
+READY FOR HPM SUBMISSION
+or
+NOT READY FOR HPM SUBMISSION — with exact blockers
+
+29. EXECUTION ORDER
+Phase 1 inspect latest source package
+Phase 2 verify live HPM instructions
+Phase 3 requirements audit
+Phase 4 hostile-editor pre-mortem
+Phase 5 freeze/integrity check
+Phase 6 theme selection
+Phase 7 title/running title/abstract
+Phase 8 highlights
+Phase 9 Introduction planning repositioning
+Phase 10 Methods precision check
+Phase 11 Results alignment
+Phase 12 Discussion/international-planning alignment
+Phase 13 reference/citation ecology audit
+Phase 14 STROBE/data-sharing/AI disclosure
+Phase 15 cover letter/title page/anonymisation
+Phase 16 DOCX formatting
+Phase 17 full claim/number consistency audit
+Phase 18 package final ZIP
+Phase 19 FINAL_HANDOFF_HPM.md
+
+Final objective:
+Turn the scientifically complete manuscript into a strong HPM Research Article whose central contribution is clear: national health-system evidence that quantitatively bounds, rather than merely fails to detect, the specialty-level workforce association with routine malpractice-litigation exposure, and shows why effect magnitude matters for workforce planning and policy prioritisation.
